@@ -21,6 +21,8 @@ public class EnemyAI : MonoBehaviour
     private bool loggedMissingStatsSpeedWarning = false;
 
     private int enemyLevel;
+    public int EnemyLevel => enemyLevel;
+    public Element WeaponMainElement => equippedWeapon != null ? equippedWeapon.BaseElement : Element.Phys;
 
     [Header("Equipment")]
     [SerializeField] private Gear equippedWeapon;                   //private gear field for the enemy's equipped weapon
@@ -60,6 +62,8 @@ public class EnemyAI : MonoBehaviour
         CurrentRarity = RollEnemyRarity();      //set current rarity by calling rollenemyrarity
 
         GenerateGearForEnemy(enemyLevel);       //call generate gear for enemy using the enemy's level
+
+        Debug.Log($"EnemyAI: Initialized enemy '{name}' level={enemyLevel}, rarity={CurrentRarity}, weaponElement={WeaponMainElement}", this);
     }
 
     private void InitRarityWeights()        //initialize rairty weights by clearing the list, adding the raritys and their weights to the dictionary then for each pair in the list, add that to the total weight.

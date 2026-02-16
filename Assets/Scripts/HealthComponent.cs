@@ -37,14 +37,26 @@ public class HealthComponent : MonoBehaviour
 
         if (isEnemy)
         {
+            Debug.Log($"HealthComponent: Enemy died. name={name}, isBoss={isBoss}", this);
             GameManager.Instance.OnEnemyKilled(this, isBoss);
         }
         else
         {
+            Debug.Log($"HealthComponent: Player died. name={name}", this);
             GameManager.Instance.OnPlayerKilled(this);
         }
 
         // TODO: play death anim / vfx
-        Destroy(gameObject, 0.5f);
+        if (isEnemy)
+        {
+            Destroy(gameObject, 0.5f);
+        }
+    }
+
+    public void ReviveToFullLife()
+    {
+        isDead = false;
+        CurrentLife = maxLife;
+        Debug.Log($"HealthComponent: ReviveToFullLife called for {name}. CurrentLife={CurrentLife}", this);
     }
 }

@@ -24,7 +24,8 @@ public class ZoneManager : MonoBehaviour
 
     public int GetEnemiesToKillBeforeBoss(int zoneLevel)
     {
-        return zoneLevel;
+        Debug.Log($"ZoneManager: GetEnemiesToKillBeforeBoss(zoneLevel={zoneLevel}) -> 10");
+        return 10;
     }
 
     public void GenerateZone()

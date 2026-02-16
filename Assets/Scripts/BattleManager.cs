@@ -6,6 +6,7 @@ public class BattleManager : MonoBehaviour
 
     [Header("References")]
     [SerializeField] private GameObject player;
+    [SerializeField] private Transform playerSpawnPoint;
 
     [Header("Enemy Prefabs & Spawn")]
     [SerializeField] private GameObject normalEnemyPrefab;
@@ -24,6 +25,7 @@ public class BattleManager : MonoBehaviour
     private HealthComponent playerHealth;
 
     private EnemyAI enemyAI;
+    public EnemyAI CurrentEnemyAI => enemyAI;
     private StatusController enemyStatusCont;
     private StatsComponent enemyStats;
     private HealthComponent enemyHealth;
@@ -67,6 +69,8 @@ public class BattleManager : MonoBehaviour
         {
             Debug.LogError("BattleManager: Player is missing required components.", player);
         }
+
+        Debug.Log($"BattleManager: Start refs -> player={player.name}, playerSpawnPoint={(playerSpawnPoint != null ? playerSpawnPoint.name : "null")}, enemySpawnPoint={(enemySpawnPoint != null ? enemySpawnPoint.name : "null")}");
     }
 
     /// <summary>
@@ -227,11 +231,39 @@ public class BattleManager : MonoBehaviour
 
         ApplyOnHitEffects(ctx, enemyStats, playerStatusCont);       //call apply on hit effects, passing in context, player stats, and enemy status controller
 
-        if (playerHealth.CurrentLife <= 0f)     //if player health is less than or equal to 0, call OnPlayerKilled from game manager, passing in the player health component
+    }
+
+    public void RespawnPlayerAtLevelStart()
+    {
+        if (player == null)
         {
-            Debug.Log("BattleManager: Player died. Notifying GameManager.");
-            GameManager.Instance.OnPlayerKilled(playerHealth);
+            Debug.LogError("BattleManager: Player reference not set for respawn.");
+            return;
         }
+
+        if (playerSpawnPoint != null)
+        {
+            player.transform.position = playerSpawnPoint.position;
+            player.transform.rotation = playerSpawnPoint.rotation;
+            Debug.Log($"BattleManager: Player moved to spawn point {playerSpawnPoint.position}.");
+        }
+        else
+        {
+            Debug.LogWarning("BattleManager: playerSpawnPoint is null; player position unchanged during respawn.");
+        }
+
+        if (playerHealth != null)
+        {
+            playerHealth.ReviveToFullLife();
+            Debug.Log($"BattleManager: Player revived to full life ({playerHealth.CurrentLife}).");
+        }
+        else
+        {
+            Debug.LogWarning("BattleManager: playerHealth is null; cannot revive player.");
+        }
+
+        Debug.Log("BattleManager: Spawning new normal enemy for restarted level.");
+        SpawnNextEnemy(spawnBoss: false);
     }
 
     /// <summary>
