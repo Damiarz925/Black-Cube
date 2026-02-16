@@ -1,0 +1,2521 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0ad3ea9fe88bc6d4fabe5ba1960759b9, type: 3}
+  m_Name: ModDatabase
+  m_EditorClassIdentifier: Assembly-CSharp::ModDatabase
+  allAffixes:
+  - statType: 0
+    displayName: Weapon Damage
+    allowedSlots: 07000000
+    groups: []
+    tiers:
+    - tierIndex: 1
+      minValue: 26
+      maxValue: 54
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 51
+      maxValue: 106
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 101
+      maxValue: 209
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 198
+      maxValue: 412
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 390
+      maxValue: 810
+      minItemLevel: 75
+      weight: 5
+    tierTopMultiplier: 15
+    tierSpread: 0.35
+  - statType: 1
+    displayName: Weapon Attack Speed
+    allowedSlots: 07000000
+    groups: []
+    tiers:
+    - tierIndex: 1
+      minValue: 5
+      maxValue: 11
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 8
+      maxValue: 17
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 13
+      maxValue: 26
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 20
+      maxValue: 41
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 31
+      maxValue: 65
+      minItemLevel: 75
+      weight: 5
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 2
+    displayName: Weapon Critical Strike Chance
+    allowedSlots: 07000000
+    groups: []
+    tiers:
+    - tierIndex: 1
+      minValue: 3
+      maxValue: 5
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 4
+      maxValue: 8
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 6
+      maxValue: 13
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 10
+      maxValue: 21
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 16
+      maxValue: 32
+      minItemLevel: 75
+      weight: 5
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 3
+    displayName: Chance to Block
+    allowedSlots: 0200000006000000
+    groups: []
+    tiers:
+    - tierIndex: 1
+      minValue: 5
+      maxValue: 10
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 7
+      maxValue: 15
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 11
+      maxValue: 23
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 16
+      maxValue: 34
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 24
+      maxValue: 51
+      minItemLevel: 75
+      weight: 5
+    tierTopMultiplier: 5
+    tierSpread: 0.35
+  - statType: 4
+    displayName: Added Flat Physical Damage
+    allowedSlots: 07000000
+    groups: []
+    tiers:
+    - tierIndex: 1
+      minValue: 5
+      maxValue: 11
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 10
+      maxValue: 21
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 20
+      maxValue: 42
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 40
+      maxValue: 82
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 78
+      maxValue: 162
+      minItemLevel: 75
+      weight: 5
+    tierTopMultiplier: 15
+    tierSpread: 0.35
+  - statType: 5
+    displayName: Added Flat Cold Damage
+    allowedSlots: 07000000
+    groups: []
+    tiers:
+    - tierIndex: 1
+      minValue: 5
+      maxValue: 11
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 10
+      maxValue: 21
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 20
+      maxValue: 42
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 40
+      maxValue: 82
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 78
+      maxValue: 162
+      minItemLevel: 75
+      weight: 5
+    tierTopMultiplier: 15
+    tierSpread: 0.35
+  - statType: 6
+    displayName: Added Flat Lightning Damage
+    allowedSlots: 07000000
+    groups: []
+    tiers:
+    - tierIndex: 1
+      minValue: 5
+      maxValue: 11
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 10
+      maxValue: 21
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 20
+      maxValue: 42
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 40
+      maxValue: 82
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 78
+      maxValue: 162
+      minItemLevel: 75
+      weight: 5
+    tierTopMultiplier: 15
+    tierSpread: 0.35
+  - statType: 7
+    displayName: Added Flat Fire Damage
+    allowedSlots: 07000000
+    groups: []
+    tiers:
+    - tierIndex: 1
+      minValue: 5
+      maxValue: 11
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 10
+      maxValue: 21
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 20
+      maxValue: 42
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 40
+      maxValue: 82
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 78
+      maxValue: 162
+      minItemLevel: 75
+      weight: 5
+    tierTopMultiplier: 15
+    tierSpread: 0.35
+  - statType: 8
+    displayName: Increased Damage
+    allowedSlots: 03000000000000000200000004000000050000000100000007000000
+    groups: []
+    tiers:
+    - tierIndex: 1
+      minValue: 7
+      maxValue: 14
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 11
+      maxValue: 24
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 19
+      maxValue: 40
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 32
+      maxValue: 67
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 55
+      maxValue: 113
+      minItemLevel: 75
+      weight: 5
+    tierTopMultiplier: 8
+    tierSpread: 0.35
+  - statType: 9
+    displayName: More Damage
+    allowedSlots: 03000000000000000200000004000000050000000100000007000000
+    groups: []
+    tiers:
+    - tierIndex: 1
+      minValue: 3
+      maxValue: 7
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 5
+      maxValue: 11
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 8
+      maxValue: 17
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 12
+      maxValue: 26
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 20
+      maxValue: 40
+      minItemLevel: 75
+      weight: 5
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 10
+    displayName: Damage Over Time Multiplier
+    allowedSlots: 03000000000000000200000004000000050000000100000007000000
+    groups: []
+    tiers:
+    - tierIndex: 1
+      minValue: 3
+      maxValue: 7
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 5
+      maxValue: 11
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 8
+      maxValue: 17
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 12
+      maxValue: 26
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 20
+      maxValue: 40
+      minItemLevel: 75
+      weight: 5
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 11
+    displayName: Critical Strike Chance
+    allowedSlots: 030000000000000004000000050000000100000007000000
+    groups: []
+    tiers:
+    - tierIndex: 1
+      minValue: 7
+      maxValue: 14
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 11
+      maxValue: 24
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 19
+      maxValue: 40
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 32
+      maxValue: 67
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 55
+      maxValue: 113
+      minItemLevel: 75
+      weight: 5
+    tierTopMultiplier: 8
+    tierSpread: 0.35
+  - statType: 12
+    displayName: Critical Strike Multiplier
+    allowedSlots: 030000000100000007000000
+    groups: []
+    tiers:
+    - tierIndex: 1
+      minValue: 3
+      maxValue: 7
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 5
+      maxValue: 11
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 8
+      maxValue: 17
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 12
+      maxValue: 26
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 20
+      maxValue: 40
+      minItemLevel: 75
+      weight: 5
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 13
+    displayName: Addeed Base Critical Strike Chance
+    allowedSlots: 030000000100000007000000
+    groups: []
+    tiers:
+    - tierIndex: 1
+      minValue: 1
+      maxValue: 3
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 2
+      maxValue: 4
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 2
+      maxValue: 5
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 3
+      maxValue: 6
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 4
+      maxValue: 8
+      minItemLevel: 75
+      weight: 5
+    tierTopMultiplier: 3
+    tierSpread: 0.35
+  - statType: 14
+    displayName: Increased Physical Damage
+    allowedSlots: 03000000000000000100000007000000
+    groups: []
+    tiers:
+    - tierIndex: 1
+      minValue: 7
+      maxValue: 14
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 11
+      maxValue: 24
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 19
+      maxValue: 40
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 32
+      maxValue: 67
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 55
+      maxValue: 113
+      minItemLevel: 75
+      weight: 5
+    tierTopMultiplier: 8
+    tierSpread: 0.35
+  - statType: 15
+    displayName: Increased Cold Damage
+    allowedSlots: 0300000004000000050000000100000007000000
+    groups: []
+    tiers:
+    - tierIndex: 1
+      minValue: 7
+      maxValue: 14
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 11
+      maxValue: 24
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 19
+      maxValue: 40
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 32
+      maxValue: 67
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 55
+      maxValue: 113
+      minItemLevel: 75
+      weight: 5
+    tierTopMultiplier: 8
+    tierSpread: 0.35
+  - statType: 16
+    displayName: Increased Lightning Damage
+    allowedSlots: 04000000050000000100000007000000
+    groups: []
+    tiers:
+    - tierIndex: 1
+      minValue: 7
+      maxValue: 14
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 11
+      maxValue: 24
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 19
+      maxValue: 40
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 32
+      maxValue: 67
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 55
+      maxValue: 113
+      minItemLevel: 75
+      weight: 5
+    tierTopMultiplier: 8
+    tierSpread: 0.35
+  - statType: 17
+    displayName: Increased Fire Damage
+    allowedSlots: 00000000050000000100000007000000
+    groups: []
+    tiers:
+    - tierIndex: 1
+      minValue: 7
+      maxValue: 14
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 11
+      maxValue: 24
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 19
+      maxValue: 40
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 32
+      maxValue: 67
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 55
+      maxValue: 113
+      minItemLevel: 75
+      weight: 5
+    tierTopMultiplier: 8
+    tierSpread: 0.35
+  - statType: 18
+    displayName: More Physical Damage
+    allowedSlots: 03000000000000000100000007000000
+    groups: []
+    tiers:
+    - tierIndex: 1
+      minValue: 3
+      maxValue: 7
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 5
+      maxValue: 11
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 8
+      maxValue: 17
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 12
+      maxValue: 26
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 20
+      maxValue: 40
+      minItemLevel: 75
+      weight: 5
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 19
+    displayName: More Cold Damage
+    allowedSlots: 0300000004000000050000000100000007000000
+    groups: []
+    tiers:
+    - tierIndex: 1
+      minValue: 3
+      maxValue: 7
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 5
+      maxValue: 11
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 8
+      maxValue: 17
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 12
+      maxValue: 26
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 20
+      maxValue: 40
+      minItemLevel: 75
+      weight: 5
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 20
+    displayName: More Lightning Damage
+    allowedSlots: 04000000050000000100000007000000
+    groups: []
+    tiers:
+    - tierIndex: 1
+      minValue: 3
+      maxValue: 7
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 5
+      maxValue: 11
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 8
+      maxValue: 17
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 12
+      maxValue: 26
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 20
+      maxValue: 40
+      minItemLevel: 75
+      weight: 5
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 21
+    displayName: More Fire Damage
+    allowedSlots: 00000000050000000100000007000000
+    groups: []
+    tiers:
+    - tierIndex: 1
+      minValue: 3
+      maxValue: 7
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 5
+      maxValue: 11
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 8
+      maxValue: 17
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 12
+      maxValue: 26
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 20
+      maxValue: 40
+      minItemLevel: 75
+      weight: 5
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 22
+    displayName: Physical Penetration
+    allowedSlots: 03000000000000000100000007000000
+    groups: []
+    tiers:
+    - tierIndex: 1
+      minValue: 3
+      maxValue: 5
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 4
+      maxValue: 8
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 6
+      maxValue: 12
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 9
+      maxValue: 18
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 13
+      maxValue: 27
+      minItemLevel: 75
+      weight: 5
+    tierTopMultiplier: 5
+    tierSpread: 0.35
+  - statType: 23
+    displayName: Cold Penetration
+    allowedSlots: 0300000004000000050000000100000007000000
+    groups: []
+    tiers:
+    - tierIndex: 1
+      minValue: 3
+      maxValue: 5
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 4
+      maxValue: 8
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 6
+      maxValue: 12
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 9
+      maxValue: 18
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 13
+      maxValue: 27
+      minItemLevel: 75
+      weight: 5
+    tierTopMultiplier: 5
+    tierSpread: 0.35
+  - statType: 24
+    displayName: 
+    allowedSlots: 04000000050000000100000007000000
+    groups: []
+    tiers:
+    - tierIndex: 1
+      minValue: 2
+      maxValue: 5
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 4
+      maxValue: 7
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 6
+      maxValue: 12
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 9
+      maxValue: 18
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 14
+      maxValue: 28
+      minItemLevel: 75
+      weight: 5
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 25
+    displayName: Fire Penetration
+    allowedSlots: 00000000050000000100000007000000
+    groups: []
+    tiers:
+    - tierIndex: 1
+      minValue: 3
+      maxValue: 5
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 4
+      maxValue: 8
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 6
+      maxValue: 12
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 9
+      maxValue: 18
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 13
+      maxValue: 27
+      minItemLevel: 75
+      weight: 5
+    tierTopMultiplier: 5
+    tierSpread: 0.35
+  - statType: 26
+    displayName: Poison Damage
+    allowedSlots: 03000000040000000100000007000000
+    groups: []
+    tiers:
+    - tierIndex: 1
+      minValue: 7
+      maxValue: 14
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 11
+      maxValue: 24
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 19
+      maxValue: 40
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 32
+      maxValue: 67
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 55
+      maxValue: 113
+      minItemLevel: 75
+      weight: 5
+    tierTopMultiplier: 8
+    tierSpread: 0.35
+  - statType: 27
+    displayName: Increased Ignite Damage
+    allowedSlots: 000000000100000007000000
+    groups: []
+    tiers:
+    - tierIndex: 1
+      minValue: 7
+      maxValue: 14
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 11
+      maxValue: 24
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 19
+      maxValue: 40
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 32
+      maxValue: 67
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 55
+      maxValue: 113
+      minItemLevel: 75
+      weight: 5
+    tierTopMultiplier: 8
+    tierSpread: 0.35
+  - statType: 28
+    displayName: Increased Bleed Damage
+    allowedSlots: 03000000000000000100000007000000
+    groups: []
+    tiers:
+    - tierIndex: 1
+      minValue: 7
+      maxValue: 14
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 11
+      maxValue: 24
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 19
+      maxValue: 40
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 32
+      maxValue: 67
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 55
+      maxValue: 113
+      minItemLevel: 75
+      weight: 5
+    tierTopMultiplier: 8
+    tierSpread: 0.35
+  - statType: 29
+    displayName: More Poison Damage
+    allowedSlots: 03000000040000000100000007000000
+    groups: []
+    tiers:
+    - tierIndex: 1
+      minValue: 3
+      maxValue: 7
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 5
+      maxValue: 11
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 8
+      maxValue: 17
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 12
+      maxValue: 26
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 20
+      maxValue: 40
+      minItemLevel: 75
+      weight: 5
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 30
+    displayName: More Ignite Damage
+    allowedSlots: 000000000100000007000000
+    groups: []
+    tiers:
+    - tierIndex: 1
+      minValue: 3
+      maxValue: 7
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 5
+      maxValue: 11
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 8
+      maxValue: 17
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 12
+      maxValue: 26
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 20
+      maxValue: 40
+      minItemLevel: 75
+      weight: 5
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 31
+    displayName: More Bleed Damage
+    allowedSlots: 03000000000000000100000007000000
+    groups: []
+    tiers:
+    - tierIndex: 1
+      minValue: 3
+      maxValue: 7
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 5
+      maxValue: 11
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 8
+      maxValue: 17
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 12
+      maxValue: 26
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 20
+      maxValue: 40
+      minItemLevel: 75
+      weight: 5
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 32
+    displayName: Chance to Poison
+    allowedSlots: 03000000040000000100000007000000
+    groups: []
+    tiers:
+    - tierIndex: 1
+      minValue: 14
+      maxValue: 28
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 21
+      maxValue: 44
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 33
+      maxValue: 69
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 52
+      maxValue: 109
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 82
+      maxValue: 170
+      minItemLevel: 75
+      weight: 5
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 33
+    displayName: Chance to Ignite
+    allowedSlots: 000000000100000007000000
+    groups: []
+    tiers:
+    - tierIndex: 1
+      minValue: 14
+      maxValue: 28
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 21
+      maxValue: 44
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 33
+      maxValue: 69
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 52
+      maxValue: 109
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 82
+      maxValue: 170
+      minItemLevel: 75
+      weight: 5
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 34
+    displayName: Chance to Bleed
+    allowedSlots: 03000000000000000100000007000000
+    groups: []
+    tiers:
+    - tierIndex: 1
+      minValue: 14
+      maxValue: 28
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 21
+      maxValue: 44
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 33
+      maxValue: 69
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 52
+      maxValue: 109
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 82
+      maxValue: 170
+      minItemLevel: 75
+      weight: 5
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 35
+    displayName: Poison Speed
+    allowedSlots: 03000000040000000100000007000000
+    groups: []
+    tiers:
+    - tierIndex: 1
+      minValue: 1
+      maxValue: 1
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 1
+      maxValue: 2
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 1
+      maxValue: 3
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 2
+      maxValue: 5
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 3
+      maxValue: 7
+      minItemLevel: 75
+      weight: 5
+    tierTopMultiplier: 5
+    tierSpread: 0.35
+  - statType: 36
+    displayName: Ignite Speed
+    allowedSlots: 000000000100000007000000
+    groups: []
+    tiers:
+    - tierIndex: 1
+      minValue: 1
+      maxValue: 1
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 1
+      maxValue: 2
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 1
+      maxValue: 3
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 2
+      maxValue: 5
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 3
+      maxValue: 7
+      minItemLevel: 75
+      weight: 5
+    tierTopMultiplier: 5
+    tierSpread: 0.35
+  - statType: 37
+    displayName: Bleed Speed
+    allowedSlots: 03000000000000000100000007000000
+    groups: []
+    tiers:
+    - tierIndex: 1
+      minValue: 1
+      maxValue: 1
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 1
+      maxValue: 2
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 1
+      maxValue: 3
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 2
+      maxValue: 5
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 3
+      maxValue: 7
+      minItemLevel: 75
+      weight: 5
+    tierTopMultiplier: 5
+    tierSpread: 0.35
+  - statType: 38
+    displayName: Poison Duration
+    allowedSlots: 03000000040000000100000007000000
+    groups: []
+    tiers:
+    - tierIndex: 1
+      minValue: 1
+      maxValue: 1
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 1
+      maxValue: 2
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 1
+      maxValue: 3
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 2
+      maxValue: 5
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 3
+      maxValue: 7
+      minItemLevel: 75
+      weight: 5
+    tierTopMultiplier: 5
+    tierSpread: 0.35
+  - statType: 39
+    displayName: Ignite Duration
+    allowedSlots: 000000000100000007000000
+    groups: []
+    tiers:
+    - tierIndex: 1
+      minValue: 1
+      maxValue: 1
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 1
+      maxValue: 2
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 1
+      maxValue: 3
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 2
+      maxValue: 5
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 3
+      maxValue: 7
+      minItemLevel: 75
+      weight: 5
+    tierTopMultiplier: 5
+    tierSpread: 0.35
+  - statType: 40
+    displayName: Bleed Duration
+    allowedSlots: 03000000000000000100000007000000
+    groups: []
+    tiers:
+    - tierIndex: 1
+      minValue: 1
+      maxValue: 1
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 1
+      maxValue: 2
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 1
+      maxValue: 3
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 2
+      maxValue: 5
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 3
+      maxValue: 7
+      minItemLevel: 75
+      weight: 5
+    tierTopMultiplier: 5
+    tierSpread: 0.35
+  - statType: 41
+    displayName: Poison Penetration
+    allowedSlots: 03000000040000000100000007000000
+    groups: []
+    tiers:
+    - tierIndex: 1
+      minValue: 3
+      maxValue: 7
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 5
+      maxValue: 10
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 6
+      maxValue: 13
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 9
+      maxValue: 19
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 13
+      maxValue: 27
+      minItemLevel: 75
+      weight: 5
+    tierTopMultiplier: 4
+    tierSpread: 0.35
+  - statType: 42
+    displayName: Ignite Penetration
+    allowedSlots: 000000000100000007000000
+    groups: []
+    tiers:
+    - tierIndex: 1
+      minValue: 3
+      maxValue: 7
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 5
+      maxValue: 10
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 6
+      maxValue: 13
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 9
+      maxValue: 19
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 13
+      maxValue: 27
+      minItemLevel: 75
+      weight: 5
+    tierTopMultiplier: 4
+    tierSpread: 0.35
+  - statType: 43
+    displayName: Bleed Penetration
+    allowedSlots: 03000000000000000100000007000000
+    groups: []
+    tiers:
+    - tierIndex: 1
+      minValue: 3
+      maxValue: 7
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 5
+      maxValue: 10
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 6
+      maxValue: 13
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 9
+      maxValue: 19
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 13
+      maxValue: 27
+      minItemLevel: 75
+      weight: 5
+    tierTopMultiplier: 4
+    tierSpread: 0.35
+  - statType: 44
+    displayName: Chance To Shock
+    allowedSlots: 0400000005000000
+    groups: []
+    tiers:
+    - tierIndex: 1
+      minValue: 7
+      maxValue: 14
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 10
+      maxValue: 20
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 14
+      maxValue: 28
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 19
+      maxValue: 40
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 27
+      maxValue: 57
+      minItemLevel: 75
+      weight: 5
+    tierTopMultiplier: 4
+    tierSpread: 0.35
+  - statType: 45
+    displayName: Chance To Chill
+    allowedSlots: 0400000005000000
+    groups: []
+    tiers:
+    - tierIndex: 1
+      minValue: 7
+      maxValue: 14
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 10
+      maxValue: 20
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 14
+      maxValue: 28
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 19
+      maxValue: 40
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 27
+      maxValue: 57
+      minItemLevel: 75
+      weight: 5
+    tierTopMultiplier: 4
+    tierSpread: 0.35
+  - statType: 46
+    displayName: Shock Effect
+    allowedSlots: 0400000005000000
+    groups: []
+    tiers:
+    - tierIndex: 1
+      minValue: 3
+      maxValue: 7
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 5
+      maxValue: 10
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 6
+      maxValue: 13
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 9
+      maxValue: 19
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 13
+      maxValue: 27
+      minItemLevel: 75
+      weight: 5
+    tierTopMultiplier: 4
+    tierSpread: 0.35
+  - statType: 47
+    displayName: Chill Effect
+    allowedSlots: 0400000005000000
+    groups: []
+    tiers:
+    - tierIndex: 1
+      minValue: 3
+      maxValue: 7
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 5
+      maxValue: 10
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 6
+      maxValue: 13
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 9
+      maxValue: 19
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 13
+      maxValue: 27
+      minItemLevel: 75
+      weight: 5
+    tierTopMultiplier: 4
+    tierSpread: 0.35
+  - statType: 48
+    displayName: Shock Duration
+    allowedSlots: 0400000005000000
+    groups: []
+    tiers:
+    - tierIndex: 1
+      minValue: 1
+      maxValue: 1
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 1
+      maxValue: 2
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 1
+      maxValue: 3
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 2
+      maxValue: 4
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 3
+      maxValue: 5
+      minItemLevel: 75
+      weight: 5
+    tierTopMultiplier: 4
+    tierSpread: 0.35
+  - statType: 49
+    displayName: Chill Duration
+    allowedSlots: 0400000005000000
+    groups: []
+    tiers:
+    - tierIndex: 1
+      minValue: 1
+      maxValue: 1
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 1
+      maxValue: 2
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 1
+      maxValue: 3
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 2
+      maxValue: 4
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 3
+      maxValue: 5
+      minItemLevel: 75
+      weight: 5
+    tierTopMultiplier: 4
+    tierSpread: 0.35
+  - statType: 50
+    displayName: Added Armour
+    allowedSlots: 03000000000000000200000004000000
+    groups: []
+    tiers:
+    - tierIndex: 1
+      minValue: 26
+      maxValue: 54
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 41
+      maxValue: 85
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 64
+      maxValue: 132
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 100
+      maxValue: 207
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 156
+      maxValue: 324
+      minItemLevel: 75
+      weight: 5
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 51
+    displayName: Added Evasion
+    allowedSlots: 03000000000000000200000004000000
+    groups: []
+    tiers:
+    - tierIndex: 1
+      minValue: 26
+      maxValue: 54
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 41
+      maxValue: 85
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 64
+      maxValue: 132
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 100
+      maxValue: 207
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 156
+      maxValue: 324
+      minItemLevel: 75
+      weight: 5
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 52
+    displayName: Increased Armour
+    allowedSlots: 03000000000000000200000004000000
+    groups: []
+    tiers:
+    - tierIndex: 1
+      minValue: 8
+      maxValue: 17
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 11
+      maxValue: 24
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 16
+      maxValue: 34
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 23
+      maxValue: 48
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 32
+      maxValue: 67
+      minItemLevel: 75
+      weight: 5
+    tierTopMultiplier: 4
+    tierSpread: 0.35
+  - statType: 53
+    displayName: Increased Evasion
+    allowedSlots: 03000000000000000200000004000000
+    groups: []
+    tiers:
+    - tierIndex: 1
+      minValue: 8
+      maxValue: 17
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 11
+      maxValue: 24
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 16
+      maxValue: 34
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 23
+      maxValue: 48
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 32
+      maxValue: 67
+      minItemLevel: 75
+      weight: 5
+    tierTopMultiplier: 4
+    tierSpread: 0.35
+  - statType: 54
+    displayName: Cold Resistance
+    allowedSlots: 03000000000000000200000004000000050000000100000006000000
+    groups: []
+    tiers:
+    - tierIndex: 1
+      minValue: 3
+      maxValue: 7
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 5
+      maxValue: 11
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 8
+      maxValue: 17
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 12
+      maxValue: 26
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 20
+      maxValue: 40
+      minItemLevel: 75
+      weight: 5
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 55
+    displayName: Lightning Resistance
+    allowedSlots: 03000000000000000200000004000000050000000100000006000000
+    groups: []
+    tiers:
+    - tierIndex: 1
+      minValue: 3
+      maxValue: 7
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 5
+      maxValue: 11
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 8
+      maxValue: 17
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 12
+      maxValue: 26
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 20
+      maxValue: 40
+      minItemLevel: 75
+      weight: 5
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 56
+    displayName: Fire Resistance
+    allowedSlots: 03000000000000000200000004000000050000000100000006000000
+    groups: []
+    tiers:
+    - tierIndex: 1
+      minValue: 3
+      maxValue: 7
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 5
+      maxValue: 11
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 8
+      maxValue: 17
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 12
+      maxValue: 26
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 20
+      maxValue: 40
+      minItemLevel: 75
+      weight: 5
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 57
+    displayName: All Resistance
+    allowedSlots: 00000000020000000500000006000000
+    groups: []
+    tiers:
+    - tierIndex: 1
+      minValue: 2
+      maxValue: 4
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 3
+      maxValue: 6
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 4
+      maxValue: 8
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 6
+      maxValue: 11
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 8
+      maxValue: 16
+      minItemLevel: 75
+      weight: 5
+    tierTopMultiplier: 4
+    tierSpread: 0.35
+  - statType: 58
+    displayName: Max Cold Resistance
+    allowedSlots: 0000000002000000
+    groups: []
+    tiers:
+    - tierIndex: 1
+      minValue: 1
+      maxValue: 1
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 1
+      maxValue: 2
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 2
+      maxValue: 3
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 2
+      maxValue: 5
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 4
+      maxValue: 8
+      minItemLevel: 75
+      weight: 5
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 59
+    displayName: Max Lightning Resistance
+    allowedSlots: 0000000002000000
+    groups: []
+    tiers:
+    - tierIndex: 1
+      minValue: 1
+      maxValue: 1
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 1
+      maxValue: 2
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 2
+      maxValue: 3
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 2
+      maxValue: 5
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 4
+      maxValue: 8
+      minItemLevel: 75
+      weight: 5
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 60
+    displayName: Max Fire Resistance
+    allowedSlots: 0000000002000000
+    groups: []
+    tiers:
+    - tierIndex: 1
+      minValue: 1
+      maxValue: 1
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 1
+      maxValue: 2
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 2
+      maxValue: 3
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 2
+      maxValue: 5
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 4
+      maxValue: 8
+      minItemLevel: 75
+      weight: 5
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 61
+    displayName: Max All Resistance
+    allowedSlots: 0200000006000000
+    groups: []
+    tiers:
+    - tierIndex: 1
+      minValue: 1
+      maxValue: 1
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 1
+      maxValue: 2
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 1
+      maxValue: 3
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 2
+      maxValue: 4
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 3
+      maxValue: 5
+      minItemLevel: 75
+      weight: 5
+    tierTopMultiplier: 4
+    tierSpread: 0.35
+  - statType: 62
+    displayName: Poison Resistance
+    allowedSlots: 000000000200000004000000
+    groups: []
+    tiers:
+    - tierIndex: 1
+      minValue: 3
+      maxValue: 7
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 5
+      maxValue: 11
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 8
+      maxValue: 17
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 12
+      maxValue: 26
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 20
+      maxValue: 40
+      minItemLevel: 75
+      weight: 5
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 63
+    displayName: Ignite Resistance
+    allowedSlots: 000000000200000004000000
+    groups: []
+    tiers:
+    - tierIndex: 1
+      minValue: 3
+      maxValue: 7
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 5
+      maxValue: 11
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 8
+      maxValue: 17
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 12
+      maxValue: 26
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 20
+      maxValue: 40
+      minItemLevel: 75
+      weight: 5
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 64
+    displayName: Bleed Resistance
+    allowedSlots: 000000000200000004000000
+    groups: []
+    tiers:
+    - tierIndex: 1
+      minValue: 3
+      maxValue: 7
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 5
+      maxValue: 11
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 8
+      maxValue: 17
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 12
+      maxValue: 26
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 20
+      maxValue: 40
+      minItemLevel: 75
+      weight: 5
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 65
+    displayName: Shock Resistance
+    allowedSlots: 000000000200000004000000
+    groups: []
+    tiers:
+    - tierIndex: 1
+      minValue: 3
+      maxValue: 7
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 5
+      maxValue: 11
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 8
+      maxValue: 17
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 12
+      maxValue: 26
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 20
+      maxValue: 40
+      minItemLevel: 75
+      weight: 5
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 66
+    displayName: Chill Resistance
+    allowedSlots: 000000000200000004000000
+    groups: []
+    tiers:
+    - tierIndex: 1
+      minValue: 3
+      maxValue: 7
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 5
+      maxValue: 11
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 8
+      maxValue: 17
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 12
+      maxValue: 26
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 20
+      maxValue: 40
+      minItemLevel: 75
+      weight: 5
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 67
+    displayName: All Ailment Resistance
+    allowedSlots: 02000000
+    groups: []
+    tiers:
+    - tierIndex: 1
+      minValue: 2
+      maxValue: 5
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 3
+      maxValue: 7
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 5
+      maxValue: 9
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 6
+      maxValue: 13
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 9
+      maxValue: 19
+      minItemLevel: 75
+      weight: 5
+    tierTopMultiplier: 4
+    tierSpread: 0.35
+  - statType: 68
+    displayName: Added Life
+    allowedSlots: 03000000000000000200000004000000050000000100000006000000
+    groups: []
+    tiers:
+    - tierIndex: 1
+      minValue: 120
+      maxValue: 250
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 237
+      maxValue: 492
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 466
+      maxValue: 967
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 917
+      maxValue: 1904
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 1804
+      maxValue: 3746
+      minItemLevel: 75
+      weight: 5
+    tierTopMultiplier: 15
+    tierSpread: 0.35
+  - statType: 69
+    displayName: Added Mana
+    allowedSlots: 03000000000000000200000004000000050000000100000006000000
+    groups: []
+    tiers:
+    - tierIndex: 1
+      minValue: 58
+      maxValue: 122
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 115
+      maxValue: 239
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 227
+      maxValue: 471
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 446
+      maxValue: 926
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 878
+      maxValue: 1822
+      minItemLevel: 75
+      weight: 5
+    tierTopMultiplier: 15
+    tierSpread: 0.35
+  - statType: 70
+    displayName: Increased Life
+    allowedSlots: 02000000
+    groups: []
+    tiers: []
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 71
+    displayName: 
+    allowedSlots: 0200000004000000
+    groups: []
+    tiers: []
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 72
+    displayName: 
+    allowedSlots: 0000000002000000
+    groups: []
+    tiers: []
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 73
+    displayName: 
+    allowedSlots: 000000000200000004000000
+    groups: []
+    tiers: []
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 74
+    displayName: 
+    allowedSlots: 02000000
+    groups: []
+    tiers: []
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 75
+    displayName: 
+    allowedSlots: 0200000004000000
+    groups: []
+    tiers: []
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 76
+    displayName: 
+    allowedSlots: 02000000
+    groups: []
+    tiers: []
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 77
+    displayName: 
+    allowedSlots: 0200000004000000
+    groups: []
+    tiers: []
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 78
+    displayName: 
+    allowedSlots: 04000000
+    groups: []
+    tiers: []
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 79
+    displayName: 
+    allowedSlots: 04000000
+    groups: []
+    tiers: []
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 80
+    displayName: 
+    allowedSlots: 0400000005000000
+    groups: []
+    tiers: []
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 81
+    displayName: 
+    allowedSlots: 03000000050000000100000007000000
+    groups: []
+    tiers: []
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 82
+    displayName: 
+    allowedSlots: 030000000500000001000000
+    groups: []
+    tiers: []
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 83
+    displayName: 
+    allowedSlots: 010000000600000007000000
+    groups: []
+    tiers: []
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 84
+    displayName: 
+    allowedSlots: 03000000040000000500000001000000
+    groups: []
+    tiers: []
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 85
+    displayName: 
+    allowedSlots: 01000000
+    groups: []
+    tiers: []
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 86
+    displayName: 
+    allowedSlots: 01000000
+    groups: []
+    tiers: []
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 87
+    displayName: 
+    allowedSlots: 01000000
+    groups: []
+    tiers: []
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 88
+    displayName: 
+    allowedSlots: 01000000
+    groups: []
+    tiers: []
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 89
+    displayName: 
+    allowedSlots: 01000000
+    groups: []
+    tiers: []
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 90
+    displayName: 
+    allowedSlots: 01000000
+    groups: []
+    tiers: []
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 91
+    displayName: 
+    allowedSlots: 01000000
+    groups: []
+    tiers: []
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 92
+    displayName: 
+    allowedSlots: 03000000000000000200000004000000050000000100000006000000
+    groups: []
+    tiers: []
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 93
+    displayName: 
+    allowedSlots: 03000000000000000200000004000000050000000100000006000000
+    groups: []
+    tiers: []
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 94
+    displayName: 
+    allowedSlots: 03000000000000000200000004000000050000000100000006000000
+    groups: []
+    tiers: []
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 95
+    displayName: 
+    allowedSlots: 000000000200000006000000
+    groups: []
+    tiers: []
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 96
+    displayName: 
+    allowedSlots: 020000000400000006000000
+    groups: []
+    tiers: []
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 97
+    displayName: 
+    allowedSlots: 030000000200000006000000
+    groups: []
+    tiers: []
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 98
+    displayName: 
+    allowedSlots: 000000000200000006000000
+    groups: []
+    tiers: []
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 99
+    displayName: 
+    allowedSlots: 000000000200000006000000
+    groups: []
+    tiers: []
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 100
+    displayName: 
+    allowedSlots: 020000000400000006000000
+    groups: []
+    tiers: []
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 101
+    displayName: 
+    allowedSlots: 020000000400000006000000
+    groups: []
+    tiers: []
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 102
+    displayName: 
+    allowedSlots: 030000000200000006000000
+    groups: []
+    tiers: []
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 103
+    displayName: 
+    allowedSlots: 030000000200000006000000
+    groups: []
+    tiers: []
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 104
+    displayName: 
+    allowedSlots: 06000000
+    groups: []
+    tiers: []
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 105
+    displayName: 
+    allowedSlots: 06000000
+    groups: []
+    tiers: []
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 106
+    displayName: 
+    allowedSlots: 06000000
+    groups: []
+    tiers: []
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 107
+    displayName: 
+    allowedSlots: 06000000
+    groups: []
+    tiers: []
+    tierTopMultiplier: 6
+    tierSpread: 0.35
