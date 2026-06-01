@@ -14,6 +14,7 @@ public class PlayerController : MonoBehaviour
 
     private StatsComponent stats;   //Field for the player's statsComponent
     private HealthComponent health; //Field for the player's health component
+    private DamageReceiver damageReceiver;
 
     public float baseSpeed = 1f;    //Field for the player's base speed (currently set at 2f for testing. Likely 1f in the future)
 
@@ -21,6 +22,7 @@ public class PlayerController : MonoBehaviour
     {
         stats = GetComponent<StatsComponent>();
         health = GetComponent<HealthComponent>();
+        damageReceiver = GetComponent<DamageReceiver>();
     }
 
     void Start()    //Grabbing the damagepopup object in scene on start, then if the player has no equipped weapon, create the starter weapon and equip it
@@ -48,9 +50,16 @@ public class PlayerController : MonoBehaviour
         return gear;    //Return the gear object
     }
 
-    public void TakeDamage(float damage, StatusEffects effect)  //Called when the player takes damage (effect currently unused, implement later)
+    public void TakeDamage(float damage, StatusEffects effect = null)  //Called when the player takes damage (effect currently unused, implement later)
     {
-        if (health != null) //If healthcomponent exists
+        if (damageReceiver == null)
+            damageReceiver = GetComponent<DamageReceiver>();
+
+        if (damageReceiver != null)
+        {
+            damageReceiver.TakeDamage(damage, Element.Phys, effect);
+        }
+        else if (health != null) //If healthcomponent exists
         {
             health.LoseLife(damage); //call lose life from healthcomponent and pass in the damage taken
         }

@@ -12,6 +12,7 @@ public class EnemyAI : MonoBehaviour
     private StatsComponent stats;           //fields for stats, health, statuscont, zone manager, and damage popup
     private HealthComponent health;
     private StatusController statusController;
+    private DamageReceiver damageReceiver;
     private ZoneManager zoneManager;
     private DamagePopup damagePopup;
 
@@ -46,6 +47,7 @@ public class EnemyAI : MonoBehaviour
         stats = GetComponent<StatsComponent>();
         health = GetComponent<HealthComponent>();
         statusController = GetComponent<StatusController>();
+        damageReceiver = GetComponent<DamageReceiver>();
     }
 
     public void InitializeEnemy(int zoneLevel)      //initialize the enemy using the zone level
@@ -356,15 +358,25 @@ public class EnemyAI : MonoBehaviour
         return total;       //return the total
     }
 
-    public void TakeDamage(float damage, StatusEffects effect)
+    public void TakeDamage(float damage, StatusEffects effect = null)
     {
         if (damage <= 0f) return;       //if the damage is less than or equal to 0, return
 
-        health.LoseLife(damage);        //call loselife from health component, passing in the damage amount
+        if (damageReceiver == null)
+            damageReceiver = GetComponent<DamageReceiver>();
 
-        if (damagePopup != null)        //if damage popup isn't null, spawn the poup with the transform and damage amount
+        if (damageReceiver != null)
         {
-            damagePopup.Spawn(damage, transform);
+            damageReceiver.TakeDamage(damage, Element.Phys, effect);
+        }
+        else
+        {
+            health.LoseLife(damage);        //call loselife from health component, passing in the damage amount
+
+            if (damagePopup != null)        //if damage popup isn't null, spawn the poup with the transform and damage amount
+            {
+                damagePopup.Spawn(damage, transform, effect);
+            }
         }
     }
 

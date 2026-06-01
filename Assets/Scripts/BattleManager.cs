@@ -23,12 +23,14 @@ public class BattleManager : MonoBehaviour
     private StatusController playerStatusCont;
     private StatsComponent playerStats;
     private HealthComponent playerHealth;
+    private DamageReceiver playerDamageReceiver;
 
     private EnemyAI enemyAI;
     public EnemyAI CurrentEnemyAI => enemyAI;
     private StatusController enemyStatusCont;
     private StatsComponent enemyStats;
     private HealthComponent enemyHealth;
+    private DamageReceiver enemyDamageReceiver;
     private GameObject currentEnemy;
 
     [Header("Speed / Gauge Settings")]
@@ -64,6 +66,7 @@ public class BattleManager : MonoBehaviour
         playerStatusCont = player.GetComponent<StatusController>();
         playerStats = player.GetComponent<StatsComponent>();
         playerHealth = player.GetComponent<HealthComponent>();
+        playerDamageReceiver = GetOrAddDamageReceiver(player);
 
         if (playerController == null || playerStats == null || playerHealth == null)        //if any of these (except statuscont) are null, give error
         {
@@ -121,6 +124,7 @@ public class BattleManager : MonoBehaviour
         enemyStatusCont = currentEnemy.GetComponent<StatusController>();
         enemyStats = currentEnemy.GetComponent<StatsComponent>();
         enemyHealth = currentEnemy.GetComponent<HealthComponent>();
+        enemyDamageReceiver = GetOrAddDamageReceiver(currentEnemy);
 
         if (enemyAI == null || enemyStatusCont == null || enemyStats == null || enemyHealth == null)       //if any of these (except statuscont) are null, give error and return
         {
@@ -198,7 +202,7 @@ public class BattleManager : MonoBehaviour
                   $"Raw={rawTotal:F1}, Final(after res/armour)={damageTaken:F1}, " +
                   $"Crit={ctx.IsCrit}, CritMult={ctx.CritMultiplier:F2}");
 
-        enemyHealth.LoseLife(damageTaken);      //call lose life on the enemy script, passing in the damage taken value calculated previously
+        enemyDamageReceiver.TakeDamage(damageTaken, ctx);      //call lose life on the enemy script, passing in the damage taken value calculated previously
 
         ApplyOnHitEffects(ctx, playerStats, enemyStatusCont);       //call apply on hit effects, passing in the context, player stats, and enemystatuscont
     }
@@ -227,7 +231,7 @@ public class BattleManager : MonoBehaviour
                   $"Raw={rawTotal:F1}, Final(after res/armour)={damageTaken:F1}, " +
                   $"Crit={ctx.IsCrit}, CritMult={ctx.CritMultiplier:F2}");
 
-        playerHealth.LoseLife(damageTaken);     //call lose life in player script, passing in damage taken
+        playerDamageReceiver.TakeDamage(damageTaken, ctx);     //call lose life in player script, passing in damage taken
 
         ApplyOnHitEffects(ctx, enemyStats, playerStatusCont);       //call apply on hit effects, passing in context, player stats, and enemy status controller
 
@@ -264,6 +268,18 @@ public class BattleManager : MonoBehaviour
 
         Debug.Log("BattleManager: Spawning new normal enemy for restarted level.");
         SpawnNextEnemy(spawnBoss: false);
+    }
+
+    private DamageReceiver GetOrAddDamageReceiver(GameObject target)
+    {
+        if (target == null)
+            return null;
+
+        var receiver = target.GetComponent<DamageReceiver>();
+        if (receiver == null)
+            receiver = target.AddComponent<DamageReceiver>();
+
+        return receiver;
     }
 
     /// <summary>
