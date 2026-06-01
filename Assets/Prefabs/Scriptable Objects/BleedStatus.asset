@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b0929a36241c62f47b05f632e11004aa, type: 3}
+  m_Name: BleedStatus
+  m_EditorClassIdentifier: Assembly-CSharp::BleedStatusEffect
+  effectName: 
+  effectMagnitude: 0.5
+  tickDuration: 2
+  maxStacks: 4
+  stackPolicy: 0
+  statusType: 0
+  elements: 1
+  damageColor: {r: 1, g: 1, b: 1, a: 1}
+  ailmentKind: 2
+  baseTurnInterval: 1
+  bleedScalar: 0.5
+  bleedMaxStacks: 4

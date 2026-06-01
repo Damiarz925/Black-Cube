@@ -52,7 +52,7 @@ public class PlayerController : MonoBehaviour
     {
         if (health != null) //If healthcomponent exists
         {
-            health.LoseLife(damage);    //call lose life from healthcomponent and pass in the damage taken
+            health.LoseLife(damage); //call lose life from healthcomponent and pass in the damage taken
         }
     }
 

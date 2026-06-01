@@ -45,6 +45,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BattleManager
   player: {fileID: 4526282564352499566, guid: 8ab3ac1840a58fe4db5402f344cd7321, type: 3}
-  enemyPrefab: {fileID: 1587398109350852149, guid: 905a9d19c57417a4b9eebd2bd55ad251, type: 3}
+  playerSpawnPoint: {fileID: 0}
+  normalEnemyPrefab: {fileID: 1587398109350852149, guid: 905a9d19c57417a4b9eebd2bd55ad251, type: 3}
+  bossEnemyPrefab: {fileID: 7759965920106524827, guid: 19fae115fec732c45b5c039a12d717ec, type: 3}
   enemySpawnPoint: {fileID: 3594852498801200377, guid: 5f3daa4b27a307041aaac16e4e5b2621, type: 3}
+  poisonEffect: {fileID: 11400000, guid: 16b7efd8277fffa459bb5024540c4206, type: 2}
+  bleedEffect: {fileID: 11400000, guid: d8d4ad4a7b1cb7f47b30f97d6b9d492c, type: 2}
+  igniteEffect: {fileID: 11400000, guid: f14082d87597ae64694570208cd8f1a9, type: 2}
   turnThreshold: 100

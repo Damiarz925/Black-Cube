@@ -97,3 +97,54 @@ InitTestScene*.unity*
 
 # Auto-generated scenes by play mode tests
 /[Aa]ssets/[Ii]nit[Tt]est[Ss]cene*.unity*
+
+# Local/alternate project copies
+/Black Cube Full/
+/Black Cube Full.meta
+
+# Plastic SCM local workspace metadata. Keep Git as the source control surface.
+/.plastic/
+
+# Large third-party/store asset payloads. Project scripts, scenes, prefabs,
+# ScriptableObjects, materials, controllers, and settings remain allowed.
+/[Aa]ssets/[Ss]tore [Aa]ssets/[Aa]llsky/
+/[Aa]ssets/[Ss]tore [Aa]ssets/[Aa]llsky.meta
+/[Aa]ssets/[Ss]tore [Aa]ssets/**/*.fbx
+/[Aa]ssets/[Ss]tore [Aa]ssets/**/*.fbx.meta
+/[Aa]ssets/[Ss]tore [Aa]ssets/**/*.png
+/[Aa]ssets/[Ss]tore [Aa]ssets/**/*.png.meta
+/[Aa]ssets/[Ss]tore [Aa]ssets/**/*.jpg
+/[Aa]ssets/[Ss]tore [Aa]ssets/**/*.jpg.meta
+/[Aa]ssets/[Ss]tore [Aa]ssets/**/*.jpeg
+/[Aa]ssets/[Ss]tore [Aa]ssets/**/*.jpeg.meta
+/[Aa]ssets/[Ss]tore [Aa]ssets/**/*.tga
+/[Aa]ssets/[Ss]tore [Aa]ssets/**/*.tga.meta
+/[Aa]ssets/[Ss]tore [Aa]ssets/**/*.psd
+/[Aa]ssets/[Ss]tore [Aa]ssets/**/*.psd.meta
+/[Aa]ssets/[Ss]tore [Aa]ssets/**/*.exr
+/[Aa]ssets/[Ss]tore [Aa]ssets/**/*.exr.meta
+/[Aa]ssets/[Ss]tore [Aa]ssets/**/*.hdr
+/[Aa]ssets/[Ss]tore [Aa]ssets/**/*.hdr.meta
+/[Aa]ssets/[Ss]tore [Aa]ssets/**/*.tif
+/[Aa]ssets/[Ss]tore [Aa]ssets/**/*.tiff
+/[Aa]ssets/[Ss]tore [Aa]ssets/**/*.tif.meta
+/[Aa]ssets/[Ss]tore [Aa]ssets/**/*.tiff.meta
+/[Aa]ssets/[Ss]tore [Aa]ssets/**/*.pdf
+/[Aa]ssets/[Ss]tore [Aa]ssets/**/*.pdf.meta
+
+# Keep the small custom inventory icon set available despite the store-asset
+# image rule above.
+!/[Aa]ssets/[Ss]tore [Aa]ssets/RPG_inventory_icons/
+!/[Aa]ssets/[Ss]tore [Aa]ssets/RPG_inventory_icons/**
+
+# Large generated/exported media that should not be committed directly.
+*.mp4
+*.mov
+*.avi
+*.mkv
+*.wav
+*.mp3
+*.ogg
+*.zip
+*.7z
+*.rar

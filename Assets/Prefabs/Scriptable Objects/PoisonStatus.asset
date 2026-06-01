@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e466bc28d9e8a7741b430985b8d78b54, type: 3}
+  m_Name: PoisonStatus
+  m_EditorClassIdentifier: Assembly-CSharp::PoisonStatusEffect
+  effectName: 
+  effectMagnitude: 0.1
+  tickDuration: 2
+  maxStacks: 100
+  stackPolicy: 1
+  statusType: 0
+  elements: 1
+  damageColor: {r: 1, g: 1, b: 1, a: 1}
+  ailmentKind: 1
+  baseTurnInterval: 4
+  poisonScalar: 0.1
+  poisonMaxStacks: 100

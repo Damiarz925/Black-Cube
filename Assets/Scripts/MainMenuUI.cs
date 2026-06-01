@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class MainMenuUI : MonoBehaviour
@@ -43,7 +44,7 @@ public class MainMenuUI : MonoBehaviour
 
     public void OnNewGameClicked()
     {
-        Debug.Log("MainMenuUI: New Game clicked (placeholder).");
+        SceneManager.LoadScene("SampleScene");
     }
 
     public void OnLoadGameClicked()

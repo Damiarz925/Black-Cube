@@ -68,6 +68,7 @@ public class GameManager : MonoBehaviour
 
         enemiesToKillBeforeBoss = zoneManager.GetEnemiesToKillBeforeBoss(zoneLevel);
         zoneManager.zoneLevel = zoneLevel;
+        zoneManager.GenerateZone();     //generate the zone, which will spawn the environment 
 
         Debug.Log($"GameManager: ZoneManager.zoneLevel set to {zoneManager.zoneLevel}");
 
@@ -76,7 +77,6 @@ public class GameManager : MonoBehaviour
 
         int seed = zoneManager.GetSeedForZone(zoneLevel);                                           //grab the zone seed from the zonemanager script, passing in the zone level
         Debug.Log($"GameManager: Generating level with seed {seed}.");
-        //levelGenerator.GenerateLevel(seed);                                                         //generate the level with the levelGenerator script, passing in the level's seed
 
         Debug.Log("GameManager: Spawning first enemy for this zone.");
         BattleManager.Instance.BeginZone(zoneLevel, startWithBoss: false);                          //call beginzone from battle manager, passing in the zone level and whether we start with the boss or not

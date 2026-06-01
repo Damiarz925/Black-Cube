@@ -146,7 +146,7 @@ public class ZoneManager : MonoBehaviour
     //If this is called regardless of whether showPrestige is already true in the class that calls it, add one later so that it is only offered and animated once, then remains visible after until prestige occurs
     public bool ShouldOfferPrestige(int zoneLevel)
     {
-        return zoneLevel > 0;
+        return zoneLevel >= 10; // Example threshold, adjust as needed
     }
 
     //Rewards the player based on the level of the zone, passed in zoneLevel is likely redundant, as the zoneManager should instantiate its own zoneLevel.
