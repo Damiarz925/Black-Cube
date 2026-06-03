@@ -4,7 +4,7 @@ using UnityEngine;
 public class EnemyAI : MonoBehaviour
 {
     [Header("Base stats / refs")]
-    public float baseSpeed = 2f;        //Enemy base speed, defaulted to 2f (overriden by stats component I think)
+    public float baseSpeed = 0.5f;        //Enemy base speed, defaulted to 2f (overriden by stats component I think)
 
     [SerializeField] private LootManager lootManger;        //field for loot manager
     [SerializeField] private ModManager modManager;         //field for mod manager
@@ -113,24 +113,35 @@ public class EnemyAI : MonoBehaviour
 
     private void GenerateGearForEnemy(int zoneLevel)        
     {
+        if (modManager == null && ModManager.Instance != null)
+            modManager = ModManager.Instance;
+
+        if (modManager == null)
+            modManager = FindFirstObjectByType<ModManager>();
+
         if (modManager == null)
         {
-            Debug.LogWarning("EnemyAI has no ModManager assigned; no gear generated."); //If mod monater is null, give error and return
-            return;
+            Debug.LogWarning("EnemyAI has no ModManager assigned; generating base enemy gear without rolled mods.", this); //If mod monater is null, give error and return
         }
 
         int itemCount = GetItemCountForLevel(zoneLevel);    //item count is given by getitemcountforlevel function, passing in the zone level
 
         // Weapon first
         Gear weapon = CreateItemForEnemy(LootManager.GearType.Weapons, zoneLevel);      //call create item for enemy, specifying weapon and the zone level
-        equippedItems.Add(weapon);      //add the weapon to the equipped items list
-        EquipWeapon(weapon);        //call equipweapon, passing in the generated weapon
+        if (weapon != null)
+        {
+            equippedItems.Add(weapon);      //add the weapon to the equipped items list
+            EquipWeapon(weapon);        //call equipweapon, passing in the generated weapon
+        }
 
         // Other items
         for (int i = 1; i < itemCount; i++)     //generate nonweapon items up to the item count. i starts at 1, so if item count is 1, generates no additional items (because we already have a weapon). Adds the item to the list, and applies mods from the item to the enemy
         {
             LootManager.GearType type = RollRandomNonWeaponType();
             Gear gear = CreateItemForEnemy(type, zoneLevel);
+            if (gear == null)
+                continue;
+
             equippedItems.Add(gear);
             ApplyGlobalModsFromGear(gear);
         }
@@ -176,7 +187,9 @@ public class EnemyAI : MonoBehaviour
         gear.Initialize(type, gearRarity, itemLevel, element);       //initailize gear, passing in the gear type, rarity, ilvl, and element
 
         int modCount = gear.ModCount;        //roll for the mod count of the item
-        var rolledMods = modManager.RollModsForItem(type, gearRarity, itemLevel, modCount);     //create variable for rolled mods, using the rollmodsforitem function from modmanager
+        var rolledMods = modManager != null
+            ? modManager.RollModsForItem(type, gearRarity, itemLevel, modCount)
+            : new List<RolledMod>();     //create variable for rolled mods, using the rollmodsforitem function from modmanager
         gear.ApplyMods(rolledMods);     //use gear.applymods with the rolled mods list to apply those mods to the gear item
 
         if (type == LootManager.GearType.Weapons)       //if the gear type is weapon
@@ -197,11 +210,12 @@ public class EnemyAI : MonoBehaviour
     {
         if (equippedWeapon != null)     //if equipped weapon is not null
         {
-            stats.RemoveModifiersFromSource(equippedWeapon);        //remove the modifiers given from the currently equipped weapon
+            if (stats != null)
+                stats.RemoveModifiersFromSource(equippedWeapon);        //remove the modifiers given from the currently equipped weapon
         }
 
         equippedWeapon = weapon;        //set the equippedweapon field to the new passed in weapon
-        if (equippedWeapon == null) return;     //if the equipped weapon is now null, return
+        if (equippedWeapon == null || stats == null) return;     //if the equipped weapon is now null, return
 
         foreach (var mod in equippedWeapon.globalRolledMods)        //for each global mod on the equipped weapon, get the operation for the stat, get the modifier, and add it to the statscomponent
         {
@@ -213,6 +227,9 @@ public class EnemyAI : MonoBehaviour
 
     private void ApplyGlobalModsFromGear(Gear gear)     //applies the global mods from a gear item
     {
+        if (gear == null || stats == null)
+            return;
+
         foreach (var mod in gear.globalRolledMods)      //for each mod in in the items global rolled mods list, grab the operation, grab the stat modifier, and add the modifier to the stats component
         {
             StatOp op = GetOperationForStat(mod.statType);
@@ -225,7 +242,7 @@ public class EnemyAI : MonoBehaviour
     {
         string name = stat.ToString();      //grabs the name of the stat casted to a string
         if (name.StartsWith("Flat")) return StatOp.Flat;        //if it starts with flat (this is consistent for all flat mods currently), return statop.flat
-        if (name.EndsWith("Mult")) return StatOp.Additive;        //if it ends with mult (this is consistent for all mult mods currently), return statop.multiplicative
+        if (name.EndsWith("Mult")) return StatOp.Multiplicative;        //if it ends with mult (this is consistent for all mult mods currently), return statop.multiplicative
         return StatOp.Additive;     //otherwisse, return statop.additive
     }
 
@@ -233,7 +250,7 @@ public class EnemyAI : MonoBehaviour
     {
         DamageContext ctx = new DamageContext(4);       //create a damage context with an initial capacity of 4
 
-        if (equippedWeapon == null) return ctx;     //if equippedweapon is null, return the context now
+        if (equippedWeapon == null || stats == null) return ctx;     //if equippedweapon is null, return the context now
 
         Element weaponElement = equippedWeapon.BaseElement;     //store the weapon's base element in weaponElement
         float weaponBaseDamage = equippedWeapon.GetEffectiveBaseDamage();       //store the weapon's base damage in weaponBaseDamage (call GetEffectiveBaseDamage from Gear class on equippedWeapon)
@@ -371,7 +388,8 @@ public class EnemyAI : MonoBehaviour
         }
         else
         {
-            health.LoseLife(damage);        //call loselife from health component, passing in the damage amount
+            if (health != null)
+                health.LoseLife(damage);        //call loselife from health component, passing in the damage amount
 
             if (damagePopup != null)        //if damage popup isn't null, spawn the poup with the transform and damage amount
             {

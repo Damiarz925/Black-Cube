@@ -32,8 +32,27 @@ public class LootManager : MonoBehaviour
     [SerializeField] private GameObject gearPrefab;         //GearPrefab that is used to instantiate gear items
     [SerializeField] private ZoneManager zoneManager;       //Field for the zone manager, necessary for figuring out item level of items to generate
 
+    private bool initialized;
+
+    private void Awake()
+    {
+        InitializeLootTables();
+    }
+
     void Start()        //Add all of the gear types with their weightings into the dictionary
     {
+        InitializeLootTables();
+    }
+
+    private void InitializeLootTables()
+    {
+        if (initialized)
+            return;
+
+        TypeDictionary.Clear();
+        RarityDictionary.Clear();
+        totalTypeWeight = 0;
+        totalRarityWeight = 0;
 
         TypeDictionary.Add(GearType.Weapons, 20);
         TypeDictionary.Add(GearType.Helmets, 20);
@@ -54,10 +73,17 @@ public class LootManager : MonoBehaviour
 
         foreach (var item in RarityDictionary)
             totalRarityWeight += item.Value;
+
+        initialized = true;
     }
 
     public Gear GenerateLoot(EnemyAI.EnemyRarity enemyRarity)
     {
+        InitializeLootTables();
+
+        if (zoneManager == null)
+            zoneManager = FindFirstObjectByType<ZoneManager>();
+
         //Depending on the rarity of the enemy evaluate to 0-3 for the enemy rarity modifier
         int enemyRarityMod = enemyRarity switch
         {
@@ -69,20 +95,26 @@ public class LootManager : MonoBehaviour
 
         var element = RollItemElement();
 
-        int itemLevel = zoneManager.zoneLevel + enemyRarityMod;     //Calculate item level as the level of the zone + the enemy rarity modifier
+        int zoneLevel = zoneManager != null ? zoneManager.zoneLevel : 1;
+        int itemLevel = zoneLevel + enemyRarityMod;     //Calculate item level as the level of the zone + the enemy rarity modifier
 
         var type = RollItemType();          //assign variable type by rolling an item type
         var rarity = RollItemRarity();      //assign variable rarity by rolling the item rarity
 
-        Debug.Log($"[Loot] Rolled type={type}, rarity={rarity}, zoneLevel={zoneManager.zoneLevel}, enemyRarity={enemyRarity}");
+        Debug.Log($"[Loot] Rolled type={type}, rarity={rarity}, zoneLevel={zoneLevel}, enemyRarity={enemyRarity}");
 
-        GameObject obj = Instantiate(gearPrefab);       //instantiate a gear item using the gear prefab
+        GameObject obj = gearPrefab != null ? Instantiate(gearPrefab) : new GameObject("Generated Gear");       //instantiate a gear item using the gear prefab
         var gear = obj.GetComponent<Gear>();            //assign variable gear by grabbing the gear component from the gear item
+        if (gear == null)
+            gear = obj.AddComponent<Gear>();
+
         gear.Initialize(type, rarity, itemLevel, element);       //Initialize the gear item
 
         Debug.Log($"[Loot] After Initialize: gear.ItemType={gear.ItemType}, gear.ItemRarity={gear.ItemRarity}, ilvl={gear.ItemLevel}, modCount={gear.ModCount}");
 
-        var mods = ModManager.Instance.RollModsForItem(type, rarity, itemLevel, gear.ModCount);     //generate mods by calling rollmodsforitem (returns a list of mods)
+        var mods = ModManager.Instance != null
+            ? ModManager.Instance.RollModsForItem(type, rarity, itemLevel, gear.ModCount)
+            : new List<RolledMod>();     //generate mods by calling rollmodsforitem (returns a list of mods)
 
         Debug.Log($"[Loot] Rolled mods count = {(mods == null ? -1 : mods.Count)}");
 
@@ -93,6 +125,11 @@ public class LootManager : MonoBehaviour
 
     public GearType RollItemType()
     {
+        InitializeLootTables();
+
+        if (totalTypeWeight <= 0)
+            return GearType.Helmets;
+
         int roll = Random.Range(0, totalTypeWeight);        //Rolls a number between 0 and the total item type weight
         foreach (var pair in TypeDictionary)        //For each pair in the type dictionary
         {
@@ -106,6 +143,11 @@ public class LootManager : MonoBehaviour
 
     public GearRarity RollItemRarity()
     {
+        InitializeLootTables();
+
+        if (totalRarityWeight <= 0)
+            return GearRarity.Normal;
+
         int roll = Random.Range(0, totalRarityWeight);      //Roll randomly between 0 and the total rarity weight
         foreach (var pair in RarityDictionary)
         {

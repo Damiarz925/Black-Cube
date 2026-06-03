@@ -38,12 +38,18 @@ public class HealthComponent : MonoBehaviour
         if (isEnemy)
         {
             Debug.Log($"HealthComponent: Enemy died. name={name}, isBoss={isBoss}", this);
-            GameManager.Instance.OnEnemyKilled(this, isBoss);
+            if (GameManager.Instance != null)
+                GameManager.Instance.OnEnemyKilled(this, isBoss);
+            else
+                Debug.LogWarning("HealthComponent: GameManager.Instance is null; enemy death could not advance the run.", this);
         }
         else
         {
             Debug.Log($"HealthComponent: Player died. name={name}", this);
-            GameManager.Instance.OnPlayerKilled(this);
+            if (GameManager.Instance != null)
+                GameManager.Instance.OnPlayerKilled(this);
+            else
+                Debug.LogWarning("HealthComponent: GameManager.Instance is null; player death could not show death flow.", this);
         }
 
         // TODO: play death anim / vfx

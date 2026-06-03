@@ -30,9 +30,17 @@ public class ZoneManager : MonoBehaviour
 
     public void GenerateZone()
     {
+        if (!EnsureReferences())
+            return;
+
         int seed = System.Environment.TickCount;
 
         ThemeDefinition theme = PickTheme(zoneLevel, seed);
+        if (theme == null)
+        {
+            Debug.LogWarning("ZoneManager: No theme available; skipping zone visual generation.", this);
+            return;
+        }
 
         LevelBounds bounds = new LevelBounds
         {
@@ -49,9 +57,15 @@ public class ZoneManager : MonoBehaviour
 
     private ThemeDefinition PickTheme(int levelIndex, int seed)
     {
-        foreach (var entry in themeSet.ForcedThemes)
-            if (entry.LevelIndex == levelIndex && entry.Theme != null)
-                return entry.Theme;
+        if (themeSet == null)
+            return null;
+
+        if (themeSet.ForcedThemes != null)
+        {
+            foreach (var entry in themeSet.ForcedThemes)
+                if (entry.LevelIndex == levelIndex && entry.Theme != null)
+                    return entry.Theme;
+        }
 
         Random.InitState(seed ^ 0x6A09E667);
         return PickWeighted(themeSet.Themes);
@@ -84,6 +98,9 @@ public class ZoneManager : MonoBehaviour
 
     public void ApplyLevelPlan(LevelPlan plan)
     {
+        if (plan == null)
+            return;
+
         ClearActiveObjects();
 
         SpawnPlacements(plan.TreePlacements);
@@ -93,9 +110,17 @@ public class ZoneManager : MonoBehaviour
 
     private void SpawnPlacements(List<Placement> placements)
     {
+        if (placements == null || pool == null)
+            return;
+
         foreach (var p in placements)
         {
+            if (p.Prefab == null)
+                continue;
+
             GameObject obj = pool.Get(p.PoolKey, p.Prefab);
+            if (obj == null)
+                continue;
 
             obj.transform.position = p.Position;
             obj.transform.rotation = p.Rotation;
@@ -109,6 +134,9 @@ public class ZoneManager : MonoBehaviour
 
     void ApplyThemeVisuals(ThemeDefinition theme)
     {
+        if (theme == null)
+            return;
+
         if (theme.SkyboxMaterial != null)
         {
             RenderSettings.skybox = theme.SkyboxMaterial;
@@ -118,10 +146,52 @@ public class ZoneManager : MonoBehaviour
 
     void ClearActiveObjects()
     {
+        if (pool == null)
+        {
+            activeObjects.Clear();
+            return;
+        }
+
         foreach (var obj in activeObjects)
-            pool.Release(obj);
+            if (obj != null)
+                pool.Release(obj);
 
         activeObjects.Clear();
+    }
+
+    private bool EnsureReferences()
+    {
+        if (levelGenerator == null)
+            levelGenerator = FindFirstObjectByType<LevelGenerator>();
+
+        if (pool == null)
+            pool = FindFirstObjectByType<Pool>();
+
+        if (levelGenerator == null)
+        {
+            Debug.LogError("ZoneManager: LevelGenerator is missing; cannot generate zone.", this);
+            return false;
+        }
+
+        if (themeSet == null)
+        {
+            Debug.LogError("ZoneManager: ThemeSet is missing; cannot generate zone.", this);
+            return false;
+        }
+
+        if (anchors == null)
+        {
+            Debug.LogError("ZoneManager: SpawnAnchorGroup is missing; cannot generate zone.", this);
+            return false;
+        }
+
+        if (pool == null)
+        {
+            Debug.LogError("ZoneManager: Pool is missing; cannot generate zone.", this);
+            return false;
+        }
+
+        return true;
     }
 
     //This will be used for deciding what enemies spawn in the zone, and what list of environment assets are used in the zone

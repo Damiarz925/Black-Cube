@@ -34,11 +34,7 @@ public class GameManager : MonoBehaviour
     {
         Debug.Log("GameManager: Auto-starting new run.");
 
-        if (deathMenuUI == null)
-        {
-            deathMenuUI = FindFirstObjectByType<DeathMenuUI>();
-            Debug.Log($"GameManager: DeathMenuUI auto-find result = {(deathMenuUI != null ? deathMenuUI.name : "null")}");
-        }
+        EnsureSceneReferences();
 
         if (deathMenuUI != null)
         {
@@ -61,6 +57,20 @@ public class GameManager : MonoBehaviour
 
     public void StartZone(int zoneLevel)        //sets currentzonelevel with passed in zone level, enemies killed set to 0, boss spawned false, enemies to kill pulled from function in zone manager, passing in zone level
     {
+        EnsureSceneReferences();
+
+        if (zoneManager == null)
+        {
+            Debug.LogError("GameManager: Cannot start zone because ZoneManager is missing.");
+            return;
+        }
+
+        if (BattleManager.Instance == null)
+        {
+            Debug.LogError("GameManager: Cannot start zone because BattleManager.Instance is missing.");
+            return;
+        }
+
         currentZoneLevel = zoneLevel;
         enemiesKilledInZone = 0;
         bossSpawned = false;
@@ -89,11 +99,22 @@ public class GameManager : MonoBehaviour
         var enemyAI = enemyHealth.GetComponent<EnemyAI>();                                          //grab the killed enemy's script
         var rarity = enemyAI != null ? enemyAI.CurrentRarity : EnemyAI.EnemyRarity.Normal;          //check if the enemy script is null, if it isn't grab the enemy's rarity, if it is set the rarity to normal
 
-        Gear loot = lootManager.GenerateLoot(rarity);                                               //generate loot passing in the rarity
-        if (Inventory.Instance != null)                                                             //if the inventory isn't null, add the loot generated to the inventory
+        EnsureSceneReferences();
+
+        Gear loot = lootManager != null ? lootManager.GenerateLoot(rarity) : null;                   //generate loot passing in the rarity
+        if (lootManager == null)
+        {
+            Debug.LogWarning("GameManager: LootManager is null; no loot generated.");
+        }
+
+        if (loot != null && Inventory.Instance != null)                                             //if the inventory isn't null, add the loot generated to the inventory
         {
             Inventory.Instance.Add(loot);
             Debug.Log($"GameManager: Loot generated and added. EnemyRarity={rarity}, LootName={(loot != null ? loot.name : "null")}");
+        }
+        else if (loot == null)
+        {
+            Debug.LogWarning("GameManager: Generated loot is null; nothing added to inventory.");
         }
         else
         {
@@ -113,11 +134,17 @@ public class GameManager : MonoBehaviour
         {
             bossSpawned = true;
             Debug.Log("GameManager: Conditions met, spawning boss next.");
-            BattleManager.Instance.SpawnNextEnemy(spawnBoss: true);
+            if (BattleManager.Instance != null)
+                BattleManager.Instance.SpawnNextEnemy(spawnBoss: true);
+            else
+                Debug.LogWarning("GameManager: BattleManager.Instance is null; cannot spawn boss.");
         }
         else
         {
-            BattleManager.Instance.SpawnNextEnemy(spawnBoss: false);        //if shouldspawn boss was false, still spawn next enemy, but with spawnBoss set to false
+            if (BattleManager.Instance != null)
+                BattleManager.Instance.SpawnNextEnemy(spawnBoss: false);        //if shouldspawn boss was false, still spawn next enemy, but with spawnBoss set to false
+            else
+                Debug.LogWarning("GameManager: BattleManager.Instance is null; cannot spawn next enemy.");
         }
     }
 
@@ -178,6 +205,13 @@ public class GameManager : MonoBehaviour
     {
         Debug.Log($"GameManager: Zone {currentZoneLevel} cleared.");
 
+        if (zoneManager == null)
+        {
+            Debug.LogWarning("GameManager: ZoneManager is null during zone clear; starting next zone without zone reward checks.");
+            StartZone(currentZoneLevel + 1);
+            return;
+        }
+
         zoneManager.RewardZoneClear(currentZoneLevel);      //call reward zone clear from zone manager (Might just put this in game manager instead. Doesn't make sense in zone manager)
 
         if (zoneManager.ShouldOfferPrestige(currentZoneLevel))      //check if prestige should be offered. (Might just put that in game manager instead, doesn't really make sense to be in zone manager
@@ -200,7 +234,26 @@ public class GameManager : MonoBehaviour
     public void PerformPrestige()   //Not currently implemented (probably redundant, I'll create a separate script for managing prestige)
     {
         Debug.Log($"GameManager: Performing prestige at zone {currentZoneLevel}.");
-        zoneManager.GrantPrestigeRewards(currentZoneLevel);
+        if (zoneManager != null)
+            zoneManager.GrantPrestigeRewards(currentZoneLevel);
+        else
+            Debug.LogWarning("GameManager: ZoneManager is null; prestige rewards were not granted.");
+
         StartNewRun();
+    }
+
+    private void EnsureSceneReferences()
+    {
+        if (levelGenerator == null)
+            levelGenerator = FindFirstObjectByType<LevelGenerator>();
+
+        if (zoneManager == null)
+            zoneManager = FindFirstObjectByType<ZoneManager>();
+
+        if (lootManager == null)
+            lootManager = FindFirstObjectByType<LootManager>();
+
+        if (deathMenuUI == null)
+            deathMenuUI = FindFirstObjectByType<DeathMenuUI>();
     }
 }

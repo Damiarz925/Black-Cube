@@ -20,6 +20,9 @@ public class LevelGenerator : MonoBehaviour
 
         };
 
+        if (theme == null || anchors == null)
+            return plan;
+
         // Trees
         plan.TreePlacements.AddRange(BuildPlacements(anchors.ForegroundTreeAnchors, theme.ForegroundTreePrefabs, theme.ForegroundTreeRules, seedSalt: 101));
 

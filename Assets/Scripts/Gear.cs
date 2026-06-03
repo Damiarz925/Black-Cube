@@ -71,6 +71,9 @@ public class Gear : MonoBehaviour
     //Function used to apply modifiers to the item.
     public void ApplyMods(List<RolledMod> rolledMods)
     {
+        if (rolledMods == null)
+            return;
+
         foreach (var mod in rolledMods)
         {
             switch (mod.statType)

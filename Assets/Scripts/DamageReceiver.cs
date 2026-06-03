@@ -3,6 +3,8 @@ using UnityEngine;
 [RequireComponent(typeof(HealthComponent))]
 public class DamageReceiver : MonoBehaviour
 {
+    [SerializeField] private Transform popupAnchor;
+    private Transform PopupTarget => popupAnchor != null ? popupAnchor : transform;
     private HealthComponent health;
     private DamagePopup damagePopup;
 
@@ -41,9 +43,9 @@ public class DamageReceiver : MonoBehaviour
             return;
 
         if (effect != null)
-            damagePopup.Spawn(damage, transform, effect);
+            damagePopup.Spawn(damage, PopupTarget, effect);
         else
-            damagePopup.Spawn(damage, transform, element);
+            damagePopup.Spawn(damage, PopupTarget, element);
     }
 
     private Element GetPrimaryElement(DamageContext context)

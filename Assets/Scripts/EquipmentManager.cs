@@ -20,11 +20,7 @@ public class EquipmentManager : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject);
 
-        if (playerStats == null)
-            playerStats = GameObject.FindGameObjectWithTag("Player").GetComponentInChildren<StatsComponent>();
-
-        if (playerController == null)
-            playerController = FindFirstObjectByType<PlayerController>();
+        EnsurePlayerReferences();
     }
 
     //This function is used whenever the player wants to equip a new piece of equipment.
@@ -32,6 +28,8 @@ public class EquipmentManager : MonoBehaviour
     {
         //If the passed gear item is null, exit the function
         if (gear == null) return;          
+
+        EnsurePlayerReferences();
         
         //Define variables for the item type of the gear item, and the inventory instance
         var slot = gear.ItemType;
@@ -79,5 +77,18 @@ public class EquipmentManager : MonoBehaviour
         if (name.StartsWith("Flat")) return StatOp.Flat; //Checks if it starts with flat to determine if it needs to be added as a flat value
         if (name.EndsWith("Mult")) return StatOp.Multiplicative; //Checks if it ends with mult to determine if it's a "More" modifier
         return StatOp.Additive; //Otherwise, the value is additive "increased" modifier
+    }
+
+    private void EnsurePlayerReferences()
+    {
+        if (playerStats == null)
+        {
+            var playerObject = GameObject.FindGameObjectWithTag("Player");
+            if (playerObject != null)
+                playerStats = playerObject.GetComponentInChildren<StatsComponent>();
+        }
+
+        if (playerController == null)
+            playerController = FindFirstObjectByType<PlayerController>();
     }
 }

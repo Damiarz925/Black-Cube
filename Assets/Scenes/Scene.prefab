@@ -515,6 +515,7 @@ Transform:
   m_Children:
   - {fileID: 7355883760520578945}
   - {fileID: 7657723545226901281}
+  - {fileID: 8388729913879098347}
   m_Father: {fileID: 2494976040057165034}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &5370328869025156894
@@ -570,7 +571,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 88c04b4f9840a0b47ad677520ed6d60d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HealthComponent
-  maxLife: 250
+  maxLife: 1000
   isEnemy: 0
   isBoss: 0
 --- !u!114 &8215604923445913659
@@ -19271,12 +19272,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 24cc8db567257764098914dd3a810395, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DamagePopup
-  popupPrefab: {fileID: 0}
+  popupPrefab: {fileID: 7146174793885352291, guid: 44b8f847480ea0d4bb6d10191ae793b8, type: 3}
   popupRoot: {fileID: 1771394613296236838}
   canvas: {fileID: 3057835238145136764}
   floatSpeed: 50
   lifetime: 0.75
   worldOffset: {x: 0, y: 1.5, z: 0}
+  sameTargetResetTime: 0.08
+  horizontalSpacing: 34
+  verticalSpacing: 14
+  physicalColor: {r: 0, g: 0, b: 0, a: 1}
+  fireColor: {r: 1, g: 0.45, b: 0, a: 1}
+  coldColor: {r: 0.15, g: 0.55, b: 1, a: 1}
+  lightningColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  poisonColor: {r: 0.1, g: 0.8, b: 0.25, a: 1}
+  bleedColor: {r: 0.85, g: 0.05, b: 0.05, a: 1}
+  defaultColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1 &7000613638634172921
 GameObject:
   m_ObjectHideFlags: 0
@@ -21929,6 +21940,37 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1807935959679913843}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &8020369314815713882
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8388729913879098347}
+  m_Layer: 6
+  m_Name: GameObject
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8388729913879098347
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8020369314815713882}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 2.148, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2074537430207357615}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &8029642125755370527
 GameObject:

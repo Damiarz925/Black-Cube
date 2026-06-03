@@ -18,7 +18,7 @@ public class DeathMenuUI : MonoBehaviour
     [SerializeField] private Button quitGameButton;
 
     [Header("Scene Routing")]
-    [SerializeField] private string mainMenuSceneName = "MainMenu";
+    [SerializeField] private string mainMenuSceneName = "Main Menu";
 
     private void Awake()
     {
@@ -38,6 +38,11 @@ public class DeathMenuUI : MonoBehaviour
             Debug.LogWarning("DeathMenuUI: quitGameButton not assigned.");
 
         Debug.Log($"DeathMenuUI: Awake. root={(root != null ? root.name : "self")}, mainMenuSceneName={mainMenuSceneName}");
+        if (mainMenuSceneName == "MainMenu")
+        {
+            mainMenuSceneName = "Main Menu";
+        }
+
         Hide();
     }
 

@@ -25,6 +25,9 @@ public class BattleManager : MonoBehaviour
     private HealthComponent playerHealth;
     private DamageReceiver playerDamageReceiver;
 
+    private Animator playerAnimator;
+    private Animator enemyAnimator;
+
     private EnemyAI enemyAI;
     public EnemyAI CurrentEnemyAI => enemyAI;
     private StatusController enemyStatusCont;
@@ -58,6 +61,13 @@ public class BattleManager : MonoBehaviour
     {
         if (player == null)
         {
+            var playerObject = GameObject.FindGameObjectWithTag("Player");
+            if (playerObject != null)
+                player = playerObject;
+        }
+
+        if (player == null)
+        {
             Debug.LogError("BattleManager: Player reference not set.");
             return;
         }
@@ -67,6 +77,7 @@ public class BattleManager : MonoBehaviour
         playerStats = player.GetComponent<StatsComponent>();
         playerHealth = player.GetComponent<HealthComponent>();
         playerDamageReceiver = GetOrAddDamageReceiver(player);
+        playerAnimator = player.GetComponent<Animator>();
 
         if (playerController == null || playerStats == null || playerHealth == null)        //if any of these (except statuscont) are null, give error
         {
@@ -125,10 +136,18 @@ public class BattleManager : MonoBehaviour
         enemyStats = currentEnemy.GetComponent<StatsComponent>();
         enemyHealth = currentEnemy.GetComponent<HealthComponent>();
         enemyDamageReceiver = GetOrAddDamageReceiver(currentEnemy);
+        enemyAnimator = currentEnemy.GetComponent<Animator>();
 
         if (enemyAI == null || enemyStatusCont == null || enemyStats == null || enemyHealth == null)       //if any of these (except statuscont) are null, give error and return
         {
             Debug.LogError("BattleManager: Enemy is missing required components (EnemyAI/StatsComponent/HealthComponent).", currentEnemy);
+            currentEnemy = null;
+            enemyAI = null;
+            enemyStatusCont = null;
+            enemyStats = null;
+            enemyHealth = null;
+            enemyDamageReceiver = null;
+            enemyAnimator = null;
             return;
         }
 
@@ -150,6 +169,7 @@ public class BattleManager : MonoBehaviour
     {
         if (playerHealth == null || playerHealth.CurrentLife <= 0f) return;     //if player health is ever null or player life is ever 0 or less, return
         if (currentEnemy == null || enemyHealth == null || enemyHealth.CurrentLife <= 0f) return;       //if enemy or enemy health is ever null, or enemy life is ever 0 or less, return
+        if (playerController == null || enemyAI == null) return;
 
         float playerSpeed = playerController.GetFinalAttackSpeed() * 100f;      //get the player and enemy final attack speed and multiply it by 100f
         float enemySpeed = enemyAI.GetFinalAttackSpeed() * 100f;
@@ -166,15 +186,21 @@ public class BattleManager : MonoBehaviour
             if (playerActs)     //if player acts is true, subtract the turn threshold from the player's gauge and call resolve player turn, otherwise, subtract from enemy gauge and call resolve enemy turn
             {
                 playerGauge -= turnThreshold;
+
+                TriggerAttackAnimation(playerAnimator, playerSpeed);
+
                 ResolvePlayerTurn();
             }
             else
             {
                 enemyGauge -= turnThreshold;
+
+                TriggerAttackAnimation(enemyAnimator, enemySpeed);
+
                 ResolveEnemyTurn();
             }
 
-            if (currentEnemy == null || enemyHealth.CurrentLife <= 0f) return;      //if current enemy is null, or enemy life is less than or equal to 0, return
+            if (currentEnemy == null || enemyHealth == null || enemyHealth.CurrentLife <= 0f) return;      //if current enemy is null, or enemy life is less than or equal to 0, return
         }
     }
 
@@ -184,8 +210,8 @@ public class BattleManager : MonoBehaviour
 
         globalTurnCounter++;        //increment global turn counter
 
-        playerStatusCont.TickStatuses();       //tick statuses on player and enemy
-        enemyStatusCont.TickStatuses();
+        TickStatusController(playerStatusCont);       //tick statuses on player and enemy
+        TickStatusController(enemyStatusCont);
 
         DamageContext ctx = playerController.BuildAttackContext();      //generate damage context for the player
 
@@ -202,7 +228,13 @@ public class BattleManager : MonoBehaviour
                   $"Raw={rawTotal:F1}, Final(after res/armour)={damageTaken:F1}, " +
                   $"Crit={ctx.IsCrit}, CritMult={ctx.CritMultiplier:F2}");
 
-        enemyDamageReceiver.TakeDamage(damageTaken, ctx);      //call lose life on the enemy script, passing in the damage taken value calculated previously
+        if (enemyDamageReceiver == null)
+            enemyDamageReceiver = GetOrAddDamageReceiver(currentEnemy);
+
+        if (enemyDamageReceiver != null)
+            enemyDamageReceiver.TakeDamage(damageTaken, ctx);      //call lose life on the enemy script, passing in the damage taken value calculated previously
+        else
+            Debug.LogWarning("BattleManager: Enemy DamageReceiver is missing; player hit was not applied.", currentEnemy);
 
         ApplyOnHitEffects(ctx, playerStats, enemyStatusCont);       //call apply on hit effects, passing in the context, player stats, and enemystatuscont
     }
@@ -214,8 +246,8 @@ public class BattleManager : MonoBehaviour
 
         globalTurnCounter++;        //increment global turn counter
 
-        playerStatusCont.TickStatuses();       //tick player and enemy statuses
-        enemyStatusCont.TickStatuses();
+        TickStatusController(playerStatusCont);       //tick player and enemy statuses
+        TickStatusController(enemyStatusCont);
 
         DamageContext ctx = enemyAI.BuildAttackContext();       //generate damage context from the enemy
 
@@ -231,7 +263,13 @@ public class BattleManager : MonoBehaviour
                   $"Raw={rawTotal:F1}, Final(after res/armour)={damageTaken:F1}, " +
                   $"Crit={ctx.IsCrit}, CritMult={ctx.CritMultiplier:F2}");
 
-        playerDamageReceiver.TakeDamage(damageTaken, ctx);     //call lose life in player script, passing in damage taken
+        if (playerDamageReceiver == null)
+            playerDamageReceiver = GetOrAddDamageReceiver(player);
+
+        if (playerDamageReceiver != null)
+            playerDamageReceiver.TakeDamage(damageTaken, ctx);     //call lose life in player script, passing in damage taken
+        else
+            Debug.LogWarning("BattleManager: Player DamageReceiver is missing; enemy hit was not applied.", player);
 
         ApplyOnHitEffects(ctx, enemyStats, playerStatusCont);       //call apply on hit effects, passing in context, player stats, and enemy status controller
 
@@ -280,6 +318,21 @@ public class BattleManager : MonoBehaviour
             receiver = target.AddComponent<DamageReceiver>();
 
         return receiver;
+    }
+
+    private void TriggerAttackAnimation(Animator animator, float attackSpeed)
+    {
+        if (animator == null)
+            return;
+
+        animator.SetFloat("AttackSpeed", attackSpeed);
+        animator.SetTrigger("Attacking");
+    }
+
+    private void TickStatusController(StatusController statusController)
+    {
+        if (statusController != null)
+            statusController.TickStatuses();
     }
 
     /// <summary>

@@ -9,12 +9,12 @@ public class DamagePopup : MonoBehaviour
     [SerializeField] private Canvas canvas;
     [SerializeField] private float floatSpeed = 50.0f;
     [SerializeField] private float lifetime = 0.75f;
-    [SerializeField] private Vector3 worldOffset = new Vector3(0f, 1.5f, 0f);
+    [SerializeField] private Vector3 worldOffset = new Vector3(0f, 0f, 0f);
 
     [Header("Popup Spread")]
     [SerializeField] private float sameTargetResetTime = 0.08f;
     [SerializeField] private float horizontalSpacing = 34f;
-    [SerializeField] private float verticalSpacing = 14f;
+    [SerializeField] private float verticalSpacing = 2f;
 
     [Header("Damage Colors")]
     [SerializeField] private Color physicalColor = Color.black;
@@ -155,13 +155,20 @@ public class DamagePopupInstance : MonoBehaviour
 
     private void Update()
     {
-        if (target == null)
+        if (target == null || rectTransform == null)
         {
             Destroy(gameObject);
             return;
         }
 
-        Vector3 screenPos = Camera.main.WorldToScreenPoint(target.position + worldOffset);
+        Camera mainCamera = Camera.main;
+        if (mainCamera == null)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        Vector3 screenPos = mainCamera.WorldToScreenPoint(target.position + worldOffset);
 
         yOffset += floatSpeed * Time.deltaTime;
         screenPos.x += screenOffset.x;
