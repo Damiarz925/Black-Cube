@@ -15,7 +15,7 @@ MonoBehaviour:
   allAffixes:
   - statType: 0
     displayName: Weapon Damage
-    allowedSlots: 07000000
+    allowedSlots: 07000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -47,7 +47,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 1
     displayName: Weapon Attack Speed
-    allowedSlots: 07000000
+    allowedSlots: 07000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -79,7 +79,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 2
     displayName: Weapon Critical Strike Chance
-    allowedSlots: 07000000
+    allowedSlots: 07000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -111,7 +111,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 3
     displayName: Chance to Block
-    allowedSlots: 0200000006000000
+    allowedSlots: 0200000006000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -143,7 +143,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 4
     displayName: Added Flat Physical Damage
-    allowedSlots: 07000000
+    allowedSlots: 07000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -175,7 +175,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 5
     displayName: Added Flat Cold Damage
-    allowedSlots: 07000000
+    allowedSlots: 07000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -207,7 +207,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 6
     displayName: Added Flat Lightning Damage
-    allowedSlots: 07000000
+    allowedSlots: 07000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -239,7 +239,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 7
     displayName: Added Flat Fire Damage
-    allowedSlots: 07000000
+    allowedSlots: 07000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -271,7 +271,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 8
     displayName: Increased Damage
-    allowedSlots: 03000000000000000200000004000000050000000100000007000000
+    allowedSlots: 03000000000000000200000004000000050000000100000007000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -303,7 +303,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 9
     displayName: More Damage
-    allowedSlots: 03000000000000000200000004000000050000000100000007000000
+    allowedSlots: 03000000000000000200000004000000050000000100000007000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -335,7 +335,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 10
     displayName: Damage Over Time Multiplier
-    allowedSlots: 03000000000000000200000004000000050000000100000007000000
+    allowedSlots: 03000000000000000200000004000000050000000100000007000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -367,7 +367,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 11
     displayName: Critical Strike Chance
-    allowedSlots: 030000000000000004000000050000000100000007000000
+    allowedSlots: 030000000000000004000000050000000100000007000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -399,7 +399,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 12
     displayName: Critical Strike Multiplier
-    allowedSlots: 030000000100000007000000
+    allowedSlots: 030000000100000007000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -431,7 +431,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 13
     displayName: Addeed Base Critical Strike Chance
-    allowedSlots: 030000000100000007000000
+    allowedSlots: 030000000100000007000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -463,7 +463,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 14
     displayName: Increased Physical Damage
-    allowedSlots: 03000000000000000100000007000000
+    allowedSlots: 03000000000000000100000007000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -495,7 +495,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 15
     displayName: Increased Cold Damage
-    allowedSlots: 0300000004000000050000000100000007000000
+    allowedSlots: 0300000004000000050000000100000007000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -527,7 +527,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 16
     displayName: Increased Lightning Damage
-    allowedSlots: 04000000050000000100000007000000
+    allowedSlots: 04000000050000000100000007000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -559,7 +559,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 17
     displayName: Increased Fire Damage
-    allowedSlots: 00000000050000000100000007000000
+    allowedSlots: 00000000050000000100000007000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -591,7 +591,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 18
     displayName: More Physical Damage
-    allowedSlots: 03000000000000000100000007000000
+    allowedSlots: 03000000000000000100000007000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -623,7 +623,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 19
     displayName: More Cold Damage
-    allowedSlots: 0300000004000000050000000100000007000000
+    allowedSlots: 0300000004000000050000000100000007000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -655,7 +655,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 20
     displayName: More Lightning Damage
-    allowedSlots: 04000000050000000100000007000000
+    allowedSlots: 04000000050000000100000007000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -687,7 +687,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 21
     displayName: More Fire Damage
-    allowedSlots: 00000000050000000100000007000000
+    allowedSlots: 00000000050000000100000007000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -719,7 +719,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 22
     displayName: Physical Penetration
-    allowedSlots: 03000000000000000100000007000000
+    allowedSlots: 03000000000000000100000007000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -751,7 +751,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 23
     displayName: Cold Penetration
-    allowedSlots: 0300000004000000050000000100000007000000
+    allowedSlots: 0300000004000000050000000100000007000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -783,7 +783,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 24
     displayName: 
-    allowedSlots: 04000000050000000100000007000000
+    allowedSlots: 04000000050000000100000007000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -815,7 +815,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 25
     displayName: Fire Penetration
-    allowedSlots: 00000000050000000100000007000000
+    allowedSlots: 00000000050000000100000007000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -847,7 +847,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 26
     displayName: Poison Damage
-    allowedSlots: 03000000040000000100000007000000
+    allowedSlots: 03000000040000000100000007000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -879,7 +879,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 27
     displayName: Increased Ignite Damage
-    allowedSlots: 000000000100000007000000
+    allowedSlots: 000000000100000007000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -911,7 +911,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 28
     displayName: Increased Bleed Damage
-    allowedSlots: 03000000000000000100000007000000
+    allowedSlots: 03000000000000000100000007000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -943,7 +943,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 29
     displayName: More Poison Damage
-    allowedSlots: 03000000040000000100000007000000
+    allowedSlots: 03000000040000000100000007000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -975,7 +975,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 30
     displayName: More Ignite Damage
-    allowedSlots: 000000000100000007000000
+    allowedSlots: 000000000100000007000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -1007,7 +1007,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 31
     displayName: More Bleed Damage
-    allowedSlots: 03000000000000000100000007000000
+    allowedSlots: 03000000000000000100000007000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -1039,7 +1039,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 32
     displayName: Chance to Poison
-    allowedSlots: 03000000040000000100000007000000
+    allowedSlots: 03000000040000000100000007000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -1071,7 +1071,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 33
     displayName: Chance to Ignite
-    allowedSlots: 000000000100000007000000
+    allowedSlots: 000000000100000007000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -1103,7 +1103,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 34
     displayName: Chance to Bleed
-    allowedSlots: 03000000000000000100000007000000
+    allowedSlots: 03000000000000000100000007000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -1135,7 +1135,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 35
     displayName: Poison Speed
-    allowedSlots: 03000000040000000100000007000000
+    allowedSlots: 03000000040000000100000007000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -1167,7 +1167,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 36
     displayName: Ignite Speed
-    allowedSlots: 000000000100000007000000
+    allowedSlots: 000000000100000007000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -1199,7 +1199,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 37
     displayName: Bleed Speed
-    allowedSlots: 03000000000000000100000007000000
+    allowedSlots: 03000000000000000100000007000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -1231,7 +1231,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 38
     displayName: Poison Duration
-    allowedSlots: 03000000040000000100000007000000
+    allowedSlots: 03000000040000000100000007000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -1263,7 +1263,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 39
     displayName: Ignite Duration
-    allowedSlots: 000000000100000007000000
+    allowedSlots: 000000000100000007000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -1295,7 +1295,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 40
     displayName: Bleed Duration
-    allowedSlots: 03000000000000000100000007000000
+    allowedSlots: 03000000000000000100000007000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -1327,7 +1327,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 41
     displayName: Poison Penetration
-    allowedSlots: 03000000040000000100000007000000
+    allowedSlots: 03000000040000000100000007000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -1359,7 +1359,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 42
     displayName: Ignite Penetration
-    allowedSlots: 000000000100000007000000
+    allowedSlots: 000000000100000007000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -1391,7 +1391,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 43
     displayName: Bleed Penetration
-    allowedSlots: 03000000000000000100000007000000
+    allowedSlots: 03000000000000000100000007000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -1423,7 +1423,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 44
     displayName: Chance To Shock
-    allowedSlots: 0400000005000000
+    allowedSlots: 0400000005000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -1455,7 +1455,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 45
     displayName: Chance To Chill
-    allowedSlots: 0400000005000000
+    allowedSlots: 0400000005000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -1487,7 +1487,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 46
     displayName: Shock Effect
-    allowedSlots: 0400000005000000
+    allowedSlots: 0400000005000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -1519,7 +1519,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 47
     displayName: Chill Effect
-    allowedSlots: 0400000005000000
+    allowedSlots: 0400000005000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -1551,7 +1551,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 48
     displayName: Shock Duration
-    allowedSlots: 0400000005000000
+    allowedSlots: 0400000005000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -1583,7 +1583,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 49
     displayName: Chill Duration
-    allowedSlots: 0400000005000000
+    allowedSlots: 0400000005000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -1615,7 +1615,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 50
     displayName: Added Armour
-    allowedSlots: 03000000000000000200000004000000
+    allowedSlots: 03000000000000000200000004000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -1647,7 +1647,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 51
     displayName: Added Evasion
-    allowedSlots: 03000000000000000200000004000000
+    allowedSlots: 03000000000000000200000004000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -1679,7 +1679,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 52
     displayName: Increased Armour
-    allowedSlots: 03000000000000000200000004000000
+    allowedSlots: 03000000000000000200000004000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -1711,7 +1711,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 53
     displayName: Increased Evasion
-    allowedSlots: 03000000000000000200000004000000
+    allowedSlots: 03000000000000000200000004000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -1743,7 +1743,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 54
     displayName: Cold Resistance
-    allowedSlots: 03000000000000000200000004000000050000000100000006000000
+    allowedSlots: 03000000000000000200000004000000050000000100000006000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -1775,7 +1775,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 55
     displayName: Lightning Resistance
-    allowedSlots: 03000000000000000200000004000000050000000100000006000000
+    allowedSlots: 03000000000000000200000004000000050000000100000006000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -1807,7 +1807,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 56
     displayName: Fire Resistance
-    allowedSlots: 03000000000000000200000004000000050000000100000006000000
+    allowedSlots: 03000000000000000200000004000000050000000100000006000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -1839,7 +1839,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 57
     displayName: All Resistance
-    allowedSlots: 00000000020000000500000006000000
+    allowedSlots: 00000000020000000500000006000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -1871,7 +1871,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 58
     displayName: Max Cold Resistance
-    allowedSlots: 0000000002000000
+    allowedSlots: 0000000002000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -1903,7 +1903,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 59
     displayName: Max Lightning Resistance
-    allowedSlots: 0000000002000000
+    allowedSlots: 0000000002000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -1935,7 +1935,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 60
     displayName: Max Fire Resistance
-    allowedSlots: 0000000002000000
+    allowedSlots: 0000000002000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -1967,7 +1967,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 61
     displayName: Max All Resistance
-    allowedSlots: 0200000006000000
+    allowedSlots: 0200000006000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -1999,7 +1999,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 62
     displayName: Poison Resistance
-    allowedSlots: 000000000200000004000000
+    allowedSlots: 000000000200000004000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -2031,7 +2031,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 63
     displayName: Ignite Resistance
-    allowedSlots: 000000000200000004000000
+    allowedSlots: 000000000200000004000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -2063,7 +2063,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 64
     displayName: Bleed Resistance
-    allowedSlots: 000000000200000004000000
+    allowedSlots: 000000000200000004000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -2095,7 +2095,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 65
     displayName: Shock Resistance
-    allowedSlots: 000000000200000004000000
+    allowedSlots: 000000000200000004000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -2127,7 +2127,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 66
     displayName: Chill Resistance
-    allowedSlots: 000000000200000004000000
+    allowedSlots: 000000000200000004000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -2159,7 +2159,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 67
     displayName: All Ailment Resistance
-    allowedSlots: 02000000
+    allowedSlots: 02000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -2191,7 +2191,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 68
     displayName: Added Life
-    allowedSlots: 03000000000000000200000004000000050000000100000006000000
+    allowedSlots: 03000000000000000200000004000000050000000100000006000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -2223,7 +2223,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 69
     displayName: Added Mana
-    allowedSlots: 03000000000000000200000004000000050000000100000006000000
+    allowedSlots: 03000000000000000200000004000000050000000100000006000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -2255,266 +2255,266 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 70
     displayName: Increased Life
-    allowedSlots: 02000000
+    allowedSlots: 02000000i
     groups: []
     tiers: []
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 71
     displayName: 
-    allowedSlots: 0200000004000000
+    allowedSlots: 0200000004000000i
     groups: []
     tiers: []
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 72
     displayName: 
-    allowedSlots: 0000000002000000
+    allowedSlots: 0000000002000000i
     groups: []
     tiers: []
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 73
     displayName: 
-    allowedSlots: 000000000200000004000000
+    allowedSlots: 000000000200000004000000i
     groups: []
     tiers: []
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 74
     displayName: 
-    allowedSlots: 02000000
+    allowedSlots: 02000000i
     groups: []
     tiers: []
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 75
     displayName: 
-    allowedSlots: 0200000004000000
+    allowedSlots: 0200000004000000i
     groups: []
     tiers: []
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 76
     displayName: 
-    allowedSlots: 02000000
+    allowedSlots: 02000000i
     groups: []
     tiers: []
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 77
     displayName: 
-    allowedSlots: 0200000004000000
+    allowedSlots: 0200000004000000i
     groups: []
     tiers: []
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 78
     displayName: 
-    allowedSlots: 04000000
+    allowedSlots: 04000000i
     groups: []
     tiers: []
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 79
     displayName: 
-    allowedSlots: 04000000
+    allowedSlots: 04000000i
     groups: []
     tiers: []
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 80
     displayName: 
-    allowedSlots: 0400000005000000
+    allowedSlots: 0400000005000000i
     groups: []
     tiers: []
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 81
     displayName: 
-    allowedSlots: 03000000050000000100000007000000
+    allowedSlots: 03000000050000000100000007000000i
     groups: []
     tiers: []
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 82
     displayName: 
-    allowedSlots: 030000000500000001000000
+    allowedSlots: 030000000500000001000000i
     groups: []
     tiers: []
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 83
     displayName: 
-    allowedSlots: 010000000600000007000000
+    allowedSlots: 010000000600000007000000i
     groups: []
     tiers: []
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 84
     displayName: 
-    allowedSlots: 03000000040000000500000001000000
+    allowedSlots: 03000000040000000500000001000000i
     groups: []
     tiers: []
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 85
     displayName: 
-    allowedSlots: 01000000
+    allowedSlots: 01000000i
     groups: []
     tiers: []
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 86
     displayName: 
-    allowedSlots: 01000000
+    allowedSlots: 01000000i
     groups: []
     tiers: []
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 87
     displayName: 
-    allowedSlots: 01000000
+    allowedSlots: 01000000i
     groups: []
     tiers: []
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 88
     displayName: 
-    allowedSlots: 01000000
+    allowedSlots: 01000000i
     groups: []
     tiers: []
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 89
     displayName: 
-    allowedSlots: 01000000
+    allowedSlots: 01000000i
     groups: []
     tiers: []
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 90
     displayName: 
-    allowedSlots: 01000000
+    allowedSlots: 01000000i
     groups: []
     tiers: []
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 91
     displayName: 
-    allowedSlots: 01000000
+    allowedSlots: 01000000i
     groups: []
     tiers: []
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 92
     displayName: 
-    allowedSlots: 03000000000000000200000004000000050000000100000006000000
+    allowedSlots: 03000000000000000200000004000000050000000100000006000000i
     groups: []
     tiers: []
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 93
     displayName: 
-    allowedSlots: 03000000000000000200000004000000050000000100000006000000
+    allowedSlots: 03000000000000000200000004000000050000000100000006000000i
     groups: []
     tiers: []
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 94
     displayName: 
-    allowedSlots: 03000000000000000200000004000000050000000100000006000000
+    allowedSlots: 03000000000000000200000004000000050000000100000006000000i
     groups: []
     tiers: []
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 95
     displayName: 
-    allowedSlots: 000000000200000006000000
+    allowedSlots: 000000000200000006000000i
     groups: []
     tiers: []
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 96
     displayName: 
-    allowedSlots: 020000000400000006000000
+    allowedSlots: 020000000400000006000000i
     groups: []
     tiers: []
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 97
     displayName: 
-    allowedSlots: 030000000200000006000000
+    allowedSlots: 030000000200000006000000i
     groups: []
     tiers: []
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 98
     displayName: 
-    allowedSlots: 000000000200000006000000
+    allowedSlots: 000000000200000006000000i
     groups: []
     tiers: []
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 99
     displayName: 
-    allowedSlots: 000000000200000006000000
+    allowedSlots: 000000000200000006000000i
     groups: []
     tiers: []
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 100
     displayName: 
-    allowedSlots: 020000000400000006000000
+    allowedSlots: 020000000400000006000000i
     groups: []
     tiers: []
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 101
     displayName: 
-    allowedSlots: 020000000400000006000000
+    allowedSlots: 020000000400000006000000i
     groups: []
     tiers: []
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 102
     displayName: 
-    allowedSlots: 030000000200000006000000
+    allowedSlots: 030000000200000006000000i
     groups: []
     tiers: []
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 103
     displayName: 
-    allowedSlots: 030000000200000006000000
+    allowedSlots: 030000000200000006000000i
     groups: []
     tiers: []
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 104
     displayName: 
-    allowedSlots: 06000000
+    allowedSlots: 06000000i
     groups: []
     tiers: []
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 105
     displayName: 
-    allowedSlots: 06000000
+    allowedSlots: 06000000i
     groups: []
     tiers: []
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 106
     displayName: 
-    allowedSlots: 06000000
+    allowedSlots: 06000000i
     groups: []
     tiers: []
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 107
     displayName: 
-    allowedSlots: 06000000
+    allowedSlots: 06000000i
     groups: []
     tiers: []
     tierTopMultiplier: 6

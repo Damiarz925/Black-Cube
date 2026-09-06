@@ -3,7 +3,8 @@ using System.Collections.Generic;
 
 public class StatValue
 {
-    public float BaseValue; //Float storing the base value of the stat
+    private float baseValue;
+    public float BaseValue { get => baseValue; set { baseValue = value; _dirty = true; } }
     private readonly List<StatModifier> _modifiers = new(); //Readonly list of stat modifiers
     private bool _dirty = true; //Indicates whether the stat has been modified
     private float _cachedValue; //Stores the cached value of the stat

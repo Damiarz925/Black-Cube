@@ -1,6 +1,7 @@
 using UnityEngine;
 
 [RequireComponent(typeof(StatsComponent))]
+[DefaultExecutionOrder(-100)]
 public class PlayerStatSetup : MonoBehaviour
 {
     private StatsComponent stats;
@@ -9,8 +10,8 @@ public class PlayerStatSetup : MonoBehaviour
     {
         stats = GetComponent<StatsComponent>();
 
-        stats.SetBaseStat(StatTypes.Life, 100f);
-        stats.SetBaseStat(StatTypes.WeaponBaseDmg, 20f);
+        stats.SetBaseStat(StatTypes.Life, 1000f);
+        stats.SetBaseStat(StatTypes.UnarmedDamage, 0f);
         stats.SetBaseStat(StatTypes.AttackSpeed, 0f);
 
         stats.SetBaseStat(StatTypes.FireRes, 0f);

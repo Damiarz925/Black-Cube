@@ -15,6 +15,7 @@ public class PlayerController : MonoBehaviour
     private StatsComponent stats;   //Field for the player's statsComponent
     private HealthComponent health; //Field for the player's health component
     private DamageReceiver damageReceiver;
+    public float EquippedWeaponBaseDamage => equippedWeapon != null ? equippedWeapon.GetEffectiveBaseDamage() : 0f;
 
     public float baseSpeed = 1f;    //Field for the player's base speed (currently set at 2f for testing. Likely 1f in the future)
 
@@ -32,7 +33,8 @@ public class PlayerController : MonoBehaviour
         if (equippedWeapon == null)
         {
             Gear starter = CreateStarterWeapon();
-            EquipWeapon(starter);
+            if (EquipmentManager.Instance != null) EquipmentManager.Instance.Equip(starter);
+            else EquipWeapon(starter);
         }
     }
 
@@ -42,7 +44,7 @@ public class PlayerController : MonoBehaviour
         go.transform.SetParent(transform);  //Sets the parent of the object's transform
         Gear gear = go.AddComponent<Gear>();    //Adds a gear component to the newly created starter weapon, and assigns that gear component to the variable gear
 
-        gear.BaseElement = Element.Phys;    //Sets the weapon's base element to phys
+        gear.Initialize(LootManager.GearType.Weapons, LootManager.GearRarity.Normal, 1, Element.Phys);
         gear.BaseDamage = 80f;  //Sets base damage to 20
         gear.BaseAttackSpeed = 1.2f;    //sets base attack speed to 1
         gear.BaseCritChance = 0.05f;    //sets base crit chance to 5%
@@ -96,7 +98,12 @@ public class PlayerController : MonoBehaviour
     public DamageContext BuildAttackContext()
     {
         DamageContext ctx = new DamageContext(4);   //Builds a damage context, passing in 4 as the initial capacity
-        if (equippedWeapon == null) return ctx; //If no equipped weapon, return just the context
+        if (equippedWeapon == null)
+        {
+            float unarmed = Mathf.Max(0f, stats.GetStat(StatTypes.UnarmedDamage));
+            if (unarmed > 0f) AddScaledElementalDamage(ctx, Element.Phys, unarmed);
+            return ctx;
+        }
 
         Element weaponElement = equippedWeapon.BaseElement; //assign the weapon's base element to weaponElement variable
         float weaponBaseDamage = equippedWeapon.GetEffectiveBaseDamage();   //get the weapon's effective base damage, then assign that to the weaponBaseDamage variable
@@ -205,7 +212,8 @@ public class PlayerController : MonoBehaviour
     //Calculates the final attack speed
     public float GetFinalAttackSpeed()
     {
-        if (equippedWeapon == null) return 0f;  //If no equipped weapon, return
+        if (equippedWeapon == null)
+            return stats.GetStat(StatTypes.UnarmedDamage) > 0f ? baseSpeed * (1f + stats.GetStat(StatTypes.AttackSpeed)) : 0f;
 
         float weaponAS = equippedWeapon.GetEffectiveAttackSpeed();  //Grabs the weapon's base attack speed (base speed * local weapon attack speed modifier)
         float incASGlobal = stats.GetStat(StatTypes.AttackSpeed); //Gets the player's global attack speed modifier

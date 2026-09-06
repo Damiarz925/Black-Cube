@@ -27,6 +27,8 @@ public class BattleManager : MonoBehaviour
 
     private Animator playerAnimator;
     private Animator enemyAnimator;
+    private PaperSpriteActor playerSprite;
+    private PaperSpriteActor enemySprite;
 
     private EnemyAI enemyAI;
     public EnemyAI CurrentEnemyAI => enemyAI;
@@ -78,6 +80,7 @@ public class BattleManager : MonoBehaviour
         playerHealth = player.GetComponent<HealthComponent>();
         playerDamageReceiver = GetOrAddDamageReceiver(player);
         playerAnimator = player.GetComponent<Animator>();
+        playerSprite = player.GetComponent<PaperSpriteActor>();
 
         if (playerController == null || playerStats == null || playerHealth == null)        //if any of these (except statuscont) are null, give error
         {
@@ -137,6 +140,7 @@ public class BattleManager : MonoBehaviour
         enemyHealth = currentEnemy.GetComponent<HealthComponent>();
         enemyDamageReceiver = GetOrAddDamageReceiver(currentEnemy);
         enemyAnimator = currentEnemy.GetComponent<Animator>();
+        enemySprite = currentEnemy.GetComponent<PaperSpriteActor>();
 
         if (enemyAI == null || enemyStatusCont == null || enemyStats == null || enemyHealth == null)       //if any of these (except statuscont) are null, give error and return
         {
@@ -177,6 +181,10 @@ public class BattleManager : MonoBehaviour
         playerGauge += playerSpeed * Time.deltaTime;        //add to the gauge based on player and enemy speed every second
         enemyGauge += enemySpeed * Time.deltaTime;
 
+        // Wind up just before the gauge fills; show strike on the exact damage turn.
+        if (playerSprite != null) playerSprite.SetAnticipation(playerGauge >= turnThreshold - playerSpeed * 0.08f);
+        if (enemySprite != null) enemySprite.SetAnticipation(enemyGauge >= turnThreshold - enemySpeed * 0.08f);
+
         int safety = 10;
 
         while ((playerGauge >= turnThreshold || enemyGauge >= turnThreshold) && safety-- > 0)       //if player gauge or enemygauge exceeeds the turn threshold, and the safety is greater than 0 (decrement safety after each loop)
@@ -187,7 +195,8 @@ public class BattleManager : MonoBehaviour
             {
                 playerGauge -= turnThreshold;
 
-                TriggerAttackAnimation(playerAnimator, playerSpeed);
+                if (playerSprite != null) playerSprite.Strike();
+                else TriggerAttackAnimation(playerAnimator, playerSpeed);
 
                 ResolvePlayerTurn();
             }
@@ -195,7 +204,8 @@ public class BattleManager : MonoBehaviour
             {
                 enemyGauge -= turnThreshold;
 
-                TriggerAttackAnimation(enemyAnimator, enemySpeed);
+                if (enemySprite != null) enemySprite.Strike();
+                else TriggerAttackAnimation(enemyAnimator, enemySpeed);
 
                 ResolveEnemyTurn();
             }

@@ -9,6 +9,8 @@ public class EquipmentManager : MonoBehaviour
     [SerializeField] private PlayerController playerController;
 
     private readonly Dictionary<LootManager.GearType, Gear> equipped = new(); //Dictionary. Key is GearType enum, Value is Gear object
+    public event System.Action EquipmentChanged;
+    public Gear GetEquipped(LootManager.GearType type) => equipped.TryGetValue(type, out var gear) ? gear : null;
 
     private void Awake() //Safely declare singleton on awake and find the statscomponent and playercontroller
     {
@@ -28,12 +30,16 @@ public class EquipmentManager : MonoBehaviour
     {
         //If the passed gear item is null, exit the function
         if (gear == null) return;          
+        if (GetEquipped(gear.ItemType) == gear) return;
 
         EnsurePlayerReferences();
         
         //Define variables for the item type of the gear item, and the inventory instance
         var slot = gear.ItemType;
         var inventory = Inventory.Instance;
+        playerStats?.BeginUpdate();
+        try
+        {
 
         //If the inventory isn't null, remove the item from it
         if (inventory != null)
@@ -68,6 +74,25 @@ public class EquipmentManager : MonoBehaviour
         {
             playerController.EquipWeapon(gear);
         }
+        }
+        finally { playerStats?.EndUpdate(); }
+        EquipmentChanged?.Invoke();
+    }
+
+    public void Unequip(LootManager.GearType slot)
+    {
+        EnsurePlayerReferences();
+        if (!equipped.TryGetValue(slot, out var gear)) return;
+        playerStats?.BeginUpdate();
+        try
+        {
+            equipped.Remove(slot);
+            playerStats?.RemoveModifiersFromSource(gear);
+            if (slot == LootManager.GearType.Weapons && playerController != null) playerController.EquipWeapon(null);
+            if (Inventory.Instance != null) Inventory.Instance.Add(gear);
+        }
+        finally { playerStats?.EndUpdate(); }
+        EquipmentChanged?.Invoke();
     }
 
     //This grabs the correct operation for the stat

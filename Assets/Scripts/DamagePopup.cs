@@ -13,7 +13,6 @@ public class DamagePopup : MonoBehaviour
 
     [Header("Popup Spread")]
     [SerializeField] private float sameTargetResetTime = 0.08f;
-    [SerializeField] private float horizontalSpacing = 34f;
     [SerializeField] private float verticalSpacing = 2f;
 
     [Header("Damage Colors")]
@@ -24,6 +23,8 @@ public class DamagePopup : MonoBehaviour
     [SerializeField] private Color poisonColor = new Color(0.1f, 0.8f, 0.25f);
     [SerializeField] private Color bleedColor = new Color(0.85f, 0.05f, 0.05f);
     [SerializeField] private Color defaultColor = Color.white;
+    [Header("Number Materials: physical, fire, cold, lightning, poison, bleed, void")]
+    [SerializeField] private Material[] numberMaterials;
 
     public static DamagePopup Instance;
 
@@ -56,15 +57,24 @@ public class DamagePopup : MonoBehaviour
 
     public void Spawn(float damage, Transform target, Element element)
     {
-        Spawn(damage, target, GetColorForElement(element));
+        int index=element switch {Element.Phys=>0,Element.Fire=>1,Element.Cold=>2,Element.Light=>3,Element.Poison=>4,_=>6};
+        SpawnStyled(damage, target, GetColorForElement(element), GetMaterial(index),index);
     }
 
     public void Spawn(float damage, Transform target, StatusEffects effect)
     {
-        Spawn(damage, target, GetColorForStatus(effect));
+        int index=effect==null?6:effect.Ailment switch {StatusEffects.AilmentKind.Poison=>4,StatusEffects.AilmentKind.Bleed=>5,StatusEffects.AilmentKind.Ignite=>1,_=>6};
+        SpawnStyled(damage, target, GetColorForStatus(effect), GetMaterial(index),index);
     }
 
     public void Spawn(float damage, Transform target, Color color)
+    {
+        SpawnStyled(damage,target,color,null);
+    }
+
+    private Material GetMaterial(int index) => numberMaterials!=null && index<numberMaterials.Length ? numberMaterials[index] : null;
+
+    private void SpawnStyled(float damage, Transform target, Color color, Material material,int styleIndex=-1)
     {
         if (popupPrefab == null || popupRoot == null || canvas == null || target == null)
         {
@@ -79,6 +89,17 @@ public class DamagePopup : MonoBehaviour
         {
             text.text = Mathf.RoundToInt(damage).ToString();
             text.color = color;
+            if(material != null)
+            {
+                text.fontSharedMaterial=material;
+                text.color=Color.white;
+                text.fontStyle=FontStyles.Bold;
+                text.extraPadding=true;
+                text.UpdateMeshPadding();
+            }
+            text.alignment = TextAlignmentOptions.Center;
+            text.raycastTarget = false;
+            if(material!=null)DamageNumberAccent.Attach(text,styleIndex,material.GetColor("_OutlineColor"));
         }
 
         var instance = go.AddComponent<DamagePopupInstance>();
@@ -97,10 +118,8 @@ public class DamagePopup : MonoBehaviour
         sequence.LastSpawnTime = Time.unscaledTime;
         popupSequences[target] = sequence;
 
-        int column = (index % 5) - 2;
-        int row = index / 5;
-
-        return new Vector2(column * horizontalSpacing, row * verticalSpacing);
+        // Keep hits centered, stacking simultaneous numbers vertically.
+        return new Vector2(0f, index * Mathf.Max(verticalSpacing, 28f));
     }
 
     private Color GetColorForElement(Element element)
@@ -133,34 +152,50 @@ public class DamagePopup : MonoBehaviour
 
 public class DamagePopupInstance : MonoBehaviour
 {
-    private Transform target;
+    private Vector3 worldPosition;
+    private Canvas canvas;
     private RectTransform rectTransform;
     private float floatSpeed;
     private float lifetime;
     private float timer;
-    private Vector3 worldOffset;
     private Vector2 screenOffset;
     private float yOffset;
 
     public void Initialize(Transform target, Canvas canvas, float floatSpeed, float lifetime, Vector3 worldOffset, Vector2 screenOffset)
     {
-        this.target = target;
+        this.canvas = canvas;
+        var actor = target.GetComponentInParent<PaperSpriteActor>();
+        // Snapshot the stable head anchor. Lethal hits survive recipient destruction.
+        worldPosition = actor != null ? actor.DamagePopupPosition : target.position + worldOffset;
         this.floatSpeed = floatSpeed;
         this.lifetime = lifetime;
-        this.worldOffset = worldOffset;
         this.screenOffset = screenOffset;
 
         rectTransform = transform as RectTransform;
+        if (rectTransform != null && rectTransform.parent is RectTransform parent)
+        {
+            rectTransform.anchorMin = rectTransform.anchorMax = parent.pivot;
+            rectTransform.pivot = new Vector2(0.5f, 0.5f);
+            PositionPopup();
+        }
     }
 
     private void Update()
     {
-        if (target == null || rectTransform == null)
+        if (rectTransform == null || canvas == null)
         {
             Destroy(gameObject);
             return;
         }
 
+        yOffset += floatSpeed * Time.deltaTime;
+        PositionPopup();
+        timer += Time.deltaTime;
+        if (timer >= lifetime) Destroy(gameObject);
+    }
+
+    private void PositionPopup()
+    {
         Camera mainCamera = Camera.main;
         if (mainCamera == null)
         {
@@ -168,19 +203,13 @@ public class DamagePopupInstance : MonoBehaviour
             return;
         }
 
-        Vector3 screenPos = mainCamera.WorldToScreenPoint(target.position + worldOffset);
-
-        yOffset += floatSpeed * Time.deltaTime;
-        screenPos.x += screenOffset.x;
-        screenPos.y += screenOffset.y;
-        screenPos.y += yOffset;
-
-        rectTransform.position = screenPos;
-
-        timer += Time.deltaTime;
-        if (timer >= lifetime)
+        var parent = rectTransform.parent as RectTransform;
+        var uiCamera = canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : canvas.worldCamera;
+        // CanvasScaler-safe conversion; do not assign raw screen pixels to UI positions.
+        if (parent != null && RectTransformUtility.ScreenPointToLocalPointInRectangle(
+            parent, mainCamera.WorldToScreenPoint(worldPosition), uiCamera, out var localPoint))
         {
-            Destroy(gameObject);
+            rectTransform.anchoredPosition = localPoint + screenOffset + Vector2.up * yOffset;
         }
     }
 }

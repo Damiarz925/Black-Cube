@@ -22,13 +22,16 @@ public class ItemSlotUI : MonoBehaviour
     public void Setup(Gear gear, Sprite icon) //Populates the item slot UI with gear data and click behavior
     {
         this.gear = gear; //Sets the private gear object of the class to the passed in gear object
-        backgroundImage.color = RarityColor(gear.ItemRarity);
+        var glyph = GetComponentInChildren<EquipmentGlyph>(true);
+        if (backgroundImage != null) backgroundImage.color = glyph != null ? new Color(.065f,.068f,.08f) : RarityColor(gear.ItemRarity);
+        if (rarityOverlay != null) rarityOverlay.color = RarityColor(gear.ItemRarity);
+        if (glyph != null) { glyph.gearType=gear.ItemType; glyph.color=RarityColor(gear.ItemRarity); glyph.SetVerticesDirty(); }
 
         if (nameText != null)   //If there is name text, set it to be the rarity + item type
-            nameText.text = $"{gear.ItemRarity} {gear.ItemType}";
+            nameText.text = $"{gear.ItemRarity} {DisplayType(gear.ItemType)}";
 
         if (detailText != null) //If there is detail text, set it to be "ilvl" + the gear's item level
-            detailText.text = $"ilvl {gear.ItemLevel}";
+            detailText.text = $"ITEM LEVEL {gear.ItemLevel}";
 
         if (iconImage != null)  //If the icon image exists, set iconImage.sprite to the passed icon, then enable
         {
@@ -48,7 +51,19 @@ public class ItemSlotUI : MonoBehaviour
         EquipmentManager.Instance.Equip(gear);
     }
 
-    private Color RarityColor(LootManager.GearRarity rarity)
+    public static string DisplayType(LootManager.GearType type) => type switch
+    {
+        LootManager.GearType.Helmets => "Helmet",
+        LootManager.GearType.Amulets => "Amulet",
+        LootManager.GearType.BodyArmours => "Body Armor",
+        LootManager.GearType.Gloves => "Glove",
+        LootManager.GearType.Boots => "Boot",
+        LootManager.GearType.Rings => "Ring",
+        LootManager.GearType.Belts => "Belt",
+        _ => "Weapon"
+    };
+
+    public static Color RarityColor(LootManager.GearRarity rarity)
     {
         return rarity switch
         {

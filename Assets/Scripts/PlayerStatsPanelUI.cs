@@ -51,12 +51,25 @@ public class PlayerStatsPanelUI : MonoBehaviour
             return;
 
         Clear();
+        var player = playerStats.GetComponent<PlayerController>();
+        if (player != null)
+        {
+            var header = Instantiate(headerPrefab, contentRoot);
+            header.SetText("Attack Base"); _spawned.Add(header.gameObject);
+            var weapon = Instantiate(rowPrefab, contentRoot);
+            weapon.Set("Equipped Weapon Base Damage", player.EquippedWeaponBaseDamage.ToString("0.##"));
+            _spawned.Add(weapon.gameObject);
+            var unarmed = Instantiate(rowPrefab, contentRoot);
+            unarmed.Set("Unarmed Damage", playerStats.GetStat(StatTypes.UnarmedDamage).ToString("0.##"));
+            _spawned.Add(unarmed.gameObject);
+        }
 
         // Only display stats that the player currently has => tracked keys
         var tracked = playerStats.GetTrackedStats().OrderBy(t => (int)t).ToList();
 
         // Only display stats with non-zero values
         tracked = tracked.Where(t => StatDisplayFormatting.ShouldDisplay(playerStats, t)).ToList();
+        if (player != null) tracked.RemoveAll(t => t == StatTypes.UnarmedDamage || t == StatTypes.WeaponBaseDmg);
 
         if (tracked.Count == 0)
         {

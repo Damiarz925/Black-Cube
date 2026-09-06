@@ -149,5 +149,6 @@ public enum StatTypes
     FlatLightPerIntelligence = 105,
     FlatColdPerDexterity = 106,
 
-    DmgPerLowestStat = 107
+    DmgPerLowestStat = 107,
+    UnarmedDamage = 108
 }

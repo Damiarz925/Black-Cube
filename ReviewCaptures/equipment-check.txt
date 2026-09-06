@@ -1,0 +1,1 @@
+PAPER2D CHECK PASS: actual inventory button -> EquipmentManager -> active player FlatPhys 0 -> 10 -> 25 -> 10; replacement returned old gear, equipped gear removed, no modifier stacking. Eight stats categories and starter weapon present; Glove glyph, border and label updated through Magic -> Rare -> Magic. QA gear is Play-session only.

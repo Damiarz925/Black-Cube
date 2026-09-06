@@ -6,6 +6,8 @@ public static class StatDisplayFormatting
     // Optional: override names that look bad when auto-split
     private static readonly Dictionary<StatTypes, string> Overrides = new()
     {
+        { StatTypes.Life, "Maximum HP" },
+        { StatTypes.UnarmedDamage, "Unarmed Damage" },
         { StatTypes.FlatPhys, "Flat Physical Damage" },
         { StatTypes.FlatFire, "Flat Fire Damage" },
         { StatTypes.FlatCold, "Flat Cold Damage" },
@@ -64,6 +66,7 @@ public static class StatDisplayFormatting
 
     public static bool ShouldDisplay (StatsComponent stats, StatTypes type, float epsilon = 0.0001f)
     {
+        if (type == StatTypes.UnarmedDamage) return true;
         float raw = stats.GetRawStat(type);
         return System.MathF.Abs(raw) > epsilon;
     }

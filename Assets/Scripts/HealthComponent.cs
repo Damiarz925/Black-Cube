@@ -10,10 +10,28 @@ public class HealthComponent : MonoBehaviour
     [SerializeField] private bool isBoss;
 
     private bool isDead = false;
+    private StatsComponent playerStats;
+    public float MaxLife => playerStats != null ? Mathf.Max(0f, playerStats.GetStat(StatTypes.Life)) : maxLife;
 
     private void Awake()
     {
-        CurrentLife = maxLife;
+        // Only players with PlayerStatSetup use derived Life. Enemy prefab health is unchanged.
+        if (!isEnemy && GetComponent<PlayerStatSetup>() != null)
+            playerStats = GetComponent<StatsComponent>();
+        CurrentLife = MaxLife;
+        if (playerStats != null) Debug.Log($"Player health initialized: {CurrentLife}/{MaxLife}", this);
+    }
+
+    private void OnEnable()
+    {
+        if (playerStats != null) playerStats.StatsChanged += SyncMaximum;
+        SyncMaximum();
+    }
+    private void OnDisable() { if (playerStats != null) playerStats.StatsChanged -= SyncMaximum; }
+    private void SyncMaximum()
+    {
+        CurrentLife = Mathf.Min(CurrentLife, MaxLife);
+        if (CurrentLife <= 0f && !isDead) Die();
     }
 
     public void LoseLife(float amount)
@@ -34,6 +52,7 @@ public class HealthComponent : MonoBehaviour
     {
         if (isDead) return;
         isDead = true;
+        GetComponent<StatusController>()?.ClearStatuses();
 
         if (isEnemy)
         {
@@ -62,7 +81,8 @@ public class HealthComponent : MonoBehaviour
     public void ReviveToFullLife()
     {
         isDead = false;
-        CurrentLife = maxLife;
+        CurrentLife = MaxLife;
+        if (CurrentLife <= 0f) Die();
         Debug.Log($"HealthComponent: ReviveToFullLife called for {name}. CurrentLife={CurrentLife}", this);
     }
 }

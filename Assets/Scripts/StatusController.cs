@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 //StatusController is used to manage all of the statuses on the GameObject that the controller is on. Contains code for managing stacks and applying Status Damage/Effects
-public class StatusController : MonoBehaviour
+public partial class StatusController : MonoBehaviour
 {
     private PlayerController playerCont;
     private EnemyAI enemyCont;
@@ -62,8 +62,11 @@ public class StatusController : MonoBehaviour
         ApplyStatus(effect, stacksPerHit, damagePerTick, tickCount, attackerStats, effectiveInterval);      //Call apply status
     }
 
-    private void ApplyStatus(StatusEffects effect, int stacksPerHit, float damagePerTick, int tickCount, StatsComponent sourceStats, int effectiveInterval)
+    public void ApplyStatus(StatusEffects effect, int stacksPerHit, float damagePerTick, int tickCount, StatsComponent sourceStats, int effectiveInterval)
     {
+        if (effect == null || stacksPerHit <= 0 || tickCount <= 0 || damagePerTick <= 0) return;
+        var health = GetComponent<HealthComponent>();
+        if (health != null && health.CurrentLife <= 0) return;
         switch (effect._StackPolicy)    //Decide which stack policy to use based on the ailments defined stack policy from its SO
         {
             case StatusEffects.StackPolicy.StackAndRefresh:
@@ -98,7 +101,10 @@ public class StatusController : MonoBehaviour
         if (effect.MaxStacks > 0)   
             newStacks = Mathf.Min(newStacks, effect.MaxStacks);     //If the maxstacks is greater than 0, grab the minimum between newStacks and max stacks (so as to not exceed the maximum stacks -- Clamping)
 
-        var instance = new StatusInstance(effect, damagePerTick, newStacks, tickCount, sourceStats, effectiveInterval);     //Create a new status instance with the updated stacks
+        int added = newStacks - currentStacks;
+        if (existing != null && currentStacks > 0)
+            damagePerTick = (existing.damagePerTick * currentStacks + damagePerTick * added) / newStacks;
+        var instance = new StatusInstance(effect, damagePerTick, newStacks, tickCount, sourceStats, effectiveInterval);     //Refresh retains the weighted strength of existing stacks
         StatusDictionary[effect] = instance;    //Replace the existing instance in the dictionary with the new one
     }
 
@@ -110,6 +116,12 @@ public class StatusController : MonoBehaviour
             IndependentDictionary[effect] = list;   //Add the list to the effect
         }
 
+        if (effect.MaxStacks > 0)
+        {
+            int count = 0; foreach (var active in list) count += active.stacks;
+            stacksPerHit = Mathf.Min(stacksPerHit, effect.MaxStacks - count);
+            if (stacksPerHit <= 0) return;
+        }
         var instance = new StatusInstance(effect, damagePerTick, stacksPerHit, tickCount, sourceStats, effectiveInterval);  //Create the instance using the passed in values
         list.Add(instance);     //Add our new instance to the list
     }
@@ -145,6 +157,11 @@ public class StatusController : MonoBehaviour
     // --------------------------------------------------------------------
     public void TickStatuses()
     {
+        var health = GetComponent<HealthComponent>();
+        if (health != null && health.CurrentLife <= 0) { ClearStatuses(); return; }
+        // One common per-stack tick value per effect for this global turn.
+        averagedTicks.Clear();
+        foreach (var summary in GetStatusSummaries()) averagedTicks[summary.Effect] = summary.DamagePerTick;
         if (StatusDictionary.Count == 0 && IndependentDictionary.Count == 0)    //If both dictionaries are empty, return
             return;
 
@@ -290,11 +307,9 @@ public class StatusController : MonoBehaviour
             // Actual DOT damage.
             baseTick = instance.GetTickDamage();    //grab the tick damage and store it in baseTick, use combat calculator to calculate the tick damage
 
-            float finalTick = CombatCalculator.CalculateAilmentTickDamage(
-                baseTick,
-                effect,
-                instance.sourceStats,
-                stats);
+            float finalTick = averagedTicks.TryGetValue(effect, out var mean)
+                ? mean * instance.stacks
+                : CombatCalculator.CalculateAilmentTickDamage(baseTick, effect, instance.sourceStats, stats);
 
             if (finalTick > 0f) //if the final tick damage is greater than 0, add it to pending effects
                 pendingEffects.Add(new PendingEffect(finalTick, effect));

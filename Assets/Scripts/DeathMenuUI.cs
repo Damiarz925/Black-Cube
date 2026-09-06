@@ -19,6 +19,7 @@ public class DeathMenuUI : MonoBehaviour
 
     [Header("Scene Routing")]
     [SerializeField] private string mainMenuSceneName = "Main Menu";
+    private bool showRequested;
 
     private void Awake()
     {
@@ -43,11 +44,13 @@ public class DeathMenuUI : MonoBehaviour
             mainMenuSceneName = "Main Menu";
         }
 
-        Hide();
+        // An initially inactive menu may awaken inside Show's SetActive call.
+        if (!showRequested) Hide();
     }
 
     public void Show(int enemyLevel, EnemyAI.EnemyRarity enemyRarity, Element weaponElement)
     {
+        showRequested = true;
         if (root != null)
         {
             root.SetActive(true);
@@ -73,6 +76,7 @@ public class DeathMenuUI : MonoBehaviour
 
     public void Hide()
     {
+        showRequested = false;
         Debug.Log("DeathMenuUI: Hide");
         if (root != null)
         {

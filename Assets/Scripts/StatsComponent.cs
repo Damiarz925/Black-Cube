@@ -4,6 +4,21 @@ using System.Collections.Generic;
 public class StatsComponent : MonoBehaviour
 {
     private readonly Dictionary<StatTypes, StatValue> _stats = new();
+    public event System.Action StatsChanged;
+    private int updateDepth;
+    private bool pendingChange;
+    public void BeginUpdate() { updateDepth++; }
+    public void EndUpdate()
+    {
+        if (updateDepth <= 0) throw new System.InvalidOperationException("Unbalanced stat update");
+        updateDepth--;
+        if (updateDepth == 0 && pendingChange) { pendingChange = false; StatsChanged?.Invoke(); }
+    }
+    private void NotifyChanged()
+    {
+        if (updateDepth > 0) pendingChange = true;
+        else StatsChanged?.Invoke();
+    }
 
     /// <summary>
     /// Main accessor:
@@ -44,6 +59,7 @@ public class StatsComponent : MonoBehaviour
         {
             stat.BaseValue = baseValue;
         }
+        NotifyChanged();
     }
 
     public void AddModifier(StatModifier mod)
@@ -54,6 +70,7 @@ public class StatsComponent : MonoBehaviour
             _stats[mod.Stat] = stat;
         }
         stat.AddModifier(mod);
+        NotifyChanged();
     }
 
     public void RemoveModifiersFromSource(object source)
@@ -62,6 +79,7 @@ public class StatsComponent : MonoBehaviour
         {
             kvp.Value.RemoveModifiersFromSource(source);
         }
+        NotifyChanged();
     }
 
     /// <summary>

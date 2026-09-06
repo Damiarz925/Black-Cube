@@ -4,6 +4,7 @@ using UnityEngine;
 public class ZoneManager : MonoBehaviour
 {
     [Header("Generation")]
+    [SerializeField] private bool generate3DScenery = true;
     [SerializeField] private LevelGenerator levelGenerator;
     [SerializeField] private ThemeSet themeSet;
     [SerializeField] private SpawnAnchorGroup anchors;
@@ -30,6 +31,8 @@ public class ZoneManager : MonoBehaviour
 
     public void GenerateZone()
     {
+        // The paper scene supplies a painted background. Keep generation reusable.
+        if (!generate3DScenery) return;
         if (!EnsureReferences())
             return;
 
