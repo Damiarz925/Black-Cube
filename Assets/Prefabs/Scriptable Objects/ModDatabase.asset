@@ -2519,3 +2519,10 @@ MonoBehaviour:
     tiers: []
     tierTopMultiplier: 6
     tierSpread: 0.35
+  - statType: 108
+    displayName: 
+    allowedSlots: 
+    groups: []
+    tiers: []
+    tierTopMultiplier: 6
+    tierSpread: 0.35
