@@ -98,10 +98,7 @@ public class EquipmentManager : MonoBehaviour
     //This grabs the correct operation for the stat
     private StatOp GetOperationForStat(StatTypes stat)
     {
-        string name = stat.ToString(); //Changes the stat's name to a string
-        if (name.StartsWith("Flat")) return StatOp.Flat; //Checks if it starts with flat to determine if it needs to be added as a flat value
-        if (name.EndsWith("Mult")) return StatOp.Multiplicative; //Checks if it ends with mult to determine if it's a "More" modifier
-        return StatOp.Additive; //Otherwise, the value is additive "increased" modifier
+        return StatMappings.GetRolledModifierOperation(stat);
     }
 
     private void EnsurePlayerReferences()

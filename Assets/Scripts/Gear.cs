@@ -87,7 +87,9 @@ public class Gear : MonoBehaviour
                     BaseAttackSpeed = mod.value;
                     break;
                 case StatTypes.WeaponBaseCrit:
-                    BaseCritChance = mod.value;
+                    // Weapon base critical chance tiers are authored as percentage
+                    // points (5 means 5%), while the weapon stores a probability.
+                    BaseCritChance = mod.value / 100f;
                     break;
                 // FLAT / INC DAMAGE (If any of these cases are true, perform if, so if the mod is any "Dmg" mod or "Flat" mod)
                 case StatTypes.PhysDmg:

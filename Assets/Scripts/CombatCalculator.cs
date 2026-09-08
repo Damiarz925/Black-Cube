@@ -11,12 +11,13 @@ public static class CombatCalculator
         {
             float d = hit.Amount;
 
-            // Physical: armour first
+            // Physical damage uses armour only. Physical penetration subtracts
+            // from the armour-derived reduction and never targets an elemental
+            // resistance channel.
             if (hit.Element == Element.Phys)
-                d = ApplyArmour(d, defender);   //Apply the armour to the hit (d)
-
-            // Then elemental/Phys res (your existing hit pipeline)
-            d = ApplyResistancesAndPenetration(d, hit.Element, attacker, defender);     //Calculate and apply resistances and penetration to the hit
+                d = ApplyArmourAndPenetration(d, attacker, defender);
+            else
+                d = ApplyResistancesAndPenetration(d, hit.Element, attacker, defender);
 
             if (d > 0f)
                 totalDamageTaken += d;      //If D is greater than 0 after accounting for armour and resistances, add it to the total damage taken and return it
@@ -56,8 +57,10 @@ public static class CombatCalculator
         return damage * (1f - totalRes);        //Convert the number and return the damage amount after resistance and penetration has been applied
     }
 
-    //Function for applying armour to the physical damage hit
-    static float ApplyArmour(float physDamage, StatsComponent defender)
+    // Applies the existing armour formula, then subtracts physical penetration
+    // from that percentage reduction. As with elemental penetration, the final
+    // reduction may become negative (up to -90%), increasing damage taken.
+    static float ApplyArmourAndPenetration(float physDamage, StatsComponent attacker, StatsComponent defender)
     {
         if (physDamage <= 0f || defender == null)       //If physical damage or defender is 0/null, return
             return 0f;
@@ -68,6 +71,11 @@ public static class CombatCalculator
 
         float reduction = totalArmour / (totalArmour + 10f * physDamage);
         reduction = Mathf.Clamp01(reduction);
+
+        float penetration = attacker != null
+            ? attacker.GetStat(StatTypes.PhysPenetration)
+            : 0f;
+        reduction = Mathf.Clamp(reduction - penetration, -0.9f, 0.9f);
 
         return physDamage * (1f - reduction);
     }

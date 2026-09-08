@@ -1,0 +1,12 @@
+{
+  "name": "BlackCube.ModifierTierTests",
+  "references": [
+    "Assembly-CSharp"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ]
+}

@@ -74,8 +74,8 @@ public static class AilmentCalculator
                 break;
         }
 
-        //Calculate the total ailment damage as base damage * (1+increased/100) * (1+more/100). This is because they are whole numbers that must be converted to be used. 
-        float totalAilmentDamage = baseAilmentDamage * (1f + (incTotal/100f)) * (1f + (moreTotal/100f));
+        // GetStat already converts authored percentage points to fractions.
+        float totalAilmentDamage = baseAilmentDamage * (1f + incTotal) * (1f + moreTotal);
 
         // 5)Grab the base tick duration of the ailment
         int baseTicks = Mathf.Max(1, effect.TickDuration);

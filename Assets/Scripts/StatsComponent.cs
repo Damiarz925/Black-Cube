@@ -132,9 +132,24 @@ public class StatsComponent : MonoBehaviour
             case StatTypes.IgniteMult:
 
             // Crit / attack speed
+            case StatTypes.WeaponBaseCrit:
+            case StatTypes.ChanceToBlock:
             case StatTypes.CritChance:
+            case StatTypes.CritMult:
             case StatTypes.BaseCritChance:   // +X percentage points to base crit
             case StatTypes.AttackSpeed:
+            case StatTypes.Accuracy:
+            case StatTypes.ChanceToHitTwice:
+            case StatTypes.CooldownRecovery:
+
+            // Penetration
+            case StatTypes.PhysPenetration:
+            case StatTypes.ColdPenetration:
+            case StatTypes.LightPenetration:
+            case StatTypes.FirePenetration:
+            case StatTypes.PoisonPenetration:
+            case StatTypes.IgnitePenetration:
+            case StatTypes.BleedPenetration:
 
             // Defences / resists / caps
             case StatTypes.ArmourPercent:
@@ -157,6 +172,18 @@ public class StatsComponent : MonoBehaviour
             // Life / mana % increases
             case StatTypes.LifePercent:
             case StatTypes.ManaPercent:
+
+            // Attribute increases and percentage-per-attribute scalers.
+            // These are classified now for correct storage/display even though
+            // their gameplay consumers are intentionally still dormant.
+            case StatTypes.StrengthPercent:
+            case StatTypes.IntelligencePercent:
+            case StatTypes.DexterityPercent:
+            case StatTypes.DamagePerStrength:
+            case StatTypes.DoTMultPerIntelligence:
+            case StatTypes.AttackSpeedPerDexterity:
+            case StatTypes.AccuracyPerDexterity:
+            case StatTypes.DmgPerLowestStat:
 
             // Ailment scaling – effect
             case StatTypes.ShockEffect:

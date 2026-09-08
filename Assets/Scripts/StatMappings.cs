@@ -3,6 +3,17 @@ using UnityEngine;
 public static class StatMappings
 {
     /// <summary>
+    /// Rolled values are stored in their own stat channel as raw display units.
+    /// A 20% roll is therefore accumulated as 20, then StatsComponent.GetStat
+    /// converts percent channels to 0.20 for gameplay. Multiplicative gameplay
+    /// buckets are composed by their consumers, not by StatValue itself.
+    /// </summary>
+    public static StatOp GetRolledModifierOperation(StatTypes stat)
+    {
+        return StatOp.Additive;
+    }
+
+    /// <summary>
     /// Global flat damage per element function used to grab the flat dmg stats
     /// </summary>
     public static StatTypes GetFlatDamageStat(Element element)
@@ -78,9 +89,11 @@ public static class StatMappings
             case Element.Light:
                 return StatTypes.LightRes;
             case Element.Phys:
+                throw new System.ArgumentOutOfRangeException(
+                    nameof(element), element, "Physical damage uses armour, not a resistance stat.");
             default:
-                // If you add a PhysRes later, handle it here.
-                return StatTypes.FireRes; // placeholder, not used for phys right now
+                // Preserve the existing fallback for currently unsupported elements.
+                return StatTypes.FireRes;
         }
     }
 

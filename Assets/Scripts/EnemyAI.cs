@@ -240,10 +240,7 @@ public class EnemyAI : MonoBehaviour
 
     private StatOp GetOperationForStat(StatTypes stat)      //used to get the operation for a given stat
     {
-        string name = stat.ToString();      //grabs the name of the stat casted to a string
-        if (name.StartsWith("Flat")) return StatOp.Flat;        //if it starts with flat (this is consistent for all flat mods currently), return statop.flat
-        if (name.EndsWith("Mult")) return StatOp.Multiplicative;        //if it ends with mult (this is consistent for all mult mods currently), return statop.multiplicative
-        return StatOp.Additive;     //otherwisse, return statop.additive
+        return StatMappings.GetRolledModifierOperation(stat);
     }
 
     public DamageContext BuildAttackContext()       //builds the attack context, called when enemy attacks
