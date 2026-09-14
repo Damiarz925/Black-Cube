@@ -28,6 +28,7 @@ public class PaperBattleHUD : MonoBehaviour
     ManaComponent playerMana,enemyMana;
     PlayerDisplayNameProvider displayNameProvider;
     BattleManager battleManager;
+    PauseMenuUI pauseMenu;
     HealthComponent boundPlayer;
     EnemyAI boundEnemy;
     HealthComponent enemyHealth;
@@ -38,6 +39,7 @@ public class PaperBattleHUD : MonoBehaviour
 
     public bool IsEnemyInspectionOpen => enemyInspection != null && enemyInspection.IsOpen;
     public bool IsExplicitlyPaused => Mathf.Approximately(Time.timeScale,0f);
+    public PauseMenuUI PauseMenu => pauseMenu;
     public RectTransform ArtworkRect => artworkRect;
     public Button GetButton(TopHUDButtonKind kind) => buttons.TryGetValue(kind,out Button value)?value:null;
 
@@ -51,6 +53,7 @@ public class PaperBattleHUD : MonoBehaviour
         enemyInspection=GetComponent<EnemyInspectionPanelUI>();if(enemyInspection==null)enemyInspection=gameObject.AddComponent<EnemyInspectionPanelUI>();enemyInspection.Initialize(this);
         InventoryEquipmentPanelUI.SeparateStats(statsPanel);
         BuildTopHUD();
+        pauseMenu=GetComponent<PauseMenuUI>();if(pauseMenu==null)pauseMenu=gameObject.AddComponent<PauseMenuUI>();pauseMenu.Initialize(this);
         var corruptionTheme=GetComponent<CorruptionUITheme>();if(corruptionTheme==null)corruptionTheme=gameObject.AddComponent<CorruptionUITheme>();corruptionTheme.Initialize(this,enemyInspection);
     }
 
@@ -66,17 +69,17 @@ public class PaperBattleHUD : MonoBehaviour
     void Update()
     {
         RefreshMenuStates();RefreshRunText();
-        if(player!=null&&player.CurrentLife<=0f)CloseAllPanels();
+        if(player!=null&&player.CurrentLife<=0f){CloseGameplayPanels();pauseMenu?.Close();}
     }
 
-    public void ToggleSkills(){if(CanOpenPanel())GetComponent<PlayerSkillMenuUI>()?.Toggle();}
-    public void TogglePassives(){if(CanOpenPanel())GetComponent<SkillTreeUI>()?.Toggle();}
-    public void ToggleInventory(){if(!CanOpenPanel())return;bool open=inventoryPanel!=null&&!inventoryPanel.activeSelf;CloseAllPanels();if(inventoryPanel!=null)inventoryPanel.SetActive(open);RefreshMenuStates();}
-    public void ToggleStats(){if(!CanOpenPanel()||statsPanel==null)return;bool open=!statsPanel.activeSelf;CloseAllPanels();statsPanel.SetActive(open);RefreshMenuStates();}
-    public void ToggleEnemyInspection(){if(!CanOpenPanel())return;bool open=!IsEnemyInspectionOpen;CloseAllPanels();if(open)enemyInspection?.Open();RefreshMenuStates();}
+    public void ToggleSkills(){if(CanOpenGameplayPanel())GetComponent<PlayerSkillMenuUI>()?.Toggle();}
+    public void TogglePassives(){if(CanOpenGameplayPanel())GetComponent<SkillTreeUI>()?.Toggle();}
+    public void ToggleInventory(){if(!CanOpenGameplayPanel())return;bool open=inventoryPanel!=null&&!inventoryPanel.activeSelf;CloseGameplayPanels();if(inventoryPanel!=null)inventoryPanel.SetActive(open);RefreshMenuStates();}
+    public void ToggleStats(){if(!CanOpenGameplayPanel()||statsPanel==null)return;bool open=!statsPanel.activeSelf;CloseGameplayPanels();statsPanel.SetActive(open);RefreshMenuStates();}
+    public void ToggleEnemyInspection(){if(!CanOpenGameplayPanel())return;bool open=!IsEnemyInspectionOpen;CloseGameplayPanels();if(open)enemyInspection?.Open();RefreshMenuStates();}
     public void CloseEnemyInspection(){enemyInspection?.Close();RefreshMenuStates();}
-    public void PauseGameplay(){if(CanOpenPanel())Time.timeScale=0f;RefreshPlaybackControls();}
-    public void PlayGameplay(){if(CanOpenPanel())Time.timeScale=1f;RefreshPlaybackControls();}
+    public void PauseGameplay(){if(!CanOpenPanel())return;CloseGameplayPanels();Time.timeScale=0f;pauseMenu?.Open();RefreshPlaybackControls();}
+    public void PlayGameplay(){if(!CanOpenPanel())return;pauseMenu?.Close();Time.timeScale=1f;RefreshPlaybackControls();}
 
     public void PositionBelowArtwork(RectTransform target,float left,float topGap,float width,float height)
     {
@@ -229,7 +232,8 @@ public class PaperBattleHUD : MonoBehaviour
 
     void SetActive(TopHUDButtonKind kind,bool value){if(buttonStates.TryGetValue(kind,out HUDSpriteState state))state.SetPersistentActive(value);}
     bool CanOpenPanel()=>player==null||player.CurrentLife>0f;
-    void CloseAllPanels(){if(inventoryPanel!=null)inventoryPanel.SetActive(false);if(statsPanel!=null)statsPanel.SetActive(false);enemyInspection?.Close();GetComponent<SkillTreeUI>()?.Close();GetComponent<PlayerSkillMenuUI>()?.Close();}
+    public void CloseGameplayPanels(){if(inventoryPanel!=null)inventoryPanel.SetActive(false);if(statsPanel!=null)statsPanel.SetActive(false);enemyInspection?.Close();GetComponent<SkillTreeUI>()?.Close();GetComponent<PlayerSkillMenuUI>()?.Close();}
+    bool CanOpenGameplayPanel()=>CanOpenPanel()&&(pauseMenu==null||!pauseMenu.IsOpen);
     void RefreshAll(){RefreshPlayerIdentity();RefreshPlayerResources();RefreshEnemyIdentity();RefreshEnemyResources();RefreshMenuStates();RefreshRunText();}
 
     void UnbindPlayer()
@@ -240,5 +244,13 @@ public class PaperBattleHUD : MonoBehaviour
     void UnbindEnemy(){if(enemyHealth!=null)enemyHealth.Changed-=RefreshEnemyResources;if(enemyMana!=null)enemyMana.ManaChanged-=RefreshEnemyResources;boundEnemy=null;enemyHealth=null;enemyMana=null;}
     void ReleaseBindings(){BattleManager.InstanceChanged-=HandleBattleManagerChanged;if(battleManager!=null)battleManager.CurrentEnemyChanged-=HandleCurrentEnemyChanged;battleManager=null;UnbindEnemy();UnbindPlayer();}
 
-    void OnDestroy(){ReleaseBindings();if(runText!=null&&runText.transform.parent!=transform)Destroy(runText.gameObject);}
+    void OnDestroy()
+    {
+        pauseMenu?.Release();ReleaseBindings();
+        if(runText!=null&&runText.transform.parent!=transform)
+        {
+            GameObject ownedRunText=runText.gameObject;runText=null;
+            if(Application.isPlaying)Destroy(ownedRunText);else DestroyImmediate(ownedRunText);
+        }
+    }
 }

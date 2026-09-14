@@ -66,18 +66,29 @@ public static class GamePersistence
         restored=Load();
         return true;
     }
-    public static void Save()
+    public static void Save()=>TrySave();
+    public static bool TrySave()
     {
-        var data=new GameSaveData();
-        if(Inventory.Instance!=null)foreach(var gear in Inventory.Instance.Items)if(gear!=null&&!gear.IsScrap)data.inventory.Add(GearSaveData.Capture(gear));
-        if(EquipmentManager.Instance!=null)foreach(var pair in EquipmentManager.Instance.EquippedItems)data.equipped.Add(new EquippedGearSaveData{slot=pair.Key,gear=GearSaveData.Capture(pair.Value)});
-        if(CurrencyInventory.Instance!=null)foreach(var stack in CurrencyInventory.Instance.Stacks)data.currencies.Add(stack);
-        if(RelicInventory.Instance!=null)
+        try
         {
-            data.relicCycle=RelicInventory.Instance.CurrentCycle;data.activeRelicIndices=RelicInventory.Instance.CopyActiveIndices();
-            foreach(var relic in RelicInventory.Instance.Relics)data.relics.Add(CloneRelic(relic));
+            var data=new GameSaveData();
+            if(Inventory.Instance!=null)foreach(var gear in Inventory.Instance.Items)if(gear!=null&&!gear.IsScrap)data.inventory.Add(GearSaveData.Capture(gear));
+            if(EquipmentManager.Instance!=null)foreach(var pair in EquipmentManager.Instance.EquippedItems)data.equipped.Add(new EquippedGearSaveData{slot=pair.Key,gear=GearSaveData.Capture(pair.Value)});
+            if(CurrencyInventory.Instance!=null)foreach(var stack in CurrencyInventory.Instance.Stacks)data.currencies.Add(stack);
+            if(RelicInventory.Instance!=null)
+            {
+                data.relicCycle=RelicInventory.Instance.CurrentCycle;data.activeRelicIndices=RelicInventory.Instance.CopyActiveIndices();
+                foreach(var relic in RelicInventory.Instance.Relics)data.relics.Add(CloneRelic(relic));
+            }
+            string json=JsonUtility.ToJson(data);
+            PlayerPrefs.SetString(SaveKey,json);PlayerPrefs.Save();
+            return PlayerPrefs.HasKey(SaveKey)&&PlayerPrefs.GetString(SaveKey)==json;
         }
-        PlayerPrefs.SetString(SaveKey,JsonUtility.ToJson(data));PlayerPrefs.Save();
+        catch(Exception exception)
+        {
+            Debug.LogError($"GamePersistence: save failed. {exception}");
+            return false;
+        }
     }
     public static bool Load()
     {

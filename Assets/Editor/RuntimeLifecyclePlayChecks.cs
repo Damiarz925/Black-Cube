@@ -82,6 +82,8 @@ public static class RuntimeLifecyclePlayChecks
             else Require(GameManager.Instance == null && Inventory.Instance == null,
                 "Cold Main Menu unexpectedly created a partial persistent service set");
             Require(BattleManager.Instance == null, "Main Menu retained BattleManager.Instance");
+            Require(UnityEngine.Object.FindObjectsByType<PauseMenuUI>(FindObjectsInactive.Include, FindObjectsSortMode.None).Length == 0,
+                "Main Menu retained a scene-owned PauseMenuUI");
             Require(DamagePopup.Instance == null || DamagePopup.Instance.gameObject.scene == scene,
                 "Main Menu retained a DamagePopup from another scene");
             if (entry > 0) ValidateReleasedSceneReferences();
@@ -112,6 +114,7 @@ public static class RuntimeLifecyclePlayChecks
         if (scene.name != GameSceneNames.Gameplay || GameManager.Instance == null || BattleManager.Instance == null) return;
         ValidatePersistentServices();
         ValidateGameplayReferences(scene);
+        ValidatePauseMenu(entry == 0);
         Require(!GamePersistence.LoadRequested, "Gameplay retained a one-shot Load Game request");
         bool loaded = entry == 2 || entry == 4;
         int expectedCurrency = loaded ? 23 : 0;
@@ -175,6 +178,24 @@ public static class RuntimeLifecyclePlayChecks
             "EquipmentManager PlayerController is not rebound to current scene");
         Require(Field<Component>(EquipmentManager.Instance, "playerStats")?.gameObject.scene == scene,
             "EquipmentManager StatsComponent is not rebound to current scene");
+    }
+
+    static void ValidatePauseMenu(bool exercise)
+    {
+        PaperBattleHUD hud=UnityEngine.Object.FindFirstObjectByType<PaperBattleHUD>(FindObjectsInactive.Include);
+        Require(hud!=null&&hud.PauseMenu!=null,"Gameplay did not build its PauseMenuUI");
+        Require(UnityEngine.Object.FindObjectsByType<PauseMenuUI>(FindObjectsInactive.Include,FindObjectsSortMode.None).Length==1,
+            "Gameplay has duplicate PauseMenuUI components");
+        if(!exercise)return;
+        hud.GetButton(TopHUDButtonKind.Pause).onClick.Invoke();
+        Require(hud.PauseMenu.IsOpen&&Mathf.Approximately(Time.timeScale,0f),"HUD Pause did not open the menu and pause gameplay");
+        hud.PauseMenu.OptionsButton.onClick.Invoke();
+        Require(hud.PauseMenu.IsOptionsOpen&&Mathf.Approximately(Time.timeScale,0f),"Pause Options did not remain paused");
+        hud.PauseMenu.OptionsBackButton.onClick.Invoke();
+        Require(hud.PauseMenu.IsOpen&&!hud.PauseMenu.IsOptionsOpen&&Mathf.Approximately(Time.timeScale,0f),"Options Back did not return paused");
+        hud.GetButton(TopHUDButtonKind.Play).onClick.Invoke();
+        Require(!hud.PauseMenu.IsOpen&&Mathf.Approximately(Time.timeScale,1f),"HUD Play did not close the Pause Menu and resume");
+        Write("PASS: live gameplay Pause/Options/Back/Play wiring uses one pause clock and one scene-owned menu.");
     }
 
     static T Field<T>(object target, string name) where T : class =>
