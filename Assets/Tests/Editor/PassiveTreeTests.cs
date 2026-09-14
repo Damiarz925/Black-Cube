@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
+using UnityEditor;
 using UnityEngine;
 
 public class PassiveTreeTests
@@ -628,6 +629,10 @@ public class PassiveTreeTests
             player.AddComponent<PlayerController>();
             var progression = game.AddComponent<PlayerProgression>();
             SetPoints(progression, 20);
+            var poisonEffect = AssetDatabase.LoadAssetAtPath<StatusEffects>("Assets/Prefabs/Scriptable Objects/PoisonStatus.asset");
+            var poisonContext = new DamageContext(1);
+            poisonContext.AddDamage(Element.Phys, 100f);
+            AilmentCalculator.ComputeAilmentFromHit(poisonEffect, poisonContext, stats, out float poisonBefore, out _, out _);
 
             int poison0 = PassiveTreeDefinition.NodeId(PassiveBranch.Poison, 0);
             Assert.That(progression.TrySpend(poison0 + 1), Is.False);
@@ -635,6 +640,8 @@ public class PassiveTreeTests
             Assert.That(progression.TrySpend(poison0), Is.False);
             Assert.That(progression.GetBonus(PassiveBranch.Poison), Is.EqualTo(5));
             Assert.That(stats.GetRawStat(StatTypes.PoisonDmg), Is.EqualTo(5f));
+            AilmentCalculator.ComputeAilmentFromHit(poisonEffect, poisonContext, stats, out float poisonAfter, out _, out _);
+            Assert.That(poisonAfter, Is.EqualTo(poisonBefore * 1.05f).Within(.001f), "Allocated Poison damage must reach the final ailment consumer exactly once");
             Assert.That(stats.GetRawStat(StatTypes.ColdDmg), Is.EqualTo(0f), "Poison must not grant Cold damage");
             Assert.That(stats.GetRawStat(StatTypes.GenericDmg), Is.EqualTo(0f));
 

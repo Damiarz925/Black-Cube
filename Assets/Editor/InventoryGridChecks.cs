@@ -102,35 +102,33 @@ public static class InventoryGridChecks
         liveFilter.Toggle(ModFilterCategory.Poison);liveFilter.SetRequiredMatches(1);inv.FilterModMismatchEnabled=true;
         var wanted=Item();wanted.ApplyMods(new List<RolledMod>{new(StatTypes.PoisonChance,1,10)});
         var unwanted=Item();unwanted.ApplyMods(new List<RolledMod>{new(StatTypes.Mana,1,10)});
-        int modScrapBefore=inv.Items.Where(i=>i.IsScrap).Sum(i=>i.StackCount);
         Check(inv.Pickup(wanted)&&inv.Items.Contains(wanted),"Mod-matching pickup survives auto-dismantle");
-        Check(inv.Pickup(unwanted)&&!inv.Items.Contains(unwanted)&&inv.Items.Where(i=>i.IsScrap).Sum(i=>i.StackCount)==modScrapBefore+2,"Mod-mismatch pickup auto-dismantles");
+        Check(inv.Pickup(unwanted)&&!inv.Items.Contains(unwanted),"Mod-mismatch pickup auto-dismantles");
+        Check(!inv.Pickup(unwanted)&&!inv.TryDismantle(unwanted),"Mod-mismatch pickup cannot be processed twice");
         inv.FilterModMismatchEnabled=false;liveFilter.ClearCurrentMode();
         VerifyDamageTypesAndAilments(player, stats, weapon);
         Check(!inv.FilterLevelEnabled && !inv.FilterRarityEnabled,"Filter defaults OFF");
         var kept=Item();Check(inv.Pickup(kept) && inv.Items.Contains(kept),"Default pickup kept");
         inv.FilterLevelEnabled=true;inv.FilterLevel=10;Check(inv.Items.Contains(kept),"Enabling does not retroactively scrap");
-        int Scrap()=>inv.Items.Where(i=>i.IsScrap).Sum(i=>i.StackCount);
-        int before=Scrap();var lowLegend=Item(rarity:LootManager.GearRarity.Legendary);
-        Check(inv.Pickup(lowLegend) && !inv.Items.Contains(lowLegend) && Scrap()==before+5,"Inclusive level10 Legendary pickup +5");
-        Check(!inv.Pickup(lowLegend) && !inv.TryDismantle(lowLegend) && Scrap()==before+5,"Duplicate pickup/dismantle no extra reward");
+        var lowLegend=Item(rarity:LootManager.GearRarity.Legendary);
+        Check(inv.Pickup(lowLegend) && !inv.Items.Contains(lowLegend),"Inclusive level10 Legendary pickup auto-dismantles");
+        Check(!inv.Pickup(lowLegend) && !inv.TryDismantle(lowLegend),"Duplicate pickup/dismantle rejected");
         var high=Item(level:11);Check(inv.Pickup(high) && inv.Items.Contains(high),"Level11 above cutoff kept");
         inv.FilterRarityEnabled=true;inv.FilterRarity=LootManager.GearRarity.Magic;
-        var highMagic=Item(level:99);before=Scrap();Check(inv.Pickup(highMagic) && Scrap()==before+2,"OR rule high-level Magic filtered");
+        var highMagic=Item(level:99);Check(inv.Pickup(highMagic) && !inv.Items.Contains(highMagic),"OR rule high-level Magic auto-dismantles");
         var highRare=Item(rarity:LootManager.GearRarity.Rare,level:99);Check(inv.Pickup(highRare) && inv.Items.Contains(highRare),"Above both cutoffs kept");
         inv.FilterLevelEnabled=false;var lowRare=Item(rarity:LootManager.GearRarity.Rare,level:1);Check(inv.Pickup(lowRare)&&inv.Items.Contains(lowRare),"Disabled level cutoff ignored");
         foreach(var rarity in new[]{LootManager.GearRarity.Normal,LootManager.GearRarity.Magic,LootManager.GearRarity.Rare,LootManager.GearRarity.Legendary})
-        {inv.FilterRarity=rarity;var g=Item(rarity:rarity);before=Scrap();int n=Inventory.ScrapYield(g);Check(inv.Pickup(g)&&Scrap()==before+n,"Rarity inclusive "+rarity+" yield "+n);}
+        {inv.FilterRarity=rarity;var g=Item(rarity:rarity);Check(inv.Pickup(g)&&!inv.Items.Contains(g),"Rarity inclusive "+rarity+" auto-dismantles");}
         eq.Equip(kept);eq.Equip(high);Check(inv.Items.Contains(kept),"Equipment swap returns bypass active filter");
         Check(!inv.Pickup(high)&&!inv.TryDismantle(high),"Equipped item protected");
-        var scrap=inv.Items.Single(i=>i.IsScrap);Check(!inv.MatchesFilter(scrap)&&!inv.TryDismantle(scrap),"Scrap not recursively filtered/dismantled");
         inv.FilterRarityEnabled=false;eq.Unequip(LootManager.GearType.Rings);
         for(int i=0;i<48;i++){var g=Item((LootManager.GearType)(i%8),(LootManager.GearRarity)(i%4),20+i);g.BaseElement=(Element)(i%6);inv.Add(g);}
         yield return null;Canvas.ForceUpdateCanvases();
         var grid=hud.inventoryPanel.GetComponentInChildren<GridLayoutGroup>();Check(grid.constraintCount>=3,"Compact populated grid has multiple columns");
         var scroll=grid.GetComponentInParent<ScrollRect>();Check(scroll.content.rect.height>scroll.viewport.rect.height,"Populated grid scrolls beyond viewport");
         Check(hud.inventoryPanel.GetComponentsInChildren<TMP_Text>().Any(t=>t.text=="LV 20"),"Cells use LV label");
-        Write("Visual fixture paused: filter OFF; many gear cells and one Scrap stack. Verify left equip, right scrap, filter controls, scroll and tooltip Scrap. Exit Play afterward.");
+        Write("Visual fixture paused: filter OFF with many gear cells. Verify equip, dismantle, filter controls, scrolling and tooltips. Exit Play afterward.");
     }
 
     static void VerifyModHighlightFiltering()

@@ -97,15 +97,11 @@ public static class DeferredProgressionChecks
             int level = 1, count = 0, kills = 0, inherited = 0;
             int loot = Inventory.Instance.Items.Count;
             bool dot = false;
+            UnityEngine.Random.InitState(20260913);
             double end = EditorApplication.timeSinceStartup + 100;
             Time.timeScale = 20;
             while (kills < 30 && EditorApplication.timeSinceStartup < end)
             {
-                if (!dot && game.NormalKills == 2)
-                {
-                    Enemy.GetComponent<StatusController>().ApplyStatus(poison, 1, 100000, 1, stats, 1);
-                    dot = true;
-                }
                 if (Enemy != previous)
                 {
                     kills++;
@@ -117,6 +113,11 @@ public static class DeferredProgressionChecks
                     if (Enemy.GetComponent<StatusController>().GetStatusSummaries().Count != 0) inherited++;
                     previous = Enemy;
                 }
+                if (!dot && game.NormalKills == 2)
+                {
+                    Enemy.GetComponent<StatusController>().ApplyStatus(poison, 1, 100000, 1, stats, 1);
+                    dot = true;
+                }
                 yield return null;
             }
             Time.timeScale = 0;
@@ -127,7 +128,8 @@ public static class DeferredProgressionChecks
             while (EditorApplication.timeSinceStartup < settle) yield return null;
             Time.timeScale = 0;
             int actors = Object.FindObjectsByType<EnemyAI>(FindObjectsSortMode.None).Length;
-            Record($"{(actors == 1 && errors == 0 && Inventory.Instance.Items.Count-loot == kills ? "PASS" : "FAIL")} cleanup: active enemies={actors}; new errors={errors}; rewards={Inventory.Instance.Items.Count-loot} for {kills} kills.");
+            int lootDelta=Inventory.Instance.Items.Count-loot;
+            Record($"{(actors == 1 && errors == 0 && inherited == 0 && lootDelta > 0 && lootDelta < kills ? "PASS" : "FAIL")} cleanup: active enemies={actors}; new errors={errors}; probabilistic equipment rewards={lootDelta} for {kills} kills; inherited statuses={inherited}.");
         }
         if (phase == 1)
         {
@@ -136,7 +138,7 @@ public static class DeferredProgressionChecks
             Require(game.BossActive, "Boss fixture");
             hp.LoseLife(hp.MaxLife + 1);
             game.RestartCurrentLevelAfterDeath();
-            Require(game.CurrentCombatLevel == 5 && zone.StageNumber == 5 && zone.ZoneName == "Forest" && game.NormalKills == 0 && !game.BossActive && !Enemy.IsBoss && hp.CurrentLife == hp.MaxLife, "Boss restart state");
+            Require(game.CurrentCombatLevel == 5 && zone.StageNumber == 5 && zone.ZoneName == "Forest 1" && game.NormalKills == 0 && !game.BossActive && !Enemy.IsBoss && hp.CurrentLife == hp.MaxLife, "Boss restart state");
             Enemy.LoseLife(Enemy.MaxLife + 1);
             Require(game.NormalKills == 1 && game.CurrentCombatLevel == 5, "First normal after restart");
             Record("PASS boss death/restart: Forest5 boss -> death -> restart at Forest5 normal0 -> kill -> normal1; full revive.");

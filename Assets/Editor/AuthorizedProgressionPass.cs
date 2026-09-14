@@ -106,6 +106,7 @@ public static class AuthorizedProgressionPass
             int observed = 0, inherited = 0, cadenceErrors = 0, actorErrors = 0;
             int lootStart = Inventory.Instance.Items.Count;
             bool dotInjected = false;
+            UnityEngine.Random.InitState(20260913);
             counting = true;
             battle.enabled = true;
             Time.timeScale = 5;
@@ -140,7 +141,7 @@ public static class AuthorizedProgressionPass
             int statuses = Enemy.GetComponent<StatusController>().GetStatusSummaries().Count;
             int badges = Object.FindObjectsByType<StatusBadge>(FindObjectsSortMode.None).Count(b => b.transform.parent.name == "ENEMY EFFECTS");
             int lootDelta = Inventory.Instance.Items.Count - lootStart;
-            Check(actors == 1 && statuses == 0 && badges == 0 && errors == 0 && rewards == 30 && lootDelta == 30,
+            Check(actors == 1 && statuses == 0 && badges == 0 && errors == 0 && rewards > 0 && rewards < deaths && lootDelta == rewards,
                 $"cleanup: enemies={actors}, currentStatuses={statuses}, enemyBadges={badges}, errors={errors}, rewards={rewards}, inventoryDelta={lootDelta}");
         }
         if (phase == 1)
@@ -151,7 +152,7 @@ public static class AuthorizedProgressionPass
             hp.LoseLife(hp.MaxLife + 1);
             bool dead = hp.CurrentLife == 0;
             game.RestartCurrentLevelAfterDeath();
-            bool reset = game.CurrentCombatLevel == 5 && zone.StageNumber == 5 && zone.ZoneName == "Forest" && game.NormalKills == 0 && !game.BossActive && !Enemy.IsBoss && hp.CurrentLife == hp.MaxLife;
+            bool reset = game.CurrentCombatLevel == 5 && zone.StageNumber == 5 && zone.ZoneName == "Forest 1" && game.NormalKills == 0 && !game.BossActive && !Enemy.IsBoss && hp.CurrentLife == hp.MaxLife;
             Enemy.LoseLife(Enemy.MaxLife + 1);
             Check(boss && dead && reset && game.NormalKills == 1 && game.CurrentCombatLevel == 5,
                 "boss death/restart: Forest5 boss -> dead -> Forest5 normal0 full revive -> normal1; global5 preserved");

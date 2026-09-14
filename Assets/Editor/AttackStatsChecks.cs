@@ -56,7 +56,7 @@ public static class AttackStatsChecks
         var hud=Object.FindFirstObjectByType<PaperBattleHUD>();hud.inventoryPanel.SetActive(true);Canvas.ForceUpdateCanvases();
         var slot=hud.inventoryPanel.GetComponentsInChildren<ItemSlotUI>().Single(s=>s.Item==legend);
         hud.inventoryPanel.GetComponent<InventoryUI>().ShowTooltip(slot);
-        Write("Legendary-only visual fixture: Scrap1; tooltip +5 action must remove ring and leave one Scrap6 slot.");
+        Write("Legendary-only visual fixture: dismantling must remove the ring and award the current consolidated crafting currency.");
         yield return null;
     }
     static void Log(string message,string trace,LogType type)
@@ -112,7 +112,7 @@ public static class AttackStatsChecks
         panel.SectionButton("Damage").onClick.Invoke();Check(!panel.IsSectionExpanded("Damage"),"Damage category collapses");
         var armour=Gear(LootManager.GearType.BodyArmours,Element.Phys,0);armour.globalRolledMods.Add(new RolledMod(StatTypes.GenericDmg,1,25));equipment.Equip(armour);
         Check(!panel.IsSectionExpanded("Damage") && Value(panel,"Damage / Hit (Noncritical)")=="264","Gear refresh preserves collapsed state and updates primary damage");
-        xp.AddExperience(30);Check(xp.TrySpend(PassiveTreeDefinition.NodeId(PassiveBranch.Poison,0)),"Poison passive purchased");
+        xp.AddExperience(xp.RequiredXp);Check(xp.TrySpend(PassiveTreeDefinition.NodeId(PassiveBranch.Poison,0)),"Poison passive purchased with a deterministically earned point");
         Near(stats.GetRawStat(StatTypes.PoisonDmg),5f,"Poison passive updates only Poison damage");
         Near(player.BasicAttackDamage,264f,"Poison passive does not alter a physical hit");Check(Value(panel,"Damage / Hit (Noncritical)")=="264","Scoped passive refresh preserves unrelated hit damage");
         var other=Gear(LootManager.GearType.Weapons,Element.Fire,40);equipment.Equip(other);
@@ -124,15 +124,15 @@ public static class AttackStatsChecks
         Check(!panel.IsSectionExpanded("Status Effects") && Value(panel,"Poison Chance")==null,"Status category stays collapsed through value refresh");
         panel.SectionButton("Status Effects").onClick.Invoke();Check(Value(panel,"Poison Chance")=="18%","Status category expands to current value");
 
-        var inv=Inventory.Instance;int total=0;
+        var inv=Inventory.Instance;int CurrencyTotal()=>EnemyDropTable.OrdinaryTypes().Sum(type=>CurrencyInventory.Instance.Count(type));
         foreach(var rarity in new[]{LootManager.GearRarity.Normal,LootManager.GearRarity.Magic,LootManager.GearRarity.Rare,LootManager.GearRarity.Legendary})
         {
             var g=Gear(LootManager.GearType.Rings,Element.Phys,0);g.Initialize(LootManager.GearType.Rings,rarity,1,Element.Phys);
-            int amount=rarity==LootManager.GearRarity.Normal?1:rarity==LootManager.GearRarity.Magic?2:rarity==LootManager.GearRarity.Rare?3:5;total+=amount;
-            Check(inv.TryDismantle(g) && inv.Items.Single(i=>i.IsScrap).StackCount==total,rarity+" Scrap yield "+amount);
+            int beforeCurrency=CurrencyTotal();int amount=Inventory.ScrapYield(g);
+            Check(inv.TryDismantle(g) && !inv.Items.Contains(g) && CurrencyTotal()==beforeCurrency+amount,rarity+" dismantle uses consolidated currency yield "+amount);
             Check(!inv.TryDismantle(g),rarity+" duplicate callback rejected");
         }
-        var scrap=inv.Items.Single(g=>g.IsScrap);Check(scrap.StackCount==11 && !inv.TryDismantle(scrap) && !inv.TryDismantle(other),"One stack11; self/equipped safeguards retained");
+        Check(!inv.TryDismantle(other),"Equipped-item safeguard retained");
 
         hud.statsPanel.SetActive(false);equipment.Unequip(LootManager.GearType.BodyArmours);xp.ResetProgression();
         foreach(var t in new[]{StatTypes.FlatPhys,StatTypes.PhysDmg,StatTypes.GenericDmg,StatTypes.PhysMult,StatTypes.GenericMult,StatTypes.PoisonDmg})stats.SetBaseStat(t,0);
@@ -166,6 +166,6 @@ public static class AttackStatsChecks
         hud.statsPanel.SetActive(true);panel.Refresh();
         if(!panel.IsSectionExpanded("Damage"))panel.SectionButton("Damage").onClick.Invoke();
         var legend=Gear(LootManager.GearType.Rings,Element.Phys,0);legend.Initialize(LootManager.GearType.Rings,LootManager.GearRarity.Legendary,1,Element.Phys);
-        Write("Visual fixture paused: primary damage140; categories populated; all status chances17% visible regardless of Physical weapon. Inventory has Scrap11 and Legendary Ring (+5 action). Exit Play after UI checks.");
+        Write("Visual fixture paused: primary damage140; categories populated; all status chances17% visible regardless of Physical weapon. Dismantle rewards were recorded in the consolidated currency inventory. Exit Play after UI checks.");
     }
 }

@@ -5,6 +5,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Globalization;
+using System.Text.RegularExpressions;
 using TMPro;
 using UnityEditor;
 using UnityEngine;
@@ -43,6 +45,12 @@ public static class TooltipCritChecks
     static void Write(string s) { File.AppendAllText(Report, s + "\n"); Debug.Log(s); }
     static void Check(bool ok, string s) { if (!ok) throw new Exception(s); Write("PASS: " + s); }
     static void Near(float a, float b, string s) => Check(Mathf.Abs(a-b)<.0001f, s + $" ({a:0.####})");
+    static float TooltipPercent(string text,string label)
+    {
+        string plain=Regex.Replace(text,"<[^>]+>",string.Empty);
+        string row=plain.Split('\n').Single(line=>line.TrimStart().StartsWith(label+":",StringComparison.Ordinal));
+        return float.Parse(row[(row.IndexOf(':')+1)..].Trim().TrimEnd('%'),CultureInfo.InvariantCulture);
+    }
     static Gear Item(LootManager.GearType type, params RolledMod[] mods)
     {
         var g = new GameObject("Tooltip crit fixture").AddComponent<Gear>();
@@ -64,7 +72,7 @@ public static class TooltipCritChecks
         foreach (var t in stats.GetTrackedStats().ToArray()) if (t != StatTypes.Life) stats.SetBaseStat(t,0);
         var weapon = Item(LootManager.GearType.Weapons, new RolledMod(StatTypes.WeaponBaseCrit,1,3.47f));
         Near(weapon.BaseCritChance,.0347f,"Old 3.47 raw roll that displayed 347% now stores .0347");
-        Check(ItemTooltipUI.Describe(weapon).Contains("Weapon-only critical chance: 3.47%"),"Raw roll display converts exactly once");
+        Near(TooltipPercent(ItemTooltipUI.Describe(weapon),"Crit Chance"),weapon.BaseCritChance*100f,"Tooltip converts the stored crit fraction to percentage exactly once");
         var db = AssetDatabase.LoadAssetAtPath<ModDatabase>("Assets/Prefabs/Scriptable Objects/ModDatabase.asset");
         Check(db.GetDefinition(StatTypes.WeaponBaseCrit).tiers.All(t=>t.minValue==5 && t.maxValue==10),"Production intrinsic tiers remain 5-10% at every level");
         var saved = UnityEngine.Random.state; UnityEngine.Random.InitState(947);
@@ -108,7 +116,7 @@ public static class TooltipCritChecks
         stats.SetBaseStat(StatTypes.FlatFire,10); stats.SetBaseStat(StatTypes.GenericDmg,50); stats.SetBaseStat(StatTypes.GenericMult,20); stats.SetBaseStat(StatTypes.PhysMult,30);
         Check(Row("Physical / Hit (Noncritical)")=="234" && Row("Fire / Hit (Noncritical)")=="18","Existing mixed flat contribution:234 Physical and18 Fire; more factors multiply");
         stats.SetBaseStat(StatTypes.FlatFire,0);stats.SetBaseStat(StatTypes.GenericDmg,0);stats.SetBaseStat(StatTypes.GenericMult,0);stats.SetBaseStat(StatTypes.PhysMult,0);
-        var progression=Object.FindFirstObjectByType<PlayerProgression>();progression.AddExperience(100);Check(progression.TrySpend(PassiveTreeDefinition.NodeId(PassiveBranch.Poison,0)),"Actual Poison passive purchased");
+        var progression=Object.FindFirstObjectByType<PlayerProgression>();progression.AddExperience(progression.RequiredXp);Check(progression.TrySpend(PassiveTreeDefinition.NodeId(PassiveBranch.Poison,0)),"Actual Poison passive purchased with a deterministically earned point");
         Check(stats.GetRawStat(StatTypes.PoisonDmg)==5 && Row("Physical / Hit (Noncritical)")=="100" && Row("Critical Chance (Final)")=="28%","Poison passive remains scoped and tooltip refresh preserves unrelated values");
         progression.ResetProgression();
         // Reuse the existing production DOT and six-type arithmetic regression fixtures.
