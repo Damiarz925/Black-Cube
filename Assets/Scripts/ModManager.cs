@@ -10,7 +10,6 @@ public class ModManager : MonoBehaviour
 
     [Header("References")]
     [SerializeField] private ModDatabase modDatabase;
-    [SerializeField] private LootManager lootManager;
 
     [Header("Default Weights")]
     [SerializeField] private int defaultStatWeight = 50;        //This is the default total weight of stats
@@ -57,11 +56,14 @@ public class ModManager : MonoBehaviour
             return;
         }
         Instance = this;
+        transform.SetParent(null, true);
         DontDestroyOnLoad(gameObject);
 
         if (modDatabase != null)
             modDatabase.Initialize();
     }
+
+    private void OnDestroy() { if (Instance == this) Instance = null; }
 
     //Function used to roll mods for items
     public List<RolledMod> RollModsForItem(

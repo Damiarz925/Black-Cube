@@ -44,7 +44,10 @@ public sealed class CurrencyInventory : MonoBehaviour
     void Awake()
     {
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
-        Instance = this; DontDestroyOnLoad(gameObject); RebuildLookup();
+        Instance = this;
+        transform.SetParent(null, true);
+        DontDestroyOnLoad(gameObject);
+        RebuildLookup();
     }
     void OnDestroy() { if (Instance == this) Instance = null; }
     void RebuildLookup()
@@ -107,6 +110,13 @@ public sealed class CurrencyInventory : MonoBehaviour
     {
         foreach (CraftingCurrencyType type in Enum.GetValues(typeof(CraftingCurrencyType))) if (IsAncient(type)) stacks.Remove(type);
         if (ArmedCurrency.HasValue && IsAncient(ArmedCurrency.Value)) ArmedCurrency = null;
+        SyncSerialized(); Changed?.Invoke();
+    }
+    public void ResetForNewRun()
+    {
+        foreach (CraftingCurrencyType type in Enum.GetValues(typeof(CraftingCurrencyType)))
+            if (!IsAncient(type)) stacks.Remove(type);
+        ArmedCurrency = null;
         SyncSerialized(); Changed?.Invoke();
     }
     public static bool IsAncient(CraftingCurrencyType type) => type >= CraftingCurrencyType.AncientNormalToMagic;
@@ -370,6 +380,7 @@ public sealed class CurrencyTooltipUI : MonoBehaviour
     }
     public static void Hide(){if(instance!=null)instance.gameObject.SetActive(false);}
     public static void RefreshVisible(){if(instance!=null&&instance.gameObject.activeSelf)instance.Refresh();}
+    void OnDestroy(){if(instance==this)instance=null;}
     void Refresh()
     {
         int best=-1;foreach(var slot in FindObjectsByType<CurrencySlotUI>(FindObjectsInactive.Include,FindObjectsSortMode.None))if(slot.Type==type&&slot.transform.GetSiblingIndex()>=best){best=slot.transform.GetSiblingIndex();anchor=(RectTransform)slot.transform;}

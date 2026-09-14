@@ -208,6 +208,14 @@ public sealed class PlayerProgression : MonoBehaviour
         finally { boundStats.EndUpdate(); }
     }
 
+    public void ReleaseSceneReferences()
+    {
+        boundKeystones?.Apply(null);
+        if (boundStats != null) boundStats.RemoveModifiersFromSource(this);
+        boundStats = null;
+        boundKeystones = null;
+    }
+
     void AddPercent(StatTypes stat, PassiveBranch branch)
     {
         AddFlat(stat, branch);
@@ -253,8 +261,7 @@ public sealed class PlayerProgression : MonoBehaviour
 
     void OnDestroy()
     {
-        boundKeystones?.Apply(null);
-        if (boundStats != null) boundStats.RemoveModifiersFromSource(this);
+        ReleaseSceneReferences();
     }
 
     double GetRequirementGrowth() => Math.Pow(ReqAtLevel16Xp / ReqAtLevel10Xp, 1d / (ReqAnchorLevel16 - ReqAnchorLevel10));

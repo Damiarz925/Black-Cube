@@ -1,8 +1,10 @@
 # Black Cube developer handoff
 
-Final verification: 118 first-party source files mapped; 3,940 combat/equipment/enemy assertions, 6,314 encounter/boss progression assertions, and 729 forest-cycle assertions pass. Player, enemy and forest asset checks pass. See [final-handoff-checks.json](final-handoff-checks.json) and [enemy batch report](../ReviewCaptures/ForestEnemies/README.md). Unity import/live rendering are still manual checks.
+Final verification: 120 first-party source files mapped; 3,940 combat/equipment/enemy assertions, 6,314 encounter/boss progression assertions, and 729 forest-cycle assertions pass. Player, enemy and forest asset checks pass. See [final-handoff-checks.json](final-handoff-checks.json) and [enemy batch report](../ReviewCaptures/ForestEnemies/README.md). Unity import/live rendering are still manual checks.
 
 Start with [CODE_MAP.md](CODE_MAP.md): it links every first-party runtime, editor and art-tool source file and explains its responsibility. Source comments describe contracts; this guide explains how to make changes without needing the conversation.
+
+Runtime ownership, reset and transition rules are recorded in [RUNTIME_LIFECYCLE.md](RUNTIME_LIFECYCLE.md). Persistent managers are first created by gameplay, detach from their authored prefab parent before `DontDestroyOnLoad`, clear gameplay references on unload, and bind only objects from the new gameplay scene. New Game resets in-memory run equipment/inventory/ordinary currency/progression but intentionally leaves unresolved relic and Ancient-currency meta policy untouched.
 
 ## Open and navigate
 

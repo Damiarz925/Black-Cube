@@ -53,6 +53,8 @@ public class DamagePopup : MonoBehaviour
         Instance = this;
     }
 
+    private void OnDestroy() { if (Instance == this) Instance = null; }
+
     /// <summary>
     /// Spawns a damage number at the given world position.
     /// popupPrefab should have a TextMeshProUGUI somewhere in its children.

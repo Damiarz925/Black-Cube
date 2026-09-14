@@ -85,6 +85,7 @@ Every runtime/editor C# file and art-tool C#/Python/PowerShell file is listed be
 | [Assets/Editor/InventoryChecks.cs](../Assets/Editor/InventoryChecks.cs) | Opt-in Play checks for scrap yields, ownership, equipment modifiers and tooltip content. |
 | [Assets/Editor/InventoryGridChecks.cs](../Assets/Editor/InventoryGridChecks.cs) | Opt-in Play fixtures for responsive inventory, pickup filters, gear damage and ailment regression. |
 | [Assets/Editor/MenuLoadPlayChecks.cs](../Assets/Editor/MenuLoadPlayChecks.cs) | Repeated Main Menu/New Game/Load Game Play smoke check using the real scenes, GameManager startup hook and existing persistence data. |
+| [Assets/Editor/RuntimeLifecyclePlayChecks.cs](../Assets/Editor/RuntimeLifecyclePlayChecks.cs) | Six-entry/five-return real-scene soak for persistent singleton counts, unload clearing, exact scene rebinding, fresh run state and one-shot Load Game behavior. |
 | [Assets/Editor/PaperBattlePlayChecks.cs](../Assets/Editor/PaperBattlePlayChecks.cs) | Opt-in Play diagnostics and captures for the paper battle presentation. |
 | [Assets/Editor/PaperBattleSceneBuilder.cs](../Assets/Editor/PaperBattleSceneBuilder.cs) | Asset-writing rebuild from the legacy scene/enemy prefab into the paper prefab and SampleScene. Rebuilds can replace hand edits; inspect output and keep art configuration changes here too. |
 | [Assets/Editor/PaperBattleStatsBuilder.cs](../Assets/Editor/PaperBattleStatsBuilder.cs) | Asset-writing builder for stat-panel and equipped-slot UI wiring. |
@@ -94,6 +95,7 @@ Every runtime/editor C# file and art-tool C#/Python/PowerShell file is listed be
 | [Assets/Editor/ProgressionChecks.cs](../Assets/Editor/ProgressionChecks.cs) | Editor checks for encounter progression and role/death-reward guards. |
 | [Assets/Editor/StatusModelChecks.cs](../Assets/Editor/StatusModelChecks.cs) | Editor checks for ailment strength, durations and status model invariants. |
 | [Assets/Editor/TooltipCritChecks.cs](../Assets/Editor/TooltipCritChecks.cs) | Opt-in Play checks for typed damage rows, final critical chance and inventory/equipment tooltip interactions. |
+| [Assets/Tests/Editor/RuntimeLifecycleTests.cs](../Assets/Tests/Editor/RuntimeLifecycleTests.cs) | Focused EditMode regression tests for persistent gear ownership, stale load-intent clearing and explicit scene-reference release. |
 | [Tools/Art/BossCadenceHarness.cs](../Tools/Art/BossCadenceHarness.cs) | Dependency stubs for actual GameManager with production quota/death-claim methods. Verifies nine normals then stage10 boss, duplicate reward guards, direct loads and restart across121 combat levels. |
 | [Tools/Art/verify_boss_cadence.ps1](../Tools/Art/verify_boss_cadence.ps1) | Compiles actual GameManager with production ZoneManager quota and HealthComponent death-claim methods into a file-only encounter progression harness. Does not launch Unity. |
 | [Tools/Art/prepare_forest_enemies.py](../Tools/Art/prepare_forest_enemies.py) | Current authored goblin/hobgoblin connected-component extraction, alpha cleanup and uniform species registration. Writes rest/attack PNGs and previews; no motion warping. |

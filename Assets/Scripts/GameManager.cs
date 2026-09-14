@@ -22,6 +22,7 @@ public class GameManager : MonoBehaviour
 
     private bool playerDeathHandled;
     private ulong initializedGameplaySceneHandle = ulong.MaxValue;
+    public int GameplayInitializationCount { get; private set; }
     public int CurrentCombatLevel => currentZoneLevel;
     public int NormalKills => enemiesKilledInZone;
     public int NormalKillsRequired => enemiesToKillBeforeBoss;
@@ -38,18 +39,23 @@ public class GameManager : MonoBehaviour
         }
 
         Instance = this;
+        // Authored manager objects are children of the scene prefab. Unity only
+        // honors DontDestroyOnLoad for roots, so detach the authority first.
+        transform.SetParent(null, true);
         if (GetComponent<PlayerProgression>() == null) gameObject.AddComponent<PlayerProgression>();
         if (GetComponent<RelicInventory>() == null) gameObject.AddComponent<RelicInventory>();
         if (GetComponent<RebirthManager>() == null) gameObject.AddComponent<RebirthManager>();
         if (GetComponent<GamePersistenceHost>() == null) gameObject.AddComponent<GamePersistenceHost>();
         DontDestroyOnLoad(gameObject);
         SceneManager.sceneLoaded += OnSceneLoaded;
+        SceneManager.sceneUnloaded += OnSceneUnloaded;
     }
 
     private void OnDestroy()
     {
         if (Instance != this) return;
         SceneManager.sceneLoaded -= OnSceneLoaded;
+        SceneManager.sceneUnloaded -= OnSceneUnloaded;
         Instance = null;
     }
 
@@ -60,14 +66,25 @@ public class GameManager : MonoBehaviour
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode) => InitializeGameplayScene(scene);
 
+    private void OnSceneUnloaded(Scene scene)
+    {
+        if (scene.name != GameSceneNames.Gameplay) return;
+        ClearSceneReferences();
+        GetComponent<PlayerProgression>()?.ReleaseSceneReferences();
+        EquipmentManager.Instance?.ReleaseSceneReferences();
+    }
+
     private void InitializeGameplayScene(Scene scene)
     {
         ulong sceneHandle=scene.handle.GetRawData();
         if (scene.name != GameSceneNames.Gameplay || initializedGameplaySceneHandle == sceneHandle) return;
         initializedGameplaySceneHandle = sceneHandle;
+        GameplayInitializationCount++;
         Debug.Log("GameManager: Initializing gameplay scene.");
-        EnsureSceneReferences();
+        BindSceneReferences(scene);
+        EquipmentManager.Instance?.BindSceneReferences(scene);
         deathMenuUI?.Hide();
+        ResetRunStateForGameplayEntry();
         StartNewRun();
         if (GamePersistence.RestoreRequestedGame(out bool restored))
         {
@@ -75,6 +92,16 @@ public class GameManager : MonoBehaviour
                 ? "GameManager: Restored the requested saved game during gameplay initialization."
                 : "GameManager: Load was requested, but the current save could not be restored.");
         }
+    }
+
+    private void ResetRunStateForGameplayEntry()
+    {
+        // Relics/rebirth history are deliberately excluded: whether New Game clears
+        // meta progression is a design decision deferred beyond this lifecycle pass.
+        RebirthManager.Instance?.Cancel();
+        EquipmentManager.Instance?.ResetForNewRun();
+        Inventory.Instance?.ResetForNewRun();
+        CurrencyInventory.Instance?.ResetForNewRun();
     }
 
     public void StartNewRun()   //Starts a fresh run, at zone lvl 1, 0 enemies killed and no boss spawned, debug log for dev feedback, calls start zone passing in the currentzonelevel after resetting the state
@@ -289,16 +316,41 @@ public class GameManager : MonoBehaviour
 
     private void EnsureSceneReferences()
     {
-        if (levelGenerator == null)
-            levelGenerator = FindFirstObjectByType<LevelGenerator>();
+        Scene scene = SceneManager.GetActiveScene();
+        if (scene.name != GameSceneNames.Gameplay) { ClearSceneReferences(); return; }
+        if (!BelongsTo(levelGenerator, scene) || !BelongsTo(zoneManager, scene) ||
+            !BelongsTo(lootManager, scene) || !BelongsTo(deathMenuUI, scene))
+            BindSceneReferences(scene);
+    }
 
-        if (zoneManager == null)
-            zoneManager = FindFirstObjectByType<ZoneManager>();
+    private void BindSceneReferences(Scene scene)
+    {
+        ClearSceneReferences();
+        levelGenerator = FindInScene<LevelGenerator>(scene);
+        zoneManager = FindInScene<ZoneManager>(scene);
+        lootManager = FindInScene<LootManager>(scene);
+        deathMenuUI = FindInScene<DeathMenuUI>(scene);
+    }
 
-        if (lootManager == null)
-            lootManager = FindFirstObjectByType<LootManager>();
+    private void ClearSceneReferences()
+    {
+        levelGenerator = null;
+        zoneManager = null;
+        lootManager = null;
+        deathMenuUI = null;
+    }
 
-        if (deathMenuUI == null)
-            deathMenuUI = FindFirstObjectByType<DeathMenuUI>();
+    private static bool BelongsTo(Component component, Scene scene) =>
+        component != null && component.gameObject.scene == scene;
+
+    private static T FindInScene<T>(Scene scene) where T : Component
+    {
+        if (!scene.IsValid() || !scene.isLoaded) return null;
+        foreach (GameObject root in scene.GetRootGameObjects())
+        {
+            T found = root.GetComponentInChildren<T>(true);
+            if (found != null) return found;
+        }
+        return null;
     }
 }

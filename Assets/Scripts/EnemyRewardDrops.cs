@@ -67,7 +67,6 @@ public sealed class CurrencyWorldPickup:MonoBehaviour
     public static CurrencyWorldPickup Spawn(CraftingCurrencyType type,Vector3 position,Transform player)
     {
         var go=new GameObject("Dropped "+CurrencyPresentation.Name(type),typeof(SpriteRenderer),typeof(CurrencyWorldPickup));
-        DontDestroyOnLoad(go);
         go.transform.position=position+new Vector3(UnityEngine.Random.Range(-.28f,.28f),.25f+UnityEngine.Random.Range(0f,.18f),0);
         var renderer=go.GetComponent<SpriteRenderer>();renderer.sprite=InventoryArtCatalog.Currency(type);renderer.sortingOrder=80;
         var pickup=go.GetComponent<CurrencyWorldPickup>();pickup.claim=new CurrencyRewardClaim(type);pickup.target=player;pickup.start=go.transform.position;

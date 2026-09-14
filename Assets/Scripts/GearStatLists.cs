@@ -18,11 +18,14 @@ public class GearStatLists : MonoBehaviour
         }
 
         Instance = this;
+        transform.SetParent(null, true);
         DontDestroyOnLoad(gameObject);
 
         // Use the shared builder for runtime
         statPools = BuildDefaultStatPools();
     }
+
+    private void OnDestroy() { if (Instance == this) Instance = null; }
 
     public List<StatTypes> GetStatPoolForType(LootManager.GearType type)
     {

@@ -36,13 +36,13 @@ public static class PlayerStatModelChecks
         stats.SetBaseStat(StatTypes.UnarmedDamage, 7);
         Require(player.BuildAttackContext().Hits.Sum(h => h.Amount) == 7, "Positive unarmed stat drives unarmed damage");
         manager.Equip(starter);
-        Require(player.EquippedWeaponBaseDamage == 80 && player.BuildAttackContext().Hits.Sum(h => h.Amount) == 80, "Unarmed base is not added to weapon base");
+        Require(player.EquippedWeaponBaseDamage == 80 && player.BuildNonCriticalAttackContext().Hits.Sum(h => h.Amount) == 80, "Unarmed base is not added to weapon base");
         stats.SetBaseStat(StatTypes.UnarmedDamage, 0);
         Require(stats.GetStat(StatTypes.UnarmedDamage) == 0, "Base changes invalidate cached stats");
         var replacement = new GameObject("QA weapon").AddComponent<Gear>();
         replacement.Initialize(LootManager.GearType.Weapons,LootManager.GearRarity.Normal,1,Element.Phys);
         replacement.BaseDamage = 42; replacement.BaseAttackSpeed = 1.2f;
-        manager.Equip(replacement); Require(player.BuildAttackContext().Hits.Sum(h => h.Amount) == 42, "Weapon replacement supplies its own base");
+        manager.Equip(replacement); Require(player.BuildNonCriticalAttackContext().Hits.Sum(h => h.Amount) == 42, "Weapon replacement supplies its own base");
         manager.Equip(starter);
         var hud = Object.FindFirstObjectByType<PaperBattleHUD>(); hud.statsPanel.SetActive(true);
         health.LoseLife(health.CurrentLife + 1); Require(health.CurrentLife == 0, "Lethal damage clamps to zero");

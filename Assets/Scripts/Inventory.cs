@@ -41,6 +41,7 @@ public class Inventory : MonoBehaviour
             (EquipmentManager.Instance != null && EquipmentManager.Instance.GetEquipped(item.ItemType) == item)) return false;
         item.PickupClaimed = true;
         if (item.IsScrap) return MigrateLegacyScrap(item);
+        RetainForRun(item);
         items.Add(item);
         if (MatchesFilter(item) && TryDismantle(item)) return true;
         OnInventoryChanged?.Invoke();
@@ -55,6 +56,7 @@ public class Inventory : MonoBehaviour
             return;
         }
         Instance = this;
+        transform.SetParent(null, true);
         DontDestroyOnLoad(gameObject);
         if (GetComponent<CurrencyInventory>() == null) gameObject.AddComponent<CurrencyInventory>();
         ModHighlightFilter.Changed += HandleModFilterChanged;
@@ -72,6 +74,7 @@ public class Inventory : MonoBehaviour
     {
         if (item == null || item.Dismantled || items.Contains(item)) return;
         if (item.IsScrap) { MigrateLegacyScrap(item); return; }
+        RetainForRun(item);
         items.Add(item);    //Add the passed in item to the list
         OnInventoryChanged?.Invoke();   //Call all of the functions subscribed to this event
     }
@@ -84,10 +87,20 @@ public class Inventory : MonoBehaviour
 
     public void NotifyItemChanged(Gear item) { if (item != null && items.Contains(item)) OnInventoryChanged?.Invoke(); }
 
-    public void ResetForRebirth()
+    public void ResetForNewRun()
     {
         foreach (var item in items) if (item != null) Destroy(item.gameObject);
         items.Clear(); OnInventoryChanged?.Invoke();
+    }
+
+    public void ResetForRebirth() => ResetForNewRun();
+
+    // Gear is run-owned data represented by GameObjects. Keep it beneath the
+    // persistent inventory root so unloading gameplay cannot invalidate entries.
+    internal void RetainForRun(Gear item)
+    {
+        if (item != null && item.transform.parent != transform)
+            item.transform.SetParent(transform, false);
     }
 
     bool MigrateLegacyScrap(Gear scrap)

@@ -223,6 +223,7 @@ public sealed class RelicTooltipUI:MonoBehaviour
     public static void RefreshVisible(){if(instance!=null&&instance.gameObject.activeSelf)instance.Refresh();}
     void OnEnable(){if(RelicInventory.Instance!=null)RelicInventory.Instance.Changed+=Refresh;}
     void OnDisable(){if(RelicInventory.Instance!=null)RelicInventory.Instance.Changed-=Refresh;}
+    void OnDestroy(){if(instance==this)instance=null;}
     void Refresh(){if(relic==null||!ContainsRelic(relic)){Hide();return;}var inventorySlot=anchor!=null?anchor.GetComponent<RelicSlotUI>():null;var activeSlot=anchor!=null?anchor.GetComponent<ActiveRelicSlotUI>():null;if((inventorySlot!=null&&!ReferenceEquals(inventorySlot.Item,relic))||(activeSlot!=null&&!ReferenceEquals(activeSlot.Item,relic))){Hide();return;}if(anchor==null||!anchor.gameObject.activeInHierarchy){Hide();return;}label.text=ItemTooltipFormatter.DescribeRelic(relic);float height=Mathf.Clamp(label.GetPreferredValues(label.text,296,0).y+24,90,360);((RectTransform)transform).sizeDelta=new Vector2(320,height);LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)transform);}
     static bool ContainsRelic(RelicData target){if(RelicInventory.Instance==null)return false;foreach(var item in RelicInventory.Instance.Relics)if(ReferenceEquals(item,target))return true;return false;}
 }

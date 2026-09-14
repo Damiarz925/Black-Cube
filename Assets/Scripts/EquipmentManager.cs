@@ -2,6 +2,7 @@
 // See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine.SceneManagement;
 
 public class EquipmentManager : MonoBehaviour
 {
@@ -23,9 +24,10 @@ public class EquipmentManager : MonoBehaviour
             return;
         }
         Instance = this;
+        transform.SetParent(null, true);
         DontDestroyOnLoad(gameObject);
-
-        EnsurePlayerReferences();
+        SceneManager.sceneLoaded += OnSceneLoaded;
+        SceneManager.sceneUnloaded += OnSceneUnloaded;
     }
 
     //This function is used whenever the player wants to equip a new piece of equipment.
@@ -40,6 +42,7 @@ public class EquipmentManager : MonoBehaviour
         //Define variables for the item type of the gear item, and the inventory instance
         var slot = gear.ItemType;
         var inventory = Inventory.Instance;
+        inventory?.RetainForRun(gear);
         playerStats?.BeginUpdate();
         try
         {
@@ -114,7 +117,7 @@ public class EquipmentManager : MonoBehaviour
         EquipmentChanged?.Invoke();
     }
 
-    public void ResetForRebirth()
+    public void ResetForNewRun()
     {
         EnsurePlayerReferences(); playerStats?.BeginUpdate();
         try
@@ -131,6 +134,8 @@ public class EquipmentManager : MonoBehaviour
         EquipmentChanged?.Invoke();
     }
 
+    public void ResetForRebirth() => ResetForNewRun();
+
     //This grabs the correct operation for the stat
     private StatOp GetOperationForStat(StatTypes stat)
     {
@@ -139,14 +144,67 @@ public class EquipmentManager : MonoBehaviour
 
     private void EnsurePlayerReferences()
     {
-        if (playerStats == null)
-        {
-            var playerObject = GameObject.FindGameObjectWithTag("Player");
-            if (playerObject != null)
-                playerStats = playerObject.GetComponentInChildren<StatsComponent>();
-        }
+        Scene scene = SceneManager.GetActiveScene();
+        if (scene.name == GameSceneNames.Gameplay &&
+            (playerStats == null || playerStats.gameObject.scene != scene ||
+             playerController == null || playerController.gameObject.scene != scene))
+            BindSceneReferences(scene);
+    }
 
-        if (playerController == null)
-            playerController = FindFirstObjectByType<PlayerController>();
+    public void BindSceneReferences(Scene scene)
+    {
+        if (scene.name != GameSceneNames.Gameplay || !scene.isLoaded) { ReleaseSceneReferences(); return; }
+        PlayerController nextController = FindInScene<PlayerController>(scene);
+        StatsComponent nextStats = nextController != null ? nextController.GetComponentInChildren<StatsComponent>() : null;
+        if (playerController == nextController && playerStats == nextStats) return;
+        ReleaseSceneReferences();
+        playerController = nextController;
+        playerStats = nextStats;
+        ReapplyEquipmentToScenePlayer();
+    }
+
+    public void ReleaseSceneReferences()
+    {
+        playerStats = null;
+        playerController = null;
+    }
+
+    private void ReapplyEquipmentToScenePlayer()
+    {
+        if (playerStats == null) return;
+        playerStats.BeginUpdate();
+        try
+        {
+            foreach (Gear gear in equipped.Values)
+            {
+                if (gear == null) continue;
+                foreach (RolledMod mod in gear.globalRolledMods)
+                    playerStats.AddModifier(new StatModifier(mod.statType, GetOperationForStat(mod.statType), mod.value, gear));
+            }
+            if (playerController != null) playerController.EquipWeapon(GetEquipped(LootManager.GearType.Weapons));
+        }
+        finally { playerStats.EndUpdate(); }
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode) => BindSceneReferences(scene);
+    private void OnSceneUnloaded(Scene scene) { if (scene.name == GameSceneNames.Gameplay) ReleaseSceneReferences(); }
+
+    private void OnDestroy()
+    {
+        if (Instance != this) return;
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+        SceneManager.sceneUnloaded -= OnSceneUnloaded;
+        ReleaseSceneReferences();
+        Instance = null;
+    }
+
+    private static T FindInScene<T>(Scene scene) where T : Component
+    {
+        foreach (GameObject root in scene.GetRootGameObjects())
+        {
+            T found = root.GetComponentInChildren<T>(true);
+            if (found != null) return found;
+        }
+        return null;
     }
 }
