@@ -137,6 +137,24 @@ public sealed class InventoryModFilter
         Changed?.Invoke();
     }
 
+    public void RestorePreferences(ModFilterMode mode, ModFilterCategory simple, IEnumerable<StatTypes> advanced, int requiredMatches)
+    {
+        Mode = Enum.IsDefined(typeof(ModFilterMode), mode) ? mode : ModFilterMode.Simple;
+        SimpleSelection = simple & ValidSimpleMask();
+        advancedStats.Clear();
+        if (advanced != null) foreach (StatTypes stat in advanced)
+            if (SelectableStats.Contains(stat)) advancedStats.Add(stat);
+        RequiredMatches = Math.Max(1, Math.Min(6, requiredMatches));
+        Changed?.Invoke();
+    }
+
+    static ModFilterCategory ValidSimpleMask()
+    {
+        ModFilterCategory value = ModFilterCategory.None;
+        foreach (var entry in SimpleCategories) value |= entry.Category;
+        return value;
+    }
+
     public bool Matches(Gear gear) => HasSelection && CountMatches(gear) >= RequiredMatches;
 
     public int CountMatches(Gear gear)

@@ -37,6 +37,7 @@ public sealed class PlayerProgression : MonoBehaviour
     private void OnEnable() => NormalizeAllocations();
 
     public int Rank(int node) => ranks != null && node >= 0 && node < ranks.Length && ranks[node] != 0 ? 1 : 0;
+    public int[] CopyRanks() => ranks != null ? (int[])ranks.Clone() : new int[PassiveTreeDefinition.NodeCount];
     public bool IsAllocated(int node) => Rank(node) > 0;
     public bool HasKeystone(PassiveKeystone keystone)
     {
@@ -73,6 +74,7 @@ public sealed class PlayerProgression : MonoBehaviour
         BindStats();
         ApplySkills();
         Changed?.Invoke();
+        GamePersistence.MarkDirty();
         return true;
     }
 
@@ -112,6 +114,7 @@ public sealed class PlayerProgression : MonoBehaviour
         BindStats();
         ApplySkills();
         Changed?.Invoke();
+        GamePersistence.MarkDirty();
         return true;
     }
 
@@ -150,6 +153,7 @@ public sealed class PlayerProgression : MonoBehaviour
         }
         if (AtCap) experience = 0;
         Changed?.Invoke();
+        GamePersistence.MarkDirty();
     }
 
     public void ResetProgression()
@@ -161,6 +165,30 @@ public sealed class PlayerProgression : MonoBehaviour
         BindStats();
         ApplySkills();
         Changed?.Invoke();
+    }
+
+    public bool RestoreProgression(int restoredLevel, double restoredExperience, int restoredAvailablePoints, int[] restoredRanks)
+    {
+        if (restoredLevel < 1 || restoredLevel > Mathf.Max(1, maxLevel) || double.IsNaN(restoredExperience)
+            || double.IsInfinity(restoredExperience) || restoredExperience < 0d || restoredAvailablePoints < 0
+            || restoredRanks == null || restoredRanks.Length != PassiveTreeDefinition.NodeCount) return false;
+        if (restoredLevel < maxLevel && restoredExperience >= RequirementAt(restoredLevel)) return false;
+        if (restoredLevel >= maxLevel && restoredExperience != 0d) return false;
+        int allocated = 0;
+        for (int i = 0; i < restoredRanks.Length; i++)
+        {
+            if (restoredRanks[i] is not (0 or 1)) return false;
+            allocated += restoredRanks[i];
+        }
+        if (allocated + restoredAvailablePoints > restoredLevel - 1) return false;
+        level = restoredLevel;
+        experience = restoredExperience;
+        availablePoints = restoredAvailablePoints;
+        ranks = (int[])restoredRanks.Clone();
+        BindStats();
+        ApplySkills();
+        Changed?.Invoke();
+        return true;
     }
 
     void Update() => BindStats();

@@ -66,7 +66,7 @@ public sealed class CurrencyInventory : MonoBehaviour
     public void Add(CraftingCurrencyType type, int amount = 1)
     {
         if (amount <= 0 || Count(type) > int.MaxValue - amount) return;
-        stacks[type] = Count(type) + amount; SyncSerialized(); Changed?.Invoke();
+        stacks[type] = Count(type) + amount; SyncSerialized(); Changed?.Invoke(); GamePersistence.MarkDirty();
     }
     public bool TrySpend(CraftingCurrencyType type, int amount = 1)
     {
@@ -74,7 +74,7 @@ public sealed class CurrencyInventory : MonoBehaviour
         int remaining = Count(type) - amount;
         if (remaining == 0) stacks.Remove(type); else stacks[type] = remaining;
         if (remaining == 0 && ArmedCurrency == type) ArmedCurrency = null;
-        SyncSerialized(); Changed?.Invoke(); return true;
+        SyncSerialized(); Changed?.Invoke(); GamePersistence.MarkDirty(); return true;
     }
     public bool Arm(CraftingCurrencyType type)
     {
@@ -116,6 +116,12 @@ public sealed class CurrencyInventory : MonoBehaviour
     {
         foreach (CraftingCurrencyType type in Enum.GetValues(typeof(CraftingCurrencyType)))
             if (!IsAncient(type)) stacks.Remove(type);
+        ArmedCurrency = null;
+        SyncSerialized(); Changed?.Invoke();
+    }
+    public void ResetForNewGame()
+    {
+        stacks.Clear();
         ArmedCurrency = null;
         SyncSerialized(); Changed?.Invoke();
     }

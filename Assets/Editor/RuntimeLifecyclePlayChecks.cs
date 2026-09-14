@@ -16,6 +16,7 @@ public static class RuntimeLifecyclePlayChecks
 {
     const string PendingKey = "BlackCube.RuntimeLifecycle.Pending";
     const string Report = "Logs/RuntimeLifecyclePlayChecks.txt";
+    static string SaveDirectory => Path.GetFullPath("Temp/RuntimeLifecyclePlayChecksSave");
     static readonly Type[] PersistentTypes = { typeof(GameManager), typeof(Inventory), typeof(CurrencyInventory),
         typeof(EquipmentManager), typeof(ModManager), typeof(GearStatLists), typeof(RelicInventory), typeof(RebirthManager) };
     static int entry, errors;
@@ -30,6 +31,7 @@ public static class RuntimeLifecyclePlayChecks
         EditorApplication.update += Tick;
         if (SessionState.GetBool(PendingKey, false))
         {
+            GamePersistence.SaveDirectoryOverride = SaveDirectory;
             Application.logMessageReceived -= OnLog;
             Application.logMessageReceived += OnLog;
         }
@@ -40,6 +42,9 @@ public static class RuntimeLifecyclePlayChecks
     {
         Directory.CreateDirectory("Logs");
         File.WriteAllText(Report, string.Empty);
+        if (Directory.Exists(SaveDirectory)) Directory.Delete(SaveDirectory, true);
+        Directory.CreateDirectory(SaveDirectory);
+        GamePersistence.SaveDirectoryOverride = SaveDirectory;
         hadSave = PlayerPrefs.HasKey(GamePersistence.SaveKey);
         savedValue = hadSave ? PlayerPrefs.GetString(GamePersistence.SaveKey) : null;
         PlayerPrefs.DeleteKey(GamePersistence.SaveKey);
@@ -105,7 +110,9 @@ public static class RuntimeLifecyclePlayChecks
             else
             {
                 if (entry == 3) { Require(GamePersistence.RequestLoad(), "Could not create stale request fixture"); }
+                bool confirm = GamePersistence.HasSave;
                 ButtonNamed("Start Game Button").onClick.Invoke();
+                if (confirm) ButtonNamed("Confirm Start New Game").onClick.Invoke();
             }
             Delay();
             return;
@@ -132,7 +139,9 @@ public static class RuntimeLifecyclePlayChecks
         previousWeaponInstanceId = RuntimeHelpers.GetHashCode(weapon);
         Write($"PASS: gameplay entry {entry + 1}/6 bound the current scene with one service set and the expected {(loaded ? "load" : "New Game")} state.");
 
-        if (entry == 0)
+        // A confirmed New Game intentionally replaces the prior run's save.
+        // Seed each fixture after the fresh run that immediately precedes a load entry.
+        if (entry == 1 || entry == 3)
         {
             CurrencyInventory.Instance.Add(CraftingCurrencyType.MagicToRare, 23);
             GamePersistence.Save();
@@ -214,5 +223,7 @@ public static class RuntimeLifecyclePlayChecks
         GamePersistence.RequestNewGame();
         if (hadSave) PlayerPrefs.SetString(GamePersistence.SaveKey, savedValue); else PlayerPrefs.DeleteKey(GamePersistence.SaveKey);
         PlayerPrefs.Save();
+        GamePersistence.SaveDirectoryOverride = null;
+        if (Directory.Exists(SaveDirectory)) Directory.Delete(SaveDirectory, true);
     }
 }

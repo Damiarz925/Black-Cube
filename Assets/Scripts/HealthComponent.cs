@@ -147,4 +147,13 @@ public class HealthComponent : MonoBehaviour
     {
         if (!isDead) { CurrentLife = MaxLife; Changed?.Invoke(); }
     }
+
+    public bool RestoreCheckpointLife(float value)
+    {
+        if (float.IsNaN(value) || float.IsInfinity(value) || value < 0f || value > MaxLife + .001f) return false;
+        isDead = false;
+        CurrentLife = Mathf.Clamp(value, 0f, MaxLife);
+        Changed?.Invoke();
+        return CurrentLife > 0f;
+    }
 }

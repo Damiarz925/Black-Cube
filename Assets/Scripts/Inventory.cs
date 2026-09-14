@@ -14,8 +14,11 @@ public class Inventory : MonoBehaviour
     public event Action OnInventoryChanged; //Declares an action for other classes to subscribe to so that we can invoke when adding and removing items
     public event Action OnModFilterChanged;
     public InventoryModFilter ModHighlightFilter { get; } = new();
-    public bool FilterLevelEnabled { get; set; }
-    public bool FilterRarityEnabled { get; set; }
+    private bool filterLevelEnabled, filterRarityEnabled, restoringFilterPreferences;
+    private int filterLevel = 10;
+    private LootManager.GearRarity filterRarity = LootManager.GearRarity.Magic;
+    public bool FilterLevelEnabled { get => filterLevelEnabled; set { if(filterLevelEnabled==value)return;filterLevelEnabled=value;SaveFilterPreferences(); } }
+    public bool FilterRarityEnabled { get => filterRarityEnabled; set { if(filterRarityEnabled==value)return;filterRarityEnabled=value;SaveFilterPreferences(); } }
     private bool filterModMismatchEnabled;
     public bool FilterModMismatchEnabled
     {
@@ -25,10 +28,11 @@ public class Inventory : MonoBehaviour
             if (filterModMismatchEnabled == value) return;
             filterModMismatchEnabled = value;
             OnModFilterChanged?.Invoke();
+            SaveFilterPreferences();
         }
     }
-    public int FilterLevel { get; set; } = 10;
-    public LootManager.GearRarity FilterRarity { get; set; } = LootManager.GearRarity.Magic;
+    public int FilterLevel { get => filterLevel; set { int next=Mathf.Max(1,value);if(filterLevel==next)return;filterLevel=next;SaveFilterPreferences(); } }
+    public LootManager.GearRarity FilterRarity { get => filterRarity; set { if(filterRarity==value)return;filterRarity=value;SaveFilterPreferences(); } }
     public bool MatchesFilter(Gear item) => item != null && !item.IsScrap &&
         ((FilterLevelEnabled && item.ItemLevel <= Mathf.Max(1, FilterLevel)) ||
          (FilterRarityEnabled && item.ItemRarity <= FilterRarity) ||
@@ -45,6 +49,7 @@ public class Inventory : MonoBehaviour
         items.Add(item);
         if (MatchesFilter(item) && TryDismantle(item)) return true;
         OnInventoryChanged?.Invoke();
+        GamePersistence.MarkDirty();
         return true;
     }
 
@@ -59,10 +64,11 @@ public class Inventory : MonoBehaviour
         transform.SetParent(null, true);
         DontDestroyOnLoad(gameObject);
         if (GetComponent<CurrencyInventory>() == null) gameObject.AddComponent<CurrencyInventory>();
+        LoadFilterPreferences();
         ModHighlightFilter.Changed += HandleModFilterChanged;
     }
 
-    private void HandleModFilterChanged() => OnModFilterChanged?.Invoke();
+    private void HandleModFilterChanged() { OnModFilterChanged?.Invoke(); SaveFilterPreferences(); }
     private void OnDestroy()
     {
         ModHighlightFilter.Changed -= HandleModFilterChanged;
@@ -77,15 +83,16 @@ public class Inventory : MonoBehaviour
         RetainForRun(item);
         items.Add(item);    //Add the passed in item to the list
         OnInventoryChanged?.Invoke();   //Call all of the functions subscribed to this event
+        GamePersistence.MarkDirty();
     }
 
     public void Remove(Gear item)
     {
         if (items.Remove(item)) //Remove the passed in item from the list
-            OnInventoryChanged?.Invoke();   //Call all of the functions subscribed to this event
+        { OnInventoryChanged?.Invoke(); GamePersistence.MarkDirty(); }
     }
 
-    public void NotifyItemChanged(Gear item) { if (item != null && items.Contains(item)) OnInventoryChanged?.Invoke(); }
+    public void NotifyItemChanged(Gear item) { if (item != null && items.Contains(item)) { OnInventoryChanged?.Invoke(); GamePersistence.MarkDirty(); } }
 
     public void ResetForNewRun()
     {
@@ -101,6 +108,40 @@ public class Inventory : MonoBehaviour
     {
         if (item != null && item.transform.parent != transform)
             item.transform.SetParent(transform, false);
+    }
+
+    [Serializable] private sealed class FilterPreferenceData
+    {
+        public bool levelEnabled,rarityEnabled,modMismatchEnabled;
+        public int level=10,rarity,mode,requiredMatches=1;
+        public long simpleSelection;
+        public List<int> advancedStats=new();
+    }
+    const string FilterPreferenceKey="BlackCube.InventoryFilters.V1";
+    void SaveFilterPreferences()
+    {
+        if(restoringFilterPreferences||Instance!=this)return;
+        var data=new FilterPreferenceData{levelEnabled=filterLevelEnabled,rarityEnabled=filterRarityEnabled,
+            modMismatchEnabled=filterModMismatchEnabled,level=filterLevel,rarity=(int)filterRarity,
+            mode=(int)ModHighlightFilter.Mode,simpleSelection=(long)ModHighlightFilter.SimpleSelection,
+            requiredMatches=ModHighlightFilter.RequiredMatches};
+        foreach(var stat in ModHighlightFilter.AdvancedSelection)data.advancedStats.Add((int)stat);
+        PlayerPrefs.SetString(FilterPreferenceKey,JsonUtility.ToJson(data));PlayerPrefs.Save();
+    }
+    void LoadFilterPreferences()
+    {
+        if(!PlayerPrefs.HasKey(FilterPreferenceKey))return;
+        restoringFilterPreferences=true;
+        try
+        {
+            var data=JsonUtility.FromJson<FilterPreferenceData>(PlayerPrefs.GetString(FilterPreferenceKey));if(data==null)return;
+            filterLevelEnabled=data.levelEnabled;filterRarityEnabled=data.rarityEnabled;filterModMismatchEnabled=data.modMismatchEnabled;
+            filterLevel=Mathf.Max(1,data.level);filterRarity=Enum.IsDefined(typeof(LootManager.GearRarity),data.rarity)?(LootManager.GearRarity)data.rarity:LootManager.GearRarity.Magic;
+            var advanced=new List<StatTypes>();if(data.advancedStats!=null)foreach(int value in data.advancedStats)if(Enum.IsDefined(typeof(StatTypes),value))advanced.Add((StatTypes)value);
+            ModHighlightFilter.RestorePreferences(Enum.IsDefined(typeof(ModFilterMode),data.mode)?(ModFilterMode)data.mode:ModFilterMode.Simple,
+                (ModFilterCategory)data.simpleSelection,advanced,data.requiredMatches);
+        }
+        finally{restoringFilterPreferences=false;}
     }
 
     bool MigrateLegacyScrap(Gear scrap)

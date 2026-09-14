@@ -83,25 +83,50 @@ public class GameManager : MonoBehaviour
         Debug.Log("GameManager: Initializing gameplay scene.");
         BindSceneReferences(scene);
         EquipmentManager.Instance?.BindSceneReferences(scene);
+        var scenePlayer = FindInScene<PlayerController>(scene);
+        if (scenePlayer != null && scenePlayer.GetComponent<PlayerSkillController>() == null)
+            scenePlayer.gameObject.AddComponent<PlayerSkillController>();
         deathMenuUI?.Hide();
         ResetRunStateForGameplayEntry();
-        StartNewRun();
-        if (GamePersistence.RestoreRequestedGame(out bool restored))
+        if (GamePersistence.LoadRequested)
         {
+            GamePersistence.RestoreRequestedGame(out bool restored);
             Debug.Log(restored
                 ? "GameManager: Restored the requested saved game during gameplay initialization."
                 : "GameManager: Load was requested, but the current save could not be restored.");
+            if (!restored)
+            {
+                SceneManager.LoadScene(GameSceneNames.MainMenu);
+                return;
+            }
         }
+        else if (!StartFreshGame(GamePersistence.ConsumeConfirmedNewGameRequest()))
+            SceneManager.LoadScene(GameSceneNames.MainMenu);
     }
 
     private void ResetRunStateForGameplayEntry()
     {
-        // Relics/rebirth history are deliberately excluded: whether New Game clears
-        // meta progression is a design decision deferred beyond this lifecycle pass.
         RebirthManager.Instance?.Cancel();
         EquipmentManager.Instance?.ResetForNewRun();
         Inventory.Instance?.ResetForNewRun();
-        CurrencyInventory.Instance?.ResetForNewRun();
+        CurrencyInventory.Instance?.ResetForNewGame();
+        RelicInventory.Instance?.ResetForNewGame();
+    }
+
+    private bool StartFreshGame(bool commit)
+    {
+        GamePersistence.BeginFreshRunIdentity();
+        var player = FindAnyObjectByType<PlayerController>();
+        player?.GetComponent<PlayerSkillController>()?.RestoreSelection(false, default);
+        player?.GetComponent<StatusController>()?.ClearStatuses();
+        player?.ResetToStarterWeapon();
+        StartNewRun();
+        if (commit && !GamePersistence.CommitConfirmedNewGame())
+        {
+            Debug.LogError("GameManager: the confirmed New Game could not commit its initial checkpoint.");
+            return false;
+        }
+        return true;
     }
 
     public void StartNewRun()   //Starts a fresh run, at zone lvl 1, 0 enemies killed and no boss spawned, debug log for dev feedback, calls start zone passing in the currentzonelevel after resetting the state
@@ -151,7 +176,26 @@ public class GameManager : MonoBehaviour
         Debug.Log($"GameManager: Generating level with seed {seed}.");
 
         Debug.Log("GameManager: Spawning first enemy for this zone.");
-        BattleManager.Instance.BeginZone(zoneLevel, startWithBoss: false);                          //call beginzone from battle manager, passing in the zone level and whether we start with the boss or not
+        GamePersistence.GenerateDeterministicEncounter(currentZoneLevel, enemiesKilledInZone, false,
+            () => BattleManager.Instance.BeginZone(zoneLevel, startWithBoss: false));
+    }
+
+    public bool RestoreRunState(int zoneLevel, int completedNormalEncounters, bool bossEncounter)
+    {
+        EnsureSceneReferences();
+        if (zoneManager == null || BattleManager.Instance == null || zoneLevel < 1 || completedNormalEncounters < 0) return false;
+        int quota = zoneManager.GetEnemiesToKillBeforeBoss(zoneLevel);
+        if (completedNormalEncounters > quota || (bossEncounter && completedNormalEncounters != quota)) return false;
+        currentZoneLevel = zoneLevel;
+        enemiesToKillBeforeBoss = quota;
+        enemiesKilledInZone = completedNormalEncounters;
+        bossSpawned = bossEncounter;
+        playerDeathHandled = false;
+        zoneManager.zoneLevel = zoneLevel;
+        zoneManager.GenerateZone();
+        GamePersistence.GenerateDeterministicEncounter(zoneLevel, completedNormalEncounters, bossEncounter,
+            () => BattleManager.Instance.SpawnNextEnemy(bossEncounter));
+        return BattleManager.Instance.CurrentEnemyAI != null;
     }
 
     public void OnEnemyKilled(HealthComponent enemyHealth, bool wasBoss)                            //on enemy killed function defines what happens when an enemy is killed
@@ -207,17 +251,20 @@ public class GameManager : MonoBehaviour
             bossSpawned = true;
             Debug.Log("GameManager: Conditions met, spawning boss next.");
             if (BattleManager.Instance != null)
-                BattleManager.Instance.SpawnNextEnemy(spawnBoss: true);
+                GamePersistence.GenerateDeterministicEncounter(currentZoneLevel, enemiesKilledInZone, true,
+                    () => BattleManager.Instance.SpawnNextEnemy(spawnBoss: true));
             else
                 Debug.LogWarning("GameManager: BattleManager.Instance is null; cannot spawn boss.");
         }
         else
         {
             if (BattleManager.Instance != null)
-                BattleManager.Instance.SpawnNextEnemy(spawnBoss: false);        //if shouldspawn boss was false, still spawn next enemy, but with spawnBoss set to false
+                GamePersistence.GenerateDeterministicEncounter(currentZoneLevel, enemiesKilledInZone, false,
+                    () => BattleManager.Instance.SpawnNextEnemy(spawnBoss: false));
             else
                 Debug.LogWarning("GameManager: BattleManager.Instance is null; cannot spawn next enemy.");
         }
+        GamePersistence.Save();
     }
 
     public void OnPlayerKilled(HealthComponent hc)
@@ -281,6 +328,7 @@ public class GameManager : MonoBehaviour
         {
             Debug.LogWarning("GameManager: ZoneManager is null during zone clear; starting next zone without zone reward checks.");
             StartZone(currentZoneLevel + 1);
+            GamePersistence.Save();
             return;
         }
 
@@ -294,6 +342,7 @@ public class GameManager : MonoBehaviour
         {
             StartZone(currentZoneLevel + 1);        //Increment the zone level by 1 and start the next zone
         }
+        GamePersistence.Save();
     }
 
     private void ShowPrestigeMenu()     //Not currently implemented (I'll be putting this in the prestige script later.) Prestige will be accessed through a menu button. The initial show prestige will simply make it visible, selectable and highlight it

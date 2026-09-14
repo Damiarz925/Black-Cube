@@ -83,6 +83,7 @@ public class EquipmentManager : MonoBehaviour
         }
         finally { playerStats?.EndUpdate(); }
         EquipmentChanged?.Invoke();
+        GamePersistence.MarkDirty();
     }
 
     public void Unequip(LootManager.GearType slot)
@@ -99,6 +100,7 @@ public class EquipmentManager : MonoBehaviour
         }
         finally { playerStats?.EndUpdate(); }
         EquipmentChanged?.Invoke();
+        GamePersistence.MarkDirty();
     }
 
     public void NotifyItemChanged(Gear gear)
@@ -115,6 +117,7 @@ public class EquipmentManager : MonoBehaviour
         }
         finally { playerStats?.EndUpdate(); }
         EquipmentChanged?.Invoke();
+        GamePersistence.MarkDirty();
     }
 
     public void ResetForNewRun()

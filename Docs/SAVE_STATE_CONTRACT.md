@@ -2,32 +2,35 @@
 
 ## 1. Goals
 
-This is the authoritative design input for Step 6. It separates run state, meta progression, preferences, transient session state, and derived values; defines atomic checkpoint behavior; and prevents a partially restored game. Step 5 does **not** add fields to `GameSaveData` or migrate storage.
+This is the authoritative design and shipped behavior for Step 6. It separates run state, meta progression, preferences, transient session state, and derived values; defines atomic checkpoint behavior; and prevents a partially restored game.
 
 The production goals are: one canonical capture/apply path, resumable encounter-boundary checkpoints, explicit failure reporting, forward migration, validation before mutation, and no serialization of live-frame combat presentation.
 
 ## 2. Current save implementation
 
-`GamePersistence` stores one version-1 JSON string under `BlackCube.Save.V1` in `PlayerPrefs`. V1 captures inventory gear, equipped gear, all currency stacks, relic history, relic cycle, and four active-relic indices. Gear identity includes type, rarity, item level, element, weapon base values, and every rolled modifier including tier/value/locked-original state.
+`GamePersistence` stores schema version 2 as UTF-8 JSON files under `Application.persistentDataPath`: `current-save.json`, `current-save.json.bak`, and the transactional `current-save.json.tmp`. The envelope carries schema version, stable run ID, deterministic run seed, UTC timestamp, and the complete payload. Gear/relic/skill/passive ownership uses stable domain IDs rather than Unity object identity or list positions.
 
-V1 does not capture combat level/stage, player progression, passive allocations, selected skill, resources, encounter checkpoint, filters, or preferences. Loading accepts only `version == 1` and applies directly to live services; it does not validate the whole graph first, migrate, back up, or roll back a partial apply. The one-shot `loadRequested` flag is transition intent, not save data.
+Capture creates a detached DTO without rewards, rolls, consumption, spawning, or progression changes. It validates before serialization, verifies the durable temporary file by parsing and validating it, atomically replaces the primary while rotating its previous version to backup, and reports success only afterward. Confirmed New Game additionally replaces the backup with the new run. Load validates the complete primary before mutation, tries backup on failure, and applies under a restoration guard; both invalid files remain untouched.
 
-The complete `PlayerPrefs` inventory is:
+Historical `BlackCube.Save.V1` remains a read-only migration source. When neither v2 file exists, a valid V1 snapshot is parsed/validated, expanded with clean defaults for fields it never stored, restored, and only then committed as v2. The V1 key is preserved and cannot be repeatedly imported once a new-format file exists.
 
-- `BlackCube.Save.V1`: current V1 gameplay snapshot.
+The persistence-related `PlayerPrefs` inventory is:
+
+- `BlackCube.Save.V1`: historical gameplay snapshot retained only as a nondestructive migration source.
+- `BlackCube.InventoryFilters.V1`: independent pickup and modifier-filter preferences.
 - `BlackCube.Options.PausePassiveTree`: independent user preference.
 - `BlackCube.PlayerDisplayName`: independent player-facing preference/profile value.
 - `BlackCube.ModFilter.SkipModeWarning`: independent acknowledgement preference.
 
 ## 3. Pause-menu explicit save behavior
 
-Step 5 adds `GamePersistence.TrySave`, which calls the same existing V1 capture route, catches/report failures, flushes `PlayerPrefs`, and verifies that the written JSON can be read back unchanged. Existing `Save()` callers delegate to it. No V1 fields changed.
+`GamePersistence.TrySave` is the only explicit gameplay-save entry point and now executes the complete schema-v2 capture/validation/file transaction. Existing `Save()` callers delegate to it.
 
-`SAVE & MAIN MENU` and `SAVE & QUIT` continue only after `TrySave` returns true. A failure leaves the player in the paused gameplay scene. Once Step 6 replaces the canonical save internals, both buttons automatically receive the full contract.
+`SAVE & MAIN MENU` and `SAVE & QUIT` continue only after `TrySave` returns true. A failure leaves the player in the paused gameplay scene.
 
-## 4. Recommended save model
+## 4. Shipped save model
 
-Use **one current checkpoint slot plus one automatic backup of that same slot** for the first production version. Explicit saves and autosaves update the same logical run; they are not separate progress branches.
+Step 6 uses **one current checkpoint slot plus one automatic backup of that same slot**. Explicit saves and autosaves update the same logical run; they are not separate progress branches.
 
 | Model | UI/implementation cost | Loss/confusion risk | Steam use | Recommendation |
 |---|---|---|---|---|
@@ -49,7 +52,7 @@ Classifications: A = save-persistent run state, B = meta-progression, C = user p
 | Player level, XP, available passive points | A | `PlayerProgression` | Authoritative progression values; validate bounds and point accounting |
 | Passive allocations/ranks | A | `PlayerProgression` | Save stable node IDs/ranks; rebuild all stat/keystone modifiers after restore |
 | Selected active skill | A | `PlayerSkillController` | Save a stable skill ID, not an asset instance/reference |
-| Encounter-start player health/mana checkpoint | A | Future checkpoint snapshot owned by combat/run coordinator | Restores the clean start of the current encounter; do not capture arbitrary mid-frame values |
+| Encounter-start player health/mana checkpoint | A | `GamePersistence` / `BattleManager` | Restores the clean start of the current encounter; do not capture arbitrary mid-frame values |
 | Inventory gear | A | `Inventory` | Full gear identity/rolls already supported by V1 |
 | Equipped gear | A | `EquipmentManager` | Full gear identity plus slot; validate unique slots and prevent duplicate item ownership |
 | Ordinary crafting currency | A | `CurrencyInventory` | Run economy; nonnegative bounded counts |
@@ -60,7 +63,7 @@ Classifications: A = save-persistent run state, B = meta-progression, C = user p
 | Current relic cycle / rebirth count | B | `RelicInventory` | `currentCycle` is currently the effective rebirth counter; do not add a duplicate counter unless design later distinguishes them |
 | Active relic slots | B | `RelicInventory` | Save relic IDs rather than list indices in the production schema so reorder/migration is safe |
 | Current-cycle relic and crafting eligibility | B/E | `RelicInventory` | Derive current relic from cycle + relic IDs where possible; persist eligibility only if it cannot be derived safely from cycle ownership |
-| Ancient currency | B, pending decision | `CurrencyInventory` | Mechanically tied to permanent relic crafting; recommended meta state, but New Game behavior requires user approval |
+| Ancient currency | A | `CurrencyInventory` | Run crafting currency even though it operates on relics; restore on Load, replace during Rebirth, and clear completely on New Game |
 | Pending rebirth confirmation | D | `RebirthManager` | Modal intent; always clear on save/load/scene entry |
 | Passive-tree pause option | C | `GameplayOptions` | Already independent in `PlayerPrefs`; never reset with gameplay |
 | Display name | C | `PlayerDisplayNameProvider` | Already independent in `PlayerPrefs`; preserve across New Game |
@@ -91,16 +94,16 @@ Classifications: A = save-persistent run state, B = meta-progression, C = user p
 | Inventory/equipment | Restore | Preserve | Clear and starter weapon | Clear and starter weapon |
 | Ordinary currency | Restore | Preserve | Clear | Clear |
 | Armed currency/UI cursor | Clear | Clear | Clear | Clear |
-| Relic history/cycle/active slots | Restore | Preserve | Preserve history/slots; advance cycle and create current relic | **User decision**; currently preserve |
-| Ancient currency | Restore | Preserve | Replace old stacks with one fresh unit of each Ancient operation | **User decision**; currently preserve |
+| Relic history/cycle/active slots | Restore | Preserve | Preserve history/slots; advance cycle and create current relic | Clear completely; reset cycle/history and active slots |
+| Ancient currency | Restore | Preserve | Replace old stacks with one fresh unit of each Ancient operation | Clear as run currency |
 | Filters/preferences | Preserve independently | Preserve | Preserve | Preserve |
-| Existing disk checkpoint | Updated by explicit save | Unchanged until an autosave trigger | Atomically replace after successful rebirth transaction | **User decision**; recommend confirmation then replace with new-run checkpoint |
+| Existing disk checkpoint | Updated by explicit save | Unchanged until an autosave trigger | Atomically replace after successful rebirth transaction | Confirm, then atomically replace with the initialized new-run checkpoint |
 
 ## 7. New Game contract
 
-Confirmed behavior independent of unresolved meta choices: clear stale Load intent, create a new run ID/seed, reset combat/progression/items/ordinary currency/skill/resources, close transient UI, cancel armed currency/rebirth confirmation, and start level 1 encounter 0. Preferences and future platform achievements always survive.
+After any required overwrite confirmation, New Game creates a completely blank gameplay profile: clear stale Load intent; clear relic history, active relic slots, the current relic cycle, and all rebirth history; clear Ancient and ordinary currency; reset combat/progression/items/equipment/skill/resources; close transient UI; cancel armed currency/rebirth confirmation; create a new run ID/seed; and start level 1 encounter 0 with starter equipment. Preferences and future platform achievements always survive.
 
-If a checkpoint exists, recommendation is an explicit “Start New Game and overwrite current run?” confirmation. After confirmation, initialize the new run and atomically write its first checkpoint; do not delete the only valid old file before the replacement is durable. Relic/rebirth/Ancient behavior remains a user decision below.
+If a checkpoint exists, show an explicit “Start New Game and overwrite current run?” confirmation. After confirmation, initialize and validate the complete new-run state, then atomically replace the current slot with its first checkpoint; do not delete or invalidate the only valid old file before the replacement is durable. Cancelling the confirmation leaves both the active state and checkpoint unchanged.
 
 ## 8. Restart contract
 
@@ -112,7 +115,7 @@ Preserve the current atomic transaction: require level 50 plus explicit confirma
 
 ## 10. Save & Quit contract
 
-Step 6 should capture the canonical **start-of-current-encounter checkpoint**, validate and atomically commit run + meta state, verify the committed primary or fallback backup, and only then request `Application.Quit`.
+The shipped path captures the canonical **start-of-current-encounter checkpoint**, validates and atomically commits run + meta state, verifies the committed file, and only then requests `Application.Quit`.
 
 Load resumes the same combat level and encounter position with the same deterministically generated enemy at full encounter-start resources. Player health/mana restore to values captured when that encounter began. Statuses, attack gauges, queued attacks, projectiles, animation frames, popups, pause state, and open panels reset. This avoids fragile live-frame serialization and prevents save timing from changing the generated enemy/reward identity.
 
@@ -134,7 +137,7 @@ Use transaction-aware immediate checkpoints plus a short debounce for ordinary p
 | Passive allocate/refund, skill selection, equip/unequip | Debounced (recommended 1–3 seconds), coalescing rapid UI changes |
 | Ordinary currency/item changes outside a reward transaction | Debounced and coalesced |
 | Level-up | Included in the enclosing reward transaction; otherwise debounced |
-| Application pause/focus loss | Flush any pending debounce and attempt immediate checkpoint |
+| Application pause / application quit callback | Flush any pending debounce and attempt immediate checkpoint |
 | Periodic timer | Not recommended initially; add only if long idle intervals can mutate meaningful state without listed events |
 | Merely opening/closing UI or returning without a Save-labelled action | No gameplay save |
 | Preferences | Store independently and immediately/debounced in the preference store, not the run checkpoint |
@@ -146,7 +149,7 @@ Use transaction-aware immediate checkpoints plus a short debounce for ordinary p
 3. Enter a restoration guard that suppresses autosaves, rewards, spawning, and change-event side effects.
 4. Perform normal Step 4 gameplay lifecycle creation and bind authoritative persistent services to the new scene.
 5. Reset run-owned containers to a known empty baseline.
-6. Restore meta first: relic records by stable ID, cycle, active relic IDs, and Ancient currency per approved policy.
+6. Restore relic records by stable ID, cycle, and active relic IDs; restore Ancient currency with the other run currencies. New Game clears all of these instead of entering this restore path.
 7. Recreate inventory Gear identities and establish a save-ID-to-object map.
 8. Restore equipment by item ID/slot, ensuring each item has one owner.
 9. Restore player level, XP, available points, and passive node IDs; then rebuild passive/keystone projections.
@@ -160,7 +163,7 @@ Use transaction-aware immediate checkpoints plus a short debounce for ordinary p
 
 ## 14. Version and migration policy
 
-Introduce a storage-envelope version independent from the historical `BlackCube.Save.V1` key. Increment the schema version for any serialized meaning/shape change. Support sequential pure migrations (`V1 -> V2 -> ... -> current`) on DTOs before validation; never migrate by partially applying old data to live objects.
+The shipped storage envelope is schema 2 and is independent from the historical `BlackCube.Save.V1` key. Increment the schema version for any serialized meaning/shape change. Add sequential pure migrations (`V2 -> V3 -> ... -> current`) on DTOs before validation; never migrate by partially applying old data to live objects.
 
 Keep the original primary/backup untouched until migrated data validates and a new atomic file commits. Missing optional fields receive documented defaults. A version newer than the build is unsupported and must not be overwritten. A version older than the oldest supported migration should offer recovery/new game while retaining the files for support. Migration failure falls through to backup, then reports a recoverable load failure.
 
@@ -170,11 +173,11 @@ Validate before apply: required IDs, finite numeric values, sensible ranges, kno
 
 Write serialized bytes to a temporary file in the same directory, flush/close, parse and validate the temp file, rotate the last valid primary to `.bak`, then atomically replace/rename temp to primary. Keep one last-known-good backup. On load: primary validates first, backup second. Never autosave after a failed or partial restore. If both fail, leave the files intact, report the error, and offer New Game/retry rather than entering half-restored gameplay.
 
-## 16. Storage recommendation
+## 16. Storage implementation
 
-Move gameplay snapshots in Step 6 from `PlayerPrefs` to UTF-8 JSON files under `Application.persistentDataPath`, using temp + atomic replacement and primary + backup. File storage supports size growth, inspection, backup recovery, Steam Cloud synchronization, and explicit I/O failure handling. Keep small user preferences in `PlayerPrefs` unless a later settings/profile file is introduced.
+Gameplay snapshots are UTF-8 JSON files under `Application.persistentDataPath`, using temp + atomic replacement and primary + backup. Small user preferences remain in `PlayerPrefs`, including the inventory/mod-filter preference record.
 
-Suggested logical files are `current-save.json`, `current-save.json.bak`, and a same-directory temporary file. Do not expose absolute paths in gameplay UI; log them for diagnostics.
+The exact logical files are `current-save.json`, `current-save.json.bak`, and `current-save.json.tmp`. Do not expose absolute paths in gameplay UI; log them for diagnostics.
 
 ## 17. Derived versus serialized state
 
@@ -188,13 +191,14 @@ Accepting rerolls on reload is not recommended because item/relic crafting and b
 
 Future tutorial flags, unlocks, and achievements need stable IDs and explicit profile-vs-run ownership. Steam Cloud conflict handling should prefer the newest valid timestamp only when save ancestry/run ID is compatible; otherwise ask the player rather than silently merging item graphs.
 
-## 19. Explicit unresolved user decisions
+## 19. Approved user decisions
 
-| Decision | Current behavior | Option A | Option B | Recommendation | Why |
-|---|---|---|---|---|---|
-| Relic history when starting New Game | Preserved in memory; disk save untouched | Preserve relic history/cycle/active slots as account meta | Clear all relic/rebirth state for a completely blank profile | **Preserve** | Relics are described and implemented as permanent rebirth rewards; clearing them makes New Game function like profile deletion |
-| Rebirth cycle/history when starting New Game | Preserved as `RelicInventory.currentCycle` | Preserve with relic meta | Reset cycle/history | **Preserve** | The cycle is the provenance and crafting authority for permanent relics; splitting it from retained relics creates invalid history |
-| Ancient currency when starting New Game | Preserved temporarily; Rebirth replaces it | Preserve as meta crafting currency | Clear as run economy | **Preserve** | Ancient operations target permanent/current-cycle relics and are awarded by rebirth, unlike ordinary equipment currency |
-| Existing checkpoint when New Game is pressed | Left untouched until some later save | Confirm, then atomically replace the single current slot with the initialized new run | Keep old slot alongside an unsaved new run | **Confirm and replace** | One-slot v1 stays understandable and cannot accidentally load a run different from the active one; atomic replacement protects against loss |
+| Decision | Approved contract | Shipped Step 6 behavior |
+|---|---|---|
+| Relic history on New Game | Clear completely | Removes all relic records, rolls, current-cycle state and active slots before committing the new checkpoint. |
+| Rebirth cycle/history on New Game | Reset | Returns `currentCycle` to zero; this is the current effective rebirth-history authority. |
+| Ancient currency on New Game | Clear as run currency | Clears every Ancient stack while retaining the established Rebirth replacement behavior. |
+| Existing save on New Game | Confirm and automatically replace | Cancel leaves files untouched; Confirm atomically installs a new run and copies it to backup so old progress cannot recover. A failed initial commit returns to Main Menu. |
+| Mid-combat Save/Load | Restore a clean start of the current encounter | Persists run/encounter identity and encounter-start resources; recreates the encounter deterministically with no live-frame transients. |
 
-These four recommendations are design proposals, not Step 5 behavior changes. The user must approve them before Step 6 encodes them into reset, schema, and migration rules.
+All five approved decisions are implemented; none remains unresolved.

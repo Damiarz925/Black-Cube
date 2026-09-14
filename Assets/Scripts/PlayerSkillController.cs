@@ -26,6 +26,7 @@ public sealed class PlayerSkillController : MonoBehaviour
         if (skill == null || SelectedSkill != null || !skills.Contains(skill)) return false;
         SelectedSkill = skill;
         SelectionChanged?.Invoke();
+        GamePersistence.MarkDirty();
         return true;
     }
 
@@ -34,7 +35,27 @@ public sealed class PlayerSkillController : MonoBehaviour
         if (skill == null || SelectedSkill != skill) return false;
         SelectedSkill = null;
         SelectionChanged?.Invoke();
+        GamePersistence.MarkDirty();
         return true;
+    }
+
+    public bool RestoreSelection(bool hasSelection, PlayerSkillId id)
+    {
+        PlayerSkillDefinition next = null;
+        if (hasSelection)
+        {
+            foreach (var skill in skills) if (skill != null && skill.id == id) { next = skill; break; }
+            if (next == null) return false;
+        }
+        SelectedSkill = next;
+        SelectionChanged?.Invoke();
+        return true;
+    }
+
+    public bool HasSkill(PlayerSkillId id)
+    {
+        foreach (var skill in skills) if (skill != null && skill.id == id) return true;
+        return false;
     }
 
     public float ManaCost(PlayerSkillDefinition skill)

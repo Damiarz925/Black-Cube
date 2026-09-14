@@ -72,7 +72,9 @@ public class BattleManager : MonoBehaviour
         //DontDestroyOnLoad(gameObject);
     }
 
-    private void Start()        //On start, check if player is null, if so, return
+    private void Start() => EnsurePlayerReferences();
+
+    public bool EnsurePlayerReferences()
     {
         if (player == null)
         {
@@ -84,7 +86,7 @@ public class BattleManager : MonoBehaviour
         if (player == null)
         {
             Debug.LogError("BattleManager: Player reference not set.");
-            return;
+            return false;
         }
 
         playerController = player.GetComponent<PlayerController>();     //Grab the player statuscont, stats, controller, and health components
@@ -102,6 +104,7 @@ public class BattleManager : MonoBehaviour
         }
 
         Debug.Log($"BattleManager: Start refs -> player={player.name}, playerSpawnPoint={(playerSpawnPoint != null ? playerSpawnPoint.name : "null")}, enemySpawnPoint={(enemySpawnPoint != null ? enemySpawnPoint.name : "null")}");
+        return playerController != null && playerStats != null && playerHealth != null;
     }
 
     /// <summary>
@@ -118,6 +121,7 @@ public class BattleManager : MonoBehaviour
     /// </summary>
     public void SpawnNextEnemy(bool spawnBoss = false)
     {
+        EnsurePlayerReferences();
         if (enemySpawnPoint == null)        //If the enemy spawn point is null, return
         {
             Debug.LogError("BattleManager: enemySpawnPoint not set.");
@@ -188,6 +192,7 @@ public class BattleManager : MonoBehaviour
         playerGauge = 0f;
         globalTurnCounter = 0;
         CurrentEnemyChanged?.Invoke(enemyAI);
+        GamePersistence.RecordEncounterStart(playerHealth, GetPlayerMana());
     }
 
     private void OnDestroy()

@@ -79,6 +79,14 @@ public sealed class ManaComponent : MonoBehaviour
         ManaChanged?.Invoke();
     }
 
+    public bool RestoreCheckpointMana(float value)
+    {
+        if (float.IsNaN(value) || float.IsInfinity(value) || value < 0f || value > MaxMana + .001f) return false;
+        CurrentMana = Mathf.Clamp(value, 0f, MaxMana);
+        ManaChanged?.Invoke();
+        return true;
+    }
+
     private void SyncMaximum()
     {
         float next = Mathf.Min(CurrentMana, MaxMana);

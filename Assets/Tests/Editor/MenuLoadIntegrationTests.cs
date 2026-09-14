@@ -46,8 +46,9 @@ public class MenuLoadIntegrationTests
         PlayerPrefs.SetString(GamePersistence.SaveKey,JsonUtility.ToJson(data));
 
         Assert.That(GamePersistence.RequestLoad(),Is.True);
-        Assert.That(GamePersistence.RestoreRequestedGame(out bool restored),Is.True);
-        Assert.That(restored,Is.True);
+        Assert.That(GamePersistence.TryMigrateLegacy(PlayerPrefs.GetString(GamePersistence.SaveKey),out var migrated,out var error),Is.True,error);
+        Assert.That(migrated.payload.currencies.Single().amount,Is.EqualTo(7));
+        Assert.That(GamePersistence.ConsumeLoadRequest(),Is.True);
         Assert.That(GamePersistence.LoadRequested,Is.False);
         Assert.That(GamePersistence.RestoreRequestedGame(out _),Is.False);
     }

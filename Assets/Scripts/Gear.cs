@@ -1,10 +1,24 @@
 // Developer map: Runtime item state, scrap flags, local weapon values and global rolled modifiers. ApplyMods accumulates once during generation; local percentages are fractions, global rolls remain raw percentage points.
 // See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class Gear : MonoBehaviour
 {
+    [SerializeField] private string persistentId;
+    public string PersistentId => persistentId;
+    private void Awake() => EnsurePersistentId();
+    public string EnsurePersistentId()
+    {
+        if (string.IsNullOrWhiteSpace(persistentId)) persistentId = Guid.NewGuid().ToString("N");
+        return persistentId;
+    }
+    public void RestorePersistentId(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value)) throw new ArgumentException("Gear persistent ID is required.", nameof(value));
+        persistentId = value;
+    }
     [SerializeField] private bool isScrap;
     [SerializeField] private int stackCount = 1;
     public bool IsScrap => isScrap;
@@ -56,6 +70,7 @@ public class Gear : MonoBehaviour
     //Assumes this gear instance is fresh or cleared before reinitializing
     public void Initialize(LootManager.GearType type, LootManager.GearRarity rarity, int level, Element element)
     {
+        EnsurePersistentId();
         itemType = type;
         itemRarity = rarity;
         itemLevel = level;
@@ -107,8 +122,8 @@ public class Gear : MonoBehaviour
     {
         if (itemRarity == LootManager.GearRarity.Normal) return 1;
         if (itemRarity == LootManager.GearRarity.Magic) return 2;
-        if (itemRarity == LootManager.GearRarity.Rare) return Random.Range(3, 5);
-        return Random.Range(5, 7);
+        if (itemRarity == LootManager.GearRarity.Rare) return UnityEngine.Random.Range(3, 5);
+        return UnityEngine.Random.Range(5, 7);
     }
 
     //Function used to check if a rolled modifier matches a weapon's base element, if so that modifier will be applied as a local modifier to weapon damage, instead of global.

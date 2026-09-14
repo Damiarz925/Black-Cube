@@ -138,22 +138,12 @@ public sealed class PauseMenuTests
     }
 
     [Test]
-    public void CurrentCanonicalSaveReportsSuccessAndCreatesExistingV1Key()
+    public void CurrentCanonicalSaveUsesVersionedFilesAndRejectsIncompleteRuntimeCapture()
     {
-        bool hadSave = PlayerPrefs.HasKey(GamePersistence.SaveKey);
-        string previous = hadSave ? PlayerPrefs.GetString(GamePersistence.SaveKey) : null;
-        try
-        {
-            PlayerPrefs.DeleteKey(GamePersistence.SaveKey);
-            Assert.That(GamePersistence.TrySave(), Is.True);
-            Assert.That(GamePersistence.HasSave, Is.True);
-            Assert.That(JsonUtility.FromJson<GameSaveData>(PlayerPrefs.GetString(GamePersistence.SaveKey)).version, Is.EqualTo(1));
-        }
-        finally
-        {
-            if (hadSave) PlayerPrefs.SetString(GamePersistence.SaveKey, previous); else PlayerPrefs.DeleteKey(GamePersistence.SaveKey);
-            PlayerPrefs.Save();
-        }
+        Assert.That(GamePersistence.TrySave(), Is.False);
+        Assert.That(GamePersistence.LastError, Does.Contain("gameplay authorities"));
+        Assert.That(GamePersistence.SchemaVersion, Is.EqualTo(2));
+        Assert.That(GamePersistence.PrimaryPath, Does.EndWith(GamePersistence.PrimaryFileName));
     }
 
     void BuildFixture()

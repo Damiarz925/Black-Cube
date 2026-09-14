@@ -87,9 +87,10 @@ public sealed class RelicInventory : MonoBehaviour
     {
         relics=saved??new List<RelicData>();currentCycle=Mathf.Max(0,cycle);activeIndices=slots??new[]{-1,-1};NormalizeSlots();PublishChanged();
     }
+    public void ResetForNewGame()=>Restore(new List<RelicData>(),0,new[]{-1,-1,-1,-1});
     public int[] CopyActiveIndices()=>(int[])activeIndices.Clone();
     public void NotifyChanged()=>PublishChanged();
-    void PublishChanged(){Changed?.Invoke();FindAnyObjectByType<PlayerController>()?.NotifyRelicChanged();}
+    void PublishChanged(){Changed?.Invoke();FindAnyObjectByType<PlayerController>()?.NotifyRelicChanged();GamePersistence.MarkDirty();}
 }
 
 public static class AncientRelicCrafting

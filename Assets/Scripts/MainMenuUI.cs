@@ -18,6 +18,8 @@ public class MainMenuUI : MonoBehaviour
     private Button optionsButton;
     private GameObject optionsPanel;
     private TMP_Text pausePassiveTreeLabel;
+    private GameObject newGameConfirmation;
+    public bool NewGameConfirmationVisible => newGameConfirmation != null && newGameConfirmation.activeSelf;
 
     private void Awake()
     {
@@ -40,6 +42,7 @@ public class MainMenuUI : MonoBehaviour
             Debug.LogWarning("MainMenuUI: loadGameButton not assigned.");
 
         EnsureOptionsMenu();
+        EnsureNewGameConfirmation();
 
         if (root != null)
             foreach (var button in root.GetComponentsInChildren<Button>(true))
@@ -60,8 +63,26 @@ public class MainMenuUI : MonoBehaviour
 
     public void OnNewGameClicked()
     {
-        GamePersistence.RequestNewGame();
+        if (GamePersistence.HasSave)
+        {
+            newGameConfirmation.SetActive(true);
+            newGameConfirmation.transform.SetAsLastSibling();
+            return;
+        }
+        ConfirmNewGame();
+    }
+
+    public void ConfirmNewGame()
+    {
+        if (newGameConfirmation != null) newGameConfirmation.SetActive(false);
+        GamePersistence.RequestConfirmedNewGame();
         SceneManager.LoadScene(GameSceneNames.Gameplay);
+    }
+
+    public void CancelNewGame()
+    {
+        GamePersistence.RequestNewGame();
+        if (newGameConfirmation != null) newGameConfirmation.SetActive(false);
     }
 
     public void OnLoadGameClicked()
@@ -101,6 +122,28 @@ public class MainMenuUI : MonoBehaviour
 
         optionsPanel.SetActive(false);
         RefreshOptions();
+    }
+
+    private void EnsureNewGameConfirmation()
+    {
+        if (root == null || newGameButton == null || newGameConfirmation != null) return;
+        newGameConfirmation = new GameObject("New Game Overwrite Confirmation", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+        newGameConfirmation.transform.SetParent(root.transform, false);
+        RectTransform rect = (RectTransform)newGameConfirmation.transform;
+        rect.anchorMin = rect.anchorMax = rect.pivot = Vector2.one * .5f;
+        rect.sizeDelta = new Vector2(820f, 390f);
+        newGameConfirmation.GetComponent<Image>().color = new Color(.025f, .03f, .04f, .99f);
+        CreateLabel(newGameConfirmation.transform, "STARTING A NEW GAME WILL OVERWRITE YOUR CURRENT PROGRESS.",
+            new Vector2(0f, 95f), new Vector2(730f, 120f), 25f);
+        Button start = CloneMenuButton(newGameButton, newGameConfirmation.transform, "Confirm Start New Game", "START NEW GAME");
+        ((RectTransform)start.transform).anchoredPosition = new Vector2(-190f, -95f);
+        ((RectTransform)start.transform).sizeDelta = new Vector2(340f, 80f);
+        start.onClick.AddListener(ConfirmNewGame);
+        Button cancel = CloneMenuButton(newGameButton, newGameConfirmation.transform, "Cancel New Game", "CANCEL");
+        ((RectTransform)cancel.transform).anchoredPosition = new Vector2(190f, -95f);
+        ((RectTransform)cancel.transform).sizeDelta = new Vector2(280f, 80f);
+        cancel.onClick.AddListener(CancelNewGame);
+        newGameConfirmation.SetActive(false);
     }
 
     private static Button CloneMenuButton(Button template, Transform parent, string objectName, string label)
