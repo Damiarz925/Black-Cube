@@ -43,6 +43,7 @@ ExportedObj/
 *.csproj
 *.unityproj
 *.sln
+*.slnx
 *.suo
 *.tmp
 *.user
@@ -98,8 +99,18 @@ InitTestScene*.unity*
 # Auto-generated scenes by play mode tests
 /[Aa]ssets/[Ii]nit[Tt]est[Ss]cene*.unity*
 
+# Unity crash-recovery scenes are local editor state, not project content.
+/[Aa]ssets/_Recovery/
+
 # Plastic SCM local workspace metadata. Keep Git as the source control surface.
 /.plastic/
+
+# Python tooling caches and bytecode.
+__pycache__/
+*.py[cod]
+
+# Repository-root scratch exports.
+/_tmp_*
 
 # Huge third-party/store asset payloads. Other store assets remain allowed.
 /[Aa]ssets/[Ss]tore [Aa]ssets/[Aa]llsky/

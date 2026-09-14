@@ -1,4 +1,0 @@
-repository "Black Cube Idle/Black Cube Idle@2475096898096@cloud"
-  path "/"
-    br "/main"
-    co "/main"
