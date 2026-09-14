@@ -1,3 +1,5 @@
+// Developer map: Transfers Gear between inventory and one slot per GearType, replacing source-owned global modifiers. Batches StatsChanged, then emits EquipmentChanged; weapon swaps also notify PlayerController.
+// See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using UnityEngine;
 using System.Collections.Generic;
 
@@ -5,11 +7,12 @@ public class EquipmentManager : MonoBehaviour
 {
     public static EquipmentManager Instance { get; private set; } //Public getter/private setter defining the instance (part of creating a singleton)
 
-    [SerializeField] private StatsComponent playerStats;      
+    [SerializeField] private StatsComponent playerStats;
     [SerializeField] private PlayerController playerController;
 
     private readonly Dictionary<LootManager.GearType, Gear> equipped = new(); //Dictionary. Key is GearType enum, Value is Gear object
     public event System.Action EquipmentChanged;
+    public IReadOnlyDictionary<LootManager.GearType, Gear> EquippedItems => equipped;
     public Gear GetEquipped(LootManager.GearType type) => equipped.TryGetValue(type, out var gear) ? gear : null;
 
     private void Awake() //Safely declare singleton on awake and find the statscomponent and playercontroller
@@ -29,11 +32,11 @@ public class EquipmentManager : MonoBehaviour
     public void Equip(Gear gear)
     {
         //If the passed gear item is null, exit the function
-        if (gear == null) return;          
+        if (gear == null || gear.IsScrap || gear.Dismantled) return;
         if (GetEquipped(gear.ItemType) == gear) return;
 
         EnsurePlayerReferences();
-        
+
         //Define variables for the item type of the gear item, and the inventory instance
         var slot = gear.ItemType;
         var inventory = Inventory.Instance;
@@ -95,13 +98,43 @@ public class EquipmentManager : MonoBehaviour
         EquipmentChanged?.Invoke();
     }
 
+    public void NotifyItemChanged(Gear gear)
+    {
+        if (gear == null || GetEquipped(gear.ItemType) != gear) return;
+        EnsurePlayerReferences(); playerStats?.BeginUpdate();
+        try
+        {
+            playerStats?.RemoveModifiersFromSource(gear);
+            if (playerStats != null)
+                foreach (var mod in gear.globalRolledMods)
+                    playerStats.AddModifier(new StatModifier(mod.statType, GetOperationForStat(mod.statType), mod.value, gear));
+            if (gear.ItemType == LootManager.GearType.Weapons && playerController != null) playerController.EquipWeapon(gear);
+        }
+        finally { playerStats?.EndUpdate(); }
+        EquipmentChanged?.Invoke();
+    }
+
+    public void ResetForRebirth()
+    {
+        EnsurePlayerReferences(); playerStats?.BeginUpdate();
+        try
+        {
+            foreach (var pair in equipped)
+            {
+                playerStats?.RemoveModifiersFromSource(pair.Value);
+                if (pair.Value != null) Destroy(pair.Value.gameObject);
+            }
+            equipped.Clear();
+            if (playerController != null) playerController.EquipWeapon(null);
+        }
+        finally { playerStats?.EndUpdate(); }
+        EquipmentChanged?.Invoke();
+    }
+
     //This grabs the correct operation for the stat
     private StatOp GetOperationForStat(StatTypes stat)
     {
-        string name = stat.ToString(); //Changes the stat's name to a string
-        if (name.StartsWith("Flat")) return StatOp.Flat; //Checks if it starts with flat to determine if it needs to be added as a flat value
-        if (name.EndsWith("Mult")) return StatOp.Multiplicative; //Checks if it ends with mult to determine if it's a "More" modifier
-        return StatOp.Additive; //Otherwise, the value is additive "increased" modifier
+        return StatMappings.GetRolledModifierOperation(stat);
     }
 
     private void EnsurePlayerReferences()

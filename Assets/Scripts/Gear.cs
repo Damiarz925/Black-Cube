@@ -1,11 +1,24 @@
+// Developer map: Runtime item state, scrap flags, local weapon values and global rolled modifiers. ApplyMods accumulates once during generation; local percentages are fractions, global rolls remain raw percentage points.
+// See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using System.Collections.Generic;
 using UnityEngine;
 
 public class Gear : MonoBehaviour
 {
+    [SerializeField] private bool isScrap;
+    [SerializeField] private int stackCount = 1;
+    public bool IsScrap => isScrap;
+    public int StackCount => stackCount;
+    internal bool PickupClaimed { get; set; }
+    internal bool Dismantled { get; set; }
+    internal void InitializeScrap(int count) { isScrap = true; stackCount = count; }
+    internal void AddScrap(int count) { stackCount = checked(stackCount + count); }
     [SerializeField] private LootManager.GearType itemType; //Field for the item type
     [SerializeField] private LootManager.GearRarity itemRarity; //Field for the item rarity
     [SerializeField] private int itemLevel; //Field for the item level of the gear
+    [SerializeField] private PaperWeaponVisual weaponVisual;
+    public PaperWeaponVisual WeaponVisual => weaponVisual;
+    public void SetWeaponVisual(PaperWeaponVisual visual) { weaponVisual = visual; }
 
     private int modNumber;  //Integer variable used to store the number of mods that the item can have (set on initialize)
 
@@ -29,6 +42,15 @@ public class Gear : MonoBehaviour
     public LootManager.GearRarity ItemRarity => itemRarity;
     public int ItemLevel => itemLevel;
     public int ModCount => modNumber;
+    public int CraftingModCount
+    {
+        get
+        {
+            int count = 0;
+            foreach (var mod in rolledMods) if (mod != null && !IsWeaponBaseStat(mod.statType)) count++;
+            return count;
+        }
+    }
 
     //Initialize method to be called when creating a new gear object, sets the item type, rarity, ilvl and number of rolled mods (by calling RollModNumber) and using passed in values for the other variables
     //Assumes this gear instance is fresh or cleared before reinitializing
@@ -41,13 +63,52 @@ public class Gear : MonoBehaviour
         BaseElement = element;
     }
 
-    //Rolls the number of modifiers on the items, by referencing the rarity to determine the range, and rolling within that range, if the item is legendary, it rolls a range of 1-6 modifiers instead.
+    public static bool IsWeaponBaseStat(StatTypes stat) => stat is StatTypes.WeaponBaseDmg
+        or StatTypes.WeaponBaseAttackSpeed or StatTypes.WeaponBaseCrit;
+
+    public void SetRarity(LootManager.GearRarity rarity)
+    {
+        itemRarity = rarity;
+        modNumber = CraftingModCount;
+    }
+
+    public void EnsureOriginalModifierLocked()
+    {
+        RolledMod first = null;
+        foreach (var mod in rolledMods)
+        {
+            if (mod == null || IsWeaponBaseStat(mod.statType)) continue;
+            if (first == null) first = mod;
+            mod.lockedOriginal = false;
+        }
+        if (first != null) first.lockedOriginal = true;
+    }
+
+    /// <summary>Recalculates all derived local/global fields after a crafting mutation.</summary>
+    public void RebuildMods()
+    {
+        var copy = new List<RolledMod>(rolledMods);
+        float fallbackDamage = BaseDamage, fallbackSpeed = BaseAttackSpeed, fallbackCrit = BaseCritChance;
+        bool hasDamageBase = copy.Exists(m => m != null && m.statType == StatTypes.WeaponBaseDmg);
+        bool hasSpeedBase = copy.Exists(m => m != null && m.statType == StatTypes.WeaponBaseAttackSpeed);
+        bool hasCritBase = copy.Exists(m => m != null && m.statType == StatTypes.WeaponBaseCrit);
+        BaseDamage = BaseAttackSpeed = BaseCritChance = 0f;
+        LocalFlatDamage = LocalIncDamage = LocalBaseCrit = LocalIncCrit = LocalIncAttackSpeed = 0f;
+        globalRolledMods.Clear();
+        ApplyMods(copy);
+        if (!hasDamageBase) BaseDamage = fallbackDamage;
+        if (!hasSpeedBase) BaseAttackSpeed = fallbackSpeed;
+        if (!hasCritBase) BaseCritChance = fallbackCrit;
+        modNumber = CraftingModCount;
+    }
+
+    //Rolls the number of modifiers on the items, by referencing the rarity to determine the range, and rolling within that range, with fixed counts for Normal/Magic and tuned ranges for Rare/Legendary.
     public int RollModNumber()
     {
-        if (itemRarity == LootManager.GearRarity.Normal) return 0;
-        if (itemRarity == LootManager.GearRarity.Magic) return Random.Range(1, 3);
-        if (itemRarity == LootManager.GearRarity.Rare) return Random.Range(1, 5);
-        return Random.Range(1, 7);
+        if (itemRarity == LootManager.GearRarity.Normal) return 1;
+        if (itemRarity == LootManager.GearRarity.Magic) return 2;
+        if (itemRarity == LootManager.GearRarity.Rare) return Random.Range(3, 5);
+        return Random.Range(5, 7);
     }
 
     //Function used to check if a rolled modifier matches a weapon's base element, if so that modifier will be applied as a local modifier to weapon damage, instead of global.
@@ -74,8 +135,17 @@ public class Gear : MonoBehaviour
         if (rolledMods == null)
             return;
 
-        foreach (var mod in rolledMods)
+        // Keep the complete roll list for item inspection/filtering. Some weapon
+        // affixes are applied locally and therefore never enter globalRolledMods.
+        // Copy first in case a caller passes this instance's own list.
+        var incomingMods = new List<RolledMod>(rolledMods);
+        this.rolledMods.Clear();
+        this.rolledMods.AddRange(incomingMods);
+        EnsureOriginalModifierLocked();
+
+        foreach (var mod in incomingMods)
         {
+            if (mod == null) continue;
             switch (mod.statType)
             {
 
@@ -87,7 +157,8 @@ public class Gear : MonoBehaviour
                     BaseAttackSpeed = mod.value;
                     break;
                 case StatTypes.WeaponBaseCrit:
-                    BaseCritChance = mod.value;
+                    // Rolled values are percentage points; runtime weapon fields are fractions.
+                    BaseCritChance = mod.value / 100f;
                     break;
                 // FLAT / INC DAMAGE (If any of these cases are true, perform if, so if the mod is any "Dmg" mod or "Flat" mod)
                 case StatTypes.PhysDmg:
@@ -159,9 +230,9 @@ public class Gear : MonoBehaviour
     }
 
     //Finds the effective base damage by adding the base crit chance to the local base crit and multiplying it by 1 + the local increased crit chance (local inc crit should be stored as a decimal)
-    public float GetEffectiveBaseCrit()
+    public float GetEffectiveBaseCrit(float extraBaseCrit = 0f)
     {
-        float critWithBase = BaseCritChance + LocalBaseCrit;
+        float critWithBase = BaseCritChance + LocalBaseCrit + extraBaseCrit;
         return critWithBase * (1f + LocalIncCrit);
     }
 

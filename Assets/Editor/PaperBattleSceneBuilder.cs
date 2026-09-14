@@ -1,3 +1,5 @@
+// Developer map: Asset-writing rebuild from the legacy scene/enemy prefab into the paper prefab and SampleScene. Rebuilds can replace hand edits; inspect output and keep art configuration changes here too.
+// See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using System.Linq;
 using TMPro;
 using UnityEditor;
@@ -7,7 +9,7 @@ using UnityEngine;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.UI;
 
-/// <summary>Explicit, repeatable migration. Original Scene.prefab and source models stay intact.</summary>
+/// <summary>Explicit, repeatable migration. Generated combat actors are standalone 2D prefabs.</summary>
 public static class PaperBattleSceneBuilder
 {
     private const string Art = "Assets/Art/PaperBattle/";
@@ -20,17 +22,24 @@ public static class PaperBattleSceneBuilder
         if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo()) return;
         System.IO.Directory.CreateDirectory(Output);
         AssetDatabase.Refresh();
-        var playerFrames = Frames("Player", new[] {
-            new Rect(0,512,768,512), new Rect(768,512,768,512),
-            new Rect(0,0,768,512), new Rect(768,0,768,512)
-        }, new[] {new Vector2(425,11),new Vector2(380,11),new Vector2(420,30),new Vector2(332,30)}, 145f);
-        // The strike extends left of the nominal 2x2 divider: custom, non-overlapping slices.
-        var ghoulFrames = Frames("Ghoul", new[] {
-            new Rect(15,645,490,554),new Rect(780,645,510,554),
-            new Rect(0,0,500,640),new Rect(500,0,812,610)
-        }, new[] {new Vector2(300,16),new Vector2(245,16),new Vector2(305,39),new Vector2(570,49)}, 157f);
-        var normal = MakeEnemy("Ghoul2D", false, ghoulFrames);
-        var boss = MakeEnemy("GhoulBoss2D", true, ghoulFrames);
+        var playerAnimation = AssetDatabase.LoadAssetAtPath<PaperPlayerAnimationSet>(Art + "ChibiPlayer/PlayerAnimation.asset");
+        if (playerAnimation == null || playerAnimation.idleFrames == null || playerAnimation.idleFrames.Length != 8
+            || playerAnimation.attackFrames == null || playerAnimation.attackFrames.Length != 8
+            || playerAnimation.idleFrames.Concat(playerAnimation.attackFrames).Any(frame => frame == null)
+            || playerAnimation.defaultWeaponVisual == null || playerAnimation.defaultWeaponVisual.sprite == null)
+        {
+            Debug.LogError("Player idle sprites must be imported before building the paper scene.");
+            return;
+        }
+        var goblin = AssetDatabase.LoadAssetAtPath<PaperEnemyAnimationSet>(Art + "ForestEnemies/GoblinAnimation.asset");
+        var hobgoblin = AssetDatabase.LoadAssetAtPath<PaperEnemyAnimationSet>(Art + "ForestEnemies/HobgoblinAnimation.asset");
+        if (!ValidEnemy(goblin) || !ValidEnemy(hobgoblin))
+        {
+            Debug.LogError("Import both ForestEnemies animation assets before rebuilding the paper scene.");
+            return;
+        }
+        var normal = MakeEnemy("Goblin2D", false, goblin);
+        var boss = MakeEnemy("Hobgoblin2D", true, hobgoblin);
 
         var root = PrefabUtility.LoadPrefabContents("Assets/Scenes/Scene.prefab");
         try
@@ -46,12 +55,16 @@ public static class PaperBattleSceneBuilder
                 if (t.name == "Environment Root" || t.name.EndsWith("Anchors")) t.gameObject.SetActive(false);
             var zone = root.GetComponentInChildren<ZoneManager>(true);
             SetBool(zone, "generate3DScenery", false);
+            var runState = new SerializedObject(root.GetComponentInChildren<GameManager>(true));
+            runState.FindProperty("enemiesToKillBeforeBoss").intValue = 9;
+            runState.ApplyModifiedPropertiesWithoutUndo();
 
             var pc = root.GetComponentInChildren<PlayerController>(true);
             pc.transform.localPosition = new Vector3(-2.15f,-2.65f,0);
             pc.transform.localRotation = Quaternion.identity;
             pc.transform.localScale = Vector3.one;
-            AddBody(pc.gameObject, playerFrames);
+            AddBody(pc.gameObject, playerAnimation.idleFrames, true);
+            pc.GetComponent<PaperSpriteActor>().ConfigureAnimationSet(playerAnimation);
             var battle = root.GetComponentInChildren<BattleManager>(true);
             var so = new SerializedObject(battle);
             var playerSpawn = (Transform)so.FindProperty("playerSpawnPoint").objectReferenceValue;
@@ -77,15 +90,19 @@ public static class PaperBattleSceneBuilder
             var cameraData = camera.GetComponent<UniversalAdditionalCameraData>();
             if (cameraData != null) cameraData.renderPostProcessing = false;
 
-            var forestTexture = ImportTexture("Forest");
-            var forest = SaveSprite("Forest", forestTexture, new Rect(0,0,forestTexture.width,forestTexture.height), new Vector2(forestTexture.width/2f,forestTexture.height/2f), forestTexture.height/10f);
+            var forests = new[] { 0, 20, 40, 60, 80, 100 }
+                .Select(percent => AssetDatabase.LoadAssetAtPath<Sprite>(Art + "ForestCycle/" + percent + "_Percent.png"))
+                .ToArray();
+            if (forests.Any(sprite => sprite == null))
+                throw new System.InvalidOperationException("Import all six ForestCycle backgrounds before building the paper scene.");
             var bg = new GameObject("Forest Paper Background", typeof(SpriteRenderer));
             bg.transform.SetParent(root.transform,false);
             bg.transform.localPosition = new Vector3(0,0,5);
             var bgRenderer = bg.GetComponent<SpriteRenderer>();
-            bgRenderer.sprite = forest;
+            bgRenderer.sprite = forests[0];
             bgRenderer.sortingOrder = -100;
             bgRenderer.sharedMaterial = SpriteMaterial();
+            zone.ConfigurePaperBackgrounds(bgRenderer, forests);
             ConfigureUI(root, pc.GetComponent<HealthComponent>());
             PaperBattleUIBuilder.Configure(root);
             DamageNumberStyleBuilder.Configure(root);
@@ -135,34 +152,50 @@ public static class PaperBattleSceneBuilder
         if(material==null) { material=new Material(Shader.Find("Sprites/Default")); AssetDatabase.CreateAsset(material,path); }
         return material;
     }
-    private static void AddBody(GameObject go,Sprite[] frames)
+    private static void AddBody(GameObject go,Sprite[] frames,bool idleOnly=false)
     {
         var child=new GameObject("Paper Body",typeof(SpriteRenderer));
         child.transform.SetParent(go.transform,false);
         var renderer=child.GetComponent<SpriteRenderer>();
         renderer.sortingOrder=10;
         renderer.sharedMaterial=SpriteMaterial();
-        go.AddComponent<PaperSpriteActor>().Configure(renderer,frames);
+        var actor=go.AddComponent<PaperSpriteActor>();
+        if(idleOnly) actor.ConfigureIdle(renderer,frames,1.5f);
+        else actor.Configure(renderer,frames);
     }
-    private static GameObject MakeEnemy(string name,bool boss,Sprite[] frames)
+    private static bool ValidEnemy(PaperEnemyAnimationSet animation) => animation != null
+        && animation.idleFrames != null && animation.idleFrames.Length > 0
+        && animation.attackFrames != null && animation.attackFrames.Length == PaperSpriteActor.AttackFrameCount
+        && animation.idleFrames.Concat(animation.attackFrames).All(frame => frame != null);
+
+    private static GameObject MakeEnemy(string name,bool boss,PaperEnemyAnimationSet animation)
     {
-        var enemy=PrefabUtility.LoadPrefabContents("Assets/Prefabs/Enemy Prefabs/Ghoul.prefab");
+        var enemy=new GameObject(name);
         try
         {
-            enemy.name=name;
-            // The gameplay scripts are on the root; its rig/model children are presentation only.
-            for(int i=enemy.transform.childCount-1;i>=0;i--) Object.DestroyImmediate(enemy.transform.GetChild(i).gameObject);
-            foreach(var r in enemy.GetComponents<Renderer>()) Object.DestroyImmediate(r);
-            foreach(var c in enemy.GetComponents<Collider>()) c.enabled=false;
-            foreach(var a in enemy.GetComponents<Animator>()) a.enabled=false;
+            int enemyLayer=LayerMask.NameToLayer("Enemy");
+            if(enemyLayer>=0) enemy.layer=enemyLayer;
+            enemy.tag="Enemy";
             enemy.transform.localScale=Vector3.one;
             enemy.transform.rotation=Quaternion.identity;
-            SetBool(enemy.GetComponent<HealthComponent>(),"isBoss",boss);
-            if(boss) { var hp=new SerializedObject(enemy.GetComponent<HealthComponent>()); hp.FindProperty("maxLife").floatValue=500; hp.ApplyModifiedPropertiesWithoutUndo(); }
-            AddBody(enemy,frames);
+            enemy.AddComponent<EnemyAI>().baseSpeed=.1f;
+            var health=enemy.AddComponent<HealthComponent>();
+            enemy.AddComponent<StatsComponent>();
+            enemy.AddComponent<EnemyStatSetup>();
+            enemy.AddComponent<StatusController>();
+            enemy.AddComponent<DamageReceiver>();
+            var animator=enemy.AddComponent<Animator>();
+            animator.enabled=false;
+            var hp=new SerializedObject(health);
+            hp.FindProperty("maxLife").floatValue=boss?500:250;
+            hp.FindProperty("isEnemy").boolValue=true;
+            hp.FindProperty("isBoss").boolValue=boss;
+            hp.ApplyModifiedPropertiesWithoutUndo();
+            AddBody(enemy,animation.idleFrames,true);
+            enemy.GetComponent<PaperSpriteActor>().ConfigureEnemyAnimationSet(animation);
             return PrefabUtility.SaveAsPrefabAsset(enemy,Output+name+".prefab");
         }
-        finally { PrefabUtility.UnloadPrefabContents(enemy); }
+        finally { Object.DestroyImmediate(enemy); }
     }
     private static void SetBool(Object obj,string property,bool value)
     {
@@ -193,16 +226,9 @@ public static class PaperBattleSceneBuilder
         foreach(var panel in new[]{inventory,stats}) { var img=panel.GetComponent<Image>();if(img!=null)img.color=new Color(.06f,.08f,.075f,.96f);panel.SetActive(false); }
         foreach(var grid in inventory.GetComponentsInChildren<GridLayoutGroup>(true)) {grid.cellSize=new Vector2(148,100);grid.constraint=GridLayoutGroup.Constraint.FixedColumnCount;grid.constraintCount=2;grid.spacing=new Vector2(8,8);}
         var hudGO=new GameObject("Paper Battle HUD",typeof(RectTransform),typeof(Image),typeof(PaperBattleHUD));hudGO.transform.SetParent(canvas.transform,false);
-        Rect(hudGO,new Vector2(0,.89f),Vector2.one,Vector2.zero,Vector2.zero);
-        hudGO.GetComponent<Image>().color=new Color(.035f,.05f,.045f,.93f);
+        Rect(hudGO,Vector2.zero,Vector2.one,Vector2.zero,Vector2.zero);
+        hudGO.GetComponent<Image>().color=Color.clear;hudGO.GetComponent<Image>().enabled=false;hudGO.GetComponent<Image>().raycastTarget=false;
         var hud=hudGO.GetComponent<PaperBattleHUD>();hud.player=player;hud.inventoryPanel=inventory;hud.statsPanel=stats;
-        hud.runText=Label(hudGO.transform,"BLACK CUBE / FOREST",new Vector2(.025f,.5f),new Vector2(.42f,1),25);
-        hud.playerText=Label(hudGO.transform,"WANDERER",new Vector2(.025f,0),new Vector2(.25f,.5f),19);
-        hud.enemyText=Label(hudGO.transform,"GHOUL",new Vector2(.28f,0),new Vector2(.65f,.5f),19);
-        var inventoryButton=Button(hudGO.transform,"INVENTORY",.70f,.84f);
-        UnityEventTools.AddPersistentListener(inventoryButton.onClick,hud.ToggleInventory);
-        var statsButton=Button(hudGO.transform,"STATS",.86f,.98f);
-        UnityEventTools.AddPersistentListener(statsButton.onClick,hud.ToggleStats);
         var death=root.GetComponentInChildren<DeathMenuUI>(true);
         if(death!=null)
         {

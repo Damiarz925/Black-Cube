@@ -1,0 +1,186 @@
+[
+  {
+    "frame": 1,
+    "source_rect": [
+      24,
+      128,
+      242,
+      662
+    ],
+    "source_feet_anchor": [
+      139,
+      654
+    ],
+    "translation": [
+      13,
+      6
+    ],
+    "output_bbox": [
+      33,
+      15,
+      211,
+      534
+    ]
+  },
+  {
+    "frame": 2,
+    "source_rect": [
+      242,
+      128,
+      456,
+      662
+    ],
+    "source_feet_anchor": [
+      356,
+      655
+    ],
+    "translation": [
+      14,
+      5
+    ],
+    "output_bbox": [
+      31,
+      17,
+      215,
+      534
+    ]
+  },
+  {
+    "frame": 3,
+    "source_rect": [
+      456,
+      128,
+      670,
+      662
+    ],
+    "source_feet_anchor": [
+      570,
+      654
+    ],
+    "translation": [
+      14,
+      6
+    ],
+    "output_bbox": [
+      29,
+      16,
+      215,
+      534
+    ]
+  },
+  {
+    "frame": 4,
+    "source_rect": [
+      670,
+      128,
+      884,
+      662
+    ],
+    "source_feet_anchor": [
+      782,
+      654
+    ],
+    "translation": [
+      16,
+      6
+    ],
+    "output_bbox": [
+      30,
+      16,
+      212,
+      534
+    ]
+  },
+  {
+    "frame": 5,
+    "source_rect": [
+      884,
+      128,
+      1096,
+      662
+    ],
+    "source_feet_anchor": [
+      990,
+      654
+    ],
+    "translation": [
+      22,
+      6
+    ],
+    "output_bbox": [
+      37,
+      16,
+      211,
+      534
+    ]
+  },
+  {
+    "frame": 6,
+    "source_rect": [
+      1096,
+      128,
+      1308,
+      662
+    ],
+    "source_feet_anchor": [
+      1200,
+      654
+    ],
+    "translation": [
+      24,
+      6
+    ],
+    "output_bbox": [
+      37,
+      18,
+      214,
+      534
+    ]
+  },
+  {
+    "frame": 7,
+    "source_rect": [
+      1308,
+      128,
+      1520,
+      662
+    ],
+    "source_feet_anchor": [
+      1416,
+      654
+    ],
+    "translation": [
+      20,
+      6
+    ],
+    "output_bbox": [
+      34,
+      19,
+      214,
+      534
+    ]
+  },
+  {
+    "frame": 8,
+    "source_rect": [
+      1520,
+      128,
+      1740,
+      662
+    ],
+    "source_feet_anchor": [
+      1638,
+      654
+    ],
+    "translation": [
+      10,
+      6
+    ],
+    "output_bbox": [
+      29,
+      17,
+      216,
+      534
+    ]
+  }
+]

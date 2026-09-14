@@ -1,0 +1,16 @@
+{
+  "Assets\\Art\\PaperBattle\\ForestCycle\\0_Percent.png": "ebe7db1ebb16985a2076de35cfce8e5e9c9c1df73b5fe142ab9f3d6739f206a6",
+  "Assets\\Art\\PaperBattle\\ForestCycle\\0_Percent.png.meta": "9bf54b7802d5bfcfa6f13c7d1d9ea487a134e3e7572ec7daec098990857f7e3f",
+  "Assets\\Art\\PaperBattle\\ForestCycle\\100_Percent.png": "6f0ed8ef97c9a89163553fdb0a930983173147285fe5908bca0cf5f67527ad03",
+  "Assets\\Art\\PaperBattle\\ForestCycle\\100_Percent.png.meta": "f2ac18f01a1ea2317c99d67bf2076e6120f4a9b20e4bf62b9d89a7496d2cf7df",
+  "Assets\\Art\\PaperBattle\\ForestCycle\\20_Percent.png": "08895001ce0b43c4a485e6826f0dc7597d18aab324fa29d9bb76f8b5449e990a",
+  "Assets\\Art\\PaperBattle\\ForestCycle\\20_Percent.png.meta": "f663e5057eae99eafc4d3ebc1336185efc231e6b557e82ebbe7e294a3ad1abd1",
+  "Assets\\Art\\PaperBattle\\ForestCycle\\40_Percent.png": "57a05bf857c45257bca991e28f0abe2f89721950491e90dffbfa64ebe2df5c79",
+  "Assets\\Art\\PaperBattle\\ForestCycle\\40_Percent.png.meta": "d0f157d330147ede290d02f2cc6af055b4a120cd3da098c272b9e28d5ed4f4db",
+  "Assets\\Art\\PaperBattle\\ForestCycle\\60_Percent.png": "c26dd1cca82b66a2829c8a1d900b00a1094371717401a3de45f09f7a3b3706b3",
+  "Assets\\Art\\PaperBattle\\ForestCycle\\60_Percent.png.meta": "05bcf795aab6d5323f67ff2c4e710cd9ce38d95b70d073ae9bdee9f293531bac",
+  "Assets\\Art\\PaperBattle\\ForestCycle\\80_Percent.png": "d140def4f2b701b91c5e4f60f21feec8da50a38eee366d450298d98090c65652",
+  "Assets\\Art\\PaperBattle\\ForestCycle\\80_Percent.png.meta": "b1ab645e2c3322960a94f8ed9530bcdeacabc1b274d9eaef1e9da498e1732e83",
+  "Assets\\Scripts\\BattleManager.cs": "0f914a6127aa4c5f5aca052a2b15e08ae7ea8ffd49fea835175adab9978858ee",
+  "Assets\\Scripts\\ZoneManager.cs": "4516e258aff086cdc3020af1cd3277b22bc086ec17d70d6822e80f03c6e37cba"
+}

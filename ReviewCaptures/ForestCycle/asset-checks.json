@@ -1,0 +1,90 @@
+{
+  "cycle_levels": 60,
+  "levels_per_image": 10,
+  "records": [
+    {
+      "forest": 1,
+      "percent": 0,
+      "first_levels": [
+        1,
+        10
+      ],
+      "size": [
+        1672,
+        941
+      ],
+      "sha256": "ebe7db1ebb16985a2076de35cfce8e5e9c9c1df73b5fe142ab9f3d6739f206a6",
+      "source_unchanged": true
+    },
+    {
+      "forest": 2,
+      "percent": 20,
+      "first_levels": [
+        11,
+        20
+      ],
+      "size": [
+        1672,
+        941
+      ],
+      "sha256": "08895001ce0b43c4a485e6826f0dc7597d18aab324fa29d9bb76f8b5449e990a",
+      "source_unchanged": true
+    },
+    {
+      "forest": 3,
+      "percent": 40,
+      "first_levels": [
+        21,
+        30
+      ],
+      "size": [
+        1672,
+        941
+      ],
+      "sha256": "57a05bf857c45257bca991e28f0abe2f89721950491e90dffbfa64ebe2df5c79",
+      "source_unchanged": true
+    },
+    {
+      "forest": 4,
+      "percent": 60,
+      "first_levels": [
+        31,
+        40
+      ],
+      "size": [
+        1672,
+        941
+      ],
+      "sha256": "c26dd1cca82b66a2829c8a1d900b00a1094371717401a3de45f09f7a3b3706b3",
+      "source_unchanged": true
+    },
+    {
+      "forest": 5,
+      "percent": 80,
+      "first_levels": [
+        41,
+        50
+      ],
+      "size": [
+        1672,
+        941
+      ],
+      "sha256": "d140def4f2b701b91c5e4f60f21feec8da50a38eee366d450298d98090c65652",
+      "source_unchanged": true
+    },
+    {
+      "forest": 6,
+      "percent": 100,
+      "first_levels": [
+        51,
+        60
+      ],
+      "size": [
+        1672,
+        941
+      ],
+      "sha256": "6f0ed8ef97c9a89163553fdb0a930983173147285fe5908bca0cf5f67527ad03",
+      "source_unchanged": true
+    }
+  ]
+}

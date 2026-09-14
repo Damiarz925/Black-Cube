@@ -1,3 +1,5 @@
+// Developer map: Rolls item type/rarity/element and delegates affixes to ModManager, then returns one Gear to GameManager. Random weapons currently exclude unfinished Void bases.
+// See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -99,6 +101,8 @@ public class LootManager : MonoBehaviour
         int itemLevel = zoneLevel + enemyRarityMod;     //Calculate item level as the level of the zone + the enemy rarity modifier
 
         var type = RollItemType();          //assign variable type by rolling an item type
+        if (type == GearType.Weapons && element == Element.Void)
+            element = RollItemElement(forWeapon: true);
         var rarity = RollItemRarity();      //assign variable rarity by rolling the item rarity
 
         Debug.Log($"[Loot] Rolled type={type}, rarity={rarity}, zoneLevel={zoneLevel}, enemyRarity={enemyRarity}");
@@ -113,7 +117,7 @@ public class LootManager : MonoBehaviour
         Debug.Log($"[Loot] After Initialize: gear.ItemType={gear.ItemType}, gear.ItemRarity={gear.ItemRarity}, ilvl={gear.ItemLevel}, modCount={gear.ModCount}");
 
         var mods = ModManager.Instance != null
-            ? ModManager.Instance.RollModsForItem(type, rarity, itemLevel, gear.ModCount)
+            ? ModManager.Instance.RollModsForItem(type, rarity, itemLevel, gear.ModCount, element)
             : new List<RolledMod>();     //generate mods by calling rollmodsforitem (returns a list of mods)
 
         Debug.Log($"[Loot] Rolled mods count = {(mods == null ? -1 : mods.Count)}");
@@ -159,9 +163,9 @@ public class LootManager : MonoBehaviour
         return GearRarity.Normal;   //If we didn't pick a rarity in the loop, return normal by default
     }
 
-    public Element RollItemElement()
+    public Element RollItemElement(bool forWeapon = false)
     {
-        int max = (int)Element.Count;
+        int max = forWeapon ? (int)Element.Void : (int)Element.Count;
         int roll = Random.Range(0, max);
         return (Element)roll;
     }

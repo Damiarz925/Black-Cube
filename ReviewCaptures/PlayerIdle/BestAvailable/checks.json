@@ -1,0 +1,38 @@
+{
+  "distinct_drawings": 4,
+  "playback_order": [
+    1,
+    2,
+    3,
+    4,
+    3,
+    2
+  ],
+  "playback_slots": 6,
+  "steps_per_second": 1.5,
+  "cycle_seconds": 4,
+  "held_duplicate_slots": 0,
+  "return_uses_existing_drawings": true,
+  "source_proof_indices": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "invariant_pixels_locked": true,
+  "resolution": [
+    320,
+    544
+  ],
+  "ppu": 150,
+  "foot_baseline": 532,
+  "hashes": [
+    "efee3dbd8429fe2febcb798006d9bafd8effdcf5f3cf7896f0b8fa22ebd9c5fd",
+    "489569c8fb92fd602979dbc4587dac918f6993a5d11b2a759cedcd5ec2076164",
+    "8ec93c821f9b5b17780a13cdb33770901b72e42a39376fad5c639eff75b25d64",
+    "8b6a06942af282187e08320344840b00aefad43174375c8f4d5f5e2655fe969f"
+  ],
+  "limitation": "Limited waist-to-hip arm movement; deliberate visible stepping. Not the originally requested full-range smooth32.",
+  "installed_folder": "D:\\Unity\\Projects\\Black-Cube\\Assets\\Art\\PaperBattle\\PlayerIdleConsistent",
+  "old_32_assets": "Preserved but unreferenced by player/builder."
+}

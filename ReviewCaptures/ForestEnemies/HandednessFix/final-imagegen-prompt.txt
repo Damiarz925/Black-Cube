@@ -1,0 +1,5 @@
+Use case: precise-object-edit
+Asset type: transparent 2D Unity attack-animation sprite frame
+Input images: Image 1 is the exact edit target (GoblinAttack7 original pose); Image 2 is the approved handedness reference showing the dagger in the goblin's LEFT hand (the arm on the viewer's RIGHT side of the body).
+Primary request: Make a narrow handedness correction to Image 1. Remove the dagger from the goblin's right hand on the viewer-left side. Place the same dagger naturally in the goblin's LEFT hand on the viewer-right side, pointed down/back in a recovery/rest motion. Adjust only the hands/forearms enough for a convincing grip.
+Constraints: preserve Image 1's exact crouched recovery pose, anatomy, body silhouette, expression, scale, costume, hair, ears, colors, paper-cut painted style, and motion energy as closely as possible. Do not turn this into the neutral rest pose. Do not redesign the character. One dagger only. Preserve a genuinely transparent background with clean alpha, no shadow, no floor, no text, no border, no watermark. Keep the character centered with ample transparent padding and no cropping.

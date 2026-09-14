@@ -1,3 +1,5 @@
+// Developer map: Legacy scenery placement controls in world units/degrees, with count, density and skip probability. PositionJitter x/y fields perturb world X/Z; vertical offset is separate.
+// See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using UnityEngine;
 
 [System.Serializable]
@@ -10,7 +12,7 @@ public struct ThemeSpawnRules
     public Vector2Int CountRange;   // Vector2Int (min,max) - used when anchors are discreet (Example: (3,7) trees)
 
     // Random offset from anchor (prevents grid feel)
-    public Vector2 PositionJitter;  //Vector2 (x,y jitter in world units)
+    public Vector2 PositionJitter;  // Vector2 fields x/y offset world X/Z respectively, in Unity units.
 
     // Rotation
     public Vector2 RotationRangeDeg;    // Vector2 (minDeg, maxDeg)

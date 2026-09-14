@@ -1,0 +1,444 @@
+{
+  "frames": 32,
+  "accepted_anchors_unchanged": 8,
+  "new_independently_drawn_frames": 24,
+  "cycle_seconds": 4,
+  "fps": 8,
+  "motion_synthesis": "none",
+  "anchor_padding_pixels_each_side": 32,
+  "records": [
+    {
+      "interval": 1,
+      "drawing": 1,
+      "source_rect": [
+        135,
+        20,
+        511,
+        832
+      ],
+      "uniform_scale": 0.6421019900497512,
+      "translation": [
+        40,
+        15
+      ]
+    },
+    {
+      "interval": 1,
+      "drawing": 2,
+      "source_rect": [
+        680,
+        20,
+        1057,
+        832
+      ],
+      "uniform_scale": 0.6402743142144638,
+      "translation": [
+        40,
+        16
+      ]
+    },
+    {
+      "interval": 1,
+      "drawing": 3,
+      "source_rect": [
+        1211,
+        20,
+        1589,
+        832
+      ],
+      "uniform_scale": 0.6384375,
+      "translation": [
+        40,
+        19
+      ]
+    },
+    {
+      "interval": 2,
+      "drawing": 1,
+      "source_rect": [
+        29,
+        36,
+        447,
+        943
+      ],
+      "uniform_scale": 0.5656284760845384,
+      "translation": [
+        42,
+        22
+      ]
+    },
+    {
+      "interval": 2,
+      "drawing": 2,
+      "source_rect": [
+        558,
+        36,
+        976,
+        943
+      ],
+      "uniform_scale": 0.569351230425056,
+      "translation": [
+        41,
+        22
+      ]
+    },
+    {
+      "interval": 2,
+      "drawing": 3,
+      "source_rect": [
+        1104,
+        36,
+        1522,
+        943
+      ],
+      "uniform_scale": 0.5686383928571429,
+      "translation": [
+        42,
+        22
+      ]
+    },
+    {
+      "interval": 3,
+      "drawing": 1,
+      "source_rect": [
+        71,
+        31,
+        491,
+        853
+      ],
+      "uniform_scale": 0.6291411042944786,
+      "translation": [
+        21,
+        19
+      ]
+    },
+    {
+      "interval": 3,
+      "drawing": 2,
+      "source_rect": [
+        651,
+        31,
+        1062,
+        853
+      ],
+      "uniform_scale": 0.6356350184956844,
+      "translation": [
+        28,
+        15
+      ]
+    },
+    {
+      "interval": 3,
+      "drawing": 3,
+      "source_rect": [
+        1224,
+        31,
+        1610,
+        853
+      ],
+      "uniform_scale": 0.6374538745387454,
+      "translation": [
+        38,
+        12
+      ]
+    },
+    {
+      "interval": 4,
+      "drawing": 1,
+      "source_rect": [
+        117,
+        39,
+        472,
+        848
+      ],
+      "uniform_scale": 0.6452618453865336,
+      "translation": [
+        46,
+        14
+      ]
+    },
+    {
+      "interval": 4,
+      "drawing": 2,
+      "source_rect": [
+        651,
+        39,
+        1006,
+        848
+      ],
+      "uniform_scale": 0.6408977556109726,
+      "translation": [
+        46,
+        18
+      ]
+    },
+    {
+      "interval": 4,
+      "drawing": 3,
+      "source_rect": [
+        1191,
+        39,
+        1554,
+        848
+      ],
+      "uniform_scale": 0.638125,
+      "translation": [
+        44,
+        20
+      ]
+    },
+    {
+      "interval": 5,
+      "drawing": 1,
+      "source_rect": [
+        145,
+        38,
+        495,
+        819
+      ],
+      "uniform_scale": 0.6557642487046632,
+      "translation": [
+        46,
+        24
+      ]
+    },
+    {
+      "interval": 5,
+      "drawing": 2,
+      "source_rect": [
+        692,
+        38,
+        1058,
+        819
+      ],
+      "uniform_scale": 0.6556420233463035,
+      "translation": [
+        40,
+        25
+      ]
+    },
+    {
+      "interval": 5,
+      "drawing": 3,
+      "source_rect": [
+        1250,
+        38,
+        1615,
+        819
+      ],
+      "uniform_scale": 0.6546692607003891,
+      "translation": [
+        41,
+        26
+      ]
+    },
+    {
+      "interval": 6,
+      "drawing": 1,
+      "source_rect": [
+        136,
+        36,
+        505,
+        811
+      ],
+      "uniform_scale": 0.6591503267973856,
+      "translation": [
+        39,
+        26
+      ]
+    },
+    {
+      "interval": 6,
+      "drawing": 2,
+      "source_rect": [
+        706,
+        36,
+        1075,
+        811
+      ],
+      "uniform_scale": 0.6594771241830065,
+      "translation": [
+        39,
+        25
+      ]
+    },
+    {
+      "interval": 6,
+      "drawing": 3,
+      "source_rect": [
+        1249,
+        36,
+        1610,
+        811
+      ],
+      "uniform_scale": 0.6572265625,
+      "translation": [
+        42,
+        27
+      ]
+    },
+    {
+      "interval": 7,
+      "drawing": 1,
+      "source_rect": [
+        151,
+        20,
+        536,
+        785
+      ],
+      "uniform_scale": 0.6685356200527705,
+      "translation": [
+        32,
+        25
+      ]
+    },
+    {
+      "interval": 7,
+      "drawing": 2,
+      "source_rect": [
+        718,
+        20,
+        1107,
+        785
+      ],
+      "uniform_scale": 0.670844327176781,
+      "translation": [
+        30,
+        23
+      ]
+    },
+    {
+      "interval": 7,
+      "drawing": 3,
+      "source_rect": [
+        1276,
+        20,
+        1667,
+        785
+      ],
+      "uniform_scale": 0.679427430093209,
+      "translation": [
+        28,
+        16
+      ]
+    },
+    {
+      "interval": 8,
+      "drawing": 1,
+      "source_rect": [
+        136,
+        19,
+        510,
+        895
+      ],
+      "uniform_scale": 0.6087085308056872,
+      "translation": [
+        46,
+        18
+      ]
+    },
+    {
+      "interval": 8,
+      "drawing": 2,
+      "source_rect": [
+        666,
+        19,
+        1060,
+        895
+      ],
+      "uniform_scale": 0.6115065243179122,
+      "translation": [
+        40,
+        15
+      ]
+    },
+    {
+      "interval": 8,
+      "drawing": 3,
+      "source_rect": [
+        1173,
+        19,
+        1572,
+        895
+      ],
+      "uniform_scale": 0.6143111638954869,
+      "translation": [
+        38,
+        13
+      ]
+    }
+  ],
+  "ordering": {
+    "source_frame_order": [
+      1,
+      30,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      18,
+      17,
+      16,
+      19,
+      20,
+      21,
+      24,
+      23,
+      22,
+      25,
+      28,
+      27,
+      26,
+      29,
+      32,
+      31,
+      2
+    ],
+    "pose_jump_score_before": 2.11349434306234,
+    "pose_jump_score_after": 2.0529056176428186,
+    "operation": "reordering existing independently drawn images only; no pixel blending"
+  },
+  "pixel_hashes": [
+    "76c7ec3fe2fb2891670c052b8f283af2c7fc527545916961b3970a55fd8db3bb",
+    "73f1d749fd95b0b4194d632776ed05d8b26cb23cbd75209443ef53bb035869de",
+    "b9da498d0e3f987fcc854b9e2a80186166351cd83d899cae3257637f53d17a30",
+    "0bb2dbadef3f843564d83b6ce942aa4797b8b8e33deebd4fbf778be0020e7608",
+    "ab26284b231230975a92f3dc474d225ce7d6e0c94926331969971f872c79218e",
+    "aa0bb5fa8d8f4ce4bd0437eff8009c041aa3df7604e98b2fb4e893d2045b5a5c",
+    "9a8ccf6e3927abdc987df054e62a243af66e45919d6d7507be9298615d99f1ee",
+    "c0dc1431aba8dc340b1f64a4dcc56c705c97a71c189d792351e07d503be0721b",
+    "ab104a4642e01c67150ba7d006a6078801bdeea7bfa13833a5a24801d72eacbb",
+    "1ac440ec75b8c621503b76862e8b1a5b112f2980c7893b27b4ba1608bff281f1",
+    "623c68c0c2211943d30706cef524a71675bdde5c3e76cc9792a5df1d311ad59c",
+    "0c23815930acdecf40dfdecba8db25c7b3e14a56a4f11817a6ed8e254848d72c",
+    "0cdc78b87e94ace0e2531ce4682c0dd15a8cd3addd892e4e0b551297979b4d6c",
+    "3b6b8e0a53258639644e0afbb51388b744c6a1ba2aeeb1b14bfc5a8c3a29c4a0",
+    "78edbe810d0d5c920d162d631fcabe8f836e12d92586954b374442d56ceb9ccc",
+    "76004ccdb4f40b845f09254c45f6b6c2f8d4367b5d07ce65758582170dfd6f54",
+    "3d277fc3034234f97e1ac74b51ae7c6ee2558164fd9bd830bf00dc06eb09a881",
+    "59d2a8e57888177dbb0f0f26979bcf25d1d8dfb108bc0bb01d92b19d274f24d6",
+    "0eee484b648ec20d768e06e6743a4a2818b8d512da169e27f24df07e68cc51c8",
+    "41ef688d690f0f2c8eb318867a2c88b548f12a25c7bf1d5c63ddb9f868e7e3cd",
+    "5545e2808ff7e2da83b2556c71dd0257d3d3eb3ced968c32767a3914556ed9a1",
+    "4c43a34ce4adcbb12685eb5694021b72691a2d49bec8ed2c609fd727567a1db3",
+    "3505fd19973a07117bbc524a33672122d21439bd0cf740319dcb1b30e6353bdf",
+    "d706832517cbe9694b08744062d91e0e0c51f95438f3fc8dc091e07aa606aca2",
+    "7acd1b7ff8349779a48b51c9321fd72307928c0a18ee111578b4949441419c2a",
+    "cb4bb39b5050bf46b08cbcfab2a92aa49e538be3df1bb48f8cd6c3ecd270890d",
+    "511a561a104bb55e1102abb534c9c8af6a08b7a6a54a2ee75a188cd138c68fd1",
+    "778ce917cfc14622e4291cb979b8af1f914fd903c08b63aedf40a6bba3e1369e",
+    "953b01994b60287d96a95278c1add05b6200219fde362b5106f867de9f77257a",
+    "41346dcd4963ff6e60e0557108681c160ed1f27ae9b3074f63749bd900671a7e",
+    "352d95336d18dd9b5be11dbcc576e078a4fe94f246f7643f1cdb0b9132351eba",
+    "b546cce3631cfc0e994e31eb95f5815f972ac8192bf850b193099c79dc429990"
+  ]
+}

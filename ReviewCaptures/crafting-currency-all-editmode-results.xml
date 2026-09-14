@@ -1,0 +1,748 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="99" result="Failed(Child)" total="99" passed="89" failed="10" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-09-11 23:49:18Z" end-time="2026-09-11 23:49:19Z" duration="1.3891095">
+  <test-suite type="TestSuite" id="1000" name="Black Cube Idle" fullname="Black Cube Idle" runstate="Runnable" testcasecount="99" result="Failed" site="Child" start-time="2026-09-11 23:49:18Z" end-time="2026-09-11 23:49:19Z" duration="1.389110" total="99" passed="89" failed="10" inconclusive="0" skipped="0" asserts="0">
+    <properties>
+      <property name="platform" value="EditMode" />
+    </properties>
+    <failure>
+      <message><![CDATA[One or more child tests had errors]]></message>
+    </failure>
+    <test-suite type="Assembly" id="1111" name="Assembly-CSharp-Editor.dll" fullname="D:/Unity/Projects/Black-Cube/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" runstate="Runnable" testcasecount="99" result="Failed" site="Child" start-time="2026-09-11 23:49:18Z" end-time="2026-09-11 23:49:19Z" duration="1.375936" total="99" passed="89" failed="10" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="54996" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+        <property name="EditorOnly" value="True" />
+      </properties>
+      <failure>
+        <message><![CDATA[One or more child tests had errors]]></message>
+      </failure>
+      <test-suite type="TestFixture" id="1001" name="CraftingAndRebirthTests" fullname="CraftingAndRebirthTests" classname="CraftingAndRebirthTests" runstate="Runnable" testcasecount="7" result="Failed" site="Child" start-time="2026-09-11 23:49:18Z" end-time="2026-09-11 23:49:18Z" duration="0.119870" total="7" passed="5" failed="2" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <failure>
+          <message><![CDATA[One or more child tests had errors]]></message>
+        </failure>
+        <test-case id="1005" name="AncientCrafting_ReachesOneTwoThreeFourFiveSixAndNeverMutatesLockedOrOldRelic" fullname="CraftingAndRebirthTests.AncientCrafting_ReachesOneTwoThreeFourFiveSixAndNeverMutatesLockedOrOldRelic" methodname="AncientCrafting_ReachesOneTwoThreeFourFiveSixAndNeverMutatesLockedOrOldRelic" classname="CraftingAndRebirthTests" runstate="Runnable" seed="863894819" result="Passed" start-time="2026-09-11 23:49:18Z" end-time="2026-09-11 23:49:18Z" duration="0.027130" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1007" name="AncientCurrencyRolloverClearsPriorCycleAndGrantsFreshSet" fullname="CraftingAndRebirthTests.AncientCurrencyRolloverClearsPriorCycleAndGrantsFreshSet" methodname="AncientCurrencyRolloverClearsPriorCycleAndGrantsFreshSet" classname="CraftingAndRebirthTests" runstate="Runnable" seed="1940459094" result="Passed" start-time="2026-09-11 23:49:18Z" end-time="2026-09-11 23:49:18Z" duration="0.007946" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1003" name="CurrencyInventory_InvalidTargetDoesNotConsumeAndAncientCannotTargetEquipment" fullname="CraftingAndRebirthTests.CurrencyInventory_InvalidTargetDoesNotConsumeAndAncientCannotTargetEquipment" methodname="CurrencyInventory_InvalidTargetDoesNotConsumeAndAncientCannotTargetEquipment" classname="CraftingAndRebirthTests" runstate="Runnable" seed="919592291" result="Passed" start-time="2026-09-11 23:49:18Z" end-time="2026-09-11 23:49:18Z" duration="0.040096" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1002" name="EquipmentCrafting_FullOrdinaryPathPreservesLockedOriginalAndCapsRareAtFour" fullname="CraftingAndRebirthTests.EquipmentCrafting_FullOrdinaryPathPreservesLockedOriginalAndCapsRareAtFour" methodname="EquipmentCrafting_FullOrdinaryPathPreservesLockedOriginalAndCapsRareAtFour" classname="CraftingAndRebirthTests" runstate="Runnable" seed="1375304562" result="Failed" label="Error" start-time="2026-09-11 23:49:18Z" end-time="2026-09-11 23:49:18Z" duration="0.005537" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+          <failure>
+            <message><![CDATA[System.NullReferenceException : Object reference not set to an instance of an object]]></message>
+            <stack-trace><![CDATA[  at ModManager.RollSingleMod (LootManager+GearType itemType, LootManager+GearRarity rarity, System.Int32 itemLevel, System.Collections.Generic.HashSet`1[T] usedStats, System.Collections.Generic.HashSet`1[T] usedGroups, Element weaponElement) [0x0000d] in D:\Unity\Projects\Black-Cube\Assets\Scripts\ModManager.cs:170 
+  at ModManager.RollModsForItem (LootManager+GearType itemType, LootManager+GearRarity rarity, System.Int32 itemLevel, System.Int32 modCount, Element weaponElement) [0x00042] in D:\Unity\Projects\Black-Cube\Assets\Scripts\ModManager.cs:91 
+  at CraftingAndRebirthTests.EquipmentCrafting_FullOrdinaryPathPreservesLockedOriginalAndCapsRareAtFour () [0x0000f] in D:\Unity\Projects\Black-Cube\Assets\Tests\Editor\CraftingAndRebirthTests.cs:18 
+  at (wrapper managed-to-native) System.Reflection.RuntimeMethodInfo.InternalInvoke(System.Reflection.RuntimeMethodInfo,object,object[],System.Exception&)
+  at System.Reflection.RuntimeMethodInfo.Invoke (System.Object obj, System.Reflection.BindingFlags invokeAttr, System.Reflection.Binder binder, System.Object[] parameters, System.Globalization.CultureInfo culture) [0x0006a] in <c5ae8a4eeb824526b5df2932bc2395e0>:0 ]]></stack-trace>
+          </failure>
+        </test-case>
+        <test-case id="1006" name="RelicBonusesUseOnlyTheTwoEquippedSlots" fullname="CraftingAndRebirthTests.RelicBonusesUseOnlyTheTwoEquippedSlots" methodname="RelicBonusesUseOnlyTheTwoEquippedSlots" classname="CraftingAndRebirthTests" runstate="Runnable" seed="520193628" result="Passed" start-time="2026-09-11 23:49:18Z" end-time="2026-09-11 23:49:18Z" duration="0.003447" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1008" name="RepeatedConfirmedRebirthLocksOldRelicAndReplacesAncientStacks" fullname="CraftingAndRebirthTests.RepeatedConfirmedRebirthLocksOldRelicAndReplacesAncientStacks" methodname="RepeatedConfirmedRebirthLocksOldRelicAndReplacesAncientStacks" classname="CraftingAndRebirthTests" runstate="Runnable" seed="1249671171" result="Failed" label="Error" start-time="2026-09-11 23:49:18Z" end-time="2026-09-11 23:49:18Z" duration="0.006981" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+          <failure>
+            <message><![CDATA[System.NullReferenceException : Object reference not set to an instance of an object]]></message>
+            <stack-trace><![CDATA[  at CraftingAndRebirthTests.RepeatedConfirmedRebirthLocksOldRelicAndReplacesAncientStacks () [0x0006e] in D:\Unity\Projects\Black-Cube\Assets\Tests\Editor\CraftingAndRebirthTests.cs:103 
+  at (wrapper managed-to-native) System.Reflection.RuntimeMethodInfo.InternalInvoke(System.Reflection.RuntimeMethodInfo,object,object[],System.Exception&)
+  at System.Reflection.RuntimeMethodInfo.Invoke (System.Object obj, System.Reflection.BindingFlags invokeAttr, System.Reflection.Binder binder, System.Object[] parameters, System.Globalization.CultureInfo culture) [0x0006a] in <c5ae8a4eeb824526b5df2932bc2395e0>:0 ]]></stack-trace>
+          </failure>
+        </test-case>
+        <test-case id="1004" name="SaveDtosRoundTripRarityLockedModsCurrenciesAndRelics" fullname="CraftingAndRebirthTests.SaveDtosRoundTripRarityLockedModsCurrenciesAndRelics" methodname="SaveDtosRoundTripRarityLockedModsCurrenciesAndRelics" classname="CraftingAndRebirthTests" runstate="Runnable" seed="1651609432" result="Passed" start-time="2026-09-11 23:49:18Z" end-time="2026-09-11 23:49:18Z" duration="0.005595" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="1009" name="CraftingCurrencyInteractionTests" fullname="CraftingCurrencyInteractionTests" classname="CraftingCurrencyInteractionTests" runstate="Runnable" testcasecount="7" result="Passed" start-time="2026-09-11 23:49:18Z" end-time="2026-09-11 23:49:18Z" duration="0.202045" total="7" passed="7" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="1014" name="ClickAway_CancelsCursorAndSourceSelection" fullname="CraftingCurrencyInteractionTests.ClickAway_CancelsCursorAndSourceSelection" methodname="ClickAway_CancelsCursorAndSourceSelection" classname="CraftingCurrencyInteractionTests" runstate="Runnable" seed="528166265" result="Passed" start-time="2026-09-11 23:49:18Z" end-time="2026-09-11 23:49:18Z" duration="0.144790" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1015" name="InvalidGear_CancelsWithoutConsumptionOrMutation" fullname="CraftingCurrencyInteractionTests.InvalidGear_CancelsWithoutConsumptionOrMutation" methodname="InvalidGear_CancelsWithoutConsumptionOrMutation" classname="CraftingCurrencyInteractionTests" runstate="Runnable" seed="1711290000" result="Passed" start-time="2026-09-11 23:49:18Z" end-time="2026-09-11 23:49:18Z" duration="0.001436" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1016" name="PanelDisable_ClearsHeldCurrencyState" fullname="CraftingCurrencyInteractionTests.PanelDisable_ClearsHeldCurrencyState" methodname="PanelDisable_ClearsHeldCurrencyState" classname="CraftingCurrencyInteractionTests" runstate="Runnable" seed="1136331158" result="Passed" start-time="2026-09-11 23:49:18Z" end-time="2026-09-11 23:49:18Z" duration="0.034649" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1010" name="Selection_ShowsYellowSourceOverlayAndRaycastTransparentCursorIcon" fullname="CraftingCurrencyInteractionTests.Selection_ShowsYellowSourceOverlayAndRaycastTransparentCursorIcon" methodname="Selection_ShowsYellowSourceOverlayAndRaycastTransparentCursorIcon" classname="CraftingCurrencyInteractionTests" runstate="Runnable" seed="977156605" result="Passed" start-time="2026-09-11 23:49:18Z" end-time="2026-09-11 23:49:18Z" duration="0.006176" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1011" name="SuccessfulDefaultUse_SpendsOnceAndClearsSelection" fullname="CraftingCurrencyInteractionTests.SuccessfulDefaultUse_SpendsOnceAndClearsSelection" methodname="SuccessfulDefaultUse_SpendsOnceAndClearsSelection" classname="CraftingCurrencyInteractionTests" runstate="Runnable" seed="412201087" result="Passed" start-time="2026-09-11 23:49:18Z" end-time="2026-09-11 23:49:18Z" duration="0.010789" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1013" name="SuccessfulShiftUse_ClearsSelectionWhenLastUnitIsSpent" fullname="CraftingCurrencyInteractionTests.SuccessfulShiftUse_ClearsSelectionWhenLastUnitIsSpent" methodname="SuccessfulShiftUse_ClearsSelectionWhenLastUnitIsSpent" classname="CraftingCurrencyInteractionTests" runstate="Runnable" seed="1717578500" result="Passed" start-time="2026-09-11 23:49:18Z" end-time="2026-09-11 23:49:18Z" duration="0.000934" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1012" name="SuccessfulShiftUse_RetainsSelectionWhileSupplyRemains" fullname="CraftingCurrencyInteractionTests.SuccessfulShiftUse_RetainsSelectionWhileSupplyRemains" methodname="SuccessfulShiftUse_RetainsSelectionWhileSupplyRemains" classname="CraftingCurrencyInteractionTests" runstate="Runnable" seed="1215466811" result="Passed" start-time="2026-09-11 23:49:18Z" end-time="2026-09-11 23:49:18Z" duration="0.000684" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="1017" name="EnemyBuildOptimizerTests" fullname="EnemyBuildOptimizerTests" classname="EnemyBuildOptimizerTests" runstate="Runnable" testcasecount="20" result="Passed" start-time="2026-09-11 23:49:18Z" end-time="2026-09-11 23:49:18Z" duration="0.043301" total="20" passed="20" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="1034" name="ActualStatsAndIndependentMoreRolls_AffectEvaluation" fullname="EnemyBuildOptimizerTests.ActualStatsAndIndependentMoreRolls_AffectEvaluation" methodname="ActualStatsAndIndependentMoreRolls_AffectEvaluation" classname="EnemyBuildOptimizerTests" runstate="Runnable" seed="1698385746" result="Passed" start-time="2026-09-11 23:49:18Z" end-time="2026-09-11 23:49:18Z" duration="0.004462" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1036" name="AilmentChanceAboveOneHundred_HasExpectedAdditionalStacks" fullname="EnemyBuildOptimizerTests.AilmentChanceAboveOneHundred_HasExpectedAdditionalStacks" methodname="AilmentChanceAboveOneHundred_HasExpectedAdditionalStacks" classname="EnemyBuildOptimizerTests" runstate="Runnable" seed="6639559" result="Passed" start-time="2026-09-11 23:49:18Z" end-time="2026-09-11 23:49:18Z" duration="0.000863" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1029" name="ArchetypeQuota_PreservesInitiallyWeakerFirePathUntilLateSynergy" fullname="EnemyBuildOptimizerTests.ArchetypeQuota_PreservesInitiallyWeakerFirePathUntilLateSynergy" methodname="ArchetypeQuota_PreservesInitiallyWeakerFirePathUntilLateSynergy" classname="EnemyBuildOptimizerTests" runstate="Runnable" seed="1100832107" result="Passed" start-time="2026-09-11 23:49:18Z" end-time="2026-09-11 23:49:18Z" duration="0.006205" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-suite type="ParameterizedMethod" id="1026" name="CandidateCount_UsesTenLevelBands" fullname="EnemyBuildOptimizerTests.CandidateCount_UsesTenLevelBands" classname="EnemyBuildOptimizerTests" runstate="Runnable" testcasecount="8" result="Passed" start-time="2026-09-11 23:49:18Z" end-time="2026-09-11 23:49:18Z" duration="0.004051" total="8" passed="8" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="1018" name="CandidateCount_UsesTenLevelBands(1,1)" fullname="EnemyBuildOptimizerTests.CandidateCount_UsesTenLevelBands(1,1)" methodname="CandidateCount_UsesTenLevelBands" classname="EnemyBuildOptimizerTests" runstate="Runnable" seed="1488053961" result="Passed" start-time="2026-09-11 23:49:18Z" end-time="2026-09-11 23:49:18Z" duration="0.000624" asserts="0">
+            <properties>
+              <property name="retryIteration" value="0" />
+              <property name="repeatIteration" value="0" />
+            </properties>
+          </test-case>
+          <test-case id="1019" name="CandidateCount_UsesTenLevelBands(10,1)" fullname="EnemyBuildOptimizerTests.CandidateCount_UsesTenLevelBands(10,1)" methodname="CandidateCount_UsesTenLevelBands" classname="EnemyBuildOptimizerTests" runstate="Runnable" seed="352337628" result="Passed" start-time="2026-09-11 23:49:18Z" end-time="2026-09-11 23:49:18Z" duration="0.000165" asserts="0">
+            <properties>
+              <property name="retryIteration" value="0" />
+              <property name="repeatIteration" value="0" />
+            </properties>
+          </test-case>
+          <test-case id="1020" name="CandidateCount_UsesTenLevelBands(11,2)" fullname="EnemyBuildOptimizerTests.CandidateCount_UsesTenLevelBands(11,2)" methodname="CandidateCount_UsesTenLevelBands" classname="EnemyBuildOptimizerTests" runstate="Runnable" seed="187945722" result="Passed" start-time="2026-09-11 23:49:18Z" end-time="2026-09-11 23:49:18Z" duration="0.000149" asserts="0">
+            <properties>
+              <property name="retryIteration" value="0" />
+              <property name="repeatIteration" value="0" />
+            </properties>
+          </test-case>
+          <test-case id="1021" name="CandidateCount_UsesTenLevelBands(20,2)" fullname="EnemyBuildOptimizerTests.CandidateCount_UsesTenLevelBands(20,2)" methodname="CandidateCount_UsesTenLevelBands" classname="EnemyBuildOptimizerTests" runstate="Runnable" seed="1300751959" result="Passed" start-time="2026-09-11 23:49:18Z" end-time="2026-09-11 23:49:18Z" duration="0.000152" asserts="0">
+            <properties>
+              <property name="retryIteration" value="0" />
+              <property name="repeatIteration" value="0" />
+            </properties>
+          </test-case>
+          <test-case id="1022" name="CandidateCount_UsesTenLevelBands(21,3)" fullname="EnemyBuildOptimizerTests.CandidateCount_UsesTenLevelBands(21,3)" methodname="CandidateCount_UsesTenLevelBands" classname="EnemyBuildOptimizerTests" runstate="Runnable" seed="1877424675" result="Passed" start-time="2026-09-11 23:49:18Z" end-time="2026-09-11 23:49:18Z" duration="0.000129" asserts="0">
+            <properties>
+              <property name="retryIteration" value="0" />
+              <property name="repeatIteration" value="0" />
+            </properties>
+          </test-case>
+          <test-case id="1023" name="CandidateCount_UsesTenLevelBands(90,9)" fullname="EnemyBuildOptimizerTests.CandidateCount_UsesTenLevelBands(90,9)" methodname="CandidateCount_UsesTenLevelBands" classname="EnemyBuildOptimizerTests" runstate="Runnable" seed="735458280" result="Passed" start-time="2026-09-11 23:49:18Z" end-time="2026-09-11 23:49:18Z" duration="0.000130" asserts="0">
+            <properties>
+              <property name="retryIteration" value="0" />
+              <property name="repeatIteration" value="0" />
+            </properties>
+          </test-case>
+          <test-case id="1024" name="CandidateCount_UsesTenLevelBands(91,10)" fullname="EnemyBuildOptimizerTests.CandidateCount_UsesTenLevelBands(91,10)" methodname="CandidateCount_UsesTenLevelBands" classname="EnemyBuildOptimizerTests" runstate="Runnable" seed="1792160560" result="Passed" start-time="2026-09-11 23:49:18Z" end-time="2026-09-11 23:49:18Z" duration="0.000130" asserts="0">
+            <properties>
+              <property name="retryIteration" value="0" />
+              <property name="repeatIteration" value="0" />
+            </properties>
+          </test-case>
+          <test-case id="1025" name="CandidateCount_UsesTenLevelBands(100,10)" fullname="EnemyBuildOptimizerTests.CandidateCount_UsesTenLevelBands(100,10)" methodname="CandidateCount_UsesTenLevelBands" classname="EnemyBuildOptimizerTests" runstate="Runnable" seed="990440693" result="Passed" start-time="2026-09-11 23:49:18Z" end-time="2026-09-11 23:49:18Z" duration="0.000144" asserts="0">
+            <properties>
+              <property name="retryIteration" value="0" />
+              <property name="repeatIteration" value="0" />
+            </properties>
+          </test-case>
+        </test-suite>
+        <test-case id="1033" name="DormantRolls_ContributeNoInventedPower" fullname="EnemyBuildOptimizerTests.DormantRolls_ContributeNoInventedPower" methodname="DormantRolls_ContributeNoInventedPower" classname="EnemyBuildOptimizerTests" runstate="Runnable" seed="1207998670" result="Passed" start-time="2026-09-11 23:49:18Z" end-time="2026-09-11 23:49:18Z" duration="0.000957" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1030" name="EqualBuilds_UseStableCandidateOrderTieBreak" fullname="EnemyBuildOptimizerTests.EqualBuilds_UseStableCandidateOrderTieBreak" methodname="EqualBuilds_UseStableCandidateOrderTieBreak" classname="EnemyBuildOptimizerTests" runstate="Runnable" seed="840947424" result="Passed" start-time="2026-09-11 23:49:18Z" end-time="2026-09-11 23:49:18Z" duration="0.000920" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1037" name="LifeRegeneration_UsesImplementedFlatPerSecondInDefenseWindow" fullname="EnemyBuildOptimizerTests.LifeRegeneration_UsesImplementedFlatPerSecondInDefenseWindow" methodname="LifeRegeneration_UsesImplementedFlatPerSecondInDefenseWindow" classname="EnemyBuildOptimizerTests" runstate="Runnable" seed="840800458" result="Passed" start-time="2026-09-11 23:49:18Z" end-time="2026-09-11 23:49:18Z" duration="0.000898" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1028" name="LowerStandaloneWeapon_WinsWithMatchingLaterSlotSynergy" fullname="EnemyBuildOptimizerTests.LowerStandaloneWeapon_WinsWithMatchingLaterSlotSynergy" methodname="LowerStandaloneWeapon_WinsWithMatchingLaterSlotSynergy" classname="EnemyBuildOptimizerTests" runstate="Runnable" seed="834226778" result="Passed" start-time="2026-09-11 23:49:18Z" end-time="2026-09-11 23:49:18Z" duration="0.001242" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1027" name="OneCandidatePerSlot_HasNoOptimizationChoiceOrExtraRoll" fullname="EnemyBuildOptimizerTests.OneCandidatePerSlot_HasNoOptimizationChoiceOrExtraRoll" methodname="OneCandidatePerSlot_HasNoOptimizationChoiceOrExtraRoll" classname="EnemyBuildOptimizerTests" runstate="Runnable" seed="1618036184" result="Passed" start-time="2026-09-11 23:49:18Z" end-time="2026-09-11 23:49:18Z" duration="0.001606" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1035" name="PhysicalPenetration_UsesSharedArmourCalculation" fullname="EnemyBuildOptimizerTests.PhysicalPenetration_UsesSharedArmourCalculation" methodname="PhysicalPenetration_UsesSharedArmourCalculation" classname="EnemyBuildOptimizerTests" runstate="Runnable" seed="439644333" result="Passed" start-time="2026-09-11 23:49:18Z" end-time="2026-09-11 23:49:18Z" duration="0.001077" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1032" name="Ranking_IsSeventyFiveTwentyFiveLogNormalized" fullname="EnemyBuildOptimizerTests.Ranking_IsSeventyFiveTwentyFiveLogNormalized" methodname="Ranking_IsSeventyFiveTwentyFiveLogNormalized" classname="EnemyBuildOptimizerTests" runstate="Runnable" seed="692577700" result="Passed" start-time="2026-09-11 23:49:18Z" end-time="2026-09-11 23:49:18Z" duration="0.001342" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1031" name="Selection_DoesNotConsumeRandomNumbersOrGenerateCandidates" fullname="EnemyBuildOptimizerTests.Selection_DoesNotConsumeRandomNumbersOrGenerateCandidates" methodname="Selection_DoesNotConsumeRandomNumbersOrGenerateCandidates" classname="EnemyBuildOptimizerTests" runstate="Runnable" seed="1589917010" result="Passed" start-time="2026-09-11 23:49:18Z" end-time="2026-09-11 23:49:18Z" duration="0.000996" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1038" name="WinningResultContainsActualCandidateReferencesForEquipmentApplication" fullname="EnemyBuildOptimizerTests.WinningResultContainsActualCandidateReferencesForEquipmentApplication" methodname="WinningResultContainsActualCandidateReferencesForEquipmentApplication" classname="EnemyBuildOptimizerTests" runstate="Runnable" seed="1103737202" result="Passed" start-time="2026-09-11 23:49:18Z" end-time="2026-09-11 23:49:18Z" duration="0.000620" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="1039" name="HudControlTests" fullname="HudControlTests" classname="HudControlTests" runstate="Runnable" testcasecount="20" result="Passed" start-time="2026-09-11 23:49:18Z" end-time="2026-09-11 23:49:19Z" duration="0.701129" total="20" passed="20" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="1060" name="BattleManagerEvents_SyncEnemyExistingBeforeHudThenLateReplacementAndDeath" fullname="HudControlTests.BattleManagerEvents_SyncEnemyExistingBeforeHudThenLateReplacementAndDeath" methodname="BattleManagerEvents_SyncEnemyExistingBeforeHudThenLateReplacementAndDeath" classname="HudControlTests" runstate="Runnable" seed="1333659156" result="Passed" start-time="2026-09-11 23:49:18Z" end-time="2026-09-11 23:49:19Z" duration="0.351451" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+          <output><![CDATA[BattleManager: Current enemy died.
+]]></output>
+        </test-case>
+        <test-case id="1058" name="EnemyLifecycle_ExistingLateReplacementDeathAndAbsentManaStayConsistentWithoutDuplicateHandlers" fullname="HudControlTests.EnemyLifecycle_ExistingLateReplacementDeathAndAbsentManaStayConsistentWithoutDuplicateHandlers" methodname="EnemyLifecycle_ExistingLateReplacementDeathAndAbsentManaStayConsistentWithoutDuplicateHandlers" classname="HudControlTests" runstate="Runnable" seed="810351194" result="Passed" start-time="2026-09-11 23:49:19Z" end-time="2026-09-11 23:49:19Z" duration="0.026937" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1057" name="EnemyRebind_UnsubscribesOldHealthAndClearsWhenNone" fullname="HudControlTests.EnemyRebind_UnsubscribesOldHealthAndClearsWhenNone" methodname="EnemyRebind_UnsubscribesOldHealthAndClearsWhenNone" classname="HudControlTests" runstate="Runnable" seed="69554480" result="Passed" start-time="2026-09-11 23:49:19Z" end-time="2026-09-11 23:49:19Z" duration="0.029189" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+          <output><![CDATA[HealthComponent: Player died. name=Rare Goblin
+HealthComponent: GameManager.Instance is null; player death could not show death flow.
+]]></output>
+        </test-case>
+        <test-suite type="ParameterizedMethod" id="1054" name="EnemySpecies_StripsOnlyWholeRarityPrefixes" fullname="HudControlTests.EnemySpecies_StripsOnlyWholeRarityPrefixes" classname="HudControlTests" runstate="Runnable" testcasecount="4" result="Passed" start-time="2026-09-11 23:49:19Z" end-time="2026-09-11 23:49:19Z" duration="0.005323" total="4" passed="4" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="1050" name="EnemySpecies_StripsOnlyWholeRarityPrefixes(&quot;Legendary Goblin&quot;,&quot;Goblin&quot;)" fullname="HudControlTests.EnemySpecies_StripsOnlyWholeRarityPrefixes(&quot;Legendary Goblin&quot;,&quot;Goblin&quot;)" methodname="EnemySpecies_StripsOnlyWholeRarityPrefixes" classname="HudControlTests" runstate="Runnable" seed="1182365986" result="Passed" start-time="2026-09-11 23:49:19Z" end-time="2026-09-11 23:49:19Z" duration="0.000675" asserts="0">
+            <properties>
+              <property name="retryIteration" value="0" />
+              <property name="repeatIteration" value="0" />
+            </properties>
+          </test-case>
+          <test-case id="1051" name="EnemySpecies_StripsOnlyWholeRarityPrefixes(&quot;magic Rare Skeleton(Clone)&quot;,&quot;Skeleton&quot;)" fullname="HudControlTests.EnemySpecies_StripsOnlyWholeRarityPrefixes(&quot;magic Rare Skeleton(Clone)&quot;,&quot;Skeleton&quot;)" methodname="EnemySpecies_StripsOnlyWholeRarityPrefixes" classname="HudControlTests" runstate="Runnable" seed="1065145195" result="Passed" start-time="2026-09-11 23:49:19Z" end-time="2026-09-11 23:49:19Z" duration="0.000277" asserts="0">
+            <properties>
+              <property name="retryIteration" value="0" />
+              <property name="repeatIteration" value="0" />
+            </properties>
+          </test-case>
+          <test-case id="1052" name="EnemySpecies_StripsOnlyWholeRarityPrefixes(&quot;Orc Warrior&quot;,&quot;Orc Warrior&quot;)" fullname="HudControlTests.EnemySpecies_StripsOnlyWholeRarityPrefixes(&quot;Orc Warrior&quot;,&quot;Orc Warrior&quot;)" methodname="EnemySpecies_StripsOnlyWholeRarityPrefixes" classname="HudControlTests" runstate="Runnable" seed="953404981" result="Passed" start-time="2026-09-11 23:49:19Z" end-time="2026-09-11 23:49:19Z" duration="0.000125" asserts="0">
+            <properties>
+              <property name="retryIteration" value="0" />
+              <property name="repeatIteration" value="0" />
+            </properties>
+          </test-case>
+          <test-case id="1053" name="EnemySpecies_StripsOnlyWholeRarityPrefixes(&quot;Normality Golem&quot;,&quot;Normality Golem&quot;)" fullname="HudControlTests.EnemySpecies_StripsOnlyWholeRarityPrefixes(&quot;Normality Golem&quot;,&quot;Normality Golem&quot;)" methodname="EnemySpecies_StripsOnlyWholeRarityPrefixes" classname="HudControlTests" runstate="Runnable" seed="2085843659" result="Passed" start-time="2026-09-11 23:49:19Z" end-time="2026-09-11 23:49:19Z" duration="0.000088" asserts="0">
+            <properties>
+              <property name="retryIteration" value="0" />
+              <property name="repeatIteration" value="0" />
+            </properties>
+          </test-case>
+        </test-suite>
+        <test-case id="1043" name="GoblinPrefab_ProvidesStableNamedStillPortrait" fullname="HudControlTests.GoblinPrefab_ProvidesStableNamedStillPortrait" methodname="GoblinPrefab_ProvidesStableNamedStillPortrait" classname="HudControlTests" runstate="Runnable" seed="752113324" result="Passed" start-time="2026-09-11 23:49:19Z" end-time="2026-09-11 23:49:19Z" duration="0.059838" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1061" name="ImportedArtwork_HashesAreExactImportsWithUniqueSpriteMetas" fullname="HudControlTests.ImportedArtwork_HashesAreExactImportsWithUniqueSpriteMetas" methodname="ImportedArtwork_HashesAreExactImportsWithUniqueSpriteMetas" classname="HudControlTests" runstate="Runnable" seed="623298063" result="Passed" start-time="2026-09-11 23:49:19Z" end-time="2026-09-11 23:49:19Z" duration="0.160935" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1059" name="InitialPlayerSync_ShowsNameAuthoritativeManaAndLeftOriginContainedHealthFill" fullname="HudControlTests.InitialPlayerSync_ShowsNameAuthoritativeManaAndLeftOriginContainedHealthFill" methodname="InitialPlayerSync_ShowsNameAuthoritativeManaAndLeftOriginContainedHealthFill" classname="HudControlTests" runstate="Runnable" seed="342922529" result="Passed" start-time="2026-09-11 23:49:19Z" end-time="2026-09-11 23:49:19Z" duration="0.018837" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1056" name="MainControls_AreUniqueOwnCallbacksNavigateAndPersistPanelState" fullname="HudControlTests.MainControls_AreUniqueOwnCallbacksNavigateAndPersistPanelState" methodname="MainControls_AreUniqueOwnCallbacksNavigateAndPersistPanelState" classname="HudControlTests" runstate="Runnable" seed="422460988" result="Passed" start-time="2026-09-11 23:49:19Z" end-time="2026-09-11 23:49:19Z" duration="0.021262" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1042" name="NullPortrait_IsTransparentAndDisabledWhileValidPortraitIsVisible" fullname="HudControlTests.NullPortrait_IsTransparentAndDisabledWhileValidPortraitIsVisible" methodname="NullPortrait_IsTransparentAndDisabledWhileValidPortraitIsVisible" classname="HudControlTests" runstate="Runnable" seed="1749952366" result="Passed" start-time="2026-09-11 23:49:19Z" end-time="2026-09-11 23:49:19Z" duration="0.001791" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1040" name="PixelMap_IsContainedAndAspectStableAtRepresentativeResolutions" fullname="HudControlTests.PixelMap_IsContainedAndAspectStableAtRepresentativeResolutions" methodname="PixelMap_IsContainedAndAspectStableAtRepresentativeResolutions" classname="HudControlTests" runstate="Runnable" seed="597297616" result="Passed" start-time="2026-09-11 23:49:19Z" end-time="2026-09-11 23:49:19Z" duration="0.005114" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-suite type="ParameterizedMethod" id="1047" name="PlayerName_DefaultsAndNormalizes" fullname="HudControlTests.PlayerName_DefaultsAndNormalizes" classname="HudControlTests" runstate="Runnable" testcasecount="3" result="Passed" start-time="2026-09-11 23:49:19Z" end-time="2026-09-11 23:49:19Z" duration="0.001568" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="1044" name="PlayerName_DefaultsAndNormalizes(null,&quot;Wanderer&quot;)" fullname="HudControlTests.PlayerName_DefaultsAndNormalizes(null,&quot;Wanderer&quot;)" methodname="PlayerName_DefaultsAndNormalizes" classname="HudControlTests" runstate="Runnable" seed="1431414293" result="Passed" start-time="2026-09-11 23:49:19Z" end-time="2026-09-11 23:49:19Z" duration="0.000227" asserts="0">
+            <properties>
+              <property name="retryIteration" value="0" />
+              <property name="repeatIteration" value="0" />
+            </properties>
+          </test-case>
+          <test-case id="1045" name="PlayerName_DefaultsAndNormalizes(&quot;   &quot;,&quot;Wanderer&quot;)" fullname="HudControlTests.PlayerName_DefaultsAndNormalizes(&quot;   &quot;,&quot;Wanderer&quot;)" methodname="PlayerName_DefaultsAndNormalizes" classname="HudControlTests" runstate="Runnable" seed="1599947656" result="Passed" start-time="2026-09-11 23:49:19Z" end-time="2026-09-11 23:49:19Z" duration="0.000091" asserts="0">
+            <properties>
+              <property name="retryIteration" value="0" />
+              <property name="repeatIteration" value="0" />
+            </properties>
+          </test-case>
+          <test-case id="1046" name="PlayerName_DefaultsAndNormalizes(&quot;  Aria  &quot;,&quot;Aria&quot;)" fullname="HudControlTests.PlayerName_DefaultsAndNormalizes(&quot;  Aria  &quot;,&quot;Aria&quot;)" methodname="PlayerName_DefaultsAndNormalizes" classname="HudControlTests" runstate="Runnable" seed="649651324" result="Passed" start-time="2026-09-11 23:49:19Z" end-time="2026-09-11 23:49:19Z" duration="0.000058" asserts="0">
+            <properties>
+              <property name="retryIteration" value="0" />
+              <property name="repeatIteration" value="0" />
+            </properties>
+          </test-case>
+        </test-suite>
+        <test-case id="1041" name="PortraitSelection_IsDeterministicStillAndPaddingAwareWithEnemyScale" fullname="HudControlTests.PortraitSelection_IsDeterministicStillAndPaddingAwareWithEnemyScale" methodname="PortraitSelection_IsDeterministicStillAndPaddingAwareWithEnemyScale" classname="HudControlTests" runstate="Runnable" seed="1353756444" result="Passed" start-time="2026-09-11 23:49:19Z" end-time="2026-09-11 23:49:19Z" duration="0.004899" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1055" name="Resources_ClampFillAndKeepCenteredValueReadableAtEmptyAndFull" fullname="HudControlTests.Resources_ClampFillAndKeepCenteredValueReadableAtEmptyAndFull" methodname="Resources_ClampFillAndKeepCenteredValueReadableAtEmptyAndFull" classname="HudControlTests" runstate="Runnable" seed="494555934" result="Passed" start-time="2026-09-11 23:49:19Z" end-time="2026-09-11 23:49:19Z" duration="0.002260" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1049" name="SpriteState_PrecedenceIsDisabledActivePointerHoverNormal" fullname="HudControlTests.SpriteState_PrecedenceIsDisabledActivePointerHoverNormal" methodname="SpriteState_PrecedenceIsDisabledActivePointerHoverNormal" classname="HudControlTests" runstate="Runnable" seed="2034107574" result="Passed" start-time="2026-09-11 23:49:19Z" end-time="2026-09-11 23:49:19Z" duration="0.002257" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1048" name="StateSlices_AreMeasuredAndDoNotBleedAcrossStates" fullname="HudControlTests.StateSlices_AreMeasuredAndDoNotBleedAcrossStates" methodname="StateSlices_AreMeasuredAndDoNotBleedAcrossStates" classname="HudControlTests" runstate="Runnable" seed="1661522399" result="Passed" start-time="2026-09-11 23:49:19Z" end-time="2026-09-11 23:49:19Z" duration="0.001053" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="1062" name="InventoryTooltipLayoutTests" fullname="InventoryTooltipLayoutTests" classname="InventoryTooltipLayoutTests" runstate="Runnable" testcasecount="16" result="Failed" site="Child" start-time="2026-09-11 23:49:19Z" end-time="2026-09-11 23:49:19Z" duration="0.220673" total="16" passed="12" failed="4" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <failure>
+          <message><![CDATA[One or more child tests had errors]]></message>
+        </failure>
+        <test-case id="1073" name="ArtworkLayout_UsesMeasuredRectanglesForEveryBakedTarget" fullname="InventoryTooltipLayoutTests.ArtworkLayout_UsesMeasuredRectanglesForEveryBakedTarget" methodname="ArtworkLayout_UsesMeasuredRectanglesForEveryBakedTarget" classname="InventoryTooltipLayoutTests" runstate="Runnable" seed="1033030360" result="Passed" start-time="2026-09-11 23:49:19Z" end-time="2026-09-11 23:49:19Z" duration="0.001564" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1074" name="BakedButtonTargets_HideLegacyVisualsAndKeepExactHitRectangles" fullname="InventoryTooltipLayoutTests.BakedButtonTargets_HideLegacyVisualsAndKeepExactHitRectangles" methodname="BakedButtonTargets_HideLegacyVisualsAndKeepExactHitRectangles" classname="InventoryTooltipLayoutTests" runstate="Runnable" seed="999123780" result="Passed" start-time="2026-09-11 23:49:19Z" end-time="2026-09-11 23:49:19Z" duration="0.004421" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1077" name="CurrencyCounts_ArePlainNumbersInsideBakedCountBox" fullname="InventoryTooltipLayoutTests.CurrencyCounts_ArePlainNumbersInsideBakedCountBox" methodname="CurrencyCounts_ArePlainNumbersInsideBakedCountBox" classname="InventoryTooltipLayoutTests" runstate="Runnable" seed="1497552796" result="Failed" label="Error" start-time="2026-09-11 23:49:19Z" end-time="2026-09-11 23:49:19Z" duration="0.003058" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+          <failure>
+            <message><![CDATA[System.NullReferenceException : Object reference not set to an instance of an object]]></message>
+            <stack-trace><![CDATA[  at InventoryTooltipLayoutTests.CurrencyCounts_ArePlainNumbersInsideBakedCountBox () [0x00024] in D:\Unity\Projects\Black-Cube\Assets\Tests\Editor\InventoryTooltipLayoutTests.cs:173 
+  at (wrapper managed-to-native) System.Reflection.RuntimeMethodInfo.InternalInvoke(System.Reflection.RuntimeMethodInfo,object,object[],System.Exception&)
+  at System.Reflection.RuntimeMethodInfo.Invoke (System.Object obj, System.Reflection.BindingFlags invokeAttr, System.Reflection.Binder binder, System.Object[] parameters, System.Globalization.CultureInfo culture) [0x0006a] in <c5ae8a4eeb824526b5df2932bc2395e0>:0 ]]></stack-trace>
+          </failure>
+        </test-case>
+        <test-case id="1067" name="CurrencyPresentation_UsesRequestedSixMappingsAndAncientDistinction" fullname="InventoryTooltipLayoutTests.CurrencyPresentation_UsesRequestedSixMappingsAndAncientDistinction" methodname="CurrencyPresentation_UsesRequestedSixMappingsAndAncientDistinction" classname="InventoryTooltipLayoutTests" runstate="Runnable" seed="456901807" result="Passed" start-time="2026-09-11 23:49:19Z" end-time="2026-09-11 23:49:19Z" duration="0.002055" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1070" name="CurrencyRewardClaim_IsExactlyOnceAndBasicIconMappingsAreStable" fullname="InventoryTooltipLayoutTests.CurrencyRewardClaim_IsExactlyOnceAndBasicIconMappingsAreStable" methodname="CurrencyRewardClaim_IsExactlyOnceAndBasicIconMappingsAreStable" classname="InventoryTooltipLayoutTests" runstate="Runnable" seed="123834056" result="Passed" start-time="2026-09-11 23:49:19Z" end-time="2026-09-11 23:49:19Z" duration="0.002504" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1069" name="DefaultEnemyDropTable_RollsEquipmentAtHalfAndEveryBasicCurrencyIndependentlyAtTenPercent" fullname="InventoryTooltipLayoutTests.DefaultEnemyDropTable_RollsEquipmentAtHalfAndEveryBasicCurrencyIndependentlyAtTenPercent" methodname="DefaultEnemyDropTable_RollsEquipmentAtHalfAndEveryBasicCurrencyIndependentlyAtTenPercent" classname="InventoryTooltipLayoutTests" runstate="Runnable" seed="1449615435" result="Passed" start-time="2026-09-11 23:49:19Z" end-time="2026-09-11 23:49:19Z" duration="0.002566" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1075" name="EquipmentPanel_LocksArtworkAspectAndUsesPerSlotAnchors" fullname="InventoryTooltipLayoutTests.EquipmentPanel_LocksArtworkAspectAndUsesPerSlotAnchors" methodname="EquipmentPanel_LocksArtworkAspectAndUsesPerSlotAnchors" classname="InventoryTooltipLayoutTests" runstate="Runnable" seed="1793869569" result="Passed" start-time="2026-09-11 23:49:19Z" end-time="2026-09-11 23:49:19Z" duration="0.019763" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1066" name="FailedCraftDoesNotRaiseGearRefreshOrConsumeCurrency" fullname="InventoryTooltipLayoutTests.FailedCraftDoesNotRaiseGearRefreshOrConsumeCurrency" methodname="FailedCraftDoesNotRaiseGearRefreshOrConsumeCurrency" classname="InventoryTooltipLayoutTests" runstate="Runnable" seed="873032808" result="Passed" start-time="2026-09-11 23:49:19Z" end-time="2026-09-11 23:49:19Z" duration="0.001958" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1076" name="InventorySlots_UseEightColumnsAspectFitMaskingAndNoRarityBar" fullname="InventoryTooltipLayoutTests.InventorySlots_UseEightColumnsAspectFitMaskingAndNoRarityBar" methodname="InventorySlots_UseEightColumnsAspectFitMaskingAndNoRarityBar" classname="InventoryTooltipLayoutTests" runstate="Runnable" seed="1980581916" result="Passed" start-time="2026-09-11 23:49:19Z" end-time="2026-09-11 23:49:19Z" duration="0.005405" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1064" name="NonWeaponAndRelicFormattersPreserveAllModsAndPutProgressionLast" fullname="InventoryTooltipLayoutTests.NonWeaponAndRelicFormattersPreserveAllModsAndPutProgressionLast" methodname="NonWeaponAndRelicFormattersPreserveAllModsAndPutProgressionLast" classname="InventoryTooltipLayoutTests" runstate="Runnable" seed="540497275" result="Passed" start-time="2026-09-11 23:49:19Z" end-time="2026-09-11 23:49:19Z" duration="0.005409" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1068" name="RareCurrenciesAcceptLegendaryWhilePreservingSixModifierCap" fullname="InventoryTooltipLayoutTests.RareCurrenciesAcceptLegendaryWhilePreservingSixModifierCap" methodname="RareCurrenciesAcceptLegendaryWhilePreservingSixModifierCap" classname="InventoryTooltipLayoutTests" runstate="Runnable" seed="802483300" result="Passed" start-time="2026-09-11 23:49:19Z" end-time="2026-09-11 23:49:19Z" duration="0.001001" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1078" name="RelicSlot_ShowsOneEmptyWordAndOccupiedStateReplacesIt" fullname="InventoryTooltipLayoutTests.RelicSlot_ShowsOneEmptyWordAndOccupiedStateReplacesIt" methodname="RelicSlot_ShowsOneEmptyWordAndOccupiedStateReplacesIt" classname="InventoryTooltipLayoutTests" runstate="Runnable" seed="367597900" result="Failed" label="Error" start-time="2026-09-11 23:49:19Z" end-time="2026-09-11 23:49:19Z" duration="0.000691" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+          <failure>
+            <message><![CDATA[System.NullReferenceException : Object reference not set to an instance of an object]]></message>
+            <stack-trace><![CDATA[  at InventoryTooltipLayoutTests.RelicSlot_ShowsOneEmptyWordAndOccupiedStateReplacesIt () [0x00024] in D:\Unity\Projects\Black-Cube\Assets\Tests\Editor\InventoryTooltipLayoutTests.cs:187 
+  at (wrapper managed-to-native) System.Reflection.RuntimeMethodInfo.InternalInvoke(System.Reflection.RuntimeMethodInfo,object,object[],System.Exception&)
+  at System.Reflection.RuntimeMethodInfo.Invoke (System.Object obj, System.Reflection.BindingFlags invokeAttr, System.Reflection.Binder binder, System.Object[] parameters, System.Globalization.CultureInfo culture) [0x0006a] in <c5ae8a4eeb824526b5df2932bc2395e0>:0 ]]></stack-trace>
+          </failure>
+        </test-case>
+        <test-case id="1071" name="RelicSlotMigration_PreservesOldTwoSlotSaveAndAddsTwoEmptySlots" fullname="InventoryTooltipLayoutTests.RelicSlotMigration_PreservesOldTwoSlotSaveAndAddsTwoEmptySlots" methodname="RelicSlotMigration_PreservesOldTwoSlotSaveAndAddsTwoEmptySlots" classname="InventoryTooltipLayoutTests" runstate="Runnable" seed="1392657449" result="Passed" start-time="2026-09-11 23:49:19Z" end-time="2026-09-11 23:49:19Z" duration="0.000665" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1072" name="SuppliedInventoryAndCurrencyArt_ImportAsUncompressedUiSprites" fullname="InventoryTooltipLayoutTests.SuppliedInventoryAndCurrencyArt_ImportAsUncompressedUiSprites" methodname="SuppliedInventoryAndCurrencyArt_ImportAsUncompressedUiSprites" classname="InventoryTooltipLayoutTests" runstate="Runnable" seed="767652319" result="Passed" start-time="2026-09-11 23:49:19Z" end-time="2026-09-11 23:49:19Z" duration="0.088958" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1065" name="VisibleTooltipRefreshesInPlaceOnSuccessfulCraftAndClosesWhenTargetLeavesInventory" fullname="InventoryTooltipLayoutTests.VisibleTooltipRefreshesInPlaceOnSuccessfulCraftAndClosesWhenTargetLeavesInventory" methodname="VisibleTooltipRefreshesInPlaceOnSuccessfulCraftAndClosesWhenTargetLeavesInventory" classname="InventoryTooltipLayoutTests" runstate="Runnable" seed="455137446" result="Failed" label="Error" start-time="2026-09-11 23:49:19Z" end-time="2026-09-11 23:49:19Z" duration="0.073837" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+          <failure>
+            <message><![CDATA[System.NullReferenceException : Object reference not set to an instance of an object]]></message>
+            <stack-trace><![CDATA[  at InventoryTooltipLayoutTests.VisibleTooltipRefreshesInPlaceOnSuccessfulCraftAndClosesWhenTargetLeavesInventory () [0x000de] in D:\Unity\Projects\Black-Cube\Assets\Tests\Editor\InventoryTooltipLayoutTests.cs:54 
+  at (wrapper managed-to-native) System.Reflection.RuntimeMethodInfo.InternalInvoke(System.Reflection.RuntimeMethodInfo,object,object[],System.Exception&)
+  at System.Reflection.RuntimeMethodInfo.Invoke (System.Object obj, System.Reflection.BindingFlags invokeAttr, System.Reflection.Binder binder, System.Object[] parameters, System.Globalization.CultureInfo culture) [0x0006a] in <c5ae8a4eeb824526b5df2932bc2395e0>:0 ]]></stack-trace>
+          </failure>
+          <output><![CDATA[The character with Unicode value \u25C6 was not found in the [LiberationSans SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u25C6 was not found in the [LiberationSans SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u25C6 was not found in the [LiberationSans SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u25C6 was not found in the [LiberationSans SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+]]></output>
+        </test-case>
+        <test-case id="1063" name="WeaponFormatter_UsesHeadlineOrderDividerAndStableModifierOrder" fullname="InventoryTooltipLayoutTests.WeaponFormatter_UsesHeadlineOrderDividerAndStableModifierOrder" methodname="WeaponFormatter_UsesHeadlineOrderDividerAndStableModifierOrder" classname="InventoryTooltipLayoutTests" runstate="Runnable" seed="1065586658" result="Failed" start-time="2026-09-11 23:49:19Z" end-time="2026-09-11 23:49:19Z" duration="0.002495" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+          <failure>
+            <message><![CDATA[  Expected: String containing "Attacks Per Second: </b>1.2"
+  But was:  "<color=#85898F>WEAPON  •  ITEM LEVEL 20</color>
+
+<b>Fire Damage:</b> 12
+<b>Crit Chance:</b> 5%
+<b>Attacks Per Second:</b> 1.2
+
+<color=#555A63>────────────────────────</color>
+Fire Damage: +14%  <color=#D8B45A>◆ LOCKED / PERMANENT NORMAL BASE</color>
+Attack Speed: +7%  <color=#85898F>◇ UNLOCKED / CRAFTABLE</color>
+Fire Res: +12%  <color=#85898F>◇ UNLOCKED / CRAFTABLE</color>
+Strength: +8  <color=#85898F>◇ UNLOCKED / CRAFTABLE</color>"
+]]></message>
+            <stack-trace><![CDATA[at InventoryTooltipLayoutTests.WeaponFormatter_UsesHeadlineOrderDividerAndStableModifierOrder () [0x000fb] in D:\Unity\Projects\Black-Cube\Assets\Tests\Editor\InventoryTooltipLayoutTests.cs:29
+]]></stack-trace>
+          </failure>
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="1079" name="ModifierTierDataTests" fullname="ModifierTierDataTests" classname="ModifierTierDataTests" runstate="Runnable" testcasecount="8" result="Passed" start-time="2026-09-11 23:49:19Z" end-time="2026-09-11 23:49:19Z" duration="0.031650" total="8" passed="8" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="1085" name="LegacyAilmentSpeedRanges_ProduceDefinedMultiTickIntervals" fullname="ModifierTierDataTests.LegacyAilmentSpeedRanges_ProduceDefinedMultiTickIntervals" methodname="LegacyAilmentSpeedRanges_ProduceDefinedMultiTickIntervals" classname="ModifierTierDataTests" runstate="Runnable" seed="255259376" result="Passed" start-time="2026-09-11 23:49:19Z" end-time="2026-09-11 23:49:19Z" duration="0.005141" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1083" name="PercentUnitsAndRepresentativeRuntimeApplication_AreConsistent" fullname="ModifierTierDataTests.PercentUnitsAndRepresentativeRuntimeApplication_AreConsistent" methodname="PercentUnitsAndRepresentativeRuntimeApplication_AreConsistent" classname="ModifierTierDataTests" runstate="Runnable" seed="173555697" result="Passed" start-time="2026-09-11 23:49:19Z" end-time="2026-09-11 23:49:19Z" duration="0.002622" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1087" name="PhysicalDamage_IgnoresFireResistanceAndSupportsZeroArmour" fullname="ModifierTierDataTests.PhysicalDamage_IgnoresFireResistanceAndSupportsZeroArmour" methodname="PhysicalDamage_IgnoresFireResistanceAndSupportsZeroArmour" classname="ModifierTierDataTests" runstate="Runnable" seed="1904422567" result="Passed" start-time="2026-09-11 23:49:19Z" end-time="2026-09-11 23:49:19Z" duration="0.000688" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1086" name="PhysicalDamage_UsesArmourReductionMinusPhysicalPenetration" fullname="ModifierTierDataTests.PhysicalDamage_UsesArmourReductionMinusPhysicalPenetration" methodname="PhysicalDamage_UsesArmourReductionMinusPhysicalPenetration" classname="ModifierTierDataTests" runstate="Runnable" seed="169693908" result="Passed" start-time="2026-09-11 23:49:19Z" end-time="2026-09-11 23:49:19Z" duration="0.000449" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1084" name="RegenerationStats_UseFlatUnitsPerSecond" fullname="ModifierTierDataTests.RegenerationStats_UseFlatUnitsPerSecond" methodname="RegenerationStats_UseFlatUnitsPerSecond" classname="ModifierTierDataTests" runstate="Runnable" seed="1335082455" result="Passed" start-time="2026-09-11 23:49:19Z" end-time="2026-09-11 23:49:19Z" duration="0.000479" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1080" name="SuppliedRanges_AreExactAndComplete" fullname="ModifierTierDataTests.SuppliedRanges_AreExactAndComplete" methodname="SuppliedRanges_AreExactAndComplete" classname="ModifierTierDataTests" runstate="Runnable" seed="1577389181" result="Passed" start-time="2026-09-11 23:49:19Z" end-time="2026-09-11 23:49:19Z" duration="0.011757" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1081" name="SuppliedStats_HaveNamesSlotsAndExpectedTierEligibility" fullname="ModifierTierDataTests.SuppliedStats_HaveNamesSlotsAndExpectedTierEligibility" methodname="SuppliedStats_HaveNamesSlotsAndExpectedTierEligibility" classname="ModifierTierDataTests" runstate="Runnable" seed="1709138779" result="Passed" start-time="2026-09-11 23:49:19Z" end-time="2026-09-11 23:49:19Z" duration="0.005427" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1082" name="TierGenerator_PopulatesCanonicalMetadata" fullname="ModifierTierDataTests.TierGenerator_PopulatesCanonicalMetadata" methodname="TierGenerator_PopulatesCanonicalMetadata" classname="ModifierTierDataTests" runstate="Runnable" seed="1018085828" result="Passed" start-time="2026-09-11 23:49:19Z" end-time="2026-09-11 23:49:19Z" duration="0.000550" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="1088" name="PassiveTreeTests" fullname="PassiveTreeTests" classname="PassiveTreeTests" runstate="Runnable" testcasecount="21" result="Failed" site="Child" start-time="2026-09-11 23:49:19Z" end-time="2026-09-11 23:49:19Z" duration="0.053457" total="21" passed="17" failed="4" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <failure>
+          <message><![CDATA[One or more child tests had errors]]></message>
+        </failure>
+        <test-case id="1109" name="Allocation_RequiresPreviousNodeAndAppliesCorrectValues" fullname="PassiveTreeTests.Allocation_RequiresPreviousNodeAndAppliesCorrectValues" methodname="Allocation_RequiresPreviousNodeAndAppliesCorrectValues" classname="PassiveTreeTests" runstate="Runnable" seed="1886428934" result="Passed" start-time="2026-09-11 23:49:19Z" end-time="2026-09-11 23:49:19Z" duration="0.008691" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1104" name="BridgeAllocation_AcceptsEitherApproachAndAccumulatesExactStats" fullname="PassiveTreeTests.BridgeAllocation_AcceptsEitherApproachAndAccumulatesExactStats" methodname="BridgeAllocation_AcceptsEitherApproachAndAccumulatesExactStats" classname="PassiveTreeTests" runstate="Runnable" seed="276318451" result="Failed" start-time="2026-09-11 23:49:19Z" end-time="2026-09-11 23:49:19Z" duration="0.002478" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+          <failure>
+            <message><![CDATA[  Expected: 1.5f
+  But was:  0.75f
+]]></message>
+            <stack-trace><![CDATA[at PassiveTreeTests.BridgeAllocation_AcceptsEitherApproachAndAccumulatesExactStats () [0x000c7] in D:\Unity\Projects\Black-Cube\Assets\Tests\Editor\PassiveTreeTests.cs:473
+]]></stack-trace>
+          </failure>
+        </test-case>
+        <test-case id="1101" name="BruteForceAndArcaneOverload_ApplyMultiplicativeDamageSpeedAndManaCost" fullname="PassiveTreeTests.BruteForceAndArcaneOverload_ApplyMultiplicativeDamageSpeedAndManaCost" methodname="BruteForceAndArcaneOverload_ApplyMultiplicativeDamageSpeedAndManaCost" classname="PassiveTreeTests" runstate="Runnable" seed="613990917" result="Passed" start-time="2026-09-11 23:49:19Z" end-time="2026-09-11 23:49:19Z" duration="0.002276" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1089" name="CorruptionTheme_DoesNotReplacePassiveNodeArtwork" fullname="PassiveTreeTests.CorruptionTheme_DoesNotReplacePassiveNodeArtwork" methodname="CorruptionTheme_DoesNotReplacePassiveNodeArtwork" classname="PassiveTreeTests" runstate="Runnable" seed="1012933691" result="Passed" start-time="2026-09-11 23:49:19Z" end-time="2026-09-11 23:49:19Z" duration="0.001440" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1090" name="Definition_PreservesTenSpokesAndPopulatesAllTenBridgeGaps" fullname="PassiveTreeTests.Definition_PreservesTenSpokesAndPopulatesAllTenBridgeGaps" methodname="Definition_PreservesTenSpokesAndPopulatesAllTenBridgeGaps" classname="PassiveTreeTests" runstate="Runnable" seed="1335367403" result="Failed" start-time="2026-09-11 23:49:19Z" end-time="2026-09-11 23:49:19Z" duration="0.011269" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+          <failure>
+            <message><![CDATA[  IncreasedProjectileAmount
+  Expected: 11
+  But was:  12
+]]></message>
+            <stack-trace><![CDATA[at PassiveTreeTests.Definition_PreservesTenSpokesAndPopulatesAllTenBridgeGaps () [0x004a0] in D:\Unity\Projects\Black-Cube\Assets\Tests\Editor\PassiveTreeTests.cs:68
+]]></stack-trace>
+          </failure>
+        </test-case>
+        <test-suite type="ParameterizedMethod" id="1099" name="ElementKeystones_ConvertHalfSuppressRemainderAndApplyMore" fullname="PassiveTreeTests.ElementKeystones_ConvertHalfSuppressRemainderAndApplyMore" classname="PassiveTreeTests" runstate="Runnable" testcasecount="3" result="Passed" start-time="2026-09-11 23:49:19Z" end-time="2026-09-11 23:49:19Z" duration="0.002675" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="1096" name="ElementKeystones_ConvertHalfSuppressRemainderAndApplyMore(AbsoluteZero,Cold)" fullname="PassiveTreeTests.ElementKeystones_ConvertHalfSuppressRemainderAndApplyMore(AbsoluteZero,Cold)" methodname="ElementKeystones_ConvertHalfSuppressRemainderAndApplyMore" classname="PassiveTreeTests" runstate="Runnable" seed="1181953320" result="Passed" start-time="2026-09-11 23:49:19Z" end-time="2026-09-11 23:49:19Z" duration="0.000953" asserts="0">
+            <properties>
+              <property name="retryIteration" value="0" />
+              <property name="repeatIteration" value="0" />
+            </properties>
+          </test-case>
+          <test-case id="1097" name="ElementKeystones_ConvertHalfSuppressRemainderAndApplyMore(InfernalConversion,Fire)" fullname="PassiveTreeTests.ElementKeystones_ConvertHalfSuppressRemainderAndApplyMore(InfernalConversion,Fire)" methodname="ElementKeystones_ConvertHalfSuppressRemainderAndApplyMore" classname="PassiveTreeTests" runstate="Runnable" seed="90817165" result="Passed" start-time="2026-09-11 23:49:19Z" end-time="2026-09-11 23:49:19Z" duration="0.000226" asserts="0">
+            <properties>
+              <property name="retryIteration" value="0" />
+              <property name="repeatIteration" value="0" />
+            </properties>
+          </test-case>
+          <test-case id="1098" name="ElementKeystones_ConvertHalfSuppressRemainderAndApplyMore(LivingCurrent,Light)" fullname="PassiveTreeTests.ElementKeystones_ConvertHalfSuppressRemainderAndApplyMore(LivingCurrent,Light)" methodname="ElementKeystones_ConvertHalfSuppressRemainderAndApplyMore" classname="PassiveTreeTests" runstate="Runnable" seed="1556114270" result="Passed" start-time="2026-09-11 23:49:19Z" end-time="2026-09-11 23:49:19Z" duration="0.000187" asserts="0">
+            <properties>
+              <property name="retryIteration" value="0" />
+              <property name="repeatIteration" value="0" />
+            </properties>
+          </test-case>
+        </test-suite>
+        <test-case id="1110" name="ExplicitDamageScopes_StackOnlyWhenTagged" fullname="PassiveTreeTests.ExplicitDamageScopes_StackOnlyWhenTagged" methodname="ExplicitDamageScopes_StackOnlyWhenTagged" classname="PassiveTreeTests" runstate="Runnable" seed="1360444267" result="Passed" start-time="2026-09-11 23:49:19Z" end-time="2026-09-11 23:49:19Z" duration="0.001642" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1092" name="InnerKeystone_RequiresSpokeTerminalAndRefundPreservesConnectivity" fullname="PassiveTreeTests.InnerKeystone_RequiresSpokeTerminalAndRefundPreservesConnectivity" methodname="InnerKeystone_RequiresSpokeTerminalAndRefundPreservesConnectivity" classname="PassiveTreeTests" runstate="Runnable" seed="39460558" result="Passed" start-time="2026-09-11 23:49:19Z" end-time="2026-09-11 23:49:19Z" duration="0.001195" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1100" name="KeystoneMultipliers_ManaShieldAndPoisonTransmutationUseRuntimeSemantics" fullname="PassiveTreeTests.KeystoneMultipliers_ManaShieldAndPoisonTransmutationUseRuntimeSemantics" methodname="KeystoneMultipliers_ManaShieldAndPoisonTransmutationUseRuntimeSemantics" classname="PassiveTreeTests" runstate="Runnable" seed="1602605655" result="Failed" start-time="2026-09-11 23:49:19Z" end-time="2026-09-11 23:49:19Z" duration="0.001277" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+          <failure>
+            <message><![CDATA[  Expected: 75.0f
+  But was:  150.0f
+]]></message>
+            <stack-trace><![CDATA[at PassiveTreeTests.KeystoneMultipliers_ManaShieldAndPoisonTransmutationUseRuntimeSemantics () [0x00064] in D:\Unity\Projects\Black-Cube\Assets\Tests\Editor\PassiveTreeTests.cs:306
+]]></stack-trace>
+          </failure>
+        </test-case>
+        <test-case id="1102" name="LifeDefenseAndProjectileKeystones_UseIndependentMoreLessFactors" fullname="PassiveTreeTests.LifeDefenseAndProjectileKeystones_UseIndependentMoreLessFactors" methodname="LifeDefenseAndProjectileKeystones_UseIndependentMoreLessFactors" classname="PassiveTreeTests" runstate="Runnable" seed="904760118" result="Passed" start-time="2026-09-11 23:49:19Z" end-time="2026-09-11 23:49:19Z" duration="0.000859" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1105" name="Migration_PreservesAllOriginalIdsAndLeavesBridgeIdsEmpty" fullname="PassiveTreeTests.Migration_PreservesAllOriginalIdsAndLeavesBridgeIdsEmpty" methodname="Migration_PreservesAllOriginalIdsAndLeavesBridgeIdsEmpty" classname="PassiveTreeTests" runstate="Runnable" seed="385074208" result="Passed" start-time="2026-09-11 23:49:19Z" end-time="2026-09-11 23:49:19Z" duration="0.002765" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1106" name="Migration_PreservesEveryPrevious197NodeIdAndLeavesNewBranchEmpty" fullname="PassiveTreeTests.Migration_PreservesEveryPrevious197NodeIdAndLeavesNewBranchEmpty" methodname="Migration_PreservesEveryPrevious197NodeIdAndLeavesNewBranchEmpty" classname="PassiveTreeTests" runstate="Runnable" seed="521891769" result="Passed" start-time="2026-09-11 23:49:19Z" end-time="2026-09-11 23:49:19Z" duration="0.000976" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1107" name="Migration_PreservesEveryPrevious208NodeIdAndLeavesRegenerationBranchesEmpty" fullname="PassiveTreeTests.Migration_PreservesEveryPrevious208NodeIdAndLeavesRegenerationBranchesEmpty" methodname="Migration_PreservesEveryPrevious208NodeIdAndLeavesRegenerationBranchesEmpty" classname="PassiveTreeTests" runstate="Runnable" seed="1405310479" result="Passed" start-time="2026-09-11 23:49:19Z" end-time="2026-09-11 23:49:19Z" duration="0.000880" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1094" name="OuterJunctions_KeystoneIsRadialLeafAndRingLeavesBothSidesWithoutKeystones" fullname="PassiveTreeTests.OuterJunctions_KeystoneIsRadialLeafAndRingLeavesBothSidesWithoutKeystones" methodname="OuterJunctions_KeystoneIsRadialLeafAndRingLeavesBothSidesWithoutKeystones" classname="PassiveTreeTests" runstate="Runnable" seed="1391539126" result="Failed" start-time="2026-09-11 23:49:19Z" end-time="2026-09-11 23:49:19Z" duration="0.004760" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+          <failure>
+            <message><![CDATA[  Expected: less than 0.00999999978f
+  But was:  0.0197823402f
+]]></message>
+            <stack-trace><![CDATA[at PassiveTreeTests.OuterJunctions_KeystoneIsRadialLeafAndRingLeavesBothSidesWithoutKeystones () [0x001a6] in D:\Unity\Projects\Black-Cube\Assets\Tests\Editor\PassiveTreeTests.cs:229
+]]></stack-trace>
+          </failure>
+        </test-case>
+        <test-case id="1103" name="OuterKeystones_ExposeExactChanceDamageResourceAndCapFactors" fullname="PassiveTreeTests.OuterKeystones_ExposeExactChanceDamageResourceAndCapFactors" methodname="OuterKeystones_ExposeExactChanceDamageResourceAndCapFactors" classname="PassiveTreeTests" runstate="Runnable" seed="1382445159" result="Passed" start-time="2026-09-11 23:49:19Z" end-time="2026-09-11 23:49:19Z" duration="0.001949" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1093" name="OuterRing_EverySegmentIsBidirectionalAndTouchesBothNeighboringTerminals" fullname="PassiveTreeTests.OuterRing_EverySegmentIsBidirectionalAndTouchesBothNeighboringTerminals" methodname="OuterRing_EverySegmentIsBidirectionalAndTouchesBothNeighboringTerminals" classname="PassiveTreeTests" runstate="Runnable" seed="1422311084" result="Passed" start-time="2026-09-11 23:49:19Z" end-time="2026-09-11 23:49:19Z" duration="0.000562" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1108" name="PassiveTreePausePreference_DefaultsOffAndPersistsBothValues" fullname="PassiveTreeTests.PassiveTreePausePreference_DefaultsOffAndPersistsBothValues" methodname="PassiveTreePausePreference_DefaultsOffAndPersistsBothValues" classname="PassiveTreeTests" runstate="Runnable" seed="1772278659" result="Passed" start-time="2026-09-11 23:49:19Z" end-time="2026-09-11 23:49:19Z" duration="0.001963" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1091" name="Refund_OnlyAllowsNodesWhoseRemovalKeepsEveryAllocationRootConnected" fullname="PassiveTreeTests.Refund_OnlyAllowsNodesWhoseRemovalKeepsEveryAllocationRootConnected" methodname="Refund_OnlyAllowsNodesWhoseRemovalKeepsEveryAllocationRootConnected" classname="PassiveTreeTests" runstate="Runnable" seed="1068800251" result="Passed" start-time="2026-09-11 23:49:19Z" end-time="2026-09-11 23:49:19Z" duration="0.000694" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1095" name="Zoom_AddsExactlyTwoStepsBelowFormerMinimum" fullname="PassiveTreeTests.Zoom_AddsExactlyTwoStepsBelowFormerMinimum" methodname="Zoom_AddsExactlyTwoStepsBelowFormerMinimum" classname="PassiveTreeTests" runstate="Runnable" seed="2110838896" result="Passed" start-time="2026-09-11 23:49:19Z" end-time="2026-09-11 23:49:19Z" duration="0.000768" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+          <output><![CDATA[Saving results to: C:/Users/david/AppData/LocalLow/DefaultCompany/Black Cube Idle\TestResults.xml
+]]></output>
+        </test-case>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

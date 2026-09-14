@@ -1,7 +1,9 @@
+// Developer map: Builds deterministic noncritical previews and randomized actual attacks from equipment/stats. EquipWeapon publishes AttackChanged for UI/art; EquipmentManager applies the global item modifiers.
+// See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using UnityEngine;
 
-//Builds attack snapshots and routes incoming damage/status ticks; does not handle animations yet.
-//All increased/more stats should be stored as decimals
+// Builds attack snapshots; BattleManager drives PaperSpriteActor separately.
+// GetStat returns fractions for percent buckets; stored global rolls use points.
 public class PlayerController : MonoBehaviour
 {
     [SerializeField] Animator animator; //Field for the player's animator component
@@ -10,14 +12,26 @@ public class PlayerController : MonoBehaviour
     [SerializeField] public Transform worldPosition;    //Field to store the player's transform in the world (for hit effects/damage numbers at player pos)
     [SerializeField] private Gear equippedWeapon;       //Field for storing the player's equipped weapon
 
-    public DamagePopup damagePopup; //Field for storing the DamagePopup object to be used for damage number display (not implemented currently)
+    public DamagePopup damagePopup; // Legacy scene reference; DamageReceiver owns the active popup path.
 
     private StatsComponent stats;   //Field for the player's statsComponent
     private HealthComponent health; //Field for the player's health component
     private DamageReceiver damageReceiver;
     public float EquippedWeaponBaseDamage => equippedWeapon != null ? equippedWeapon.GetEffectiveBaseDamage() : 0f;
+    public Element EquippedWeaponElement => equippedWeapon != null ? equippedWeapon.BaseElement : Element.Phys;
+    public event System.Action AttackChanged;
+    public Gear EquippedWeapon => equippedWeapon;
+    public float BasicAttackDamage
+    {
+        get
+        {
+            float total = 0f;
+            foreach (var hit in BuildNonCriticalAttackContext().Hits) total += hit.Amount;
+            return total;
+        }
+    }
 
-    public float baseSpeed = 1f;    //Field for the player's base speed (currently set at 2f for testing. Likely 1f in the future)
+    public float baseSpeed = 1f;    // Unarmed attacks/second, used only when UnarmedDamage is positive.
 
     private void Awake()    //Grabbing the player's stats component and healthcomponent on awake
     {
@@ -45,14 +59,25 @@ public class PlayerController : MonoBehaviour
         Gear gear = go.AddComponent<Gear>();    //Adds a gear component to the newly created starter weapon, and assigns that gear component to the variable gear
 
         gear.Initialize(LootManager.GearType.Weapons, LootManager.GearRarity.Normal, 1, Element.Phys);
-        gear.BaseDamage = 80f;  //Sets base damage to 20
-        gear.BaseAttackSpeed = 1.2f;    //sets base attack speed to 1
+        gear.BaseDamage = 80f;  // Starter raw damage before actor-wide scaling.
+        gear.BaseAttackSpeed = 1.2f;    // Starter attacks per second.
         gear.BaseCritChance = 0.05f;    //sets base crit chance to 5%
+        RolledMod starterAffix = ModManager.Instance != null
+            ? ModManager.Instance.RollAdditionalMod(gear, LootManager.GearRarity.Normal)
+            : new RolledMod(StatTypes.GenericDmg, 1, Random.Range(5f, 10f));
+        if (starterAffix != null) gear.ApplyMods(new System.Collections.Generic.List<RolledMod> { starterAffix });
 
         return gear;    //Return the gear object
     }
 
-    public void TakeDamage(float damage, StatusEffects effect = null)  //Called when the player takes damage (effect currently unused, implement later)
+    public void ResetToStarterWeapon()
+    {
+        Gear starter = CreateStarterWeapon();
+        if (EquipmentManager.Instance != null) EquipmentManager.Instance.Equip(starter);
+        else EquipWeapon(starter);
+    }
+
+    public void TakeDamage(float damage, StatusEffects effect = null)  // Already-mitigated damage; effect selects the popup style.
     {
         if (damageReceiver == null)
             damageReceiver = GetComponent<DamageReceiver>();
@@ -90,19 +115,20 @@ public class PlayerController : MonoBehaviour
     }
 
     void ApplyShock(float strength, StatusEffects effect) { }   //Not implemented yet, shock will increase damage taken by strength * base shock effect (Defined in shock SO).
-    void ApplyChill(float strength, StatusEffects effect) { }   //Not implemented yet, chill will increase damage taken by strength * base chill effect (Defined in chill SO). 
+    void ApplyChill(float strength, StatusEffects effect) { }   // Placeholder: no speed or damage change is applied.
 
     // --------------------------------------------------------------------
     // ATTACK BUILD – this is the main damage pipeline
     // --------------------------------------------------------------------
-    public DamageContext BuildAttackContext()
+    // Shared outgoing hit pipeline. UI inspection does not consume a critical roll.
+    public DamageContext BuildNonCriticalAttackContext()
     {
         DamageContext ctx = new DamageContext(4);   //Builds a damage context, passing in 4 as the initial capacity
         if (equippedWeapon == null)
         {
             float unarmed = Mathf.Max(0f, stats.GetStat(StatTypes.UnarmedDamage));
             if (unarmed > 0f) AddScaledElementalDamage(ctx, Element.Phys, unarmed);
-            return ctx;
+            return ApplyKeystones(ctx);
         }
 
         Element weaponElement = equippedWeapon.BaseElement; //assign the weapon's base element to weaponElement variable
@@ -114,10 +140,67 @@ public class PlayerController : MonoBehaviour
         //Add all of the global flat damage modifiers that aren't the same element as the weapon's base element
         AddGlobalFlatElements(ctx, weaponElement);
 
+        return ApplyKeystones(ctx);
+    }
+
+    public DamageContext BuildAttackContext()
+    {
+        var ctx = BuildNonCriticalAttackContext();
+        return ApplyCriticalRoll(ctx);
+    }
+
+    public DamageContext BuildAttackContext(Element conversionElement, float nonMatchingConversion)
+    {
+        var ctx = BuildNonCriticalConvertedAttackContext(conversionElement, nonMatchingConversion);
+        return ApplyCriticalRoll(ctx);
+    }
+
+    public DamageContext BuildAttackContext(Element conversionElement, float nonMatchingConversion, DamageScope scopes)
+    {
+        var ctx = BuildNonCriticalConvertedRaw(conversionElement, nonMatchingConversion);
+        ctx.Scopes = scopes;
+        return ApplyCriticalRoll(ApplyKeystones(ctx));
+    }
+
+    public DamageContext BuildNonCriticalConvertedAttackContext(Element conversionElement, float nonMatchingConversion)
+        => ApplyKeystones(BuildNonCriticalConvertedRaw(conversionElement, nonMatchingConversion));
+
+    DamageContext BuildNonCriticalConvertedRaw(Element conversionElement, float nonMatchingConversion)
+    {
+        var ctx = new DamageContext(5);
+        float conversion = Mathf.Clamp01(nonMatchingConversion);
+        if (equippedWeapon == null)
+        {
+            AddConvertedRawDamage(ctx, Element.Phys, Mathf.Max(0f, stats.GetStat(StatTypes.UnarmedDamage)),
+                conversionElement, conversion);
+            return ctx;
+        }
+
+        Element weaponElement = equippedWeapon.BaseElement;
+        float weaponRaw = equippedWeapon.GetEffectiveBaseDamage()
+                          + stats.GetStat(StatMappings.GetFlatDamageStat(weaponElement));
+        AddConvertedRawDamage(ctx, weaponElement, weaponRaw, conversionElement, conversion);
+        AddConvertedExtraFlat(ctx, Element.Phys, weaponElement, conversionElement, conversion);
+        AddConvertedExtraFlat(ctx, Element.Fire, weaponElement, conversionElement, conversion);
+        AddConvertedExtraFlat(ctx, Element.Cold, weaponElement, conversionElement, conversion);
+        AddConvertedExtraFlat(ctx, Element.Light, weaponElement, conversionElement, conversion);
+        return ctx;
+    }
+
+    DamageContext ApplyKeystones(DamageContext context)
+    {
+        var keystones = GetComponent<PassiveKeystoneState>();
+        return keystones != null ? keystones.TransformOutgoing(context) : context;
+    }
+
+    private DamageContext ApplyCriticalRoll(DamageContext ctx)
+    {
+        if (equippedWeapon == null) return ctx;
+
         //Get the weapons final critical chance
         float critChance = GetFinalCritChance();
         //Directly calculate the weapon's crit multiplier (assumes Crit multi is a decimal value).
-        float critMult = 1f + stats.GetStat(StatTypes.CritMult); // CritMult is % more crit damage
+        float critMult = 1f + stats.GetStat(StatTypes.CritMult); // CritMult is an unclassified raw fraction (0.5 => x1.5), unlike CritChance points.
 
         //Roll randomly to decide if the attack is a critical strike or not
         bool isCrit = Random.value < Mathf.Clamp01(critChance);
@@ -143,6 +226,12 @@ public class PlayerController : MonoBehaviour
     {
         //Grabs all of the flat damage increases for your main stat
         float flatGlobal = stats.GetStat(StatMappings.GetFlatDamageStat(element));
+        AddScaledRawDamage(ctx, element, baseAmount + flatGlobal);
+    }
+
+    private void AddScaledRawDamage(DamageContext ctx, Element element, float rawAmount)
+    {
+        if (rawAmount <= 0f) return;
 
         //Grabs all of the increased damage increases for your main stat
         float incElement = stats.GetStat(StatMappings.GetIncDamageStat(element));  // e.g. 0.40 for +40% phys
@@ -152,11 +241,12 @@ public class PlayerController : MonoBehaviour
         //Grabs all of the more damage increases for your main stat
         float moreElement = stats.GetStat(StatMappings.GetMoreDamageStat(element)); // e.g. 0.30 for +30% more phys
         float moreGeneric = stats.GetStat(StatTypes.GenericMult);                   // e.g. 0.50 for +50% more damage
-        float moreTotal = (1f + moreElement) * (1f + moreGeneric);                              // e.g. 0.80 → +80% more
+        float moreTotal = (1f + moreElement) * (1f + moreGeneric); // Each stat already compounds its individual rolls; multiply applicable stat factors.
 
         // Pipeline: base + flat → increased → more
-        float afterInc = (baseAmount + flatGlobal) * (1f + incTotal);
-        float final = afterInc * moreTotal;
+        float afterInc = rawAmount * (1f + incTotal);
+        float relicMore = RelicInventory.Instance != null ? RelicInventory.Instance.DamageMultiplier : 1f;
+        float final = afterInc * moreTotal * relicMore;
 
         ctx.AddDamage(element, final);  //Adds the damage to the context
     }
@@ -178,33 +268,39 @@ public class PlayerController : MonoBehaviour
         float flatGlobal = stats.GetStat(StatMappings.GetFlatDamageStat(element));  //Adds the flat damage values
         if (flatGlobal <= 0f) return;
 
-        // INC bucket
-        float incElement = stats.GetStat(StatMappings.GetIncDamageStat(element));   //Adds the increased elemental damage values
-        float incGeneric = stats.GetStat(StatTypes.GenericDmg); //Adds the generic increased damage
-        float incTotal = incElement + incGeneric;   //Adds them together for a total increased damage amount
+        AddScaledRawDamage(ctx, element, flatGlobal);
+    }
 
-        // MORE bucket
-        float moreElement = stats.GetStat(StatMappings.GetMoreDamageStat(element)); //Adds the more elemental damage values
-        float moreGeneric = stats.GetStat(StatTypes.GenericMult);   //Adds the more generic damage values
-        float moreTotal = (1f + moreElement) * (1f + moreGeneric);    //Adds them together for the total more damage value
+    private void AddConvertedExtraFlat(DamageContext ctx, Element element, Element weaponElement,
+        Element conversionElement, float conversion)
+    {
+        if (element == weaponElement) return;
+        AddConvertedRawDamage(ctx, element, stats.GetStat(StatMappings.GetFlatDamageStat(element)),
+            conversionElement, conversion);
+    }
 
-        float afterInc = flatGlobal * (1f + incTotal);  //Multiplies increased values with float global
-        float final = afterInc * moreTotal;  //Multiplies more damage values with the previously calculated value
-
-        ctx.AddDamage(element, final);  //Adds this to the damage context
+    private void AddConvertedRawDamage(DamageContext ctx, Element sourceElement, float rawAmount,
+        Element conversionElement, float conversion)
+    {
+        if (rawAmount <= 0f) return;
+        if (conversion <= 0f || sourceElement == conversionElement)
+        {
+            AddScaledRawDamage(ctx, sourceElement, rawAmount);
+            return;
+        }
+        AddScaledRawDamage(ctx, sourceElement, rawAmount * (1f - conversion));
+        AddScaledRawDamage(ctx, conversionElement, rawAmount * conversion);
     }
 
     //Calculates the final crit chance
-    float GetFinalCritChance()
+    public float GetFinalCritChance()
     {
         if (equippedWeapon == null) return 0f;  //If equipped weapon is null return
 
-        float weaponCrit = equippedWeapon.GetEffectiveBaseCrit();       //This grabs the weapons base effective crit (Base + Extra base crit on weapon * local increased crit chance on weapon)
+        float weaponCrit = equippedWeapon.GetEffectiveBaseCrit(stats.GetStat(StatTypes.BaseCritChance));
         float incCritGlobal = stats.GetStat(StatTypes.CritChance);        // 0.5 for +50% increased crit
-        float extraBaseCritPP = stats.GetStat(StatTypes.BaseCritChance);    // 0.02 for +2% base
-
-        float baseCritAll = weaponCrit + extraBaseCritPP;   //Add weaponCrit and any sources of extraBaseCrit
-        float final = baseCritAll * (1f + incCritGlobal);   //Multiply that by any sources of global increased crit chance
+        // ALL flat base points precede local and global increased buckets.
+        float final = weaponCrit * (1f + incCritGlobal);
 
         return Mathf.Clamp01(final);
     }
@@ -213,17 +309,28 @@ public class PlayerController : MonoBehaviour
     public float GetFinalAttackSpeed()
     {
         if (equippedWeapon == null)
-            return stats.GetStat(StatTypes.UnarmedDamage) > 0f ? baseSpeed * (1f + stats.GetStat(StatTypes.AttackSpeed)) : 0f;
+            return stats.GetStat(StatTypes.UnarmedDamage) > 0f
+                ? baseSpeed * (1f + stats.GetStat(StatTypes.AttackSpeed)) * KeystoneAttackSpeedMultiplier() * RelicAttackSpeedMultiplier() : 0f;
 
         float weaponAS = equippedWeapon.GetEffectiveAttackSpeed();  //Grabs the weapon's base attack speed (base speed * local weapon attack speed modifier)
         float incASGlobal = stats.GetStat(StatTypes.AttackSpeed); //Gets the player's global attack speed modifier
 
-        return weaponAS * (1f + incASGlobal);   //Returns the weapon's calculated attack speed * (1 + increased global attack speed). This attack speed modifiers are decimal values.
+        return weaponAS * (1f + incASGlobal) * KeystoneAttackSpeedMultiplier() * RelicAttackSpeedMultiplier();
     }
+
+    float KeystoneAttackSpeedMultiplier()
+    {
+        var keystones = GetComponent<PassiveKeystoneState>();
+        return keystones != null ? keystones.AttackSpeedMultiplier : 1f;
+    }
+
+    float RelicAttackSpeedMultiplier() => RelicInventory.Instance != null ? RelicInventory.Instance.AttackSpeedMultiplier : 1f;
 
     // Called by EquipmentManager when a weapon is equipped.
     public void EquipWeapon(Gear weapon)
     {
         equippedWeapon = weapon;
+        AttackChanged?.Invoke();
     }
+    public void NotifyRelicChanged() => AttackChanged?.Invoke();
 }

@@ -1,0 +1,15 @@
+# Forest enemy batch
+
+Final cadence: **nine goblins, then the hobgoblin on encounter stage ten of every combat level**. Boss death advances the combat level. Forest images change every ten combat levels and loop after sixty; they do not determine the encounter-stage counter. The HUD displays stage1–10 separately from the combat level.
+
+Installed: Goblin2D replaces the normal ghoul presentation, Hobgoblin2D replaces the boss presentation in all forest stages. The saved PaperBattle prefab and its scene builder use both new animation assets. Existing normal250/boss500 health and all non-visual prefab component data were copied unchanged. The final requested cadence is nine normal goblin stages, then the hobgoblin on stage10 of each combat level. The forest60-level background cycle, enemy gear/stats and player equipment logic are retained.
+
+Each species has a resting cel and an eight-slot authored attack cycle facing left. Slot four is the forward impact; slots one/eight share the exact rest image. The hobgoblin is larger, armored and meaner while retaining the player's paper-cut chibi style. Enemy weapons are part of their cels; player weapon art remains separately swappable and completely hidden when unequipped.
+
+Previews: goblin-attack.gif, hobgoblin-attack.gif, goblin-attack-contact.png, hobgoblin-attack-contact.png and character-lineup.png. GIFs illustrate a one-second cycle; actual gameplay timing follows each actor's attack speed. These are art previews, not live Unity captures. Eight authored poses are visibly stepped rather than interpolated/morphed.
+
+Validation: 3,940 assertions in the actual-source combat harness cover player/equipment and enemy cadence, frame-four impact, pose order, pause, death/status cancellation and zero-speed restart. Forest-cycle harness passes729 assertions. Enemy asset checks pass18 transparent PNGs, all ordered sprite/profile references, exact rest endpoints, prefab normal/boss wiring, unchanged gameplay blocks and unchanged EnemyAI/equipment code tokens; the separate actual-GameManager cadence harness passes6,314 assertions across levels1-121 including duplicate callbacks, boundaries and boss restart. Player asset/source-crop checks and forest asset checks also pass. JSON evidence is alongside these previews and in ChibiPlayer/ForestCycle.
+
+The hobgoblin source returned a baked checker background; preparation keys bright neutral background, preserves small enclosed metal/ivory highlights, and removes edge matte. The goblin source supplied alpha, which is retained; hidden RGB is cleared. Each species is uniformly scaled with its feet registered; padded canvases preserve full weapons, ears and hair. Sources and prompts are saved here for reproducibility.
+
+Limits: Unity was not launched; asset import, full-project compilation and live rendering remain to be checked in SampleScene. The boss quota was intentionally corrected from encounter11 to encounter10. No evasion, health scaling or unrelated gameplay features were added. See ../../Docs/DEVELOPER_HANDOFF.md and CODE_MAP.md for independent development and manual validation.

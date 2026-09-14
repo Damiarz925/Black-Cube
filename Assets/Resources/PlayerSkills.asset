@@ -1,0 +1,120 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a71f755486c34efaa1030bbefdc3acc1, type: 3}
+  m_Name: PlayerSkills
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerSkillCatalog
+  skills:
+  - id: 0
+    displayName: Heavy Strike
+    description: A crushing physical hit for 130% damage.
+    manaCost: 30
+    hitDamageMultiplier: 1.3
+    baseHitCount: 1
+    additionalHitsFromShockChance: 0
+    projectile: 0
+    conversionElement: 0
+    nonMatchingConversion: 0
+    specializedAilment: 0
+    ailmentBasisMultiplier: 1
+    absoluteAilmentCoefficient: -1
+    guaranteedAdditionalChill: 0
+    suppressDirectDamage: 0
+  - id: 1
+    displayName: Ice Strike
+    description: 120% damage, 50% converted to Cold, plus one additional Chill.
+    manaCost: 20
+    hitDamageMultiplier: 1.2
+    baseHitCount: 1
+    additionalHitsFromShockChance: 0
+    projectile: 0
+    conversionElement: 2
+    nonMatchingConversion: 0.5
+    specializedAilment: 0
+    ailmentBasisMultiplier: 1
+    absoluteAilmentCoefficient: -1
+    guaranteedAdditionalChill: 1
+    suppressDirectDamage: 0
+  - id: 2
+    displayName: Lightning Strike
+    description: Each hit deals 55% damage. Shock Chance grants additional independent hits.
+    manaCost: 10
+    hitDamageMultiplier: 0.55
+    baseHitCount: 1
+    additionalHitsFromShockChance: 1
+    projectile: 0
+    conversionElement: 3
+    nonMatchingConversion: 0.5
+    specializedAilment: 0
+    ailmentBasisMultiplier: 1
+    absoluteAilmentCoefficient: -1
+    guaranteedAdditionalChill: 0
+    suppressDirectDamage: 0
+  - id: 3
+    displayName: Fireball
+    description: Launch a projectile for 200% damage, with 50% converted to Fire.
+    manaCost: 100
+    hitDamageMultiplier: 2
+    baseHitCount: 1
+    additionalHitsFromShockChance: 0
+    projectile: 1
+    conversionElement: 1
+    nonMatchingConversion: 0.5
+    specializedAilment: 0
+    ailmentBasisMultiplier: 1
+    absoluteAilmentCoefficient: -1
+    guaranteedAdditionalChill: 0
+    suppressDirectDamage: 0
+  - id: 4
+    displayName: Envenom
+    description: Deal no hit damage; use the normal attack as the basis for Poison.
+    manaCost: 20
+    hitDamageMultiplier: 0
+    baseHitCount: 1
+    additionalHitsFromShockChance: 0
+    projectile: 0
+    conversionElement: 0
+    nonMatchingConversion: 0
+    specializedAilment: 1
+    ailmentBasisMultiplier: 1
+    absoluteAilmentCoefficient: -1
+    guaranteedAdditionalChill: 0
+    suppressDirectDamage: 1
+  - id: 5
+    displayName: Shiv
+    description: Deal 70% hit damage. Bleeds use twice this attack's normal Bleed basis.
+    manaCost: 30
+    hitDamageMultiplier: 0.7
+    baseHitCount: 1
+    additionalHitsFromShockChance: 0
+    projectile: 0
+    conversionElement: 0
+    nonMatchingConversion: 0
+    specializedAilment: 2
+    ailmentBasisMultiplier: 2
+    absoluteAilmentCoefficient: -1
+    guaranteedAdditionalChill: 0
+    suppressDirectDamage: 0
+  - id: 6
+    displayName: Immolate
+    description: Deal 10% hit damage; a 50% Fire conversion fuels an Ignite with a 250% basis.
+    manaCost: 60
+    hitDamageMultiplier: 0.1
+    baseHitCount: 1
+    additionalHitsFromShockChance: 0
+    projectile: 0
+    conversionElement: 1
+    nonMatchingConversion: 0.5
+    specializedAilment: 3
+    ailmentBasisMultiplier: 1
+    absoluteAilmentCoefficient: 2.5
+    guaranteedAdditionalChill: 0
+    suppressDirectDamage: 0

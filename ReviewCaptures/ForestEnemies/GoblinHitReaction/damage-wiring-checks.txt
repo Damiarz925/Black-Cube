@@ -1,0 +1,1 @@
+PASS: actual DamageReceiver applies damage first, retriggers nonlethal hits, ignores zero damage, and suppresses lethal reactions.

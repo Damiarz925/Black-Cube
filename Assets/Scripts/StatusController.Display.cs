@@ -1,3 +1,5 @@
+// Developer map: Produces per-effect, frequency-weighted summaries for status UI and the shared per-stack tick calculation. This partial class participates in damage math as well as display.
+// See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using System.Collections.Generic;
 using UnityEngine;
 

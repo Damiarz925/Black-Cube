@@ -1,3 +1,5 @@
+// Developer map: Asset-writing paper HUD/inventory UI configuration shared with the scene builder.
+// See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using System.Linq;
 using TMPro;
 using UnityEditor;
@@ -22,18 +24,20 @@ public static class PaperBattleUIBuilder
         finally {PrefabUtility.UnloadPrefabContents(root);}
         AssetDatabase.SaveAssets();
         EditorSceneManager.OpenScene("Assets/Scenes/SampleScene.unity");
-        Debug.Log("PAPER2D UI: normal inventory, equipment glyphs, HUD and death menu saved.");
+        Debug.Log("PAPER2D UI: inventory, inspection controls, playback controls, HUD and death menu saved.");
     }
     public static void Configure(GameObject root)
     {
         var hud=root.GetComponentInChildren<PaperBattleHUD>(true);
+        if(hud.GetComponent<CorruptionUITheme>()==null)hud.gameObject.AddComponent<CorruptionUITheme>();
         var canvas=hud.GetComponentInParent<Canvas>();
         var inventory=hud.inventoryPanel;
         var old=inventory.GetComponentInChildren<InventoryUI>(true);
         if(old)Object.DestroyImmediate(old);
         for(int i=inventory.transform.childCount-1;i>=0;i--)Object.DestroyImmediate(inventory.transform.GetChild(i).gameObject);
         var inv=inventory.AddComponent<InventoryUI>();
-        Place(inventory,new Vector2(0,0),new Vector2(0,1),new Vector2(24,28),new Vector2(432,-120));
+        if(inventory.GetComponent<InventoryEquipmentPanelUI>()==null)inventory.AddComponent<InventoryEquipmentPanelUI>();
+        Place(inventory,new Vector2(0,0),new Vector2(0,1),new Vector2(24,28),new Vector2(714,-120));
         Surface(inventory,Ink);Edge(inventory.transform);
         Text(inventory.transform,"FIELD INVENTORY",24,.08f,.87f,.88f,.96f);
         Text(inventory.transform,"RECOVERED EQUIPMENT",11,.08f,.82f,.9f,.87f,Muted);
@@ -52,12 +56,11 @@ public static class PaperBattleUIBuilder
         inventory.SetActive(false);
 
         for(int i=hud.transform.childCount-1;i>=0;i--)Object.DestroyImmediate(hud.transform.GetChild(i).gameObject);
-        Place(hud.gameObject,new Vector2(0,1),Vector2.one,new Vector2(0,-98),Vector2.zero);Surface(hud.gameObject,Ink);Edge(hud.transform);
-        hud.runText=Text(hud.transform,"BLACK CUBE  /  FOREST 1",22,.028f,.49f,.43f,.91f);
-        hud.playerText=Text(hud.transform,"WANDERER",15,.028f,.16f,.28f,.49f);
-        hud.enemyText=Text(hud.transform,"GHOUL",15,.31f,.16f,.7f,.49f);
-        var ib=Button(hud.transform,"INVENTORY",.75f,.25f,.875f,.76f,14);UnityEventTools.AddPersistentListener(ib.onClick,hud.ToggleInventory);
-        var sb=Button(hud.transform,"STATS",.89f,.25f,.972f,.76f,14);UnityEventTools.AddPersistentListener(sb.onClick,hud.ToggleStats);
+        // Runtime owns one stable supplied-art hierarchy. Generated prefabs retain only gameplay references,
+        // so no legacy text/button/bar object or serialized view reference can be resurrected by a rebuild.
+        Place(hud.gameObject,Vector2.zero,Vector2.one,Vector2.zero,Vector2.zero);
+        Surface(hud.gameObject,Color.clear);hud.GetComponent<Image>().enabled=false;hud.GetComponent<Image>().raycastTarget=false;
+        hud.runText=null;hud.playerText=null;hud.enemyText=null;hud.playerHealthBar=null;hud.enemyHealthBar=null;
         hud.inventoryPanel=inventory;
         // Keep the existing stats view and its data bindings, inside a readable panel.
         Place(hud.statsPanel,new Vector2(1,.08f),new Vector2(1,.85f),new Vector2(-540,0),new Vector2(-24,0));
@@ -97,15 +100,14 @@ public static class PaperBattleUIBuilder
     static GameObject Slot()
     {
         var go=new GameObject("Equipment Slot",typeof(RectTransform),typeof(Image),typeof(Button),typeof(LayoutElement),typeof(ItemSlotUI));
-        go.GetComponent<LayoutElement>().preferredHeight=82;
+        go.GetComponent<LayoutElement>().preferredWidth=InventoryUI.GridCellSize.x;go.GetComponent<LayoutElement>().preferredHeight=InventoryUI.GridCellSize.y;
         var bg=go.GetComponent<Image>();bg.color=new Color(.065f,.068f,.08f);StyleButton(go.GetComponent<Button>(),bg.color);
-        var stripe=Box(go.transform,"Rarity",0,0,.01f,1,Color.white).GetComponent<Image>();
         var glyph=new GameObject("Equipment glyph",typeof(RectTransform),typeof(EquipmentGlyph));glyph.transform.SetParent(go.transform,false);
         Place(glyph,new Vector2(0,.5f),new Vector2(0,.5f),new Vector2(14,-29),new Vector2(72,29));glyph.GetComponent<EquipmentGlyph>().raycastTarget=false;glyph.GetComponent<EquipmentGlyph>().color=new Color(.85f,.86f,.88f);
         var name=Text(go.transform,"EQUIPMENT",15,.26f,.42f,.96f,.85f);name.enableAutoSizing=true;name.fontSizeMin=11;name.fontSizeMax=15;
         var detail=Text(go.transform,"ITEM LEVEL",11,.26f,.14f,.9f,.43f,Muted);
         var so=new SerializedObject(go.GetComponent<ItemSlotUI>());
-        so.FindProperty("nameText").objectReferenceValue=name;so.FindProperty("detailText").objectReferenceValue=detail;so.FindProperty("button").objectReferenceValue=go.GetComponent<Button>();so.FindProperty("backgroundImage").objectReferenceValue=bg;so.FindProperty("rarityOverlay").objectReferenceValue=stripe;so.ApplyModifiedPropertiesWithoutUndo();
+        so.FindProperty("nameText").objectReferenceValue=name;so.FindProperty("detailText").objectReferenceValue=detail;so.FindProperty("button").objectReferenceValue=go.GetComponent<Button>();so.FindProperty("backgroundImage").objectReferenceValue=bg;so.FindProperty("rarityOverlay").objectReferenceValue=null;so.ApplyModifiedPropertiesWithoutUndo();
         var result=PrefabUtility.SaveAsPrefabAsset(go,Folder+"EquipmentSlot.prefab");Object.DestroyImmediate(go);return result;
     }
     static RectTransform Place(GameObject go,Vector2 min,Vector2 max,Vector2 lo,Vector2 hi)
@@ -113,6 +115,8 @@ public static class PaperBattleUIBuilder
     static void Surface(GameObject go,Color c){var im=go.GetComponent<Image>();if(!im)im=go.AddComponent<Image>();im.sprite=null;im.color=c;}
     static GameObject Box(Transform p,string n,float x,float y,float xx,float yy,Color c)
     {var g=new GameObject(n,typeof(RectTransform),typeof(Image));g.transform.SetParent(p,false);Place(g,new Vector2(x,y),new Vector2(xx,yy),Vector2.zero,Vector2.zero);g.GetComponent<Image>().color=c;return g;}
+    static SlantedHealthBar HealthBar(Transform p,string n,float x,float y,float xx,float yy)
+    {var g=new GameObject(n,typeof(RectTransform),typeof(SlantedHealthBar));g.transform.SetParent(p,false);Place(g,new Vector2(x,y),new Vector2(xx,yy),Vector2.zero,Vector2.zero);var bar=g.GetComponent<SlantedHealthBar>();bar.color=new Color(1f,.31f,0f);bar.raycastTarget=false;return bar;}
     static void Edge(Transform p){var g=Box(p,"Signal line",0,1,1,1,Red);Place(g,new Vector2(0,1),Vector2.one,new Vector2(0,-2),Vector2.zero);g.GetComponent<Image>().raycastTarget=false;}
     static TMP_Text Text(Transform p,string value,int size,float x,float y,float xx,float yy,Color? tint=null)
     {var g=new GameObject(value,typeof(RectTransform),typeof(TextMeshProUGUI));g.transform.SetParent(p,false);Place(g,new Vector2(x,y),new Vector2(xx,yy),Vector2.zero,Vector2.zero);var t=g.GetComponent<TextMeshProUGUI>();Style(t,size,tint??new Color(.91f,.92f,.93f));t.text=value;return t;}

@@ -1,3 +1,5 @@
+// Developer map: Asset-writing builder for TMP damage-number materials and prefab wiring; also exposes a Play preview.
+// See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using TMPro;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -36,6 +38,23 @@ public static class DamageNumberStyleBuilder
             mat.SetFloat("_UnderlayOffsetX",0);mat.SetFloat("_UnderlayOffsetY",-.2f);mat.SetFloat("_UnderlayDilate",.6f);mat.SetFloat("_UnderlaySoftness",.05f);
             EditorUtility.SetDirty(mat);array.GetArrayElementAtIndex(i).objectReferenceValue=mat;
         }
+        var atlasNames=new[]{"Physical","Fire","Cold","Lightning","Poison","Bleed","Ignite"};
+        var atlases=so.FindProperty("numberAtlases");atlases.arraySize=atlasNames.Length;
+        for(int i=0;i<atlasNames.Length;i++)
+        {
+            string path="Assets/Art/PaperBattle/DamageNumbers/"+atlasNames[i]+"Digits.png";
+            var importer=AssetImporter.GetAtPath(path) as TextureImporter;
+            if(importer!=null)
+            {
+                bool changed=importer.textureType!=TextureImporterType.Default || importer.alphaSource!=TextureImporterAlphaSource.FromInput || importer.mipmapEnabled;
+                importer.textureType=TextureImporterType.Default;importer.alphaSource=TextureImporterAlphaSource.FromInput;
+                importer.alphaIsTransparency=true;importer.mipmapEnabled=false;importer.wrapMode=TextureWrapMode.Clamp;
+                importer.filterMode=FilterMode.Bilinear;importer.textureCompression=TextureImporterCompression.CompressedHQ;
+                if(changed)importer.SaveAndReimport();
+            }
+            atlases.GetArrayElementAtIndex(i).objectReferenceValue=AssetDatabase.LoadAssetAtPath<Texture2D>(path);
+        }
+        so.FindProperty("digitHeight").floatValue=52f;so.FindProperty("digitSpacing").floatValue=-2f;so.FindProperty("maxNumberWidth").floatValue=180f;
         so.ApplyModifiedPropertiesWithoutUndo();
     }
     [MenuItem("Black Cube/Play Checks/Toggle Damage Style Preview")]
@@ -46,18 +65,17 @@ public static class DamageNumberStyleBuilder
         var hud=Object.FindFirstObjectByType<PaperBattleHUD>();var canvas=hud.GetComponentInParent<Canvas>();
         var panel=new GameObject("Damage Style Preview",typeof(RectTransform));panel.transform.SetParent(canvas.transform,false);
         var rect=panel.GetComponent<RectTransform>();rect.anchorMin=new Vector2(.1f,.64f);rect.anchorMax=new Vector2(.9f,.8f);rect.offsetMin=rect.offsetMax=Vector2.zero;
-        var names=new[]{"Physical","Fire","Cold","Lightning","Poison","Bleed"};
+        var names=new[]{"Physical","Fire","Cold","Lightning","Poison","Bleed","Ignite"};
         var popup=(GameObject)new SerializedObject(Object.FindFirstObjectByType<DamagePopup>()).FindProperty("popupPrefab").objectReferenceValue;
         var font=popup.GetComponentInChildren<TMP_Text>(true).font;
-        for(int i=0;i<6;i++)
+        for(int i=0;i<names.Length;i++)
         {
-            var go=new GameObject(names[i],typeof(RectTransform),typeof(TextMeshProUGUI));go.transform.SetParent(panel.transform,false);
-            var r=go.GetComponent<RectTransform>();r.anchorMin=new Vector2(i/6f,.2f);r.anchorMax=new Vector2((i+1)/6f,1);r.offsetMin=r.offsetMax=Vector2.zero;
-            var t=go.GetComponent<TextMeshProUGUI>();t.font=font;t.text="128";t.fontSize=42;t.alignment=TextAlignmentOptions.Center;t.fontStyle=FontStyles.Bold;t.raycastTarget=false;
-            t.fontSharedMaterial=AssetDatabase.LoadAssetAtPath<Material>(Folder+"Damage"+names[i]+".mat");t.extraPadding=true;t.UpdateMeshPadding();
-            Canvas.ForceUpdateCanvases();DamageNumberAccent.Attach(t,i,t.fontSharedMaterial.GetColor("_OutlineColor"));
+            var go=new GameObject(names[i],typeof(RectTransform),typeof(DamageDigitDisplay));go.transform.SetParent(panel.transform,false);
+            var r=go.GetComponent<RectTransform>();r.anchorMin=r.anchorMax=new Vector2((i+.5f)/names.Length,.62f);r.anchoredPosition=Vector2.zero;
+            var atlas=AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Art/PaperBattle/DamageNumbers/"+names[i]+"Digits.png");
+            go.GetComponent<DamageDigitDisplay>().SetValue(atlas,"128",52f,-2f);
             var label=new GameObject("Label",typeof(RectTransform),typeof(TextMeshProUGUI));label.transform.SetParent(panel.transform,false);
-            var lr=label.GetComponent<RectTransform>();lr.anchorMin=new Vector2(i/6f,0);lr.anchorMax=new Vector2((i+1)/6f,.2f);lr.offsetMin=lr.offsetMax=Vector2.zero;
+            var lr=label.GetComponent<RectTransform>();lr.anchorMin=new Vector2(i/(float)names.Length,0);lr.anchorMax=new Vector2((i+1)/(float)names.Length,.2f);lr.offsetMin=lr.offsetMax=Vector2.zero;
             var lt=label.GetComponent<TextMeshProUGUI>();lt.font=font;lt.text=names[i].ToUpperInvariant();lt.fontSize=14;lt.color=Color.black;lt.alignment=TextAlignmentOptions.Center;lt.raycastTarget=false;
         }
     }

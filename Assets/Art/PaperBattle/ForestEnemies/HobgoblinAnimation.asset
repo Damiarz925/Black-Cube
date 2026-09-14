@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3ef6bfcb4bc9583dbed0fd2bd7e2d0d6, type: 3}
+  m_Name: Hobgoblin Animation
+  m_EditorClassIdentifier: Assembly-CSharp::PaperEnemyAnimationSet
+  displayName: Hobgoblin
+  idleFrames:
+  - {fileID: 21300000, guid: 75dfa85e4b5a550b93c02371367349b5, type: 3}
+  idleFramesPerSecond: 2
+  attackFrames:
+  - {fileID: 21300000, guid: b11101b07ba2548cbcd7d8983fb2b50e, type: 3}
+  - {fileID: 21300000, guid: 0b58c05c336b585b90c4219b0fa226fc, type: 3}
+  - {fileID: 21300000, guid: a730210a2021561093b78ee086af722c, type: 3}
+  - {fileID: 21300000, guid: 2bf502d4564856d5a630ebf4bbd6ab01, type: 3}
+  - {fileID: 21300000, guid: c4fff546a81a576abff351680e810b4f, type: 3}
+  - {fileID: 21300000, guid: 4a2c417fac6f5f2da85a4958d61246a9, type: 3}
+  - {fileID: 21300000, guid: 5e427a0d96ca5bd39ad3bc743e7e13da, type: 3}
+  - {fileID: 21300000, guid: 01cfedc8475250f480fd5ddb47485f6a, type: 3}
+  popupOffset: {x: 0, y: 4.0, z: 0}

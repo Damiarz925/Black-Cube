@@ -78,33 +78,33 @@ MonoBehaviour:
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 2
-    displayName: Weapon Critical Strike Chance
+    displayName: Weapon Base Critical Chance
     allowedSlots: 07000000i
     groups: []
     tiers:
     - tierIndex: 1
-      minValue: 3
-      maxValue: 5
+      minValue: 5
+      maxValue: 10
       minItemLevel: 1
       weight: 50
     - tierIndex: 2
-      minValue: 4
-      maxValue: 8
+      minValue: 5
+      maxValue: 10
       minItemLevel: 20
       weight: 35
     - tierIndex: 3
-      minValue: 6
-      maxValue: 13
+      minValue: 5
+      maxValue: 10
       minItemLevel: 40
       weight: 20
     - tierIndex: 4
-      minValue: 10
-      maxValue: 21
+      minValue: 5
+      maxValue: 10
       minItemLevel: 60
       weight: 10
     - tierIndex: 5
-      minValue: 16
-      maxValue: 32
+      minValue: 5
+      maxValue: 10
       minItemLevel: 75
       weight: 5
     tierTopMultiplier: 6
@@ -142,7 +142,7 @@ MonoBehaviour:
     tierTopMultiplier: 5
     tierSpread: 0.35
   - statType: 4
-    displayName: Added Flat Physical Damage
+    displayName: Added Physical Damage
     allowedSlots: 07000000i
     groups: []
     tiers:
@@ -174,7 +174,7 @@ MonoBehaviour:
     tierTopMultiplier: 15
     tierSpread: 0.35
   - statType: 5
-    displayName: Added Flat Cold Damage
+    displayName: Added Cold Damage
     allowedSlots: 07000000i
     groups: []
     tiers:
@@ -206,7 +206,7 @@ MonoBehaviour:
     tierTopMultiplier: 15
     tierSpread: 0.35
   - statType: 6
-    displayName: Added Flat Lightning Damage
+    displayName: Added Lightning Damage
     allowedSlots: 07000000i
     groups: []
     tiers:
@@ -238,7 +238,7 @@ MonoBehaviour:
     tierTopMultiplier: 15
     tierSpread: 0.35
   - statType: 7
-    displayName: Added Flat Fire Damage
+    displayName: Added Fire Damage
     allowedSlots: 07000000i
     groups: []
     tiers:
@@ -307,28 +307,28 @@ MonoBehaviour:
     groups: []
     tiers:
     - tierIndex: 1
-      minValue: 3
-      maxValue: 7
+      minValue: 1
+      maxValue: 3
       minItemLevel: 1
       weight: 50
     - tierIndex: 2
-      minValue: 5
-      maxValue: 11
+      minValue: 2
+      maxValue: 4
       minItemLevel: 20
       weight: 35
     - tierIndex: 3
-      minValue: 8
-      maxValue: 17
+      minValue: 3
+      maxValue: 6
       minItemLevel: 40
       weight: 20
     - tierIndex: 4
-      minValue: 12
-      maxValue: 26
+      minValue: 5
+      maxValue: 10
       minItemLevel: 60
       weight: 10
     - tierIndex: 5
-      minValue: 20
-      maxValue: 40
+      minValue: 7
+      maxValue: 15
       minItemLevel: 75
       weight: 5
     tierTopMultiplier: 6
@@ -366,7 +366,7 @@ MonoBehaviour:
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 11
-    displayName: Critical Strike Chance
+    displayName: Increased Critical Strike Chance
     allowedSlots: 030000000000000004000000050000000100000007000000i
     groups: []
     tiers:
@@ -403,60 +403,60 @@ MonoBehaviour:
     groups: []
     tiers:
     - tierIndex: 1
-      minValue: 3
-      maxValue: 7
+      minValue: 8
+      maxValue: 18
       minItemLevel: 1
       weight: 50
     - tierIndex: 2
-      minValue: 5
-      maxValue: 11
+      minValue: 13
+      maxValue: 28
       minItemLevel: 20
       weight: 35
     - tierIndex: 3
-      minValue: 8
-      maxValue: 17
+      minValue: 20
+      maxValue: 43
       minItemLevel: 40
       weight: 20
     - tierIndex: 4
-      minValue: 12
-      maxValue: 26
+      minValue: 30
+      maxValue: 65
       minItemLevel: 60
       weight: 10
     - tierIndex: 5
-      minValue: 20
-      maxValue: 40
+      minValue: 50
+      maxValue: 100
       minItemLevel: 75
       weight: 5
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 13
-    displayName: Addeed Base Critical Strike Chance
+    displayName: Added Base Critical Chance
     allowedSlots: 030000000100000007000000i
     groups: []
     tiers:
     - tierIndex: 1
       minValue: 1
-      maxValue: 3
+      maxValue: 1
       minItemLevel: 1
       weight: 50
     - tierIndex: 2
-      minValue: 2
-      maxValue: 4
+      minValue: 1
+      maxValue: 2
       minItemLevel: 20
       weight: 35
     - tierIndex: 3
-      minValue: 2
-      maxValue: 5
+      minValue: 1
+      maxValue: 2
       minItemLevel: 40
       weight: 20
     - tierIndex: 4
-      minValue: 3
-      maxValue: 6
+      minValue: 2
+      maxValue: 3
       minItemLevel: 60
       weight: 10
     - tierIndex: 5
-      minValue: 4
-      maxValue: 8
+      minValue: 2
+      maxValue: 4
       minItemLevel: 75
       weight: 5
     tierTopMultiplier: 3
@@ -595,28 +595,28 @@ MonoBehaviour:
     groups: []
     tiers:
     - tierIndex: 1
-      minValue: 3
-      maxValue: 7
+      minValue: 2
+      maxValue: 4
       minItemLevel: 1
       weight: 50
     - tierIndex: 2
-      minValue: 5
-      maxValue: 11
+      minValue: 3
+      maxValue: 6
       minItemLevel: 20
       weight: 35
     - tierIndex: 3
-      minValue: 8
-      maxValue: 17
+      minValue: 4
+      maxValue: 9
       minItemLevel: 40
       weight: 20
     - tierIndex: 4
-      minValue: 12
-      maxValue: 26
+      minValue: 6
+      maxValue: 13
       minItemLevel: 60
       weight: 10
     - tierIndex: 5
-      minValue: 20
-      maxValue: 40
+      minValue: 10
+      maxValue: 20
       minItemLevel: 75
       weight: 5
     tierTopMultiplier: 6
@@ -627,28 +627,28 @@ MonoBehaviour:
     groups: []
     tiers:
     - tierIndex: 1
-      minValue: 3
-      maxValue: 7
+      minValue: 2
+      maxValue: 4
       minItemLevel: 1
       weight: 50
     - tierIndex: 2
-      minValue: 5
-      maxValue: 11
+      minValue: 3
+      maxValue: 6
       minItemLevel: 20
       weight: 35
     - tierIndex: 3
-      minValue: 8
-      maxValue: 17
+      minValue: 4
+      maxValue: 9
       minItemLevel: 40
       weight: 20
     - tierIndex: 4
-      minValue: 12
-      maxValue: 26
+      minValue: 6
+      maxValue: 13
       minItemLevel: 60
       weight: 10
     - tierIndex: 5
-      minValue: 20
-      maxValue: 40
+      minValue: 10
+      maxValue: 20
       minItemLevel: 75
       weight: 5
     tierTopMultiplier: 6
@@ -659,28 +659,28 @@ MonoBehaviour:
     groups: []
     tiers:
     - tierIndex: 1
-      minValue: 3
-      maxValue: 7
+      minValue: 2
+      maxValue: 4
       minItemLevel: 1
       weight: 50
     - tierIndex: 2
-      minValue: 5
-      maxValue: 11
+      minValue: 3
+      maxValue: 6
       minItemLevel: 20
       weight: 35
     - tierIndex: 3
-      minValue: 8
-      maxValue: 17
+      minValue: 4
+      maxValue: 9
       minItemLevel: 40
       weight: 20
     - tierIndex: 4
-      minValue: 12
-      maxValue: 26
+      minValue: 6
+      maxValue: 13
       minItemLevel: 60
       weight: 10
     - tierIndex: 5
-      minValue: 20
-      maxValue: 40
+      minValue: 10
+      maxValue: 20
       minItemLevel: 75
       weight: 5
     tierTopMultiplier: 6
@@ -691,28 +691,28 @@ MonoBehaviour:
     groups: []
     tiers:
     - tierIndex: 1
-      minValue: 3
-      maxValue: 7
+      minValue: 2
+      maxValue: 4
       minItemLevel: 1
       weight: 50
     - tierIndex: 2
-      minValue: 5
-      maxValue: 11
+      minValue: 3
+      maxValue: 6
       minItemLevel: 20
       weight: 35
     - tierIndex: 3
-      minValue: 8
-      maxValue: 17
+      minValue: 4
+      maxValue: 9
       minItemLevel: 40
       weight: 20
     - tierIndex: 4
-      minValue: 12
-      maxValue: 26
+      minValue: 6
+      maxValue: 13
       minItemLevel: 60
       weight: 10
     - tierIndex: 5
-      minValue: 20
-      maxValue: 40
+      minValue: 10
+      maxValue: 20
       minItemLevel: 75
       weight: 5
     tierTopMultiplier: 6
@@ -723,28 +723,28 @@ MonoBehaviour:
     groups: []
     tiers:
     - tierIndex: 1
-      minValue: 3
-      maxValue: 5
+      minValue: 2
+      maxValue: 4
       minItemLevel: 1
       weight: 50
     - tierIndex: 2
-      minValue: 4
-      maxValue: 8
+      minValue: 3
+      maxValue: 6
       minItemLevel: 20
       weight: 35
     - tierIndex: 3
-      minValue: 6
-      maxValue: 12
+      minValue: 5
+      maxValue: 9
       minItemLevel: 40
       weight: 20
     - tierIndex: 4
-      minValue: 9
-      maxValue: 18
+      minValue: 8
+      maxValue: 13
       minItemLevel: 60
       weight: 10
     - tierIndex: 5
-      minValue: 13
-      maxValue: 27
+      minValue: 12
+      maxValue: 19
       minItemLevel: 75
       weight: 5
     tierTopMultiplier: 5
@@ -755,60 +755,60 @@ MonoBehaviour:
     groups: []
     tiers:
     - tierIndex: 1
-      minValue: 3
-      maxValue: 5
+      minValue: 2
+      maxValue: 3
       minItemLevel: 1
       weight: 50
     - tierIndex: 2
-      minValue: 4
-      maxValue: 8
+      minValue: 3
+      maxValue: 5
       minItemLevel: 20
       weight: 35
     - tierIndex: 3
-      minValue: 6
-      maxValue: 12
+      minValue: 4
+      maxValue: 7
       minItemLevel: 40
       weight: 20
     - tierIndex: 4
-      minValue: 9
-      maxValue: 18
+      minValue: 6
+      maxValue: 10
       minItemLevel: 60
       weight: 10
     - tierIndex: 5
-      minValue: 13
-      maxValue: 27
+      minValue: 10
+      maxValue: 15
       minItemLevel: 75
       weight: 5
     tierTopMultiplier: 5
     tierSpread: 0.35
   - statType: 24
-    displayName: 
+    displayName: Lightning Penetration
     allowedSlots: 04000000050000000100000007000000i
     groups: []
     tiers:
     - tierIndex: 1
       minValue: 2
-      maxValue: 5
+      maxValue: 4
       minItemLevel: 1
       weight: 50
     - tierIndex: 2
-      minValue: 4
-      maxValue: 7
+      minValue: 3
+      maxValue: 6
       minItemLevel: 20
       weight: 35
     - tierIndex: 3
-      minValue: 6
-      maxValue: 12
+      minValue: 5
+      maxValue: 9
       minItemLevel: 40
       weight: 20
     - tierIndex: 4
-      minValue: 9
-      maxValue: 18
+      minValue: 8
+      maxValue: 13
       minItemLevel: 60
       weight: 10
     - tierIndex: 5
-      minValue: 14
-      maxValue: 28
+      minValue: 12
+      maxValue: 19
       minItemLevel: 75
       weight: 5
     tierTopMultiplier: 6
@@ -819,34 +819,34 @@ MonoBehaviour:
     groups: []
     tiers:
     - tierIndex: 1
-      minValue: 3
-      maxValue: 5
+      minValue: 2
+      maxValue: 4
       minItemLevel: 1
       weight: 50
     - tierIndex: 2
-      minValue: 4
-      maxValue: 8
+      minValue: 3
+      maxValue: 6
       minItemLevel: 20
       weight: 35
     - tierIndex: 3
-      minValue: 6
-      maxValue: 12
+      minValue: 5
+      maxValue: 9
       minItemLevel: 40
       weight: 20
     - tierIndex: 4
-      minValue: 9
-      maxValue: 18
+      minValue: 8
+      maxValue: 13
       minItemLevel: 60
       weight: 10
     - tierIndex: 5
-      minValue: 13
-      maxValue: 27
+      minValue: 12
+      maxValue: 19
       minItemLevel: 75
       weight: 5
     tierTopMultiplier: 5
     tierSpread: 0.35
   - statType: 26
-    displayName: Poison Damage
+    displayName: Increased Poison Damage
     allowedSlots: 03000000040000000100000007000000i
     groups: []
     tiers:
@@ -947,28 +947,28 @@ MonoBehaviour:
     groups: []
     tiers:
     - tierIndex: 1
-      minValue: 3
-      maxValue: 7
+      minValue: 2
+      maxValue: 4
       minItemLevel: 1
       weight: 50
     - tierIndex: 2
-      minValue: 5
-      maxValue: 11
+      minValue: 3
+      maxValue: 6
       minItemLevel: 20
       weight: 35
     - tierIndex: 3
-      minValue: 8
-      maxValue: 17
+      minValue: 4
+      maxValue: 9
       minItemLevel: 40
       weight: 20
     - tierIndex: 4
-      minValue: 12
-      maxValue: 26
+      minValue: 6
+      maxValue: 13
       minItemLevel: 60
       weight: 10
     - tierIndex: 5
-      minValue: 20
-      maxValue: 40
+      minValue: 10
+      maxValue: 20
       minItemLevel: 75
       weight: 5
     tierTopMultiplier: 6
@@ -979,28 +979,28 @@ MonoBehaviour:
     groups: []
     tiers:
     - tierIndex: 1
-      minValue: 3
-      maxValue: 7
+      minValue: 2
+      maxValue: 4
       minItemLevel: 1
       weight: 50
     - tierIndex: 2
-      minValue: 5
-      maxValue: 11
+      minValue: 3
+      maxValue: 6
       minItemLevel: 20
       weight: 35
     - tierIndex: 3
-      minValue: 8
-      maxValue: 17
+      minValue: 4
+      maxValue: 9
       minItemLevel: 40
       weight: 20
     - tierIndex: 4
-      minValue: 12
-      maxValue: 26
+      minValue: 6
+      maxValue: 13
       minItemLevel: 60
       weight: 10
     - tierIndex: 5
-      minValue: 20
-      maxValue: 40
+      minValue: 10
+      maxValue: 20
       minItemLevel: 75
       weight: 5
     tierTopMultiplier: 6
@@ -1011,28 +1011,28 @@ MonoBehaviour:
     groups: []
     tiers:
     - tierIndex: 1
-      minValue: 3
-      maxValue: 7
+      minValue: 2
+      maxValue: 4
       minItemLevel: 1
       weight: 50
     - tierIndex: 2
-      minValue: 5
-      maxValue: 11
+      minValue: 3
+      maxValue: 6
       minItemLevel: 20
       weight: 35
     - tierIndex: 3
-      minValue: 8
-      maxValue: 17
+      minValue: 4
+      maxValue: 9
       minItemLevel: 40
       weight: 20
     - tierIndex: 4
-      minValue: 12
-      maxValue: 26
+      minValue: 6
+      maxValue: 13
       minItemLevel: 60
       weight: 10
     - tierIndex: 5
-      minValue: 20
-      maxValue: 40
+      minValue: 10
+      maxValue: 20
       minItemLevel: 75
       weight: 5
     tierTopMultiplier: 6
@@ -1241,22 +1241,22 @@ MonoBehaviour:
       weight: 50
     - tierIndex: 2
       minValue: 1
-      maxValue: 2
+      maxValue: 1
       minItemLevel: 20
       weight: 35
     - tierIndex: 3
       minValue: 1
-      maxValue: 3
+      maxValue: 1
       minItemLevel: 40
       weight: 20
     - tierIndex: 4
-      minValue: 2
-      maxValue: 5
+      minValue: 1
+      maxValue: 2
       minItemLevel: 60
       weight: 10
     - tierIndex: 5
-      minValue: 3
-      maxValue: 7
+      minValue: 1
+      maxValue: 2
       minItemLevel: 75
       weight: 5
     tierTopMultiplier: 5
@@ -1273,22 +1273,22 @@ MonoBehaviour:
       weight: 50
     - tierIndex: 2
       minValue: 1
-      maxValue: 2
+      maxValue: 1
       minItemLevel: 20
       weight: 35
     - tierIndex: 3
       minValue: 1
-      maxValue: 3
+      maxValue: 1
       minItemLevel: 40
       weight: 20
     - tierIndex: 4
-      minValue: 2
-      maxValue: 5
+      minValue: 1
+      maxValue: 2
       minItemLevel: 60
       weight: 10
     - tierIndex: 5
-      minValue: 3
-      maxValue: 7
+      minValue: 1
+      maxValue: 2
       minItemLevel: 75
       weight: 5
     tierTopMultiplier: 5
@@ -1305,22 +1305,22 @@ MonoBehaviour:
       weight: 50
     - tierIndex: 2
       minValue: 1
-      maxValue: 2
+      maxValue: 1
       minItemLevel: 20
       weight: 35
     - tierIndex: 3
       minValue: 1
-      maxValue: 3
+      maxValue: 1
       minItemLevel: 40
       weight: 20
     - tierIndex: 4
-      minValue: 2
-      maxValue: 5
+      minValue: 1
+      maxValue: 2
       minItemLevel: 60
       weight: 10
     - tierIndex: 5
-      minValue: 3
-      maxValue: 7
+      minValue: 1
+      maxValue: 2
       minItemLevel: 75
       weight: 5
     tierTopMultiplier: 5
@@ -1331,28 +1331,28 @@ MonoBehaviour:
     groups: []
     tiers:
     - tierIndex: 1
-      minValue: 3
-      maxValue: 7
+      minValue: 2
+      maxValue: 4
       minItemLevel: 1
       weight: 50
     - tierIndex: 2
-      minValue: 5
-      maxValue: 10
+      minValue: 3
+      maxValue: 6
       minItemLevel: 20
       weight: 35
     - tierIndex: 3
-      minValue: 6
-      maxValue: 13
+      minValue: 5
+      maxValue: 9
       minItemLevel: 40
       weight: 20
     - tierIndex: 4
-      minValue: 9
-      maxValue: 19
+      minValue: 8
+      maxValue: 13
       minItemLevel: 60
       weight: 10
     - tierIndex: 5
-      minValue: 13
-      maxValue: 27
+      minValue: 12
+      maxValue: 19
       minItemLevel: 75
       weight: 5
     tierTopMultiplier: 4
@@ -1364,27 +1364,27 @@ MonoBehaviour:
     tiers:
     - tierIndex: 1
       minValue: 3
-      maxValue: 7
+      maxValue: 5
       minItemLevel: 1
       weight: 50
     - tierIndex: 2
-      minValue: 5
-      maxValue: 10
+      minValue: 4
+      maxValue: 8
       minItemLevel: 20
       weight: 35
     - tierIndex: 3
-      minValue: 6
-      maxValue: 13
+      minValue: 7
+      maxValue: 12
       minItemLevel: 40
       weight: 20
     - tierIndex: 4
-      minValue: 9
-      maxValue: 19
+      minValue: 10
+      maxValue: 17
       minItemLevel: 60
       weight: 10
     - tierIndex: 5
-      minValue: 13
-      maxValue: 27
+      minValue: 16
+      maxValue: 25
       minItemLevel: 75
       weight: 5
     tierTopMultiplier: 4
@@ -1395,35 +1395,35 @@ MonoBehaviour:
     groups: []
     tiers:
     - tierIndex: 1
-      minValue: 3
-      maxValue: 7
+      minValue: 2
+      maxValue: 4
       minItemLevel: 1
       weight: 50
     - tierIndex: 2
-      minValue: 5
-      maxValue: 10
+      minValue: 3
+      maxValue: 6
       minItemLevel: 20
       weight: 35
     - tierIndex: 3
-      minValue: 6
-      maxValue: 13
+      minValue: 5
+      maxValue: 9
       minItemLevel: 40
       weight: 20
     - tierIndex: 4
-      minValue: 9
-      maxValue: 19
+      minValue: 8
+      maxValue: 13
       minItemLevel: 60
       weight: 10
     - tierIndex: 5
-      minValue: 13
-      maxValue: 27
+      minValue: 12
+      maxValue: 19
       minItemLevel: 75
       weight: 5
     tierTopMultiplier: 4
     tierSpread: 0.35
   - statType: 44
-    displayName: Chance To Shock
-    allowedSlots: 0400000005000000i
+    displayName: Chance to Shock
+    allowedSlots: 040000000500000007000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -1454,8 +1454,8 @@ MonoBehaviour:
     tierTopMultiplier: 4
     tierSpread: 0.35
   - statType: 45
-    displayName: Chance To Chill
-    allowedSlots: 0400000005000000i
+    displayName: Chance to Chill
+    allowedSlots: 040000000500000007000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -1487,7 +1487,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 46
     displayName: Shock Effect
-    allowedSlots: 0400000005000000i
+    allowedSlots: 040000000500000007000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -1519,7 +1519,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 47
     displayName: Chill Effect
-    allowedSlots: 0400000005000000i
+    allowedSlots: 040000000500000007000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -1551,7 +1551,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 48
     displayName: Shock Duration
-    allowedSlots: 0400000005000000i
+    allowedSlots: 040000000500000007000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -1561,29 +1561,29 @@ MonoBehaviour:
       weight: 50
     - tierIndex: 2
       minValue: 1
-      maxValue: 2
+      maxValue: 1
       minItemLevel: 20
       weight: 35
     - tierIndex: 3
       minValue: 1
-      maxValue: 3
+      maxValue: 1
       minItemLevel: 40
       weight: 20
     - tierIndex: 4
-      minValue: 2
-      maxValue: 4
+      minValue: 1
+      maxValue: 2
       minItemLevel: 60
       weight: 10
     - tierIndex: 5
-      minValue: 3
-      maxValue: 5
+      minValue: 1
+      maxValue: 2
       minItemLevel: 75
       weight: 5
     tierTopMultiplier: 4
     tierSpread: 0.35
   - statType: 49
     displayName: Chill Duration
-    allowedSlots: 0400000005000000i
+    allowedSlots: 040000000500000007000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -1593,22 +1593,22 @@ MonoBehaviour:
       weight: 50
     - tierIndex: 2
       minValue: 1
-      maxValue: 2
+      maxValue: 1
       minItemLevel: 20
       weight: 35
     - tierIndex: 3
       minValue: 1
-      maxValue: 3
+      maxValue: 1
       minItemLevel: 40
       weight: 20
     - tierIndex: 4
-      minValue: 2
-      maxValue: 4
+      minValue: 1
+      maxValue: 2
       minItemLevel: 60
       weight: 10
     - tierIndex: 5
-      minValue: 3
-      maxValue: 5
+      minValue: 1
+      maxValue: 2
       minItemLevel: 75
       weight: 5
     tierTopMultiplier: 4
@@ -1838,7 +1838,7 @@ MonoBehaviour:
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 57
-    displayName: All Resistance
+    displayName: All Elemental Resistance
     allowedSlots: 00000000020000000500000006000000i
     groups: []
     tiers:
@@ -1870,7 +1870,7 @@ MonoBehaviour:
     tierTopMultiplier: 4
     tierSpread: 0.35
   - statType: 58
-    displayName: Max Cold Resistance
+    displayName: Maximum Cold Resistance
     allowedSlots: 0000000002000000i
     groups: []
     tiers:
@@ -1902,7 +1902,7 @@ MonoBehaviour:
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 59
-    displayName: Max Lightning Resistance
+    displayName: Maximum Lightning Resistance
     allowedSlots: 0000000002000000i
     groups: []
     tiers:
@@ -1934,7 +1934,7 @@ MonoBehaviour:
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 60
-    displayName: Max Fire Resistance
+    displayName: Maximum Fire Resistance
     allowedSlots: 0000000002000000i
     groups: []
     tiers:
@@ -1966,7 +1966,7 @@ MonoBehaviour:
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 61
-    displayName: Max All Resistance
+    displayName: Maximum All Resistance
     allowedSlots: 0200000006000000i
     groups: []
     tiers:
@@ -2257,56 +2257,256 @@ MonoBehaviour:
     displayName: Increased Life
     allowedSlots: 02000000i
     groups: []
-    tiers: []
+    tiers:
+    - tierIndex: 1
+      minValue: 3
+      maxValue: 7
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 5
+      maxValue: 11
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 8
+      maxValue: 17
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 12
+      maxValue: 26
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 20
+      maxValue: 40
+      minItemLevel: 75
+      weight: 5
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 71
-    displayName: 
+    displayName: Increased Mana
     allowedSlots: 0200000004000000i
     groups: []
-    tiers: []
+    tiers:
+    - tierIndex: 1
+      minValue: 4
+      maxValue: 8
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 6
+      maxValue: 13
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 9
+      maxValue: 19
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 14
+      maxValue: 29
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 21
+      maxValue: 44
+      minItemLevel: 75
+      weight: 5
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 72
-    displayName: 
+    displayName: Life Regeneration
     allowedSlots: 0000000002000000i
     groups: []
-    tiers: []
+    tiers:
+    - tierIndex: 1
+      minValue: 2
+      maxValue: 4
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 3
+      maxValue: 7
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 5
+      maxValue: 10
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 8
+      maxValue: 16
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 12
+      maxValue: 25
+      minItemLevel: 75
+      weight: 5
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 73
-    displayName: 
+    displayName: Mana Regeneration
     allowedSlots: 000000000200000004000000i
     groups: []
-    tiers: []
+    tiers:
+    - tierIndex: 1
+      minValue: 2
+      maxValue: 4
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 3
+      maxValue: 7
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 5
+      maxValue: 10
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 8
+      maxValue: 16
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 12
+      maxValue: 25
+      minItemLevel: 75
+      weight: 5
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 74
-    displayName: 
+    displayName: Life on Hit
     allowedSlots: 02000000i
     groups: []
-    tiers: []
+    tiers:
+    - tierIndex: 1
+      minValue: 8
+      maxValue: 17
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 13
+      maxValue: 26
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 20
+      maxValue: 41
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 31
+      maxValue: 64
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 48
+      maxValue: 100
+      minItemLevel: 75
+      weight: 5
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 75
-    displayName: 
+    displayName: Mana on Hit
     allowedSlots: 0200000004000000i
     groups: []
-    tiers: []
+    tiers:
+    - tierIndex: 1
+      minValue: 4
+      maxValue: 8
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 6
+      maxValue: 13
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 10
+      maxValue: 21
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 16
+      maxValue: 32
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 24
+      maxValue: 50
+      minItemLevel: 75
+      weight: 5
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 76
-    displayName: 
+    displayName: Life on Kill
     allowedSlots: 02000000i
     groups: []
-    tiers: []
+    tiers:
+    - tierIndex: 1
+      minValue: 15
+      maxValue: 31
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 24
+      maxValue: 49
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 38
+      maxValue: 79
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 59
+      maxValue: 123
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 93
+      maxValue: 193
+      minItemLevel: 75
+      weight: 5
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 77
-    displayName: 
+    displayName: Mana on Kill
     allowedSlots: 0200000004000000i
     groups: []
-    tiers: []
+    tiers:
+    - tierIndex: 1
+      minValue: 7
+      maxValue: 15
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 12
+      maxValue: 24
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 19
+      maxValue: 39
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 29
+      maxValue: 61
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 46
+      maxValue: 95
+      minItemLevel: 75
+      weight: 5
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 78
@@ -2331,24 +2531,99 @@ MonoBehaviour:
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 81
-    displayName: 
+    displayName: Increased Attack Speed
     allowedSlots: 03000000050000000100000007000000i
     groups: []
-    tiers: []
+    tiers:
+    - tierIndex: 1
+      minValue: 2
+      maxValue: 5
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 4
+      maxValue: 8
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 6
+      maxValue: 12
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 9
+      maxValue: 18
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 13
+      maxValue: 27
+      minItemLevel: 75
+      weight: 5
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 82
-    displayName: 
+    displayName: Accuracy
     allowedSlots: 030000000500000001000000i
     groups: []
-    tiers: []
+    tiers:
+    - tierIndex: 1
+      minValue: 7
+      maxValue: 14
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 11
+      maxValue: 24
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 19
+      maxValue: 40
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 32
+      maxValue: 67
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 55
+      maxValue: 113
+      minItemLevel: 75
+      weight: 5
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 83
-    displayName: 
+    displayName: Chance to Hit Twice
     allowedSlots: 010000000600000007000000i
     groups: []
-    tiers: []
+    tiers:
+    - tierIndex: 1
+      minValue: 1
+      maxValue: 2
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 2
+      maxValue: 4
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 3
+      maxValue: 6
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 5
+      maxValue: 9
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 7
+      maxValue: 13
+      minItemLevel: 75
+      weight: 5
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 84
@@ -2408,118 +2683,553 @@ MonoBehaviour:
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 92
-    displayName: 
+    displayName: Strength
     allowedSlots: 03000000000000000200000004000000050000000100000006000000i
     groups: []
-    tiers: []
+    tiers:
+    - tierIndex: 1
+      minValue: 3
+      maxValue: 6
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 6
+      maxValue: 12
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 11
+      maxValue: 22
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 20
+      maxValue: 40
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 36
+      maxValue: 72
+      minItemLevel: 75
+      weight: 5
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 93
-    displayName: 
+    displayName: Intelligence
     allowedSlots: 03000000000000000200000004000000050000000100000006000000i
     groups: []
-    tiers: []
+    tiers:
+    - tierIndex: 1
+      minValue: 3
+      maxValue: 6
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 6
+      maxValue: 12
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 11
+      maxValue: 22
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 20
+      maxValue: 40
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 36
+      maxValue: 72
+      minItemLevel: 75
+      weight: 5
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 94
-    displayName: 
+    displayName: Dexterity
     allowedSlots: 03000000000000000200000004000000050000000100000006000000i
     groups: []
-    tiers: []
+    tiers:
+    - tierIndex: 1
+      minValue: 3
+      maxValue: 6
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 6
+      maxValue: 12
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 11
+      maxValue: 22
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 20
+      maxValue: 40
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 36
+      maxValue: 72
+      minItemLevel: 75
+      weight: 5
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 95
-    displayName: 
+    displayName: Increased Strength
     allowedSlots: 000000000200000006000000i
     groups: []
-    tiers: []
+    tiers:
+    - tierIndex: 1
+      minValue: 2
+      maxValue: 4
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 3
+      maxValue: 6
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 5
+      maxValue: 9
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 7
+      maxValue: 13
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 10
+      maxValue: 19
+      minItemLevel: 75
+      weight: 5
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 96
-    displayName: 
+    displayName: Increased Intelligence
     allowedSlots: 020000000400000006000000i
     groups: []
-    tiers: []
+    tiers:
+    - tierIndex: 1
+      minValue: 2
+      maxValue: 4
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 3
+      maxValue: 6
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 5
+      maxValue: 9
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 7
+      maxValue: 13
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 10
+      maxValue: 19
+      minItemLevel: 75
+      weight: 5
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 97
-    displayName: 
+    displayName: Increased Dexterity
     allowedSlots: 030000000200000006000000i
     groups: []
-    tiers: []
+    tiers:
+    - tierIndex: 1
+      minValue: 2
+      maxValue: 4
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 3
+      maxValue: 6
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 5
+      maxValue: 9
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 7
+      maxValue: 13
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 10
+      maxValue: 19
+      minItemLevel: 75
+      weight: 5
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 98
-    displayName: 
+    displayName: Life per Strength
     allowedSlots: 000000000200000006000000i
     groups: []
-    tiers: []
+    tiers:
+    - tierIndex: 1
+      minValue: 1
+      maxValue: 2
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 2
+      maxValue: 3
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 3
+      maxValue: 5
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 4
+      maxValue: 7
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 6
+      maxValue: 10
+      minItemLevel: 75
+      weight: 5
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 99
-    displayName: 
+    displayName: Damage per Strength
     allowedSlots: 000000000200000006000000i
     groups: []
-    tiers: []
+    tiers:
+    - tierIndex: 1
+      minValue: 0.1
+      maxValue: 0.2
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 0.15
+      maxValue: 0.3
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 0.25
+      maxValue: 0.45
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 0.35
+      maxValue: 0.65
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 0.5
+      maxValue: 0.9
+      minItemLevel: 75
+      weight: 5
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 100
-    displayName: 
+    displayName: Mana per Intelligence
     allowedSlots: 020000000400000006000000i
     groups: []
-    tiers: []
+    tiers:
+    - tierIndex: 1
+      minValue: 1
+      maxValue: 2
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 2
+      maxValue: 3
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 3
+      maxValue: 5
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 4
+      maxValue: 7
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 6
+      maxValue: 10
+      minItemLevel: 75
+      weight: 5
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 101
-    displayName: 
+    displayName: DoT Multiplier per Intelligence
     allowedSlots: 020000000400000006000000i
     groups: []
-    tiers: []
+    tiers:
+    - tierIndex: 1
+      minValue: 0.05
+      maxValue: 0.1
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 0.08
+      maxValue: 0.15
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 0.12
+      maxValue: 0.22
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 0.18
+      maxValue: 0.32
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 0.25
+      maxValue: 0.45
+      minItemLevel: 75
+      weight: 5
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 102
-    displayName: 
+    displayName: Attack Speed per Dexterity
     allowedSlots: 030000000200000006000000i
     groups: []
-    tiers: []
+    tiers:
+    - tierIndex: 1
+      minValue: 0.03
+      maxValue: 0.06
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 0.05
+      maxValue: 0.09
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 0.07
+      maxValue: 0.13
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 0.1
+      maxValue: 0.18
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 0.15
+      maxValue: 0.25
+      minItemLevel: 75
+      weight: 5
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 103
-    displayName: 
+    displayName: Accuracy per Dexterity
     allowedSlots: 030000000200000006000000i
     groups: []
-    tiers: []
+    tiers:
+    - tierIndex: 1
+      minValue: 0.25
+      maxValue: 0.5
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 0.4
+      maxValue: 0.8
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 0.6
+      maxValue: 1.2
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 0.9
+      maxValue: 1.8
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 1.3
+      maxValue: 2.7
+      minItemLevel: 75
+      weight: 5
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 104
-    displayName: 
+    displayName: Added Fire Damage per Strength
     allowedSlots: 06000000i
     groups: []
-    tiers: []
+    tiers:
+    - tierIndex: 1
+      minValue: 0.05
+      maxValue: 0.1
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 0.08
+      maxValue: 0.16
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 0.13
+      maxValue: 0.25
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 0.2
+      maxValue: 0.4
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 0.3
+      maxValue: 0.6
+      minItemLevel: 75
+      weight: 5
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 105
-    displayName: 
+    displayName: Added Lightning Damage per Intelligence
     allowedSlots: 06000000i
     groups: []
-    tiers: []
+    tiers:
+    - tierIndex: 1
+      minValue: 0.05
+      maxValue: 0.1
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 0.08
+      maxValue: 0.16
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 0.13
+      maxValue: 0.25
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 0.2
+      maxValue: 0.4
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 0.3
+      maxValue: 0.6
+      minItemLevel: 75
+      weight: 5
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 106
-    displayName: 
+    displayName: Added Cold Damage per Dexterity
     allowedSlots: 06000000i
     groups: []
-    tiers: []
+    tiers:
+    - tierIndex: 1
+      minValue: 0.05
+      maxValue: 0.1
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 0.08
+      maxValue: 0.16
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 0.13
+      maxValue: 0.25
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 0.2
+      maxValue: 0.4
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 0.3
+      maxValue: 0.6
+      minItemLevel: 75
+      weight: 5
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 107
-    displayName: 
+    displayName: Damage per Lowest Attribute
     allowedSlots: 06000000i
+    groups: []
+    tiers:
+    - tierIndex: 1
+      minValue: 0.05
+      maxValue: 0.1
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 0.08
+      maxValue: 0.16
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 0.13
+      maxValue: 0.25
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 0.2
+      maxValue: 0.4
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 0.3
+      maxValue: 0.6
+      minItemLevel: 75
+      weight: 5
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 108
+    displayName: 
+    allowedSlots: 
     groups: []
     tiers: []
     tierTopMultiplier: 6
     tierSpread: 0.35
-  - statType: 108
+  - statType: 109
+    displayName: 
+    allowedSlots: 
+    groups: []
+    tiers: []
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 110
+    displayName: 
+    allowedSlots: 
+    groups: []
+    tiers: []
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 111
+    displayName: 
+    allowedSlots: 
+    groups: []
+    tiers: []
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 112
+    displayName: 
+    allowedSlots: 
+    groups: []
+    tiers: []
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 113
     displayName: 
     allowedSlots: 
     groups: []

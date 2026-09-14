@@ -1,0 +1,90 @@
+TOOLTIP-CRIT regression rerun 2026-09-07T02:13:50
+PASS: Phys increased25+25 / more20+30 damage=225
+PASS: Phys increased25+25 / more20+30 real attack matches
+PASS: Phys increased25+25 / more20+30 neutral combat damage matches
+PASS: Phys increased25+25 / more20+30 immediate displayed typed damage sum
+PASS: Fire increased25+25 / more20+30 damage=225
+PASS: Fire increased25+25 / more20+30 real attack matches
+PASS: Fire increased25+25 / more20+30 neutral combat damage matches
+PASS: Fire increased25+25 / more20+30 immediate displayed typed damage sum
+PASS: Cold increased25+25 / more20+30 damage=225
+PASS: Cold increased25+25 / more20+30 real attack matches
+PASS: Cold increased25+25 / more20+30 neutral combat damage matches
+PASS: Cold increased25+25 / more20+30 immediate displayed typed damage sum
+PASS: Light increased25+25 / more20+30 damage=225
+PASS: Light increased25+25 / more20+30 real attack matches
+PASS: Light increased25+25 / more20+30 neutral combat damage matches
+PASS: Light increased25+25 / more20+30 immediate displayed typed damage sum
+PASS: Poison increased25+25 / more20+30 damage=225
+PASS: Poison increased25+25 / more20+30 real attack matches
+PASS: Poison increased25+25 / more20+30 neutral combat damage matches
+PASS: Poison increased25+25 / more20+30 immediate displayed typed damage sum
+PASS: Void increased25+25 / more20+30 damage=225
+PASS: Void increased25+25 / more20+30 real attack matches
+PASS: Void increased25+25 / more20+30 neutral combat damage matches
+PASS: Void increased25+25 / more20+30 immediate displayed typed damage sum
+PASS: Bleed eligible scaled source scenario0
+PASS: Bleed baseline tick=25 ticks=2 total=50
+PASS: Bleed actual scheduled health loss scenario0
+PASS: Bleed expires without lingering status scenario0
+PASS: Bleed eligible scaled source scenario1
+PASS: Bleed hit scaling only tick=45 ticks=2 total=90
+PASS: Bleed actual scheduled health loss scenario1
+PASS: Bleed expires without lingering status scenario1
+PASS: Bleed eligible scaled source scenario2
+PASS: Bleed ailment scaling only tick=56.25 ticks=2 total=112.5
+PASS: Bleed actual scheduled health loss scenario2
+PASS: Bleed expires without lingering status scenario2
+PASS: Bleed eligible scaled source scenario3
+PASS: Bleed layered hit and ailment scaling tick=101.25 ticks=2 total=202.5
+PASS: Bleed actual scheduled health loss scenario3
+PASS: Bleed expires without lingering status scenario3
+PASS: Bleed eligible scaled source scenario4
+PASS: Bleed duration +2 preserves tick tick=101.25 ticks=4 total=405
+PASS: Bleed actual scheduled health loss scenario4
+PASS: Bleed expires without lingering status scenario4
+PASS: Poison eligible scaled source scenario0
+PASS: Poison baseline tick=7.5 ticks=2 total=15
+PASS: Poison actual scheduled health loss scenario0
+PASS: Poison expires without lingering status scenario0
+PASS: Poison eligible scaled source scenario1
+PASS: Poison hit scaling only tick=13.5 ticks=2 total=27
+PASS: Poison actual scheduled health loss scenario1
+PASS: Poison expires without lingering status scenario1
+PASS: Poison eligible scaled source scenario2
+PASS: Poison ailment scaling only tick=16.875 ticks=2 total=33.75
+PASS: Poison actual scheduled health loss scenario2
+PASS: Poison expires without lingering status scenario2
+PASS: Poison eligible scaled source scenario3
+PASS: Poison layered hit and ailment scaling tick=30.375 ticks=2 total=60.75
+PASS: Poison actual scheduled health loss scenario3
+PASS: Poison expires without lingering status scenario3
+PASS: Poison eligible scaled source scenario4
+PASS: Poison duration +2 preserves tick tick=30.375 ticks=4 total=121.5
+PASS: Poison actual scheduled health loss scenario4
+PASS: Poison expires without lingering status scenario4
+PASS: Ignite eligible scaled source scenario0
+PASS: Ignite baseline tick=40 ticks=2 total=80
+PASS: Ignite actual scheduled health loss scenario0
+PASS: Ignite expires without lingering status scenario0
+PASS: Ignite eligible scaled source scenario1
+PASS: Ignite hit scaling only tick=72 ticks=2 total=144
+PASS: Ignite actual scheduled health loss scenario1
+PASS: Ignite expires without lingering status scenario1
+PASS: Ignite eligible scaled source scenario2
+PASS: Ignite ailment scaling only tick=90 ticks=2 total=180
+PASS: Ignite actual scheduled health loss scenario2
+PASS: Ignite expires without lingering status scenario2
+PASS: Ignite eligible scaled source scenario3
+PASS: Ignite layered hit and ailment scaling tick=162 ticks=2 total=324
+PASS: Ignite actual scheduled health loss scenario3
+PASS: Ignite expires without lingering status scenario3
+PASS: Ignite eligible scaled source scenario4
+PASS: Ignite duration +2 preserves tick tick=162 ticks=4 total=648
+PASS: Ignite actual scheduled health loss scenario4
+PASS: Ignite expires without lingering status scenario4
+PASS: Damage fixtures restored damage=100
+PASS: Damage fixtures restored real attack matches
+PASS: Damage fixtures restored neutral combat damage matches
+PASS: Damage fixtures restored immediate displayed typed damage sum
+

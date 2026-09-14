@@ -1,3 +1,5 @@
+// Developer map: Serialized affix tiers, item-level gates and exclusion groups used by ModDatabase and ModManager. Tier generation needs a seeded first tier; tier indices are one-based.
+// See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using UnityEngine;
 using System;
 using System.Collections.Generic;

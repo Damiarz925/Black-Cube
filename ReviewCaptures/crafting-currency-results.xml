@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="7" result="Passed" total="7" passed="7" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-09-11 23:45:00Z" end-time="2026-09-11 23:45:00Z" duration="0.4156291">
+  <test-suite type="TestSuite" id="1000" name="Black Cube Idle" fullname="Black Cube Idle" runstate="Runnable" testcasecount="99" result="Passed" start-time="2026-09-11 23:45:00Z" end-time="2026-09-11 23:45:00Z" duration="0.415629" total="7" passed="7" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties>
+      <property name="platform" value="EditMode" />
+    </properties>
+    <test-suite type="Assembly" id="1111" name="Assembly-CSharp-Editor.dll" fullname="D:/Unity/Projects/Black-Cube/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" runstate="Runnable" testcasecount="99" result="Passed" start-time="2026-09-11 23:45:00Z" end-time="2026-09-11 23:45:00Z" duration="0.398887" total="7" passed="7" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="65064" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+        <property name="EditorOnly" value="True" />
+      </properties>
+      <test-suite type="TestFixture" id="1009" name="CraftingCurrencyInteractionTests" fullname="CraftingCurrencyInteractionTests" classname="CraftingCurrencyInteractionTests" runstate="Runnable" testcasecount="7" result="Passed" start-time="2026-09-11 23:45:00Z" end-time="2026-09-11 23:45:00Z" duration="0.394823" total="7" passed="7" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="1014" name="ClickAway_CancelsCursorAndSourceSelection" fullname="CraftingCurrencyInteractionTests.ClickAway_CancelsCursorAndSourceSelection" methodname="ClickAway_CancelsCursorAndSourceSelection" classname="CraftingCurrencyInteractionTests" runstate="Runnable" seed="250138933" result="Passed" start-time="2026-09-11 23:45:00Z" end-time="2026-09-11 23:45:00Z" duration="0.141268" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1015" name="InvalidGear_CancelsWithoutConsumptionOrMutation" fullname="CraftingCurrencyInteractionTests.InvalidGear_CancelsWithoutConsumptionOrMutation" methodname="InvalidGear_CancelsWithoutConsumptionOrMutation" classname="CraftingCurrencyInteractionTests" runstate="Runnable" seed="649156163" result="Passed" start-time="2026-09-11 23:45:00Z" end-time="2026-09-11 23:45:00Z" duration="0.031847" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1016" name="PanelDisable_ClearsHeldCurrencyState" fullname="CraftingCurrencyInteractionTests.PanelDisable_ClearsHeldCurrencyState" methodname="PanelDisable_ClearsHeldCurrencyState" classname="CraftingCurrencyInteractionTests" runstate="Runnable" seed="60767253" result="Passed" start-time="2026-09-11 23:45:00Z" end-time="2026-09-11 23:45:00Z" duration="0.035848" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1010" name="Selection_ShowsYellowSourceOverlayAndRaycastTransparentCursorIcon" fullname="CraftingCurrencyInteractionTests.Selection_ShowsYellowSourceOverlayAndRaycastTransparentCursorIcon" methodname="Selection_ShowsYellowSourceOverlayAndRaycastTransparentCursorIcon" classname="CraftingCurrencyInteractionTests" runstate="Runnable" seed="1808745247" result="Passed" start-time="2026-09-11 23:45:00Z" end-time="2026-09-11 23:45:00Z" duration="0.011075" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1011" name="SuccessfulDefaultUse_SpendsOnceAndClearsSelection" fullname="CraftingCurrencyInteractionTests.SuccessfulDefaultUse_SpendsOnceAndClearsSelection" methodname="SuccessfulDefaultUse_SpendsOnceAndClearsSelection" classname="CraftingCurrencyInteractionTests" runstate="Runnable" seed="1490685902" result="Passed" start-time="2026-09-11 23:45:00Z" end-time="2026-09-11 23:45:00Z" duration="0.149567" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1013" name="SuccessfulShiftUse_ClearsSelectionWhenLastUnitIsSpent" fullname="CraftingCurrencyInteractionTests.SuccessfulShiftUse_ClearsSelectionWhenLastUnitIsSpent" methodname="SuccessfulShiftUse_ClearsSelectionWhenLastUnitIsSpent" classname="CraftingCurrencyInteractionTests" runstate="Runnable" seed="579202787" result="Passed" start-time="2026-09-11 23:45:00Z" end-time="2026-09-11 23:45:00Z" duration="0.001210" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1012" name="SuccessfulShiftUse_RetainsSelectionWhileSupplyRemains" fullname="CraftingCurrencyInteractionTests.SuccessfulShiftUse_RetainsSelectionWhileSupplyRemains" methodname="SuccessfulShiftUse_RetainsSelectionWhileSupplyRemains" classname="CraftingCurrencyInteractionTests" runstate="Runnable" seed="1555514859" result="Passed" start-time="2026-09-11 23:45:00Z" end-time="2026-09-11 23:45:00Z" duration="0.000799" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+          <output><![CDATA[Saving results to: C:/Users/david/AppData/LocalLow/DefaultCompany/Black Cube Idle\TestResults.xml
+]]></output>
+        </test-case>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

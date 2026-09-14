@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3ef6bfcb4bc9583dbed0fd2bd7e2d0d6, type: 3}
+  m_Name: Goblin Animation
+  m_EditorClassIdentifier: Assembly-CSharp::PaperEnemyAnimationSet
+  displayName: Goblin
+  idleFrames:
+  - {fileID: 21300000, guid: be865d5c5aff5c99a6dce2e7cdf82a18, type: 3}
+  idleFramesPerSecond: 2
+  attackFrames:
+  - {fileID: 21300000, guid: 5874b7efd61258559431d2f1cb9c7816, type: 3}
+  - {fileID: 21300000, guid: 1869203041a154b298da9eabfb4bfd4e, type: 3}
+  - {fileID: 21300000, guid: 2b00aab89e3c500e9fdd3d89f28c2f87, type: 3}
+  - {fileID: 21300000, guid: 5900e4b135af55df87341482cfb52316, type: 3}
+  - {fileID: 21300000, guid: 7fa7b064c8be5c9ebbdab6372c92b737, type: 3}
+  - {fileID: 21300000, guid: 011fa9220c755f139e7b18b88ebe27d8, type: 3}
+  - {fileID: 21300000, guid: ceac0e88e0ab5f1cb157f4bd3a7e70f5, type: 3}
+  - {fileID: 21300000, guid: d18ca1c640965980b1c1a372ab873547, type: 3}
+  hitFrames:
+  - {fileID: 21300000, guid: d5bf829baa585eccb80f7ce201cc05ab, type: 3}
+  - {fileID: 21300000, guid: 3b940f67289d58aa8ba571411cb3cb09, type: 3}
+  - {fileID: 21300000, guid: c11c971264035e2f9129d566342a8bcc, type: 3}
+  - {fileID: 21300000, guid: 146c5ff3b2315899a05ad5773682f712, type: 3}
+  - {fileID: 21300000, guid: 3d3a25533606572f9dda0136219b821d, type: 3}
+  hitReactionDuration: 0.21
+  popupOffset: {x: 0, y: 3.2, z: 0}

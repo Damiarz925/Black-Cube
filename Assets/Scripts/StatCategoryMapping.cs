@@ -1,9 +1,11 @@
+// Developer map: Maps stat enum members to display sections and labels. Explicit cases depend on names, not enum ordering; newly added stats need an intentional display category.
+// See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 public static class StatCategoryMapping
 {
     public static StatCategory GetCategory(StatTypes t)
     {
-        // This mapping is based on how your StatTypes enum is grouped.
-        // If you re-order your enum later, revisit these cases.
+        // Explicit enum-member mapping. Add cases when extending the stat catalog;
+        // preserve serialized enum numeric values even if display groups change.
 
         switch (t)
         {
@@ -30,6 +32,9 @@ public static class StatCategoryMapping
             case StatTypes.PoisonDmg:
             case StatTypes.IgniteDmg:
             case StatTypes.BleedDmg:
+            case StatTypes.MagicDmg:
+            case StatTypes.ProjectileDmg:
+            case StatTypes.MinionDmg:
                 return StatCategory.IncreasedDamage;
 
             // More damage / multipliers
@@ -120,6 +125,8 @@ public static class StatCategoryMapping
             case StatTypes.CritChance:
             case StatTypes.CritMult:
             case StatTypes.BaseCritChance:
+            case StatTypes.ProjectileAmount:
+            case StatTypes.ProjectileSpeed:
                 return StatCategory.Utility;
 
             // Attributes / scaling

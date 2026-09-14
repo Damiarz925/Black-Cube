@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="1" result="Passed" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-09-11 23:56:07Z" end-time="2026-09-11 23:56:08Z" duration="0.6033511">
+  <test-suite type="TestSuite" id="1000" name="Black Cube Idle" fullname="Black Cube Idle" runstate="Runnable" testcasecount="99" result="Passed" start-time="2026-09-11 23:56:07Z" end-time="2026-09-11 23:56:08Z" duration="0.603351" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties>
+      <property name="platform" value="EditMode" />
+    </properties>
+    <test-suite type="Assembly" id="1111" name="Assembly-CSharp-Editor.dll" fullname="D:/Unity/Projects/Black-Cube/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" runstate="Runnable" testcasecount="99" result="Passed" start-time="2026-09-11 23:56:07Z" end-time="2026-09-11 23:56:08Z" duration="0.592457" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="60396" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+        <property name="EditorOnly" value="True" />
+      </properties>
+      <test-suite type="TestFixture" id="1062" name="InventoryTooltipLayoutTests" fullname="InventoryTooltipLayoutTests" classname="InventoryTooltipLayoutTests" runstate="Runnable" testcasecount="16" result="Passed" start-time="2026-09-11 23:56:07Z" end-time="2026-09-11 23:56:08Z" duration="0.588370" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="1065" name="VisibleTooltipRefreshesInPlaceOnSuccessfulCraftAndClosesWhenTargetLeavesInventory" fullname="InventoryTooltipLayoutTests.VisibleTooltipRefreshesInPlaceOnSuccessfulCraftAndClosesWhenTargetLeavesInventory" methodname="VisibleTooltipRefreshesInPlaceOnSuccessfulCraftAndClosesWhenTargetLeavesInventory" classname="InventoryTooltipLayoutTests" runstate="Runnable" seed="1534556047" result="Passed" start-time="2026-09-11 23:56:07Z" end-time="2026-09-11 23:56:08Z" duration="0.564587" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+          <output><![CDATA[The character with Unicode value \u25C6 was not found in the [LiberationSans SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u25C6 was not found in the [LiberationSans SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u25C6 was not found in the [LiberationSans SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u25C6 was not found in the [LiberationSans SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u25C6 was not found in the [LiberationSans SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u25C7 was not found in the [LiberationSans SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u25C6 was not found in the [LiberationSans SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u25C7 was not found in the [LiberationSans SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+Saving results to: C:/Users/david/AppData/LocalLow/DefaultCompany/Black Cube Idle\TestResults.xml
+]]></output>
+        </test-case>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

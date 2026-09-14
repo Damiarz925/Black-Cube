@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="4" result="Failed(Child)" total="4" passed="3" failed="1" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-09-11 23:54:16Z" end-time="2026-09-11 23:54:16Z" duration="0.4478822">
+  <test-suite type="TestSuite" id="1000" name="Black Cube Idle" fullname="Black Cube Idle" runstate="Runnable" testcasecount="99" result="Failed" site="Child" start-time="2026-09-11 23:54:16Z" end-time="2026-09-11 23:54:16Z" duration="0.447882" total="4" passed="3" failed="1" inconclusive="0" skipped="0" asserts="0">
+    <properties>
+      <property name="platform" value="EditMode" />
+    </properties>
+    <failure>
+      <message><![CDATA[One or more child tests had errors]]></message>
+    </failure>
+    <test-suite type="Assembly" id="1111" name="Assembly-CSharp-Editor.dll" fullname="D:/Unity/Projects/Black-Cube/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" runstate="Runnable" testcasecount="99" result="Failed" site="Child" start-time="2026-09-11 23:54:16Z" end-time="2026-09-11 23:54:16Z" duration="0.436097" total="4" passed="3" failed="1" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="54912" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+        <property name="EditorOnly" value="True" />
+      </properties>
+      <failure>
+        <message><![CDATA[One or more child tests had errors]]></message>
+      </failure>
+      <test-suite type="TestFixture" id="1001" name="CraftingAndRebirthTests" fullname="CraftingAndRebirthTests" classname="CraftingAndRebirthTests" runstate="Runnable" testcasecount="7" result="Passed" start-time="2026-09-11 23:54:16Z" end-time="2026-09-11 23:54:16Z" duration="0.081202" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="1003" name="CurrencyInventory_InvalidTargetDoesNotConsumeAndAncientCannotTargetEquipment" fullname="CraftingAndRebirthTests.CurrencyInventory_InvalidTargetDoesNotConsumeAndAncientCannotTargetEquipment" methodname="CurrencyInventory_InvalidTargetDoesNotConsumeAndAncientCannotTargetEquipment" classname="CraftingAndRebirthTests" runstate="Runnable" seed="1622328415" result="Passed" start-time="2026-09-11 23:54:16Z" end-time="2026-09-11 23:54:16Z" duration="0.060491" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="1062" name="InventoryTooltipLayoutTests" fullname="InventoryTooltipLayoutTests" classname="InventoryTooltipLayoutTests" runstate="Runnable" testcasecount="16" result="Failed" site="Child" start-time="2026-09-11 23:54:16Z" end-time="2026-09-11 23:54:16Z" duration="0.349592" total="3" passed="2" failed="1" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <failure>
+          <message><![CDATA[One or more child tests had errors]]></message>
+        </failure>
+        <test-case id="1077" name="CurrencyCounts_ArePlainNumbersInsideBakedCountBox" fullname="InventoryTooltipLayoutTests.CurrencyCounts_ArePlainNumbersInsideBakedCountBox" methodname="CurrencyCounts_ArePlainNumbersInsideBakedCountBox" classname="InventoryTooltipLayoutTests" runstate="Runnable" seed="914577452" result="Passed" start-time="2026-09-11 23:54:16Z" end-time="2026-09-11 23:54:16Z" duration="0.149316" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1066" name="FailedCraftDoesNotRaiseGearRefreshOrConsumeCurrency" fullname="InventoryTooltipLayoutTests.FailedCraftDoesNotRaiseGearRefreshOrConsumeCurrency" methodname="FailedCraftDoesNotRaiseGearRefreshOrConsumeCurrency" classname="InventoryTooltipLayoutTests" runstate="Runnable" seed="905292944" result="Passed" start-time="2026-09-11 23:54:16Z" end-time="2026-09-11 23:54:16Z" duration="0.001555" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1065" name="VisibleTooltipRefreshesInPlaceOnSuccessfulCraftAndClosesWhenTargetLeavesInventory" fullname="InventoryTooltipLayoutTests.VisibleTooltipRefreshesInPlaceOnSuccessfulCraftAndClosesWhenTargetLeavesInventory" methodname="VisibleTooltipRefreshesInPlaceOnSuccessfulCraftAndClosesWhenTargetLeavesInventory" classname="InventoryTooltipLayoutTests" runstate="Runnable" seed="58520226" result="Failed" start-time="2026-09-11 23:54:16Z" end-time="2026-09-11 23:54:16Z" duration="0.193882" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+          <failure>
+            <message><![CDATA[  Expected: not equal to "<color=#85898F>WEAPON  •  ITEM LEVEL 20</color>
+
+<b>Fire Damage:</b> 13.2
+<b>Crit Chance:</b> 5%
+<b>Attacks Per Second:</b> 1.2
+
+<color=#555A63>────────────────────────</color>
+Fire Damage: +10%  <color=#D8B45A>◆ LOCKED / PERMANENT NORMAL BASE</color>"
+  But was:  "<color=#85898F>WEAPON  •  ITEM LEVEL 20</color>
+
+<b>Fire Damage:</b> 13.2
+<b>Crit Chance:</b> 5%
+<b>Attacks Per Second:</b> 1.2
+
+<color=#555A63>────────────────────────</color>
+Fire Damage: +10%  <color=#D8B45A>◆ LOCKED / PERMANENT NORMAL BASE</color>"
+]]></message>
+            <stack-trace><![CDATA[at InventoryTooltipLayoutTests.VisibleTooltipRefreshesInPlaceOnSuccessfulCraftAndClosesWhenTargetLeavesInventory () [0x0013a] in D:\Unity\Projects\Black-Cube\Assets\Tests\Editor\InventoryTooltipLayoutTests.cs:55
+]]></stack-trace>
+          </failure>
+          <output><![CDATA[The character with Unicode value \u25C6 was not found in the [LiberationSans SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u25C6 was not found in the [LiberationSans SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u25C6 was not found in the [LiberationSans SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u25C6 was not found in the [LiberationSans SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+Saving results to: C:/Users/david/AppData/LocalLow/DefaultCompany/Black Cube Idle\TestResults.xml
+]]></output>
+        </test-case>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

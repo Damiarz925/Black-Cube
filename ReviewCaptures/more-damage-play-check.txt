@@ -1,0 +1,14 @@
+Independent more damage Play checks
+PASS: Actual equipped Cold20 and generic10 with additive increased40+30 = 224.4
+PASS: Immediate typed UI matches224.4 = 224.4
+PASS: Enemy actual gear ingestion agrees = 224.4
+PASS: Nonmatching Fire more excluded = 224.4
+PASS: Existing off-element flat uses same product = 22.44
+PASS: Off-element UI matches = 22.44
+PASS: Two separate gear20 rolls yield144 = 144
+PASS: Duplicate-roll UI refresh = 144
+PASS: Removing one source leaves120 = 120
+PASS: Reequip preserves roll identity = 144
+PASS: existing six-element and production DOT tick/health-loss regressions passed under independent-more expectations
+PASS: Crit formula remains28% = 0.28
+COMPLETE: all scoped Play assertions passed.

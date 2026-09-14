@@ -1,7 +1,19 @@
+// Developer map: Maps damage elements to stat keys for attacker scaling and defender mitigation. Physical hits use armour/physical penetration; unsupported elements retain legacy fallback keys.
+// See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using UnityEngine;
 
 public static class StatMappings
 {
+    /// <summary>
+    /// Rolled values remain in their authored raw units inside each stat channel.
+    /// Gameplay consumers decide how those channels combine; StatValue handles
+    /// independent compounding for the dedicated *Mult damage channels.
+    /// </summary>
+    public static StatOp GetRolledModifierOperation(StatTypes stat)
+    {
+        return StatOp.Additive;
+    }
+
     /// <summary>
     /// Global flat damage per element function used to grab the flat dmg stats
     /// </summary>
@@ -78,9 +90,11 @@ public static class StatMappings
             case Element.Light:
                 return StatTypes.LightRes;
             case Element.Phys:
+                throw new System.ArgumentOutOfRangeException(
+                    nameof(element), element, "Physical damage uses armour, not a resistance stat.");
             default:
-                // If you add a PhysRes later, handle it here.
-                return StatTypes.FireRes; // placeholder, not used for phys right now
+                // Preserve the existing fallback for currently unsupported elements.
+                return StatTypes.FireRes;
         }
     }
 

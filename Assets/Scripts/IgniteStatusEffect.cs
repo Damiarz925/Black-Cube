@@ -1,3 +1,5 @@
+// Developer map: Ignite/Burn asset defaults and validation for fire-hit damage over time. Shared definition only; each target owns its runtime StatusInstance.
+// See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "IgniteStatus", menuName = "Status Effects/Ignite")]

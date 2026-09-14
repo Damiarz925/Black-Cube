@@ -1,3 +1,5 @@
+// Developer map: Shared status definition and element/mask enums. Magnitude is a coefficient and duration/interval are global turns; virtual callbacks are extension hooks not dispatched by current ticking.
+// See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using UnityEngine;
 
 public enum Element     //Element enum explicitly ties each element to a numeric value
@@ -66,6 +68,21 @@ public class StatusEffects : ScriptableObject   //Status effects SO
     public Color DamageColor => damageColor;
     public AilmentKind Ailment => ailmentKind;
     public int BaseTurnInterval => Mathf.Max(1, baseTurnInterval);
+
+    public void ConfigureRuntime(string name, StatusType type, AilmentKind ailment, ElementMask sourceElements,
+        float magnitude, int duration, int stacks, StackPolicy policy, int turnInterval = 1, Color? tint = null)
+    {
+        effectName = name;
+        statusType = type;
+        ailmentKind = ailment;
+        elements = sourceElements;
+        effectMagnitude = Mathf.Max(0f, magnitude);
+        tickDuration = Mathf.Max(1, duration);
+        maxStacks = Mathf.Max(0, stacks);
+        stackPolicy = policy;
+        baseTurnInterval = Mathf.Max(1, turnInterval);
+        damageColor = tint ?? Color.white;
+    }
 
     public virtual void OnApply(DamageContext context, StatusController controller, StatusInstance stack) { }   //OnApply Function called when ailments do something the moment they are applied
     public virtual void OnTick(DamageContext context, StatusController controller, StatusInstance stack) { }    //OnTick Function called when ailments do something on tick

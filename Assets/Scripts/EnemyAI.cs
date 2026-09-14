@@ -1,3 +1,5 @@
+// Developer map: Builds enemy attack snapshots from generated gear and StatsComponent; BattleManager owns attack scheduling. Enemy rarity is randomly rolled separately from the HealthComponent boss role.
+// See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,6 +10,7 @@ public class EnemyAI : MonoBehaviour
 
     [SerializeField] private LootManager lootManger;        //field for loot manager
     [SerializeField] private ModManager modManager;         //field for mod manager
+    [SerializeField] private EnemyDropTable dropTable = new EnemyDropTable();
 
     private StatsComponent stats;           //fields for stats, health, statuscont, zone manager, and damage popup
     private HealthComponent health;
@@ -24,10 +27,35 @@ public class EnemyAI : MonoBehaviour
     private int enemyLevel;
     public int EnemyLevel => enemyLevel;
     public Element WeaponMainElement => equippedWeapon != null ? equippedWeapon.BaseElement : Element.Phys;
+    public float EquippedWeaponBaseDamage => equippedWeapon != null ? equippedWeapon.GetEffectiveBaseDamage() : 0f;
+    public EnemyDropTable DropTable { get { dropTable??=new EnemyDropTable();dropTable.EnsureDefaults();return dropTable; } }
+
+    public Gear GetEquippedGear(LootManager.GearType type)
+    {
+        for (int i = 0; i < equippedItems.Count; i++)
+        {
+            Gear item = equippedItems[i];
+            if (item != null && item.ItemType == type)
+                return item;
+        }
+        return null;
+    }
 
     [Header("Equipment")]
     [SerializeField] private Gear equippedWeapon;                   //private gear field for the enemy's equipped weapon
     private readonly List<Gear> equippedItems = new List<Gear>();               //readonly list of the enemy's equipped items
+    private static readonly LootManager.GearType[] NonWeaponGearSlots = new LootManager.GearType[]
+    {
+        LootManager.GearType.Helmets,
+        LootManager.GearType.Amulets,
+        LootManager.GearType.BodyArmours,
+        LootManager.GearType.Gloves,
+        LootManager.GearType.Boots,
+        LootManager.GearType.Rings,
+        LootManager.GearType.Belts
+    };
+    private const int MaxNonWeaponSlots = 7;
+    private const int MaxTotalEnemyGearPieces = 8;
 
     private bool _initialized;      //bool for whether the enemy has been initialized or not
 
@@ -63,7 +91,12 @@ public class EnemyAI : MonoBehaviour
         InitRarityWeights();            //call initrarityweights
         CurrentRarity = RollEnemyRarity();      //set current rarity by calling rollenemyrarity
 
+        EnemyStatSetup statSetup = GetComponent<EnemyStatSetup>();
+        if (statSetup != null)
+            statSetup.SetupForZone(enemyLevel, health != null && health.IsBoss);
+
         GenerateGearForEnemy(enemyLevel);       //call generate gear for enemy using the enemy's level
+        health?.RestoreFullLife();               //enter combat full after Life and LifePercent gear modifiers are applied
 
         Debug.Log($"EnemyAI: Initialized enemy '{name}' level={enemyLevel}, rarity={CurrentRarity}, weaponElement={WeaponMainElement}", this);
     }
@@ -96,7 +129,7 @@ public class EnemyAI : MonoBehaviour
             roll -= weight;     //subtract the weight from the roll and loop
         }
 
-        return EnemyRarity.Normal;      //if no weight chosen in loop, return 
+        return EnemyRarity.Normal;      //if no weight chosen in loop, return
     }
 
     private LootManager.GearRarity MapEnemyRarityToGearRarity(EnemyRarity rarity)       //maps the enemy rarity to gear rarity with a switch statement setting each rarity to the same rarity for gear. Default to normal
@@ -124,27 +157,64 @@ public class EnemyAI : MonoBehaviour
             Debug.LogWarning("EnemyAI has no ModManager assigned; generating base enemy gear without rolled mods.", this); //If mod monater is null, give error and return
         }
 
-        int itemCount = GetItemCountForLevel(zoneLevel);    //item count is given by getitemcountforlevel function, passing in the zone level
+        int itemCount = Mathf.Min(GetItemCountForLevel(zoneLevel), MaxTotalEnemyGearPieces);    //item count is given by getitemcountforlevel function, passing in the zone level
+        int nonWeaponCount = Mathf.Max(0, itemCount - 1);     //always keep one slot for weapon
 
-        // Weapon first
-        Gear weapon = CreateItemForEnemy(LootManager.GearType.Weapons, zoneLevel);      //call create item for enemy, specifying weapon and the zone level
-        if (weapon != null)
+        List<LootManager.GearType> selectedSlots = RollDistinctNonWeaponSlots(nonWeaponCount);   //choose unique non-weapon slots for this enemy
+        int candidateCount = EnemyBuildOptimizer.CandidateCountForLevel(zoneLevel);
+        List<EnemyBuildOptimizer.CandidateSlot> candidateSlots =
+            new List<EnemyBuildOptimizer.CandidateSlot>(selectedSlots.Count + 1);
+        List<Gear> allCandidates = new List<Gear>((selectedSlots.Count + 1) * candidateCount);
+
+        AddCandidateSlot(LootManager.GearType.Weapons, zoneLevel, candidateCount, candidateSlots, allCandidates);
+        for (int i = 0; i < selectedSlots.Count; i++)
+            AddCandidateSlot(selectedSlots[i], zoneLevel, candidateCount, candidateSlots, allCandidates);
+
+        // Candidate generation is now complete. Search never asks ModManager for a
+        // reroll and evaluates isolated stat snapshots rather than mutating this enemy.
+        EnemyBuildOptimizer.BuildResult winner = EnemyBuildOptimizer.SelectBestBuild(
+            candidateSlots, EnemyBuildOptimizer.CaptureBaseStats(stats), baseSpeed);
+        HashSet<Gear> selected = new HashSet<Gear>();
+        if (winner != null)
         {
-            equippedItems.Add(weapon);      //add the weapon to the equipped items list
-            EquipWeapon(weapon);        //call equipweapon, passing in the generated weapon
+            stats?.BeginUpdate();
+            try
+            {
+                for (int i = 0; i < winner.Items.Count; i++)
+                {
+                    Gear gear = winner.Items[i];
+                    if (gear == null) continue;
+                    selected.Add(gear);
+                    equippedItems.Add(gear);
+                    if (gear.ItemType == LootManager.GearType.Weapons)
+                        EquipWeapon(gear);
+                    else
+                        ApplyGlobalModsFromGear(gear);
+                }
+            }
+            finally
+            {
+                stats?.EndUpdate();
+            }
         }
 
-        // Other items
-        for (int i = 1; i < itemCount; i++)     //generate nonweapon items up to the item count. i starts at 1, so if item count is 1, generates no additional items (because we already have a weapon). Adds the item to the list, and applies mods from the item to the enemy
-        {
-            LootManager.GearType type = RollRandomNonWeaponType();
-            Gear gear = CreateItemForEnemy(type, zoneLevel);
-            if (gear == null)
-                continue;
+        for (int i = 0; i < allCandidates.Count; i++)
+            if (!selected.Contains(allCandidates[i]))
+                DiscardGearCandidate(allCandidates[i]);
+    }
 
-            equippedItems.Add(gear);
-            ApplyGlobalModsFromGear(gear);
+    private void AddCandidateSlot(LootManager.GearType slot, int level, int candidateCount,
+        List<EnemyBuildOptimizer.CandidateSlot> slots, List<Gear> allCandidates)
+    {
+        List<Gear> candidates = new List<Gear>(candidateCount);
+        for (int i = 0; i < candidateCount; i++)
+        {
+            Gear candidate = CreateItemForEnemy(slot, level);
+            if (candidate == null) continue;
+            candidates.Add(candidate);
+            allCandidates.Add(candidate);
         }
+        slots.Add(new EnemyBuildOptimizer.CandidateSlot(slot, candidates));
     }
 
     private int GetItemCountForLevel(int level)     //Calculates the range of items possible and rolls within that range, then returns the count to be used for item generation
@@ -155,21 +225,36 @@ public class EnemyAI : MonoBehaviour
         return 9;
     }
 
-    private LootManager.GearType RollRandomNonWeaponType()      //rolls random non weapon types by rolling between 0 and 7, then picks from the item slot using a switch statement
+    private List<LootManager.GearType> RollDistinctNonWeaponSlots(int count)
     {
-        int roll = Random.Range(0, 8);
+        count = Mathf.Clamp(count, 0, MaxNonWeaponSlots);
+        if (count == 0)
+            return new List<LootManager.GearType>();
 
-        return roll switch
+        List<LootManager.GearType> availableSlots = new List<LootManager.GearType>(NonWeaponGearSlots);
+        List<LootManager.GearType> selectedSlots = new List<LootManager.GearType>(count);
+
+        for (int i = availableSlots.Count - 1; i > 0; i--)
         {
-            0 => LootManager.GearType.Helmets,
-            1 => LootManager.GearType.Amulets,
-            2 => LootManager.GearType.BodyArmours,
-            3 => LootManager.GearType.Gloves,
-            4 => LootManager.GearType.Boots,
-            5 => LootManager.GearType.Rings,
-            6 => LootManager.GearType.Belts,
-            _ => LootManager.GearType.Helmets
-        };
+            int swapIndex = Random.Range(0, i + 1);
+            LootManager.GearType tmp = availableSlots[i];
+            availableSlots[i] = availableSlots[swapIndex];
+            availableSlots[swapIndex] = tmp;
+        }
+
+        for (int i = 0; i < count; i++)
+            selectedSlots.Add(availableSlots[i]);
+
+        return selectedSlots;
+    }
+
+    private static void DiscardGearCandidate(Gear candidate)
+    {
+        if (candidate == null)
+            return;
+
+        candidate.gameObject.SetActive(false);
+        Destroy(candidate.gameObject);
     }
 
     private Gear CreateItemForEnemy(LootManager.GearType type, int zoneLevel)       //Function used to create the item for the enemy to use
@@ -181,14 +266,14 @@ public class EnemyAI : MonoBehaviour
 
         Gear gear = go.AddComponent<Gear>();            //create a gear object, which is go with the gear component added
 
-        var element = RollItemElement();
+        var element = RollItemElement(type == LootManager.GearType.Weapons);
 
         int itemLevel = zoneLevel;          //set item level equal to zone level
         gear.Initialize(type, gearRarity, itemLevel, element);       //initailize gear, passing in the gear type, rarity, ilvl, and element
 
         int modCount = gear.ModCount;        //roll for the mod count of the item
         var rolledMods = modManager != null
-            ? modManager.RollModsForItem(type, gearRarity, itemLevel, modCount)
+            ? modManager.RollModsForItem(type, gearRarity, itemLevel, modCount, element)
             : new List<RolledMod>();     //create variable for rolled mods, using the rollmodsforitem function from modmanager
         gear.ApplyMods(rolledMods);     //use gear.applymods with the rolled mods list to apply those mods to the gear item
 
@@ -240,13 +325,10 @@ public class EnemyAI : MonoBehaviour
 
     private StatOp GetOperationForStat(StatTypes stat)      //used to get the operation for a given stat
     {
-        string name = stat.ToString();      //grabs the name of the stat casted to a string
-        if (name.StartsWith("Flat")) return StatOp.Flat;        //if it starts with flat (this is consistent for all flat mods currently), return statop.flat
-        if (name.EndsWith("Mult")) return StatOp.Multiplicative;        //if it ends with mult (this is consistent for all mult mods currently), return statop.multiplicative
-        return StatOp.Additive;     //otherwisse, return statop.additive
+        return StatMappings.GetRolledModifierOperation(stat);
     }
 
-    public DamageContext BuildAttackContext()       //builds the attack context, called when enemy attacks
+    public DamageContext BuildNonCriticalAttackContext(bool logStats = false)
     {
         DamageContext ctx = new DamageContext(4);       //create a damage context with an initial capacity of 4
 
@@ -255,8 +337,18 @@ public class EnemyAI : MonoBehaviour
         Element weaponElement = equippedWeapon.BaseElement;     //store the weapon's base element in weaponElement
         float weaponBaseDamage = equippedWeapon.GetEffectiveBaseDamage();       //store the weapon's base damage in weaponBaseDamage (call GetEffectiveBaseDamage from Gear class on equippedWeapon)
 
-        AddScaledElementalDamage(ctx, weaponElement, weaponBaseDamage);     //call addscaledelemental damage to add the scaled ele damage (the base element damage scaled by local mods matching that element on the item)
+        AddScaledElementalDamage(ctx, weaponElement, weaponBaseDamage, logStats);     //call addscaledelemental damage to add the scaled ele damage (the base element damage scaled by local mods matching that element on the item)
         AddGlobalFlatElements(ctx, weaponElement);      //call addgloablflatelements to add any flat elemental damage that does not match the weapon's base element
+
+        return ctx;
+    }
+
+    public DamageContext BuildAttackContext()       //builds the attack context, called when enemy attacks
+    {
+        DamageContext ctx = BuildNonCriticalAttackContext(logStats: true);
+
+        if (equippedWeapon == null || stats == null)
+            return ctx;
 
         float critChance = GetFinalCritChance();        //call get final crit chance and store it in critchance
         float critMult = 1f + stats.GetStat(StatTypes.CritMult);        //grab the crit multi and add 1 to it, store it in critmult
@@ -279,19 +371,18 @@ public class EnemyAI : MonoBehaviour
         return ctx; //return context
     }
 
-    private void AddScaledElementalDamage(DamageContext ctx, Element element, float baseAmount)
+    private void AddScaledElementalDamage(DamageContext ctx, Element element, float baseAmount, bool logStats)
     {
         float flatGlobal = stats.GetStat(StatMappings.GetFlatDamageStat(element));      //get the flat global of the passed in element
         float incElement = stats.GetStat(StatMappings.GetIncDamageStat(element));       //get the inc ele damage of the passed in element
         float incGeneric = stats.GetStat(StatTypes.GenericDmg);             //get the global inc damage
-        float incTotal = incElement + incGeneric;           //calculate total inc damage as element + gloabl
-
-        float moreElement = stats.GetStat(StatMappings.GetMoreDamageStat(element));     //repeat above for more damage to calculate total more damage as more + generic
+        float moreElement = stats.GetStat(StatMappings.GetMoreDamageStat(element));     //effective more fraction after compounding each matching roll
         float moreGeneric = stats.GetStat(StatTypes.GenericMult);
-        float moreTotal = (1f + moreElement) * (1f + moreGeneric);
-        Debug.Log($"Enemy dmg stats: base={baseAmount}, flatG={flatGlobal}, incElem={incElement}, incGen={incGeneric}, moreElem={moreElement}, moreGen={moreGeneric}");
+        if (logStats)
+            Debug.Log($"Enemy dmg stats: base={baseAmount}, flatG={flatGlobal}, incElem={incElement}, incGen={incGeneric}, moreElem={moreElement}, moreGen={moreGeneric}");
 
-        float amount = (baseAmount + flatGlobal) * (1f + incTotal) * moreTotal;    //calculate final damage amount as basedmg + matching flat damage times (1 + increasedtotal) time (1 + moretotal) 
+        float amount = CombatCalculator.ScaleOutgoingDamage(
+            baseAmount + flatGlobal, incGeneric, incElement, moreGeneric, moreElement);
 
         ctx.AddDamage(element, amount);     //add this damage to the damage context passing in the element of the damage and the amount
     }
@@ -313,26 +404,21 @@ public class EnemyAI : MonoBehaviour
 
         float incElement = stats.GetStat(StatMappings.GetIncDamageStat(element));       //get the increased damage stat for the current element, add it to global increased damage to calc inctotal
         float incGeneric = stats.GetStat(StatTypes.GenericDmg);
-        float incTotal = incElement + incGeneric;
-
-        float moreElement = stats.GetStat(StatMappings.GetMoreDamageStat(element));     //get the more damage stat for the current element, add it to global more damage to calc moretotal
+        float moreElement = stats.GetStat(StatMappings.GetMoreDamageStat(element));     //effective matching more fraction; multiply by the generic factor
         float moreGeneric = stats.GetStat(StatTypes.GenericMult);
-        float moreTotal = (1f + moreElement) * (1f + moreGeneric);
 
-        float amount = flatGlobal * (1f + incTotal) * moreTotal;      //calculate total damage for this element as the flat * (1+totalinc) * (1+totalmore)
+        float amount = CombatCalculator.ScaleOutgoingDamage(
+            flatGlobal, incGeneric, incElement, moreGeneric, moreElement);
         ctx.AddDamage(element, amount);     //add this element to damage context
     }
 
-    private float GetFinalCritChance()
+    public float GetFinalCritChance()
     {
         if (equippedWeapon == null) return 0f;      //if equipped weapon is null, return 0f for crit chance
 
-        float weaponCrit = equippedWeapon.GetEffectiveBaseCrit();       //call geteffectivebasecrit on equipped weapon, assign that to weaponcrit variable
+        float weaponCrit = equippedWeapon.GetEffectiveBaseCrit(stats.GetStat(StatTypes.BaseCritChance));
         float incCritGlobal = stats.GetStat(StatTypes.CritChance);      //get the global increased crit stat on the enemy
-        float extraBaseCritGlobal = stats.GetStat(StatTypes.BaseCritChance);        //get the extra base crit stat on the enemy
-
-        float baseCritAll = weaponCrit + extraBaseCritGlobal;       //get the total base crit by adding the weapon base crit and the extra base crit
-        return Mathf.Clamp01(baseCritAll * (1f + incCritGlobal));       //calculate the total crit chance as the basecritall * (1+inccritglobal) and clamp is between 0 and 1.
+        return Mathf.Clamp01(weaponCrit * (1f + incCritGlobal));
     }
 
     public float GetFinalAttackSpeed()
@@ -408,9 +494,9 @@ public class EnemyAI : MonoBehaviour
         }
     }
 
-    public Element RollItemElement()
+    public Element RollItemElement(bool forWeapon = false)
     {
-        int max = (int)Element.Count;
+        int max = forWeapon ? (int)Element.Void : (int)Element.Count;
         int roll = Random.Range(0, max);
         return (Element)roll;
     }

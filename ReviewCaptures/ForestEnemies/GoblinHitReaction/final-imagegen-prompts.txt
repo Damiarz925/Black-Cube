@@ -1,0 +1,9 @@
+Built-in ImageGen precise-object-edit prompts used the installed GoblinIdle.png as the exact identity/style/scale reference and edit target.
+
+Shared constraints: one transparent 2D Unity sprite; preserve exact paper-cut painted style, proportions, costume, colors, face, hair, ears, dagger, boots, approximate scale, and foot registration. One dagger only, always in the goblin's LEFT hand on the viewer-right side. Clean transparent background; no checkerboard, scenery, shadow, floor, text, particles, border, morphing, redesign, cropping, or watermark.
+
+Frame 1: immediate small impact recoil from a hit arriving viewer-left; shoulders/head shift slightly viewer-right, knees flex, startled/pained face, feet nearly planted, dagger low and controlled.
+Frame 2: deepest short recoil viewer-right; slight back lean, compressed knees, stronger pained face, grounded feet, left-hand dagger drawn back; no fall, spin, or scale change.
+Frame 3: settle; still slightly crouched/shifted but regaining balance, shoulders lower, head begins returning, tense expression, left-hand dagger controlled.
+Frame 4: near-recovery; almost exact idle with only residual shoulder tilt/knee bend and original scowl returning, transitioning cleanly into exact idle.
+Frame 5: exact installed GoblinIdle.png reused without alteration.

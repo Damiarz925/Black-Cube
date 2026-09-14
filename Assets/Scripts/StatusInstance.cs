@@ -1,3 +1,5 @@
+// Developer map: Mutable lifetime, stack strength and source-stat reference for one applied effect. Interval >0 ticks every N global turns; <=0 allows 1-interval ticks per turn.
+// See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 public class StatusInstance
 {
     public StatusEffects effect;    //Public field effect of StatusEffects type

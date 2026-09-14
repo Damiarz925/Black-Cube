@@ -1,3 +1,5 @@
+// Developer map: Procedural UI glyph for a status kind. Rebuilds mesh through Unity UI; status strength, eligibility and duration live in the model.
+// See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using UnityEngine;
 using UnityEngine.UI;
 

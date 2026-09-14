@@ -1,0 +1,1 @@
+PASS: 729 assertions on actual ZoneManager: every level1–180, ten-level boundaries,60-level loops, direct loads, reset, invalid/large levels, renderer updates with3D generation disabled, HUD labels and legacy fallback. No Unity runtime launched.

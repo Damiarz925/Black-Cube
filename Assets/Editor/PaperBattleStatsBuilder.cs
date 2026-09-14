@@ -1,3 +1,5 @@
+// Developer map: Asset-writing builder for stat-panel and equipped-slot UI wiring.
+// See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using TMPro;
 using UnityEditor;
 using UnityEditor.Events;

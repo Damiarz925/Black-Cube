@@ -1,3 +1,5 @@
+// Developer map: Binds a stat name/value pair to serialized TMP labels. Formatting and which rows exist are decided by PlayerStatsPanelUI.
+// See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using TMPro;
 using UnityEngine;
 

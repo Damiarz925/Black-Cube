@@ -1,3 +1,5 @@
+// Developer map: Caches one raw stat bucket and invalidates on base/modifier changes. Result is (base + flat + additive) times multiplicative; more-percent buckets multiply each roll and expose the effective percentage.
+// See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using UnityEngine;
 using System.Collections.Generic;
 
@@ -8,10 +10,12 @@ public class StatValue
     private readonly List<StatModifier> _modifiers = new(); //Readonly list of stat modifiers
     private bool _dirty = true; //Indicates whether the stat has been modified
     private float _cachedValue; //Stores the cached value of the stat
+    private readonly bool compoundMorePercent;
 
     //Function sets the base value field based on the passed in base value, if nothing is passed in, it is set as 0.
-    public StatValue(float baseValue = 0f)
+    public StatValue(float baseValue = 0f, bool compoundMorePercent = false)
     {
+        this.compoundMorePercent = compoundMorePercent;
         BaseValue = baseValue;
     }
 
@@ -33,6 +37,24 @@ public class StatValue
     public float GetValue()
     {
         if (!_dirty) return _cachedValue;   //If dirty is false, return the cached value (the value has not been modified)
+
+        if (compoundMorePercent)
+        {
+            // Every raw percentage-point roll is an independent factor, even when
+            // several items use the same stat key or legacy Flat/Additive operations.
+            float factor = 1f + BaseValue / 100f;
+            float? overridden = null;
+            foreach (var mod in _modifiers)
+            {
+                if (mod.Operation == StatOp.Override) overridden = mod.Value;
+                else factor *= 1f + mod.Value / 100f;
+            }
+            // Preserve final-override semantics. GetStat converts this effective
+            // percentage back to a fraction; two +20 rolls expose +44, not +40.
+            _cachedValue = overridden ?? (factor - 1f) * 100f;
+            _dirty = false;
+            return _cachedValue;
+        }
 
         //Defines variables to be used in operations based on the statOp
         float flat = 0f;
@@ -60,7 +82,8 @@ public class StatValue
             }
         }
 
-        //result is the base value plus the flat, multiplied by 1 + additive, and then multiplied by multiplicative.
+        // Flat and additive values are raw points in this bucket, not a second
+        // percentage multiplier. Gameplay formulas convert/apply percent buckets.
         float result = BaseValue + flat + additive;
         result *= multiplicative;
 

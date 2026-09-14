@@ -1,0 +1,24 @@
+{
+  "status": "PASS",
+  "source_map_files": 118,
+  "doc_links_resolve": true,
+  "python_syntax_valid": true,
+  "original_comment_phase_files": 111,
+  "subsequent_authorized_code_changes": [
+    "Assets/Scripts/BattleManager.cs",
+    "Assets/Scripts/GameManager.cs",
+    "Assets/Scripts/PaperBattleHUD.cs",
+    "Assets/Scripts/PaperSpriteActor.cs",
+    "Assets/Scripts/ZoneManager.cs",
+    "Assets/Editor/AuthorizedProgressionPass.cs",
+    "Assets/Editor/DeferredProgressionChecks.cs",
+    "Assets/Editor/PaperBattleSceneBuilder.cs",
+    "Assets/Editor/PlayerProgressionChecks.cs",
+    "Assets/Editor/ProgressionChecks.cs",
+    "Tools/Art/CombatTimingHarness.cs",
+    "Tools/Art/verify_chibi_player_assets.py",
+    "Tools/Art/verify_combat_animation.ps1"
+  ],
+  "remaining_original_files_token_identical": 98,
+  "unity_compile_tested": false
+}

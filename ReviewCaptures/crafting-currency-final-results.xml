@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="11" result="Passed" total="11" passed="11" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-09-12 00:55:40Z" end-time="2026-09-12 00:55:41Z" duration="0.6263221">
+  <test-suite type="TestSuite" id="1000" name="Black Cube Idle" fullname="Black Cube Idle" runstate="Runnable" testcasecount="99" result="Passed" start-time="2026-09-12 00:55:40Z" end-time="2026-09-12 00:55:41Z" duration="0.626322" total="11" passed="11" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties>
+      <property name="platform" value="EditMode" />
+    </properties>
+    <test-suite type="Assembly" id="1111" name="Assembly-CSharp-Editor.dll" fullname="D:/Unity/Projects/Black-Cube/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" runstate="Runnable" testcasecount="99" result="Passed" start-time="2026-09-12 00:55:40Z" end-time="2026-09-12 00:55:41Z" duration="0.602206" total="11" passed="11" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="61036" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+        <property name="EditorOnly" value="True" />
+      </properties>
+      <test-suite type="TestFixture" id="1001" name="CraftingAndRebirthTests" fullname="CraftingAndRebirthTests" classname="CraftingAndRebirthTests" runstate="Runnable" testcasecount="7" result="Passed" start-time="2026-09-12 00:55:40Z" end-time="2026-09-12 00:55:41Z" duration="0.107722" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="1003" name="CurrencyInventory_InvalidTargetDoesNotConsumeAndAncientCannotTargetEquipment" fullname="CraftingAndRebirthTests.CurrencyInventory_InvalidTargetDoesNotConsumeAndAncientCannotTargetEquipment" methodname="CurrencyInventory_InvalidTargetDoesNotConsumeAndAncientCannotTargetEquipment" classname="CraftingAndRebirthTests" runstate="Runnable" seed="1344477772" result="Passed" start-time="2026-09-12 00:55:40Z" end-time="2026-09-12 00:55:41Z" duration="0.081445" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="1009" name="CraftingCurrencyInteractionTests" fullname="CraftingCurrencyInteractionTests" classname="CraftingCurrencyInteractionTests" runstate="Runnable" testcasecount="7" result="Passed" start-time="2026-09-12 00:55:41Z" end-time="2026-09-12 00:55:41Z" duration="0.221120" total="7" passed="7" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="1014" name="ClickAway_CancelsCursorAndSourceSelection" fullname="CraftingCurrencyInteractionTests.ClickAway_CancelsCursorAndSourceSelection" methodname="ClickAway_CancelsCursorAndSourceSelection" classname="CraftingCurrencyInteractionTests" runstate="Runnable" seed="283183482" result="Passed" start-time="2026-09-12 00:55:41Z" end-time="2026-09-12 00:55:41Z" duration="0.145923" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1015" name="InvalidGear_CancelsWithoutConsumptionOrMutation" fullname="CraftingCurrencyInteractionTests.InvalidGear_CancelsWithoutConsumptionOrMutation" methodname="InvalidGear_CancelsWithoutConsumptionOrMutation" classname="CraftingCurrencyInteractionTests" runstate="Runnable" seed="1049218546" result="Passed" start-time="2026-09-12 00:55:41Z" end-time="2026-09-12 00:55:41Z" duration="0.001626" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1016" name="PanelDisable_ClearsHeldCurrencyState" fullname="CraftingCurrencyInteractionTests.PanelDisable_ClearsHeldCurrencyState" methodname="PanelDisable_ClearsHeldCurrencyState" classname="CraftingCurrencyInteractionTests" runstate="Runnable" seed="1409573170" result="Passed" start-time="2026-09-12 00:55:41Z" end-time="2026-09-12 00:55:41Z" duration="0.043161" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1010" name="Selection_ShowsYellowSourceOverlayAndRaycastTransparentCursorIcon" fullname="CraftingCurrencyInteractionTests.Selection_ShowsYellowSourceOverlayAndRaycastTransparentCursorIcon" methodname="Selection_ShowsYellowSourceOverlayAndRaycastTransparentCursorIcon" classname="CraftingCurrencyInteractionTests" runstate="Runnable" seed="538983640" result="Passed" start-time="2026-09-12 00:55:41Z" end-time="2026-09-12 00:55:41Z" duration="0.011823" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1011" name="SuccessfulDefaultUse_SpendsOnceAndClearsSelection" fullname="CraftingCurrencyInteractionTests.SuccessfulDefaultUse_SpendsOnceAndClearsSelection" methodname="SuccessfulDefaultUse_SpendsOnceAndClearsSelection" classname="CraftingCurrencyInteractionTests" runstate="Runnable" seed="1487294833" result="Passed" start-time="2026-09-12 00:55:41Z" end-time="2026-09-12 00:55:41Z" duration="0.013161" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1013" name="SuccessfulShiftUse_ClearsSelectionWhenLastUnitIsSpent" fullname="CraftingCurrencyInteractionTests.SuccessfulShiftUse_ClearsSelectionWhenLastUnitIsSpent" methodname="SuccessfulShiftUse_ClearsSelectionWhenLastUnitIsSpent" classname="CraftingCurrencyInteractionTests" runstate="Runnable" seed="1552997450" result="Passed" start-time="2026-09-12 00:55:41Z" end-time="2026-09-12 00:55:41Z" duration="0.001314" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1012" name="SuccessfulShiftUse_RetainsSelectionWhileSupplyRemains" fullname="CraftingCurrencyInteractionTests.SuccessfulShiftUse_RetainsSelectionWhileSupplyRemains" methodname="SuccessfulShiftUse_RetainsSelectionWhileSupplyRemains" classname="CraftingCurrencyInteractionTests" runstate="Runnable" seed="227205181" result="Passed" start-time="2026-09-12 00:55:41Z" end-time="2026-09-12 00:55:41Z" duration="0.000838" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="1062" name="InventoryTooltipLayoutTests" fullname="InventoryTooltipLayoutTests" classname="InventoryTooltipLayoutTests" runstate="Runnable" testcasecount="16" result="Passed" start-time="2026-09-12 00:55:41Z" end-time="2026-09-12 00:55:41Z" duration="0.264987" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="1077" name="CurrencyCounts_ArePlainNumbersInsideBakedCountBox" fullname="InventoryTooltipLayoutTests.CurrencyCounts_ArePlainNumbersInsideBakedCountBox" methodname="CurrencyCounts_ArePlainNumbersInsideBakedCountBox" classname="InventoryTooltipLayoutTests" runstate="Runnable" seed="542310240" result="Passed" start-time="2026-09-12 00:55:41Z" end-time="2026-09-12 00:55:41Z" duration="0.015438" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1066" name="FailedCraftDoesNotRaiseGearRefreshOrConsumeCurrency" fullname="InventoryTooltipLayoutTests.FailedCraftDoesNotRaiseGearRefreshOrConsumeCurrency" methodname="FailedCraftDoesNotRaiseGearRefreshOrConsumeCurrency" classname="InventoryTooltipLayoutTests" runstate="Runnable" seed="824523199" result="Passed" start-time="2026-09-12 00:55:41Z" end-time="2026-09-12 00:55:41Z" duration="0.002408" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1065" name="VisibleTooltipRefreshesInPlaceOnSuccessfulCraftAndClosesWhenTargetLeavesInventory" fullname="InventoryTooltipLayoutTests.VisibleTooltipRefreshesInPlaceOnSuccessfulCraftAndClosesWhenTargetLeavesInventory" methodname="VisibleTooltipRefreshesInPlaceOnSuccessfulCraftAndClosesWhenTargetLeavesInventory" classname="InventoryTooltipLayoutTests" runstate="Runnable" seed="857338041" result="Passed" start-time="2026-09-12 00:55:41Z" end-time="2026-09-12 00:55:41Z" duration="0.227077" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+          <output><![CDATA[The character with Unicode value \u25C6 was not found in the [LiberationSans SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u25C6 was not found in the [LiberationSans SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u25C6 was not found in the [LiberationSans SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u25C6 was not found in the [LiberationSans SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u25C6 was not found in the [LiberationSans SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u25C7 was not found in the [LiberationSans SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u25C6 was not found in the [LiberationSans SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+The character with Unicode value \u25C7 was not found in the [LiberationSans SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Label].
+Saving results to: C:/Users/david/AppData/LocalLow/DefaultCompany/Black Cube Idle\TestResults.xml
+]]></output>
+        </test-case>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

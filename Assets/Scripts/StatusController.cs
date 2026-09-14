@@ -1,3 +1,5 @@
+// Developer map: Target-owned stacks with global-turn ticking and pending effect aggregation. Mutation is separated from application because damage/death callbacks can clear statuses or replace targets.
+// See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -42,7 +44,8 @@ public partial class StatusController : MonoBehaviour
     // --------------------------------------------------------------------
     // APPLY FROM HIT
     // --------------------------------------------------------------------
-    public void ApplyAilmentFromHit(StatusEffects effect, DamageContext context, StatsComponent attackerStats, int stacksPerHit = 1)
+    public void ApplyAilmentFromHit(StatusEffects effect, DamageContext context, StatsComponent attackerStats,
+        int stacksPerHit = 1, float magnitudeOverride = -1f)
     {
         if (effect == null || attackerStats == null || context.Hits == null || context.Hits.Count == 0)     //If effect, attacker's stats, or context's hits is null, return
             return;
@@ -54,7 +57,8 @@ public partial class StatusController : MonoBehaviour
             attackerStats,
             out float damagePerTick,
             out int tickCount,
-            out int effectiveInterval);
+            out int effectiveInterval,
+            magnitudeOverride);
 
         if (damagePerTick <= 0f || tickCount <= 0)  //If damagepertick or tick count is less than or equal to 0, return
             return;
@@ -65,6 +69,8 @@ public partial class StatusController : MonoBehaviour
     public void ApplyStatus(StatusEffects effect, int stacksPerHit, float damagePerTick, int tickCount, StatsComponent sourceStats, int effectiveInterval)
     {
         if (effect == null || stacksPerHit <= 0 || tickCount <= 0 || damagePerTick <= 0) return;
+        int initialCap = EffectiveStackCap(effect, sourceStats);
+        if (initialCap > 0) stacksPerHit = Mathf.Min(stacksPerHit, initialCap);
         var health = GetComponent<HealthComponent>();
         if (health != null && health.CurrentLife <= 0) return;
         switch (effect._StackPolicy)    //Decide which stack policy to use based on the ailments defined stack policy from its SO
@@ -98,8 +104,9 @@ public partial class StatusController : MonoBehaviour
             currentStacks = existing.stacks;
 
         int newStacks = currentStacks + stacksPerHit;       //Create variable newStacks and set that to the current stacks + the stacksPerHit(The num of stacks that is applied by the hit applying the ailment)
-        if (effect.MaxStacks > 0)   
-            newStacks = Mathf.Min(newStacks, effect.MaxStacks);     //If the maxstacks is greater than 0, grab the minimum between newStacks and max stacks (so as to not exceed the maximum stacks -- Clamping)
+        int effectiveCap = EffectiveStackCap(effect, sourceStats);
+        if (effectiveCap > 0)
+            newStacks = Mathf.Min(newStacks, effectiveCap);
 
         int added = newStacks - currentStacks;
         if (existing != null && currentStacks > 0)
@@ -116,14 +123,21 @@ public partial class StatusController : MonoBehaviour
             IndependentDictionary[effect] = list;   //Add the list to the effect
         }
 
-        if (effect.MaxStacks > 0)
+        int effectiveCap = EffectiveStackCap(effect, sourceStats);
+        if (effectiveCap > 0)
         {
             int count = 0; foreach (var active in list) count += active.stacks;
-            stacksPerHit = Mathf.Min(stacksPerHit, effect.MaxStacks - count);
+            stacksPerHit = Mathf.Min(stacksPerHit, effectiveCap - count);
             if (stacksPerHit <= 0) return;
         }
         var instance = new StatusInstance(effect, damagePerTick, stacksPerHit, tickCount, sourceStats, effectiveInterval);  //Create the instance using the passed in values
         list.Add(instance);     //Add our new instance to the list
+    }
+
+    static int EffectiveStackCap(StatusEffects effect, StatsComponent sourceStats)
+    {
+        var keystones = sourceStats != null ? sourceStats.GetComponent<PassiveKeystoneState>() : null;
+        return keystones != null ? keystones.EffectiveAilmentStackCap(effect) : effect.MaxStacks;
     }
 
     // Used especially for Ignite: keep the instance with highest total damage over its lifetime.
@@ -230,7 +244,7 @@ public partial class StatusController : MonoBehaviour
             if (pe.Effect == null) continue;    //if the effect is null, continue
 
             if (strengthByEffect.TryGetValue(pe.Effect, out float current)) //if the effect is in the list, current is its value
-                strengthByEffect[pe.Effect] = current + pe.Strength;        //set the effect at this position to its current power + the pending effect's strength (A bit unsure about this. Why add the strength together?)
+                strengthByEffect[pe.Effect] = current + pe.Strength;        // Sum due stacks/ticks into one damage application and popup per effect this turn.
             else
                 strengthByEffect[pe.Effect] = pe.Strength;  //Otherwise, set the effect to the pending effect's strength
         }
@@ -338,9 +352,8 @@ public partial class StatusController : MonoBehaviour
         }
     }
 
-    //These two functions I think are no longer necessary, they were inteded to be delays that would not immediately apply status effects
-    //so that the damage numbers could be displayed one after another instead of a bunch of numbers appearing at once
-    //I believe now I'm going to do the damage numbers somewhere else entirely, and it should be possible to add a slight delay in there instead.
+    // Legacy non-DOT dispatch waits 0.3 scaled seconds. DOT uses ApplyDotDamage
+    // immediately; shock/chill callbacks currently have no gameplay response.
     public IEnumerator EffectDelay(PlayerController target, float strength, StatusEffects effect)   
     {
         yield return new WaitForSeconds(0.3f);

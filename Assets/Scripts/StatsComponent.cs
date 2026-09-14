@@ -1,3 +1,5 @@
+// Developer map: Actor stat store with cached StatValue entries and batched change events. GetStat converts classified percent points to fractions; GetRawStat preserves stored units.
+// See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using UnityEngine;
 using System.Collections.Generic;
 
@@ -39,8 +41,8 @@ public class StatsComponent : MonoBehaviour
     }
 
     /// <summary>
-    /// Raw stored value (e.g., 20 == "20%").
-    /// Use this only when you explicitly want the rolled tier number.
+    /// Raw-unit calculated value (e.g., 20 == "20%"). More damage returns
+    /// its compounded effective percentage (two +20 rolls return 44), not a roll sum.
     /// </summary>
     public float GetRawStat(StatTypes type)
     {
@@ -52,7 +54,7 @@ public class StatsComponent : MonoBehaviour
     {
         if (!_stats.TryGetValue(type, out var stat))
         {
-            stat = new StatValue(baseValue);
+            stat = new StatValue(baseValue, IsPercentStat(type) && type.ToString().EndsWith("Mult"));
             _stats[type] = stat;
         }
         else
@@ -66,7 +68,7 @@ public class StatsComponent : MonoBehaviour
     {
         if (!_stats.TryGetValue(mod.Stat, out var stat))
         {
-            stat = new StatValue();
+            stat = new StatValue(0, IsPercentStat(mod.Stat) && mod.Stat.ToString().EndsWith("Mult"));
             _stats[mod.Stat] = stat;
         }
         stat.AddModifier(mod);
@@ -119,6 +121,9 @@ public class StatsComponent : MonoBehaviour
             case StatTypes.PoisonDmg:
             case StatTypes.BleedDmg:
             case StatTypes.IgniteDmg:
+            case StatTypes.MagicDmg:
+            case StatTypes.ProjectileDmg:
+            case StatTypes.MinionDmg:
 
             // Generic & elemental "more" damage
             case StatTypes.GenericMult:
@@ -131,10 +136,26 @@ public class StatsComponent : MonoBehaviour
             case StatTypes.BleedMult:
             case StatTypes.IgniteMult:
 
-            // Crit / attack speed
+            // Crit / attack speed / utility percentages
+            case StatTypes.WeaponBaseCrit:
+            case StatTypes.ChanceToBlock:
             case StatTypes.CritChance:
+            case StatTypes.CritMult:
             case StatTypes.BaseCritChance:   // +X percentage points to base crit
             case StatTypes.AttackSpeed:
+            case StatTypes.Accuracy:
+            case StatTypes.ChanceToHitTwice:
+            case StatTypes.CooldownRecovery:
+            case StatTypes.ProjectileSpeed:
+
+            // Penetration
+            case StatTypes.PhysPenetration:
+            case StatTypes.ColdPenetration:
+            case StatTypes.LightPenetration:
+            case StatTypes.FirePenetration:
+            case StatTypes.PoisonPenetration:
+            case StatTypes.IgnitePenetration:
+            case StatTypes.BleedPenetration:
 
             // Defences / resists / caps
             case StatTypes.ArmourPercent:
@@ -154,9 +175,22 @@ public class StatsComponent : MonoBehaviour
             case StatTypes.ChillRes:
             case StatTypes.AllAilmentRes:
 
-            // Life / mana % increases
+            // Life / mana % increases. Both regeneration stats remain flat units
+            // per second and are therefore intentionally excluded here.
             case StatTypes.LifePercent:
             case StatTypes.ManaPercent:
+
+            // Attribute increases and percent-per-attribute scalers. The dormant
+            // consumers remain intentionally unimplemented, but their stored and
+            // displayed units are percentages.
+            case StatTypes.StrengthPercent:
+            case StatTypes.IntelligencePercent:
+            case StatTypes.DexterityPercent:
+            case StatTypes.DamagePerStrength:
+            case StatTypes.DoTMultPerIntelligence:
+            case StatTypes.AttackSpeedPerDexterity:
+            case StatTypes.AccuracyPerDexterity:
+            case StatTypes.DmgPerLowestStat:
 
             // Ailment scaling – effect
             case StatTypes.ShockEffect:

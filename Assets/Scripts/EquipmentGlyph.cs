@@ -1,3 +1,5 @@
+// Developer map: Procedural UI silhouettes for gear slots when no icon art is needed. Used by inventory and equipped-item panels; independent of world weapon sprites.
+// See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using UnityEngine;
 using UnityEngine.UI;
 

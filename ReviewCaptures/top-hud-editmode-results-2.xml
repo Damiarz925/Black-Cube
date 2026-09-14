@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="20" result="Failed(Child)" total="20" passed="17" failed="3" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-09-11 21:19:15Z" end-time="2026-09-11 21:19:16Z" duration="0.8806535">
+  <test-suite type="TestSuite" id="1000" name="Black Cube Idle" fullname="Black Cube Idle" runstate="Runnable" testcasecount="92" result="Failed" site="Child" start-time="2026-09-11 21:19:15Z" end-time="2026-09-11 21:19:16Z" duration="0.880654" total="20" passed="17" failed="3" inconclusive="0" skipped="0" asserts="0">
+    <properties>
+      <property name="platform" value="EditMode" />
+    </properties>
+    <failure>
+      <message><![CDATA[One or more child tests had errors]]></message>
+    </failure>
+    <test-suite type="Assembly" id="1103" name="Assembly-CSharp-Editor.dll" fullname="D:/Unity/Projects/Black-Cube/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" runstate="Runnable" testcasecount="92" result="Failed" site="Child" start-time="2026-09-11 21:19:15Z" end-time="2026-09-11 21:19:16Z" duration="0.860101" total="20" passed="17" failed="3" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="12804" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+        <property name="EditorOnly" value="True" />
+      </properties>
+      <failure>
+        <message><![CDATA[One or more child tests had errors]]></message>
+      </failure>
+      <test-suite type="TestFixture" id="1031" name="HudControlTests" fullname="HudControlTests" classname="HudControlTests" runstate="Runnable" testcasecount="20" result="Failed" site="Child" start-time="2026-09-11 21:19:15Z" end-time="2026-09-11 21:19:16Z" duration="0.858067" total="20" passed="17" failed="3" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <failure>
+          <message><![CDATA[One or more child tests had errors]]></message>
+        </failure>
+        <test-case id="1052" name="BattleManagerEvents_SyncEnemyExistingBeforeHudThenLateReplacementAndDeath" fullname="HudControlTests.BattleManagerEvents_SyncEnemyExistingBeforeHudThenLateReplacementAndDeath" methodname="BattleManagerEvents_SyncEnemyExistingBeforeHudThenLateReplacementAndDeath" classname="HudControlTests" runstate="Runnable" seed="283317578" result="Failed" start-time="2026-09-11 21:19:15Z" end-time="2026-09-11 21:19:16Z" duration="0.505158" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+          <failure>
+            <message><![CDATA[  Expected: String containing "Goblin"
+  But was:  <string.Empty>
+]]></message>
+            <stack-trace><![CDATA[at HudControlTests.BattleManagerEvents_SyncEnemyExistingBeforeHudThenLateReplacementAndDeath () [0x00053] in D:\Unity\Projects\Black-Cube\Assets\Tests\Editor\HudControlTests.cs:209
+]]></stack-trace>
+          </failure>
+        </test-case>
+        <test-case id="1050" name="EnemyLifecycle_ExistingLateReplacementDeathAndAbsentManaStayConsistentWithoutDuplicateHandlers" fullname="HudControlTests.EnemyLifecycle_ExistingLateReplacementDeathAndAbsentManaStayConsistentWithoutDuplicateHandlers" methodname="EnemyLifecycle_ExistingLateReplacementDeathAndAbsentManaStayConsistentWithoutDuplicateHandlers" classname="HudControlTests" runstate="Runnable" seed="306211787" result="Passed" start-time="2026-09-11 21:19:16Z" end-time="2026-09-11 21:19:16Z" duration="0.033800" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1049" name="EnemyRebind_UnsubscribesOldHealthAndClearsWhenNone" fullname="HudControlTests.EnemyRebind_UnsubscribesOldHealthAndClearsWhenNone" methodname="EnemyRebind_UnsubscribesOldHealthAndClearsWhenNone" classname="HudControlTests" runstate="Runnable" seed="310274383" result="Passed" start-time="2026-09-11 21:19:16Z" end-time="2026-09-11 21:19:16Z" duration="0.022999" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+          <output><![CDATA[HealthComponent: Player died. name=Rare Goblin
+HealthComponent: GameManager.Instance is null; player death could not show death flow.
+]]></output>
+        </test-case>
+        <test-suite type="ParameterizedMethod" id="1046" name="EnemySpecies_StripsOnlyWholeRarityPrefixes" fullname="HudControlTests.EnemySpecies_StripsOnlyWholeRarityPrefixes" classname="HudControlTests" runstate="Runnable" testcasecount="4" result="Passed" start-time="2026-09-11 21:19:16Z" end-time="2026-09-11 21:19:16Z" duration="0.004341" total="4" passed="4" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="1042" name="EnemySpecies_StripsOnlyWholeRarityPrefixes(&quot;Legendary Goblin&quot;,&quot;Goblin&quot;)" fullname="HudControlTests.EnemySpecies_StripsOnlyWholeRarityPrefixes(&quot;Legendary Goblin&quot;,&quot;Goblin&quot;)" methodname="EnemySpecies_StripsOnlyWholeRarityPrefixes" classname="HudControlTests" runstate="Runnable" seed="1053520147" result="Passed" start-time="2026-09-11 21:19:16Z" end-time="2026-09-11 21:19:16Z" duration="0.000387" asserts="0">
+            <properties>
+              <property name="retryIteration" value="0" />
+              <property name="repeatIteration" value="0" />
+            </properties>
+          </test-case>
+          <test-case id="1043" name="EnemySpecies_StripsOnlyWholeRarityPrefixes(&quot;magic Rare Skeleton(Clone)&quot;,&quot;Skeleton&quot;)" fullname="HudControlTests.EnemySpecies_StripsOnlyWholeRarityPrefixes(&quot;magic Rare Skeleton(Clone)&quot;,&quot;Skeleton&quot;)" methodname="EnemySpecies_StripsOnlyWholeRarityPrefixes" classname="HudControlTests" runstate="Runnable" seed="175551197" result="Passed" start-time="2026-09-11 21:19:16Z" end-time="2026-09-11 21:19:16Z" duration="0.000154" asserts="0">
+            <properties>
+              <property name="retryIteration" value="0" />
+              <property name="repeatIteration" value="0" />
+            </properties>
+          </test-case>
+          <test-case id="1044" name="EnemySpecies_StripsOnlyWholeRarityPrefixes(&quot;Orc Warrior&quot;,&quot;Orc Warrior&quot;)" fullname="HudControlTests.EnemySpecies_StripsOnlyWholeRarityPrefixes(&quot;Orc Warrior&quot;,&quot;Orc Warrior&quot;)" methodname="EnemySpecies_StripsOnlyWholeRarityPrefixes" classname="HudControlTests" runstate="Runnable" seed="1746327692" result="Passed" start-time="2026-09-11 21:19:16Z" end-time="2026-09-11 21:19:16Z" duration="0.000066" asserts="0">
+            <properties>
+              <property name="retryIteration" value="0" />
+              <property name="repeatIteration" value="0" />
+            </properties>
+          </test-case>
+          <test-case id="1045" name="EnemySpecies_StripsOnlyWholeRarityPrefixes(&quot;Normality Golem&quot;,&quot;Normality Golem&quot;)" fullname="HudControlTests.EnemySpecies_StripsOnlyWholeRarityPrefixes(&quot;Normality Golem&quot;,&quot;Normality Golem&quot;)" methodname="EnemySpecies_StripsOnlyWholeRarityPrefixes" classname="HudControlTests" runstate="Runnable" seed="2092479055" result="Passed" start-time="2026-09-11 21:19:16Z" end-time="2026-09-11 21:19:16Z" duration="0.000058" asserts="0">
+            <properties>
+              <property name="retryIteration" value="0" />
+              <property name="repeatIteration" value="0" />
+            </properties>
+          </test-case>
+        </test-suite>
+        <test-case id="1035" name="GoblinPrefab_ProvidesStableNamedStillPortrait" fullname="HudControlTests.GoblinPrefab_ProvidesStableNamedStillPortrait" methodname="GoblinPrefab_ProvidesStableNamedStillPortrait" classname="HudControlTests" runstate="Runnable" seed="820031421" result="Passed" start-time="2026-09-11 21:19:16Z" end-time="2026-09-11 21:19:16Z" duration="0.086332" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1053" name="ImportedArtwork_HashesAreExactImportsWithUniqueSpriteMetas" fullname="HudControlTests.ImportedArtwork_HashesAreExactImportsWithUniqueSpriteMetas" methodname="ImportedArtwork_HashesAreExactImportsWithUniqueSpriteMetas" classname="HudControlTests" runstate="Runnable" seed="1427376771" result="Passed" start-time="2026-09-11 21:19:16Z" end-time="2026-09-11 21:19:16Z" duration="0.106465" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1051" name="InitialPlayerSync_ShowsNameAuthoritativeManaAndLeftOriginContainedHealthFill" fullname="HudControlTests.InitialPlayerSync_ShowsNameAuthoritativeManaAndLeftOriginContainedHealthFill" methodname="InitialPlayerSync_ShowsNameAuthoritativeManaAndLeftOriginContainedHealthFill" classname="HudControlTests" runstate="Runnable" seed="20033268" result="Failed" start-time="2026-09-11 21:19:16Z" end-time="2026-09-11 21:19:16Z" duration="0.018764" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+          <failure>
+            <message><![CDATA[  Expected string length 9 but was 5. Strings differ at index 0.
+  Expected: "100 / 100"
+  But was:  "0 / 0"
+  -----------^
+]]></message>
+            <stack-trace><![CDATA[at HudControlTests.InitialPlayerSync_ShowsNameAuthoritativeManaAndLeftOriginContainedHealthFill () [0x00095] in D:\Unity\Projects\Black-Cube\Assets\Tests\Editor\HudControlTests.cs:196
+]]></stack-trace>
+          </failure>
+        </test-case>
+        <test-case id="1048" name="MainControls_AreUniqueOwnCallbacksNavigateAndPersistPanelState" fullname="HudControlTests.MainControls_AreUniqueOwnCallbacksNavigateAndPersistPanelState" methodname="MainControls_AreUniqueOwnCallbacksNavigateAndPersistPanelState" classname="HudControlTests" runstate="Runnable" seed="2052771244" result="Failed" start-time="2026-09-11 21:19:16Z" end-time="2026-09-11 21:19:16Z" duration="0.022968" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+          <failure>
+            <message><![CDATA[  Expected: True
+  But was:  False
+]]></message>
+            <stack-trace><![CDATA[at HudControlTests.MainControls_AreUniqueOwnCallbacksNavigateAndPersistPanelState () [0x001b6] in D:\Unity\Projects\Black-Cube\Assets\Tests\Editor\HudControlTests.cs:147
+]]></stack-trace>
+          </failure>
+        </test-case>
+        <test-case id="1034" name="NullPortrait_IsTransparentAndDisabledWhileValidPortraitIsVisible" fullname="HudControlTests.NullPortrait_IsTransparentAndDisabledWhileValidPortraitIsVisible" methodname="NullPortrait_IsTransparentAndDisabledWhileValidPortraitIsVisible" classname="HudControlTests" runstate="Runnable" seed="425577076" result="Passed" start-time="2026-09-11 21:19:16Z" end-time="2026-09-11 21:19:16Z" duration="0.003366" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1032" name="PixelMap_IsContainedAndAspectStableAtRepresentativeResolutions" fullname="HudControlTests.PixelMap_IsContainedAndAspectStableAtRepresentativeResolutions" methodname="PixelMap_IsContainedAndAspectStableAtRepresentativeResolutions" classname="HudControlTests" runstate="Runnable" seed="395639350" result="Passed" start-time="2026-09-11 21:19:16Z" end-time="2026-09-11 21:19:16Z" duration="0.011141" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-suite type="ParameterizedMethod" id="1039" name="PlayerName_DefaultsAndNormalizes" fullname="HudControlTests.PlayerName_DefaultsAndNormalizes" classname="HudControlTests" runstate="Runnable" testcasecount="3" result="Passed" start-time="2026-09-11 21:19:16Z" end-time="2026-09-11 21:19:16Z" duration="0.002465" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="1036" name="PlayerName_DefaultsAndNormalizes(null,&quot;Wanderer&quot;)" fullname="HudControlTests.PlayerName_DefaultsAndNormalizes(null,&quot;Wanderer&quot;)" methodname="PlayerName_DefaultsAndNormalizes" classname="HudControlTests" runstate="Runnable" seed="1252849886" result="Passed" start-time="2026-09-11 21:19:16Z" end-time="2026-09-11 21:19:16Z" duration="0.000383" asserts="0">
+            <properties>
+              <property name="retryIteration" value="0" />
+              <property name="repeatIteration" value="0" />
+            </properties>
+          </test-case>
+          <test-case id="1037" name="PlayerName_DefaultsAndNormalizes(&quot;   &quot;,&quot;Wanderer&quot;)" fullname="HudControlTests.PlayerName_DefaultsAndNormalizes(&quot;   &quot;,&quot;Wanderer&quot;)" methodname="PlayerName_DefaultsAndNormalizes" classname="HudControlTests" runstate="Runnable" seed="983242626" result="Passed" start-time="2026-09-11 21:19:16Z" end-time="2026-09-11 21:19:16Z" duration="0.000100" asserts="0">
+            <properties>
+              <property name="retryIteration" value="0" />
+              <property name="repeatIteration" value="0" />
+            </properties>
+          </test-case>
+          <test-case id="1038" name="PlayerName_DefaultsAndNormalizes(&quot;  Aria  &quot;,&quot;Aria&quot;)" fullname="HudControlTests.PlayerName_DefaultsAndNormalizes(&quot;  Aria  &quot;,&quot;Aria&quot;)" methodname="PlayerName_DefaultsAndNormalizes" classname="HudControlTests" runstate="Runnable" seed="77603215" result="Passed" start-time="2026-09-11 21:19:16Z" end-time="2026-09-11 21:19:16Z" duration="0.000062" asserts="0">
+            <properties>
+              <property name="retryIteration" value="0" />
+              <property name="repeatIteration" value="0" />
+            </properties>
+          </test-case>
+        </test-suite>
+        <test-case id="1033" name="PortraitSelection_IsDeterministicStillAndPaddingAwareWithEnemyScale" fullname="HudControlTests.PortraitSelection_IsDeterministicStillAndPaddingAwareWithEnemyScale" methodname="PortraitSelection_IsDeterministicStillAndPaddingAwareWithEnemyScale" classname="HudControlTests" runstate="Runnable" seed="757499569" result="Passed" start-time="2026-09-11 21:19:16Z" end-time="2026-09-11 21:19:16Z" duration="0.003651" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1047" name="Resources_ClampFillAndKeepCenteredValueReadableAtEmptyAndFull" fullname="HudControlTests.Resources_ClampFillAndKeepCenteredValueReadableAtEmptyAndFull" methodname="Resources_ClampFillAndKeepCenteredValueReadableAtEmptyAndFull" classname="HudControlTests" runstate="Runnable" seed="1698891943" result="Passed" start-time="2026-09-11 21:19:16Z" end-time="2026-09-11 21:19:16Z" duration="0.001697" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1041" name="SpriteState_PrecedenceIsDisabledActivePointerHoverNormal" fullname="HudControlTests.SpriteState_PrecedenceIsDisabledActivePointerHoverNormal" methodname="SpriteState_PrecedenceIsDisabledActivePointerHoverNormal" classname="HudControlTests" runstate="Runnable" seed="1093504729" result="Passed" start-time="2026-09-11 21:19:16Z" end-time="2026-09-11 21:19:16Z" duration="0.003102" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1040" name="StateSlices_AreMeasuredAndDoNotBleedAcrossStates" fullname="HudControlTests.StateSlices_AreMeasuredAndDoNotBleedAcrossStates" methodname="StateSlices_AreMeasuredAndDoNotBleedAcrossStates" classname="HudControlTests" runstate="Runnable" seed="241015198" result="Passed" start-time="2026-09-11 21:19:16Z" end-time="2026-09-11 21:19:16Z" duration="0.001522" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+          <output><![CDATA[Saving results to: C:/Users/david/AppData/LocalLow/DefaultCompany/Black Cube Idle\TestResults.xml
+]]></output>
+        </test-case>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

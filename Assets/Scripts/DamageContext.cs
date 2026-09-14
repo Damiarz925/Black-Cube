@@ -1,5 +1,15 @@
+// Developer map: Per-attack snapshot of typed damage components and critical metadata. The components are one attack, not separate combat turns; critical scaling is applied by the attacker.
+// See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using System.Collections.Generic;
 
+[System.Flags]
+public enum DamageScope
+{
+    None = 0,
+    Magic = 1 << 0,
+    Projectile = 1 << 1,
+    Minion = 1 << 2
+}
 
 [System.Serializable]
 public struct ElementalHit
@@ -20,12 +30,14 @@ public struct DamageContext
     public List<ElementalHit> Hits; //List of type ElementalHit that stores all of the hits in this instance of damage (Hit does cold & lightning dmg = 2 hits total. 1 context.)
     public bool IsCrit; //Bool for whether the hit is a critical strike
     public float CritMultiplier;    //Float for the crit multiplier of the hit
+    public DamageScope Scopes;      //Explicit non-elemental tags used by scoped passive bonuses.
 
     public DamageContext(int initialCapacity = 4)   //Pass in the initial capacity of the hit list, or it defaults to 4. (DamageContext constructor)
     {
         Hits = new List<ElementalHit>(initialCapacity); //Create the new list with the set capacity
         IsCrit = false; //IsCrit is false by default
         CritMultiplier = 1f;    //Crit multi is 1 by default
+        Scopes = DamageScope.None;
     }
 
     //AddDamage function is used to actually add the damage amount for each hit to the hit list. (Called for each element type, pass in element and damage amount)

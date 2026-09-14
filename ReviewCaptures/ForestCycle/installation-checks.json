@@ -1,0 +1,15 @@
+{
+  "status": "PASS",
+  "original_pngs_byte_identical": 6,
+  "ordered_background_references_valid": true,
+  "initial_background_percent": 0,
+  "image_size": [
+    1672,
+    941
+  ],
+  "sprite_world_height": 10,
+  "ppu": 94.1,
+  "levels_per_forest": 10,
+  "cycle_levels": 60,
+  "unity_runtime_tested": false
+}

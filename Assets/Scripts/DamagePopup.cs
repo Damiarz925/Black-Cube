@@ -1,3 +1,5 @@
+// Developer map: Creates styled screen-space numbers from world-space targets; popup instances snapshot positions so target destruction does not move them. DamageReceiver has already applied life loss.
+// See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using TMPro;
 using UnityEngine;
 
@@ -25,6 +27,11 @@ public class DamagePopup : MonoBehaviour
     [SerializeField] private Color defaultColor = Color.white;
     [Header("Number Materials: physical, fire, cold, lightning, poison, bleed, void")]
     [SerializeField] private Material[] numberMaterials;
+    [Header("Digit Atlases: physical, fire, cold, lightning, poison, bleed, ignite")]
+    [SerializeField] private Texture2D[] numberAtlases;
+    [SerializeField, Min(16f)] private float digitHeight = 52f;
+    [SerializeField] private float digitSpacing = -2f;
+    [SerializeField, Min(48f)] private float maxNumberWidth = 180f;
 
     public static DamagePopup Instance;
 
@@ -57,14 +64,15 @@ public class DamagePopup : MonoBehaviour
 
     public void Spawn(float damage, Transform target, Element element)
     {
-        int index=element switch {Element.Phys=>0,Element.Fire=>1,Element.Cold=>2,Element.Light=>3,Element.Poison=>4,_=>6};
+        int index=element switch {Element.Phys=>0,Element.Fire=>1,Element.Cold=>2,Element.Light=>3,Element.Poison=>4,_=>-1};
         SpawnStyled(damage, target, GetColorForElement(element), GetMaterial(index),index);
     }
 
     public void Spawn(float damage, Transform target, StatusEffects effect)
     {
-        int index=effect==null?6:effect.Ailment switch {StatusEffects.AilmentKind.Poison=>4,StatusEffects.AilmentKind.Bleed=>5,StatusEffects.AilmentKind.Ignite=>1,_=>6};
-        SpawnStyled(damage, target, GetColorForStatus(effect), GetMaterial(index),index);
+        int index=effect==null?-1:effect.Ailment switch {StatusEffects.AilmentKind.Poison=>4,StatusEffects.AilmentKind.Bleed=>5,StatusEffects.AilmentKind.Ignite=>6,_=>-1};
+        int materialIndex=effect!=null && effect.Ailment==StatusEffects.AilmentKind.Ignite ? 1 : index;
+        SpawnStyled(damage, target, GetColorForStatus(effect), GetMaterial(materialIndex),index);
     }
 
     public void Spawn(float damage, Transform target, Color color)
@@ -72,7 +80,8 @@ public class DamagePopup : MonoBehaviour
         SpawnStyled(damage,target,color,null);
     }
 
-    private Material GetMaterial(int index) => numberMaterials!=null && index<numberMaterials.Length ? numberMaterials[index] : null;
+    private Material GetMaterial(int index) => numberMaterials!=null && index>=0 && index<numberMaterials.Length ? numberMaterials[index] : null;
+    private Texture2D GetAtlas(int index) => numberAtlases!=null && index>=0 && index<numberAtlases.Length ? numberAtlases[index] : null;
 
     private void SpawnStyled(float damage, Transform target, Color color, Material material,int styleIndex=-1)
     {
@@ -84,10 +93,18 @@ public class DamagePopup : MonoBehaviour
 
         GameObject go = Instantiate(popupPrefab, popupRoot);
         var text = go.GetComponentInChildren<TextMeshProUGUI>();
+        string value = Mathf.RoundToInt(damage).ToString();
+        var atlas = GetAtlas(styleIndex);
 
-        if (text != null)
+        if (atlas != null)
         {
-            text.text = Mathf.RoundToInt(damage).ToString();
+            if (text != null) text.enabled = false;
+            var display = go.AddComponent<DamageDigitDisplay>();
+            display.SetValue(atlas, value, digitHeight, digitSpacing, maxNumberWidth);
+        }
+        else if (text != null)
+        {
+            text.text = value;
             text.color = color;
             if(material != null)
             {

@@ -1,0 +1,15 @@
+Inventory bounded Play diagnostic
+PASS: Normal dismantles
+PASS: Normal yields1; removed slot replaced by one Scrap slot
+PASS: Repeated callback gives no second reward before Destroy completes
+PASS: Magic yields2 into same stack
+PASS: Rare yields3 into same visible slot
+PASS: Scrap cannot dismantle itself
+PASS: Scrap cannot equip
+PASS: Equip applies item stats and removes inventory item
+PASS: Equipped gear protected without corrupting stats
+PASS: Swap returns gear and removes only its modifiers
+PASS: Tooltip uses effective weapon stats, base element and actual global/status modifiers
+PASS: Swapped gear dismantles with correct yield; stats stay intact
+PASS: Unspecified Legendary yield safely disabled
+Visual fixture ready: inventory has Scrap x9 and Fire/Cold/Lightning/Physical weapons. Hover/click equip normally; enter Fire tooltip and Scrap ->x12. Exit Play afterward; no scene save.

@@ -1,0 +1,22 @@
+{
+  "removed_gray_pixels": {
+    "1": 1089,
+    "2": 223,
+    "3": 3782,
+    "4": 2201,
+    "5": 2719,
+    "6": 0,
+    "7": 87,
+    "8": 1027
+  },
+  "idle_prefab_timing_unchanged": true,
+  "verified_gap_seeds_transparent": true,
+  "forward_blade_angle_degrees": -0.04955499436718625,
+  "other_seven_blade_cels_unchanged": true,
+  "canvas": [
+    640,
+    640
+  ],
+  "impact_frame": 4,
+  "unity_runtime_tested": false
+}

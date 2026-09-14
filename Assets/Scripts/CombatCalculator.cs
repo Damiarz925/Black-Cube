@@ -1,7 +1,31 @@
+// Developer map: Pure hit and DOT mitigation shared by both sides. Evasion has no hit roll here; physical damage uses armour and physical penetration rather than an elemental resistance.
+// See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using UnityEngine;
 
 public static class CombatCalculator
 {
+    public static float ScaleOutgoingDamage(float baseAmount, float genericIncreased,
+        float matchingIncreased, float genericMore, float matchingMore)
+    {
+        return baseAmount * (1f + genericIncreased + matchingIncreased)
+            * (1f + genericMore) * (1f + matchingMore);
+    }
+
+    public static float ApplyResistanceValue(float damage, float resistance, float penetration)
+    {
+        float reduction = Mathf.Clamp(resistance - penetration, -0.9f, 0.9f);
+        return damage * (1f - reduction);
+    }
+
+    public static float ApplyArmourValue(float damage, float armour, float physicalPenetration)
+    {
+        if (damage <= 0f) return 0f;
+        armour = Mathf.Max(0f, armour);
+        float reduction = Mathf.Clamp01(armour / (armour + 10f * damage));
+        reduction = Mathf.Clamp(reduction - physicalPenetration, -0.9f, 0.9f);
+        return damage * (1f - reduction);
+    }
+
     //Function for calculating actual hit damage based on player/enemy stats
     public static float CalculateFinalDamage(DamageContext ctx, StatsComponent attacker, StatsComponent defender)
     {
@@ -9,20 +33,31 @@ public static class CombatCalculator
 
         foreach (var hit in ctx.Hits)   //Loop through each "hit" (damage element) in context, and apply the armour using the applyArmour method, and apply resistances and penetration, then return the total
         {
-            float d = hit.Amount;
+            float d = hit.Amount * ScopedDamageMultiplier(ctx.Scopes, attacker);
 
-            // Physical: armour first
+            // Physical damage uses armour only. Physical penetration subtracts
+            // from the armour-derived reduction and never targets resistance.
             if (hit.Element == Element.Phys)
-                d = ApplyArmour(d, defender);   //Apply the armour to the hit (d)
-
-            // Then elemental/Phys res (your existing hit pipeline)
-            d = ApplyResistancesAndPenetration(d, hit.Element, attacker, defender);     //Calculate and apply resistances and penetration to the hit
+                d = ApplyArmourAndPenetration(d, attacker, defender);
+            else
+                d = ApplyResistancesAndPenetration(d, hit.Element, attacker, defender);
 
             if (d > 0f)
                 totalDamageTaken += d;      //If D is greater than 0 after accounting for armour and resistances, add it to the total damage taken and return it
         }
 
         return totalDamageTaken;
+    }
+
+    /// <summary>One additive increased-damage bucket for every explicit scope on the source.</summary>
+    public static float ScopedDamageMultiplier(DamageScope scopes, StatsComponent attacker)
+    {
+        if (attacker == null || scopes == DamageScope.None) return 1f;
+        float increased = 0f;
+        if ((scopes & DamageScope.Magic) != 0) increased += attacker.GetStat(StatTypes.MagicDmg);
+        if ((scopes & DamageScope.Projectile) != 0) increased += attacker.GetStat(StatTypes.ProjectileDmg);
+        if ((scopes & DamageScope.Minion) != 0) increased += attacker.GetStat(StatTypes.MinionDmg);
+        return Mathf.Max(0f, 1f + increased);
     }
 
     // ----------------- EXISTING HIT DEFENCES -----------------
@@ -49,15 +84,13 @@ public static class CombatCalculator
             pen = attacker.GetStat(penType);
         }
 
-        totalRes -= pen;    //Subtract the attacker's penetration stat for the given element from the defender's resistance
-
-        totalRes = Mathf.Clamp(totalRes, -0.9f, 0.9f);      //Clamp the resistance at -90% to 90% resistance
-
-        return damage * (1f - totalRes);        //Convert the number and return the damage amount after resistance and penetration has been applied
+        return ApplyResistanceValue(damage, totalRes, pen);
     }
 
-    //Function for applying armour to the physical damage hit
-    static float ApplyArmour(float physDamage, StatsComponent defender)
+    // Applies the existing armour formula, then subtracts physical penetration
+    // from that percentage reduction. The final reduction uses the same +/-90%
+    // bounds as elemental resistance and penetration.
+    static float ApplyArmourAndPenetration(float physDamage, StatsComponent attacker, StatsComponent defender)
     {
         if (physDamage <= 0f || defender == null)       //If physical damage or defender is 0/null, return
             return 0f;
@@ -65,11 +98,13 @@ public static class CombatCalculator
         float flatArmour = defender.GetStat(StatTypes.FlatArmour);
         float percentArmour = defender.GetStat(StatTypes.ArmourPercent);
         float totalArmour = flatArmour * (1f + percentArmour);  //Grab the flat and percent armour values and multiply them for the total armour.
+        var keystones = defender.GetComponent<PassiveKeystoneState>();
+        if (keystones != null) totalArmour *= keystones.DefenseMultiplier;
 
-        float reduction = totalArmour / (totalArmour + 10f * physDamage);
-        reduction = Mathf.Clamp01(reduction);
-
-        return physDamage * (1f - reduction);
+        float penetration = attacker != null
+            ? attacker.GetStat(StatTypes.PhysPenetration)
+            : 0f;
+        return ApplyArmourValue(physDamage, totalArmour, penetration);
     }
 
     // ----------------- NEW: DOT DEFENCES -----------------
@@ -114,6 +149,6 @@ public static class CombatCalculator
         float totalRes = resAilment + resAllAil - penAilment;       //Calculate the total res by adding the specific ailment res to all ailment res and subtracting the attacker's pen
         totalRes = Mathf.Clamp(totalRes, -0.9f, 0.9f);      //Clamp it at -90% to 90%
 
-        return baseTickDamage * (1f - totalRes);        //Calculate tick damage as base tick damage * 1 + totalres / 100 to convert to a decimal.
+        return baseTickDamage * (1f - totalRes);        // Resistance is already a fraction; do not divide by 100 again.
     }
 }

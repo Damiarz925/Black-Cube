@@ -1,3 +1,5 @@
+// Developer map: Draws the decorative UI geometry behind styled damage numbers. Presentation only: no damage calculation or timing authority.
+// See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;

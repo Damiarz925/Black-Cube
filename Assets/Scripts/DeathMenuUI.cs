@@ -1,3 +1,5 @@
+// Developer map: Displays the killer and pauses via Time.timeScale; restart delegates to GameManager. Hide/menu/quit restore time scale so later scenes do not inherit a paused clock.
+// See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -37,6 +39,10 @@ public class DeathMenuUI : MonoBehaviour
             quitGameButton.onClick.AddListener(OnQuitGameClicked);
         else
             Debug.LogWarning("DeathMenuUI: quitGameButton not assigned.");
+
+        if (root != null)
+            foreach (var button in root.GetComponentsInChildren<Button>(true))
+                CorruptionUIButtonSkin.Ensure(button);
 
         Debug.Log($"DeathMenuUI: Awake. root={(root != null ? root.name : "self")}, mainMenuSceneName={mainMenuSceneName}");
         if (mainMenuSceneName == "MainMenu")

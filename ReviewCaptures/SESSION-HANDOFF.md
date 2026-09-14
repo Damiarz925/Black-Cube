@@ -1,6 +1,10 @@
 # Black Cube handoff — 2026-09-05
 
-User intentionally paused work to conserve usage. Status milestone is complete; STOPPED FOR TODAY. Resume queued work only on user instruction. No commit/push. Unity was left outside Play, SampleScene saved without scene dirty marker. Preserve unrelated existing dirty assets, Packages and ProjectSettings.
+## Latest milestone — 2026-09-07
+
+The later voice request authorized XP, level-up healing/skill points and a starter skill tree, superseding the testing-only pause below. Completed in actual Unity Play. See **XP-SKILLS-MILESTONE.md** and **player-progression-check.txt** for current results/reproduction. Three stages/33 natural kills: zero deaths, 16 level-up heals, minimum observed HP713.4/1000. Six functional skill nodes; XP and skills preserved on Forest1/5 encounter restart. Reproduced and fixed lethal-hit successor-status carryover and lethal-DOT turn continuation. Configuration/invalid configuration passed; UI and cleanup checked. Unity left outside Play, no fixture scene saved. Older XP queue below is historical and superseded by the forgiving prototype curve documented in the new report. Enemy scaling redesign remains deferred.
+
+User resumed for ONE progression milestone with minimal critical checks. That milestone is now complete; STOPPED at the agreed boundary. XP and enemy scaling remain queued. No commit/push. Unity was left outside Play, SampleScene without a dirty marker. Preserve unrelated existing changes.
 
 ## Completed and verified
 
@@ -15,11 +19,15 @@ Unity 6000.6.0f1 compiled status changes and actual Play integration passed: 100
 
 Reproduce through Black Cube > Play Checks > Verify Player Stat Model / Verify Status Stacks in fresh Play. Existing rig/DontDestroyOnLoad and deprecated find API warnings are unrelated. Avoid editing C# during Play: existing nonserialized game dictionaries do not survive hot reload. Original verification.md historical Life100/damage20 discrepancy is superseded by these stat-model results.
 
-## Queue 1: stage/boss/zone progression — not started
+## Stage/boss/zone progression — completed on resumed pass
+
+Implemented in ZoneManager, GameManager, HealthComponent, BattleManager and PaperBattleHUD. Zone names and stages-per-zone are serialized configuration (Forest/Desert/Tundra and10 default). Global combat level continues increasing; local stage cycles. After the last configured zone, the last name repeats while stages cycle and combat level continues, a temporary fallback. Existing forest and ghoul art/scaling retained. Spawn explicitly assigns boss role independent of rarity, including fallback prefab. Live/non-current/already-claimed death callbacks are rejected before loot/count mutation. Claim lasts for that enemy object's lifetime. Normal count excludes bosses. HUD displays local zone/stage and kill progress or BOSS, plus separate enemy rarity.
+
+Minimal checks PASSED: Unity compilation; one focused actual Play diagnostic for10 normals -> boss, no normal stage advance, boss advance once, duplicate loot/count protection, Forest10 -> Desert1, Desert10 -> Tundra1, and death/restart same-stage/reset progress. Live callback rejection also passed. HUD inspected at normal Forest1 and boss Desert1. Evidence: progression-check.txt and progression-boss-hud.png. Diagnostic: Assets/Editor/ProgressionChecks.cs, Black Cube > Play Checks > Verify Progression. It pauses a disposable boss fixture; exit Play afterward. No broader regressions run. See PROGRESSION-TEST-HANDOFF.md for the later simpler-model pass.
 
 Forest stages 1–10, then Desert 1–10, then Tundra. Configurable names and ten-stage default, same art including boss allowed. Keep ten normal kills then boss every stage; only boss death advances stage. Guard duplicate death/reward callbacks. Distinguish boss in HUD, independently of rarity. Preserve monotonically increasing enemy level separately from local stage/name. Decide/document behavior beyond final configured zone. Verify normal cadence, stage-10 boss and zone rollover.
 
-Current GameManager.StartZone uses a single increasing currentZoneLevel; OnEnemyKilled currently lacks duplicate guard and generates one loot item. ZoneManager.GetEnemiesToKillBeforeBoss returns 10. BattleManager owns CurrentEnemyAI and replacement. Do not assume progression has been implemented.
+GameManager.StartZone retains the increasing currentZoneLevel; OnEnemyKilled now guards duplicate rewards and retains one loot item per valid kill. ZoneManager.GetEnemiesToKillBeforeBoss returns10. BattleManager owns CurrentEnemyAI and replacement.
 
 ## Queue 2: player XP — not started
 

@@ -1,3 +1,5 @@
+// Developer map: Single entry point for already-mitigated damage and its popup. The strongest raw component chooses a mixed hit color; it does not split the life deduction into multiple hits.
+// See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using UnityEngine;
 
 [RequireComponent(typeof(HealthComponent))]
@@ -7,10 +9,12 @@ public class DamageReceiver : MonoBehaviour
     private Transform PopupTarget => popupAnchor != null ? popupAnchor : transform;
     private HealthComponent health;
     private DamagePopup damagePopup;
+    private PaperSpriteActor paperSprite;
 
     private void Awake()
     {
         health = GetComponent<HealthComponent>();
+        paperSprite = GetComponent<PaperSpriteActor>();
     }
 
     private void Start()
@@ -23,8 +27,18 @@ public class DamageReceiver : MonoBehaviour
         if (damage <= 0f)
             return;
 
+        var keystones = GetComponent<PassiveKeystoneState>();
+        if (keystones != null) damage = keystones.RedirectDamageToMana(damage);
+        if (damage <= 0f) return;
+
         if (health != null)
+        {
             health.LoseLife(damage);
+            // Presentation-only notification after damage resolves. Lethal hits
+            // skip the flinch so death/replacement always supersedes it.
+            if (health.CurrentLife > 0f)
+                paperSprite?.PlayHitReaction();
+        }
 
         SpawnDamagePopup(damage, element, effect);
     }

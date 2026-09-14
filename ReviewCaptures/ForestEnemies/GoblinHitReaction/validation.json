@@ -1,0 +1,25 @@
+{
+  "status": "PASS",
+  "frames": 5,
+  "canvas": [
+    1152,
+    896
+  ],
+  "sole_y": 816,
+  "transparent_rgba": true,
+  "import_settings": "PASS",
+  "asset_order": "PASS",
+  "delivery_hashes_match": true,
+  "frame_sha256": [
+    "4dcb97c047c897032068aea6c3bab4befbd2df55aa5ef029d3e624324cd893b3",
+    "bbc24f2451eb5cc3fe00dc47271de0b533a12a293a57aad0477d6bb528be1901",
+    "16f680871cdd24061b116d6065dbeb113f5b30157785698a8a6b9aab78e30d9d",
+    "41237718cec5a07cf214be7fca2e5d8627a769a93e02a1f4b6925cb541544cd6",
+    "3ed7b619a07e440c189be84f5f5394f57723c6b79e23437c1e86619652817037"
+  ],
+  "runtime_duration_seconds": 0.21,
+  "gif_frames": 5,
+  "gif_duration_ms": 210,
+  "damage_before_visual_notification": true,
+  "hobgoblin_hit_animation_created": false
+}

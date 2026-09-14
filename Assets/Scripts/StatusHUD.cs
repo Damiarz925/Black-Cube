@@ -1,3 +1,5 @@
+// Developer map: Builds player/enemy status strips and hover tooltips from StatusController summaries. Rebinds to the current spawned enemy and discards stale badges on target replacement.
+// See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -22,30 +24,42 @@ public class StatusHUD : MonoBehaviour
     {
         hud=GetComponent<PaperBattleHUD>();
         var canvas=hud.GetComponentInParent<Canvas>().transform;
-        playerStrip=CreateStrip(canvas,"WANDERER EFFECTS",.30f,.49f);
-        enemyStrip=CreateStrip(canvas,"ENEMY EFFECTS",.53f,.72f);
+        playerStrip=CreateStrip(canvas,"WANDERER EFFECTS");
+        enemyStrip=CreateStrip(canvas,"ENEMY EFFECTS");
+        PositionStrips();
         var tip=Box(canvas,"Status details",new Color(.025f,.028f,.035f,1));tooltip=tip.GetComponent<RectTransform>();
         tooltip.anchorMin=tooltip.anchorMax=new Vector2(.5f,.77f);tooltip.pivot=new Vector2(.5f,1);tooltip.sizeDelta=new Vector2(380,148);
         tooltipText=Text(tip.transform,"",13);tooltipText.alignment=TextAlignmentOptions.TopLeft;
         var tr=tooltipText.rectTransform;tr.offsetMin=new Vector2(14,10);tr.offsetMax=new Vector2(-14,-10);
         tip.GetComponent<Image>().raycastTarget=false;tip.SetActive(false);
     }
-    Strip CreateStrip(Transform canvas,string title,float min,float max)
+    Strip CreateStrip(Transform canvas,string title)
     {
         var root=Box(canvas,title,new Color(.025f,.028f,.035f,.98f));root.GetComponent<Image>().raycastTarget=false;
         root.transform.SetSiblingIndex(hud.transform.GetSiblingIndex()+1);
-        var r=root.GetComponent<RectTransform>();r.anchorMin=new Vector2(min,.815f);r.anchorMax=new Vector2(max,.89f);r.offsetMin=r.offsetMax=Vector2.zero;
+        var r=root.GetComponent<RectTransform>();r.anchorMin=r.anchorMax=new Vector2(0,1);r.pivot=new Vector2(0,1);
         var label=Text(root.transform,title,10);label.color=new Color(.8f,.82f,.85f);label.rectTransform.anchorMin=new Vector2(0,.75f);
         return new Strip{Root=r};
     }
     void Update()
     {
         if(hud==null)return;
+        PositionStrips();
         Refresh(playerStrip,hud.player!=null?hud.player.GetComponent<StatusController>():null);
         var enemy=BattleManager.Instance!=null?BattleManager.Instance.CurrentEnemyAI:null;
         Refresh(enemyStrip,enemy!=null?enemy.GetComponent<StatusController>():null);
+        bool panels = SkillTreeUI.IsOpen || hud.IsEnemyInspectionOpen || (hud.player != null && hud.player.CurrentLife <= 0);
+        playerStrip.Root.gameObject.SetActive(!panels);
+        enemyStrip.Root.gameObject.SetActive(!panels && !hud.statsPanel.activeSelf);
+        if (panels || hud.statsPanel.activeSelf) { HideTooltip(); return; }
         if(hovered!=null && hovered.gameObject.activeInHierarchy) tooltipText.text=hovered.Summary.Tooltip;
         else HideTooltip();
+    }
+    void PositionStrips()
+    {
+        if(hud==null)return;
+        hud.PositionBelowArtwork(playerStrip?.Root,650,3,300,50);
+        hud.PositionBelowArtwork(enemyStrip?.Root,960,3,300,50);
     }
     void Refresh(Strip strip,StatusController target)
     {

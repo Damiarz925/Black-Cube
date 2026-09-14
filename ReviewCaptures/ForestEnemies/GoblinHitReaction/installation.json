@@ -1,0 +1,13 @@
+{
+  "frames": [
+    "GoblinHit1.png",
+    "GoblinHit2.png",
+    "GoblinHit3.png",
+    "GoblinHit4.png",
+    "GoblinHit5.png"
+  ],
+  "runtime_duration_seconds": 0.21,
+  "preview_duration_ms": 210,
+  "policy": "Own attack wind-up/contact frames 0-3 retain priority; a hit starts at recovery frame 4 or immediately from idle/recovery; re-hit restarts frame 1 without queueing.",
+  "delivery": "ReviewCaptures\\ForestEnemies\\GoblinHitReaction\\FinalFrames"
+}

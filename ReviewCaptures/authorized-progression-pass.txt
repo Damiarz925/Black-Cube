@@ -1,0 +1,50 @@
+Authorized bounded progression pass 2026-09-07T01:48:44.2975059-04:00
+KILL 1 GameManager: Enemy killed. Boss=False, zoneKills=1/10
+KILL 2 GameManager: Enemy killed. Boss=False, zoneKills=2/10
+KILL 3 GameManager: Enemy killed. Boss=False, zoneKills=3/10
+KILL 4 GameManager: Enemy killed. Boss=False, zoneKills=4/10
+KILL 5 GameManager: Enemy killed. Boss=False, zoneKills=5/10
+KILL 6 GameManager: Enemy killed. Boss=False, zoneKills=6/10
+KILL 7 GameManager: Enemy killed. Boss=False, zoneKills=7/10
+KILL 8 GameManager: Enemy killed. Boss=False, zoneKills=8/10
+KILL 9 GameManager: Enemy killed. Boss=False, zoneKills=9/10
+KILL 10 GameManager: Enemy killed. Boss=False, zoneKills=10/10
+KILL 11 GameManager: Enemy killed. Boss=True, zoneKills=10/10
+KILL 12 GameManager: Enemy killed. Boss=False, zoneKills=1/10
+KILL 13 GameManager: Enemy killed. Boss=False, zoneKills=2/10
+KILL 14 GameManager: Enemy killed. Boss=False, zoneKills=3/10
+KILL 15 GameManager: Enemy killed. Boss=False, zoneKills=4/10
+KILL 16 GameManager: Enemy killed. Boss=False, zoneKills=5/10
+KILL 17 GameManager: Enemy killed. Boss=False, zoneKills=6/10
+KILL 18 GameManager: Enemy killed. Boss=False, zoneKills=7/10
+KILL 19 GameManager: Enemy killed. Boss=False, zoneKills=8/10
+KILL 20 GameManager: Enemy killed. Boss=False, zoneKills=9/10
+KILL 21 GameManager: Enemy killed. Boss=False, zoneKills=10/10
+KILL 22 GameManager: Enemy killed. Boss=True, zoneKills=10/10
+KILL 23 GameManager: Enemy killed. Boss=False, zoneKills=1/10
+KILL 24 GameManager: Enemy killed. Boss=False, zoneKills=2/10
+KILL 25 GameManager: Enemy killed. Boss=False, zoneKills=3/10
+KILL 26 GameManager: Enemy killed. Boss=False, zoneKills=4/10
+KILL 27 GameManager: Enemy killed. Boss=False, zoneKills=5/10
+KILL 28 GameManager: Enemy killed. Boss=False, zoneKills=6/10
+KILL 29 GameManager: Enemy killed. Boss=False, zoneKills=7/10
+KILL 30 GameManager: Enemy killed. Boss=False, zoneKills=8/10
+KILL 31 GameManager: Enemy killed. Boss=False, zoneKills=9/10
+KILL 32 GameManager: Enemy killed. Boss=False, zoneKills=10/10
+KILL 33 GameManager: Enemy killed. Boss=True, zoneKills=10/10
+PASS sustained: deaths=33, observed=33, stage=4, count=0, cadenceErrors=0, actorErrors=0, inherited=0, lethalDOTInjected=True
+PASS cleanup: enemies=1, currentStatuses=0, enemyBadges=0, errors=0, rewards=33, inventoryDelta=33
+PASS boss death/restart: Forest5 boss -> dead -> Forest5 normal0 full revive -> normal1; global5 preserved
+PASS configuration: global=1, Alpha1
+PASS configuration: global=3, Alpha3
+PASS configuration: global=4, Beta1
+PASS configuration: global=6, Beta3
+PASS configuration: global=7, Beta1
+PASS invalid configuration: empty names; divisor=0 -> Forest1 global7
+PASS invalid configuration: empty names; divisor=-3 -> Forest1 global7
+PASS invalid configuration: blank name -> Zone 1 / stage1
+UI READY: fresh Play, combat disabled, timeScale1. Open inventory/stats; Authorized UI Transition; reopen panels; UI Death Fixture; native Restart. Exit Play without saving.
+UI transition fixture: 2/0
+PASS UI (native inspection): inventory and stats open/close before Forest1 -> Forest2; 11 reward items shown after transition; no panel/text overlap; enemy status strip hidden behind stats; death closes panels/hides status strips; native Restart returns Forest2 normal0, 1000/1000 HP.
+NOTE UI automation: first clicks after Unity menu focus changes were sometimes swallowed; Restart completed on third bounded click, confirmed by Button.OnPointerClick -> DeathMenuUI.OnRestartLevelClicked in Editor.log. No production cause established.
+PASS disposal: exited Play without saving; scene backup restored. No production code or asset edits in this pass.

@@ -1,0 +1,14 @@
+screen=640x480
+enemy=Goblin2D(Clone)
+playerName: text='Wanderer' active=True enabled=True color=RGBA(1.000, 1.000, 1.000, 1.000) font=LiberationSans SDF rect=(180.6,1005.8)-(562.2,1039.8) sibling=13
+enemyName: text='Goblin' active=True enabled=True color=RGBA(1.000, 1.000, 1.000, 1.000) font=LiberationSans SDF rect=(820.6,1005.8)-(1196.0,1039.8) sibling=14
+playerHP: text='897 / 1000' active=True enabled=True color=RGBA(1.000, 1.000, 1.000, 1.000) font=LiberationSans SDF rect=(221.7,962.0)-(573.9,985.3) sibling=1
+playerMana: text='100 / 100' active=True enabled=True color=RGBA(1.000, 1.000, 1.000, 1.000) font=LiberationSans SDF rect=(221.7,917.3)-(573.9,940.6) sibling=1
+enemyHP: text='250 / 250' active=True enabled=True color=RGBA(1.000, 1.000, 1.000, 1.000) font=LiberationSans SDF rect=(865.3,962.0)-(1174.5,985.3) sibling=1
+enemyMana: text='0 / 0' active=True enabled=True color=RGBA(1.000, 1.000, 1.000, 1.000) font=LiberationSans SDF rect=(856.3,917.3)-(1174.5,940.6) sibling=1
+playerPortrait: sprite=Idle1 active=True enabled=True color=RGBA(1.000, 1.000, 1.000, 1.000) type=Simple rect=(5.4,872.7)-(182.3,1092.6) mask=True showMask=False
+enemyPortrait: sprite=GoblinIdle active=True enabled=True color=RGBA(1.000, 1.000, 1.000, 1.000) type=Simple rect=(563.8,823.1)-(870.5,1204.3) mask=True showMask=False
+playerHPFill: amount=0.8970 active=True rect=(226.5,964.4)-(569.1,982.9) pivot=(0.00, 0.50)
+playerManaFill: amount=1.0000 active=True rect=(221.7,919.7)-(573.9,938.2) pivot=(0.00, 0.50)
+enemyHPFill: amount=1.0000 active=True rect=(865.3,964.4)-(1174.5,982.9) pivot=(0.00, 0.50)
+enemyManaFill: amount=0.0000 active=True rect=(856.3,919.7)-(1174.5,938.2) pivot=(0.00, 0.50)

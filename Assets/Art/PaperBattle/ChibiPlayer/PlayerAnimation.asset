@@ -1,0 +1,84 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c04dc2569f38542f870b915620d9438f, type: 3}
+  m_Name: Chibi Player Animation
+  m_EditorClassIdentifier: Assembly-CSharp::PaperPlayerAnimationSet
+  idleFrames:
+  - {fileID: 21300000, guid: 5230573817aa56d58e57caad34212a89, type: 3}
+  - {fileID: 21300000, guid: cb7b6533cb145814aeac1d41c50d0837, type: 3}
+  - {fileID: 21300000, guid: 7c9a9906740f564c8001249f29b46c3f, type: 3}
+  - {fileID: 21300000, guid: 47b166f92b395be1a5b3120b573ecc5f, type: 3}
+  - {fileID: 21300000, guid: f983f2039b575d538165b7576fb29eaf, type: 3}
+  - {fileID: 21300000, guid: 2894ea0c3fc052eda8ec78c25b218d8f, type: 3}
+  - {fileID: 21300000, guid: 6c15a6b244b158d79f94aa25c8e09f73, type: 3}
+  - {fileID: 21300000, guid: ccbf6fedfe1b5616ac04cb75138f2587, type: 3}
+  idleFramesPerSecond: 2
+  attackFrames:
+  - {fileID: 21300000, guid: 13772b46c3f25ae991c8c01bd2741e73, type: 3}
+  - {fileID: 21300000, guid: b0d69fba35665f6eb19afd03465b4a91, type: 3}
+  - {fileID: 21300000, guid: 4baff84067a257e085f049f3e74f1940, type: 3}
+  - {fileID: 21300000, guid: d3b7cde40bfe5c31aca4424a9ba2a761, type: 3}
+  - {fileID: 21300000, guid: c487272c1f485d84941d1282f7733bb4, type: 3}
+  - {fileID: 21300000, guid: ab3fcdad47265a4180d72206e58b7849, type: 3}
+  - {fileID: 21300000, guid: 4e02f718053b5437a4da597c3663c4b2, type: 3}
+  - {fileID: 21300000, guid: cfd83f3abc0a5254b4d0ba6c25f05baf, type: 3}
+  idleWeaponGrips:
+  - position: {x: -0.81179361, y: 0.88211302}
+    angle: -25
+    inFront: 1
+  - position: {x: -0.79920000, y: 0.86280000}
+    angle: -25
+    inFront: 1
+  - position: {x: -0.85111111, y: 0.82888889}
+    angle: -25
+    inFront: 1
+  - position: {x: -0.82656410, y: 0.84912821}
+    angle: -25
+    inFront: 1
+  - position: {x: -0.84842105, y: 0.90715789}
+    angle: -25
+    inFront: 1
+  - position: {x: -0.81054830, y: 0.93613577}
+    angle: -25
+    inFront: 1
+  - position: {x: -0.80137104, y: 0.90431877}
+    angle: -25
+    inFront: 1
+  - position: {x: -0.82352531, y: 0.92052356}
+    angle: -25
+    inFront: 1
+  attackWeaponGrips:
+  - position: {x: -0.84187135, y: 0.85485380}
+    angle: -25
+    inFront: 1
+  - position: {x: -1.09181287, y: 1.28783626}
+    angle: -140
+    inFront: 0
+  - position: {x: -0.75742690, y: 2.60561404}
+    angle: 60
+    inFront: 0
+  - position: {x: 1.34807018, y: 1.55017544}
+    angle: 0
+    inFront: 0
+  - position: {x: 1.41169591, y: 1.60725146}
+    angle: -10
+    inFront: 0
+  - position: {x: 0.92888889, y: 1.34900585}
+    angle: -35
+    inFront: 0
+  - position: {x: -0.88171311, y: 0.92127967}
+    angle: -25
+    inFront: 1
+  - position: {x: -0.85791667, y: 0.89741667}
+    angle: -25
+    inFront: 1
+  defaultWeaponVisual: {fileID: 11400000, guid: 82f94467204f5f3298a008bba49d10e1, type: 2}

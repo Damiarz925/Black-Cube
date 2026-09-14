@@ -1,3 +1,5 @@
+// Developer map: Serialized stat identifiers consumed by gear catalogs, formulas and UI. Preserve numeric identities when extending; presence in this enum does not imply an implemented mechanic.
+// See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using UnityEngine;
 
 public enum StatTypes
@@ -150,5 +152,15 @@ public enum StatTypes
     FlatColdPerDexterity = 106,
 
     DmgPerLowestStat = 107,
-    UnarmedDamage = 108
+    UnarmedDamage = 108,
+
+    // Passive-tree-only scopes. Kept after all existing serialized ids.
+    MagicDmg = 109,
+    ProjectileDmg = 110,
+    MinionDmg = 111,
+
+    // Forward-compatible projectile passives. Amount is stored as an exact flat
+    // fractional total; speed is stored as raw percentage points.
+    ProjectileAmount = 112,
+    ProjectileSpeed = 113
 }

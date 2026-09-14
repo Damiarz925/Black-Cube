@@ -1,0 +1,8 @@
+PASS: actual Inventory button opened the authored inventory through EventSystem
+PASS: actual currency slot raycast/click armed NormalToMagic
+PASS: held cursor rendered after actual selection and remained raycast-transparent
+PASS: default actual gear click count 5->4, rarity=Magic, cleared=True
+PASS: Shift actual gear click consumed exactly one and retained selection
+PASS: production click-away handler canceled selection from an EventSystem background raycast
+inventoryPath=PaperBattle/UI/InventoryPanel cursorPath=PaperBattle/UI/Held crafting currency canvas=PaperBattle/UI
+cursorRaycast=False blocksRaycasts=False layoutInstances=1

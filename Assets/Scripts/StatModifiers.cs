@@ -1,3 +1,5 @@
+// Developer map: Stat operations and a modifier source token used for removal on gear/skill changes. Most values are raw points; non-bucket multiplicative operations take a fractional multiplier delta.
+// See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using UnityEngine;
 
 public enum StatOp  //Enum for stat operators, flat, additive, multiplicative, and a full override of the value

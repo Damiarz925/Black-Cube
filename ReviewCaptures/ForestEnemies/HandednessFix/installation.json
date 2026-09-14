@@ -1,0 +1,33 @@
+{
+  "method": "ImageGen redraws with alpha/matte cleanup, registered to original feet/pivot",
+  "Goblin": {
+    "changed_attack_frames": [
+      1,
+      3,
+      7,
+      8
+    ],
+    "unchanged_reference_frames": [
+      2,
+      4,
+      5,
+      6
+    ],
+    "delivery": "ReviewCaptures\\ForestEnemies\\HandednessFix\\FinalFrames\\Goblin"
+  },
+  "Hobgoblin": {
+    "changed_attack_frames": [
+      1,
+      3,
+      7,
+      8
+    ],
+    "unchanged_reference_frames": [
+      2,
+      4,
+      5,
+      6
+    ],
+    "delivery": "ReviewCaptures\\ForestEnemies\\HandednessFix\\FinalFrames\\Hobgoblin"
+  }
+}

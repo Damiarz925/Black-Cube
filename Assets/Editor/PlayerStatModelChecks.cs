@@ -1,3 +1,5 @@
+// Developer map: Editor checks for player baseline stats, percent buckets and life/stat behavior.
+// See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
