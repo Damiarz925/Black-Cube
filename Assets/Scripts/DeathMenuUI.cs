@@ -20,7 +20,7 @@ public class DeathMenuUI : MonoBehaviour
     [SerializeField] private Button quitGameButton;
 
     [Header("Scene Routing")]
-    [SerializeField] private string mainMenuSceneName = "Main Menu";
+    [SerializeField] private string mainMenuSceneName = GameSceneNames.MainMenu;
     private bool showRequested;
 
     private void Awake()
@@ -45,11 +45,6 @@ public class DeathMenuUI : MonoBehaviour
                 CorruptionUIButtonSkin.Ensure(button);
 
         Debug.Log($"DeathMenuUI: Awake. root={(root != null ? root.name : "self")}, mainMenuSceneName={mainMenuSceneName}");
-        if (mainMenuSceneName == "MainMenu")
-        {
-            mainMenuSceneName = "Main Menu";
-        }
-
         // An initially inactive menu may awaken inside Show's SetActive call.
         if (!showRequested) Hide();
     }

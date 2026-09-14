@@ -57,14 +57,14 @@ public class MainMenuUI : MonoBehaviour
 
     public void OnNewGameClicked()
     {
-        SceneManager.LoadScene("SampleScene");
+        GamePersistence.RequestNewGame();
+        SceneManager.LoadScene(GameSceneNames.Gameplay);
     }
 
     public void OnLoadGameClicked()
     {
-        if (!PlayerPrefs.HasKey(GamePersistence.SaveKey)) { Debug.LogWarning("MainMenuUI: no saved game exists."); return; }
-        GamePersistence.RequestLoad();
-        SceneManager.LoadScene("SampleScene");
+        if (!GamePersistence.RequestLoad()) { Debug.LogWarning("MainMenuUI: no saved game exists."); return; }
+        SceneManager.LoadScene(GameSceneNames.Gameplay);
     }
 
     private void EnsureOptionsMenu()

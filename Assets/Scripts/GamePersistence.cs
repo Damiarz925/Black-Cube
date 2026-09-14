@@ -50,8 +50,21 @@ public static class GamePersistence
 {
     public const string SaveKey="BlackCube.Save.V1";
     static bool loadRequested;
-    public static void RequestLoad()=>loadRequested=true;
+    public static bool LoadRequested=>loadRequested;
+    public static bool RequestLoad()
+    {
+        if(!PlayerPrefs.HasKey(SaveKey))return false;
+        loadRequested=true;
+        return true;
+    }
+    public static void RequestNewGame()=>loadRequested=false;
     public static bool ConsumeLoadRequest(){bool value=loadRequested;loadRequested=false;return value;}
+    public static bool RestoreRequestedGame(out bool restored)
+    {
+        if(!ConsumeLoadRequest()){restored=false;return false;}
+        restored=Load();
+        return true;
+    }
     public static void Save()
     {
         var data=new GameSaveData();

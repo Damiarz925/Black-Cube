@@ -27650,7 +27650,7 @@ MonoBehaviour:
   restartLevelButton: {fileID: 1620031371741587894}
   returnToMainMenuButton: {fileID: 7924977423602813931}
   quitGameButton: {fileID: 2537136791473554603}
-  mainMenuSceneName: MainMenu
+  mainMenuSceneName: Main Menu
 --- !u!1 &8447568146715238481
 GameObject:
   m_ObjectHideFlags: 0

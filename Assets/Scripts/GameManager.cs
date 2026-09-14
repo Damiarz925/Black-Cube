@@ -1,6 +1,7 @@
 // Developer map: Session run coordinator: nine normal kills lead to stage10 boss, whose death advances the combat level. Claims enemy death once before XP/loot/spawn callbacks; encounter restart retains PlayerProgression.
 // See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 [RequireComponent(typeof(PlayerProgression))]
 public class GameManager : MonoBehaviour
@@ -20,6 +21,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private bool bossSpawned = false;
 
     private bool playerDeathHandled;
+    private ulong initializedGameplaySceneHandle = ulong.MaxValue;
     public int CurrentCombatLevel => currentZoneLevel;
     public int NormalKills => enemiesKilledInZone;
     public int NormalKillsRequired => enemiesToKillBeforeBoss;
@@ -41,20 +43,38 @@ public class GameManager : MonoBehaviour
         if (GetComponent<RebirthManager>() == null) gameObject.AddComponent<RebirthManager>();
         if (GetComponent<GamePersistenceHost>() == null) gameObject.AddComponent<GamePersistenceHost>();
         DontDestroyOnLoad(gameObject);
+        SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
-    private void Start()    //On start, debug log for dev feedback, and call start new run function
+    private void OnDestroy()
     {
-        Debug.Log("GameManager: Auto-starting new run.");
+        if (Instance != this) return;
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+        Instance = null;
+    }
 
+    private void Start()
+    {
+        InitializeGameplayScene(SceneManager.GetActiveScene());
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode) => InitializeGameplayScene(scene);
+
+    private void InitializeGameplayScene(Scene scene)
+    {
+        ulong sceneHandle=scene.handle.GetRawData();
+        if (scene.name != GameSceneNames.Gameplay || initializedGameplaySceneHandle == sceneHandle) return;
+        initializedGameplaySceneHandle = sceneHandle;
+        Debug.Log("GameManager: Initializing gameplay scene.");
         EnsureSceneReferences();
-
-        if (deathMenuUI != null)
-        {
-            deathMenuUI.Hide();
-        }
-
+        deathMenuUI?.Hide();
         StartNewRun();
+        if (GamePersistence.RestoreRequestedGame(out bool restored))
+        {
+            Debug.Log(restored
+                ? "GameManager: Restored the requested saved game during gameplay initialization."
+                : "GameManager: Load was requested, but the current save could not be restored.");
+        }
     }
 
     public void StartNewRun()   //Starts a fresh run, at zone lvl 1, 0 enemies killed and no boss spawned, debug log for dev feedback, calls start zone passing in the currentzonelevel after resetting the state
@@ -265,8 +285,6 @@ public class GameManager : MonoBehaviour
             Debug.LogWarning("GameManager: ZoneManager is null; prestige rewards were not granted.");
 
         StartNewRun();
-        if (GamePersistence.ConsumeLoadRequest()) GamePersistence.Load();
-        if (GamePersistence.ConsumeLoadRequest()) GamePersistence.Load();
     }
 
     private void EnsureSceneReferences()
