@@ -169,7 +169,7 @@ public static class PassiveTreeVisualValidation
         if (Vector2.Distance(sprite.pivot, new Vector2(sprite.rect.width * .5f, sprite.rect.height * .5f)) > .01f)
             throw new InvalidOperationException($"{label} sprite pivot is not centered.");
 
-        Color[] pixels = texture.GetPixels();
+        Color[] pixels = ReadPixels(texture);
         int minX = texture.width;
         int minY = texture.height;
         int maxX = -1;
@@ -191,6 +191,28 @@ public static class PassiveTreeVisualValidation
         float horizontalCenter = (minX + maxX) * .5f;
         if (Mathf.Abs(horizontalCenter - (texture.width - 1) * .5f) > 1.1f)
             throw new InvalidOperationException($"{label} alpha silhouette is horizontally off-center by {horizontalCenter - (texture.width - 1) * .5f:0.0}px.");
+    }
+
+    static Color[] ReadPixels(Texture2D source)
+    {
+        if (source.isReadable) return source.GetPixels();
+        RenderTexture previous = RenderTexture.active;
+        RenderTexture target = RenderTexture.GetTemporary(source.width, source.height, 0, RenderTextureFormat.ARGB32);
+        var readable = new Texture2D(source.width, source.height, TextureFormat.RGBA32, false);
+        try
+        {
+            Graphics.Blit(source, target);
+            RenderTexture.active = target;
+            readable.ReadPixels(new Rect(0, 0, source.width, source.height), 0, 0, false);
+            readable.Apply(false, false);
+            return readable.GetPixels();
+        }
+        finally
+        {
+            RenderTexture.active = previous;
+            RenderTexture.ReleaseTemporary(target);
+            UnityEngine.Object.DestroyImmediate(readable);
+        }
     }
 
     static void ApplyWheelDelta(float delta)

@@ -261,8 +261,8 @@ public static class PassiveTreeDefinition
         branch != PassiveBranch.IncreasedProjectileAmount && branch != PassiveBranch.LifeRegeneration
         && branch != PassiveBranch.ManaRegeneration && branch != PassiveBranch.EmptyTravel;
 
-    static PassiveNodeSize NodeSize(int position, int terminal) =>
-        position < 5 ? PassiveNodeSize.Small : position == 5 || position == terminal
+    static PassiveNodeSize NodeSize(int position, int firstLarge, int terminal) =>
+        position < firstLarge ? PassiveNodeSize.Small : position == firstLarge || position == terminal
             ? PassiveNodeSize.Large : PassiveNodeSize.Medium;
 
     static PassiveNodeDefinition[] BuildNodes()
@@ -273,7 +273,7 @@ public static class PassiveTreeDefinition
             var branch = (PassiveBranch)i;
             for (int position = 0; position < OriginalNodesPerBranch; position++)
             {
-                var size = NodeSize(position, OriginalNodesPerBranch - 1);
+                var size = NodeSize(position, 5, OriginalNodesPerBranch - 1);
                 float magnitude = size == PassiveNodeSize.Small ? 5f : size == PassiveNodeSize.Medium ? 10f : 25f;
                 int id = NodeId(branch, position);
                 result[id] = new PassiveNodeDefinition(id, branch, position, size, magnitude,
@@ -288,7 +288,7 @@ public static class PassiveTreeDefinition
             BridgeEndpoints(branch, out var left, out var right);
             for (int position = 0; position < BridgeNodesPerBranch; position++)
             {
-                var size = NodeSize(position, BridgeNodesPerBranch - 1);
+                var size = NodeSize(position, 4, BridgeNodesPerBranch - 1);
                 float magnitude = branch switch
                 {
                     PassiveBranch.IncreasedProjectileAmount => size == PassiveNodeSize.Small ? .25f : size == PassiveNodeSize.Medium ? .5f : 1f,

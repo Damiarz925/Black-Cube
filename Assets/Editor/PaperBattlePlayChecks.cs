@@ -20,7 +20,7 @@ public static class PaperBattlePlayChecks
         var hud=Object.FindFirstObjectByType<PaperBattleHUD>();
         hud.inventoryPanel.SetActive(true);
         hud.statsPanel.SetActive(true);
-        var display=hud.statsPanel.GetComponent<EquipmentStatsUI>();
+        var display=hud.inventoryPanel.GetComponentsInChildren<EquipmentStatsUI>(true).Single(view=>view.enabled);
         Require(display.slots.Length==8,"All eight equipment categories must be displayed");
         Require(manager.GetEquipped(LootManager.GearType.Weapons)!=null,"Starter weapon must be tracked as equipped");
         float before=stats.GetRawStat(StatTypes.FlatPhys);
@@ -37,7 +37,7 @@ public static class PaperBattlePlayChecks
         ClickSlot(hud,a);float back=stats.GetRawStat(StatTypes.FlatPhys);
         CheckDisplay(display,a);
         Require(Mathf.Approximately(back,before+10),"Re-equipping must not stack modifiers");
-        string report=$"PAPER2D CHECK PASS: actual inventory button -> EquipmentManager -> active player FlatPhys {before} -> {first} -> {replacement} -> {back}; replacement returned old gear, equipped gear removed, no modifier stacking. Eight stats categories and starter weapon present; Glove glyph, border and label updated through Magic -> Rare -> Magic. QA gear is Play-session only.";
+        string report=$"PAPER2D CHECK PASS: actual inventory button -> EquipmentManager -> active player FlatPhys {before} -> {first} -> {replacement} -> {back}; replacement returned old gear, equipped gear removed, no modifier stacking. Eight stats categories and starter weapon present; themed Glove icon, rarity surface, border and label updated through Magic -> Rare -> Magic. QA gear is Play-session only.";
         Debug.Log(report);
         System.IO.Directory.CreateDirectory("ReviewCaptures");System.IO.File.WriteAllText("ReviewCaptures/equipment-check.txt",report);
     }
@@ -50,8 +50,12 @@ public static class PaperBattlePlayChecks
     {
         var slot=display.slots.Single(s=>s.type==gear.ItemType);
         Require(EquipmentManager.Instance.GetEquipped(gear.ItemType)==gear,"Slot must reference equipped item");
-        Require(slot.glyph.gearType==gear.ItemType && slot.glyph.color==ItemSlotUI.RarityColor(gear.ItemRarity),"Icon category and line color must match equipped item");
-        Require(slot.border.color==slot.glyph.color && slot.detail.text.Contains(gear.ItemRarity.ToString()),"Rarity border and detail must update after replacement");
+        Require(slot.glyph.gearType==gear.ItemType,$"Equipped slot category must be {gear.ItemType}, got {slot.glyph.gearType}");
+        Require(!slot.glyph.enabled,"Legacy procedural glyph must stay disabled for themed equipped art");
+        Require(slot.icon!=null && slot.icon.enabled && slot.icon.sprite==ItemIconCatalog.Get(gear),"Themed icon must match the equipped item");
+        Color tint=ItemSlotUI.RarityColor(gear.ItemRarity);
+        Require(slot.occupiedSurface!=null && slot.occupiedSurface.color==ItemSlotUI.RarityBackground(gear.ItemRarity),"Rarity surface must match equipped item");
+        Require((slot.border.GetComponent<InventoryArtworkHotspot>()!=null ? slot.border.color==Color.clear : slot.border.color==tint) && slot.detail.text.Contains(gear.ItemRarity.ToString()),"Rarity border and detail must update after replacement");
         Require(slot.label.text=="Glove","Category label must be singular");
     }
     static void ClickSlot(PaperBattleHUD hud,Gear gear)

@@ -26,12 +26,13 @@ public class InventoryTooltipLayoutTests
         Assert.That(first.IndexOf("Fire Damage:"),Is.LessThan(first.IndexOf("Crit Chance:")));
         Assert.That(first.IndexOf("Crit Chance:"),Is.LessThan(first.IndexOf("Attacks Per Second:")));
         Assert.That(first.IndexOf("Attacks Per Second:"),Is.LessThan(first.IndexOf(ItemTooltipFormatter.Divider)));
-        Assert.That(first,Does.Contain("Attacks Per Second: </b>1.2"));
+        Assert.That(first,Does.Contain("<b>Attacks Per Second:</b> 1.2"));
         Assert.That(first,Does.Not.Contain("Base damage:"));
         Assert.That(first,Does.Contain("◆ LOCKED"));
         Assert.That(first.IndexOf("Fire Damage",System.StringComparison.Ordinal),Is.LessThan(first.IndexOf("Attack Speed",System.StringComparison.Ordinal)));
-        Assert.That(first.IndexOf("Attack Speed",System.StringComparison.Ordinal),Is.LessThan(first.IndexOf("Fire Resistance",System.StringComparison.Ordinal)));
-        Assert.That(first.IndexOf("Fire Resistance",System.StringComparison.Ordinal),Is.LessThan(first.IndexOf("Strength",System.StringComparison.Ordinal)));
+        string fireResistance=StatDisplayFormatting.ToFriendlyName(StatTypes.FireRes);
+        Assert.That(first.IndexOf("Attack Speed",System.StringComparison.Ordinal),Is.LessThan(first.IndexOf(fireResistance,System.StringComparison.Ordinal)));
+        Assert.That(first.IndexOf(fireResistance,System.StringComparison.Ordinal),Is.LessThan(first.IndexOf("Strength",System.StringComparison.Ordinal)));
     }
 
     [Test]
@@ -184,7 +185,7 @@ public class InventoryTooltipLayoutTests
     [Test]
     public void RelicSlot_ShowsOneEmptyWordAndOccupiedStateReplacesIt()
     {
-        var inventoryHost=Track(new GameObject("relic inventory",typeof(RelicInventory)));RelicData relic=RelicInventory.Instance.BeginNewCycle();
+        var inventoryHost=Track(new GameObject("relic inventory",typeof(RelicInventory)));var inventory=inventoryHost.GetComponent<RelicInventory>();SetInstance(typeof(RelicInventory),inventory);RelicData relic=inventory.BeginNewCycle();
         var slotObject=Track(new GameObject("relic slot",typeof(RectTransform),typeof(Image),typeof(ActiveRelicSlotUI)));
         var labelObject=Track(new GameObject("label",typeof(RectTransform),typeof(TextMeshProUGUI)));labelObject.transform.SetParent(slotObject.transform,false);
         var slot=slotObject.GetComponent<ActiveRelicSlotUI>();slot.Initialize(0,labelObject.GetComponent<TextMeshProUGUI>());Assert.That(slot.DisplayText,Is.EqualTo("Empty"));

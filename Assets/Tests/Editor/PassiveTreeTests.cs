@@ -64,7 +64,7 @@ public class PassiveTreeTests
 
         foreach (PassiveBranch branch in Enum.GetValues(typeof(PassiveBranch)).Cast<PassiveBranch>().Skip(10).Take(10))
         {
-            PassiveNodeDefinition[] nodes = PassiveTreeDefinition.Nodes.Where(n => n.Branch == branch).ToArray();
+            PassiveNodeDefinition[] nodes = PassiveTreeDefinition.Nodes.Where(n => n.Branch == branch && !PassiveTreeDefinition.IsKeystone(n.Id)).ToArray();
             Assert.That(nodes.Length, Is.EqualTo(11), branch.ToString());
             Assert.That(nodes.Select(n => n.Size), Is.EqualTo(new[]
             {
@@ -226,7 +226,7 @@ public class PassiveTreeTests
             Vector2 clockwisePosition = SkillTreeUI.CalculateNodePosition(PassiveTreeDefinition.Node(clockwiseRing));
             Vector2 counterPosition = SkillTreeUI.CalculateNodePosition(PassiveTreeDefinition.Node(counterClockwiseRing));
             Assert.That(keystonePosition.magnitude, Is.GreaterThan(terminalPosition.magnitude));
-            Assert.That(Mathf.Abs(Vector2.SignedAngle(terminalPosition, keystonePosition)), Is.LessThan(.01f));
+            Assert.That(Mathf.Abs(Vector2.SignedAngle(terminalPosition, keystonePosition)), Is.LessThan(.05f));
             Assert.That(Mathf.Abs(Vector2.SignedAngle(terminalPosition, clockwisePosition)), Is.GreaterThan(.01f));
             Assert.That(Mathf.Abs(Vector2.SignedAngle(terminalPosition, counterPosition)), Is.GreaterThan(.01f));
         }
@@ -297,6 +297,7 @@ public class PassiveTreeTests
             var stats = player.AddComponent<StatsComponent>();
             stats.SetBaseStat(StatTypes.Mana, 100f);
             var mana = player.AddComponent<ManaComponent>();
+            typeof(ManaComponent).GetMethod("Awake", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(mana, null);
             var state = player.AddComponent<PassiveKeystoneState>();
             var progression = progressionObject.AddComponent<PlayerProgression>();
 

@@ -97,7 +97,7 @@ public class CraftingAndRebirthTests
     [Test]
     public void RepeatedConfirmedRebirthLocksOldRelicAndReplacesAncientStacks()
     {
-        var inventoryHost=Track(new GameObject("inventory"));inventoryHost.AddComponent<Inventory>();
+        var inventoryHost=Track(new GameObject("inventory"));inventoryHost.AddComponent<Inventory>();var currency=inventoryHost.AddComponent<CurrencyInventory>();SetInstance(typeof(CurrencyInventory),currency);
         var rebirthHost=Track(new GameObject("rebirth"));var progression=rebirthHost.AddComponent<PlayerProgression>();var relics=rebirthHost.AddComponent<RelicInventory>();var rebirth=rebirthHost.AddComponent<RebirthManager>();
         SetLevel(progression,50);Assert.That(rebirth.RequestRebirth(),Is.True);Assert.That(rebirth.ConfirmRebirth(),Is.True);RelicData first=relics.Relics[0];
         CurrencyInventory.Instance.Add(CraftingCurrencyType.AncientReroll,7);
@@ -112,10 +112,11 @@ public class CraftingAndRebirthTests
     Gear CreateGear(LootManager.GearRarity rarity){var go=Track(new GameObject("gear"));var gear=go.AddComponent<Gear>();gear.Initialize(LootManager.GearType.Helmets,rarity,80,Element.Phys);return gear;}
     ModManager CreateModManager()
     {
-        Track(new GameObject("stat lists")).AddComponent<GearStatLists>();var go=Track(new GameObject("mods"));var manager=go.AddComponent<ModManager>();
+        var lists=Track(new GameObject("stat lists")).AddComponent<GearStatLists>();SetInstance(typeof(GearStatLists),lists);typeof(GearStatLists).GetField("statPools",BindingFlags.Instance|BindingFlags.NonPublic).SetValue(lists,GearStatLists.BuildDefaultStatPools());var go=Track(new GameObject("mods"));var manager=go.AddComponent<ModManager>();SetInstance(typeof(ModManager),manager);
         var database=AssetDatabase.LoadAssetAtPath<ModDatabase>("Assets/Prefabs/Scriptable Objects/ModDatabase.asset");Assert.That(database,Is.Not.Null);database.Initialize();
         typeof(ModManager).GetField("modDatabase",BindingFlags.Instance|BindingFlags.NonPublic).SetValue(manager,database);return manager;
     }
+    static void SetInstance(System.Type type,object value)=>type.GetProperty("Instance",BindingFlags.Static|BindingFlags.Public).GetSetMethod(true).Invoke(null,new[]{value});
     static void SetLevel(PlayerProgression progression,int value)=>typeof(PlayerProgression).GetField("level",BindingFlags.Instance|BindingFlags.NonPublic).SetValue(progression,value);
     GameObject Track(GameObject value){cleanup.Add(value);return value;}
 }
