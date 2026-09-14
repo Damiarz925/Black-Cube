@@ -50,10 +50,11 @@ public static class GamePersistence
 {
     public const string SaveKey="BlackCube.Save.V1";
     static bool loadRequested;
+    public static bool HasSave=>PlayerPrefs.HasKey(SaveKey);
     public static bool LoadRequested=>loadRequested;
     public static bool RequestLoad()
     {
-        if(!PlayerPrefs.HasKey(SaveKey))return false;
+        if(!HasSave)return false;
         loadRequested=true;
         return true;
     }
@@ -80,7 +81,7 @@ public static class GamePersistence
     }
     public static bool Load()
     {
-        if(!PlayerPrefs.HasKey(SaveKey))return false;
+        if(!HasSave)return false;
         var data=JsonUtility.FromJson<GameSaveData>(PlayerPrefs.GetString(SaveKey));if(data==null||data.version!=1)return false;
         EquipmentManager.Instance?.ResetForRebirth();Inventory.Instance?.ResetForRebirth();
         CurrencyInventory.Instance?.Restore(data.currencies);

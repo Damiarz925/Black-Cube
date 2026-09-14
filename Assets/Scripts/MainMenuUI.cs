@@ -32,7 +32,10 @@ public class MainMenuUI : MonoBehaviour
             Debug.LogWarning("MainMenuUI: newGameButton not assigned.");
 
         if (loadGameButton != null)
+        {
             loadGameButton.onClick.AddListener(OnLoadGameClicked);
+            loadGameButton.interactable = GamePersistence.HasSave;
+        }
         else
             Debug.LogWarning("MainMenuUI: loadGameButton not assigned.");
 
@@ -42,7 +45,7 @@ public class MainMenuUI : MonoBehaviour
             foreach (var button in root.GetComponentsInChildren<Button>(true))
                 CorruptionUIButtonSkin.Ensure(button);
 
-        Debug.Log($"MainMenuUI: Awake. root={(root != null ? root.name : "null")}");
+        Debug.Log($"MainMenuUI: Awake. root={(root != null ? root.name : "null")}, load={(loadGameButton != null ? loadGameButton.name : "null")}, loadInteractable={(loadGameButton != null && loadGameButton.interactable)}");
 
         if (root != null)
         {
@@ -73,7 +76,7 @@ public class MainMenuUI : MonoBehaviour
 
         optionsButton = CloneMenuButton(newGameButton, root.transform, "Options Button", "OPTIONS");
         RectTransform optionsRect = (RectTransform)optionsButton.transform;
-        optionsRect.anchoredPosition = ((RectTransform)newGameButton.transform).anchoredPosition + Vector2.down * 110f;
+        optionsRect.anchoredPosition = ((RectTransform)newGameButton.transform).anchoredPosition + Vector2.down * 220f;
         optionsButton.onClick.AddListener(OpenOptions);
 
         optionsPanel = new GameObject("Options Panel", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));

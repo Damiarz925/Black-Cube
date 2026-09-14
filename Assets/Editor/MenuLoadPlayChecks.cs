@@ -31,6 +31,8 @@ public static class MenuLoadPlayChecks
         File.WriteAllText(Report,string.Empty);
         hadSave=PlayerPrefs.HasKey(GamePersistence.SaveKey);
         savedValue=hadSave?PlayerPrefs.GetString(GamePersistence.SaveKey):null;
+        PlayerPrefs.DeleteKey(GamePersistence.SaveKey);
+        PlayerPrefs.Save();
         GamePersistence.RequestNewGame();
         SessionState.SetBool(PendingKey,true);
         step=errors=0;readyAt=0;completed=false;
@@ -70,6 +72,9 @@ public static class MenuLoadPlayChecks
                 if(scene!=GameSceneNames.MainMenu)return;
                 var menu=UnityEngine.Object.FindFirstObjectByType<MainMenuUI>();
                 if(menu==null)return;
+                Button loadGame=UnityEngine.Object.FindObjectsByType<Button>(FindObjectsInactive.Include,FindObjectsSortMode.None).Single(button=>button.name=="Load Game Button");
+                Require(loadGame.gameObject.activeInHierarchy&&!loadGame.interactable,"Load Game must be visible and disabled when no save exists");
+                Write("PASS: Main Menu loaded with the authored Load Game button disabled while no save exists.");
                 PlayerPrefs.SetString(GamePersistence.SaveKey,JsonUtility.ToJson(new GameSaveData()));
                 Require(GamePersistence.RequestLoad()&&GamePersistence.LoadRequested,"Load request fixture was not created");
                 Button newGame=UnityEngine.Object.FindObjectsByType<Button>(FindObjectsInactive.Include,FindObjectsSortMode.None).Single(button=>button.name=="Start Game Button");
@@ -87,7 +92,9 @@ public static class MenuLoadPlayChecks
             case 2:
                 if(scene!=GameSceneNames.MainMenu)return;
                 Write("PASS: gameplay -> Main Menu used DeathMenuUI and the enabled Main Menu scene.");
-                UnityEngine.Object.FindFirstObjectByType<MainMenuUI>().OnLoadGameClicked();
+                Button savedLoadButton=UnityEngine.Object.FindObjectsByType<Button>(FindObjectsInactive.Include,FindObjectsSortMode.None).Single(button=>button.name=="Load Game Button");
+                Require(savedLoadButton.gameObject.activeInHierarchy&&savedLoadButton.interactable,"Authored Load Game button was not available for the saved game");
+                savedLoadButton.onClick.Invoke();
                 step=3;Delay();return;
             case 3:
                 if(scene!=GameSceneNames.Gameplay||CurrencyInventory.Instance==null)return;

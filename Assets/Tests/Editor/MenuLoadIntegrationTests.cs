@@ -31,6 +31,7 @@ public class MenuLoadIntegrationTests
     public void NewGame_ClearsPendingLoadRequest()
     {
         PlayerPrefs.SetString(GamePersistence.SaveKey,"{}");
+        Assert.That(GamePersistence.HasSave,Is.True);
         Assert.That(GamePersistence.RequestLoad(),Is.True);
         Assert.That(GamePersistence.LoadRequested,Is.True);
         GamePersistence.RequestNewGame();
@@ -70,16 +71,15 @@ public class MenuLoadIntegrationTests
     }
 
     [Test]
-    public void MainMenuScene_HasNewGameAndAnyAuthoredLoadButtonMustBeWired()
+    public void MainMenuScene_HasAuthoredAndWiredNewAndLoadButtons()
     {
         var scene=EditorSceneManager.OpenScene("Assets/Scenes/Main Menu.unity");
         var menu=scene.GetRootGameObjects().SelectMany(root=>root.GetComponentsInChildren<MainMenuUI>(true)).Single();
         var serialized=new SerializedObject(menu);
         Assert.That(serialized.FindProperty("newGameButton").objectReferenceValue,Is.Not.Null);
         var authoredLoad=scene.GetRootGameObjects().SelectMany(root=>root.GetComponentsInChildren<UnityEngine.UI.Button>(true))
-            .FirstOrDefault(button=>button.name=="Load Game Button");
-        if(authoredLoad==null)Assert.That(serialized.FindProperty("loadGameButton").objectReferenceValue,Is.Null);
-        else Assert.That(serialized.FindProperty("loadGameButton").objectReferenceValue,Is.SameAs(authoredLoad),
+            .Single(button=>button.name=="Load Game Button");
+        Assert.That(serialized.FindProperty("loadGameButton").objectReferenceValue,Is.SameAs(authoredLoad),
             "The authored Load Game Button must be assigned to MainMenuUI.loadGameButton.");
     }
 }
