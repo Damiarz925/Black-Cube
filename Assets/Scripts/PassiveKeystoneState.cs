@@ -4,7 +4,6 @@ using UnityEngine;
 [RequireComponent(typeof(StatsComponent))]
 public sealed class PassiveKeystoneState : MonoBehaviour
 {
-    [SerializeField, Min(0f)] float deepFreezeMaximumEffectIncrease;
     readonly bool[] active = new bool[System.Enum.GetValues(typeof(PassiveKeystone)).Length];
 
     public void Apply(PlayerProgression progression)
@@ -45,7 +44,8 @@ public sealed class PassiveKeystoneState : MonoBehaviour
         * (Has(PassiveKeystone.Frenzy) ? 1.5f : 1f);
     public float ManaCostMultiplier => Has(PassiveKeystone.ArcaneOverload) ? 2f : 1f;
     public bool TransmutesHitsToPoison => Has(PassiveKeystone.VenomousTransmutation);
-    public float DeepFreezeMaximumEffectIncrease => deepFreezeMaximumEffectIncrease;
+    // Deep Freeze is the finalized +10 percentage-point slow-cap specialization.
+    public float DeepFreezeMaximumEffectIncrease => Has(PassiveKeystone.DeepFreeze) ? .10f : 0f;
     public float ChillEffectMultiplier => Has(PassiveKeystone.DeepFreeze) ? .75f : 1f;
     public float ShockStackRequirementMultiplier => Has(PassiveKeystone.Overcharged) ? .5f : 1f;
     public float ShockTriggeredHitMultiplier => Has(PassiveKeystone.Overcharged) ? .65f : 1f;

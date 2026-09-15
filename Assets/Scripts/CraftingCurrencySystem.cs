@@ -35,11 +35,14 @@ public sealed class CurrencyInventory : MonoBehaviour
 {
     public static CurrencyInventory Instance { get; private set; }
     [SerializeField] List<CurrencyStackData> serializedStacks = new();
+    [SerializeField] int normalToMagicFragments, magicToRareFragments;
     readonly Dictionary<CraftingCurrencyType, int> stacks = new();
     public event Action Changed;
     public static event Action<Gear> GearChanged;
     public CraftingCurrencyType? ArmedCurrency { get; private set; }
     public IReadOnlyList<CurrencyStackData> Stacks => serializedStacks;
+    public int NormalToMagicFragments => normalToMagicFragments;
+    public int MagicToRareFragments => magicToRareFragments;
 
     void Awake()
     {
@@ -63,6 +66,42 @@ public sealed class CurrencyInventory : MonoBehaviour
         serializedStacks.Sort((a,b) => a.type.CompareTo(b.type));
     }
     public int Count(CraftingCurrencyType type) => stacks.TryGetValue(type, out int amount) ? amount : 0;
+    public int FragmentCount(CraftingCurrencyType type) => type switch
+    {
+        CraftingCurrencyType.NormalToMagic => normalToMagicFragments,
+        CraftingCurrencyType.MagicToRare => magicToRareFragments,
+        _ => 0
+    };
+    public bool AddFragments(CraftingCurrencyType type, int amount)
+    {
+        if (!CanAddFragments(type,amount)) return false;
+        int current = FragmentCount(type);
+        int full = (current + amount) / 10;
+        if (type == CraftingCurrencyType.NormalToMagic) normalToMagicFragments = (current + amount) % 10;
+        else magicToRareFragments = (current + amount) % 10;
+        if (full > 0) stacks[type] = Count(type) + full;
+        SyncSerialized(); Changed?.Invoke(); GamePersistence.MarkDirty();
+        return true;
+    }
+    public bool CanAddFragments(CraftingCurrencyType type,int amount)
+    {
+        if(amount <= 0 || (type != CraftingCurrencyType.NormalToMagic && type != CraftingCurrencyType.MagicToRare)) return false;
+        int current=FragmentCount(type);
+        if(current > int.MaxValue-amount) return false;
+        int full=(current+amount)/10;
+        return Count(type) <= int.MaxValue-full;
+    }
+    public bool RestoreFragments(int normalToMagic, int magicToRare)
+    {
+        if (normalToMagic < 0 || normalToMagic >= 10 || magicToRare < 0 || magicToRare >= 10) return false;
+        normalToMagicFragments = normalToMagic; magicToRareFragments = magicToRare;
+        Changed?.Invoke(); return true;
+    }
+    public void ClearFragments()
+    {
+        normalToMagicFragments = magicToRareFragments = 0;
+        Changed?.Invoke(); GamePersistence.MarkDirty();
+    }
     public void Add(CraftingCurrencyType type, int amount = 1)
     {
         if (amount <= 0 || Count(type) > int.MaxValue - amount) return;
@@ -117,12 +156,14 @@ public sealed class CurrencyInventory : MonoBehaviour
         foreach (CraftingCurrencyType type in Enum.GetValues(typeof(CraftingCurrencyType)))
             if (!IsAncient(type)) stacks.Remove(type);
         ArmedCurrency = null;
+        normalToMagicFragments = magicToRareFragments = 0;
         SyncSerialized(); Changed?.Invoke();
     }
     public void ResetForNewGame()
     {
         stacks.Clear();
         ArmedCurrency = null;
+        normalToMagicFragments = magicToRareFragments = 0;
         SyncSerialized(); Changed?.Invoke();
     }
     public static bool IsAncient(CraftingCurrencyType type) => type >= CraftingCurrencyType.AncientNormalToMagic;
@@ -132,6 +173,7 @@ public sealed class CurrencyInventory : MonoBehaviour
         stacks.Clear();
         if (data != null) foreach (var entry in data) if (entry.amount > 0) stacks[entry.type] = Count(entry.type) + entry.amount;
         ArmedCurrency = null;
+        normalToMagicFragments = magicToRareFragments = 0;
         SyncSerialized(); Changed?.Invoke();
     }
 }
@@ -144,6 +186,7 @@ public sealed class CurrencyInventoryPanel : MonoBehaviour
     Button gearButton, relicButton;
     CraftingCurrencyCursorUI cursor;
     readonly Dictionary<CraftingCurrencyType, CurrencySlotUI> currencyEntries = new();
+    readonly Dictionary<CraftingCurrencyType, TMP_Text> fragmentLabels = new();
     readonly Dictionary<RelicData, RelicSlotUI> relicEntries = new();
     public bool ShowingCurrencies => true;
 
@@ -212,7 +255,22 @@ public sealed class CurrencyInventoryPanel : MonoBehaviour
             var outline=go.GetComponent<Outline>();outline.effectColor=new Color(1f,.78f,.25f);outline.effectDistance=new Vector2(2,-2);
             var slot=go.GetComponent<CurrencySlotUI>();slot.Initialize(type, owner, label, outline);currencyEntries[type]=slot;
         }
+        RefreshFragmentLabel(CraftingCurrencyType.NormalToMagic,InventoryArtLayout.P(67,792,174,816));
+        RefreshFragmentLabel(CraftingCurrencyType.MagicToRare,InventoryArtLayout.P(355,792,462,816));
         CurrencyTooltipUI.RefreshVisible();
+    }
+    void RefreshFragmentLabel(CraftingCurrencyType type,Rect bounds)
+    {
+        if(!fragmentLabels.TryGetValue(type,out var label)||label==null)
+        {
+            var go=new GameObject(type+" fragments",typeof(RectTransform),typeof(TextMeshProUGUI));
+            go.transform.SetParent(ordinaryRoot,false);
+            label=go.GetComponent<TextMeshProUGUI>();label.fontSize=10;label.alignment=TextAlignmentOptions.Center;
+            label.color=new Color(.86f,.84f,.73f);label.raycastTarget=false;
+            fragmentLabels[type]=label;
+        }
+        InventoryArtLayout.Apply(label.rectTransform,bounds);
+        label.text=$"Fragments {CurrencyInventory.Instance.FragmentCount(type)}/10";
     }
     void RefreshRelics()
     {
@@ -413,7 +471,7 @@ public sealed class CurrencyTooltipUI : MonoBehaviour
     {
         int best=-1;foreach(var slot in FindObjectsByType<CurrencySlotUI>(FindObjectsInactive.Include,FindObjectsSortMode.None))if(slot.Type==type&&slot.transform.GetSiblingIndex()>=best){best=slot.transform.GetSiblingIndex();anchor=(RectTransform)slot.transform;}
         if(anchor==null||!anchor.gameObject.activeInHierarchy){Hide();return;}
-        int amount=CurrencyInventory.Instance!=null?CurrencyInventory.Instance.Count(type):0;label.text=$"<b>{CurrencyPresentation.Name(type)}  x{amount}</b>\n{CurrencyPresentation.Description(type)}\n<color=#B9C0CA>VALID: {CurrencyPresentation.ValidTarget(type)}</color>\n<color=#85898F>{CurrencyPresentation.FailureConditions(type)}\nClick to select or cancel. Hold Shift for repeat use.</color>";
+        int amount=CurrencyInventory.Instance!=null?CurrencyInventory.Instance.Count(type):0;string fragments=type==CraftingCurrencyType.NormalToMagic||type==CraftingCurrencyType.MagicToRare?$"\n<color=#B9C0CA>Fragments: {CurrencyInventory.Instance?.FragmentCount(type)??0}/10 (10 automatically become 1 full currency).</color>":string.Empty;label.text=$"<b>{CurrencyPresentation.Name(type)}  x{amount}</b>\n{CurrencyPresentation.Description(type)}{fragments}\n<color=#B9C0CA>VALID: {CurrencyPresentation.ValidTarget(type)}</color>\n<color=#85898F>{CurrencyPresentation.FailureConditions(type)}\nClick to select or cancel. Hold Shift for repeat use.</color>";
         var r=(RectTransform)transform;r.anchorMin=r.anchorMax=new Vector2(.5f,.5f);r.pivot=new Vector2(0,0);r.sizeDelta=new Vector2(340,136);var corners=new Vector3[4];anchor.GetWorldCorners(corners);r.position=corners[2];transform.SetAsLastSibling();
     }
 }

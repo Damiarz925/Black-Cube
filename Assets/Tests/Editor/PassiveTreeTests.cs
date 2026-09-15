@@ -438,9 +438,10 @@ public class PassiveTreeTests
             Assert.That(state.TransformOutgoing(projectile).Hits[0].Amount, Is.EqualTo(65f));
             ActivateKeystone(progression, state, PassiveKeystone.EchoingStrikes);
             Assert.That(state.TransformOutgoing(hit).Hits[0].Amount, Is.EqualTo(75f));
+            Assert.That(state.DeepFreezeMaximumEffectIncrease, Is.Zero);
             ActivateKeystone(progression, state, PassiveKeystone.DeepFreeze);
             Assert.That(state.ChillEffectMultiplier, Is.EqualTo(.75f));
-            Assert.That(state.DeepFreezeMaximumEffectIncrease, Is.Zero);
+            Assert.That(state.DeepFreezeMaximumEffectIncrease, Is.EqualTo(.10f));
             ActivateKeystone(progression, state, PassiveKeystone.Overcharged);
             Assert.That(state.ShockStackRequirementMultiplier, Is.EqualTo(.5f));
             Assert.That(state.ShockTriggeredHitMultiplier, Is.EqualTo(.65f));

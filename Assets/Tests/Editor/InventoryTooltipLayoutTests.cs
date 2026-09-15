@@ -184,6 +184,12 @@ public class InventoryTooltipLayoutTests
         Assert.That(slot.DisplayText,Is.EqualTo("1"));Assert.That(slot.DisplayText,Does.Not.Contain("x"));Assert.That(rect.anchorMin.x,Is.GreaterThan(.5f));Assert.That(rect.anchorMax.x,Is.LessThanOrEqualTo(1f));Assert.That(rect.anchorMax.y,Is.LessThan(.3f));
         currency.Add(CraftingCurrencyType.AncientReroll);slot.Initialize(CraftingCurrencyType.AncientReroll,null,labelObject.GetComponent<TextMeshProUGUI>(),go.GetComponent<Outline>());Assert.That(slot.DisplayText,Is.EqualTo("1"));
         var panelObject=Track(new GameObject("currency panel",typeof(RectTransform),typeof(CurrencyInventoryPanel)));panelObject.GetComponent<CurrencyInventoryPanel>().Initialize(null,null);
+        var fragmentLabel=panelObject.transform.Find("Ordinary currency/NormalToMagic fragments")?.GetComponent<TMP_Text>();
+        Assert.That(fragmentLabel,Is.Not.Null);
+        Assert.That(fragmentLabel.text,Is.EqualTo("Fragments 0/10"));
+        currency.AddFragments(CraftingCurrencyType.NormalToMagic,3);
+        panelObject.GetComponent<CurrencyInventoryPanel>().ShowEquipment();
+        Assert.That(fragmentLabel.text,Is.EqualTo("Fragments 3/10"));
         var entries=panelObject.GetComponentsInChildren<CurrencySlotUI>(true);Assert.That(entries.Length,Is.EqualTo(12));foreach(var entry in entries){var images=entry.GetComponentsInChildren<Image>(true);Assert.That(images.Length,Is.EqualTo(2),entry.name);if(CurrencyInventory.IsAncient(entry.Type)){Assert.That(entry.GetComponent<Image>().color.a,Is.EqualTo(1f),entry.name);Assert.That(entry.GetComponent<Image>().sprite,Is.Not.Null,entry.name);}else Assert.That(entry.GetComponent<Image>().color.a,Is.LessThan(.01f),entry.name);Assert.That(entry.SelectionOverlay.raycastTarget,Is.False);int index=CurrencyInventory.IsAncient(entry.Type)?(int)entry.Type-(int)CraftingCurrencyType.AncientNormalToMagic:System.Array.IndexOf(EnemyDropTable.OrdinaryTypes(),entry.Type);Rect expected=(CurrencyInventory.IsAncient(entry.Type)?InventoryArtLayout.AncientCurrencySlots:InventoryArtLayout.OrdinaryCurrencySlots)[index];Assert.That(((RectTransform)entry.transform).anchorMin,Is.EqualTo(expected.min));Assert.That(((RectTransform)entry.transform).anchorMax,Is.EqualTo(expected.max));var count=entry.GetComponentInChildren<TMP_Text>(true).rectTransform;Assert.That(count.anchorMin.x,Is.GreaterThan(.55f));Assert.That(count.anchorMax.x,Is.LessThanOrEqualTo(1f));}
     }
 

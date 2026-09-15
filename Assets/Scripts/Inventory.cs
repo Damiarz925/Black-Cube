@@ -160,14 +160,14 @@ public class Inventory : MonoBehaviour
 
     public static int ScrapYield(Gear item) => item == null || item.IsScrap ? 0 : item.ItemRarity switch
     {
-        LootManager.GearRarity.Normal => 1,
-        LootManager.GearRarity.Magic => 2,
-        LootManager.GearRarity.Rare => 3,
-        LootManager.GearRarity.Legendary => 5,
+        LootManager.GearRarity.Normal => 0,
+        LootManager.GearRarity.Magic => 1,
+        LootManager.GearRarity.Rare => 1,
+        LootManager.GearRarity.Legendary => 2,
         _ => 0
     };
 
-    public bool CanDismantle(Gear item) => ScrapYield(item) > 0 && !item.Dismantled && items.Contains(item)
+    public bool CanDismantle(Gear item) => item != null && !item.IsScrap && !item.Dismantled && items.Contains(item)
         && (EquipmentManager.Instance == null || EquipmentManager.Instance.GetEquipped(item.ItemType) != item);
 
     public bool TryDismantle(Gear item)
@@ -176,11 +176,14 @@ public class Inventory : MonoBehaviour
         int amount = ScrapYield(item);
         var currency = CurrencyInventory.Instance != null ? CurrencyInventory.Instance : GetComponent<CurrencyInventory>();
         if (currency == null) return false;
+        CraftingCurrencyType fragmentType=item.ItemRarity==LootManager.GearRarity.Magic
+            ? CraftingCurrencyType.NormalToMagic : CraftingCurrencyType.MagicToRare;
+        if(amount>0&&!currency.CanAddFragments(fragmentType,amount))return false;
         // Claim before notifications or delayed destruction, so repeat callbacks cannot pay twice.
         int index = items.IndexOf(item);
         item.Dismantled = true;
         items.RemoveAt(index);
-        for (int i = 0; i < amount; i++) currency.Add(CurrencyInventory.RandomOrdinary());
+        if (amount > 0) currency.AddFragments(fragmentType, amount);
         Destroy(item.gameObject);
         OnInventoryChanged?.Invoke();
         GamePersistence.Save();

@@ -189,7 +189,7 @@ public static class PassiveTreeDefinition
         PassiveKeystone.VenomousTransmutation => "Hits deal no direct damage\n100% of Hit Damage is instead added to Poison Damage",
         PassiveKeystone.OpenWounds => "Bleed Chance is doubled\nBleeds deal 35% LESS Damage\nBleeds can stack twice as many times",
         PassiveKeystone.Wildfire => "Ignite Chance is doubled\nIgnite Damage is 30% LESS\nIgnites can stack one additional time",
-        PassiveKeystone.DeepFreeze => "Chill Chance is doubled\nChill Effectiveness is 25% LESS\nMaximum Chill Effect is increased (amount TBD)",
+        PassiveKeystone.DeepFreeze => "Chill Chance is doubled\nChill Effectiveness is 25% LESS\nMaximum Chill Slow is increased by 10 percentage points (40% base cap)",
         PassiveKeystone.Overcharged => "Shock Chance is doubled\nShock requires 50% fewer stacks\nShock-triggered hits deal 35% LESS Damage",
         PassiveKeystone.ToxicSaturation => "Poison Chance is doubled\nPoison Damage is 40% LESS",
         PassiveKeystone.UndyingFlesh => "Life Regeneration is doubled\n25% LESS Maximum Life",
