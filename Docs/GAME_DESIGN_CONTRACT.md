@@ -41,19 +41,17 @@ Moment-to-moment input should focus on build decisions, inspection, crafting, ac
 
 ## 5. Damage types
 
-The current primary ecosystem is Physical, Fire, Cold, Lightning, Poison, Bleed and Ignite/Burn. Physical and elemental hits, DOT ailments, critical scaling, armour, resistances and penetration are established concepts.
-
-Void exists in implementation data but has no approved final gameplay identity. Do not infer its damage, defense, ailment, conversion or thematic rules.
+The core direct-hit elements are Physical, Fire, Cold, Lightning and **Void**. Void is a first-class non-Physical element with flat, increased, more, resistance, penetration and maximum-resistance stats. The generic, elemental/Magic and relevant global scopes include Void. Poison, Bleed and Ignite/Burn are ailments, not additional direct-hit elements. Preserve the serialized legacy `Element.Poison = 4`; canonical direct contexts normalize that old value to Void rather than reordering the enum.
 
 ## 6. Ailments
 
-- **Poison:** damage-over-time ailment sourced from eligible Physical/Poison damage.
+- **Poison:** an ailment sourced from an eligible damaging hit, including Envenom's authored conversion. Its ticks deal **Void damage over time**. Poison resistance/penetration controls application/effect; Void resistance, Void penetration and the Void maximum-resistance cap mitigate its ticks. Poison-specific and Void offensive scaling each apply once; an already-Void-scaled source does not double-dip.
 - **Bleed:** damage-over-time ailment sourced from Physical damage.
 - **Ignite/Burn:** damage-over-time ailment sourced from Fire damage.
-- **Shock intended identity:** Shock accumulates toward a threshold/stack requirement. Reaching it triggers an additional Lightning hit or effect. It is not a generic increased-damage-taken debuff. Preserve any already-approved threshold details; where none are explicit, leave threshold, duration interaction, damage basis and stack consumption unresolved.
-- **Chill intended identity:** Chill reduces target attack speed. Reduction scales with the size/strength of the Cold hit that caused it. Exact curve, cap, stacking and duration interaction remain unresolved until approved.
+- **Shock:** a nonzero eligible Lightning hit generates `floor(effective chance / 100%)` guaranteed stacks plus a fractional-remainder roll. At five stacks, consume exactly five and trigger one already-mitigated secondary Lightning hit per threshold; keep overflow. The secondary basis is actual triggering Lightning damage dealt, multiplied by `min(100%, 50% × (1 + Shock Effect))`. It cannot recursively Shock, Hit Twice or retarget a replacement. Base lifetime is five global turns, refreshed on contribution. Lightning Strike's authored extra-hit interaction remains, and its real hits can add stacks.
+- **Chill:** an eligible nonzero Cold hit slows attack speed. `RawSlow = clamp(5% + ColdDamageDealt / TargetMaxLife, 5%, 30%)`; `FinalSlow = min(30%, RawSlow × (1 + ChillEffect))`. This dynamically multiplies real player/enemy gauge speed by `(1 - FinalSlow)`. Base lifetime is four global turns, minimum one after duration adjustments. Stronger replaces and refreshes, equal refreshes, weaker does not overwrite. Ice Strike guarantees its authored Chill application without converting it to a chance roll; resistance may reduce magnitude/duration.
 
-The current Shock/Chill implementation gaps are registered below; do not redefine intent to match the placeholders.
+Deep Freeze's authored extra application chance is retained; the numerical increase to its maximum Chill effect remains unset (serialized zero default), so the v1 30% cap remains authoritative until separately tuned.
 
 ## 7. Active skills
 
@@ -71,11 +69,15 @@ The initial locked skill set and currently implemented numeric data are:
 
 One active skill may be equipped at a time. Skills use the established damage-context conversion model and interact with compatible gear/passive/keystone scopes. If future tuning changes these numbers, require approval and update both the catalog and this table together.
 
+Each of the seven skills starts at level 1, gains matching `+Skill Level` affixes, and caps at 20. Its complete authored offensive package receives exactly one linear factor `1 + 0.05 × (level - 1)`; mana cost receives `1 + 0.02 × (level - 1)` and is rounded by the existing skill-cost convention. Levels alone do not alter projectile/hit count, conversion, chance, duration, Shock threshold or Chill cap. The player-only +1 affixes roll at item level 40 or above as single-tier value-1, weight-5 amulet affixes.
+
 ## 8. Mana and resources
 
 Active skills consume mana; unavailable mana prevents casting. Mana regenerates and may be modified by implemented passive/resource rules. Basic auto-attacks do not require skill activation. A general cooldown system is not approved merely because `CooldownRecovery` exists.
 
 Life and mana are run resources. Death/restart and encounter-boundary persistence follow the lifecycle/save contracts rather than creating a new run.
+
+Damage per Maximum Mana and Damage per Current Mana add global *increased* damage: `affix percentage points × (maximum mana / 100)` and `affix percentage points × (snapshotted current mana / 100)` respectively. Basic attacks snapshot at attack build; skills pay cost first and snapshot remaining mana, including every projectile. Ailment strength is snapshotted on creation rather than changing with later mana. A credited enemy death grants flat Life/Mana on Kill once, clamped to resource maxima.
 
 ## 9. Player progression
 
@@ -102,7 +104,11 @@ Rarities are Normal, Magic, Rare and Legendary. Current approved modifier counts
 
 Modifier tiers are item-level gated. Weapon-element matching damage rolls may be local to the weapon; other equipment rolls project globally. Duplicate stat/group exclusions and weighted definitions are part of the current affix model.
 
-[STAT_AFFIX_AUDIT.md](STAT_AFFIX_AUDIT.md) is the Step 9 implementation inventory and proposed v1 triage: 114 stable IDs, 97 actually generatable definitions, eleven pool-listed zero-tier records, and six internal/non-rollable stats. Its recommendations do not approve unresolved mechanics; the user-decision table must be resolved before Step 10 changes roll pools or formulas.
+[STAT_AFFIX_AUDIT.md](STAT_AFFIX_AUDIT.md) records the historical Step 9 inventory and the Step 10 delta: 120 stable IDs (0–119), 107 pooled definitions including three guaranteed weapon bases, and 104 random v1 affixes. Removed families retain numeric IDs for schema-2 legacy gear but do not newly roll.
+
+Final attributes clamp nonnegative after `(base + flat) × (1 + attribute-% increase)`. Per ten final Strength: +1% increased maximum Life and Physical damage; per ten Dexterity: +1% increased attack speed and projectile damage; per ten Intelligence: +1% increased maximum Mana and Fire/Cold/Lightning/Void damage. Fractional groups count. Explicit `Damage per Strength` and `Damage per Lowest Attribute` add their stored percentage points per ten final attributes; named flat/resource/speed/DOT scalers use their named attribute basis. Derived values are queried, not permanently written into raw buckets.
+
+Elemental maximum resistance starts at 75%, matching individual and Maximum All modifiers add percentage points, and effective caps cannot exceed 90%. Fire, Cold, Lightning and Void use the same rule; penetration lowers effective resistance after cap, never the maximum stat itself.
 
 Prefix/suffix separation is not implemented or approved as a current rule. It remains a possible future itemization layer.
 
@@ -188,21 +194,12 @@ Do not guess rules for:
 
 - Accuracy/evasion formula, caps and interaction
 - Block chance, mitigation and ordering
-- Maximum-resistance cap behavior
-- Exact general Shock threshold, trigger hit, stack consumption, duration and scaling
-- Exact Chill hit-strength curve, stacking and cap
-- Enemy Hit Twice
-- General Projectile Amount behavior and projectile-spawn semantics
 - Cooldown system and Cooldown Recovery
-- Attributes and attribute-derived scaling
-- Skill-level affix behavior
-- Life/Mana on Kill behavior and ordering
 - Minion entities/behavior
-- Void identity
 - Status callback lifecycle/extensibility
 - Deep Freeze's maximum-Chill-effect increase
 
-These belong to Steps 9–10 unless a more specific approved roadmap document assigns them elsewhere.
+The resolved Step 10 rules above supersede the removed items from this unresolved list. Remaining items belong to later design/content steps unless a specific authority assigns them otherwise.
 
 ## 21. Content scope intentionally deferred
 
@@ -212,17 +209,17 @@ Do not lock total v1 combat levels, zones, backgrounds, normal enemies, bosses, 
 
 | System | Intended design | Current implementation | Status | Roadmap step |
 |---|---|---|---|---|
-| Shock | Build stacks toward a threshold that triggers an additional Lightning hit/effect; not generic increased damage taken. | Generic Shock is stored/displayed but has no triggered effect. Lightning Strike directly converts Shock Chance applications into immediate extra hits, bypassing a persisted target threshold. | Discrepancy; exact threshold details unresolved. | 9–10 |
-| Chill | Reduce target attack speed in proportion to causing Cold-hit strength. | Chill can apply, stack, expire and display; `ApplyChill` is empty and attack speed is unchanged. | Missing mechanic. | 9–10 |
-| Accuracy/evasion | Deliberate hit/miss system, if approved. | Rollable/displayable stats exist; combat always proceeds without an accuracy/evasion roll. | Unresolved/dead affixes. | 9–10 |
-| Block | Deliberate defensive avoidance/mitigation rule, if approved. | `ChanceToBlock` exists but is never consumed by damage resolution. | Unresolved/dead affix. | 9–10 |
-| Maximum resistance | Approved maximum-cap rules should control achievable resistance bounds. | Max-resistance stats are unconsumed; calculator clamps final reduction to ±90%. | Unresolved/dead affixes. | 9–10 |
-| Projectile Amount / Bullet Hell | Additional projectile count should affect projectile-producing skills once exact behavior is approved. | Passive/stat/keystone values exist; projectile launcher creates one projectile. | Partial projection, missing consumer. | 9–10 |
-| Enemy Hit Twice | Enemy behavior requires an explicit decision. | Player attacks consume Hit Twice; enemy turns do not. | Unresolved asymmetry/dead enemy roll. | 9–10 |
-| Cooldowns | No final cooldown model is yet approved. | Cooldown Recovery is pool-listed/displayable but has zero tiers and cannot generate; skills have no cooldown timer. | Unresolved/dead pool exposure. | 9–10 |
-| Attributes, skill levels, kill resources | Require explicit formulas and ordering. | Attribute and kill-resource affixes generate but have no consumers. Skill-level entries are pool-listed/displayable but zero-tier and cannot generate. | Dead/unreachable affix families. | 9–10 |
+| Shock | Five-stack threshold and 50%-basis secondary hit, with effect cap, overflow and five-turn lifetime. | Step 10 implemented and the fresh 172-test/synchronous regression passes. | Reconciled for v1; later balance is separate. | 10 |
+| Chill | Cold-hit/max-Life slow curve capped at 30%, four-turn lifetime and replace-if-stronger. | Step 10 dynamically queries gauge slow, strength and replacement; fresh regression passes. | Reconciled for v1; Deep Freeze's cap tuning remains separate. | 10 |
+| Accuracy/evasion | Deliberate hit/miss system only if later approved. | Legacy stats deserialize/display but leave new v1 pools/filter; combat still has no hit/miss roll. | Intentionally deprecated for v1. | 10 |
+| Block | Deliberate defensive avoidance/mitigation only if later approved. | Legacy ID deserializes but leaves new v1 pools/filter; combat still has no block roll. | Intentionally deprecated for v1. | 10 |
+| Maximum resistance | 75% baseline, matching/all additions and 90% hard cap before penetration. | Step 10 shared calculator includes Void and both actors; fresh regression passes. | Reconciled for v1. | 10 |
+| Projectile Amount / Bullet Hell | Fireball gains one independent target-snapshotted projectile per whole passive addition. | Step 10 launcher consumes the count and keystone contribution; fresh regression passes. | Reconciled for v1. | 10 |
+| Enemy Hit Twice | One extra legitimate, nonrecursive hit against the same living actor. | Step 10 symmetric enemy path and optimizer valuation; fresh regression passes. | Reconciled for v1. | 10 |
+| Cooldowns | No final cooldown model approved. | Recovery stays as legacy stable ID but leaves new pools/filter; skills have no cooldown timer. | Intentionally deprecated for v1. | 10 |
+| Attributes, skill levels, kill resources | Use the locked Step 10 formulas and exactly-once death claim. | Step 10 derived projection, seven skill levels and kill recovery wired; fresh regression passes. | Reconciled for v1. | 10 |
 | Minions | Require entity, ownership and combat design. | Only a Minion damage scope/stat calculation exists; there are no minions. | Infrastructure only. | 9–10/content TBD |
-| Void | Final identity must be explicitly approved. | Enum/mask/tooltip support exists; normal player weapon generation excludes Void and no gameplay rule is defined. | Unresolved. | 9–10 |
+| Void / Poison | Void is a core element; Poison is Void DOT ailment with legacy enum compatibility. | Step 10 append-only stats 114–119 and direct/tick/gear/UI/optimizer mappings; fresh regression passes. | Reconciled for v1; final balance later. | 10 |
 | Status callbacks | Extensible status lifecycle should have an approved dispatch contract if retained. | Empty virtual hooks exist and are not called by current status ticking. | Dead extension surface. | 9–10 |
 | Enemy scaling | Enemies should scale intentionally across progression; exact balance is later. | Gear level/count grows, but prefab base life/damage has no level multiplier. | Partial system. | 11, then 13 |
 | Prestige (resolved) | Rebirth is the sole intended meta reset. | Step 8 removed the level-10 offer branch, placeholder continuation, public reset method and empty reward hook. Boss clears advance directly at every combat level. | Resolved; retain this historical row to prevent regression. | Completed in 8 |

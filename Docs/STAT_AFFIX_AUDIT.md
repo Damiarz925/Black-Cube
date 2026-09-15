@@ -1,12 +1,31 @@
 # Black-Cube stat and affix audit
 
-> **Step 9 authority:** This document records verified implementation reality and proposes v1 triage. It does not approve unresolved mechanics or authorize Step 10 changes. `GAME_DESIGN_CONTRACT.md` remains authoritative for intent; `PROJECT_STATE.md` remains authoritative for current product state.
+> **Step 10 delta with historical Step 9 inventory retained below:** The original matrices and proposed triage describe the `d658dc67` baseline and must not be read as current rollability. The current counters/policies are in this new section. `GAME_DESIGN_CONTRACT.md` governs approved intent; `PROJECT_STATE.md` reports current verification limits.
+
+## Step 10 current reachability and consumer reconciliation
+
+| Measure | Current source-level count | Meaning |
+|---|---:|---|
+| Stable IDs / serialized definitions | **120 / 120** | Contiguous numeric identities 0–119, six new Void IDs append at 114–119 |
+| Pooled definitions with tier(s) | **107** | Three guaranteed intrinsic weapon bases and **104 random affixes**; no pooled zero-tier definition |
+| Non-generatable definitions | **13** | Seven deprecated (`3,51,53,80,82,84,103`) and six internal/passive-only (`108–113`) |
+| Enemy-only excluded subset | **16** | Player-facing Mana/resource scalers, Life on Kill and seven active-skill levels are filtered from enemy candidates (but remain valid player rolls) |
+
+The exact pool count was obtained from distinct `StatTypes` entries in `GearStatLists.BuildDefaultStatPools`; asset records/tier reachability were checked against all 120 `ModDatabase.asset` definitions. Current v1 generation and all six ordinary crafting mutations use the same pool/definition selection; removed IDs remain deserializable and a legacy locked-original mod remains protected. Advanced pickup-filter choices derive from obtainable player pools rather than all enum labels; existing saved deprecated selections still deserialize, and mismatch auto-dismantling is unchanged.
+
+Removed from *new* v1 generation: Accuracy, flat/increased Evasion, Block, Cooldown Recovery, Mana Cost and the accuracy-per-Dex derivative. Minion and Projectile Speed are internal/dormant. Poison is no longer a generated direct weapon base; its ailment-related affixes remain active. The newly added Void family mirrors elemental slot/gate/tier parity. Seven skill-level affixes use intentionally **one** tier (+1, item level 40, weight 5), not five fabricated tiers; Mana scalers have five seeded singleton tiers. Internal passive Projectile Amount now affects Fireball but remains non-rollable on gear.
+
+Every one of the **104 currently random-generatable player affix identities** has a source-level gameplay consumer: damage/ailments/defenses/resources, the dedicated query-time attribute derivation, seven active-skill mappings, mana snapshot scaling, or the credited kill pipeline. Enemy candidate generation excludes its player-only subset before weighting, and optimizer snapshots use the full current enum length rather than a hard-coded 108/113 ceiling. Void direct hits, Poison-as-Void ticks, Shock, Chill, max resistance, enemy life and Hit Twice have matching enemy/player structural paths where relevant. Fresh Unity 6000.6.0f1 EditMode verification ran **172/172 passing**, including **29 Step 10** fixture cases; four synchronous Play checks, rich menu/load, six-entry lifecycle/Pause, references, strict Windows build and headless standalone startup passed. Structural reachability plus these tests is not final combat balance or an exhaustive run through every possible generated item permutation.
+
+The historical Step 9 tables below preserve their precise old evidence and discrepancy decisions for comparison; their `N`, zero-tier and rollability cells are not Step 10 current-state claims.
+
+## Historical Step 9 inventory (sections 1–15; not current rollability)
 
 ## 1. Scope, method, and exact counts
 
 This audit traced every stable `StatTypes` value through `StatsComponent`, modifier math, slot pools, `ModDatabase`, `ModManager`, gear projection, player/enemy combat, ailments/statuses, passives/keystones, skills, UI/filtering, crafting, optimizer scoring, persistence DTOs, and current tests. A display label or serialized definition was not treated as a gameplay consumer.
 
-| Measure | Exact current count | Meaning |
+| Measure | Exact Step 9 count | Meaning |
 |---|---:|---|
 | Stable `StatTypes` IDs | **114** | Explicit, contiguous numeric IDs `0–113` |
 | Serialized `AffixDefinition` records | **114** | One record per stable stat ID |

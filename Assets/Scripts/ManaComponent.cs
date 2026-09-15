@@ -10,6 +10,9 @@ public sealed class ManaComponent : MonoBehaviour
     {
         get
         {
+            // Editor-created actors may query the resource before Awake has run;
+            // the attached stat store remains the sole resource authority.
+            if (stats == null) stats = GetComponent<StatsComponent>();
             if (stats == null) return 0f;
             float value = Mathf.Max(0f, (stats.GetStat(StatTypes.Mana) + DerivedStatCalculator.AddedMana(stats))
                 * (1f + stats.GetStat(StatTypes.ManaPercent) + DerivedStatCalculator.IntelligenceIncreased(stats)));

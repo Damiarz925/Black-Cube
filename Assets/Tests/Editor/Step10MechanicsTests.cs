@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using NUnit.Framework;
 using UnityEditor;
 using UnityEngine;
@@ -62,6 +63,52 @@ public sealed class Step10MechanicsTests
         Assert.That(CombatCalculator.ApplyResistanceValue(100f, 1f, .1f, .8f), Is.EqualTo(30f).Within(.001f));
     }
 
+    [TestCase(Element.Fire, StatTypes.MaxFireRes)]
+    [TestCase(Element.Cold, StatTypes.MaxColdRes)]
+    [TestCase(Element.Light, StatTypes.MaxLightRes)]
+    [TestCase(Element.Void, StatTypes.MaxVoidRes)]
+    public void MaximumResistanceAppliesOnlyMatchingCapThenMaximumAll(Element element, StatTypes capStat)
+    {
+        var stats = NewGameObject("matching-cap").AddComponent<StatsComponent>();
+        stats.SetBaseStat(capStat, 5f);
+        stats.SetBaseStat(StatTypes.MaxAllRes, 4f);
+        Assert.That(CombatCalculator.GetMaximumResistance(element, stats), Is.EqualTo(.84f).Within(.0001f));
+        foreach (Element other in new[] { Element.Fire, Element.Cold, Element.Light, Element.Void })
+            if (other != element)
+                Assert.That(CombatCalculator.GetMaximumResistance(other, stats), Is.EqualTo(.79f).Within(.0001f));
+    }
+
+    [Test]
+    public void CreditedBossDeathCanBeClaimedOnlyOnce()
+    {
+        var health = NewGameObject("claimed-boss").AddComponent<HealthComponent>();
+        health.SetEnemyRole(true);
+        health.ReviveToFullLife(); // Explicit lifecycle initialization for EditMode-created actors.
+        Assert.That(health.TryClaimEnemyDeath(), Is.False, "Nonlethal actors grant no reward");
+        // Die schedules a delayed GameObject.Destroy in PlayMode; avoid that
+        // editor-only side effect while testing the independent claim guard.
+        typeof(HealthComponent).GetField("isDead", BindingFlags.Instance | BindingFlags.NonPublic)
+            .SetValue(health, true);
+        Assert.That(health.IsBoss, Is.True);
+        Assert.That(health.TryClaimEnemyDeath(), Is.True);
+        Assert.That(health.TryClaimEnemyDeath(), Is.False, "Duplicate death cannot grant recovery");
+    }
+
+    [Test]
+    public void ShockChanceOverflowGuaranteesWholeHundredsAndRollsRemainder()
+    {
+        UnityEngine.Random.State prior = UnityEngine.Random.state;
+        try
+        {
+            Assert.That(BattleManager.RollOverflowApplications(0f), Is.EqualTo(0));
+            // Combat receives GetStat fractions: 100 percentage points = 1f.
+            Assert.That(BattleManager.RollOverflowApplications(1f), Is.EqualTo(1));
+            for (int i = 0; i < 20; i++)
+                Assert.That(BattleManager.RollOverflowApplications(2.5f), Is.InRange(2, 3));
+        }
+        finally { UnityEngine.Random.state = prior; }
+    }
+
     [TestCase(0f, 0, 1)]
     [TestCase(.99f, 0, 1)]
     [TestCase(1f, 0, 2)]
@@ -78,7 +125,12 @@ public sealed class Step10MechanicsTests
         var go = NewGameObject("enemy-life");
         var stats = go.AddComponent<StatsComponent>();
         var health = go.AddComponent<HealthComponent>();
+        // EditMode AddComponent does not execute MonoBehaviour.Awake.
+        health.ReviveToFullLife();
         stats.SetBaseStat(StatTypes.Life, 100f);
+        Assert.That(stats.GetStat(StatTypes.Life), Is.EqualTo(100f));
+        Assert.That(health.MaxLife, Is.EqualTo(100f));
+        Assert.That(health.CurrentLife, Is.EqualTo(100f));
         health.UseStatsForMaximumLife(stats);
         stats.AddModifier(new StatModifier(StatTypes.Life, StatOp.Additive, 50f, this));
         stats.AddModifier(new StatModifier(StatTypes.LifePercent, StatOp.Additive, 20f, this));
@@ -93,6 +145,8 @@ public sealed class Step10MechanicsTests
         float[] baseline = new float[Enum.GetValues(typeof(StatTypes)).Length];
         baseline[(int)StatTypes.Life] = 100f;
         var weapon = GearWith(StatTypes.WeaponBaseDmg, 100f, LootManager.GearType.Weapons);
+        weapon.RebuildMods();
+        weapon.BaseAttackSpeed = 1f;
         var life = GearWith(StatTypes.Life, 100f, LootManager.GearType.Helmets);
         var twice = GearWith(StatTypes.ChanceToHitTwice, 100f, LootManager.GearType.Amulets);
         var baseEval = EnemyBuildOptimizer.Evaluate(new[] { weapon }, baseline, 1f);
@@ -122,7 +176,7 @@ public sealed class Step10MechanicsTests
         defender.SetBaseStat(StatTypes.MaxVoidRes, 5f);
         var hit = new DamageContext(1);
         hit.AddDamage(Element.Void, 100f);
-        Assert.That(CombatCalculator.CalculateFinalDamage(hit, attacker, defender), Is.EqualTo(25f).Within(.001f));
+        Assert.That(CombatCalculator.CalculateFinalDamage(hit, attacker, defender), Is.EqualTo(30f).Within(.001f));
     }
 
     [Test]
@@ -191,6 +245,9 @@ public sealed class Step10MechanicsTests
         stats.SetBaseStat(StatTypes.DmgPerCurrentMana, 6f);
         var mana = go.AddComponent<ManaComponent>();
         mana.RestoreFull();
+        Assert.That(stats.GetStat(StatTypes.Mana), Is.EqualTo(500f));
+        Assert.That(mana.MaxMana, Is.EqualTo(500f));
+        Assert.That(mana.CurrentMana, Is.EqualTo(500f));
         Assert.That(DerivedStatCalculator.GlobalIncreasedDamage(stats, mana), Is.EqualTo(.45f).Within(.001f));
         mana.TrySpend(200f);
         Assert.That(DerivedStatCalculator.GlobalIncreasedDamage(stats, mana), Is.EqualTo(.33f).Within(.001f));

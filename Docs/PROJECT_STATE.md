@@ -14,12 +14,13 @@ Current-reality claims use this evidence order: (1) verified source code, (2) sc
 - Step 8 cleanup baseline: `00bbc93f5153108e34cb133c81dccb3879168782` (`Remove obsolete Prestige runtime path`)
 - Unity: `6000.6.0f1` (`f7f8ed4d1e24`)
 - Enabled build scenes, in order: `Assets/Scenes/Main Menu.unity`, `Assets/Scenes/SampleScene.unity`
-- Source inventory at this milestone: 94 runtime C# files, 23 Editor C# files, 12 EditMode test files, and 45 sources under `Tools` (`.cs`, `.py`, `.ps1`)
-- EditMode suite: 143/143 passing
-- Real-scene rich save → Main Menu → load/New Game check: passing
-- Six-entry lifecycle and Pause Menu soak: passing
-- Missing-reference validation: passing with zero failures
-- Windows x64 build: succeeding with zero errors; final standalone smoke launch remained alive through its observation window
+- Historical Step 6 source inventory: 94 runtime C# files, 23 Editor C# files, 12 EditMode test files, and 45 sources under `Tools` (`.cs`, `.py`, `.ps1`); Step 10 adds `DerivedStatCalculator` and `Step10MechanicsTests`.
+- Historical Step 6 EditMode suite: 143/143 passing. **Fresh Step 10 Unity EditMode suite: 172/172 passing**, including 29 Step 10 fixture cases; local runtime and editor/test assembly compiles also succeed with 0 errors.
+- Fresh Step 10 four synchronous real-scene equipment/combat, player-stat, status and progression checks: passing
+- Fresh Step 10 rich save → Main Menu → load/New Game check: passing
+- Fresh Step 10 six-entry lifecycle and Pause Menu soak: passing
+- Fresh Step 10 missing-reference validation: passing with zero failures
+- Fresh Step 10 Windows x64 strict build: succeeded, zero errors, 522 warnings; standalone headless smoke stayed responsive for 30 seconds through Main Menu startup (the unassigned placeholder Achievements button logged its known warning)
 
 Known baseline limits include one logical save slot; clean encounter-boundary rather than exact-frame restoration; functional/basic runtime-built menu overlays; two active enemy archetypes; six repeating forest backgrounds; no final campaign/content count; and the incomplete mechanics listed below.
 
@@ -35,13 +36,13 @@ The game has a coherent vertical slice rather than shipping-scale content. Comba
 - **GameManager:** owns combat level, normal-kill count, boss position, death/restart flow, rewards, scene rebinding, New Game/load bootstrap, and immediate progression checkpoints.
 - **BattleManager:** owns player/enemy gauges, global-turn ordering, attacks, active-skill resolution, status ticking, current enemy, deterministic encounter spawning, and encounter-start resource capture.
 - **Player:** `PlayerController` builds basic and converted damage contexts from equipped weapon/stats. `HealthComponent`, `ManaComponent`, `StatsComponent`, `StatusController`, `PlayerSkillController`, and `PassiveKeystoneState` own their respective runtime domains.
-- **Enemies:** `EnemyAI` rolls rarity and generated equipment, asks `EnemyBuildOptimizer` to choose a bounded build, then attacks automatically. `EnemyStatSetup` initializes stat buckets but does not scale base stats by level; maximum life comes from the enemy prefab's `HealthComponent`.
+- **Enemies:** `EnemyAI` rolls rarity and generated equipment, asks `EnemyBuildOptimizer` to choose a bounded build, then attacks automatically. `EnemyStatSetup` initializes intrinsic stat buckets without Step 11 level scaling; enemy flat/increased Life gear and attributes now feed `HealthComponent` maximum life over the prefab seed.
 - **Combat/stats:** attacks use separate physical/elemental components, critical rolls, armour, elemental/ailment resistance, penetration, scoped damage, on-hit recovery, and DOT/status application. Stats are raw buckets with explicit percentage conversion rules.
 - **Inventory/equipment:** `Inventory` owns unequipped run gear and pickup filtering; `EquipmentManager` owns eight equipped slots and projects item modifiers onto the current player. Stable gear IDs support persistence.
 - **Crafting:** `CurrencyInventory` owns ordinary/Ancient stacks and transient armed intent. `EquipmentCrafting` and `AncientRelicCrafting` validate, mutate, consume, and checkpoint successful outcomes.
 - **Progression:** `PlayerProgression` owns level, XP, passive points and 290 binary allocations. It rebuilds stats and keystone projections when allocations change.
 - **Skills:** seven catalog skills can be selected one at a time and cast from the Skills panel when mana and a living encounter are available. Auto-attacks continue independently.
-- **Statuses:** Poison, Bleed, and Ignite deal turn-based damage with stack policies, duration/tick rate, resistance and penetration. Shock and Chill have application/lifetime/HUD infrastructure but incomplete effects.
+- **Statuses:** Poison ticks are mitigated as Void DOT while retaining Poison application and visual identity. Bleed/Ignite retain DOT behavior. Shock has five-stack Lightning triggers; Chill dynamically slows either actor's real gauge from actual Cold-hit strength.
 - **Relics/Rebirth:** `RelicInventory` owns permanent-within-save relic history, four active slots and current-cycle crafting authority. `RebirthManager` performs the level-50 reset transaction and immediately saves it. New Game clears this entire layer.
 - **Persistence:** `GamePersistence` owns schema-2 DTO capture/validation, stable run identity/seed, atomic files, backup recovery, V1 migration, deterministic encounter restore and debounced autosaves. See [SAVE_STATE_CONTRACT.md](SAVE_STATE_CONTRACT.md).
 - **UI:** `PaperBattleHUD` coordinates gameplay panels and time controls. Most feature panels are runtime-built over the authored paper battle prefab.
@@ -64,14 +65,14 @@ Use [CODE_MAP.md](CODE_MAP.md) for file ownership and [DEVELOPER_HANDOFF.md](DEV
 
 - Gauge-driven automatic player/enemy attacks and manual active-skill casting
 - Physical/elemental hit calculation, critical strikes, armour, resistances and penetration
-- Poison, Bleed and Ignite damage-over-time stacking/ticking
-- Player Hit Twice, life/mana regeneration, life/mana on hit, damage conversion, scoped Magic/Projectile/Minion damage inputs, and implemented passive keystone projections
+- Poison-as-Void DOT, Bleed and Ignite stacking/ticking; first-class direct Void damage, resistance, penetration and max resistance
+- Symmetric Hit Twice; player life/mana regeneration, on-hit and credited on-kill recovery; Fireball passive-only Projectile Amount, conversion and scoped Magic/Projectile damage inputs
 - Enemy rarity, generated equipment candidates, and bounded build optimization
 - Exactly-once enemy death rewards, equipment drops and world currency pickups
 - Eight-slot equipment, inventory grid, item tooltips, local/global weapon modifiers, stable item identity, pickup filters and auto-dismantling
 - Six ordinary equipment-crafting operations and six corresponding Ancient relic-crafting operations
 - Level/XP progression to 100, passive allocation/refund connectivity, 290-node passive tree and 20 keystones
-- Seven active skills, one selected skill, mana costs and projectile presentation for Fireball
+- Seven levelable active skills, one selected skill, level-adjusted mana costs and independent Fireball projectiles
 - Relic inventory, four active slots, current-cycle crafting and confirmed Rebirth
 - Main Menu, HUD, gameplay panels, Pause/Options, Death Menu, restart, New Game confirmation and Load Game
 - Schema-2 transactional persistence, backup recovery, V1 migration, autosaves and clean deterministic encounter restoration
@@ -81,19 +82,10 @@ Use [CODE_MAP.md](CODE_MAP.md) for file ownership and [DEVELOPER_HANDOFF.md](DEV
 
 | Mechanic | Current repository reality |
 |---|---|
-| Accuracy / evasion | Stats, affix pools and display mappings exist. Combat performs no accuracy/evasion hit test; attacks do not miss. |
-| Block | `ChanceToBlock` can exist and display, but damage resolution has no block roll or block mitigation. |
-| Maximum resistance | Max-resistance stats exist in data/UI, but resistance code uses a fixed ±90% reduction clamp and never reads them. |
-| Chill | Cold hits can create Chill status records and UI badges. `ApplyChill` is empty; target attack speed is unchanged. |
-| Shock | Shock statuses can be applied/tracked, but they do not accumulate into a general threshold-triggered Lightning effect. Lightning Strike separately converts Shock Chance applications directly into extra hits. |
-| Enemy Hit Twice | The player path consumes `ChanceToHitTwice`; the enemy attack path does not. Enemy builds can therefore receive no combat value from it. |
-| Projectile Amount | Passives and Bullet Hell expose projectile-count values and damage tradeoffs, but `SkillProjectile` launches one projectile and does not consume the count. |
-| Cooldown Recovery | Pool-listed/displayable percentage stat with no tiers, so it cannot currently generate; there is no active-skill cooldown state or timer. |
-| Attributes/scaling | Strength, Dexterity, Intelligence and their scaling affixes exist in enums/pools/UI but are not projected into combat/resources. |
-| Skill-level modifiers | Seven `Plus1*` stats are pool-listed/displayable but have no tiers and cannot currently generate; active skills have no level model. |
-| Kill-resource modifiers | Life/Mana on Kill exist in item data/UI but enemy reward resolution does not apply them. On-hit recovery does work. |
+| Accuracy / evasion / block | Existing IDs remain loadable/displayable, but new v1 pools exclude these unapproved miss/avoidance families. No combat hit test/block mitigation exists. |
+| Cooldown Recovery / Mana Cost affix | Existing IDs remain loadable, but neither newly generates; there is no cooldown loop, and skill mana cost is computed from skill level instead. |
+| Deep Freeze maximum-Chill increase | Extra application remains projected; authored maximum-effect-increase field has a zero default pending a separate tuning decision. Current Chill cap remains 30%. |
 | Minions | Minion damage scope/stat calculation exists, but there are no minion entities, commands or attacks. |
-| Void | `Element.Void` and masks exist. Player loot excludes unfinished Void weapon bases and no final Void mechanic is implemented. |
 | Status callbacks | Virtual apply/tick/expire/outgoing-damage hooks exist on `StatusEffects` but current ticking does not dispatch them. |
 | Enemy base scaling | Enemy item level, item count and build candidates grow with combat level. Base life/damage scaling remains an unused extension point; prefab life is constant per archetype. |
 | Achievements | Main Menu button only logs a placeholder message. No achievement system exists. |
@@ -131,7 +123,7 @@ These controls are functionally wired. Runtime-built modal/panel geometry and ge
 
 ## 10. Verification infrastructure
 
-- NUnit EditMode suite under `Assets/Tests/Editor` (143 tests at this baseline)
+- NUnit EditMode suite under `Assets/Tests/Editor` (172/172 at the fresh Step 10 baseline, including 29 Step 10 cases)
 - `GamePersistenceTests` for schema, corruption, migration, backup, deterministic seed, transactional failure and debounce behavior
 - `MenuLoadPlayChecks` for rich real-scene save/load, transient clearing, preferences and New Game replacement
 - `RuntimeLifecyclePlayChecks` for six entries, five returns, singleton/rebinding and Pause Menu behavior
@@ -144,8 +136,7 @@ Generated reports are written to `Logs` or `ReviewCaptures`; check timestamps be
 
 ## 11. Known risks and technical debt
 
-- Rollable but unconsumed affixes create dead player/enemy item outcomes and misleading displayed power.
-- Shock and Chill presentation can imply mechanics that are not actually applied.
+- Step 10 pool/consumer reconciliation has 172 fresh EditMode cases, synchronous real-scene, rich menu/load, lifecycle, reference, Windows build and headless standalone startup gates. These checks do not establish final combat balance, authored art/UI polish or every possible item permutation.
 - Enemy base survivability/damage does not scale with level independently of generated equipment.
 - The active content pool is one normal enemy, one boss and one repeating environment family.
 - Much of the active UI is constructed in code; it is testable but harder to art-direct than final authored prefabs.
@@ -156,9 +147,9 @@ Generated reports are written to `Logs` or `ReviewCaptures`; check timestamps be
 
 ## 12. Roadmap position
 
-Steps 1–9 are complete. Step 7 locked current-state and intended-design documentation. Step 8 removed the superseded Prestige branch/API: every boss clear now advances directly to the next combat level, while Rebirth remains the sole run-reset/meta-progression system. Step 9 audited all 114 stable stat IDs and separated 97 actually generatable definitions from eleven pool-listed zero-tier records and six internal/non-rollable stats; it made no runtime mechanic changes.
+Steps 1–10 have completed their requested source and fresh regression/build gates. There are 120 stable stat IDs and 107 pooled definitions (3 guaranteed weapon bases plus 104 random affixes), with no pooled zero-tier definition. Step 11 enemy intrinsic level scaling has not begun.
 
-Known later phases are: Step 10 approved incomplete-mechanics implementation/removal; Step 11 enemy base scaling; Step 13 balance; and Step 14 final v1 zone/enemy/boss/content scope. The current briefs do not define Step 12, so this document does not invent it.
+Known later phases are: Step 11 enemy base scaling; Step 13 balance; and Step 14 final v1 zone/enemy/boss/content scope. The current briefs do not define Step 12, so this document does not invent it.
 
 ## Maintenance rule
 
