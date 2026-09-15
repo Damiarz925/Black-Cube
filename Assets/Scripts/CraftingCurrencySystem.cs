@@ -141,7 +141,7 @@ public sealed class CurrencyInventoryPanel : MonoBehaviour
     InventoryUI owner;
     InventoryEquipmentPanelUI layout;
     RectTransform ordinaryRoot, ancientRoot, relicRoot;
-    Button relicButton;
+    Button gearButton, relicButton;
     CraftingCurrencyCursorUI cursor;
     readonly Dictionary<CraftingCurrencyType, CurrencySlotUI> currencyEntries = new();
     readonly Dictionary<RelicData, RelicSlotUI> relicEntries = new();
@@ -156,10 +156,10 @@ public sealed class CurrencyInventoryPanel : MonoBehaviour
         if (ordinaryRoot != null) return;
         ordinaryRoot = MakeRoot("Ordinary currency");
         ancientRoot = MakeRoot("Ancient relic currency");
-        relicButton = MakeButton(transform, "RELIC INVENTORY", ShowRelics);
-        InventoryArtLayout.Apply((RectTransform)relicButton.transform,InventoryArtLayout.P(59,498,205,523));
-        relicButton.gameObject.AddComponent<InventoryArtworkHotspot>();relicButton.image.color=Color.clear;
-        relicButton.GetComponentInChildren<TMP_Text>().text=string.Empty;
+        gearButton = MakeButton(transform, "GEAR", ShowEquipment);
+        relicButton = MakeButton(transform, "RELICS", ShowRelics);
+        InventoryArtLayout.Apply((RectTransform)gearButton.transform,InventoryArtLayout.P(59,498,139,523));
+        InventoryArtLayout.Apply((RectTransform)relicButton.transform,InventoryArtLayout.P(148,498,250,523));
         var relics = new GameObject("Relic inventory", typeof(RectTransform), typeof(VerticalLayoutGroup), typeof(ContentSizeFitter));
         relics.transform.SetParent(transform, false); relicRoot = (RectTransform)relics.transform;
         InventoryArtLayout.Apply(relicRoot,InventoryArtLayout.InventoryBounds);
@@ -169,10 +169,23 @@ public sealed class CurrencyInventoryPanel : MonoBehaviour
     }
     void OnEnable() { if (CurrencyInventory.Instance != null) CurrencyInventory.Instance.Changed += RefreshCurrencies; if(RelicInventory.Instance!=null)RelicInventory.Instance.Changed+=RefreshRelics; Refresh(); }
     void OnDisable() { CurrencyTooltipUI.Hide(); RelicTooltipUI.Hide(); if (CurrencyInventory.Instance != null) { CurrencyInventory.Instance.Changed -= RefreshCurrencies; CurrencyInventory.Instance.CancelArmed(); } cursor?.RefreshPresentation(); if(RelicInventory.Instance!=null)RelicInventory.Instance.Changed-=RefreshRelics; }
-    public void ShowEquipment() { layout?.SetRelicMode(false); if(relicRoot!=null)relicRoot.gameObject.SetActive(false); TintRelicButton(false); Refresh(); }
+    public bool IsShowingRelics => relicRoot!=null&&relicRoot.gameObject.activeSelf;
+    public Button GearTab=>gearButton;
+    public Button RelicTab=>relicButton;
+    public void ShowEquipment() => SwitchView(false,true);
+    public void ShowEquipmentForCurrency() => SwitchView(false,false);
     public void ShowCurrency() => ShowEquipment();
-    public void ShowRelics(){layout?.SetRelicMode(true);if(relicRoot!=null)relicRoot.gameObject.SetActive(true);TintRelicButton(true);Refresh();}
-    void TintRelicButton(bool selected) { if(relicButton!=null) relicButton.image.color=Color.clear; }
+    public void ShowRelics() => SwitchView(true,true);
+    public void ShowRelicsForCurrency() => SwitchView(true,false);
+    void SwitchView(bool relicMode,bool manual)
+    {
+        if(manual)CurrencyInventory.Instance?.CancelArmed();
+        layout?.SetRelicMode(relicMode);
+        if(relicRoot!=null)relicRoot.gameObject.SetActive(relicMode);
+        if(gearButton!=null)gearButton.image.color=relicMode?new Color(.12f,.13f,.17f,.96f):new Color(.34f,.29f,.16f,.98f);
+        if(relicButton!=null)relicButton.image.color=relicMode?new Color(.35f,.20f,.42f,.98f):new Color(.13f,.11f,.18f,.96f);
+        Refresh();
+    }
     void Refresh()
     {
         if(ordinaryRoot==null || CurrencyInventory.Instance==null) return;
@@ -189,10 +202,10 @@ public sealed class CurrencyInventoryPanel : MonoBehaviour
             Rect slotRect=(ancient?InventoryArtLayout.AncientCurrencySlots:InventoryArtLayout.OrdinaryCurrencySlots)[rowIndex];
             Rect countRect=(ancient?InventoryArtLayout.AncientCountBoxes:InventoryArtLayout.OrdinaryCountBoxes)[rowIndex];
             Rect localCountRect=InventoryArtLayout.Relative(countRect,slotRect);
-            if(currencyEntries.TryGetValue(type,out var existing)&&existing!=null){InventoryArtLayout.Apply((RectTransform)existing.transform,slotRect);var existingLabel=existing.GetComponentInChildren<TMP_Text>(true);if(existingLabel!=null)InventoryArtLayout.Apply(existingLabel.rectTransform,localCountRect);existing.RefreshPresentation();continue;}
+            if(currencyEntries.TryGetValue(type,out var existing)&&existing!=null){InventoryArtLayout.Apply((RectTransform)existing.transform,slotRect);if(ancient)existing.GetComponent<Image>().sprite=InventoryArtCatalog.Currency(type);var existingLabel=existing.GetComponentInChildren<TMP_Text>(true);if(existingLabel!=null)InventoryArtLayout.Apply(existingLabel.rectTransform,localCountRect);existing.RefreshPresentation();continue;}
             var go = new GameObject(type.ToString(), typeof(RectTransform), typeof(Image), typeof(RectMask2D), typeof(Outline), typeof(Button), typeof(CurrencySlotUI));
             go.transform.SetParent(ancient?ancientRoot:ordinaryRoot,false);InventoryArtLayout.Apply((RectTransform)go.transform,slotRect);
-            var image=go.GetComponent<Image>(); image.color = new Color(1,1,1,.001f);
+            var image=go.GetComponent<Image>();image.sprite=ancient?InventoryArtCatalog.Currency(type):null;image.preserveAspect=true;image.color=ancient?Color.white:new Color(1,1,1,.001f);
             var labelGo=new GameObject("Label",typeof(RectTransform),typeof(TextMeshProUGUI)); labelGo.transform.SetParent(go.transform,false);
             var rect=(RectTransform)labelGo.transform;InventoryArtLayout.Apply(rect,localCountRect);
             var label=labelGo.GetComponent<TextMeshProUGUI>();label.alignment=TextAlignmentOptions.Center;label.fontSize=11;label.enableAutoSizing=true;label.fontSizeMin=8;label.fontSizeMax=11;label.raycastTarget=false;
@@ -211,8 +224,12 @@ public sealed class CurrencyInventoryPanel : MonoBehaviour
         {
             if(relicEntries.TryGetValue(relic,out var existing)&&existing!=null){existing.RefreshPresentation();continue;}
             var go=new GameObject("Relic "+relic.id,typeof(RectTransform),typeof(Image),typeof(Button),typeof(RelicSlotUI));go.transform.SetParent(relicRoot,false);go.GetComponent<Image>().color=new Color(.18f,.08f,.24f,.96f);
-            ((RectTransform)go.transform).sizeDelta=new Vector2(0,74);var labelGo=new GameObject("Label",typeof(RectTransform),typeof(TextMeshProUGUI));labelGo.transform.SetParent(go.transform,false);
-            var rect=(RectTransform)labelGo.transform;rect.anchorMin=Vector2.zero;rect.anchorMax=Vector2.one;rect.offsetMin=new Vector2(8,5);rect.offsetMax=new Vector2(-8,-5);
+            ((RectTransform)go.transform).sizeDelta=new Vector2(0,74);
+            var iconGo=new GameObject("Relic glyph",typeof(RectTransform),typeof(Image));iconGo.transform.SetParent(go.transform,false);
+            var iconRect=(RectTransform)iconGo.transform;iconRect.anchorMin=new Vector2(0,.5f);iconRect.anchorMax=new Vector2(0,.5f);iconRect.pivot=new Vector2(0,.5f);iconRect.anchoredPosition=new Vector2(8,0);iconRect.sizeDelta=new Vector2(56,56);
+            var glyph=iconGo.GetComponent<Image>();glyph.preserveAspect=true;glyph.raycastTarget=false;
+            var labelGo=new GameObject("Label",typeof(RectTransform),typeof(TextMeshProUGUI));labelGo.transform.SetParent(go.transform,false);
+            var rect=(RectTransform)labelGo.transform;rect.anchorMin=Vector2.zero;rect.anchorMax=Vector2.one;rect.offsetMin=new Vector2(72,5);rect.offsetMax=new Vector2(-8,-5);
             var label=labelGo.GetComponent<TextMeshProUGUI>();label.fontSize=12;label.raycastTarget=false;var slot=go.GetComponent<RelicSlotUI>();slot.Initialize(relic,label);relicEntries[relic]=slot;go.GetComponent<Button>().onClick.AddListener(slot.Activate);
         }
         RelicTooltipUI.RefreshVisible();
@@ -257,7 +274,7 @@ public sealed class CurrencySlotUI : MonoBehaviour, IPointerClickHandler, IPoint
     {
         if(CurrencyInventory.Instance==null)return;
         if(CurrencyInventory.Instance.ArmedCurrency==type) CurrencyInventory.Instance.CancelArmed();
-        else if(CurrencyInventory.Instance.Arm(type)) { if(CurrencyInventory.IsAncient(type))inventoryUI?.ShowRelicView();else inventoryUI?.ShowEquipmentView(); }
+        else if(CurrencyInventory.Instance.Arm(type)) { if(CurrencyInventory.IsAncient(type))inventoryUI?.ShowRelicViewForCurrency();else inventoryUI?.ShowEquipmentViewForCurrency(); }
     }
     public void OnPointerEnter(PointerEventData data)=>CurrencyTooltipUI.Show(type,(RectTransform)transform);
     public void OnPointerExit(PointerEventData data)=>CurrencyTooltipUI.Hide();
@@ -400,9 +417,18 @@ public sealed class RelicSlotUI:MonoBehaviour,IPointerClickHandler,IPointerEnter
 {
     RelicData relic;TMP_Text label;public void Initialize(RelicData value,TMP_Text target=null){relic=value;label=target;RefreshPresentation();}
     public RelicData Item=>relic;
-    public void RefreshPresentation(){if(label!=null)label.text=ItemTooltipFormatter.DescribeRelic(relic);}
-    public void OnPointerClick(PointerEventData data){if(data.button==PointerEventData.InputButton.Left)CurrencyInventory.Instance?.TryApplyArmedToRelic(relic);}
-    public void Activate()=>CurrencyInventory.Instance?.TryApplyArmedToRelic(relic);
+    public void RefreshPresentation()
+    {
+        if(relic==null)return;
+        var glyph=transform.Find("Relic glyph")?.GetComponent<Image>();if(glyph!=null)glyph.sprite=PlaceholderIcon.Relic(relic.rarity,relic.cycle);
+        if(label!=null)label.text=$"<b>{relic.rarity.ToString().ToUpperInvariant()} RELIC</b>  •  CYCLE {relic.cycle}\n{relic.ModifierCount} MODIFIERS  •  {(relic.craftableThisCycle?"CRAFTABLE":"PAST CYCLE")}";
+    }
+    public void OnPointerClick(PointerEventData data){if(data.button==PointerEventData.InputButton.Right)RelicTooltipUI.Show(relic,(RectTransform)transform);}
+    public void Activate()
+    {
+        if(CurrencyInventory.Instance?.ArmedCurrency is CraftingCurrencyType currency&&CurrencyInventory.IsAncient(currency))CurrencyInventory.Instance.TryApplyArmedToRelic(relic);
+        else RelicTooltipUI.Show(relic,(RectTransform)transform);
+    }
     public void OnPointerEnter(PointerEventData data)=>RelicTooltipUI.Show(relic,(RectTransform)transform);
     public void OnPointerExit(PointerEventData data)=>RelicTooltipUI.Hide();
 }

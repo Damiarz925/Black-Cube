@@ -47,10 +47,18 @@ public static class ItemTooltipFormatter
         var s = new StringBuilder($"<b>{relic.rarity} RELIC</b>  <color=#85898F>•  CYCLE {relic.cycle}</color>\n");
         s.AppendLine(relic.craftableThisCycle ? "<color=#B88AE0>CURRENT CYCLE / CRAFTABLE</color>" : "<color=#85898F>PAST CYCLE / LOCKED</color>");
         s.AppendLine($"<color=#555A63>{Divider}</color>");
+        s.AppendLine("<b>RELIC MODIFIERS</b>");
         var mods = new List<RelicModifier>(relic.modifiers ?? new List<RelicModifier>());
         mods.Sort((a,b)=>RelicPriority(a.type).CompareTo(RelicPriority(b.type)));
         foreach (var mod in mods)
-            s.AppendLine($"{RelicName(mod.type)}: {mod.value:+0.#;-0.#;0}%  {(mod.lockedOriginal ? "<color=#D8B45A>◆ LOCKED / PERMANENT NORMAL BASE</color>" : "<color=#85898F>◇ UNLOCKED / CRAFTABLE</color>")}");
+        {
+            if(mod==null)continue;
+            var definition=RelicModifierDefinitions.Get(mod.type);
+            string label=definition?.Label??mod.type.ToString();
+            string unit=definition==null||definition.Percent?"%":"";
+            string range=definition==null?"LEGACY":definition.FixedValue?$"+{definition.Minimum:0.##}{unit}":$"{definition.Minimum:0.##}–{definition.Maximum:0.##}{unit}";
+            s.AppendLine($"{label}: <b>{mod.value:+0.##;-0.##;0}{unit}</b>  ({range})  {(mod.lockedOriginal ? "[LOCKED]" : "[CRAFTABLE]")}");
+        }
         return s.ToString().TrimEnd();
     }
 
@@ -84,7 +92,6 @@ public static class ItemTooltipFormatter
         _=>100+(int)type
     };
     static int RelicPriority(RelicModifierType type)=>type switch{RelicModifierType.MoreDamage=>0,RelicModifierType.MoreAttackSpeed=>1,_=>2};
-    static string RelicName(RelicModifierType type)=>type switch{RelicModifierType.MoreDamage=>"More Damage",RelicModifierType.MoreAttackSpeed=>"More Attack Speed",_=>"Increased Experience"};
 }
 
 /// <summary>A stationary, enterable hover card. Item data, not actor totals, drives its contents.</summary>

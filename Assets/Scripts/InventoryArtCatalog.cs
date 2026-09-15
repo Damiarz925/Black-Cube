@@ -16,7 +16,7 @@ public static class InventoryArtCatalog
         CraftingCurrencyType.RerollRareModifier => Load("UI/Currency/RerollYellow"),
         CraftingCurrencyType.AddRareModifier => Load("UI/Currency/AddYellow"),
         CraftingCurrencyType.RemoveRareModifier => Load("UI/Currency/Remove"),
-        _ => null
+        _ => CurrencyInventory.IsAncient(type) ? PlaceholderIcon.Currency(type) : null
     };
 
     public static string ResourcePath(CraftingCurrencyType type) => type switch
@@ -27,7 +27,7 @@ public static class InventoryArtCatalog
         CraftingCurrencyType.RerollRareModifier => "UI/Currency/RerollYellow",
         CraftingCurrencyType.AddRareModifier => "UI/Currency/AddYellow",
         CraftingCurrencyType.RemoveRareModifier => "UI/Currency/Remove",
-        _ => null
+        _ => CurrencyInventory.IsAncient(type) ? "generated/ancient/" + type : null
     };
 
     static Sprite Load(string path)
@@ -37,6 +37,56 @@ public static class InventoryArtCatalog
         Cache[path]=sprite;
         if(sprite==null)Debug.LogWarning("InventoryArtCatalog: missing sprite "+path);
         return sprite;
+    }
+}
+
+/// <summary>Small first-party placeholder icons, shared by a currency entry and its armed cursor.</summary>
+public static class PlaceholderIcon
+{
+    static readonly Dictionary<string, Sprite> Icons = new();
+    public static Sprite Currency(CraftingCurrencyType type)
+    {
+        string key="currency/"+type;
+        if(Icons.TryGetValue(key,out var existing)&&existing!=null)return existing;
+        int index=(int)type-(int)CraftingCurrencyType.AncientNormalToMagic;
+        return Icons[key]=Build(key,new Color32(151,88,207,255),index);
+    }
+    public static Sprite Relic(LootManager.GearRarity rarity,int cycle)
+    {
+        string key="relic/"+rarity+"/"+cycle;
+        if(Icons.TryGetValue(key,out var existing)&&existing!=null)return existing;
+        Color32 tint=rarity switch
+        {
+            LootManager.GearRarity.Magic=>new Color32(84,147,230,255),
+            LootManager.GearRarity.Rare=>new Color32(224,178,67,255),
+            LootManager.GearRarity.Legendary=>new Color32(227,108,69,255),
+            _=>new Color32(190,196,212,255)
+        };
+        return Icons[key]=Build(key,tint,Mathf.Abs(cycle)%6);
+    }
+    static Sprite Build(string name,Color32 tint,int mark)
+    {
+        const int size=64;
+        var texture=new Texture2D(size,size,TextureFormat.RGBA32,false){name=name,filterMode=FilterMode.Point,wrapMode=TextureWrapMode.Clamp};
+        var pixels=new Color32[size*size];
+        for(int y=0;y<size;y++)for(int x=0;x<size;x++)
+        {
+            int dx=Mathf.Abs(x-31),dy=Mathf.Abs(y-31),diamond=dx+dy;
+            if(diamond>29)continue;
+            bool rim=diamond>=25;
+            bool rune=mark switch
+            {
+                0=>dy<3&&dx<16||dx<3&&dy<16,
+                1=>dy<3&&dx<17||dx>=12&&dx<=15&&dy<12,
+                2=>dy<3&&dx<17||dx<3&&dy<17||dx==dy&&dx<13,
+                3=>dx==dy&&dx<17||dx+dy<5,
+                4=>dx<3&&dy<17||dy<3&&dx<17,
+                _=>dx+dy>=13&&dx+dy<=17||dx+dy<5
+            };
+            pixels[y*size+x]=rim?new Color32(245,234,208,255):rune?new Color32(255,250,230,255):new Color32((byte)(tint.r/2),(byte)(tint.g/2),(byte)(tint.b/2),255);
+        }
+        texture.SetPixels32(pixels);texture.Apply(false,true);
+        return Sprite.Create(texture,new Rect(0,0,size,size),new Vector2(.5f,.5f),100f);
     }
 }
 

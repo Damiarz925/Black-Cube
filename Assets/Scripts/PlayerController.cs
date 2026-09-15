@@ -51,6 +51,7 @@ public class PlayerController : MonoBehaviour
             if (EquipmentManager.Instance != null) EquipmentManager.Instance.Equip(starter);
             else EquipWeapon(starter);
         }
+        NotifyRelicChanged();
     }
 
     private Gear CreateStarterWeapon() => CreateStarterWeapon(ModManager.Instance);
@@ -328,5 +329,9 @@ public class PlayerController : MonoBehaviour
         equippedWeapon = weapon;
         AttackChanged?.Invoke();
     }
-    public void NotifyRelicChanged() => AttackChanged?.Invoke();
+    public void NotifyRelicChanged()
+    {
+        if(!ignoreRelicsForIsolatedBaseline)RelicInventory.Instance?.ApplyActiveStatModifiers(stats);
+        AttackChanged?.Invoke();
+    }
 }

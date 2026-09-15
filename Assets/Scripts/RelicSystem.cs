@@ -6,7 +6,15 @@ using UnityEngine.UI;
 using TMPro;
 using UnityEngine.EventSystems;
 
-public enum RelicModifierType { MoreDamage, IncreasedExperience, MoreAttackSpeed }
+// Serialized stable IDs: retain 0–2 exactly; append new provisional families only.
+public enum RelicModifierType
+{
+    MoreDamage=0, IncreasedExperience=1, MoreAttackSpeed=2,
+    IncreasedMaximumLife=3, IncreasedMaximumMana=4, AllResistances=5,
+    IncreasedVoidDamage=6, IncreasedAilmentDamage=7, ChanceToHitTwice=8,
+    ProjectileAmount=9, MaximumBleedStacks=10, MaximumIgniteStacks=11,
+    EquippedSkillLevel=12, ShockThresholdReduction=13, MaximumChillSlow=14
+}
 
 [Serializable]
 public sealed class RelicModifier
@@ -30,20 +38,21 @@ public sealed class RelicData
 
 public static class RelicRolls
 {
-    // Conservative initial ranges; keep all tuning centralized here.
+    // Stable-ID weighted definitions are separate from equipment Prefix/Suffix rules.
     public static RelicModifier Roll(bool locked, ISet<RelicModifierType> excluded = null)
     {
-        var choices=new List<RelicModifierType>();
-        foreach(RelicModifierType type in Enum.GetValues(typeof(RelicModifierType))) if(excluded==null||!excluded.Contains(type)) choices.Add(type);
-        if(choices.Count==0) foreach(RelicModifierType type in Enum.GetValues(typeof(RelicModifierType))) choices.Add(type);
-        var chosen=choices[UnityEngine.Random.Range(0,choices.Count)];
-        float value=chosen switch
+        int total=0;
+        foreach(var definition in RelicModifierDefinitions.All)if(excluded==null||!excluded.Contains(definition.Id))total+=definition.Weight;
+        if(total<=0)return null;
+        int choice=UnityEngine.Random.Range(0,total);
+        foreach(var definition in RelicModifierDefinitions.All)
         {
-            RelicModifierType.MoreDamage => UnityEngine.Random.Range(5f,10f),
-            RelicModifierType.IncreasedExperience => UnityEngine.Random.Range(5f,10f),
-            _ => UnityEngine.Random.Range(3f,6f)
-        };
-        return new RelicModifier(chosen,value,locked);
+            if(excluded!=null&&excluded.Contains(definition.Id))continue;
+            choice-=definition.Weight;if(choice>=0)continue;
+            float value=definition.FixedValue?definition.Minimum:UnityEngine.Random.Range(definition.Minimum,definition.Maximum);
+            return new RelicModifier(definition.Id,value,locked);
+        }
+        throw new InvalidOperationException("Relic modifier weights did not resolve a choice.");
     }
 }
 
@@ -80,9 +89,41 @@ public sealed class RelicInventory : MonoBehaviour
     public float DamageMultiplier=>Product(RelicModifierType.MoreDamage);
     public float AttackSpeedMultiplier=>Product(RelicModifierType.MoreAttackSpeed);
     public float ExperienceMultiplier=>1f+Sum(RelicModifierType.IncreasedExperience)/100f;
+    public float MaximumLifePercent=>Sum(RelicModifierType.IncreasedMaximumLife);
+    public float MaximumManaPercent=>Sum(RelicModifierType.IncreasedMaximumMana);
+    public float AllResistancePoints=>Sum(RelicModifierType.AllResistances);
+    public float VoidDamagePercent=>Sum(RelicModifierType.IncreasedVoidDamage);
+    public float AilmentDamagePercent=>Sum(RelicModifierType.IncreasedAilmentDamage);
+    public float HitTwicePoints=>Sum(RelicModifierType.ChanceToHitTwice);
+    public int ProjectileBonus=>Mathf.RoundToInt(Sum(RelicModifierType.ProjectileAmount));
+    public int MaximumBleedStackBonus=>Mathf.RoundToInt(Sum(RelicModifierType.MaximumBleedStacks));
+    public int MaximumIgniteStackBonus=>Mathf.RoundToInt(Sum(RelicModifierType.MaximumIgniteStacks));
+    public int EquippedSkillLevelBonus=>Mathf.RoundToInt(Sum(RelicModifierType.EquippedSkillLevel));
+    public int ShockThresholdReduction=>Mathf.Min(2,Mathf.RoundToInt(Sum(RelicModifierType.ShockThresholdReduction)));
+    public float MaximumChillSlowIncrease=>Sum(RelicModifierType.MaximumChillSlow)/100f;
     float Product(RelicModifierType type){float value=1f;foreach(var relic in ActiveRelics())foreach(var mod in relic.modifiers)if(mod.type==type)value*=1f+mod.value/100f;return value;}
     float Sum(RelicModifierType type){float value=0f;foreach(var relic in ActiveRelics())foreach(var mod in relic.modifiers)if(mod.type==type)value+=mod.value;return value;}
     IEnumerable<RelicData> ActiveRelics(){for(int i=0;i<ActiveSlotCount;i++){var relic=Active(i);if(relic!=null)yield return relic;}}
+    public void ApplyActiveStatModifiers(StatsComponent playerStats)
+    {
+        if(playerStats==null)return;
+        playerStats.BeginUpdate();
+        try
+        {
+            playerStats.RemoveModifiersFromSource(this);
+            Add(playerStats,StatTypes.LifePercent,MaximumLifePercent);
+            Add(playerStats,StatTypes.ManaPercent,MaximumManaPercent);
+            Add(playerStats,StatTypes.AllRes,AllResistancePoints);
+            Add(playerStats,StatTypes.VoidDmg,VoidDamagePercent);
+            Add(playerStats,StatTypes.PoisonDmg,AilmentDamagePercent);
+            Add(playerStats,StatTypes.BleedDmg,AilmentDamagePercent);
+            Add(playerStats,StatTypes.IgniteDmg,AilmentDamagePercent);
+            Add(playerStats,StatTypes.ChanceToHitTwice,HitTwicePoints);
+            Add(playerStats,StatTypes.ProjectileAmount,ProjectileBonus);
+        }
+        finally{playerStats.EndUpdate();}
+    }
+    void Add(StatsComponent stats,StatTypes type,float value){if(value!=0f)stats.AddModifier(new StatModifier(type,StatOp.Flat,value,this));}
     public void Restore(List<RelicData> saved,int cycle,int[] slots)
     {
         relics=saved??new List<RelicData>();currentCycle=Mathf.Max(0,cycle);activeIndices=slots??new[]{-1,-1};NormalizeSlots();PublishChanged();
@@ -131,7 +172,7 @@ public static class AncientRelicCrafting
     }
     static void FillToMinimum(RelicData relic){while(relic.ModifierCount<Minimum(relic.rarity))Add(relic);}
     static void Add(RelicData relic)=>relic.modifiers.Add(RollFor(relic,false));
-    static RelicModifier RollFor(RelicData relic,bool locked){var used=new HashSet<RelicModifierType>();foreach(var mod in relic.modifiers)used.Add(mod.type);return RelicRolls.Roll(locked,used);}
+    static RelicModifier RollFor(RelicData relic,bool locked){var used=new HashSet<RelicModifierType>();foreach(var mod in relic.modifiers)if(mod!=null)used.Add(mod.type);return RelicRolls.Roll(locked,used);}
     static bool HasUnlocked(RelicData relic)=>Unlocked(relic).Count>0;
     static List<RelicModifier> Unlocked(RelicData relic){var result=new List<RelicModifier>();foreach(var mod in relic.modifiers)if(mod!=null&&!mod.lockedOriginal)result.Add(mod);return result;}
 }

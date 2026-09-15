@@ -33,6 +33,8 @@ public class InventoryUI : MonoBehaviour
     public void ShowEquipmentView() => currencyPanel?.ShowEquipment();
     public void ShowCurrencyView() => currencyPanel?.ShowCurrency();
     public void ShowRelicView() => currencyPanel?.ShowRelics();
+    public void ShowEquipmentViewForCurrency() => currencyPanel?.ShowEquipmentForCurrency();
+    public void ShowRelicViewForCurrency() => currencyPanel?.ShowRelicsForCurrency();
 
     public void ShowTooltip(ItemSlotUI slot)
     {
