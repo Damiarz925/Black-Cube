@@ -1,4 +1,4 @@
-// Developer map: Initial enemy stat buckets; prefab HealthComponent maxLife seeds Life. SetupForZone remains the extension point for future level scaling.
+// Developer map: Prefab Life seeds intrinsic scaling. Source-owned defense bonuses remain distinct from gear.
 // See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using UnityEngine;
 
@@ -9,6 +9,8 @@ public class EnemyStatSetup : MonoBehaviour
 {
     private StatsComponent stats; //Private statscomponent field stats
     private HealthComponent health;
+    public EnemyScalingMath.Intrinsic Intrinsic { get; private set; }
+    public float AuthoredLevelOneLife => health != null ? health.PrefabMaxLife : GetComponent<HealthComponent>().PrefabMaxLife;
 
     private void Awake()
     {
@@ -37,8 +39,19 @@ public class EnemyStatSetup : MonoBehaviour
             return;
         }
 
-        // No level multiplier yet: each archetype's serialized maxLife is its base Life.
-        stats.SetBaseStat(StatTypes.Life, health.PrefabMaxLife);
+        Intrinsic = EnemyScalingMath.Calculate(zoneLevel);
+        stats.BeginUpdate();
+        try
+        {
+            stats.RemoveModifiersFromSource(this);
+            stats.SetBaseStat(StatTypes.Life, Intrinsic.ScaledLife(health.PrefabMaxLife));
+            stats.AddModifier(new StatModifier(StatTypes.FlatArmour, StatOp.Additive, Intrinsic.Armour, this));
+            stats.AddModifier(new StatModifier(StatTypes.FireRes, StatOp.Additive, Intrinsic.ResistancePoints, this));
+            stats.AddModifier(new StatModifier(StatTypes.ColdRes, StatOp.Additive, Intrinsic.ResistancePoints, this));
+            stats.AddModifier(new StatModifier(StatTypes.LightRes, StatOp.Additive, Intrinsic.ResistancePoints, this));
+            stats.AddModifier(new StatModifier(StatTypes.VoidRes, StatOp.Additive, Intrinsic.ResistancePoints, this));
+        }
+        finally { stats.EndUpdate(); }
         health.UseStatsForMaximumLife(stats);
     }
 }

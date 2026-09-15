@@ -184,7 +184,7 @@ public static class EnemyBuildOptimizer
     }
 
     public static BuildResult SelectBestBuild(IReadOnlyList<CandidateSlot> slots,
-        float[] baseRawStats, float fallbackAttackSpeed)
+        float[] baseRawStats, float fallbackAttackSpeed, float intrinsicDamageFactor = 1f)
     {
         if (slots == null || slots.Count == 0) return null;
 
@@ -207,7 +207,7 @@ public static class EnemyBuildOptimizer
                     int[] path = new int[state.Path.Length + 1];
                     Array.Copy(state.Path, path, state.Path.Length);
                     path[path.Length - 1] = candidateIndex;
-                    expanded.Add(new SearchState(items, path, Evaluate(items, baseRawStats, fallbackAttackSpeed)));
+                    expanded.Add(new SearchState(items, path, Evaluate(items, baseRawStats, fallbackAttackSpeed, intrinsicDamageFactor)));
                 }
             }
             beam = Prune(expanded);
@@ -219,7 +219,8 @@ public static class EnemyBuildOptimizer
         return new BuildResult(winner.Items, winner.Path, winner.Evaluation);
     }
 
-    public static Evaluation Evaluate(IReadOnlyList<Gear> items, float[] baseRawStats, float fallbackAttackSpeed)
+    public static Evaluation Evaluate(IReadOnlyList<Gear> items, float[] baseRawStats, float fallbackAttackSpeed,
+        float intrinsicDamageFactor = 1f)
     {
         StatSnapshot stats = new StatSnapshot(baseRawStats);
         Gear weapon = null;
@@ -247,6 +248,8 @@ public static class EnemyBuildOptimizer
             AddOffElementFlat(normalPreMitigation, Element.Light, main, stats);
             AddOffElementFlat(normalPreMitigation, Element.Void, main, stats);
         }
+        for (int i = 0; i < normalPreMitigation.Length; i++)
+            normalPreMitigation[i] *= intrinsicDamageFactor;
 
         float attackSpeed = !ReferenceEquals(weapon, null)
             ? weapon.GetEffectiveAttackSpeed() * (1f + stats.Get(StatTypes.AttackSpeed) + AttributeAttackSpeed(stats))

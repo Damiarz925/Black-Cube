@@ -24,7 +24,7 @@ public class HealthComponent : MonoBehaviour
     }
     private StatsComponent maxLifeStats;
     private StatsComponent healingStats;
-    internal float PrefabMaxLife => Mathf.Max(0f, maxLife);
+    public float PrefabMaxLife => Mathf.Max(0f, maxLife);
     public float MaxLife
     {
         get

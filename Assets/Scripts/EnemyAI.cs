@@ -26,6 +26,17 @@ public class EnemyAI : MonoBehaviour
 
     private int enemyLevel;
     public int EnemyLevel => enemyLevel;
+    public float IntrinsicDamageFactor
+    {
+        get
+        {
+            var setup = GetComponent<EnemyStatSetup>();
+            return setup != null && setup.Intrinsic.Level > 0 ? setup.Intrinsic.DamageFactor : 1f;
+        }
+    }
+    public IReadOnlyList<Gear> EquippedItems => equippedItems;
+    public EnemyBuildOptimizer.Evaluation LastBuildEvaluation { get; private set; }
+    public float[] LastOptimizerBaseStats { get; private set; }
     public Element WeaponMainElement => equippedWeapon != null ? equippedWeapon.BaseElement : Element.Phys;
     public float EquippedWeaponBaseDamage => equippedWeapon != null ? equippedWeapon.GetEffectiveBaseDamage() : 0f;
     public EnemyDropTable DropTable { get { dropTable??=new EnemyDropTable();dropTable.EnsureDefaults();return dropTable; } }
@@ -101,6 +112,24 @@ public class EnemyAI : MonoBehaviour
         Debug.Log($"EnemyAI: Initialized enemy '{name}' level={enemyLevel}, rarity={CurrentRarity}, weaponElement={WeaponMainElement}", this);
     }
 
+#if UNITY_EDITOR
+    // Balance-lab entry: isolated actor, same production setup/generation/optimizer, no scene level lookup.
+    public void GenerateIsolatedBuild(int level, ModManager roller, EnemyRarity rarity)
+    {
+        stats ??= GetComponent<StatsComponent>();
+        health ??= GetComponent<HealthComponent>();
+        // EditMode prefab instances do not run HealthComponent.Awake; seed the isolated snapshot.
+        if (health != null && health.CurrentLife <= 0f)
+            health.RestoreCheckpointLife(health.PrefabMaxLife);
+        enemyLevel = Mathf.Max(1, level);
+        modManager = roller;
+        CurrentRarity = rarity;
+        GetComponent<EnemyStatSetup>()?.SetupForZone(enemyLevel, health != null && health.IsBoss);
+        GenerateGearForEnemy(enemyLevel);
+        health?.RestoreFullLife();
+    }
+#endif
+
     private void InitRarityWeights()        //initialize rairty weights by clearing the list, adding the raritys and their weights to the dictionary then for each pair in the list, add that to the total weight.
     {
         enemyRarityWeights.Clear();
@@ -172,8 +201,10 @@ public class EnemyAI : MonoBehaviour
 
         // Candidate generation is now complete. Search never asks ModManager for a
         // reroll and evaluates isolated stat snapshots rather than mutating this enemy.
+        LastOptimizerBaseStats = EnemyBuildOptimizer.CaptureBaseStats(stats);
         EnemyBuildOptimizer.BuildResult winner = EnemyBuildOptimizer.SelectBestBuild(
-            candidateSlots, EnemyBuildOptimizer.CaptureBaseStats(stats), baseSpeed);
+            candidateSlots, LastOptimizerBaseStats, baseSpeed, IntrinsicDamageFactor);
+        LastBuildEvaluation = winner != null ? winner.Evaluation : default;
         HashSet<Gear> selected = new HashSet<Gear>();
         if (winner != null)
         {
@@ -254,7 +285,8 @@ public class EnemyAI : MonoBehaviour
             return;
 
         candidate.gameObject.SetActive(false);
-        Destroy(candidate.gameObject);
+        if (Application.isPlaying) Destroy(candidate.gameObject);
+        else DestroyImmediate(candidate.gameObject);
     }
 
     private Gear CreateItemForEnemy(LootManager.GearType type, int zoneLevel)       //Function used to create the item for the enemy to use
@@ -339,6 +371,8 @@ public class EnemyAI : MonoBehaviour
 
         AddScaledElementalDamage(ctx, weaponElement, weaponBaseDamage, logStats);     //call addscaledelemental damage to add the scaled ele damage (the base element damage scaled by local mods matching that element on the item)
         AddGlobalFlatElements(ctx, weaponElement);      //call addgloablflatelements to add any flat elemental damage that does not match the weapon's base element
+        // Scale the completed pre-crit attack package once. Ailment magnitude derives from this source hit.
+        EnemyScalingMath.ScaleOutgoing(ctx, IntrinsicDamageFactor);
 
         return ctx;
     }
