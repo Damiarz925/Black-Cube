@@ -51,31 +51,37 @@ public static class ItemizationValidator
     }
 
     public static void ValidateRolledMods(LootManager.GearType slot, LootManager.GearRarity rarity,
-        int itemLevel, IReadOnlyList<RolledMod> mods, ModDatabase database, IList<string> errors)
+        int itemLevel, IReadOnlyList<RolledMod> mods, ModDatabase database, IList<string> errors,
+        bool requireImplicit = false, bool enforceCapacity = true)
     {
         if (mods == null) { errors.Add("Item modifiers are missing."); return; }
         if (database == null) { errors.Add("Missing ModDatabase."); return; }
         var pool = GearStatLists.GetCanonicalStatPoolForType(slot);
         var stats = new HashSet<StatTypes>();
         var groups = new HashSet<string>();
-        int total = 0, prefixes = 0, suffixes = 0;
+        int total = 0, prefixes = 0, suffixes = 0, implicits = 0;
         foreach (RolledMod mod in mods)
         {
             if (mod == null) { errors.Add("Item contains a null modifier."); continue; }
-            if (!stats.Add(mod.statType)) errors.Add($"{slot}: duplicate family {mod.statType}.");
+            if (!mod.lockedOriginal && !stats.Add(mod.statType))
+                errors.Add($"{slot}: duplicate explicit family {mod.statType}.");
             var definition = database.GetDefinition(mod.statType);
             if (definition == null) errors.Add($"{slot}: stable {mod.statType} definition missing.");
-            else if (definition.groups != null)
+            else if (!mod.lockedOriginal && definition.groups != null)
                 foreach (string group in definition.groups.Where(group => !string.IsNullOrWhiteSpace(group)))
-                    if (!groups.Add(group)) errors.Add($"{slot}: duplicate exclusive group {group}.");
+                    if (!groups.Add(group)) errors.Add($"{slot}: duplicate explicit exclusive group {group}.");
             if (Gear.IsWeaponBaseStat(mod.statType))
             {
                 if (slot != LootManager.GearType.Weapons)
                     errors.Add($"{slot}: weapon intrinsic {mod.statType} is on a nonweapon.");
                 continue;
             }
-            total++;
-            if (AffixPolicy.Side(mod.statType) == AffixSide.Prefix) prefixes++; else suffixes++;
+            if (mod.lockedOriginal) implicits++;
+            else
+            {
+                total++;
+                if (AffixPolicy.Side(mod.statType) == AffixSide.Prefix) prefixes++; else suffixes++;
+            }
             if (!pool.Contains(mod.statType)) { errors.Add($"{slot}: illegal slot for {mod.statType}."); continue; }
             if (definition == null) continue;
             if (definition.side != AffixPolicy.Side(mod.statType))
@@ -93,9 +99,11 @@ public static class ItemizationValidator
                 || mod.secondaryValue < mod.value))
                 errors.Add($"{slot}: {mod.statType} second roll is outside T{mod.tierIndex}.");
         }
-        if (total > AffixPolicy.MaximumTotal(rarity)
+        if (requireImplicit && implicits != 1)
+            errors.Add($"{slot}: equipment must have exactly one permanent implicit; found {implicits}.");
+        if (enforceCapacity && (total > AffixPolicy.MaximumTotal(rarity)
             || prefixes > AffixPolicy.MaximumOnSide(rarity)
-            || suffixes > AffixPolicy.MaximumOnSide(rarity))
+            || suffixes > AffixPolicy.MaximumOnSide(rarity)))
             errors.Add($"{slot}: {rarity} Prefix/Suffix or total capacity violated.");
     }
 

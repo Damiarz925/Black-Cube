@@ -16,7 +16,13 @@ public static class InventoryArtCatalog
         CraftingCurrencyType.RerollRareModifier => Load("UI/Currency/RerollYellow"),
         CraftingCurrencyType.AddRareModifier => Load("UI/Currency/AddYellow"),
         CraftingCurrencyType.RemoveRareModifier => Load("UI/Currency/Remove"),
-        _ => CurrencyInventory.IsAncient(type) ? PlaceholderIcon.Currency(type) : null
+        CraftingCurrencyType.AncientNormalToMagic => Load("UI/Currency/AncientWhiteToBlue"),
+        CraftingCurrencyType.AncientMagicToRare => Load("UI/Currency/AncientBlueToYellow"),
+        CraftingCurrencyType.AncientRareToLegendary => Load("UI/Currency/AncientYellowReroll"),
+        CraftingCurrencyType.AncientReroll => Load("UI/Currency/AncientBlueReroll"),
+        CraftingCurrencyType.AncientAddModifier => Load("UI/Currency/AncientAddYellow"),
+        CraftingCurrencyType.AncientRemoveModifier => Load("UI/Currency/AncientRemove"),
+        _ => null
     };
 
     public static string ResourcePath(CraftingCurrencyType type) => type switch
@@ -27,7 +33,13 @@ public static class InventoryArtCatalog
         CraftingCurrencyType.RerollRareModifier => "UI/Currency/RerollYellow",
         CraftingCurrencyType.AddRareModifier => "UI/Currency/AddYellow",
         CraftingCurrencyType.RemoveRareModifier => "UI/Currency/Remove",
-        _ => CurrencyInventory.IsAncient(type) ? "generated/ancient/" + type : null
+        CraftingCurrencyType.AncientNormalToMagic => "UI/Currency/AncientWhiteToBlue",
+        CraftingCurrencyType.AncientMagicToRare => "UI/Currency/AncientBlueToYellow",
+        CraftingCurrencyType.AncientRareToLegendary => "UI/Currency/AncientYellowReroll",
+        CraftingCurrencyType.AncientReroll => "UI/Currency/AncientBlueReroll",
+        CraftingCurrencyType.AncientAddModifier => "UI/Currency/AncientAddYellow",
+        CraftingCurrencyType.AncientRemoveModifier => "UI/Currency/AncientRemove",
+        _ => null
     };
 
     static Sprite Load(string path)
@@ -40,17 +52,10 @@ public static class InventoryArtCatalog
     }
 }
 
-/// <summary>Small first-party placeholder icons, shared by a currency entry and its armed cursor.</summary>
+/// <summary>Small first-party placeholder icons for relic identity only.</summary>
 public static class PlaceholderIcon
 {
     static readonly Dictionary<string, Sprite> Icons = new();
-    public static Sprite Currency(CraftingCurrencyType type)
-    {
-        string key="currency/"+type;
-        if(Icons.TryGetValue(key,out var existing)&&existing!=null)return existing;
-        int index=(int)type-(int)CraftingCurrencyType.AncientNormalToMagic;
-        return Icons[key]=Build(key,new Color32(151,88,207,255),index);
-    }
     public static Sprite Relic(LootManager.GearRarity rarity,int cycle)
     {
         string key="relic/"+rarity+"/"+cycle;

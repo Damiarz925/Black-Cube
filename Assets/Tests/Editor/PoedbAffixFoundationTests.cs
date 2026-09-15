@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using NUnit.Framework;
 using UnityEditor;
 using UnityEngine;
@@ -26,7 +27,7 @@ public sealed class PoedbAffixFoundationTests
             new(StatTypes.Life,1,99999f),new(StatTypes.FlatArmour,1,5f)};
         ItemizationValidator.ValidateRolledMods(LootManager.GearType.BodyArmours,
             LootManager.GearRarity.Magic,1,bad,database,errors);
-        Assert.That(errors,Has.Some.Contains("duplicate family"));
+        Assert.That(errors,Has.Some.Contains("duplicate explicit family"));
         Assert.That(errors,Has.Some.Contains("illegal at ilvl"));
         Assert.That(errors,Has.Some.Contains("capacity violated"));
         errors.Clear();
@@ -120,18 +121,18 @@ public sealed class PoedbAffixFoundationTests
             "Flat Black-Cube Mana/sec must not import PoE's increased-rate percent family.");
     }
 
-    [Test] public void PrefixSuffixCapacityCountsLockedOriginalOnItsRealSide()
+    [Test] public void PrefixSuffixCapacityDoesNotCountPermanentImplicit()
     {
         var prefix=new RolledMod(StatTypes.Life,1,100f,true);
         var suffix=new RolledMod(StatTypes.FireRes,1,40f);
         Assert.That(AffixPolicy.Side(prefix.statType),Is.EqualTo(AffixSide.Prefix));
         Assert.That(AffixPolicy.Side(suffix.statType),Is.EqualTo(AffixSide.Suffix));
-        Assert.That(AffixPolicy.CanAdd(new List<RolledMod>{prefix},LootManager.GearRarity.Magic,AffixSide.Prefix),Is.False);
+        Assert.That(AffixPolicy.CanAdd(new List<RolledMod>{prefix},LootManager.GearRarity.Magic,AffixSide.Prefix),Is.True);
         Assert.That(AffixPolicy.CanAdd(new List<RolledMod>{prefix},LootManager.GearRarity.Magic,AffixSide.Suffix),Is.True);
         Assert.That(AffixPolicy.CanAdd(new List<RolledMod>{prefix,suffix},LootManager.GearRarity.Magic,AffixSide.Suffix),Is.False);
         var legendary=new List<RolledMod>{prefix,new(StatTypes.Mana,1,50f),
             new(StatTypes.ArmourPercent,1,80f),suffix,new(StatTypes.ColdRes,1,40f)};
-        Assert.That(AffixPolicy.CanAdd(legendary,LootManager.GearRarity.Legendary,AffixSide.Prefix),Is.False);
+        Assert.That(AffixPolicy.CanAdd(legendary,LootManager.GearRarity.Legendary,AffixSide.Prefix),Is.True);
         Assert.That(AffixPolicy.CanAdd(legendary,LootManager.GearRarity.Legendary,AffixSide.Suffix),Is.True);
         legendary.Add(new RolledMod(StatTypes.LightRes,1,40f));
         Assert.That(AffixPolicy.CanAdd(legendary,LootManager.GearRarity.Legendary,AffixSide.Suffix),Is.False);
@@ -151,8 +152,10 @@ public sealed class PoedbAffixFoundationTests
             string text=ItemTooltipFormatter.DescribeGear(weapon);
             Assert.That(text,Does.Contain("PREFIXES"));
             Assert.That(text,Does.Contain("Adds 21–38 Fire Damage"));
-            Assert.That(text,Does.Contain("T7 (min 17–24, max 35–41)"));
-            Assert.That(text,Does.Contain("LOCAL, LOCKED ORIGINAL"));
+            Assert.That(text,Does.Contain("(min 17–24, max 35–41) T7"));
+            Assert.That(text,Does.Contain("IMPLICIT"));
+            Assert.That(text,Does.Contain("LOCAL"));
+            Assert.That(text,Does.Not.Contain("LOCKED ORIGINAL"));
             Assert.That(text.IndexOf("PREFIXES"),Is.LessThan(text.IndexOf("SUFFIXES")));
         }
         finally{Object.DestroyImmediate(go);}
@@ -173,15 +176,19 @@ public sealed class PoedbAffixFoundationTests
                 for(int seed=0;seed<24;seed++)
                 {
                     Random.InitState(67000+seed+(int)rarity*100);
-                    int total=rarity==LootManager.GearRarity.Normal?1:rarity==LootManager.GearRarity.Magic?2:
-                        rarity==LootManager.GearRarity.Rare?4:6;
-                    var mods=roller.RollModsForItem(LootManager.GearType.Rings,rarity,90,total,Element.Phys);
+                    System.Collections.Generic.List<RolledMod> mods=null;
+                    for(int attempt=0;attempt<64&&mods==null;attempt++)
+                        mods=roller.RollEquipmentModsForItem(LootManager.GearType.Rings,rarity,90,Element.Phys);
+                    Assert.That(mods,Is.Not.Null);
                     int prefix=0,suffix=0;
-                    foreach(var mod in mods)if(AffixPolicy.Side(mod.statType)==AffixSide.Prefix)prefix++;else suffix++;
-                    Assert.That(mods.Count,Is.LessThanOrEqualTo(AffixPolicy.MaximumTotal(rarity)));
-                    Assert.That(prefix,Is.LessThanOrEqualTo(AffixPolicy.MaximumOnSide(rarity)));
-                    Assert.That(suffix,Is.LessThanOrEqualTo(AffixPolicy.MaximumOnSide(rarity)));
-                    Assert.That(new HashSet<StatTypes>(mods.ConvertAll(x=>x.statType)).Count,Is.EqualTo(mods.Count));
+                    foreach(var mod in mods)if(!mod.lockedOriginal)
+                        {if(AffixPolicy.Side(mod.statType)==AffixSide.Prefix)prefix++;else suffix++;}
+                    Assert.That(mods.Count,Is.EqualTo(1+AffixPolicy.MaximumTotal(rarity)));
+                    Assert.That(mods.Count(x=>x.lockedOriginal),Is.EqualTo(1));
+                    Assert.That(prefix,Is.EqualTo(AffixPolicy.MaximumOnSide(rarity)));
+                    Assert.That(suffix,Is.EqualTo(AffixPolicy.MaximumOnSide(rarity)));
+                    var explicitMods=mods.FindAll(x=>!x.lockedOriginal);
+                    Assert.That(new HashSet<StatTypes>(explicitMods.ConvertAll(x=>x.statType)).Count,Is.EqualTo(explicitMods.Count));
                 }
             }
         }

@@ -14,8 +14,12 @@ public class RolledMod
     public float secondaryValue;
     public bool hasSecondaryValue;
     public float HighValue => hasSecondaryValue ? secondaryValue : value;
-    [Tooltip("The first random modifier on an item/relic is permanent and cannot be rerolled or removed.")]
+    // Retained serialized name so schema-3 locked-original rolls migrate without
+    // changing tier, value or paired endpoints. On equipment this is the one
+    // permanent implicit; relic modifiers use their separate DTO/architecture.
+    [Tooltip("Permanent equipment implicit. Historical serialized field name is preserved for save migration.")]
     public bool lockedOriginal;
+    public bool IsImplicit => lockedOriginal;
 
     public RolledMod(StatTypes statType, int tierIndex, float value, bool lockedOriginal = false) //Constructor used to initialize a rolled modifier with its stat type, tier, and final value
     {

@@ -2,6 +2,7 @@
 // See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class DamagePopup : MonoBehaviour
 {
@@ -111,7 +112,7 @@ public class DamagePopup : MonoBehaviour
         }
         else if (text != null)
         {
-            text.text = critical ? "CRIT " + value : value;
+            text.text = value;
             text.color = color;
             if(material != null)
             {
@@ -124,6 +125,14 @@ public class DamagePopup : MonoBehaviour
             text.alignment = TextAlignmentOptions.Center;
             text.raycastTarget = false;
             if(material!=null)DamageNumberAccent.Attach(text,styleIndex,material.GetColor("_OutlineColor"));
+        }
+
+        if (critical)
+        {
+            float numberWidth = atlas != null || text == null
+                ? ((RectTransform)go.transform).rect.width
+                : text.GetPreferredValues(value).x;
+            CritPopupMarker.Attach(go, numberWidth);
         }
 
         var instance = go.AddComponent<DamagePopupInstance>();
@@ -172,6 +181,47 @@ public class DamagePopup : MonoBehaviour
             StatusEffects.AilmentKind.Ignite => fireColor,
             _ => effect.DamageColor
         };
+    }
+}
+
+/// <summary>A compact star owned by one popup, including atlas-backed numbers.</summary>
+public static class CritPopupMarker
+{
+    static Sprite sprite;
+    public static void Attach(GameObject popup, float numberWidth)
+    {
+        if (popup == null || popup.transform is not RectTransform number) return;
+        var marker = new GameObject("Critical hit marker", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+        marker.transform.SetParent(number, false);
+        var rect = (RectTransform)marker.transform;
+        rect.anchorMin = rect.anchorMax = new Vector2(.5f, .5f);
+        rect.pivot = new Vector2(.5f, .5f);
+        rect.sizeDelta = new Vector2(20f, 20f);
+        rect.anchoredPosition = new Vector2(-Mathf.Max(16f,numberWidth) * .5f - 14f, 2f);
+        var image = marker.GetComponent<Image>();
+        image.sprite = sprite ??= CreateStar();
+        image.raycastTarget = false;
+    }
+
+    static Sprite CreateStar()
+    {
+        const int size = 24;
+        var texture = new Texture2D(size, size, TextureFormat.RGBA32, false)
+            { name = "Critical hit star", filterMode = FilterMode.Bilinear, wrapMode = TextureWrapMode.Clamp };
+        var pixels = new Color32[size * size];
+        for (int y = 0; y < size; y++) for (int x = 0; x < size; x++)
+        {
+            int dx = Mathf.Abs(x - 12), dy = Mathf.Abs(y - 12);
+            bool vertical = dx <= 2 && dy <= 10 - dx;
+            bool horizontal = dy <= 2 && dx <= 10 - dy;
+            bool diagonal = dx + dy <= 7;
+            if (!vertical && !horizontal && !diagonal) continue;
+            bool edge = dx + dy >= 6 || dx == 2 || dy == 2;
+            pixels[y * size + x] = edge ? new Color32(82, 42, 6, 255) : new Color32(255, 225, 82, 255);
+        }
+        texture.SetPixels32(pixels);
+        texture.Apply(false, true);
+        return Sprite.Create(texture, new Rect(0, 0, size, size), new Vector2(.5f, .5f), 100f);
     }
 }
 

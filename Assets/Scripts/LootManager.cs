@@ -114,9 +114,21 @@ public class LootManager : MonoBehaviour
 
         Debug.Log($"[Loot] After Initialize: gear.ItemType={gear.ItemType}, gear.ItemRarity={gear.ItemRarity}, ilvl={gear.ItemLevel}, modCount={gear.ModCount}");
 
-        var mods = ModManager.Instance != null
-            ? ModManager.Instance.RollModsForItem(type, rarity, itemLevel, gear.ModCount, element)
-            : new List<RolledMod>();     //generate mods by calling rollmodsforitem (returns a list of mods)
+        List<RolledMod> mods = null;
+        if (ModManager.Instance != null)
+        {
+            // Exclusive groups can dead-end a full 3P/3S construction. Retry
+            // construction without changing the rolled rarity or drop rate.
+            for (int attempt = 0; attempt < 64 && mods == null; attempt++)
+                mods = ModManager.Instance.RollEquipmentModsForItem(type, rarity, itemLevel, element);
+        }
+
+        if (mods == null)
+        {
+            Debug.LogError($"[Loot] Cannot construct {rarity} {type} at ilvl {itemLevel}; rarity was not silently downgraded.");
+            Destroy(obj);
+            return null;
+        }
 
         Debug.Log($"[Loot] Rolled mods count = {(mods == null ? -1 : mods.Count)}");
 

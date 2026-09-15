@@ -117,8 +117,48 @@ public class ModManager : MonoBehaviour
         return mods;    //Return mods
     }
 
+    /// <summary>Natural equipment: one independent implicit and a full, balanced explicit set.</summary>
+    public List<RolledMod> RollEquipmentModsForItem(LootManager.GearType itemType,
+        LootManager.GearRarity rarity, int itemLevel, Element weaponElement)
+    {
+        var mods = new List<RolledMod>();
+        var baseStats = new HashSet<StatTypes>();
+        var baseGroups = new HashSet<string>();
+        if (itemType == LootManager.GearType.Weapons)
+        {
+            AddGuaranteedWeaponBaseStat(StatTypes.WeaponBaseDmg, rarity, itemLevel, mods, baseStats, baseGroups);
+            AddGuaranteedWeaponBaseStat(StatTypes.WeaponBaseAttackSpeed, rarity, itemLevel, mods, baseStats, baseGroups);
+            AddGuaranteedWeaponBaseStat(StatTypes.WeaponBaseCrit, rarity, itemLevel, mods, baseStats, baseGroups);
+            if (mods.Count != 3) return null;
+        }
+        var implicitMod = RollSingleMod(itemType, rarity, itemLevel, baseStats, baseGroups,
+            weaponElement, false, mods, ignoreCapacity: true);
+        if (implicitMod == null) return null;
+        implicitMod.lockedOriginal = true;
+        mods.Add(implicitMod);
+
+        // The implicit may repeat an explicit family or exclusive group, so the
+        // explicit exclusion sets start with weapon bases only.
+        var usedStats = new HashSet<StatTypes>(baseStats);
+        var usedGroups = new HashSet<string>(baseGroups);
+        int perSide = AffixPolicy.MaximumOnSide(rarity);
+        for (int index = 0; index < perSide * 2; index++)
+        {
+            AffixSide side = index % 2 == 0 ? AffixSide.Prefix : AffixSide.Suffix;
+            RolledMod mod = RollSingleMod(itemType, rarity, itemLevel, usedStats, usedGroups,
+                weaponElement, false, mods, requiredSide: side);
+            if (mod == null) return null;
+            mods.Add(mod);
+            usedStats.Add(mod.statType);
+            if (modDatabase.TryGetDefinition(mod.statType, out var def) && def.groups != null)
+                foreach (string group in def.groups) usedGroups.Add(group);
+        }
+        return mods;
+    }
+
     /// <summary>Uses the drop generator's pools, groups, weights and item-level gates for crafting.</summary>
-    public RolledMod RollAdditionalMod(Gear gear, LootManager.GearRarity rarity)
+    public RolledMod RollAdditionalMod(Gear gear, LootManager.GearRarity rarity,
+        AffixSide? requiredSide = null)
     {
         if (gear == null) return null;
         var usedStats = new HashSet<StatTypes>();
@@ -126,12 +166,13 @@ public class ModManager : MonoBehaviour
         var usedGroups = new HashSet<string>();
         foreach (var existing in gear.rolledMods)
         {
-            if (existing == null) continue;
+            if (existing == null || existing.lockedOriginal) continue;
             usedStats.Add(existing.statType);
             if (modDatabase != null && modDatabase.TryGetDefinition(existing.statType, out var definition) && definition.groups != null)
                 foreach (string group in definition.groups) usedGroups.Add(group);
         }
-        return RollSingleMod(gear.ItemType, rarity, gear.ItemLevel, usedStats, usedGroups, gear.BaseElement, false, gear.rolledMods);
+        return RollSingleMod(gear.ItemType, rarity, gear.ItemLevel, usedStats, usedGroups,
+            gear.BaseElement, false, gear.rolledMods, requiredSide: requiredSide);
     }
 
     public RolledMod RerollModifier(Gear gear, RolledMod replaced, LootManager.GearRarity rarity)
@@ -142,12 +183,14 @@ public class ModManager : MonoBehaviour
         var usedGroups = new HashSet<string>();
         foreach (var existing in gear.rolledMods)
         {
-            if (existing == null || ReferenceEquals(existing, replaced)) continue;
+            if (existing == null || existing.lockedOriginal || ReferenceEquals(existing, replaced)) continue;
             usedStats.Add(existing.statType);
             if (modDatabase != null && modDatabase.TryGetDefinition(existing.statType, out var definition) && definition.groups != null)
                 foreach (string group in definition.groups) usedGroups.Add(group);
         }
-        return RollSingleMod(gear.ItemType, rarity, gear.ItemLevel, usedStats, usedGroups, gear.BaseElement, false, gear.rolledMods, replaced);
+        return RollSingleMod(gear.ItemType, rarity, gear.ItemLevel, usedStats, usedGroups,
+            gear.BaseElement, false, gear.rolledMods, replaced,
+            requiredSide: AffixPolicy.Side(replaced.statType));
     }
 
     static void ReserveIntrinsicWeaponStats(Gear gear, HashSet<StatTypes> usedStats)
@@ -190,7 +233,8 @@ public class ModManager : MonoBehaviour
         Element weaponElement,
         bool forEnemy,
         IReadOnlyList<RolledMod> existing,
-        RolledMod excluded = null)
+        RolledMod excluded = null, AffixSide? requiredSide = null,
+        bool ignoreCapacity = false)
     {
 #if UNITY_EDITOR
         List<StatTypes> pool = useIsolatedPools
@@ -215,10 +259,14 @@ public class ModManager : MonoBehaviour
             if (!modDatabase.TryGetDefinition(stat, out AffixDefinitions def))  //If we can't find it's definition, skip it. If we can store it in def
                 continue;
 
+            if (requiredSide.HasValue && def.side != requiredSide.Value) continue;
+
             if (!GroupsAvailable(def, usedGroups))  //Check if the group is available, if not, skip it
                 continue;
 
-            if (!AffixPolicy.CanAdd(existing, rarity, def.side, excluded)) continue;
+            if (!ignoreCapacity && (forEnemy
+                ? !AffixPolicy.CanAddEnemy(existing, rarity, def.side)
+                : !AffixPolicy.CanAdd(existing, rarity, def.side, excluded))) continue;
 
             var availableTier = ApplicableTiers(def,itemType).Where(t => t.minItemLevel <= itemLevel).ToList();
             if (availableTier.Count == 0)   //If it can't roll more than 0 tiers, skip it

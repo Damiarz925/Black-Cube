@@ -304,7 +304,7 @@ public class EnemyAI : MonoBehaviour
         int itemLevel = zoneLevel;          //set item level equal to zone level
         gear.Initialize(type, gearRarity, itemLevel, element);       //initailize gear, passing in the gear type, rarity, ilvl, and element
 
-        int modCount = gear.ModCount;        //roll for the mod count of the item
+        int modCount = Gear.RollEnemyModNumber(gearRarity); //preserve the existing enemy intrinsic count profile
         var rolledMods = modManager != null
             ? modManager.RollModsForItem(type, gearRarity, itemLevel, modCount, element, forEnemy: true)
             : new List<RolledMod>();     //create variable for rolled mods, using the rollmodsforitem function from modmanager

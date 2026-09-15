@@ -76,9 +76,27 @@ public class PlayerController : MonoBehaviour
         gear.BaseDamageMax = 96f;
         gear.BaseAttackSpeed = 1.2f;    // Starter attacks per second.
         gear.BaseCritChance = 0.05f;    //sets base crit chance to 5%
-        RolledMod starterAffix = roller != null
-            ? roller.RollAdditionalMod(gear, LootManager.GearRarity.Normal)
-            : new RolledMod(StatTypes.GenericDmg, 1, Random.Range(5f, 10f));
+        // Starter base damage/speed/crit are authored above, so keep those
+        // values rather than applying the three random weapon-base rolls.
+        // Its one permanent implicit still comes from the same legal natural
+        // equipment pool and tier gates used by dropped Normal weapons.
+        RolledMod starterAffix = null;
+        if (roller != null)
+        {
+            for (int attempt = 0; attempt < 64 && starterAffix == null; attempt++)
+            {
+                var natural = roller.RollEquipmentModsForItem(
+                    LootManager.GearType.Weapons, LootManager.GearRarity.Normal, 1, Element.Phys);
+                starterAffix = natural?.Find(mod => mod.lockedOriginal && !Gear.IsWeaponBaseStat(mod.statType));
+            }
+        }
+        else
+        {
+            Debug.LogWarning("Starter weapon rolled before ModManager was available; using the historical fallback implicit.");
+            starterAffix = new RolledMod(StatTypes.GenericDmg, 1, Random.Range(5f, 10f), true);
+        }
+        if (starterAffix == null)
+            Debug.LogError("Starter weapon could not construct a legal implicit from the equipment catalog.");
         if (starterAffix != null) gear.ApplyMods(new System.Collections.Generic.List<RolledMod> { starterAffix });
 
         return gear;    //Return the gear object

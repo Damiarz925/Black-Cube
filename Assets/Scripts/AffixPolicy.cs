@@ -3,6 +3,35 @@ using System.Collections.Generic;
 
 public static class AffixPolicy
 {
+    // Enemy intrinsic equipment is a separate pre-12.5G profile. This pass
+    // changes player itemization, not enemy affix-count/side scaling.
+    public static int EnemyMaximumTotal(LootManager.GearRarity rarity) => rarity switch
+    {
+        LootManager.GearRarity.Normal => 1,
+        LootManager.GearRarity.Magic => 2,
+        LootManager.GearRarity.Rare => 4,
+        _ => 6
+    };
+    public static int EnemyMaximumOnSide(LootManager.GearRarity rarity) => rarity switch
+    {
+        LootManager.GearRarity.Normal => 1,
+        LootManager.GearRarity.Magic => 1,
+        _ => 3
+    };
+
+    public static bool CanAddEnemy(IReadOnlyList<RolledMod> existing,
+        LootManager.GearRarity rarity, AffixSide side)
+    {
+        int total=0,onSide=0;
+        if(existing!=null)foreach(var mod in existing)
+        {
+            if(mod==null||Gear.IsWeaponBaseStat(mod.statType))continue;
+            total++;
+            if(Side(mod.statType)==side)onSide++;
+        }
+        return total<EnemyMaximumTotal(rarity)&&onSide<EnemyMaximumOnSide(rarity);
+    }
+
     public static AffixSide Side(StatTypes stat)
     {
         if (stat is StatTypes.ColdRes or StatTypes.FireRes or StatTypes.LightRes or StatTypes.VoidRes
@@ -21,7 +50,7 @@ public static class AffixPolicy
 
     public static int MaximumTotal(LootManager.GearRarity rarity) => rarity switch
     {
-        LootManager.GearRarity.Normal => 1,
+        LootManager.GearRarity.Normal => 0,
         LootManager.GearRarity.Magic => 2,
         LootManager.GearRarity.Rare => 4,
         _ => 6
@@ -29,21 +58,24 @@ public static class AffixPolicy
 
     public static int MaximumOnSide(LootManager.GearRarity rarity) => rarity switch
     {
-        LootManager.GearRarity.Normal => 1,
+        LootManager.GearRarity.Normal => 0,
         LootManager.GearRarity.Magic => 1,
+        LootManager.GearRarity.Rare => 2,
         _ => 3
     };
 
     public static bool CanAdd(IReadOnlyList<RolledMod> existing, LootManager.GearRarity rarity,
         AffixSide side, RolledMod excluded = null)
     {
-        int total=0, sideCount=0;
+        int total=0, sideCount=0, otherSideCount=0;
         if(existing!=null)foreach(var mod in existing)
         {
-            if(mod==null || ReferenceEquals(mod,excluded) || Gear.IsWeaponBaseStat(mod.statType))continue;
+            if(mod==null || ReferenceEquals(mod,excluded) || Gear.IsWeaponBaseStat(mod.statType)
+                || mod.lockedOriginal)continue;
             total++;
-            if(Side(mod.statType)==side)sideCount++;
+            if(Side(mod.statType)==side)sideCount++;else otherSideCount++;
         }
-        return total < MaximumTotal(rarity) && sideCount < MaximumOnSide(rarity);
+        return total < MaximumTotal(rarity) && sideCount < MaximumOnSide(rarity)
+            && otherSideCount <= MaximumOnSide(rarity);
     }
 }

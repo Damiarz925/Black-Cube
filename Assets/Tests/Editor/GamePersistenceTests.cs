@@ -31,11 +31,50 @@ public sealed class GamePersistenceTests
         old.payload.gearItems.Add(item);old.payload.inventoryGearIds.Add(item.id);
         File.WriteAllText(GamePersistence.PrimaryPath,JsonUtility.ToJson(old));
         Assert.That(GamePersistence.TryReadFile(GamePersistence.PrimaryPath,out var migrated,out var error),Is.True,error);
-        Assert.That(migrated.schemaVersion,Is.EqualTo(3));
+        Assert.That(migrated.schemaVersion,Is.EqualTo(4));
         Assert.That(migrated.payload.gearItems[0].baseDamageMin,Is.EqualTo(87f));
         Assert.That(migrated.payload.gearItems[0].baseDamageMax,Is.EqualTo(87f));
         Assert.That(migrated.payload.gearItems[0].legacyAffixRules,Is.True);
         Assert.That(migrated.payload.gearItems[0].mods[0].HighValue,Is.EqualTo(17f));
+    }
+    [Test] public void Schema3LockedOriginalMigratesToImplicitWithoutDeletingHistoricalSideExcess()
+    {
+        var old=Valid();old.schemaVersion=3;
+        var ring=Gear("old-rare");ring.rarity=LootManager.GearRarity.Rare;
+        ring.itemLevel=100;ring.mods[0]=new RolledMod(StatTypes.GenericDmg,1,31f,true);
+        ring.mods.Add(new RolledMod(StatTypes.FireRes,8,8f));
+        ring.mods.Add(new RolledMod(StatTypes.ColdRes,8,9f));
+        ring.mods.Add(new RolledMod(StatTypes.LightRes,8,10f));
+        old.payload.gearItems.Add(ring);old.payload.inventoryGearIds.Add(ring.id);
+        File.WriteAllText(GamePersistence.PrimaryPath,JsonUtility.ToJson(old));
+        Assert.That(GamePersistence.TryReadFile(GamePersistence.PrimaryPath,out var migrated,out var error),Is.True,error);
+        var item=migrated.payload.gearItems[0];
+        Assert.That(migrated.schemaVersion,Is.EqualTo(4));
+        Assert.That(item.mods.Count,Is.EqualTo(4));
+        Assert.That(item.mods[0].lockedOriginal,Is.True);
+        Assert.That(item.mods[0].value,Is.EqualTo(31f));
+        Assert.That(item.mods[1].value,Is.EqualTo(8f));
+        Assert.That(item.mods[2].value,Is.EqualTo(9f));
+        Assert.That(item.mods[3].value,Is.EqualTo(10f));
+        Assert.That(item.legacyAffixRules,Is.True);
+    }
+    [Test] public void Schema3PairedLockedWeaponRollAndBaseRangeRemainExact()
+    {
+        var old=Valid();old.schemaVersion=3;
+        var weapon=Gear("old-paired");weapon.type=LootManager.GearType.Weapons;
+        weapon.itemLevel=100;weapon.baseDamage=80f;weapon.baseDamageMin=64f;
+        weapon.baseDamageMax=96f;
+        weapon.mods[0]=new RolledMod(StatTypes.FlatFire,1,21f,38f,true);
+        old.payload.gearItems.Add(weapon);old.payload.inventoryGearIds.Add(weapon.id);
+        File.WriteAllText(GamePersistence.PrimaryPath,JsonUtility.ToJson(old));
+        Assert.That(GamePersistence.TryReadFile(GamePersistence.PrimaryPath,out var migrated,out var error),Is.True,error);
+        var item=migrated.payload.gearItems[0];
+        Assert.That(item.baseDamageMin,Is.EqualTo(64f));
+        Assert.That(item.baseDamageMax,Is.EqualTo(96f));
+        Assert.That(item.mods[0].lockedOriginal,Is.True);
+        Assert.That(item.mods[0].value,Is.EqualTo(21f));
+        Assert.That(item.mods[0].HighValue,Is.EqualTo(38f));
+        Assert.That(item.mods[0].hasSecondaryValue,Is.True);
     }
     [Test] public void UnknownEnumIsRejected(){var e=Valid();e.payload.currencies.Add(new CurrencyStackData((CraftingCurrencyType)999,1));AssertInvalid(e,"Currency");}
     [Test] public void InvalidModifierIsRejected(){var e=Valid();e.payload.gearItems.Add(Gear("a",(StatTypes)999));e.payload.inventoryGearIds.Add("a");AssertInvalid(e,"modifier");}
@@ -51,6 +90,8 @@ public sealed class GamePersistenceTests
         ring.mods[0].value=50f;AssertInvalid(e,"affix");
         ring.mods[0].value=8f;ring.rarity=LootManager.GearRarity.Magic;
         ring.mods.Add(new RolledMod(StatTypes.ColdRes,8,8f));
+        Assert.That(GamePersistence.ValidateEnvelope(e,out error),Is.True,error);
+        ring.mods.Add(new RolledMod(StatTypes.LightRes,8,8f));
         AssertInvalid(e,"side capacity");
     }
     [Test] public void CurrentPairedWeaponAffixNeedsBothLegalRolls()
@@ -74,6 +115,21 @@ public sealed class GamePersistenceTests
     {
         var old=new GameSaveData();old.currencies.Add(new CurrencyStackData(CraftingCurrencyType.MagicToRare,7));PlayerPrefs.SetString(GamePersistence.SaveKey,JsonUtility.ToJson(old));
         Assert.That(GamePersistence.TryReadBestEnvelope(out var e,out var source,out var error),Is.True,error);Assert.That(source,Is.EqualTo(SaveLoadSource.LegacyV1));Assert.That(e.payload.currencies[0].amount,Is.EqualTo(7));Assert.That(PlayerPrefs.HasKey(GamePersistence.SaveKey),Is.True);
+    }
+    [Test] public void LegacyV1GearCommitsItsFirstHistoricalRollAsImplicit()
+    {
+        var old=new GameSaveData();
+        old.inventory.Add(new GearSaveData{type=LootManager.GearType.Rings,
+            rarity=LootManager.GearRarity.Magic,itemLevel=25,element=Element.Phys,
+            mods=new System.Collections.Generic.List<RolledMod>
+            {new(StatTypes.FireRes,3,21f,false),new(StatTypes.Life,2,35f,false)}});
+        Assert.That(GamePersistence.TryMigrateLegacy(JsonUtility.ToJson(old),out var migrated,out var error),Is.True,error);
+        Assert.That(migrated.schemaVersion,Is.EqualTo(4));
+        var mods=migrated.payload.gearItems[0].mods;
+        Assert.That(mods[0].lockedOriginal,Is.True);
+        Assert.That(mods[0].value,Is.EqualTo(21f));
+        Assert.That(mods[1].lockedOriginal,Is.False);
+        Assert.That(mods[1].value,Is.EqualTo(35f));
     }
     [Test] public void TransactionalWriterCreatesPrimaryAndBackupForSameRun()
     {
@@ -103,6 +159,36 @@ public sealed class GamePersistenceTests
         var relic=new RelicData{id="relic-3",cycle=3,rarity=LootManager.GearRarity.Magic,craftableThisCycle=true};relic.modifiers.Add(new RelicModifier(RelicModifierType.MoreDamage,7.25f,true));e.payload.relicCycle=3;e.payload.relics.Add(relic);e.payload.activeRelicIds[2]=relic.id;
         string json=JsonUtility.ToJson(e);var restored=JsonUtility.FromJson<SaveEnvelope>(json);Assert.That(GamePersistence.ValidateEnvelope(restored,out var error),Is.True,error);
         Assert.That(restored.payload.combatLevel,Is.EqualTo(8));Assert.That(restored.payload.completedNormalEncounters,Is.EqualTo(4));Assert.That(restored.payload.selectedSkill,Is.EqualTo(PlayerSkillId.Fireball));Assert.That(restored.payload.gearItems[0].id,Is.EqualTo("gear-rich"));Assert.That(restored.payload.currencies[1].amount,Is.EqualTo(3));Assert.That(restored.payload.relics[0].modifiers[0].value,Is.EqualTo(7.25f));Assert.That(restored.payload.activeRelicIds[2],Is.EqualTo("relic-3"));
+    }
+    [Test] public void Schema4ImplicitAndExplicitSameFamilyRoundTripWithoutReroll()
+    {
+        var sourceObject=new GameObject("implicit roundtrip source");
+        Gear created=null;
+        try
+        {
+            var source=sourceObject.AddComponent<Gear>();
+            source.Initialize(LootManager.GearType.Rings,LootManager.GearRarity.Magic,100,Element.Phys);
+            source.ApplyMods(new System.Collections.Generic.List<RolledMod>
+            {
+                new(StatTypes.FireRes,8,8f,true),new(StatTypes.FireRes,8,9f,false)
+            });
+            var snapshot=GearSnapshotData.Capture(source);
+            snapshot=JsonUtility.FromJson<GearSnapshotData>(JsonUtility.ToJson(snapshot));
+            var envelope=Valid();envelope.payload.gearItems.Add(snapshot);
+            envelope.payload.inventoryGearIds.Add(snapshot.id);
+            Assert.That(GamePersistence.ValidateEnvelope(envelope,out var error),Is.True,error);
+            created=snapshot.Create();
+            Assert.That(created.ImplicitMod,Is.Not.Null);
+            Assert.That(created.ImplicitMod.value,Is.EqualTo(8f));
+            Assert.That(created.CraftingModCount,Is.EqualTo(1));
+            Assert.That(created.rolledMods[1].value,Is.EqualTo(9f));
+            Assert.That(created.PersistentId,Is.EqualTo(source.PersistentId));
+        }
+        finally
+        {
+            if(created!=null)UnityEngine.Object.DestroyImmediate(created.gameObject);
+            UnityEngine.Object.DestroyImmediate(sourceObject);
+        }
     }
     [Test] public void RapidDirtySignalsCoalesceBehindOneDebounceWindow()
     {

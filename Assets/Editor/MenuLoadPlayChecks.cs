@@ -102,9 +102,10 @@ public static class MenuLoadPlayChecks
                 var player=UnityEngine.Object.FindFirstObjectByType<PlayerController>();
                 var skill=player.GetComponent<PlayerSkillController>();
                 Require(skill.RestoreSelection(true,PlayerSkillId.Fireball),"Could not seed active skill fixture");
-                var ring=new GearSnapshotData{id="integration-ring",type=LootManager.GearType.Rings,rarity=LootManager.GearRarity.Rare,itemLevel=17,element=Element.Fire,
-                    mods=new List<RolledMod>{new(StatTypes.GenericDmg,2,11.5f,true)}}.Create("Integration Ring");
-                var helmet=new GearSnapshotData{id="integration-helmet",type=LootManager.GearType.Helmets,rarity=LootManager.GearRarity.Magic,itemLevel=12,element=Element.Cold}.Create("Integration Helmet");
+                var ring=CreateCurrentFixtureGear("integration-ring","Integration Ring",
+                    LootManager.GearType.Rings,LootManager.GearRarity.Rare,17,Element.Fire);
+                var helmet=CreateCurrentFixtureGear("integration-helmet","Integration Helmet",
+                    LootManager.GearType.Helmets,LootManager.GearRarity.Magic,12,Element.Cold);
                 Inventory.Instance.Add(ring);EquipmentManager.Instance.Equip(ring);Inventory.Instance.Add(helmet);
                 CurrencyInventory.Instance.Add(CraftingCurrencyType.MagicToRare,23);
                 CurrencyInventory.Instance.Add(CraftingCurrencyType.AncientReroll,4);
@@ -148,7 +149,7 @@ public static class MenuLoadPlayChecks
                 var loadedHealth=loadedPlayer.GetComponent<HealthComponent>();var loadedMana=loadedPlayer.GetComponent<ManaComponent>();
                 Require(loadedHealth.CurrentLife>=checkpointLife-.01f&&loadedHealth.CurrentLife<checkpointLife+5f&&loadedMana.CurrentMana>=checkpointMana-.01f&&loadedMana.CurrentMana<checkpointMana+5f,"Encounter-start health/mana were not restored");
                 Require(!UnityEngine.Object.FindFirstObjectByType<PaperBattleHUD>().PauseMenu.IsOpen&&Mathf.Approximately(Time.timeScale,1f),"Transient pause state was restored");
-                Write("PASS: Main Menu -> Load Game restored rich schema3 state and clean encounter checkpoint while clearing transient intent.");
+                Write("PASS: Main Menu -> Load Game restored rich current-schema state and clean encounter checkpoint while clearing transient intent.");
                 ReturnToMenu();step=4;Delay();return;
             case 4:
                 if(scene!=GameSceneNames.MainMenu)return;
@@ -182,6 +183,18 @@ public static class MenuLoadPlayChecks
     }
 
     static void Delay()=>readyAt=EditorApplication.timeSinceStartup+.75;
+    static Gear CreateCurrentFixtureGear(string id,string name,LootManager.GearType type,
+        LootManager.GearRarity rarity,int itemLevel,Element element)
+    {
+        var roller=ModManager.Instance;
+        Require(roller!=null,"Production item roller is unavailable in the integration fixture");
+        List<RolledMod> mods=null;
+        for(int attempt=0;attempt<64&&mods==null;attempt++)
+            mods=roller.RollEquipmentModsForItem(type,rarity,itemLevel,element);
+        Require(mods!=null,$"Could not construct integration {rarity} {type} at ilvl {itemLevel}");
+        return new GearSnapshotData{id=id,type=type,rarity=rarity,itemLevel=itemLevel,
+            element=element,mods=mods}.Create(name);
+    }
     static Button ButtonNamed(string name)=>UnityEngine.Object.FindObjectsByType<Button>(FindObjectsInactive.Include,FindObjectsSortMode.None).Single(button=>button.name==name);
     static void Require(bool condition,string message){if(!condition)throw new InvalidOperationException(message);}
     static void Write(string message){File.AppendAllText(Report,message+Environment.NewLine);Debug.Log(message);}

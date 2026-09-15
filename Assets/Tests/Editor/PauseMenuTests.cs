@@ -67,6 +67,30 @@ public sealed class PauseMenuTests
     }
 
     [Test]
+    public void CodexModListNavigationAndBackNeverResumeGameplay()
+    {
+        hud.PauseGameplay();
+        hud.PauseMenu.CodexButton.onClick.Invoke();
+        Assert.That(hud.PauseMenu.Codex.IsCodexPageOpen,Is.True);
+        Assert.That(Time.timeScale,Is.Zero);
+        hud.PauseMenu.Codex.OpenModList();
+        Assert.That(hud.PauseMenu.Codex.IsModListOpen,Is.True);
+        hud.PauseMenu.Codex.SelectType(LootManager.GearType.Helmets);
+        hud.PauseMenu.Codex.SelectFilter(CodexSideFilter.Suffixes);
+        Assert.That(hud.PauseMenu.Codex.SelectedType,Is.EqualTo(LootManager.GearType.Helmets));
+        Assert.That(hud.PauseMenu.Codex.SelectedFilter,Is.EqualTo(CodexSideFilter.Suffixes));
+        Assert.That(hud.PauseMenu.Codex.Scroll,Is.Not.Null);
+        Assert.That(Time.timeScale,Is.Zero);
+        hud.PauseMenu.Codex.ReturnToCodex();
+        Assert.That(hud.PauseMenu.Codex.IsCodexPageOpen,Is.True);
+        hud.PauseMenu.ReturnFromCodex();
+        Assert.That(hud.PauseMenu.IsOpen,Is.True);
+        Assert.That(Time.timeScale,Is.Zero);
+        hud.PauseMenu.ResumeButton.onClick.Invoke();
+        Assert.That(Time.timeScale,Is.EqualTo(1f));
+    }
+
+    [Test]
     public void SaveAndMainMenuLeavesOnlyAfterSuccessfulCanonicalSave()
     {
         int saves = 0;
@@ -142,7 +166,7 @@ public sealed class PauseMenuTests
     {
         Assert.That(GamePersistence.TrySave(), Is.False);
         Assert.That(GamePersistence.LastError, Does.Contain("gameplay authorities"));
-        Assert.That(GamePersistence.SchemaVersion, Is.EqualTo(3));
+        Assert.That(GamePersistence.SchemaVersion, Is.EqualTo(4));
         Assert.That(GamePersistence.PrimaryPath, Does.EndWith(GamePersistence.PrimaryFileName));
     }
 

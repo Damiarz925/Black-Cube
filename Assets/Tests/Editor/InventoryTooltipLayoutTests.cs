@@ -28,7 +28,8 @@ public class InventoryTooltipLayoutTests
         Assert.That(first.IndexOf("Attacks Per Second:"),Is.LessThan(first.IndexOf(ItemTooltipFormatter.Divider)));
         Assert.That(first,Does.Contain("<b>Attacks Per Second:</b> 1.2"));
         Assert.That(first,Does.Not.Contain("Base damage:"));
-        Assert.That(first,Does.Contain("LOCKED ORIGINAL"));
+        Assert.That(first,Does.Contain("IMPLICIT"));
+        Assert.That(first,Does.Not.Contain("LOCKED ORIGINAL"));
         Assert.That(first.IndexOf("PREFIXES"),Is.LessThan(first.IndexOf("SUFFIXES")));
         Assert.That(first.IndexOf("Fire Damage",System.StringComparison.Ordinal),Is.LessThan(first.IndexOf("Attack Speed",System.StringComparison.Ordinal)));
         string fireResistance=StatDisplayFormatting.ToFriendlyName(StatTypes.FireRes);
@@ -41,7 +42,7 @@ public class InventoryTooltipLayoutTests
     {
         Gear armour=Track(new GameObject("armour")).AddComponent<Gear>();armour.Initialize(LootManager.GearType.BodyArmours,LootManager.GearRarity.Rare,42,Element.Phys);
         armour.rolledMods.Add(new RolledMod(StatTypes.LifeRegeneration,1,3,false));armour.rolledMods.Add(new RolledMod(StatTypes.FlatArmour,1,25,true));
-        string item=ItemTooltipFormatter.DescribeGear(armour);Assert.That(item,Does.Contain("ITEM LEVEL 42"));Assert.That(item,Does.Contain(ItemTooltipFormatter.Divider));Assert.That(item,Does.Contain("LOCKED ORIGINAL"));
+        string item=ItemTooltipFormatter.DescribeGear(armour);Assert.That(item,Does.Contain("ITEM LEVEL 42"));Assert.That(item,Does.Contain(ItemTooltipFormatter.Divider));Assert.That(item,Does.Contain("IMPLICIT"));Assert.That(item,Does.Not.Contain("LOCKED ORIGINAL"));
         var relic=new RelicData{id="r",cycle=2,rarity=LootManager.GearRarity.Legendary,craftableThisCycle=true,modifiers=new List<RelicModifier>{new(RelicModifierType.IncreasedExperience,8,false),new(RelicModifierType.MoreDamage,7,true),new(RelicModifierType.MoreAttackSpeed,4,false)}};
         string text=ItemTooltipFormatter.DescribeRelic(relic);Assert.That(text.IndexOf("More Damage"),Is.LessThan(text.IndexOf("More Attack Speed")));Assert.That(text.IndexOf("More Attack Speed"),Is.LessThan(text.IndexOf("Increased Experience")));Assert.That(text,Does.Contain("CURRENT CYCLE / CRAFTABLE"));
     }
@@ -53,8 +54,10 @@ public class InventoryTooltipLayoutTests
         ModManager manager=CreateModManager();Gear gear=Weapon();gear.rolledMods.Add(new RolledMod(StatTypes.FireDmg,1,10,true));gear.RebuildMods();inventory.Add(gear);
         var canvas=Track(new GameObject("canvas",typeof(RectTransform),typeof(Canvas)));var anchor=Track(new GameObject("anchor",typeof(RectTransform)));anchor.transform.SetParent(canvas.transform,false);
         ItemTooltipUI tooltip=ItemTooltipUI.Create(canvas.transform);typeof(ItemTooltipUI).GetMethod("OnEnable",BindingFlags.Instance|BindingFlags.NonPublic).Invoke(tooltip,null);tooltip.Show(gear,(RectTransform)anchor.transform,false);string before=tooltip.BodyText;
+        Assert.That(tooltip.ImplicitLockIcon,Is.Not.Null);
+        Assert.That(tooltip.ImplicitLockIcon.gameObject.activeSelf,Is.True);
         currency.Add(CraftingCurrencyType.NormalToMagic);currency.Arm(CraftingCurrencyType.NormalToMagic);
-        Assert.That(currency.TryApplyArmedToGear(gear),Is.True);Assert.That(tooltip.gameObject.activeSelf,Is.True);Assert.That(tooltip.BodyText,Is.Not.EqualTo(before));Assert.That(tooltip.BodyText,Does.Contain("CRAFTABLE"));
+        Assert.That(currency.TryApplyArmedToGear(gear),Is.True);Assert.That(tooltip.gameObject.activeSelf,Is.True);Assert.That(tooltip.BodyText,Is.Not.EqualTo(before));Assert.That(tooltip.BodyText,Does.Contain("PREFIXES"));
         inventory.Remove(gear);Assert.That(tooltip.gameObject.activeSelf,Is.False);
     }
 
@@ -80,7 +83,8 @@ public class InventoryTooltipLayoutTests
         var gear=Track(new GameObject("legendary")).AddComponent<Gear>();gear.Initialize(LootManager.GearType.Helmets,LootManager.GearRarity.Legendary,80,Element.Phys);
         gear.rolledMods.Add(new RolledMod(StatTypes.Life,1,10,true));gear.rolledMods.Add(new RolledMod(StatTypes.FireRes,1,10,false));gear.rolledMods.Add(new RolledMod(StatTypes.ColdRes,1,10,false));gear.rolledMods.Add(new RolledMod(StatTypes.LightRes,1,10,false));gear.rolledMods.Add(new RolledMod(StatTypes.FlatArmour,1,10,false));
         Assert.That(EquipmentCrafting.CanApply(CraftingCurrencyType.RerollRareModifier,gear),Is.True);Assert.That(EquipmentCrafting.CanApply(CraftingCurrencyType.RemoveRareModifier,gear),Is.True);Assert.That(EquipmentCrafting.CanApply(CraftingCurrencyType.AddRareModifier,gear),Is.True);
-        gear.rolledMods.Add(new RolledMod(StatTypes.AllRes,1,10,false));Assert.That(EquipmentCrafting.CanApply(CraftingCurrencyType.AddRareModifier,gear),Is.False);
+        gear.rolledMods.Add(new RolledMod(StatTypes.AllRes,1,10,false));Assert.That(EquipmentCrafting.CanApply(CraftingCurrencyType.AddRareModifier,gear),Is.True);
+        gear.rolledMods.Add(new RolledMod(StatTypes.Mana,1,10,false));Assert.That(EquipmentCrafting.CanApply(CraftingCurrencyType.AddRareModifier,gear),Is.False);
     }
 
     [Test]
@@ -101,7 +105,7 @@ public class InventoryTooltipLayoutTests
         var claim=new CurrencyRewardClaim(CraftingCurrencyType.NormalToMagic);Assert.That(claim.TryClaim(),Is.True);Assert.That(claim.TryClaim(),Is.False);
         var expected=new Dictionary<CraftingCurrencyType,string>{{CraftingCurrencyType.NormalToMagic,"whiteToBlue"},{CraftingCurrencyType.RerollMagic,"RerollBlue"},{CraftingCurrencyType.MagicToRare,"BlueToYellow"},{CraftingCurrencyType.RerollRareModifier,"RerollYellow"},{CraftingCurrencyType.AddRareModifier,"AddYellow"},{CraftingCurrencyType.RemoveRareModifier,"Remove"}};
         foreach(var pair in expected){Assert.That(InventoryArtCatalog.ResourcePath(pair.Key),Does.EndWith(pair.Value));Assert.That(CurrencyPresentation.ValidTarget(pair.Key),Is.Not.Empty);Assert.That(CurrencyPresentation.FailureConditions(pair.Key),Is.Not.Empty);}
-        Assert.That(InventoryArtCatalog.ResourcePath(CraftingCurrencyType.AncientReroll),Does.StartWith("generated/ancient/"));
+        Assert.That(InventoryArtCatalog.ResourcePath(CraftingCurrencyType.AncientReroll),Does.EndWith("AncientBlueReroll"));
     }
 
     [Test]
@@ -115,7 +119,7 @@ public class InventoryTooltipLayoutTests
     [Test]
     public void SuppliedInventoryAndCurrencyArt_ImportAsUncompressedUiSprites()
     {
-        string[] paths={"Assets/Resources/UI/Inventory/InventoryLayout.png","Assets/Resources/UI/Currency/whiteToBlue.png","Assets/Resources/UI/Currency/RerollBlue.png","Assets/Resources/UI/Currency/BlueToYellow.png","Assets/Resources/UI/Currency/RerollYellow.png","Assets/Resources/UI/Currency/AddYellow.png","Assets/Resources/UI/Currency/Remove.png"};
+        string[] paths={"Assets/Resources/UI/Inventory/InventoryLayout.png","Assets/Resources/UI/Currency/whiteToBlue.png","Assets/Resources/UI/Currency/RerollBlue.png","Assets/Resources/UI/Currency/BlueToYellow.png","Assets/Resources/UI/Currency/RerollYellow.png","Assets/Resources/UI/Currency/AddYellow.png","Assets/Resources/UI/Currency/Remove.png","Assets/Resources/UI/Currency/AncientWhiteToBlue.png","Assets/Resources/UI/Currency/AncientBlueReroll.png","Assets/Resources/UI/Currency/AncientBlueToYellow.png","Assets/Resources/UI/Currency/AncientYellowReroll.png","Assets/Resources/UI/Currency/AncientAddYellow.png","Assets/Resources/UI/Currency/AncientRemove.png"};
         foreach(string path in paths){var sprite=AssetDatabase.LoadAssetAtPath<Sprite>(path);Assert.That(sprite,Is.Not.Null,path);var importer=(TextureImporter)AssetImporter.GetAtPath(path);Assert.That(importer.textureType,Is.EqualTo(TextureImporterType.Sprite),path);Assert.That(importer.mipmapEnabled,Is.False,path);Assert.That(importer.alphaIsTransparency,Is.True,path);}
         var layout=AssetDatabase.LoadAssetAtPath<Texture2D>(paths[0]);Assert.That(layout.width,Is.EqualTo(960));Assert.That(layout.height,Is.EqualTo(1052));
     }

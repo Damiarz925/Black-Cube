@@ -55,7 +55,7 @@ public enum SaveLoadSource{None,Primary,Backup,LegacyV1}
 
 public static class GamePersistence
 {
-    public const string SaveKey="BlackCube.Save.V1"; public const int SchemaVersion=3;
+    public const string SaveKey="BlackCube.Save.V1"; public const int SchemaVersion=4;
     public const string PrimaryFileName="current-save.json",BackupFileName="current-save.json.bak",TemporaryFileName="current-save.json.tmp";
     public const float AutosaveDebounceSeconds=2f;
     static bool loadRequested,confirmedNewGameRequested,restoring,dirty,hasEncounterCheckpoint,pendingSchemaMigration; static float dirtySince,encounterStartLife,encounterStartMana;
@@ -130,13 +130,17 @@ public static class GamePersistence
     }
     static bool ValidateCurrentAffixes(GearSnapshotData gear)
     {
-        int total=0,prefix=0,suffix=0;var families=new HashSet<StatTypes>();
+        int total=0,prefix=0,suffix=0,implicits=0;var families=new HashSet<StatTypes>();
         foreach(var mod in gear.mods)
         {
             if(Gear.IsWeaponBaseStat(mod.statType))continue;
-            total++;
-            if(!families.Add(mod.statType))return false;
-            if(AffixPolicy.Side(mod.statType)==AffixSide.Prefix)prefix++;else suffix++;
+            if(mod.lockedOriginal)implicits++;
+            else
+            {
+                total++;
+                if(!families.Add(mod.statType))return false;
+                if(AffixPolicy.Side(mod.statType)==AffixSide.Prefix)prefix++;else suffix++;
+            }
             if(PoedbAffixCatalog.TryGet(mod.statType,gear.type,out var tiers))
             {
                 AffixTier tier=tiers.Find(t=>t.tierIndex==mod.tierIndex&&t.minItemLevel<=gear.itemLevel);
@@ -146,7 +150,7 @@ public static class GamePersistence
                     ||mod.HighValue>tier.maxHighValue+.001f))return false;
             }
         }
-        return total<=AffixPolicy.MaximumTotal(gear.rarity)
+        return implicits==1 && total<=AffixPolicy.MaximumTotal(gear.rarity)
             && prefix<=AffixPolicy.MaximumOnSide(gear.rarity)
             && suffix<=AffixPolicy.MaximumOnSide(gear.rarity);
     }
@@ -162,7 +166,40 @@ public static class GamePersistence
         e=null;source=SaveLoadSource.None;pendingSchemaMigration=false;var failures=new List<string>();if(File.Exists(PrimaryPath)){if(TryReadFile(PrimaryPath,out e,out var x)){source=SaveLoadSource.Primary;error=null;return true;}failures.Add("primary: "+x);}if(File.Exists(BackupPath)){if(TryReadFile(BackupPath,out e,out var x)){source=SaveLoadSource.Backup;error=null;return true;}failures.Add("backup: "+x);}
         if(!File.Exists(PrimaryPath)&&!File.Exists(BackupPath)&&PlayerPrefs.HasKey(SaveKey)){if(TryMigrateLegacy(PlayerPrefs.GetString(SaveKey),out e,out var x)){source=SaveLoadSource.LegacyV1;error=null;return true;}failures.Add("legacy: "+x);}error=failures.Count==0?"No gameplay save exists.":"No valid save: "+string.Join("; ",failures);return false;
     }
-    public static bool TryReadFile(string path,out SaveEnvelope e,out string error){e=null;error=null;try{string json=File.ReadAllText(path,Encoding.UTF8);if(string.IsNullOrWhiteSpace(json))return Fail("File is empty.",out error);e=JsonUtility.FromJson<SaveEnvelope>(json);bool migrated=e?.schemaVersion==2;if(migrated)MigrateSchema2(e);bool valid=ValidateEnvelope(e,out error);pendingSchemaMigration=valid&&migrated;return valid;}catch(Exception ex){pendingSchemaMigration=false;return Fail(ex.Message,out error);}}
+    public static bool TryReadFile(string path,out SaveEnvelope e,out string error){e=null;error=null;try{string json=File.ReadAllText(path,Encoding.UTF8);if(string.IsNullOrWhiteSpace(json))return Fail("File is empty.",out error);e=JsonUtility.FromJson<SaveEnvelope>(json);bool migrated=e?.schemaVersion==2||e?.schemaVersion==3;if(e?.schemaVersion==2)MigrateSchema2(e);if(e?.schemaVersion==3)MigrateEquipmentImplicits(e);bool valid=ValidateEnvelope(e,out error);pendingSchemaMigration=valid&&migrated;return valid;}catch(Exception ex){pendingSchemaMigration=false;return Fail(ex.Message,out error);}}
+    // Schema 3 already serialized the locked-original flag and exact rolls;
+    // PlayerPrefs V1 gear may need its first surviving roll marked. Reuse that
+    // field as the implicit. Schema 4 distinguishes strict new caps from
+    // historical 3-side gear that must remain legacy-compatible.
+    static bool MigrateEquipmentImplicits(SaveEnvelope e)
+    {
+        bool changed=false;
+        if(e.payload?.gearItems==null){e.schemaVersion=SchemaVersion;return false;}
+        foreach(var gear in e.payload.gearItems)
+        {
+            if(gear?.mods==null)continue;
+            RolledMod first=null,implicitMod=null;
+            foreach(var mod in gear.mods)
+            {
+                if(mod==null||Gear.IsWeaponBaseStat(mod.statType))continue;
+                first??=mod;
+                if(mod.lockedOriginal&&implicitMod==null)implicitMod=mod;
+            }
+            implicitMod??=first;
+            foreach(var mod in gear.mods)
+            {
+                if(mod==null||Gear.IsWeaponBaseStat(mod.statType))continue;
+                bool shouldLock=ReferenceEquals(mod,implicitMod);
+                if(mod.lockedOriginal!=shouldLock){mod.lockedOriginal=shouldLock;changed=true;}
+            }
+            // Old 3-side Rare or underfilled historical rolls may exceed the
+            // new 2/2 side split. Preserve their entire item as legacy-compatible.
+            if(!gear.legacyAffixRules&&!ValidateCurrentAffixes(gear))
+            {gear.legacyAffixRules=true;changed=true;}
+        }
+        e.schemaVersion=SchemaVersion;
+        return changed;
+    }
     static void MigrateSchema2(SaveEnvelope e)
     {
         if(e.payload?.gearItems!=null)foreach(var gear in e.payload.gearItems)
@@ -176,13 +213,13 @@ public static class GamePersistence
                 mod.secondaryValue=mod.value;
             }
         }
-        e.schemaVersion=SchemaVersion;
+        e.schemaVersion=3;
     }
     public static bool TryMigrateLegacy(string json,out SaveEnvelope e,out string error)
     {
         e=null;error=null;try{if(string.IsNullOrWhiteSpace(json))return Fail("Legacy JSON is empty.",out error);var old=JsonUtility.FromJson<GameSaveData>(json);if(old==null||old.version!=1)return Fail("Legacy version is not V1.",out error);old.inventory??=new();old.equipped??=new();old.currencies??=new();old.relics??=new();string id=Guid.NewGuid().ToString("N");var p=new GameStatePayload{encounterStartLife=100,encounterStartMana=100,relicCycle=Mathf.Max(0,old.relicCycle)};
             foreach(var x in old.inventory){if(x==null)return Fail("Legacy inventory is malformed.",out error);var g=GearSnapshotData.FromLegacy(x,Guid.NewGuid().ToString("N"));p.gearItems.Add(g);p.inventoryGearIds.Add(g.id);}foreach(var x in old.equipped){if(x?.gear==null)return Fail("Legacy equipment is malformed.",out error);var g=GearSnapshotData.FromLegacy(x.gear,Guid.NewGuid().ToString("N"));p.gearItems.Add(g);p.equippedGear.Add(new EquippedGearReference{slot=x.slot,gearId=g.id});}
-            foreach(var x in old.currencies)p.currencies.Add(x);foreach(var x in old.relics)if(x!=null)p.relics.Add(CloneRelic(x));else return Fail("Legacy relic is malformed.",out error);for(int i=0;i<RelicInventory.ActiveSlotCount;i++){int index=old.activeRelicIndices!=null&&i<old.activeRelicIndices.Length?old.activeRelicIndices[i]:-1;if(index < -1 || index >= p.relics.Count)return Fail("Legacy active relic slot is invalid.",out error);p.activeRelicIds.Add(index>=0?p.relics[index].id:string.Empty);}e=new SaveEnvelope{runId=id,runSeed=Seed(id),savedAtUtc=DateTime.UtcNow.ToString("O",CultureInfo.InvariantCulture),payload=p};return ValidateEnvelope(e,out error);
+            foreach(var x in old.currencies)p.currencies.Add(x);foreach(var x in old.relics)if(x!=null)p.relics.Add(CloneRelic(x));else return Fail("Legacy relic is malformed.",out error);for(int i=0;i<RelicInventory.ActiveSlotCount;i++){int index=old.activeRelicIndices!=null&&i<old.activeRelicIndices.Length?old.activeRelicIndices[i]:-1;if(index < -1 || index >= p.relics.Count)return Fail("Legacy active relic slot is invalid.",out error);p.activeRelicIds.Add(index>=0?p.relics[index].id:string.Empty);}e=new SaveEnvelope{runId=id,runSeed=Seed(id),savedAtUtc=DateTime.UtcNow.ToString("O",CultureInfo.InvariantCulture),payload=p};MigrateEquipmentImplicits(e);return ValidateEnvelope(e,out error);
         }catch(Exception ex){return Fail(ex.Message,out error);}
     }
     static bool ApplyEnvelope(SaveEnvelope e,out string error)

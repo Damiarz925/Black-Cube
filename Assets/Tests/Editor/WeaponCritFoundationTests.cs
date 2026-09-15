@@ -143,7 +143,9 @@ public sealed class WeaponCritFoundationTests
         delta=before-health.CurrentLife;
         Assert.That(root.transform.childCount,Is.EqualTo(2));
         var critText=root.transform.GetChild(1).GetComponentInChildren<TextMeshProUGUI>();
-        Assert.That(critText.text,Is.EqualTo("CRIT "+Mathf.RoundToInt(delta)));
+        Assert.That(critText.text,Is.EqualTo(Mathf.RoundToInt(delta).ToString()));
+        Assert.That(root.transform.GetChild(0).Find("Critical hit marker"),Is.Null);
+        Assert.That(root.transform.GetChild(1).Find("Critical hit marker"),Is.Not.Null);
         Assert.That(root.transform.GetChild(1).localScale.x,Is.GreaterThan(root.transform.GetChild(0).localScale.x));
     }
 }

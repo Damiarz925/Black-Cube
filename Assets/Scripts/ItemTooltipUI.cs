@@ -27,33 +27,46 @@ public static class ItemTooltipFormatter
             s.AppendLine($"<b>Crit Chance:</b> {item.GetEffectiveBaseCrit()*100:0.##}%");
             s.AppendLine($"<b>Attacks Per Second:</b> {item.GetEffectiveAttackSpeed():0.0#}");
         }
-        s.AppendLine(); s.AppendLine($"<color=#555A63>{Divider}</color>");
         var mods = new List<RolledMod>();
         foreach (var mod in item.rolledMods)
             if (mod != null && !Gear.IsWeaponBaseStat(mod.statType)) mods.Add(mod);
         mods.Sort(Compare);
-        if (mods.Count == 0) s.AppendLine("<color=#85898F>No modifiers</color>");
+        s.AppendLine();
+        s.AppendLine("<color=#9FC8BC><b>IMPLICIT</b></color>");
+        RolledMod implicitMod=item.ImplicitMod;
+        if (implicitMod != null) AppendMod(s,item,implicitMod,true);
+        else s.AppendLine("<color=#85898F>—</color>");
+        s.AppendLine(); s.AppendLine($"<color=#555A63>{Divider}</color>");
         foreach (var side in new[]{AffixSide.Prefix,AffixSide.Suffix})
         {
             s.AppendLine($"<b>{(side==AffixSide.Prefix?"PREFIXES":"SUFFIXES")}</b>");
             bool any=false;
             foreach (var mod in mods)
             {
-                if(AffixPolicy.Side(mod.statType)!=side)continue;
+                if(mod.lockedOriginal || AffixPolicy.Side(mod.statType)!=side)continue;
                 any=true;
-                bool percent=StatsComponent.IsPercentStat(mod.statType);
-                bool paired=item.IsLocalAffix(mod.statType) && (mod.statType is StatTypes.FlatPhys
-                    or StatTypes.FlatFire or StatTypes.FlatCold or StatTypes.FlatLight or StatTypes.FlatVoid);
-                string unit=percent?"%":"";
-                string rolled=paired?$"Adds {mod.value:0.##}–{mod.HighValue:0.##} {ItemTooltipUI.ElementName(item.BaseElement)} Damage"
-                    :$"{StatDisplayFormatting.ToFriendlyName(mod.statType)}: {mod.value:+0.##;-0.##;0}{unit}";
-                string range=TierRange(item,mod,percent);
-                string flags=$"{(item.IsLocalAffix(mod.statType)?"LOCAL":"GLOBAL")}, {(mod.lockedOriginal?"LOCKED ORIGINAL":"CRAFTABLE")}";
-                s.AppendLine($"<color=#E4C979><b>{rolled}</b></color>  <color=#85898F>T{mod.tierIndex} {range} [{flags}]</color>");
+                AppendMod(s,item,mod,false);
             }
             if(!any)s.AppendLine("<color=#85898F>—</color>");
         }
         return s.ToString().TrimEnd();
+    }
+
+    static void AppendMod(StringBuilder s,Gear item,RolledMod mod,bool implicitLine)
+    {
+        bool percent=StatsComponent.IsPercentStat(mod.statType);
+        bool paired=item.IsLocalAffix(mod.statType) && (mod.statType is StatTypes.FlatPhys
+            or StatTypes.FlatFire or StatTypes.FlatCold or StatTypes.FlatLight or StatTypes.FlatVoid);
+        string unit=percent?"%":"";
+        string rolled=paired?$"Adds {mod.value:0.##}–{mod.HighValue:0.##} {ItemTooltipUI.ElementName(item.BaseElement)} Damage"
+            :$"{StatDisplayFormatting.ToFriendlyName(mod.statType)}: {mod.value:+0.##;-0.##;0}{unit}";
+        string range=TierRange(item,mod,percent);
+        string color=implicitLine?"#9FC8BC":"#E4C979";
+        // Reserve a compact space for the runtime-built padlock Image. TMP's
+        // shipped font does not contain the Unicode lock emoji.
+        string prefix=implicitLine?"   ":"";
+        string local=item.IsLocalAffix(mod.statType)?"  <color=#85898F>LOCAL</color>":"";
+        s.AppendLine($"<color={color}>{prefix}<b>{rolled}</b></color>  <color=#85898F>{range} T{mod.tierIndex}</color>{local}");
     }
 
     static string TierRange(Gear item,RolledMod mod,bool percent)
@@ -138,11 +151,13 @@ public class ItemTooltipUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
     bool equipped;
     bool validatePlayerEquipment;
     TMP_Text heading, body, actionLabel;
+    Image implicitLockIcon;
     Button scrapButton;
     ScrollRect scroll;
     PointerEventData pointer;
     public Button ScrapButton => scrapButton;
     public string BodyText => body.text;
+    public Image ImplicitLockIcon => implicitLockIcon;
 
     public static string ElementName(Element element) => element switch
     { Element.Phys => "Physical", Element.Light => "Lightning", _ => element.ToString() };
@@ -185,17 +200,26 @@ public class ItemTooltipUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
         var tip = go.AddComponent<ItemTooltipUI>();
         var layer = go.AddComponent<Canvas>(); layer.overrideSorting=true; layer.sortingOrder=90;
         go.AddComponent<GraphicRaycaster>();
-        var rect = (RectTransform)go.transform; rect.anchorMin=rect.anchorMax=new Vector2(.5f,.5f); rect.pivot=new Vector2(0,1); rect.sizeDelta=new Vector2(360,420);
+        var rect = (RectTransform)go.transform; rect.anchorMin=rect.anchorMax=new Vector2(.5f,.5f); rect.pivot=new Vector2(0,1); rect.sizeDelta=new Vector2(440,420);
         tip.heading = Label(go.transform,18); Place(tip.heading.rectTransform,0,.87f,1,1,12);
         var view = Box(go.transform,"Scrollable item stats",new Color(0,0,0,0));
         Place((RectTransform)view.transform,0,.13f,1,.87f,12);
         tip.scroll=view.AddComponent<ScrollRect>(); tip.scroll.horizontal=false; tip.scroll.scrollSensitivity=30; tip.scroll.movementType=ScrollRect.MovementType.Clamped;
         var viewport = Box(view.transform,"Viewport",Color.clear); Place((RectTransform)viewport.transform,0,0,1,1,0); viewport.AddComponent<RectMask2D>();
-        tip.body=Label(viewport.transform,13);
+        tip.body=Label(viewport.transform,12);
         tip.body.textWrappingMode = TextWrappingModes.Normal;
-        tip.body.lineSpacing = -6f;
+        tip.body.lineSpacing = -5f;
         var content=tip.body.rectTransform;content.anchorMin=new Vector2(0,1);content.anchorMax=Vector2.one;content.pivot=new Vector2(.5f,1);content.offsetMin=content.offsetMax=Vector2.zero;
         tip.body.gameObject.AddComponent<ContentSizeFitter>().verticalFit=ContentSizeFitter.FitMode.PreferredSize;
+        var lockObject=new GameObject("Permanent implicit padlock",typeof(RectTransform),typeof(CanvasRenderer),typeof(Image));
+        lockObject.transform.SetParent(tip.body.transform,false);
+        var lockRect=(RectTransform)lockObject.transform;
+        lockRect.anchorMin=lockRect.anchorMax=new Vector2(0,1);
+        lockRect.pivot=new Vector2(.5f,.5f);
+        lockRect.sizeDelta=new Vector2(16,16);
+        tip.implicitLockIcon=lockObject.GetComponent<Image>();
+        tip.implicitLockIcon.sprite=TooltipLockIcon.IconSprite;
+        tip.implicitLockIcon.raycastTarget=false;
         tip.scroll.viewport=(RectTransform)viewport.transform;tip.scroll.content=content;
         var action=Box(go.transform,"Scrap action",new Color(.28f,.16f,.11f));Place((RectTransform)action.transform,0,.01f,1,.12f,10);
         tip.scrapButton=action.AddComponent<Button>();tip.scrapButton.targetGraphic=action.GetComponent<Image>();
@@ -221,9 +245,9 @@ public class ItemTooltipUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
             var corners=new Vector3[4];owner.GetWorldCorners(corners);
             var parent=(RectTransform)transform.parent;var point=parent.InverseTransformPoint(corners[2]);
             var r=(RectTransform)transform;
-            float width=Mathf.Min(360,parent.rect.width-24);
+            float width=Mathf.Min(440,parent.rect.width-24);
             float preferredBody=body.GetPreferredValues(body.text,width-24,0).y;
-            float height=Mathf.Clamp(preferredBody+116,210,Mathf.Min(520,parent.rect.height-24));
+            float height=Mathf.Clamp(preferredBody+116,210,Mathf.Min(540,parent.rect.height-24));
             r.sizeDelta=new Vector2(width,height);
             // Touch the source edge so transfer needs no timed linger or broad corridor.
             float x=point.x;
@@ -244,8 +268,36 @@ public class ItemTooltipUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
         if(!equipped)return Inventory.Instance!=null&&Inventory.Instance.Items.Contains(item);
         return true;
     }
-    void RefreshVisibleContent(){if(item==null)return;heading.text=item.IsScrap?$"SCRAP  x{item.StackCount}":$"{item.ItemRarity} {ItemSlotUI.DisplayType(item.ItemType)}";heading.color=ItemSlotUI.RarityColor(item.ItemRarity);body.text=Describe(item);body.ForceMeshUpdate();scrapButton.interactable=!equipped&&Inventory.Instance!=null&&Inventory.Instance.CanDismantle(item);actionLabel.text=equipped?"EQUIPPED / CANNOT SCRAP":item.IsScrap?"SCRAP / MATERIAL ONLY":Inventory.ScrapYield(item)>0?$"SCRAP ITEM  /  +{Inventory.ScrapYield(item)} SCRAP":"NO DISMANTLE YIELD CONFIGURED";}
-    void ResizeInPlace(){var r=(RectTransform)transform;var parent=(RectTransform)transform.parent;float width=Mathf.Min(360,parent.rect.width-24);float preferred=body.GetPreferredValues(body.text,width-24,0).y;r.sizeDelta=new Vector2(width,Mathf.Clamp(preferred+116,210,Mathf.Min(520,parent.rect.height-24)));LayoutRebuilder.ForceRebuildLayoutImmediate(r);}
+    void RefreshVisibleContent(){if(item==null)return;heading.text=item.IsScrap?$"SCRAP  x{item.StackCount}":$"{item.ItemRarity} {ItemSlotUI.DisplayType(item.ItemType)}";heading.color=ItemSlotUI.RarityColor(item.ItemRarity);body.text=Describe(item);body.ForceMeshUpdate();PlaceImplicitLock();scrapButton.interactable=!equipped&&Inventory.Instance!=null&&Inventory.Instance.CanDismantle(item);actionLabel.text=equipped?"EQUIPPED / CANNOT SCRAP":item.IsScrap?"SCRAP / MATERIAL ONLY":Inventory.ScrapYield(item)>0?$"SCRAP ITEM  /  +{Inventory.ScrapYield(item)} SCRAP":"NO DISMANTLE YIELD CONFIGURED";}
+    void ResizeInPlace(){var r=(RectTransform)transform;var parent=(RectTransform)transform.parent;float width=Mathf.Min(440,parent.rect.width-24);float preferred=body.GetPreferredValues(body.text,width-24,0).y;r.sizeDelta=new Vector2(width,Mathf.Clamp(preferred+116,210,Mathf.Min(540,parent.rect.height-24)));LayoutRebuilder.ForceRebuildLayoutImmediate(r);body.ForceMeshUpdate();PlaceImplicitLock();}
+    void PlaceImplicitLock()
+    {
+        if(implicitLockIcon==null)return;
+        bool show=item!=null&&!item.IsScrap&&item.ImplicitMod!=null;
+        implicitLockIcon.gameObject.SetActive(show);
+        if(!show)return;
+        var info=body.textInfo;
+        var chars=info.characterInfo;
+        int header=-1;
+        const string label="IMPLICIT";
+        for(int i=0;i<=info.characterCount-label.Length;i++)
+        {
+            bool match=true;
+            for(int j=0;j<label.Length;j++)if(chars[i+j].character!=label[j]){match=false;break;}
+            if(match){header=i;break;}
+        }
+        if(header<0)return;
+        int headerLine=chars[header].lineNumber;
+        for(int i=header+label.Length;i<info.characterCount;i++)
+        {
+            if(chars[i].lineNumber<=headerLine||!chars[i].isVisible)continue;
+            var glyph=chars[i];
+            float x=glyph.bottomLeft.x-15f+body.rectTransform.rect.width*body.rectTransform.pivot.x;
+            float y=(glyph.bottomLeft.y+glyph.topRight.y)*.5f;
+            implicitLockIcon.rectTransform.anchoredPosition=new Vector2(x,y);
+            return;
+        }
+    }
     public void LeaveSlot(ItemSlotUI slot) { if(owner==slot.transform) Hide(); }
     public void HideFor(RectTransform anchor) { if(owner==anchor) Hide(); }
     public void Leave(RectTransform anchor, PointerEventData data)
@@ -275,4 +327,39 @@ public class ItemTooltipUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
     {var go=new GameObject("Label",typeof(RectTransform),typeof(TextMeshProUGUI));go.transform.SetParent(parent,false);var t=go.GetComponent<TextMeshProUGUI>();t.fontSize=size;t.raycastTarget=false;return t;}
     static void Place(RectTransform r,float x0,float y0,float x1,float y1,float pad)
     {r.anchorMin=new Vector2(x0,y0);r.anchorMax=new Vector2(x1,y1);r.offsetMin=new Vector2(pad,pad);r.offsetMax=new Vector2(-pad,-pad);}
+}
+
+/// <summary>Code-drawn UI padlock; no font fallback or additional item artwork.</summary>
+public static class TooltipLockIcon
+{
+    static Sprite sprite;
+    public static Sprite IconSprite
+    {
+        get
+        {
+            // Unity's destroyed-object null differs from C# reference null.
+            if (sprite == null) sprite = Build();
+            return sprite;
+        }
+    }
+    static Sprite Build()
+    {
+        const int size=24;
+        var texture=new Texture2D(size,size,TextureFormat.RGBA32,false)
+            {name="Permanent implicit padlock",filterMode=FilterMode.Bilinear,wrapMode=TextureWrapMode.Clamp};
+        var pixels=new Color32[size*size];
+        for(int y=0;y<size;y++)for(int x=0;x<size;x++)
+        {
+            bool body=x>=3&&x<=20&&y>=3&&y<=13;
+            bool shackle=y>=12&&y<=20&&x>=6&&x<=17
+                && (x<=8||x>=15||y>=18);
+            if(!body&&!shackle)continue;
+            bool rim=x<=4||x>=19||y<=4||y>=19;
+            bool keyhole=body&&x>=11&&x<=12&&y>=7&&y<=10;
+            pixels[y*size+x]=keyhole?new Color32(28,45,48,255)
+                :rim?new Color32(45,74,75,255):new Color32(159,200,188,255);
+        }
+        texture.SetPixels32(pixels);texture.Apply(false,true);
+        return Sprite.Create(texture,new Rect(0,0,size,size),new Vector2(.5f,.5f),100f);
+    }
 }

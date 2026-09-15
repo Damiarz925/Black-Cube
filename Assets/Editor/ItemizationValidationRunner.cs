@@ -41,10 +41,15 @@ public static class ItemizationValidationRunner
                                 LootManager.GearRarity.Rare => 3 + sample % 2,
                                 _ => 5 + sample % 2
                             };
-                            var playerMods = roller.RollModsForItem(slot, rarity, level, count, element);
-                            ItemizationValidator.ValidateRolledMods(slot, rarity, level, playerMods, database, errors);
+                            List<RolledMod> playerMods=null;
+                            for(int attempt=0;attempt<64&&playerMods==null;attempt++)
+                                playerMods=roller.RollEquipmentModsForItem(slot,rarity,level,element);
+                            if(playerMods==null)errors.Add($"Cannot construct {rarity} {slot} at ilvl {level}.");
+                            else ItemizationValidator.ValidateRolledMods(slot, rarity, level, playerMods,
+                                database, errors, requireImplicit:true);
                             var enemyMods = roller.RollModsForItem(slot, rarity, level, count, element, true);
-                            ItemizationValidator.ValidateRolledMods(slot, rarity, level, enemyMods, database, errors);
+                            ItemizationValidator.ValidateRolledMods(slot, rarity, level, enemyMods,
+                                database, errors, enforceCapacity:false);
                             cases += 2;
                             if (rarity != LootManager.GearRarity.Rare || sample != 0) continue;
                             var gearHost = new GameObject("Isolated crafting audit", typeof(Gear));
@@ -52,8 +57,8 @@ public static class ItemizationValidationRunner
                             {
                                 var gear = gearHost.GetComponent<Gear>();
                                 gear.Initialize(slot, LootManager.GearRarity.Normal, level, element);
-                                gear.ApplyMods(roller.RollModsForItem(slot, LootManager.GearRarity.Normal,
-                                    level, 1, element));
+                                gear.ApplyMods(roller.RollEquipmentModsForItem(slot,
+                                    LootManager.GearRarity.Normal, level, element));
                                 gear.SetRarity(LootManager.GearRarity.Rare);
                                 var added = roller.RollAdditionalMod(gear, LootManager.GearRarity.Rare);
                                 if (added != null)
@@ -66,9 +71,9 @@ public static class ItemizationValidationRunner
                             }
                             finally { UnityEngine.Object.DestroyImmediate(gearHost); }
                         }
-            string output = Path.GetFullPath("Logs/Step12_5-itemization-validation.txt");
+            string output = Path.GetFullPath("Logs/Step12_5G-itemization-validation.txt");
             Directory.CreateDirectory(Path.GetDirectoryName(output));
-            File.WriteAllText(output, $"Step 12.5 itemization audit: {cases} deterministic cases, "
+            File.WriteAllText(output, $"Step 12.5G itemization audit: {cases} deterministic cases, "
                 + $"{errors.Count} errors\n" + string.Join("\n", errors));
             if (errors.Count > 0) throw new InvalidOperationException($"Itemization audit found {errors.Count} errors; see {output}");
             Debug.Log($"Itemization audit passed: {cases} cases; {output}");

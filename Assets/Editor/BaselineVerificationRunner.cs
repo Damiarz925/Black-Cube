@@ -115,8 +115,14 @@ public static class BaselineVerificationRunner
     }
 
     public static void BuildWindows()
+        => BuildWindowsAt("Builds/BaselineWindows/BlackCube.exe", "Logs/BaselineWindowsBuild.txt");
+
+    public static void BuildStep12_5GWindows()
+        => BuildWindowsAt("Builds/Step12_5GWindows/BlackCube.exe", "Logs/Step12_5GWindowsBuild.txt");
+
+    static void BuildWindowsAt(string executable, string reportPath)
     {
-        string output = Path.GetFullPath("Builds/BaselineWindows/BlackCube.exe");
+        string output = Path.GetFullPath(executable);
         Directory.CreateDirectory(Path.GetDirectoryName(output));
         string[] scenes = EditorBuildSettings.scenes.Where(s => s.enabled).Select(s => s.path).ToArray();
         BuildReport report = BuildPipeline.BuildPlayer(new BuildPlayerOptions
@@ -127,7 +133,7 @@ public static class BaselineVerificationRunner
             options = BuildOptions.StrictMode
         });
         Directory.CreateDirectory("Logs");
-        File.WriteAllText("Logs/BaselineWindowsBuild.txt",
+        File.WriteAllText(reportPath,
             $"result={report.summary.result}\nerrors={report.summary.totalErrors}\nwarnings={report.summary.totalWarnings}\nsize={report.summary.totalSize}\noutput={output}\nscenes={string.Join(",", scenes)}\n");
         if (report.summary.result != BuildResult.Succeeded) throw new InvalidOperationException("Windows build failed: " + report.summary.result);
     }

@@ -11,12 +11,12 @@ public class CraftingAndRebirthTests
     [TearDown]public void TearDown(){for(int i=cleanup.Count-1;i>=0;i--)if(cleanup[i]!=null)Object.DestroyImmediate(cleanup[i]);cleanup.Clear();PlayerPrefs.DeleteKey(GamePersistence.SaveKey);}
 
     [Test]
-    public void EquipmentCrafting_FullOrdinaryPathPreservesLockedOriginalAndCapsRareAtFour()
+    public void EquipmentCrafting_FullOrdinaryPathPreservesImplicitAndCapsRareAtFourExplicits()
     {
         ModManager manager=CreateModManager();
         Gear gear=CreateGear(LootManager.GearRarity.Normal);
-        gear.ApplyMods(manager.RollModsForItem(gear.ItemType,gear.ItemRarity,gear.ItemLevel,1,gear.BaseElement));
-        Assert.That(gear.CraftingModCount,Is.EqualTo(1));
+        gear.ApplyMods(manager.RollEquipmentModsForItem(gear.ItemType,gear.ItemRarity,gear.ItemLevel,gear.BaseElement));
+        Assert.That(gear.CraftingModCount,Is.EqualTo(0));
         RolledMod locked=gear.rolledMods.Single(m=>!Gear.IsWeaponBaseStat(m.statType));
         Assert.That(locked.lockedOriginal,Is.True);
 
@@ -24,11 +24,11 @@ public class CraftingAndRebirthTests
         Assert.That(gear.ItemRarity,Is.EqualTo(LootManager.GearRarity.Magic));Assert.That(gear.CraftingModCount,Is.EqualTo(2));AssertLocked(gear,locked);
         Assert.That(EquipmentCrafting.TryApply(CraftingCurrencyType.RerollMagic,gear,manager),Is.True);AssertLocked(gear,locked);
         Assert.That(EquipmentCrafting.TryApply(CraftingCurrencyType.MagicToRare,gear,manager),Is.True);
-        Assert.That(gear.CraftingModCount,Is.EqualTo(3));AssertLocked(gear,locked);
-        Assert.That(EquipmentCrafting.TryApply(CraftingCurrencyType.AddRareModifier,gear,manager),Is.True);
-        Assert.That(gear.CraftingModCount,Is.EqualTo(4));Assert.That(EquipmentCrafting.CanApply(CraftingCurrencyType.AddRareModifier,gear),Is.False);
+        Assert.That(gear.CraftingModCount,Is.EqualTo(4));AssertLocked(gear,locked);
+        Assert.That(EquipmentCrafting.CanApply(CraftingCurrencyType.AddRareModifier,gear),Is.False);
         Assert.That(EquipmentCrafting.TryApply(CraftingCurrencyType.RerollRareModifier,gear,manager),Is.True);AssertLocked(gear,locked);
         Assert.That(EquipmentCrafting.TryApply(CraftingCurrencyType.RemoveRareModifier,gear,manager),Is.True);Assert.That(gear.CraftingModCount,Is.EqualTo(3));AssertLocked(gear,locked);
+        Assert.That(EquipmentCrafting.TryApply(CraftingCurrencyType.AddRareModifier,gear,manager),Is.True);Assert.That(gear.CraftingModCount,Is.EqualTo(4));AssertLocked(gear,locked);
     }
 
     [Test]

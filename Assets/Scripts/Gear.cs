@@ -63,12 +63,23 @@ public class Gear : MonoBehaviour
     public LootManager.GearRarity ItemRarity => itemRarity;
     public int ItemLevel => itemLevel;
     public int ModCount => modNumber;
+    public RolledMod ImplicitMod
+    {
+        get
+        {
+            foreach (var mod in rolledMods)
+                if (mod != null && !IsWeaponBaseStat(mod.statType) && mod.lockedOriginal) return mod;
+            return null;
+        }
+    }
+
     public int CraftingModCount
     {
         get
         {
             int count = 0;
-            foreach (var mod in rolledMods) if (mod != null && !IsWeaponBaseStat(mod.statType)) count++;
+            foreach (var mod in rolledMods)
+                if (mod != null && !IsWeaponBaseStat(mod.statType) && !mod.lockedOriginal) count++;
             return count;
         }
     }
@@ -97,13 +108,16 @@ public class Gear : MonoBehaviour
     public void EnsureOriginalModifierLocked()
     {
         RolledMod first = null;
+        RolledMod implicitMod = null;
         foreach (var mod in rolledMods)
         {
             if (mod == null || IsWeaponBaseStat(mod.statType)) continue;
             if (first == null) first = mod;
-            mod.lockedOriginal = false;
+            if (mod.lockedOriginal && implicitMod == null) implicitMod = mod;
         }
-        if (first != null) first.lockedOriginal = true;
+        implicitMod ??= first;
+        foreach (var mod in rolledMods)
+            if (mod != null && !IsWeaponBaseStat(mod.statType)) mod.lockedOriginal = ReferenceEquals(mod, implicitMod);
     }
 
     /// <summary>Recalculates all derived local/global fields after a crafting mutation.</summary>
@@ -125,14 +139,24 @@ public class Gear : MonoBehaviour
         modNumber = CraftingModCount;
     }
 
-    //Rolls the number of modifiers on the items, by referencing the rarity to determine the range, and rolling within that range, with fixed counts for Normal/Magic and tuned ranges for Rare/Legendary.
+    // One permanent implicit plus a full 0/2/4/6 explicit set on natural equipment.
     public int RollModNumber()
     {
         if (itemRarity == LootManager.GearRarity.Normal) return 1;
-        if (itemRarity == LootManager.GearRarity.Magic) return 2;
-        if (itemRarity == LootManager.GearRarity.Rare) return UnityEngine.Random.Range(3, 5);
-        return UnityEngine.Random.Range(5, 7);
+        if (itemRarity == LootManager.GearRarity.Magic) return 3;
+        if (itemRarity == LootManager.GearRarity.Rare) return 5;
+        return 7;
     }
+
+    // Enemy intrinsic equipment retains the pre-12.5G modifier counts. The
+    // equipment-implicit follow-up does not rebalance enemy scaling.
+    public static int RollEnemyModNumber(LootManager.GearRarity rarity) => rarity switch
+    {
+        LootManager.GearRarity.Normal => 1,
+        LootManager.GearRarity.Magic => 2,
+        LootManager.GearRarity.Rare => UnityEngine.Random.Range(3,5),
+        _ => UnityEngine.Random.Range(5,7)
+    };
 
     //Function used to check if a rolled modifier matches a weapon's base element, if so that modifier will be applied as a local modifier to weapon damage, instead of global.
     private bool MatchesBaseElement(StatTypes stat)

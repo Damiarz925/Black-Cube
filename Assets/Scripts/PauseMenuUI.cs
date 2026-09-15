@@ -15,6 +15,7 @@ public sealed class PauseMenuUI : MonoBehaviour
     GameObject root;
     GameObject menuPanel;
     GameObject optionsPanel;
+    CodexModListUI codex;
     TMP_Text pausePassiveTreeLabel;
     Func<bool> saveAction;
     Action<string> loadSceneAction;
@@ -27,6 +28,8 @@ public sealed class PauseMenuUI : MonoBehaviour
     public GameObject OptionsPanel => optionsPanel;
     public Button ResumeButton { get; private set; }
     public Button OptionsButton { get; private set; }
+    public Button CodexButton { get; private set; }
+    public CodexModListUI Codex => codex;
     public Button SaveAndMainMenuButton { get; private set; }
     public Button SaveAndQuitButton { get; private set; }
     public Button OptionsBackButton { get; private set; }
@@ -55,6 +58,7 @@ public sealed class PauseMenuUI : MonoBehaviour
         hud?.CloseGameplayPanels();
         menuPanel.SetActive(true);
         optionsPanel.SetActive(false);
+        codex?.Hide();
         root.SetActive(true);
         root.transform.SetAsLastSibling();
         Time.timeScale = 0f;
@@ -64,6 +68,7 @@ public sealed class PauseMenuUI : MonoBehaviour
     {
         if (root != null) root.SetActive(false);
         if (optionsPanel != null) optionsPanel.SetActive(false);
+        codex?.Hide();
         if (menuPanel != null) menuPanel.SetActive(true);
     }
 
@@ -75,6 +80,23 @@ public sealed class PauseMenuUI : MonoBehaviour
         RefreshOptions();
         menuPanel.SetActive(false);
         optionsPanel.SetActive(true);
+        Time.timeScale = 0f;
+    }
+
+    public void OpenCodex()
+    {
+        if (!IsOpen || codex == null) return;
+        menuPanel.SetActive(false);
+        optionsPanel.SetActive(false);
+        codex.OpenCodex();
+        Time.timeScale = 0f;
+    }
+
+    public void ReturnFromCodex()
+    {
+        if (!IsOpen) return;
+        codex?.Hide();
+        menuPanel.SetActive(true);
         Time.timeScale = 0f;
     }
 
@@ -127,16 +149,20 @@ public sealed class PauseMenuUI : MonoBehaviour
 
         menuPanel = Card(root.transform, "Pause Menu Panel", new Vector2(560f, 610f));
         Label(menuPanel.transform, "PAUSED", new Vector2(0f, 230f), new Vector2(480f, 70f), 36f);
-        ResumeButton = MenuButton(menuPanel.transform, "Resume Button", "RESUME", 130f, Resume);
-        OptionsButton = MenuButton(menuPanel.transform, "Options Button", "OPTIONS", 35f, OpenOptions);
-        SaveAndMainMenuButton = MenuButton(menuPanel.transform, "Save & Main Menu Button", "SAVE & MAIN MENU", -60f, SaveAndMainMenu);
-        SaveAndQuitButton = MenuButton(menuPanel.transform, "Save & Quit Button", "SAVE & QUIT", -155f, SaveAndQuit);
+        ResumeButton = MenuButton(menuPanel.transform, "Resume Button", "RESUME", 145f, Resume);
+        OptionsButton = MenuButton(menuPanel.transform, "Options Button", "OPTIONS", 65f, OpenOptions);
+        CodexButton = MenuButton(menuPanel.transform, "Codex Button", "CODEX", -15f, OpenCodex);
+        SaveAndMainMenuButton = MenuButton(menuPanel.transform, "Save & Main Menu Button", "SAVE & MAIN MENU", -95f, SaveAndMainMenu);
+        SaveAndQuitButton = MenuButton(menuPanel.transform, "Save & Quit Button", "SAVE & QUIT", -175f, SaveAndQuit);
 
         optionsPanel = Card(root.transform, "Pause Options Panel", new Vector2(760f, 430f));
         Label(optionsPanel.transform, "OPTIONS", new Vector2(0f, 145f), new Vector2(680f, 70f), 34f);
         PausePassiveTreeButton = MenuButton(optionsPanel.transform, "Pause Passive Tree Toggle", string.Empty, 35f, TogglePausePassiveTree, 680f);
         pausePassiveTreeLabel = PausePassiveTreeButton.GetComponentInChildren<TMP_Text>(true);
         OptionsBackButton = MenuButton(optionsPanel.transform, "Options Back Button", "BACK TO PAUSE MENU", -90f, ReturnFromOptions, 420f);
+
+        codex = root.AddComponent<CodexModListUI>();
+        codex.Initialize(root.transform, ReturnFromCodex);
 
         foreach (Button button in root.GetComponentsInChildren<Button>(true)) CorruptionUIButtonSkin.Ensure(button);
         optionsPanel.SetActive(false);
