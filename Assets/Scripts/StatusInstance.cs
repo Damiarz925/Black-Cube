@@ -17,6 +17,7 @@ public class StatusInstance
     // effectiveInterval <= 0 => multiple ticks per turn: ticksPerTurn = 1 - effectiveInterval
     public int effectiveInterval;
     public int turnsUntilNextTick;
+    public int threshold = 5;
 
     //This is the constructor for the StatusInstance
     public StatusInstance(

@@ -273,7 +273,7 @@ public class EnemyAI : MonoBehaviour
 
         int modCount = gear.ModCount;        //roll for the mod count of the item
         var rolledMods = modManager != null
-            ? modManager.RollModsForItem(type, gearRarity, itemLevel, modCount, element)
+            ? modManager.RollModsForItem(type, gearRarity, itemLevel, modCount, element, forEnemy: true)
             : new List<RolledMod>();     //create variable for rolled mods, using the rollmodsforitem function from modmanager
         gear.ApplyMods(rolledMods);     //use gear.applymods with the rolled mods list to apply those mods to the gear item
 
@@ -373,9 +373,12 @@ public class EnemyAI : MonoBehaviour
 
     private void AddScaledElementalDamage(DamageContext ctx, Element element, float baseAmount, bool logStats)
     {
-        float flatGlobal = stats.GetStat(StatMappings.GetFlatDamageStat(element));      //get the flat global of the passed in element
-        float incElement = stats.GetStat(StatMappings.GetIncDamageStat(element));       //get the inc ele damage of the passed in element
-        float incGeneric = stats.GetStat(StatTypes.GenericDmg);             //get the global inc damage
+        float flatGlobal = stats.GetStat(StatMappings.GetFlatDamageStat(element))
+            + DerivedStatCalculator.AddedFlatDamage(stats, element);      //get the flat global of the passed in element
+        float incElement = stats.GetStat(StatMappings.GetIncDamageStat(element))
+            + DerivedStatCalculator.ElementIncreasedDamage(stats, element);       //get the inc ele damage of the passed in element
+        float incGeneric = stats.GetStat(StatTypes.GenericDmg)
+            + DerivedStatCalculator.GlobalIncreasedDamage(stats);             //get the global inc damage
         float moreElement = stats.GetStat(StatMappings.GetMoreDamageStat(element));     //effective more fraction after compounding each matching roll
         float moreGeneric = stats.GetStat(StatTypes.GenericMult);
         if (logStats)
@@ -393,17 +396,20 @@ public class EnemyAI : MonoBehaviour
         AddExtraElementIfNotBase(ctx, Element.Fire, weaponElement);
         AddExtraElementIfNotBase(ctx, Element.Cold, weaponElement);
         AddExtraElementIfNotBase(ctx, Element.Light, weaponElement);
+        AddExtraElementIfNotBase(ctx, Element.Void, weaponElement);
     }
 
     private void AddExtraElementIfNotBase(DamageContext ctx, Element element, Element weaponElement)
     {
         if (element == weaponElement) return;       //if the passed in element matches the weapon element, return
 
-        float flatGlobal = stats.GetStat(StatMappings.GetFlatDamageStat(element));      //get the flat damage stat, if it's 0, return
+        float flatGlobal = stats.GetStat(StatMappings.GetFlatDamageStat(element))
+            + DerivedStatCalculator.AddedFlatDamage(stats, element);      //get the flat damage stat, if it's 0, return
         if (flatGlobal <= 0f) return;
 
-        float incElement = stats.GetStat(StatMappings.GetIncDamageStat(element));       //get the increased damage stat for the current element, add it to global increased damage to calc inctotal
-        float incGeneric = stats.GetStat(StatTypes.GenericDmg);
+        float incElement = stats.GetStat(StatMappings.GetIncDamageStat(element))
+            + DerivedStatCalculator.ElementIncreasedDamage(stats, element);       //get the increased damage stat for the current element, add it to global increased damage to calc inctotal
+        float incGeneric = stats.GetStat(StatTypes.GenericDmg) + DerivedStatCalculator.GlobalIncreasedDamage(stats);
         float moreElement = stats.GetStat(StatMappings.GetMoreDamageStat(element));     //effective matching more fraction; multiply by the generic factor
         float moreGeneric = stats.GetStat(StatTypes.GenericMult);
 
@@ -435,7 +441,7 @@ public class EnemyAI : MonoBehaviour
         }
         else
         {
-            incASGlobal = stats.GetStat(StatTypes.AttackSpeed);     //if stats is not null, grab gloabl inc attack speed stat
+            incASGlobal = stats.GetStat(StatTypes.AttackSpeed) + DerivedStatCalculator.AttackSpeedIncreased(stats);     //if stats is not null, grab gloabl inc attack speed stat
         }
 
         if (equippedWeapon == null)     //if weapon is null, give warning, set log bool to true
@@ -484,20 +490,10 @@ public class EnemyAI : MonoBehaviour
         }
     }
 
-    public void OnStatusTick(float strength, StatusEffects effect)  //(Modify this function to manage non damaging ailments as well later)
-    {
-        if (effect == null || strength <= 0f) return;   //if the effect is null, or has less than or equal to 0 strength, return
-
-        if (effect._StatusType == StatusEffects.StatusType.DamageOverTime)      //if the effect is a damage over time effect, call take damage, passing in the effect and its strength
-        {
-            TakeDamage(strength, effect);
-        }
-    }
-
     public Element RollItemElement(bool forWeapon = false)
     {
-        int max = forWeapon ? (int)Element.Void : (int)Element.Count;
-        int roll = Random.Range(0, max);
-        return (Element)roll;
+        if (!forWeapon) return (Element)Random.Range(0, (int)Element.Count);
+        int roll = Random.Range(0, 5);
+        return roll < (int)Element.Poison ? (Element)roll : Element.Void;
     }
 }

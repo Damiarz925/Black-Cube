@@ -4,6 +4,9 @@ using UnityEngine;
 
 public static class CombatCalculator
 {
+    public const float BaseMaximumResistance = .75f;
+    public const float HardMaximumResistance = .90f;
+
     public static float ScaleOutgoingDamage(float baseAmount, float genericIncreased,
         float matchingIncreased, float genericMore, float matchingMore)
     {
@@ -13,8 +16,32 @@ public static class CombatCalculator
 
     public static float ApplyResistanceValue(float damage, float resistance, float penetration)
     {
-        float reduction = Mathf.Clamp(resistance - penetration, -0.9f, 0.9f);
+        return ApplyResistanceValue(damage, resistance, penetration, HardMaximumResistance);
+    }
+
+    public static float ApplyResistanceValue(float damage, float resistance, float penetration, float maximumResistance)
+    {
+        maximumResistance = Mathf.Clamp(maximumResistance, 0f, HardMaximumResistance);
+        float cappedResistance = Mathf.Min(resistance, maximumResistance);
+        float reduction = Mathf.Clamp(cappedResistance - penetration, -HardMaximumResistance, maximumResistance);
         return damage * (1f - reduction);
+    }
+
+    public static float GetMaximumResistance(Element element, StatsComponent defender)
+    {
+        float bonus = defender != null ? defender.GetStat(StatTypes.MaxAllRes) : 0f;
+        if (defender != null)
+        {
+            bonus += element switch
+            {
+                Element.Fire => defender.GetStat(StatTypes.MaxFireRes),
+                Element.Cold => defender.GetStat(StatTypes.MaxColdRes),
+                Element.Light => defender.GetStat(StatTypes.MaxLightRes),
+                Element.Void or Element.Poison => defender.GetStat(StatTypes.MaxVoidRes),
+                _ => 0f
+            };
+        }
+        return Mathf.Clamp(BaseMaximumResistance + bonus, 0f, HardMaximumResistance);
     }
 
     public static float ApplyArmourValue(float damage, float armour, float physicalPenetration)
@@ -33,20 +60,32 @@ public static class CombatCalculator
 
         foreach (var hit in ctx.Hits)   //Loop through each "hit" (damage element) in context, and apply the armour using the applyArmour method, and apply resistances and penetration, then return the total
         {
-            float d = hit.Amount * ScopedDamageMultiplier(ctx.Scopes, attacker);
-
-            // Physical damage uses armour only. Physical penetration subtracts
-            // from the armour-derived reduction and never targets resistance.
-            if (hit.Element == Element.Phys)
-                d = ApplyArmourAndPenetration(d, attacker, defender);
-            else
-                d = ApplyResistancesAndPenetration(d, hit.Element, attacker, defender);
-
+            float d = CalculateFinalHitComponent(hit, ctx.Scopes, attacker, defender);
             if (d > 0f)
                 totalDamageTaken += d;      //If D is greater than 0 after accounting for armour and resistances, add it to the total damage taken and return it
         }
 
         return totalDamageTaken;
+    }
+
+    public static float CalculateFinalElementDamage(DamageContext ctx, Element element,
+        StatsComponent attacker, StatsComponent defender)
+    {
+        float total = 0f;
+        if (ctx.Hits == null) return total;
+        foreach (ElementalHit hit in ctx.Hits)
+            if (hit.Element == element)
+                total += Mathf.Max(0f, CalculateFinalHitComponent(hit, ctx.Scopes, attacker, defender));
+        return total;
+    }
+
+    private static float CalculateFinalHitComponent(ElementalHit hit, DamageScope scopes,
+        StatsComponent attacker, StatsComponent defender)
+    {
+        float damage = hit.Amount * ScopedDamageMultiplier(scopes, attacker);
+        return hit.Element == Element.Phys
+            ? ApplyArmourAndPenetration(damage, attacker, defender)
+            : ApplyResistancesAndPenetration(damage, hit.Element, attacker, defender);
     }
 
     /// <summary>One additive increased-damage bucket for every explicit scope on the source.</summary>
@@ -55,7 +94,8 @@ public static class CombatCalculator
         if (attacker == null || scopes == DamageScope.None) return 1f;
         float increased = 0f;
         if ((scopes & DamageScope.Magic) != 0) increased += attacker.GetStat(StatTypes.MagicDmg);
-        if ((scopes & DamageScope.Projectile) != 0) increased += attacker.GetStat(StatTypes.ProjectileDmg);
+        if ((scopes & DamageScope.Projectile) != 0)
+            increased += attacker.GetStat(StatTypes.ProjectileDmg) + DerivedStatCalculator.ProjectileIncreasedDamage(attacker);
         if ((scopes & DamageScope.Minion) != 0) increased += attacker.GetStat(StatTypes.MinionDmg);
         return Mathf.Max(0f, 1f + increased);
     }
@@ -74,7 +114,8 @@ public static class CombatCalculator
         float allRes = defender.GetStat(StatTypes.AllRes); //Get the actual all res stat
 
         float totalRes = res;
-        if (element == Element.Fire || element == Element.Cold || element == Element.Light)     //If the current element isn't phys, add its resistance to all resistance
+        if (element == Element.Fire || element == Element.Cold || element == Element.Light
+            || element == Element.Void || element == Element.Poison)     //AllRes applies to every core non-Physical hit; Poison is legacy Void.
             totalRes += allRes;
 
         float pen = 0f;
@@ -84,7 +125,7 @@ public static class CombatCalculator
             pen = attacker.GetStat(penType);
         }
 
-        return ApplyResistanceValue(damage, totalRes, pen);
+        return ApplyResistanceValue(damage, totalRes, pen, GetMaximumResistance(element, defender));
     }
 
     // Applies the existing armour formula, then subtracts physical penetration
@@ -118,18 +159,20 @@ public static class CombatCalculator
         if (baseTickDamage <= 0f || effect == null || defender == null)     //If effect has no dmg, is null, or defender is null, return
             return 0f;
 
+        if (effect.Ailment == StatusEffects.AilmentKind.Poison)
+        {
+            float voidResistance = defender.GetStat(StatTypes.VoidRes) + defender.GetStat(StatTypes.AllRes);
+            float voidPenetration = attacker != null ? attacker.GetStat(StatTypes.VoidPenetration) : 0f;
+            return ApplyResistanceValue(baseTickDamage, voidResistance, voidPenetration,
+                GetMaximumResistance(Element.Void, defender));
+        }
+
         float resAilment = 0f;
         float resAllAil = defender.GetStat(StatTypes.AllAilmentRes);        //Grab the all ailment rest stat
         float penAilment = 0f;
 
         switch (effect.Ailment)     //Check which ailment effect was passed in then grab the defender's res stat and attacker's pen stat for that ailment
         {
-            case StatusEffects.AilmentKind.Poison:
-                resAilment = defender.GetStat(StatTypes.PoisonRes);
-                if (attacker != null)
-                    penAilment = attacker.GetStat(StatTypes.PoisonPenetration);
-                break;
-
             case StatusEffects.AilmentKind.Bleed:
                 resAilment = defender.GetStat(StatTypes.BleedRes);
                 if (attacker != null)

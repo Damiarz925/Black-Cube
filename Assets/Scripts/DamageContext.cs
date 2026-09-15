@@ -44,6 +44,9 @@ public struct DamageContext
     public void AddDamage(Element element, float amount)
     {
         if (amount <= 0f) return;   //Return if hit has no damage
+        // Preserve serialized Element.Poison=4, but never create a canonical
+        // direct-Poison hit. Legacy callers are normalized to first-class Void.
+        if (element == Element.Poison) element = Element.Void;
 
         for (int i = 0; i < Hits.Count; i++)    //Loop through Hits list
         {

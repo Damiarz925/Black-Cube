@@ -32,6 +32,7 @@ public class ModManager : MonoBehaviour
         {StatTypes.ColdDmg, 80 },
         {StatTypes.LightDmg, 80 },
         {StatTypes.FireDmg, 80 },
+        {StatTypes.VoidDmg, 80 },
 
         //Crit Scaling
         {StatTypes.CritChance, 70 },
@@ -39,13 +40,13 @@ public class ModManager : MonoBehaviour
         {StatTypes.BaseCritChance, 5 },
 
         // +1 skills
-        {StatTypes.Plus1Phys, 3 },
-        {StatTypes.Plus1Fire, 3 },
-        {StatTypes.Plus1Cold, 3 },
-        {StatTypes.Plus1Light, 3 },
-        {StatTypes.Plus1Poison, 3 },
-        {StatTypes.Plus1Bleed, 3 },
-        {StatTypes.Plus1Ignite, 3 },
+        {StatTypes.Plus1Phys, 5 },
+        {StatTypes.Plus1Fire, 5 },
+        {StatTypes.Plus1Cold, 5 },
+        {StatTypes.Plus1Light, 5 },
+        {StatTypes.Plus1Poison, 5 },
+        {StatTypes.Plus1Bleed, 5 },
+        {StatTypes.Plus1Ignite, 5 },
     };
 
     private void Awake()
@@ -71,7 +72,8 @@ public class ModManager : MonoBehaviour
         LootManager.GearRarity rarity,
         int itemLevel,
         int modCount,
-        Element weaponElement)
+        Element weaponElement,
+        bool forEnemy = false)
     {
         var mods = new List<RolledMod>();       //create list of rolled mods to store item's mods
         var usedStats = new HashSet<StatTypes>();       //Create HashSet for usedstats
@@ -90,7 +92,7 @@ public class ModManager : MonoBehaviour
         // NORMAL RANDOM MODS
         for (int i = 0; i < remaining; i++) //Loop through all of remaining 
         {
-            RolledMod mod = RollSingleMod(itemType, rarity, itemLevel, usedStats, usedGroups, weaponElement);  //Grab a mod by callilng rollsinglemod
+            RolledMod mod = RollSingleMod(itemType, rarity, itemLevel, usedStats, usedGroups, weaponElement, forEnemy);  //Grab a mod by callilng rollsinglemod
             if (mod == null) break; //If the mod is null, break
 
             mods.Add(mod);  //Add the mod to mods
@@ -121,7 +123,7 @@ public class ModManager : MonoBehaviour
             if (modDatabase != null && modDatabase.TryGetDefinition(existing.statType, out var definition) && definition.groups != null)
                 foreach (string group in definition.groups) usedGroups.Add(group);
         }
-        return RollSingleMod(gear.ItemType, rarity, gear.ItemLevel, usedStats, usedGroups, gear.BaseElement);
+        return RollSingleMod(gear.ItemType, rarity, gear.ItemLevel, usedStats, usedGroups, gear.BaseElement, false);
     }
 
     public RolledMod RerollModifier(Gear gear, RolledMod replaced, LootManager.GearRarity rarity)
@@ -137,7 +139,7 @@ public class ModManager : MonoBehaviour
             if (modDatabase != null && modDatabase.TryGetDefinition(existing.statType, out var definition) && definition.groups != null)
                 foreach (string group in definition.groups) usedGroups.Add(group);
         }
-        return RollSingleMod(gear.ItemType, rarity, gear.ItemLevel, usedStats, usedGroups, gear.BaseElement);
+        return RollSingleMod(gear.ItemType, rarity, gear.ItemLevel, usedStats, usedGroups, gear.BaseElement, false);
     }
 
     static void ReserveIntrinsicWeaponStats(Gear gear, HashSet<StatTypes> usedStats)
@@ -177,7 +179,8 @@ public class ModManager : MonoBehaviour
         int itemLevel,
         HashSet<StatTypes> usedStats,
         HashSet<string> usedGroups,
-        Element weaponElement)
+        Element weaponElement,
+        bool forEnemy)
     {
         List<StatTypes> pool = GearStatLists.Instance.GetStatPoolForType(itemType);     //this grabs the stat pool for the passed in item type and stores it in pool
         var candidates = new List<(StatTypes stat, int weight)>();      //Create a list of candidates, with the key being the stat and the value being the weight of that stat
@@ -185,6 +188,7 @@ public class ModManager : MonoBehaviour
         foreach (var stat in pool)  //for each stat in the pool
         {
             if (usedStats.Contains(stat)) continue; //if it's in used stats, skip it
+            if (forEnemy && IsPlayerOnlyAffix(stat)) continue;
             if (itemType == LootManager.GearType.Weapons && !IsWeaponAffixEligible(stat, weaponElement))
                 continue;
 
@@ -209,6 +213,16 @@ public class ModManager : MonoBehaviour
 
         StatTypes chosenStat = WeightedRandomPick(candidates);  //Call weightedrandompick to choose a random mod from candidates
         return RollTierAndValue(chosenStat, rarity, itemLevel);     //Call rolltierandvalue to decide on the actual mod tier and value within that tier, then return that value
+    }
+
+    /// <summary>Stats that remain valid player affixes but cannot benefit enemies without player-only systems.</summary>
+    public static bool IsPlayerOnlyAffix(StatTypes stat)
+    {
+        return stat is StatTypes.Mana or StatTypes.ManaPercent or StatTypes.ManaRegeneration
+            or StatTypes.ManaOnHit or StatTypes.ManaOnKill or StatTypes.DmgPerMaxMana
+            or StatTypes.DmgPerCurrentMana or StatTypes.ManaPerIntelligence
+            or StatTypes.LifeOnKill
+            or >= StatTypes.Plus1Phys and <= StatTypes.Plus1Ignite;
     }
 
     private static bool IsWeaponAffixEligible(StatTypes stat, Element weaponElement)
@@ -265,6 +279,12 @@ public class ModManager : MonoBehaviour
             case StatTypes.ShockDuration:
                 return weaponElement == Element.Light;
 
+            case StatTypes.FlatVoid:
+            case StatTypes.VoidDmg:
+            case StatTypes.VoidMult:
+            case StatTypes.VoidPenetration:
+                return weaponElement == Element.Void || weaponElement == Element.Poison;
+
             case StatTypes.PoisonDmg:
             case StatTypes.PoisonMult:
             case StatTypes.PoisonChance:
@@ -272,7 +292,7 @@ public class ModManager : MonoBehaviour
             case StatTypes.PoisonDuration:
             case StatTypes.PoisonPenetration:
             case StatTypes.Plus1Poison:
-                return weaponElement == Element.Poison || weaponElement == Element.Phys;
+                return weaponElement is Element.Phys or Element.Fire or Element.Cold or Element.Light or Element.Void or Element.Poison;
 
             case StatTypes.BleedDmg:
             case StatTypes.BleedMult:
@@ -284,9 +304,7 @@ public class ModManager : MonoBehaviour
                 return weaponElement == Element.Phys;
 
             case StatTypes.GenericDotMult:
-                return weaponElement == Element.Phys
-                    || weaponElement == Element.Fire
-                    || weaponElement == Element.Poison;
+                return weaponElement is Element.Phys or Element.Fire or Element.Cold or Element.Light or Element.Void or Element.Poison;
 
             default:
                 return true;

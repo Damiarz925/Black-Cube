@@ -101,8 +101,6 @@ public class LootManager : MonoBehaviour
         int itemLevel = zoneLevel + enemyRarityMod;     //Calculate item level as the level of the zone + the enemy rarity modifier
 
         var type = RollItemType();          //assign variable type by rolling an item type
-        if (type == GearType.Weapons && element == Element.Void)
-            element = RollItemElement(forWeapon: true);
         var rarity = RollItemRarity();      //assign variable rarity by rolling the item rarity
 
         Debug.Log($"[Loot] Rolled type={type}, rarity={rarity}, zoneLevel={zoneLevel}, enemyRarity={enemyRarity}");
@@ -165,8 +163,8 @@ public class LootManager : MonoBehaviour
 
     public Element RollItemElement(bool forWeapon = false)
     {
-        int max = forWeapon ? (int)Element.Void : (int)Element.Count;
-        int roll = Random.Range(0, max);
-        return (Element)roll;
+        if (!forWeapon) return (Element)Random.Range(0, (int)Element.Count);
+        int roll = Random.Range(0, 5); // Phys, Fire, Cold, Lightning, Void; legacy Poison is skipped.
+        return roll < (int)Element.Poison ? (Element)roll : Element.Void;
     }
 }

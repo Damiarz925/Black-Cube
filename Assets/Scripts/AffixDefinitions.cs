@@ -54,6 +54,17 @@ public class AffixDefinitions   //Affix definition class, has a stat type, displ
         if (tiers == null || tiers.Count == 0)      //if tiers is null, or the count is 0, return
             return;
 
+        // +Skill Level affixes are intentionally special single-tier rolls.
+        if (statType is >= StatTypes.Plus1Phys and <= StatTypes.Plus1Ignite)
+        {
+            tiers.RemoveRange(1, Mathf.Max(0, tiers.Count - 1));
+            tiers[0].tierIndex = 1;
+            tiers[0].minValue = tiers[0].maxValue = 1f;
+            tiers[0].minItemLevel = 40;
+            tiers[0].weight = 5;
+            return;
+        }
+
         if (tiers.Count >= TOTAL_TIERS &&       //if the count of tiers, is greater than or equal to total tiers, and tiers at the index 4 has a minilvl greater than 0, and weight greater than 0
             tiers[TOTAL_TIERS - 1].minItemLevel > 0 &&
             tiers[TOTAL_TIERS - 1].weight > 0)

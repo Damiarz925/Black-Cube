@@ -80,6 +80,7 @@ public static class ItemTooltipFormatter
         StatTypes.FlatFire or StatTypes.FireDmg or StatTypes.FireMult or StatTypes.FirePenetration=>10,
         StatTypes.FlatCold or StatTypes.ColdDmg or StatTypes.ColdMult or StatTypes.ColdPenetration=>20,
         StatTypes.FlatLight or StatTypes.LightDmg or StatTypes.LightMult or StatTypes.LightPenetration=>30,
+        StatTypes.FlatVoid or StatTypes.VoidDmg or StatTypes.VoidMult or StatTypes.VoidPenetration=>40,
         _=>100+(int)type
     };
     static int RelicPriority(RelicModifierType type)=>type switch{RelicModifierType.MoreDamage=>0,RelicModifierType.MoreAttackSpeed=>1,_=>2};

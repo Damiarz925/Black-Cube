@@ -21,6 +21,7 @@ public static class StatCategoryMapping
             case StatTypes.FlatCold:
             case StatTypes.FlatLight:
             case StatTypes.FlatFire:
+            case StatTypes.FlatVoid:
                 return StatCategory.FlatDamage;
 
             // Increased damage
@@ -29,6 +30,7 @@ public static class StatCategoryMapping
             case StatTypes.ColdDmg:
             case StatTypes.LightDmg:
             case StatTypes.FireDmg:
+            case StatTypes.VoidDmg:
             case StatTypes.PoisonDmg:
             case StatTypes.IgniteDmg:
             case StatTypes.BleedDmg:
@@ -44,6 +46,7 @@ public static class StatCategoryMapping
             case StatTypes.ColdMult:
             case StatTypes.LightMult:
             case StatTypes.FireMult:
+            case StatTypes.VoidMult:
             case StatTypes.PoisonMult:
             case StatTypes.IgniteMult:
             case StatTypes.BleedMult:
@@ -54,6 +57,7 @@ public static class StatCategoryMapping
             case StatTypes.ColdPenetration:
             case StatTypes.LightPenetration:
             case StatTypes.FirePenetration:
+            case StatTypes.VoidPenetration:
             case StatTypes.PoisonPenetration:
             case StatTypes.IgnitePenetration:
             case StatTypes.BleedPenetration:
@@ -93,6 +97,8 @@ public static class StatCategoryMapping
             case StatTypes.MaxLightRes:
             case StatTypes.MaxFireRes:
             case StatTypes.MaxAllRes:
+            case StatTypes.VoidRes:
+            case StatTypes.MaxVoidRes:
             case StatTypes.PoisonRes:
             case StatTypes.IgniteRes:
             case StatTypes.BleedRes:

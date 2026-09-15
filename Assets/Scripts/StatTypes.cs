@@ -162,5 +162,13 @@ public enum StatTypes
     // Forward-compatible projectile passives. Amount is stored as an exact flat
     // fractional total; speed is stored as raw percentage points.
     ProjectileAmount = 112,
-    ProjectileSpeed = 113
+    ProjectileSpeed = 113,
+
+    // Step 10 first-class Void ecosystem. Appended for schema-2 compatibility.
+    FlatVoid = 114,
+    VoidDmg = 115,
+    VoidMult = 116,
+    VoidPenetration = 117,
+    VoidRes = 118,
+    MaxVoidRes = 119
 }

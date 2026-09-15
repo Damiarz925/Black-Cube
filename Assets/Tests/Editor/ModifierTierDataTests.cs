@@ -22,13 +22,17 @@ public class ModifierTierDataTests
         Expect(db, S(StatTypes.WeaponBaseCrit), "5,10;5,10;5,10;5,10;5,10");
         Expect(db, S(StatTypes.ChanceToBlock), "5,10;7,15;11,23;16,34;24,51");
         Expect(db, S(StatTypes.FlatPhys, StatTypes.FlatCold, StatTypes.FlatLight, StatTypes.FlatFire), "5,11;10,21;20,42;40,82;78,162");
+        Expect(db, S(StatTypes.FlatVoid), "5,11;10,21;20,42;40,82;78,162");
         Expect(db, S(StatTypes.GenericDmg, StatTypes.CritChance, StatTypes.PhysDmg, StatTypes.ColdDmg, StatTypes.LightDmg, StatTypes.FireDmg, StatTypes.PoisonDmg, StatTypes.IgniteDmg, StatTypes.BleedDmg), "7,14;11,24;19,40;32,67;55,113");
+        Expect(db, S(StatTypes.VoidDmg), "7,14;11,24;19,40;32,67;55,113");
         Expect(db, S(StatTypes.GenericMult), "1,3;2,4;3,6;5,10;7,15");
         Expect(db, S(StatTypes.PhysMult, StatTypes.ColdMult, StatTypes.LightMult, StatTypes.FireMult, StatTypes.PoisonMult, StatTypes.IgniteMult, StatTypes.BleedMult), "2,4;3,6;4,9;6,13;10,20");
+        Expect(db, S(StatTypes.VoidMult), "2,4;3,6;4,9;6,13;10,20");
         Expect(db, S(StatTypes.GenericDotMult), "3,7;5,11;8,17;12,26;20,40");
         Expect(db, S(StatTypes.CritMult), "8,18;13,28;20,43;30,65;50,100");
         Expect(db, S(StatTypes.BaseCritChance), "1,1;1,2;1,2;2,3;2,4");
         Expect(db, S(StatTypes.PhysPenetration, StatTypes.LightPenetration, StatTypes.FirePenetration, StatTypes.PoisonPenetration, StatTypes.BleedPenetration), "2,4;3,6;5,9;8,13;12,19");
+        Expect(db, S(StatTypes.VoidPenetration), "2,4;3,6;5,9;8,13;12,19");
         Expect(db, S(StatTypes.ColdPenetration), "2,3;3,5;4,7;6,10;10,15");
         Expect(db, S(StatTypes.IgnitePenetration), "3,5;4,8;7,12;10,17;16,25");
         Expect(db, S(StatTypes.PoisonChance, StatTypes.IgniteChance, StatTypes.BleedChance), "14,28;21,44;33,69;52,109;82,170");
@@ -41,8 +45,10 @@ public class ModifierTierDataTests
         Expect(db, S(StatTypes.FlatArmour, StatTypes.FlatEvasion), "26,54;41,85;64,132;100,207;156,324");
         Expect(db, S(StatTypes.ArmourPercent, StatTypes.EvasionPercent), "8,17;11,24;16,34;23,48;32,67");
         Expect(db, S(StatTypes.ColdRes, StatTypes.LightRes, StatTypes.FireRes, StatTypes.PoisonRes, StatTypes.IgniteRes, StatTypes.BleedRes, StatTypes.ShockRes, StatTypes.ChillRes), "3,7;5,11;8,17;12,26;20,40");
+        Expect(db, S(StatTypes.VoidRes), "3,7;5,11;8,17;12,26;20,40");
         Expect(db, S(StatTypes.AllRes), "2,4;3,6;4,8;6,11;8,16");
         Expect(db, S(StatTypes.MaxColdRes, StatTypes.MaxLightRes, StatTypes.MaxFireRes), "1,1;1,2;2,3;2,5;4,8");
+        Expect(db, S(StatTypes.MaxVoidRes), "1,1;1,2;2,3;2,5;4,8");
         Expect(db, S(StatTypes.MaxAllRes), "1,1;1,2;1,3;2,4;3,5");
         Expect(db, S(StatTypes.AllAilmentRes), "2,5;3,7;5,9;6,13;9,19");
         Expect(db, S(StatTypes.Life), "120,250;237,492;466,967;917,1904;1804,3746");
@@ -77,17 +83,18 @@ public class ModifierTierDataTests
         foreach (StatTypes stat in supplied)
         {
             AffixDefinitions def = db.GetDefinition(stat);
+            bool specialSkillTier = stat is >= StatTypes.Plus1Phys and <= StatTypes.Plus1Ignite;
             Assert.That(def, Is.Not.Null, stat.ToString());
             Assert.That(def.displayName, Is.Not.Empty, stat.ToString());
-            Assert.That(def.tiers.Count, Is.EqualTo(5), stat.ToString());
+            Assert.That(def.tiers.Count, Is.EqualTo(specialSkillTier ? 1 : 5), stat.ToString());
             Assert.That(def.allowedSlots, Is.Not.Empty, stat.ToString());
             Assert.That(pools.Any(p => p.Value.Contains(stat)), Is.True, stat + " is not generation-eligible in any slot");
-            Assert.That(AvailableTierCount(def, 1), Is.EqualTo(1), stat.ToString());
-            Assert.That(AvailableTierCount(def, 19), Is.EqualTo(1), stat.ToString());
-            Assert.That(AvailableTierCount(def, 20), Is.EqualTo(2), stat.ToString());
-            Assert.That(AvailableTierCount(def, 40), Is.EqualTo(3), stat.ToString());
-            Assert.That(AvailableTierCount(def, 60), Is.EqualTo(4), stat.ToString());
-            Assert.That(AvailableTierCount(def, 75), Is.EqualTo(5), stat.ToString());
+            Assert.That(AvailableTierCount(def, 1), Is.EqualTo(specialSkillTier ? 0 : 1), stat.ToString());
+            Assert.That(AvailableTierCount(def, 19), Is.EqualTo(specialSkillTier ? 0 : 1), stat.ToString());
+            Assert.That(AvailableTierCount(def, 20), Is.EqualTo(specialSkillTier ? 0 : 2), stat.ToString());
+            Assert.That(AvailableTierCount(def, 40), Is.EqualTo(specialSkillTier ? 1 : 3), stat.ToString());
+            Assert.That(AvailableTierCount(def, 60), Is.EqualTo(specialSkillTier ? 1 : 4), stat.ToString());
+            Assert.That(AvailableTierCount(def, 75), Is.EqualTo(specialSkillTier ? 1 : 5), stat.ToString());
         }
     }
 
@@ -309,11 +316,7 @@ public class ModifierTierDataTests
 
     private static StatTypes[] SuppliedStats()
     {
-        var stats = new List<StatTypes>();
-        AddRange(stats, 0, 77);
-        stats.AddRange(new[] { StatTypes.AttackSpeed, StatTypes.Accuracy, StatTypes.ChanceToHitTwice });
-        AddRange(stats, (int)StatTypes.Strength, (int)StatTypes.DmgPerLowestStat);
-        return stats.ToArray();
+        return GearStatLists.BuildDefaultStatPools().Values.SelectMany(values => values).Distinct().ToArray();
     }
 
     private static void AddRange(List<StatTypes> stats, int first, int last)

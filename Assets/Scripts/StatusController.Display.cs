@@ -9,7 +9,7 @@ public partial class StatusController
     public struct Summary
     {
         public StatusEffects Effect;
-        public int Count, MinTurns, MaxTurns;
+        public int Count, MinTurns, MaxTurns, Threshold;
         public float DamagePerTick, DamagePerTurn, Magnitude;
         public bool MixedIntervals;
         public int Interval;
@@ -19,7 +19,9 @@ public partial class StatusController
             ? $"{DisplayName} / {Count} stacks\n{DamagePerTick:0.##} damage per stack per tick\n{DamagePerTurn:0.##} total damage per global turn (average)\n" +
               (MixedIntervals ? "Mixed tick speeds; frequency-weighted mean.\n" : Interval > 0 ? $"Ticks every {Interval} global turn(s).\n" : $"{1-Interval} ticks per global turn.\n") +
               $"Expires in {MinTurns}-{MaxTurns} global turns.\nDamage includes current ailment resistance."
-            : $"{DisplayName} / {Count} stacks\nAverage strength: {Magnitude:0.##}\nExpires in {MinTurns}-{MaxTurns} global turns.\nNon-damaging effect; gameplay response is currently a placeholder.";
+            : Effect._StatusType == StatusEffects.StatusType.Shock
+                ? $"Shock / {Count}/{Threshold} stacks\nTriggered Lightning coefficient: {Magnitude:P0}\nExpires in {MinTurns}-{MaxTurns} global turns."
+                : $"Chill / {Magnitude:P1} attack-speed slow\nExpires in {MinTurns}-{MaxTurns} global turns.";
     }
     public void ClearStatuses()
     { StatusDictionary.Clear(); IndependentDictionary.Clear(); StopAllCoroutines(); }
@@ -46,8 +48,10 @@ public partial class StatusController
                 if (s.Count==0) s.Interval=instance.effectiveInterval;
                 else if(s.Interval!=instance.effectiveInterval) s.MixedIntervals=true;
                 float rate=instance.effectiveInterval>0 ? 1f/instance.effectiveInterval : 1-instance.effectiveInterval;
-                float damage=CombatCalculator.CalculateAilmentTickDamage(instance.damagePerTick,pair.Key,instance.sourceStats,stats);
-                s.Count+=instance.stacks; frequency+=rate*instance.stacks;
+                float damage=pair.Key._StatusType == StatusEffects.StatusType.DamageOverTime
+                    ? CombatCalculator.CalculateAilmentTickDamage(instance.damagePerTick,pair.Key,instance.sourceStats,stats)
+                    : 0f;
+                s.Count+=instance.stacks; s.Threshold=Mathf.Max(1,instance.threshold); frequency+=rate*instance.stacks;
                 s.DamagePerTurn+=damage*rate*instance.stacks; magnitude+=instance.damagePerTick*instance.stacks;
                 int turns=instance.effectiveInterval>0
                     ? Mathf.Max(1,instance.turnsUntilNextTick)+(instance.remainingTicks-1)*instance.effectiveInterval

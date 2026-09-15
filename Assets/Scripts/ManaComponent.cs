@@ -11,7 +11,8 @@ public sealed class ManaComponent : MonoBehaviour
         get
         {
             if (stats == null) return 0f;
-            float value = Mathf.Max(0f, stats.GetStat(StatTypes.Mana) * (1f + stats.GetStat(StatTypes.ManaPercent)));
+            float value = Mathf.Max(0f, (stats.GetStat(StatTypes.Mana) + DerivedStatCalculator.AddedMana(stats))
+                * (1f + stats.GetStat(StatTypes.ManaPercent) + DerivedStatCalculator.IntelligenceIncreased(stats)));
             var keystones = GetComponent<PassiveKeystoneState>();
             return value * (keystones != null ? keystones.MaximumManaMultiplier : 1f);
         }

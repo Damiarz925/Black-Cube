@@ -29,6 +29,9 @@ public static class StatMappings
                 return StatTypes.FlatCold;
             case Element.Light:
                 return StatTypes.FlatLight;
+            case Element.Void:
+            case Element.Poison: // legacy direct Poison contexts normalize to Void semantics
+                return StatTypes.FlatVoid;
             default:
                 return StatTypes.FlatPhys;
         }
@@ -50,6 +53,9 @@ public static class StatMappings
                 return StatTypes.ColdDmg;
             case Element.Light:
                 return StatTypes.LightDmg;
+            case Element.Void:
+            case Element.Poison:
+                return StatTypes.VoidDmg;
             default:
                 return StatTypes.PhysDmg;
         }
@@ -71,6 +77,9 @@ public static class StatMappings
                 return StatTypes.ColdMult;
             case Element.Light:
                 return StatTypes.LightMult;
+            case Element.Void:
+            case Element.Poison:
+                return StatTypes.VoidMult;
             default:
                 return StatTypes.PhysMult;
         }
@@ -89,6 +98,9 @@ public static class StatMappings
                 return StatTypes.ColdRes;
             case Element.Light:
                 return StatTypes.LightRes;
+            case Element.Void:
+            case Element.Poison:
+                return StatTypes.VoidRes;
             case Element.Phys:
                 throw new System.ArgumentOutOfRangeException(
                     nameof(element), element, "Physical damage uses armour, not a resistance stat.");
@@ -113,6 +125,9 @@ public static class StatMappings
                 return StatTypes.ColdPenetration;
             case Element.Light:
                 return StatTypes.LightPenetration;
+            case Element.Void:
+            case Element.Poison:
+                return StatTypes.VoidPenetration;
             default:
                 return StatTypes.PhysPenetration;
         }

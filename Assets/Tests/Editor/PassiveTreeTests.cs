@@ -317,7 +317,7 @@ public class PassiveTreeTests
             DamageContext poison = PassiveKeystoneState.AsPoisonBasis(hit);
             Assert.That(state.TransmutesHitsToPoison, Is.True);
             Assert.That(poison.Hits.Count, Is.EqualTo(1));
-            Assert.That(poison.Hits[0].Element, Is.EqualTo(Element.Poison));
+            Assert.That(poison.Hits[0].Element, Is.EqualTo(Element.Void));
             Assert.That(poison.Hits[0].Amount, Is.EqualTo(100f));
         }
         finally

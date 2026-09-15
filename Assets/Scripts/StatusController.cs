@@ -1,6 +1,5 @@
 // Developer map: Target-owned stacks with global-turn ticking and pending effect aggregation. Mutation is separated from application because damage/death callbacks can clear statuses or replace targets.
 // See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -94,6 +93,52 @@ public partial class StatusController : MonoBehaviour
             default:
                 Debug.LogWarning("Invalid Stack Policy given to ApplyStatus", this);    //If stack policy is invalid, give debug log and break
                 break;
+        }
+    }
+
+    public int AddShockStacks(StatusEffects effect, int addedStacks, int duration, float coefficient,
+        int threshold = 5)
+    {
+        if (effect == null || addedStacks <= 0) return 0;
+        threshold = Mathf.Max(1, threshold);
+        int existingStacks = StatusDictionary.TryGetValue(effect, out StatusInstance existing)
+            ? Mathf.Max(0, existing.stacks) : 0;
+        int total = existingStacks + addedStacks;
+        int triggers = total / threshold;
+        int remainder = total % threshold;
+        if (remainder > 0)
+        {
+            var instance = new StatusInstance(effect, Mathf.Clamp01(coefficient), remainder,
+                Mathf.Max(1, duration), null, 1) { threshold = threshold };
+            StatusDictionary[effect] = instance;
+        }
+        else
+            StatusDictionary.Remove(effect);
+        return triggers;
+    }
+
+    public bool ApplyChill(StatusEffects effect, float slow, int duration)
+    {
+        if (effect == null || slow <= 0f) return false;
+        slow = Mathf.Clamp(slow, 0f, .3f);
+        duration = Mathf.Max(1, duration);
+        if (StatusDictionary.TryGetValue(effect, out StatusInstance existing)
+            && existing.damagePerTick > slow + .0001f)
+            return false;
+        StatusDictionary[effect] = new StatusInstance(effect, slow, 1, duration, null, 1);
+        return true;
+    }
+
+    public float CurrentChillSlow
+    {
+        get
+        {
+            float strongest = 0f;
+            foreach (var pair in StatusDictionary)
+                if (pair.Key != null && pair.Key._StatusType == StatusEffects.StatusType.Chill
+                    && pair.Value.remainingTicks > 0)
+                    strongest = Mathf.Max(strongest, pair.Value.damagePerTick);
+            return Mathf.Clamp(strongest, 0f, .3f);
         }
     }
 
@@ -191,7 +236,10 @@ public partial class StatusController : MonoBehaviour
             if (effect == null || instance.remainingTicks <= 0 || instance.stacks <= 0) //If the instance is already dead, skip this loop
                 continue;
 
-            TickInstance(instance, pendingEffects); //Call TickInstance
+            if (effect._StatusType == StatusEffects.StatusType.DamageOverTime)
+                TickInstance(instance, pendingEffects); //Call TickInstance
+            else
+                instance.remainingTicks--; // Shock and Chill lifetimes count every global turn; their effects are queried dynamically.
 
             if (instance.remainingTicks > 0 && instance.stacks > 0 && effect != null)   //Check again for no remaining ticks or stacks, add to keys to remove if none remaining
             {
@@ -257,19 +305,10 @@ public partial class StatusController : MonoBehaviour
             if (effect == null || totalStrength <= 0f)  //If key or value is null/0, continue
                 continue;
 
-            if (effect._StatusType == StatusEffects.StatusType.DamageOverTime)  //If the effect is a DoT effect, call apply dot damage, passing the strength and the effect type
-            {
-                // For DOTs we treat Strength as final damage already.
+            // Only damaging effects enter the pending-tick queue. Shock and Chill
+            // are queried directly from their persistent status state.
+            if (effect._StatusType == StatusEffects.StatusType.DamageOverTime)
                 ApplyDotDamage(totalStrength, effect);
-            }
-            else
-            {
-                //For chill/shock, this is not fully implemented, this simply has a delay. TODO: Implement shock/chill application logic
-                if (playerCont != null)
-                    StartCoroutine(EffectDelay(playerCont, totalStrength, effect));
-                if (enemyCont != null)
-                    StartCoroutine(EffectDelay(enemyCont, totalStrength, effect));
-            }
         }
     }
 
@@ -352,21 +391,4 @@ public partial class StatusController : MonoBehaviour
         }
     }
 
-    // Legacy non-DOT dispatch waits 0.3 scaled seconds. DOT uses ApplyDotDamage
-    // immediately; shock/chill callbacks currently have no gameplay response.
-    public IEnumerator EffectDelay(PlayerController target, float strength, StatusEffects effect)   
-    {
-        yield return new WaitForSeconds(0.3f);
-
-        if (target != null && effect != null)
-            target.OnStatusTick(strength, effect);
-    }
-
-    public IEnumerator EffectDelay(EnemyAI target, float strength, StatusEffects effect)
-    {
-        yield return new WaitForSeconds(0.3f);
-
-        if (target != null && effect != null)
-            target.OnStatusTick(strength, effect);
-    }
 }

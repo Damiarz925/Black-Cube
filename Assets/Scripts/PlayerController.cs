@@ -92,31 +92,6 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    //This is called whenever a status effect ticks on the player
-    public void OnStatusTick(float strength, StatusEffects effect)
-    {
-        if (effect == null) return; //If the effect is null, return
-
-        switch (effect._StatusType)
-        {
-            case StatusEffects.StatusType.DamageOverTime:   //If the effect is damage over time, and the strength is greater than 0, call take damage passing strength and the effect
-                if (strength > 0f)
-                    TakeDamage(strength, effect);
-                break;
-
-            case StatusEffects.StatusType.Shock:    //If the effect is shock, call apply shock, passing in strength and effect
-                ApplyShock(strength, effect);
-                break;
-
-            case StatusEffects.StatusType.Chill:    //If the effect is chill, call apply chill, passing in strength and effect
-                ApplyChill(strength, effect);
-                break;
-        }
-    }
-
-    void ApplyShock(float strength, StatusEffects effect) { }   //Not implemented yet, shock will increase damage taken by strength * base shock effect (Defined in shock SO).
-    void ApplyChill(float strength, StatusEffects effect) { }   // Placeholder: no speed or damage change is applied.
-
     // --------------------------------------------------------------------
     // ATTACK BUILD – this is the main damage pipeline
     // --------------------------------------------------------------------
@@ -178,12 +153,14 @@ public class PlayerController : MonoBehaviour
 
         Element weaponElement = equippedWeapon.BaseElement;
         float weaponRaw = equippedWeapon.GetEffectiveBaseDamage()
-                          + stats.GetStat(StatMappings.GetFlatDamageStat(weaponElement));
+                          + stats.GetStat(StatMappings.GetFlatDamageStat(weaponElement))
+                          + DerivedStatCalculator.AddedFlatDamage(stats, weaponElement);
         AddConvertedRawDamage(ctx, weaponElement, weaponRaw, conversionElement, conversion);
         AddConvertedExtraFlat(ctx, Element.Phys, weaponElement, conversionElement, conversion);
         AddConvertedExtraFlat(ctx, Element.Fire, weaponElement, conversionElement, conversion);
         AddConvertedExtraFlat(ctx, Element.Cold, weaponElement, conversionElement, conversion);
         AddConvertedExtraFlat(ctx, Element.Light, weaponElement, conversionElement, conversion);
+        AddConvertedExtraFlat(ctx, Element.Void, weaponElement, conversionElement, conversion);
         return ctx;
     }
 
@@ -200,7 +177,7 @@ public class PlayerController : MonoBehaviour
         //Get the weapons final critical chance
         float critChance = GetFinalCritChance();
         //Directly calculate the weapon's crit multiplier (assumes Crit multi is a decimal value).
-        float critMult = 1f + stats.GetStat(StatTypes.CritMult); // CritMult is an unclassified raw fraction (0.5 => x1.5), unlike CritChance points.
+        float critMult = 1f + stats.GetStat(StatTypes.CritMult); // Raw percentage points are converted to a fraction by StatsComponent.
 
         //Roll randomly to decide if the attack is a critical strike or not
         bool isCrit = Random.value < Mathf.Clamp01(critChance);
@@ -225,7 +202,8 @@ public class PlayerController : MonoBehaviour
     private void AddScaledElementalDamage(DamageContext ctx, Element element, float baseAmount)
     {
         //Grabs all of the flat damage increases for your main stat
-        float flatGlobal = stats.GetStat(StatMappings.GetFlatDamageStat(element));
+        float flatGlobal = stats.GetStat(StatMappings.GetFlatDamageStat(element))
+            + DerivedStatCalculator.AddedFlatDamage(stats, element);
         AddScaledRawDamage(ctx, element, baseAmount + flatGlobal);
     }
 
@@ -234,8 +212,10 @@ public class PlayerController : MonoBehaviour
         if (rawAmount <= 0f) return;
 
         //Grabs all of the increased damage increases for your main stat
-        float incElement = stats.GetStat(StatMappings.GetIncDamageStat(element));  // e.g. 0.40 for +40% phys
-        float incGeneric = stats.GetStat(StatTypes.GenericDmg);                    // e.g. 0.80 for +80% generic
+        float incElement = stats.GetStat(StatMappings.GetIncDamageStat(element))
+            + DerivedStatCalculator.ElementIncreasedDamage(stats, element);  // e.g. 0.40 for +40% phys
+        float incGeneric = stats.GetStat(StatTypes.GenericDmg)
+            + DerivedStatCalculator.GlobalIncreasedDamage(stats, GetComponent<ManaComponent>()); // snapshots current mana while the hit is built
         float incTotal = incElement + incGeneric;                                // e.g. 1.20 → +120% increased
 
         //Grabs all of the more damage increases for your main stat
@@ -258,6 +238,7 @@ public class PlayerController : MonoBehaviour
         AddExtraElementIfNotBase(ctx, Element.Fire, weaponElement);
         AddExtraElementIfNotBase(ctx, Element.Cold, weaponElement);
         AddExtraElementIfNotBase(ctx, Element.Light, weaponElement);
+        AddExtraElementIfNotBase(ctx, Element.Void, weaponElement);
     }
 
     //Adds the extra element that doesn't match the weapon's base damage
@@ -265,7 +246,8 @@ public class PlayerController : MonoBehaviour
     {
         if (element == weaponElement) return;   //If the element does match the weapon's base, return
 
-        float flatGlobal = stats.GetStat(StatMappings.GetFlatDamageStat(element));  //Adds the flat damage values
+        float flatGlobal = stats.GetStat(StatMappings.GetFlatDamageStat(element))
+            + DerivedStatCalculator.AddedFlatDamage(stats, element);  //Adds the flat damage values
         if (flatGlobal <= 0f) return;
 
         AddScaledRawDamage(ctx, element, flatGlobal);
@@ -275,7 +257,8 @@ public class PlayerController : MonoBehaviour
         Element conversionElement, float conversion)
     {
         if (element == weaponElement) return;
-        AddConvertedRawDamage(ctx, element, stats.GetStat(StatMappings.GetFlatDamageStat(element)),
+        AddConvertedRawDamage(ctx, element, stats.GetStat(StatMappings.GetFlatDamageStat(element))
+            + DerivedStatCalculator.AddedFlatDamage(stats, element),
             conversionElement, conversion);
     }
 
@@ -310,10 +293,10 @@ public class PlayerController : MonoBehaviour
     {
         if (equippedWeapon == null)
             return stats.GetStat(StatTypes.UnarmedDamage) > 0f
-                ? baseSpeed * (1f + stats.GetStat(StatTypes.AttackSpeed)) * KeystoneAttackSpeedMultiplier() * RelicAttackSpeedMultiplier() : 0f;
+                ? baseSpeed * (1f + stats.GetStat(StatTypes.AttackSpeed) + DerivedStatCalculator.AttackSpeedIncreased(stats)) * KeystoneAttackSpeedMultiplier() * RelicAttackSpeedMultiplier() : 0f;
 
         float weaponAS = equippedWeapon.GetEffectiveAttackSpeed();  //Grabs the weapon's base attack speed (base speed * local weapon attack speed modifier)
-        float incASGlobal = stats.GetStat(StatTypes.AttackSpeed); //Gets the player's global attack speed modifier
+        float incASGlobal = stats.GetStat(StatTypes.AttackSpeed) + DerivedStatCalculator.AttackSpeedIncreased(stats); //Gets the player's global attack speed modifier
 
         return weaponAS * (1f + incASGlobal) * KeystoneAttackSpeedMultiplier() * RelicAttackSpeedMultiplier();
     }

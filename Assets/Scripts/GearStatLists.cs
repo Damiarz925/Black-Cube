@@ -77,15 +77,12 @@ public class GearStatLists : MonoBehaviour
             StatTypes.ColdRes,
             StatTypes.LightRes,
             StatTypes.FireRes,
+            StatTypes.VoidRes,
             StatTypes.FlatArmour,
-            StatTypes.FlatEvasion,
             StatTypes.ArmourPercent,
-            StatTypes.EvasionPercent,
 
             // Speed / Utility
-            StatTypes.Accuracy,
             StatTypes.AttackSpeed,
-            StatTypes.CooldownRecovery,
 
             // Resource
             StatTypes.Life,
@@ -98,8 +95,7 @@ public class GearStatLists : MonoBehaviour
             StatTypes.DexterityPercent,
 
             // Attribute scaling
-            StatTypes.AttackSpeedPerDexterity,
-            StatTypes.AccuracyPerDexterity
+            StatTypes.AttackSpeedPerDexterity
         };
 
         // HELMETS
@@ -111,10 +107,13 @@ public class GearStatLists : MonoBehaviour
             StatTypes.GenericMult,
             StatTypes.PhysDmg,
             StatTypes.FireDmg,
+            StatTypes.VoidDmg,
             StatTypes.PhysMult,
             StatTypes.FireMult,
+            StatTypes.VoidMult,
             StatTypes.PhysPenetration,
             StatTypes.FirePenetration,
+            StatTypes.VoidPenetration,
 
             // Crit chance
             StatTypes.CritChance,
@@ -137,13 +136,13 @@ public class GearStatLists : MonoBehaviour
             StatTypes.ColdRes,
             StatTypes.LightRes,
             StatTypes.FireRes,
+            StatTypes.VoidRes,
             StatTypes.AllRes,
             StatTypes.FlatArmour,
-            StatTypes.FlatEvasion,
             StatTypes.ArmourPercent,
-            StatTypes.EvasionPercent,
             StatTypes.MaxColdRes,
             StatTypes.MaxFireRes,
+            StatTypes.MaxVoidRes,
             StatTypes.MaxLightRes,
             StatTypes.PoisonRes,
             StatTypes.IgniteRes,
@@ -180,13 +179,13 @@ public class GearStatLists : MonoBehaviour
             StatTypes.ColdRes,
             StatTypes.LightRes,
             StatTypes.FireRes,
+            StatTypes.VoidRes,
             StatTypes.AllRes,
             StatTypes.FlatArmour,
-            StatTypes.FlatEvasion,
             StatTypes.ArmourPercent,
-            StatTypes.EvasionPercent,
             StatTypes.MaxColdRes,
             StatTypes.MaxFireRes,
+            StatTypes.MaxVoidRes,
             StatTypes.MaxLightRes,
             StatTypes.MaxAllRes,
             StatTypes.PoisonRes,
@@ -195,7 +194,6 @@ public class GearStatLists : MonoBehaviour
             StatTypes.ShockRes,
             StatTypes.ChillRes,
             StatTypes.AllAilmentRes,
-            StatTypes.ChanceToBlock,
 
             // Resources
             StatTypes.Life,
@@ -222,8 +220,7 @@ public class GearStatLists : MonoBehaviour
             StatTypes.DamagePerStrength,
             StatTypes.ManaPerIntelligence,
             StatTypes.DoTMultPerIntelligence,
-            StatTypes.AttackSpeedPerDexterity,
-            StatTypes.AccuracyPerDexterity
+            StatTypes.AttackSpeedPerDexterity
         };
 
         // BOOTS
@@ -255,12 +252,11 @@ public class GearStatLists : MonoBehaviour
 
             // Defenses
             StatTypes.FlatArmour,
-            StatTypes.FlatEvasion,
             StatTypes.ArmourPercent,
-            StatTypes.EvasionPercent,
             StatTypes.ColdRes,
             StatTypes.LightRes,
             StatTypes.FireRes,
+            StatTypes.VoidRes,
             StatTypes.PoisonRes,
             StatTypes.IgniteRes,
             StatTypes.BleedRes,
@@ -274,12 +270,8 @@ public class GearStatLists : MonoBehaviour
             StatTypes.ManaRegeneration,
             StatTypes.ManaOnHit,
             StatTypes.ManaOnKill,
-            StatTypes.ManaCost,
             StatTypes.DmgPerMaxMana,
             StatTypes.DmgPerCurrentMana,
-
-            // Utility
-            StatTypes.CooldownRecovery,
 
             // Attributes
             StatTypes.Strength,
@@ -302,12 +294,15 @@ public class GearStatLists : MonoBehaviour
             StatTypes.ColdDmg,
             StatTypes.LightDmg,
             StatTypes.FireDmg,
+            StatTypes.VoidDmg,
             StatTypes.ColdMult,
             StatTypes.LightMult,
             StatTypes.FireMult,
+            StatTypes.VoidMult,
             StatTypes.ColdPenetration,
             StatTypes.LightPenetration,
             StatTypes.FirePenetration,
+            StatTypes.VoidPenetration,
             StatTypes.CritChance,
             StatTypes.ShockChance,
             StatTypes.ShockEffect,
@@ -320,17 +315,13 @@ public class GearStatLists : MonoBehaviour
             StatTypes.ColdRes,
             StatTypes.LightRes,
             StatTypes.FireRes,
+            StatTypes.VoidRes,
             StatTypes.AllRes,
 
             // Resources
             StatTypes.Life,
             StatTypes.Mana,
-            StatTypes.ManaCost,
-
-            // Utility
-            StatTypes.CooldownRecovery,
             StatTypes.AttackSpeed,
-            StatTypes.Accuracy,
 
             // Attributes
             StatTypes.Strength,
@@ -349,14 +340,17 @@ public class GearStatLists : MonoBehaviour
             StatTypes.ColdDmg,
             StatTypes.LightDmg,
             StatTypes.FireDmg,
+            StatTypes.VoidDmg,
             StatTypes.PhysMult,
             StatTypes.ColdMult,
             StatTypes.LightMult,
             StatTypes.FireMult,
+            StatTypes.VoidMult,
             StatTypes.PhysPenetration,
             StatTypes.ColdPenetration,
             StatTypes.LightPenetration,
             StatTypes.FirePenetration,
+            StatTypes.VoidPenetration,
             StatTypes.CritChance,
             StatTypes.CritMult,
             StatTypes.BaseCritChance,
@@ -384,15 +378,14 @@ public class GearStatLists : MonoBehaviour
             StatTypes.ColdRes,
             StatTypes.LightRes,
             StatTypes.FireRes,
+            StatTypes.VoidRes,
 
             // Resources
             StatTypes.Life,
             StatTypes.Mana,
 
             // Utility + +1 skills
-            StatTypes.CooldownRecovery,
             StatTypes.AttackSpeed,
-            StatTypes.Accuracy,
             StatTypes.Plus1Phys,
             StatTypes.Plus1Fire,
             StatTypes.Plus1Cold,
@@ -414,6 +407,7 @@ public class GearStatLists : MonoBehaviour
             StatTypes.ColdRes,
             StatTypes.LightRes,
             StatTypes.FireRes,
+            StatTypes.VoidRes,
             StatTypes.AllRes,
             StatTypes.MaxAllRes,
 
@@ -438,9 +432,7 @@ public class GearStatLists : MonoBehaviour
             StatTypes.ManaPerIntelligence,
             StatTypes.DoTMultPerIntelligence,
             StatTypes.AttackSpeedPerDexterity,
-            StatTypes.AccuracyPerDexterity,
             StatTypes.DmgPerLowestStat,
-            StatTypes.ChanceToBlock,
             StatTypes.ChanceToHitTwice
         };
 
@@ -455,18 +447,22 @@ public class GearStatLists : MonoBehaviour
             StatTypes.ColdDmg,
             StatTypes.LightDmg,
             StatTypes.FireDmg,
+            StatTypes.VoidDmg,
             StatTypes.PhysMult,
             StatTypes.ColdMult,
             StatTypes.LightMult,
             StatTypes.FireMult,
+            StatTypes.VoidMult,
             StatTypes.FlatPhys,
             StatTypes.FlatCold,
             StatTypes.FlatLight,
             StatTypes.FlatFire,
+            StatTypes.FlatVoid,
             StatTypes.PhysPenetration,
             StatTypes.ColdPenetration,
             StatTypes.LightPenetration,
             StatTypes.FirePenetration,
+            StatTypes.VoidPenetration,
             StatTypes.CritMult,
             StatTypes.PoisonDmg,
             StatTypes.PoisonMult,

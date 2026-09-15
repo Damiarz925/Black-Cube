@@ -9,7 +9,7 @@ public sealed class SkillProjectile : MonoBehaviour
     private static AudioClip heavyImpactClip;
     public static AudioClip HeavyImpactClip => heavyImpactClip != null ? heavyImpactClip : (heavyImpactClip = CreateImpactClip());
 
-    public static void Launch(Transform source, Transform target, Element element, Action onImpact)
+    public static void Launch(Transform source, Transform target, Element element, Action onImpact, float lateralOffset = 0f)
     {
         if (source == null || target == null) return;
         var go = new GameObject("Fireball Projectile", typeof(SpriteRenderer), typeof(SkillProjectile));
@@ -18,7 +18,7 @@ public sealed class SkillProjectile : MonoBehaviour
         renderer.sprite = GetOrbSprite();
         renderer.color = ElementColor(element);
         renderer.sortingOrder = 80;
-        go.transform.position = source.position + Vector3.up * .9f;
+        go.transform.position = source.position + Vector3.up * .9f + Vector3.right * lateralOffset;
         go.transform.localScale = Vector3.one * .55f;
         go.GetComponent<SkillProjectile>().StartCoroutine(
             go.GetComponent<SkillProjectile>().Fly(target, onImpact));
@@ -73,6 +73,7 @@ public sealed class SkillProjectile : MonoBehaviour
         Element.Cold => new Color(.15f, .75f, 1f, 1f),
         Element.Light => new Color(1f, .92f, .15f, 1f),
         Element.Poison => new Color(.3f, 1f, .2f, 1f),
+        Element.Void => new Color(.65f, .25f, .9f, 1f),
         _ => Color.white
     };
 

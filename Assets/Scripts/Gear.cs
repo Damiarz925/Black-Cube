@@ -75,7 +75,7 @@ public class Gear : MonoBehaviour
         itemRarity = rarity;
         itemLevel = level;
         modNumber = RollModNumber();
-        BaseElement = element;
+        BaseElement = element == Element.Poison ? Element.Void : element;
     }
 
     public static bool IsWeaponBaseStat(StatTypes stat) => stat is StatTypes.WeaponBaseDmg
@@ -139,6 +139,9 @@ public class Gear : MonoBehaviour
                 return stat == StatTypes.ColdDmg || stat == StatTypes.FlatCold;
             case Element.Light:
                 return stat == StatTypes.LightDmg || stat == StatTypes.FlatLight;
+            case Element.Void:
+            case Element.Poison:
+                return stat == StatTypes.VoidDmg || stat == StatTypes.FlatVoid;
             default:
                 return false;
         }
@@ -180,15 +183,17 @@ public class Gear : MonoBehaviour
                 case StatTypes.ColdDmg:
                 case StatTypes.LightDmg:
                 case StatTypes.FireDmg:
+                case StatTypes.VoidDmg:
                 case StatTypes.FlatPhys:
                 case StatTypes.FlatCold:
                 case StatTypes.FlatLight:
                 case StatTypes.FlatFire:
+                case StatTypes.FlatVoid:
                     {
                         if (itemType == LootManager.GearType.Weapons && MatchesBaseElement(mod.statType)) //If the itemtype is a weapon and the base element matches this mod's type enter the if statement
                         {
                             //If it is a flat modifier, add it's value to the local flat damage of the weapon
-                            if (mod.statType is StatTypes.FlatPhys or StatTypes.FlatCold or StatTypes.FlatLight or StatTypes.FlatFire)
+                            if (mod.statType is StatTypes.FlatPhys or StatTypes.FlatCold or StatTypes.FlatLight or StatTypes.FlatFire or StatTypes.FlatVoid)
                                 LocalFlatDamage += mod.value;
                             //Otherwise, add it's value to the local increased damage of the weapon
                             else

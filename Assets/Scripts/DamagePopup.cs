@@ -23,6 +23,7 @@ public class DamagePopup : MonoBehaviour
     [SerializeField] private Color coldColor = new Color(0.15f, 0.55f, 1f);
     [SerializeField] private Color lightningColor = Color.yellow;
     [SerializeField] private Color poisonColor = new Color(0.1f, 0.8f, 0.25f);
+    [SerializeField] private Color voidColor = new Color(0.65f, 0.25f, 0.9f);
     [SerializeField] private Color bleedColor = new Color(0.85f, 0.05f, 0.05f);
     [SerializeField] private Color defaultColor = Color.white;
     [Header("Number Materials: physical, fire, cold, lightning, poison, bleed, void")]
@@ -66,8 +67,11 @@ public class DamagePopup : MonoBehaviour
 
     public void Spawn(float damage, Transform target, Element element)
     {
-        int index=element switch {Element.Phys=>0,Element.Fire=>1,Element.Cold=>2,Element.Light=>3,Element.Poison=>4,_=>-1};
-        SpawnStyled(damage, target, GetColorForElement(element), GetMaterial(index),index);
+        int index=element switch {Element.Phys=>0,Element.Fire=>1,Element.Cold=>2,Element.Light=>3,Element.Poison=>4,Element.Void=>6,_=>-1};
+        // Atlas slot 6 remains the authored Ignite digit atlas. Void can use its
+        // dedicated material without accidentally borrowing Ignite's atlas.
+        int atlasIndex = element == Element.Void ? -1 : index;
+        SpawnStyled(damage, target, GetColorForElement(element), GetMaterial(index),atlasIndex);
     }
 
     public void Spawn(float damage, Transform target, StatusEffects effect)
@@ -150,6 +154,7 @@ public class DamagePopup : MonoBehaviour
             Element.Cold => coldColor,
             Element.Light => lightningColor,
             Element.Poison => poisonColor,
+            Element.Void => voidColor,
             _ => defaultColor
         };
     }

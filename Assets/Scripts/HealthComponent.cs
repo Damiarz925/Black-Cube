@@ -30,7 +30,9 @@ public class HealthComponent : MonoBehaviour
         get
         {
             float value = maxLifeStats != null
-                ? Mathf.Max(0f, maxLifeStats.GetStat(StatTypes.Life) * (1f + maxLifeStats.GetStat(StatTypes.LifePercent)))
+                ? Mathf.Max(0f, (maxLifeStats.GetStat(StatTypes.Life) + DerivedStatCalculator.AddedLife(maxLifeStats))
+                    * (1f + maxLifeStats.GetStat(StatTypes.LifePercent)
+                        + DerivedStatCalculator.StrengthIncreased(maxLifeStats)))
                 : PrefabMaxLife;
             var keystones = GetComponent<PassiveKeystoneState>();
             return value * (keystones != null ? keystones.MaximumLifeMultiplier : 1f);
@@ -72,7 +74,7 @@ public class HealthComponent : MonoBehaviour
         if (CurrentLife <= 0f && !isDead) Die();
     }
 
-    internal void UseStatsForMaximumLife(StatsComponent source)
+    public void UseStatsForMaximumLife(StatsComponent source)
     {
         if (source == null)
             return;

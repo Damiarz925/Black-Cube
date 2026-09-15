@@ -14,6 +14,7 @@ public static class StatDisplayFormatting
         { StatTypes.FlatFire, "Flat Fire Damage" },
         { StatTypes.FlatCold, "Flat Cold Damage" },
         { StatTypes.FlatLight, "Flat Lightning Damage" },
+        { StatTypes.FlatVoid, "Flat Void Damage" },
         { StatTypes.GenericDmg, "Increased Damage" },
         { StatTypes.GenericMult, "More Damage" },
         { StatTypes.GenericDotMult, "More DoT Damage" },
@@ -30,6 +31,26 @@ public static class StatDisplayFormatting
         { StatTypes.MinionDmg, "Increased Minion-tagged Damage" },
         { StatTypes.ProjectileAmount, "Additional Projectile Amount" },
         { StatTypes.ProjectileSpeed, "Increased Projectile Speed" },
+        { StatTypes.DmgPerMaxMana, "Damage per 100 Maximum Mana" },
+        { StatTypes.DmgPerCurrentMana, "Damage per 100 Current Mana" },
+        { StatTypes.Plus1Phys, "+ Heavy Strike Level" },
+        { StatTypes.Plus1Cold, "+ Ice Strike Level" },
+        { StatTypes.Plus1Light, "+ Lightning Strike Level" },
+        { StatTypes.Plus1Fire, "+ Fireball Level" },
+        { StatTypes.Plus1Poison, "+ Envenom Level" },
+        { StatTypes.Plus1Bleed, "+ Shiv Level" },
+        { StatTypes.Plus1Ignite, "+ Immolate Level" },
+        { StatTypes.PoisonDmg, "Increased Poison (Void DoT) Damage" },
+        { StatTypes.PoisonMult, "More Poison (Void DoT) Damage" },
+        { StatTypes.LifePerStrength, "Maximum Life per Strength" },
+        { StatTypes.DamagePerStrength, "Damage per 10 Strength" },
+        { StatTypes.ManaPerIntelligence, "Maximum Mana per Intelligence" },
+        { StatTypes.DoTMultPerIntelligence, "DoT Multiplier per Intelligence" },
+        { StatTypes.AttackSpeedPerDexterity, "Attack Speed per Dexterity" },
+        { StatTypes.FlatFirePerStrength, "Added Fire Damage per Strength" },
+        { StatTypes.FlatLightPerIntelligence, "Added Lightning Damage per Intelligence" },
+        { StatTypes.FlatColdPerDexterity, "Added Cold Damage per Dexterity" },
+        { StatTypes.DmgPerLowestStat, "Damage per 10 Lowest Attribute" },
     };
 
     public static string ToFriendlyName(StatTypes t)
@@ -56,7 +77,9 @@ public static class StatDisplayFormatting
     
     public static string FormatValue(StatsComponent stats, StatTypes type)
     {
-        float raw = stats.GetRawStat(type);
+        float raw = type is StatTypes.Strength or StatTypes.Dexterity or StatTypes.Intelligence
+            ? DerivedStatCalculator.Attribute(stats, type)
+            : stats.GetRawStat(type);
 
         // Hide near-zero from floats
         if (System.MathF.Abs(raw) < 0.0001f)

@@ -28,10 +28,13 @@ public static class EnemyBuildOptimizer
         FireHit,
         ColdHit,
         LightningHit,
+        VoidHit,
         Critical,
         Poison,
         Ignite,
-        Bleed
+        Bleed,
+        Shock,
+        Chill
     }
 
     public sealed class CandidateSlot
@@ -55,13 +58,17 @@ public static class EnemyBuildOptimizer
         public readonly float FireHit;
         public readonly float ColdHit;
         public readonly float LightningHit;
+        public readonly float VoidHit;
         public readonly float Critical;
         public readonly float Poison;
         public readonly float Ignite;
         public readonly float Bleed;
+        public readonly float Shock;
+        public readonly float Chill;
 
         public Evaluation(float offense, float defense, float physicalHit, float fireHit,
-            float coldHit, float lightningHit, float critical, float poison, float ignite, float bleed)
+            float coldHit, float lightningHit, float voidHit, float critical, float poison, float ignite, float bleed,
+            float shock, float chill)
         {
             Offense = Mathf.Max(.0001f, offense);
             Defense = Mathf.Max(.0001f, defense);
@@ -70,10 +77,13 @@ public static class EnemyBuildOptimizer
             FireHit = fireHit;
             ColdHit = coldHit;
             LightningHit = lightningHit;
+            VoidHit = voidHit;
             Critical = critical;
             Poison = poison;
             Ignite = ignite;
             Bleed = bleed;
+            Shock = shock;
+            Chill = chill;
         }
 
         public float BucketValue(SearchBucket bucket) => bucket switch
@@ -82,10 +92,13 @@ public static class EnemyBuildOptimizer
             SearchBucket.FireHit => FireHit,
             SearchBucket.ColdHit => ColdHit,
             SearchBucket.LightningHit => LightningHit,
+            SearchBucket.VoidHit => VoidHit,
             SearchBucket.Critical => Critical,
             SearchBucket.Poison => Poison,
             SearchBucket.Ignite => Ignite,
             SearchBucket.Bleed => Bleed,
+            SearchBucket.Shock => Shock,
+            SearchBucket.Chill => Chill,
             _ => Score
         };
     }
@@ -124,7 +137,7 @@ public static class EnemyBuildOptimizer
 
         public StatSnapshot(float[] baseRaw)
         {
-            int count = (int)StatTypes.UnarmedDamage + 1;
+            int count = Enum.GetValues(typeof(StatTypes)).Length;
             raw = new float[count];
             if (baseRaw != null)
                 Array.Copy(baseRaw, raw, Mathf.Min(baseRaw.Length, raw.Length));
@@ -138,6 +151,7 @@ public static class EnemyBuildOptimizer
                 RolledMod mod = gear.globalRolledMods[i];
                 if (mod == null) continue;
                 int index = (int)mod.statType;
+                if (index < 0 || index >= raw.Length) continue;
                 if (IsIndependentMore(mod.statType))
                     raw[index] = ((1f + raw[index] / 100f) * (1f + mod.value / 100f) - 1f) * 100f;
                 else
@@ -145,7 +159,11 @@ public static class EnemyBuildOptimizer
             }
         }
 
-        public float Raw(StatTypes stat) => raw[(int)stat];
+        public float Raw(StatTypes stat)
+        {
+            int index = (int)stat;
+            return index >= 0 && index < raw.Length ? raw[index] : 0f;
+        }
         public float Get(StatTypes stat) => StatsComponent.IsPercentStat(stat) ? Raw(stat) / 100f : Raw(stat);
     }
 
@@ -157,7 +175,7 @@ public static class EnemyBuildOptimizer
 
     public static float[] CaptureBaseStats(StatsComponent stats)
     {
-        int count = (int)StatTypes.UnarmedDamage + 1;
+        int count = Enum.GetValues(typeof(StatTypes)).Length;
         float[] values = new float[count];
         if (stats == null) return values;
         for (int i = 0; i < count; i++)
@@ -219,19 +237,23 @@ public static class EnemyBuildOptimizer
         float[] normalPreMitigation = new float[(int)Element.Count];
         if (!ReferenceEquals(weapon, null))
         {
-            Element main = weapon.BaseElement;
+            Element main = weapon.BaseElement == Element.Poison ? Element.Void : weapon.BaseElement;
             normalPreMitigation[(int)main] += ScaleHit(
-                weapon.GetEffectiveBaseDamage() + stats.Get(StatMappings.GetFlatDamageStat(main)), main, stats);
+                weapon.GetEffectiveBaseDamage() + stats.Get(StatMappings.GetFlatDamageStat(main))
+                    + AddedAttributeFlat(stats, main), main, stats);
             AddOffElementFlat(normalPreMitigation, Element.Phys, main, stats);
             AddOffElementFlat(normalPreMitigation, Element.Fire, main, stats);
             AddOffElementFlat(normalPreMitigation, Element.Cold, main, stats);
             AddOffElementFlat(normalPreMitigation, Element.Light, main, stats);
+            AddOffElementFlat(normalPreMitigation, Element.Void, main, stats);
         }
 
         float attackSpeed = !ReferenceEquals(weapon, null)
-            ? weapon.GetEffectiveAttackSpeed() * (1f + stats.Get(StatTypes.AttackSpeed))
-            : fallbackAttackSpeed * (1f + stats.Get(StatTypes.AttackSpeed));
+            ? weapon.GetEffectiveAttackSpeed() * (1f + stats.Get(StatTypes.AttackSpeed) + AttributeAttackSpeed(stats))
+            : fallbackAttackSpeed * (1f + stats.Get(StatTypes.AttackSpeed) + AttributeAttackSpeed(stats));
         attackSpeed = Mathf.Max(0f, attackSpeed);
+        float hitTwiceChance = Mathf.Clamp01(stats.Get(StatTypes.ChanceToHitTwice));
+        float hitsPerSecond = attackSpeed * (1f + hitTwiceChance);
         float critChance = !ReferenceEquals(weapon, null)
             ? Mathf.Clamp01(weapon.GetEffectiveBaseCrit(stats.Get(StatTypes.BaseCritChance)) * (1f + stats.Get(StatTypes.CritChance)))
             : 0f;
@@ -247,21 +269,24 @@ public static class EnemyBuildOptimizer
             float expected = Mathf.Lerp(normal, critical, critChance);
             normalFinal += normal;
             criticalFinal += expected;
-            elementExpectedDps[i] = expected * attackSpeed;
+            elementExpectedDps[i] = expected * hitsPerSecond;
         }
-        float hitDps = criticalFinal * attackSpeed;
-        float critDps = Mathf.Max(0f, (criticalFinal - normalFinal) * attackSpeed);
+        float hitDps = criticalFinal * hitsPerSecond;
+        float critDps = Mathf.Max(0f, (criticalFinal - normalFinal) * hitsPerSecond);
 
-        float poison = AilmentDps(StatusEffects.AilmentKind.Poison, normalPreMitigation, stats, attackSpeed, critChance, critExtra);
-        float ignite = AilmentDps(StatusEffects.AilmentKind.Ignite, normalPreMitigation, stats, attackSpeed, critChance, critExtra);
-        float bleed = AilmentDps(StatusEffects.AilmentKind.Bleed, normalPreMitigation, stats, attackSpeed, critChance, critExtra);
-        float offense = hitDps + poison + ignite + bleed;
-        float defense = DefensePower(stats, attackSpeed);
+        float poison = AilmentDps(StatusEffects.AilmentKind.Poison, normalPreMitigation, stats, hitsPerSecond, critChance, critExtra);
+        float ignite = AilmentDps(StatusEffects.AilmentKind.Ignite, normalPreMitigation, stats, hitsPerSecond, critChance, critExtra);
+        float bleed = AilmentDps(StatusEffects.AilmentKind.Bleed, normalPreMitigation, stats, hitsPerSecond, critChance, critExtra);
+        float shock = ShockDps(elementExpectedDps[(int)Element.Light], stats);
+        float chill = ChillDefenseMultiplier(normalPreMitigation[(int)Element.Cold], stats, hitsPerSecond);
+        float offense = hitDps + poison + ignite + bleed + shock;
+        float defense = DefensePower(stats, hitsPerSecond) * chill;
 
         return new Evaluation(offense, defense,
             elementExpectedDps[(int)Element.Phys], elementExpectedDps[(int)Element.Fire],
             elementExpectedDps[(int)Element.Cold], elementExpectedDps[(int)Element.Light],
-            critDps, poison, ignite, bleed);
+            elementExpectedDps[(int)Element.Void],
+            critDps, poison, ignite, bleed, shock, chill - 1f);
     }
 
     private static List<SearchState> Prune(List<SearchState> expanded)
@@ -277,8 +302,8 @@ public static class EnemyBuildOptimizer
         SearchBucket[] archetypes =
         {
             SearchBucket.PhysicalHit, SearchBucket.FireHit, SearchBucket.ColdHit,
-            SearchBucket.LightningHit, SearchBucket.Critical, SearchBucket.Poison,
-            SearchBucket.Ignite, SearchBucket.Bleed
+            SearchBucket.LightningHit, SearchBucket.VoidHit, SearchBucket.Critical, SearchBucket.Poison,
+            SearchBucket.Ignite, SearchBucket.Bleed, SearchBucket.Shock, SearchBucket.Chill
         };
         for (int b = 0; b < archetypes.Length; b++)
         {
@@ -338,14 +363,15 @@ public static class EnemyBuildOptimizer
     {
         if (baseAmount <= 0f) return 0f;
         return CombatCalculator.ScaleOutgoingDamage(baseAmount,
-            stats.Get(StatTypes.GenericDmg), stats.Get(StatMappings.GetIncDamageStat(element)),
+            stats.Get(StatTypes.GenericDmg) + AttributeGlobalDamage(stats),
+            stats.Get(StatMappings.GetIncDamageStat(element)) + AttributeElementDamage(stats, element),
             stats.Get(StatTypes.GenericMult), stats.Get(StatMappings.GetMoreDamageStat(element)));
     }
 
     private static void AddOffElementFlat(float[] hits, Element element, Element weaponElement, StatSnapshot stats)
     {
         if (element == weaponElement) return;
-        float flat = stats.Get(StatMappings.GetFlatDamageStat(element));
+        float flat = stats.Get(StatMappings.GetFlatDamageStat(element)) + AddedAttributeFlat(stats, element);
         if (flat > 0f) hits[(int)element] += ScaleHit(flat, element, stats);
     }
 
@@ -383,7 +409,11 @@ public static class EnemyBuildOptimizer
                 moreStat = StatTypes.PoisonMult; durationStat = StatTypes.PoisonDuration;
                 speedStat = StatTypes.PoisonTickRate; penetrationStat = StatTypes.PoisonPenetration;
                 magnitude = .1f; baseTicks = 2; baseInterval = 4; maxStacks = 100;
-                source = hits[(int)Element.Phys] + hits[(int)Element.Poison];
+                float voidFactor = (1f + stats.Get(StatTypes.VoidDmg)
+                    + AttributeElementDamage(stats, Element.Void)) * (1f + stats.Get(StatTypes.VoidMult));
+                source = hits[(int)Element.Void];
+                source += (hits[(int)Element.Phys] + hits[(int)Element.Fire]
+                    + hits[(int)Element.Cold] + hits[(int)Element.Light]) * voidFactor;
                 break;
             case StatusEffects.AilmentKind.Ignite:
                 chanceStat = StatTypes.IgniteChance; increasedStat = StatTypes.IgniteDmg;
@@ -402,10 +432,17 @@ public static class EnemyBuildOptimizer
         }
 
         float chance = Mathf.Max(0f, stats.Get(chanceStat)); // intentionally not capped: expected stacks above 100%
+        if (kind == StatusEffects.AilmentKind.Poison)
+        {
+            float applicationResistance = Mathf.Clamp(ReferenceAilmentResistance
+                - stats.Get(StatTypes.PoisonPenetration), -.9f, .9f);
+            chance *= 1f - applicationResistance;
+        }
         if (source <= 0f || chance <= 0f || attacksPerSecond <= 0f) return 0f;
         source *= 1f + critChance * critExtra;
         float perTick = source * magnitude * (1f + stats.Get(increasedStat))
-            * (1f + stats.Get(StatTypes.GenericDotMult)) * (1f + stats.Get(moreStat)) / baseTicks;
+            * (1f + stats.Get(StatTypes.GenericDotMult)) * (1f + AttributeDotMore(stats))
+            * (1f + stats.Get(moreStat)) / baseTicks;
         int ticks = Mathf.Max(1, baseTicks + Mathf.RoundToInt(stats.Raw(durationStat)));
         int interval = baseInterval - Mathf.RoundToInt(stats.Raw(speedStat));
         float globalTurnsPerSecond = attacksPerSecond + ReferenceTargetAttackSpeed;
@@ -415,30 +452,107 @@ public static class EnemyBuildOptimizer
         float rampWindow = Mathf.Min(lifetime, CombatHorizonSeconds);
         float averageActiveStacks = applicationRate * (rampWindow - rampWindow * rampWindow / (2f * CombatHorizonSeconds));
         averageActiveStacks = Mathf.Clamp(averageActiveStacks, 0f, maxStacks);
-        float resistance = Mathf.Clamp(ReferenceAilmentResistance - stats.Get(penetrationStat), -.9f, .9f);
+        float resistance = kind == StatusEffects.AilmentKind.Poison
+            ? Mathf.Min(ReferenceElementalResistance, CombatCalculator.BaseMaximumResistance)
+                - stats.Get(StatTypes.VoidPenetration)
+            : ReferenceAilmentResistance - stats.Get(penetrationStat);
+        resistance = Mathf.Clamp(resistance, -.9f,
+            kind == StatusEffects.AilmentKind.Poison ? CombatCalculator.BaseMaximumResistance : .9f);
         return perTick * ticksPerSecond * averageActiveStacks * (1f - resistance);
     }
 
     private static float DefensePower(StatSnapshot stats, float attacksPerSecond)
     {
-        float life = Mathf.Max(1f, stats.Get(StatTypes.Life) * (1f + stats.Get(StatTypes.LifePercent)));
+        float life = Mathf.Max(1f, (stats.Get(StatTypes.Life)
+            + stats.Raw(StatTypes.LifePerStrength) * Attribute(stats, StatTypes.Strength))
+            * (1f + stats.Get(StatTypes.LifePercent) + Attribute(stats, StatTypes.Strength) / 1000f));
         float armour = Mathf.Max(0f, stats.Get(StatTypes.FlatArmour) * (1f + stats.Get(StatTypes.ArmourPercent)));
         float physicalMultiplier = CombatCalculator.ApplyArmourValue(ReferenceIncomingHit, armour, 0f) / ReferenceIncomingHit;
-        float fireMultiplier = 1f - Mathf.Clamp(stats.Get(StatTypes.FireRes) + stats.Get(StatTypes.AllRes), -.9f, .9f);
-        float coldMultiplier = 1f - Mathf.Clamp(stats.Get(StatTypes.ColdRes) + stats.Get(StatTypes.AllRes), -.9f, .9f);
-        float lightMultiplier = 1f - Mathf.Clamp(stats.Get(StatTypes.LightRes) + stats.Get(StatTypes.AllRes), -.9f, .9f);
+        float maxAll = stats.Get(StatTypes.MaxAllRes);
+        float fireMax = Mathf.Clamp(CombatCalculator.BaseMaximumResistance + maxAll + stats.Get(StatTypes.MaxFireRes), 0f, CombatCalculator.HardMaximumResistance);
+        float coldMax = Mathf.Clamp(CombatCalculator.BaseMaximumResistance + maxAll + stats.Get(StatTypes.MaxColdRes), 0f, CombatCalculator.HardMaximumResistance);
+        float lightMax = Mathf.Clamp(CombatCalculator.BaseMaximumResistance + maxAll + stats.Get(StatTypes.MaxLightRes), 0f, CombatCalculator.HardMaximumResistance);
+        float voidMax = Mathf.Clamp(CombatCalculator.BaseMaximumResistance + maxAll + stats.Get(StatTypes.MaxVoidRes), 0f, CombatCalculator.HardMaximumResistance);
+        float fireMultiplier = 1f - Mathf.Clamp(Mathf.Min(stats.Get(StatTypes.FireRes) + stats.Get(StatTypes.AllRes), fireMax), -.9f, fireMax);
+        float coldMultiplier = 1f - Mathf.Clamp(Mathf.Min(stats.Get(StatTypes.ColdRes) + stats.Get(StatTypes.AllRes), coldMax), -.9f, coldMax);
+        float lightMultiplier = 1f - Mathf.Clamp(Mathf.Min(stats.Get(StatTypes.LightRes) + stats.Get(StatTypes.AllRes), lightMax), -.9f, lightMax);
+        float voidMultiplier = 1f - Mathf.Clamp(Mathf.Min(stats.Get(StatTypes.VoidRes) + stats.Get(StatTypes.AllRes), voidMax), -.9f, voidMax);
         float allAilment = stats.Get(StatTypes.AllAilmentRes);
-        float poisonMultiplier = 1f - Mathf.Clamp(stats.Get(StatTypes.PoisonRes) + allAilment, -.9f, .9f);
+        float poisonApplicationMultiplier = 1f - Mathf.Clamp(stats.Get(StatTypes.PoisonRes) + allAilment, -.9f, .9f);
         float bleedMultiplier = 1f - Mathf.Clamp(stats.Get(StatTypes.BleedRes) + allAilment, -.9f, .9f);
         float igniteMultiplier = 1f - Mathf.Clamp(stats.Get(StatTypes.IgniteRes) + allAilment, -.9f, .9f);
         // Equal reference exposure keeps unlike defensive units comparable without
         // claiming knowledge of the future player's build.
         float averageTaken = Mathf.Max(.05f, (physicalMultiplier + fireMultiplier + coldMultiplier
-            + lightMultiplier + poisonMultiplier + bleedMultiplier + igniteMultiplier) / 7f);
+            + lightMultiplier + voidMultiplier + poisonApplicationMultiplier * voidMultiplier
+            + bleedMultiplier + igniteMultiplier) / 8f);
         float effectiveLife = life / averageTaken;
         float recovery = (Mathf.Max(0f, stats.Get(StatTypes.LifeRegeneration))
             + Mathf.Max(0f, stats.Get(StatTypes.LifeOnHit)) * Mathf.Max(0f, attacksPerSecond))
             * CombatHorizonSeconds;
         return effectiveLife + recovery;
+    }
+
+    private static float Attribute(StatSnapshot stats, StatTypes attribute)
+    {
+        StatTypes percent = attribute switch
+        {
+            StatTypes.Strength => StatTypes.StrengthPercent,
+            StatTypes.Dexterity => StatTypes.DexterityPercent,
+            _ => StatTypes.IntelligencePercent
+        };
+        return DerivedStatCalculator.FinalAttribute(stats.Raw(attribute), stats.Get(percent));
+    }
+
+    private static float AttributeGlobalDamage(StatSnapshot stats)
+    {
+        float strengthGroups = Attribute(stats, StatTypes.Strength) / 10f;
+        float lowestGroups = Mathf.Min(Attribute(stats, StatTypes.Strength),
+            Mathf.Min(Attribute(stats, StatTypes.Dexterity), Attribute(stats, StatTypes.Intelligence))) / 10f;
+        return stats.Get(StatTypes.DamagePerStrength) * strengthGroups
+            + stats.Get(StatTypes.DmgPerLowestStat) * lowestGroups;
+    }
+
+    private static float AttributeElementDamage(StatSnapshot stats, Element element) =>
+        element == Element.Phys ? Attribute(stats, StatTypes.Strength) / 1000f
+        : element is Element.Fire or Element.Cold or Element.Light or Element.Void or Element.Poison
+            ? Attribute(stats, StatTypes.Intelligence) / 1000f : 0f;
+
+    private static float AttributeAttackSpeed(StatSnapshot stats)
+    {
+        float dexterity = Attribute(stats, StatTypes.Dexterity);
+        return dexterity / 1000f + stats.Get(StatTypes.AttackSpeedPerDexterity) * dexterity;
+    }
+
+    private static float AttributeDotMore(StatSnapshot stats) =>
+        stats.Get(StatTypes.DoTMultPerIntelligence) * Attribute(stats, StatTypes.Intelligence);
+
+    private static float AddedAttributeFlat(StatSnapshot stats, Element element) => element switch
+    {
+        Element.Fire => stats.Raw(StatTypes.FlatFirePerStrength) * Attribute(stats, StatTypes.Strength),
+        Element.Cold => stats.Raw(StatTypes.FlatColdPerDexterity) * Attribute(stats, StatTypes.Dexterity),
+        Element.Light => stats.Raw(StatTypes.FlatLightPerIntelligence) * Attribute(stats, StatTypes.Intelligence),
+        _ => 0f
+    };
+
+    private static float ShockDps(float lightningDps, StatSnapshot stats)
+    {
+        if (lightningDps <= 0f) return 0f;
+        float chance = Mathf.Max(0f, stats.Get(StatTypes.ShockChance))
+            * (1f - Mathf.Clamp(ReferenceAilmentResistance, -.9f, .9f));
+        float coefficient = Mathf.Min(1f, .5f * (1f + stats.Get(StatTypes.ShockEffect)));
+        return lightningDps * chance / 5f * coefficient;
+    }
+
+    private static float ChillDefenseMultiplier(float coldPreMitigation, StatSnapshot stats, float hitsPerSecond)
+    {
+        float coldDealt = MitigateReferenceHit(coldPreMitigation, Element.Cold, stats);
+        if (coldDealt <= 0f) return 1f;
+        float chance = Mathf.Max(0f, stats.Get(StatTypes.ChillChance))
+            * (1f - Mathf.Clamp(ReferenceAilmentResistance, -.9f, .9f));
+        float slow = BattleManager.CalculateChillSlow(coldDealt, 1000f, stats.Get(StatTypes.ChillEffect));
+        float duration = Mathf.Max(1f, 4f + stats.Raw(StatTypes.ChillDuration));
+        float uptime = Mathf.Clamp01(chance * hitsPerSecond * duration / (duration + 1f));
+        return 1f / Mathf.Max(.7f, 1f - slow * uptime);
     }
 }

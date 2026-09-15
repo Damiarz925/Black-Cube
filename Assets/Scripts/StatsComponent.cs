@@ -118,6 +118,7 @@ public class StatsComponent : MonoBehaviour
             case StatTypes.FireDmg:
             case StatTypes.ColdDmg:
             case StatTypes.LightDmg:
+            case StatTypes.VoidDmg:
             case StatTypes.PoisonDmg:
             case StatTypes.BleedDmg:
             case StatTypes.IgniteDmg:
@@ -132,6 +133,7 @@ public class StatsComponent : MonoBehaviour
             case StatTypes.FireMult:
             case StatTypes.ColdMult:
             case StatTypes.LightMult:
+            case StatTypes.VoidMult:
             case StatTypes.PoisonMult:
             case StatTypes.BleedMult:
             case StatTypes.IgniteMult:
@@ -153,6 +155,7 @@ public class StatsComponent : MonoBehaviour
             case StatTypes.ColdPenetration:
             case StatTypes.LightPenetration:
             case StatTypes.FirePenetration:
+            case StatTypes.VoidPenetration:
             case StatTypes.PoisonPenetration:
             case StatTypes.IgnitePenetration:
             case StatTypes.BleedPenetration:
@@ -164,10 +167,12 @@ public class StatsComponent : MonoBehaviour
             case StatTypes.ColdRes:
             case StatTypes.LightRes:
             case StatTypes.AllRes:
+            case StatTypes.VoidRes:
             case StatTypes.MaxFireRes:
             case StatTypes.MaxColdRes:
             case StatTypes.MaxLightRes:
             case StatTypes.MaxAllRes:
+            case StatTypes.MaxVoidRes:
             case StatTypes.PoisonRes:
             case StatTypes.BleedRes:
             case StatTypes.IgniteRes:
@@ -191,6 +196,8 @@ public class StatsComponent : MonoBehaviour
             case StatTypes.AttackSpeedPerDexterity:
             case StatTypes.AccuracyPerDexterity:
             case StatTypes.DmgPerLowestStat:
+            case StatTypes.DmgPerMaxMana:
+            case StatTypes.DmgPerCurrentMana:
 
             // Ailment scaling – effect
             case StatTypes.ShockEffect:

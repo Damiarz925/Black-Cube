@@ -111,7 +111,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 3
     displayName: Chance to Block
-    allowedSlots: 0200000006000000i
+    allowedSlots:
     groups: []
     tiers:
     - tierIndex: 1
@@ -1647,7 +1647,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 51
     displayName: Added Evasion
-    allowedSlots: 03000000000000000200000004000000i
+    allowedSlots:
     groups: []
     tiers:
     - tierIndex: 1
@@ -1711,7 +1711,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 53
     displayName: Increased Evasion
-    allowedSlots: 03000000000000000200000004000000i
+    allowedSlots:
     groups: []
     tiers:
     - tierIndex: 1
@@ -2510,22 +2510,72 @@ MonoBehaviour:
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 78
-    displayName: 
+    displayName: Damage per 100 Maximum Mana
     allowedSlots: 04000000i
     groups: []
-    tiers: []
+    tiers:
+    - tierIndex: 1
+      minValue: 1
+      maxValue: 1
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 1.5
+      maxValue: 1.5
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 2
+      maxValue: 2
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 2.5
+      maxValue: 2.5
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 3
+      maxValue: 3
+      minItemLevel: 75
+      weight: 5
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 79
-    displayName: 
+    displayName: Damage per 100 Current Mana
     allowedSlots: 04000000i
     groups: []
-    tiers: []
+    tiers:
+    - tierIndex: 1
+      minValue: 2
+      maxValue: 2
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 3
+      maxValue: 3
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 4
+      maxValue: 4
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 5
+      maxValue: 5
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 6
+      maxValue: 6
+      minItemLevel: 75
+      weight: 5
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 80
     displayName: 
-    allowedSlots: 0400000005000000i
+    allowedSlots:
     groups: []
     tiers: []
     tierTopMultiplier: 6
@@ -2564,7 +2614,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 82
     displayName: Accuracy
-    allowedSlots: 030000000500000001000000i
+    allowedSlots:
     groups: []
     tiers:
     - tierIndex: 1
@@ -2628,58 +2678,93 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 84
     displayName: 
-    allowedSlots: 03000000040000000500000001000000i
+    allowedSlots:
     groups: []
     tiers: []
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 85
-    displayName: 
+    displayName: +1 Physical Skill Level
     allowedSlots: 01000000i
     groups: []
-    tiers: []
+    tiers:
+    - tierIndex: 1
+      minValue: 1
+      maxValue: 1
+      minItemLevel: 40
+      weight: 5
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 86
-    displayName: 
+    displayName: +1 Fire Skill Level
     allowedSlots: 01000000i
     groups: []
-    tiers: []
+    tiers:
+    - tierIndex: 1
+      minValue: 1
+      maxValue: 1
+      minItemLevel: 40
+      weight: 5
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 87
-    displayName: 
+    displayName: +1 Cold Skill Level
     allowedSlots: 01000000i
     groups: []
-    tiers: []
+    tiers:
+    - tierIndex: 1
+      minValue: 1
+      maxValue: 1
+      minItemLevel: 40
+      weight: 5
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 88
-    displayName: 
+    displayName: +1 Lightning Skill Level
     allowedSlots: 01000000i
     groups: []
-    tiers: []
+    tiers:
+    - tierIndex: 1
+      minValue: 1
+      maxValue: 1
+      minItemLevel: 40
+      weight: 5
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 89
-    displayName: 
+    displayName: +1 Poison Skill Level
     allowedSlots: 01000000i
     groups: []
-    tiers: []
+    tiers:
+    - tierIndex: 1
+      minValue: 1
+      maxValue: 1
+      minItemLevel: 40
+      weight: 5
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 90
-    displayName: 
+    displayName: +1 Bleed Skill Level
     allowedSlots: 01000000i
     groups: []
-    tiers: []
+    tiers:
+    - tierIndex: 1
+      minValue: 1
+      maxValue: 1
+      minItemLevel: 40
+      weight: 5
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 91
-    displayName: 
+    displayName: +1 Ignite Skill Level
     allowedSlots: 01000000i
     groups: []
-    tiers: []
+    tiers:
+    - tierIndex: 1
+      minValue: 1
+      maxValue: 1
+      minItemLevel: 40
+      weight: 5
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 92
@@ -3036,7 +3121,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 103
     displayName: Accuracy per Dexterity
-    allowedSlots: 030000000200000006000000i
+    allowedSlots:
     groups: []
     tiers:
     - tierIndex: 1
@@ -3234,5 +3319,197 @@ MonoBehaviour:
     allowedSlots: 
     groups: []
     tiers: []
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 114
+    displayName: Added Void Damage
+    allowedSlots: 07000000i
+    groups: []
+    tiers:
+    - tierIndex: 1
+      minValue: 5
+      maxValue: 11
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 10
+      maxValue: 21
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 20
+      maxValue: 42
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 40
+      maxValue: 82
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 78
+      maxValue: 162
+      minItemLevel: 75
+      weight: 5
+    tierTopMultiplier: 15
+    tierSpread: 0.35
+  - statType: 115
+    displayName: Increased Void Damage
+    allowedSlots: 00000000050000000100000007000000i
+    groups: []
+    tiers:
+    - tierIndex: 1
+      minValue: 7
+      maxValue: 14
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 11
+      maxValue: 24
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 19
+      maxValue: 40
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 32
+      maxValue: 67
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 55
+      maxValue: 113
+      minItemLevel: 75
+      weight: 5
+    tierTopMultiplier: 8
+    tierSpread: 0.35
+  - statType: 116
+    displayName: More Void Damage
+    allowedSlots: 00000000050000000100000007000000i
+    groups: []
+    tiers:
+    - tierIndex: 1
+      minValue: 2
+      maxValue: 4
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 3
+      maxValue: 6
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 4
+      maxValue: 9
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 6
+      maxValue: 13
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 10
+      maxValue: 20
+      minItemLevel: 75
+      weight: 5
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 117
+    displayName: Void Penetration
+    allowedSlots: 00000000050000000100000007000000i
+    groups: []
+    tiers:
+    - tierIndex: 1
+      minValue: 2
+      maxValue: 4
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 3
+      maxValue: 6
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 5
+      maxValue: 9
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 8
+      maxValue: 13
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 12
+      maxValue: 19
+      minItemLevel: 75
+      weight: 5
+    tierTopMultiplier: 5
+    tierSpread: 0.35
+  - statType: 118
+    displayName: Void Resistance
+    allowedSlots: 03000000000000000200000004000000050000000100000006000000i
+    groups: []
+    tiers:
+    - tierIndex: 1
+      minValue: 3
+      maxValue: 7
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 5
+      maxValue: 11
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 8
+      maxValue: 17
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 12
+      maxValue: 26
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 20
+      maxValue: 40
+      minItemLevel: 75
+      weight: 5
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 119
+    displayName: Maximum Void Resistance
+    allowedSlots: 0000000002000000i
+    groups: []
+    tiers:
+    - tierIndex: 1
+      minValue: 1
+      maxValue: 1
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 1
+      maxValue: 2
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 2
+      maxValue: 3
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 2
+      maxValue: 5
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 4
+      maxValue: 8
+      minItemLevel: 75
+      weight: 5
     tierTopMultiplier: 6
     tierSpread: 0.35

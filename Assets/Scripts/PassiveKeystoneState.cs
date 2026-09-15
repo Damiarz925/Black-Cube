@@ -131,7 +131,7 @@ public sealed class PassiveKeystoneState : MonoBehaviour
         };
         float total = 0f;
         if (source.Hits != null) foreach (var hit in source.Hits) total += Mathf.Max(0f, hit.Amount);
-        result.AddDamage(Element.Poison, total);
+        result.AddDamage(Element.Void, total);
         return result;
     }
 

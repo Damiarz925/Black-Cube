@@ -99,7 +99,9 @@ public sealed class PlayerSkillMenuUI : MonoBehaviour
             bool equipped = selected == skill;
             string state = equipped ? "EQUIPPED  /  RIGHT-CLICK TO FORFEIT"
                 : selected == null ? "LEFT-CLICK TO EQUIP" : "FORFEIT CURRENT SKILL FIRST";
-            skillLabels[i].text = $"{skill.displayName.ToUpperInvariant()}  /  {controller.ManaCost(skill):0} MANA\n" +
+            int level = controller.EffectiveSkillLevel(skill);
+            float factor = PlayerSkillController.SkillDamageLevelFactor(level);
+            skillLabels[i].text = $"{skill.displayName.ToUpperInvariant()}  /  LEVEL {level}  /  {factor:0.00}x DAMAGE  /  {controller.ManaCost(skill):0} MANA\n" +
                                   $"<size=14>{skill.description}</size>\n<size=11>{state}</size>";
             CorruptionUIButtonSkin.Ensure(skillButtons[i])?.SetSelected(equipped);
         }

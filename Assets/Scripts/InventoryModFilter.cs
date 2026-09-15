@@ -31,7 +31,8 @@ public enum ModFilterCategory : long
     Cooldown = 1L << 20,
     Attributes = 1L << 21,
     SkillLevels = 1L << 22,
-    Utility = 1L << 23
+    Utility = 1L << 23,
+    Void = 1L << 24
 }
 
 public enum ModFilterMode { Simple, Advanced }
@@ -45,6 +46,7 @@ public sealed class InventoryModFilter
         (ModFilterCategory.Fire, "Fire"),
         (ModFilterCategory.Cold, "Cold"),
         (ModFilterCategory.Lightning, "Lightning"),
+        (ModFilterCategory.Void, "Void"),
         (ModFilterCategory.Poison, "Poison"),
         (ModFilterCategory.Bleed, "Bleed"),
         (ModFilterCategory.Ignite, "Ignite"),
@@ -207,7 +209,7 @@ public sealed class InventoryModFilter
     {
         ModFilterCategory tags = CategoriesFor(stat);
         ModFilterCategory[] order = { ModFilterCategory.Physical, ModFilterCategory.Fire, ModFilterCategory.Cold,
-            ModFilterCategory.Lightning, ModFilterCategory.Poison, ModFilterCategory.Bleed,
+            ModFilterCategory.Lightning, ModFilterCategory.Void, ModFilterCategory.Poison, ModFilterCategory.Bleed,
             ModFilterCategory.Ignite, ModFilterCategory.Shock, ModFilterCategory.Chill };
         for (int i = 0; i < order.Length; i++) if ((tags & order[i]) != 0) return i;
         return order.Length;
@@ -217,7 +219,9 @@ public sealed class InventoryModFilter
         StatTypes.WeaponBaseDmg or StatTypes.WeaponBaseAttackSpeed or StatTypes.WeaponBaseCrit;
     private static bool IsSkillLevel(StatTypes stat) => stat is >= StatTypes.Plus1Phys and <= StatTypes.Plus1Ignite;
     private static bool IsCritical(StatTypes stat) => stat is StatTypes.CritChance or StatTypes.CritMult or StatTypes.BaseCritChance;
-    private static bool IsResistance(StatTypes stat) => stat is >= StatTypes.ColdRes and <= StatTypes.AllAilmentRes;
+    private static bool IsResistance(StatTypes stat) =>
+        stat is >= StatTypes.ColdRes and <= StatTypes.AllAilmentRes
+        || stat is StatTypes.VoidRes or StatTypes.MaxVoidRes;
 
     public static ModFilterCategory CategoriesFor(StatTypes stat) => stat switch
     {
@@ -229,6 +233,8 @@ public sealed class InventoryModFilter
             => ModFilterCategory.Cold,
         StatTypes.FlatLight or StatTypes.LightDmg or StatTypes.LightMult or StatTypes.LightPenetration
             => ModFilterCategory.Lightning,
+        StatTypes.FlatVoid or StatTypes.VoidDmg or StatTypes.VoidMult or StatTypes.VoidPenetration
+            => ModFilterCategory.Void,
         StatTypes.GenericDmg or StatTypes.GenericMult or StatTypes.GenericDotMult
             => ModFilterCategory.Damage,
         StatTypes.CritChance or StatTypes.CritMult or StatTypes.BaseCritChance
@@ -247,6 +253,7 @@ public sealed class InventoryModFilter
         StatTypes.FireRes or StatTypes.MaxFireRes => ModFilterCategory.Fire | ModFilterCategory.ElementalResistance,
         StatTypes.ColdRes or StatTypes.MaxColdRes => ModFilterCategory.Cold | ModFilterCategory.ElementalResistance,
         StatTypes.LightRes or StatTypes.MaxLightRes => ModFilterCategory.Lightning | ModFilterCategory.ElementalResistance,
+        StatTypes.VoidRes or StatTypes.MaxVoidRes => ModFilterCategory.Void | ModFilterCategory.ElementalResistance,
         StatTypes.AllRes or StatTypes.MaxAllRes => ModFilterCategory.ElementalResistance,
         StatTypes.PoisonRes => ModFilterCategory.Poison | ModFilterCategory.AilmentResistance,
         StatTypes.BleedRes => ModFilterCategory.Bleed | ModFilterCategory.AilmentResistance,

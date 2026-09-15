@@ -208,6 +208,7 @@ public class GameManager : MonoBehaviour
         if (!wasBoss) enemiesKilledInZone++;
         var enemyAI = enemyHealth.GetComponent<EnemyAI>();                                          //grab the killed enemy's script
         var rarity = enemyAI != null ? enemyAI.CurrentRarity : EnemyAI.EnemyRarity.Normal;          //check if the enemy script is null, if it isn't grab the enemy's rarity, if it is set the rarity to normal
+        RestorePlayerKillResources();
         BattleManager.Instance?.NotifyEnemyDied(enemyHealth);
         GetComponent<PlayerProgression>().AwardEnemy(enemyAI != null ? enemyAI.EnemyLevel : currentZoneLevel, rarity, wasBoss);
 
@@ -335,6 +336,16 @@ public class GameManager : MonoBehaviour
 
         StartZone(NextCombatLevelAfterBoss(currentZoneLevel));
         GamePersistence.Save();
+    }
+
+    private static void RestorePlayerKillResources()
+    {
+        PlayerController player = FindAnyObjectByType<PlayerController>();
+        if (player == null) return;
+        StatsComponent stats = player.GetComponent<StatsComponent>();
+        if (stats == null) return;
+        player.GetComponent<HealthComponent>()?.RestoreLife(stats.GetStat(StatTypes.LifeOnKill));
+        player.GetComponent<ManaComponent>()?.Restore(stats.GetStat(StatTypes.ManaOnKill));
     }
 
     private static int NextCombatLevelAfterBoss(int clearedLevel) => Mathf.Max(1, clearedLevel + 1);

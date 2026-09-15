@@ -61,10 +61,40 @@ public sealed class PlayerSkillController : MonoBehaviour
     public float ManaCost(PlayerSkillDefinition skill)
     {
         if (skill == null) return 0f;
-        float cost = Mathf.Max(0f, skill.manaCost + GetComponent<StatsComponent>().GetRawStat(StatTypes.ManaCost));
+        int level = EffectiveSkillLevel(skill);
+        float cost = Mathf.Max(0f, skill.manaCost) * ManaCostLevelFactor(level);
         var keystones = GetComponent<PassiveKeystoneState>();
-        return cost * (keystones != null ? keystones.ManaCostMultiplier : 1f);
+        cost *= keystones != null ? keystones.ManaCostMultiplier : 1f;
+        return Mathf.Round(cost);
     }
+
+    public int EffectiveSkillLevel(PlayerSkillDefinition skill)
+    {
+        if (skill == null) return 1;
+        StatsComponent stats = GetComponent<StatsComponent>();
+        return CalculateEffectiveSkillLevel(stats != null ? stats.GetRawStat(SkillLevelStat(skill.id)) : 0f);
+    }
+
+    public static int CalculateEffectiveSkillLevel(float addedLevels) =>
+        Mathf.Clamp(1 + Mathf.FloorToInt(Mathf.Max(0f, addedLevels)), 1, 20);
+
+    public static float SkillDamageLevelFactor(int effectiveLevel) =>
+        1f + .05f * (Mathf.Clamp(effectiveLevel, 1, 20) - 1);
+
+    public static float ManaCostLevelFactor(int effectiveLevel) =>
+        1f + .02f * (Mathf.Clamp(effectiveLevel, 1, 20) - 1);
+
+    public static StatTypes SkillLevelStat(PlayerSkillId id) => id switch
+    {
+        PlayerSkillId.HeavyStrike => StatTypes.Plus1Phys,
+        PlayerSkillId.IceStrike => StatTypes.Plus1Cold,
+        PlayerSkillId.LightningStrike => StatTypes.Plus1Light,
+        PlayerSkillId.Fireball => StatTypes.Plus1Fire,
+        PlayerSkillId.Envenom => StatTypes.Plus1Poison,
+        PlayerSkillId.Shiv => StatTypes.Plus1Bleed,
+        PlayerSkillId.Immolate => StatTypes.Plus1Ignite,
+        _ => StatTypes.Plus1Phys
+    };
 
     public bool TryCastSelected()
     {

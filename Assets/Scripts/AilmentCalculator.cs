@@ -22,7 +22,9 @@ public static class AilmentCalculator
         if (effect == null || attacker == null)         //If there is no effect or attacker, return
             return;
 
-        float sourceHitDamage = GetSourceHitDamage(effect, ctx)
+        float sourceHitDamage = (effect.Ailment == StatusEffects.AilmentKind.Poison
+                ? GetPoisonVoidScaledSource(ctx, attacker)
+                : GetSourceHitDamage(effect, ctx))
                                 * CombatCalculator.ScopedDamageMultiplier(ctx.Scopes, attacker);
         if (sourceHitDamage <= 0f)      //If it's 0, return.
             return;
@@ -60,7 +62,8 @@ public static class AilmentCalculator
         }
 
         // 4)Calculate the appropriate DoT multipliers to apply to the ailment damage
-        float moreFactor = 1f + attacker.GetStat(StatTypes.GenericDotMult);
+        float moreFactor = (1f + attacker.GetStat(StatTypes.GenericDotMult))
+            * (1f + DerivedStatCalculator.DotMoreDamage(attacker));
 
         switch (effect.Ailment)
         {
@@ -130,6 +133,26 @@ public static class AilmentCalculator
         effectiveInterval = baseInterval - tickRateFlat;
     }
 
+    /// <summary>
+    /// Poison is an ailment whose payload is Void. Non-Void source components gain
+    /// Void increased/more scaling here; a Void source already received those
+    /// modifiers while its hit was built, so it is not scaled a second time.
+    /// </summary>
+    public static float GetPoisonVoidScaledSource(DamageContext ctx, StatsComponent attacker)
+    {
+        if (ctx.Hits == null || attacker == null) return 0f;
+        float voidFactor = (1f + attacker.GetStat(StatTypes.VoidDmg)
+                + DerivedStatCalculator.ElementIncreasedDamage(attacker, Element.Void))
+            * (1f + attacker.GetStat(StatTypes.VoidMult));
+        float total = 0f;
+        foreach (ElementalHit hit in ctx.Hits)
+        {
+            if (hit.Amount <= 0f || hit.Element == Element.Poison) continue;
+            total += hit.Element == Element.Void ? hit.Amount : hit.Amount * voidFactor;
+        }
+        return total;
+    }
+
     //Used to grab the damage of the source hit to be used when applying ailments
     public static float GetSourceHitDamage(StatusEffects effect, DamageContext ctx)
     {
@@ -145,7 +168,8 @@ public static class AilmentCalculator
             StatusEffects.StatusType.Shock => ElementMask.Light,
             _ => effect.Ailment switch
             {
-                StatusEffects.AilmentKind.Poison => ElementMask.Phys | ElementMask.Poison,
+                StatusEffects.AilmentKind.Poison => ElementMask.Phys | ElementMask.Fire | ElementMask.Cold
+                    | ElementMask.Light | ElementMask.Void,
                 StatusEffects.AilmentKind.Bleed => ElementMask.Phys,
                 StatusEffects.AilmentKind.Ignite => ElementMask.Fire,
                 _ => effect.Elements
