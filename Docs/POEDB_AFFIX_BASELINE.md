@@ -1,4 +1,6 @@
-# Step 12.5 ordinary-explicit affix baseline
+# Step 12.5 ordinary affix-family baseline
+
+Step 12.5G uses these same legal item-type families and slot-relative tier rows for the one permanent equipment implicit, regardless of a family's normal explicit Prefix/Suffix classification. An implicit consumes no explicit side/group capacity and may repeat a family once as an explicit. Natural explicit counts are 0/2/4/6 with Magic/Rare/Legendary side splits 1/1, 2/2 and 3/3. The tier rows below are not duplicated in the CODEX Mod List; that browser reads the runtime `ModDatabase` and `ModManager.ApplicableTiers` directly.
 
 Research snapshot: 2026-09-15. These are Path of Exile 1 ordinary random-item explicit modifiers used only as a numeric/item-class reference. Black-Cube keeps its own labels and mechanics. Influenced, Essence, Fossil, Veiled, Synthesis, Corrupted, Eldritch, crafted-only and unique rolls are excluded. The executable snapshot is `Assets/Scripts/PoedbAffixCatalog.cs`; this document records its provenance and deviations.
 

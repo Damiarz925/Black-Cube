@@ -101,13 +101,13 @@ Stable IDs, adjacency, refund safety, stat bindings, keystone effects and art ru
 
 Eight equipment slots are authoritative: Weapon, Helmet, Body Armour, Gloves, Boots, Amulet, Ring and Belt.
 
-Rarities are Normal, Magic, Rare and Legendary. Current approved modifier counts are Normal 1, Magic 2, Rare 3–4, and Legendary 5–6. Guaranteed weapon base damage/attack-speed/critical rolls are intrinsic and do not count against random crafting-affix limits. One original non-intrinsic modifier is locked; crafting may mutate only unlocked modifiers.
+Rarities are Normal, Magic, Rare and Legendary. Every equipment item has exactly one permanent implicit modifier, rolled from any family legal for its item type and level. It survives upgrades and cannot be rerolled, added to, removed or replaced by ordinary crafting. Its source family's Prefix/Suffix classification is informational: it consumes neither side nor total explicit capacity, and an explicit may legally repeat the implicit's family. Explicit-to-explicit family/group exclusions remain. Guaranteed weapon base damage/attack-speed/critical rolls are separate intrinsic base values outside these counts.
 
 Modifier tiers are item-level gated and may contain any authored number of tiers, including paired minimum/maximum damage rolls. T1 is the strongest tier eligible for that item's level and slot, not an assumed fifth row. Weapon-element matching damage rolls may be local to the weapon; other equipment rolls project globally. Duplicate stat/group exclusions and weighted definitions are part of the current affix model.
 
-Step 12.5 approves explicit Prefix/Suffix classification and rarity capacity: Normal one total (at most one per side), Magic two total (one Prefix and one Suffix), Rare four total (at most three of either side), Legendary six total (at most three of either side). Guaranteed weapon base rolls are intrinsic and outside these counts. The locked original affix occupies its side; add/reroll/remove/upgrades may not bypass a side cap or mutate the locked original. Ordinary PoE-style explicit tier gates and rolls for the direct-mapping families, together with Black-Cube slot deviations, are recorded in [POEDB_AFFIX_BASELINE.md](POEDB_AFFIX_BASELINE.md); nonmatching game-specific families retain authored data pending Step 13.
+Step 12.5G explicit capacities are Normal 0; Magic 2 (1 Prefix/1 Suffix); Rare 4 (2/2); Legendary 6 (3/3). Natural full items generate those exact counts plus the implicit, displaying 1/3/5/7 modifiers respectively. Crafting may leave under-filled items without auto-refill. Add/reroll/remove/upgrades may not bypass an explicit side cap or mutate the implicit. Ordinary PoE-style tier gates and rolls for the direct-mapping families, together with Black-Cube slot deviations, are recorded in [POEDB_AFFIX_BASELINE.md](POEDB_AFFIX_BASELINE.md); nonmatching game-specific families retain authored data pending Step 13.
 
-Weapon base damage is a min–max range. The starter weapon is 64–96 (average 80). Every resolved hit, including Hit Twice and real multi-hit interactions, samples its own value within the range; noncritical previews show the average. The base critical damage multiplier is 1.5×; critical-multiplier stats add their classified fractional value. Actual hit damage/life loss and critical presentation must show the final resolved result rather than a scalar estimate.
+Weapon base damage is a min–max range. The starter weapon is 64–96 (average 80), has one permanent legal implicit, and keeps its authored 1.2 attacks/second and 5% base crit instead of applying randomized weapon-base rolls. Every resolved hit, including Hit Twice and real multi-hit interactions, samples its own value within the range; noncritical previews show the average. The base critical damage multiplier is 1.5×; critical-multiplier stats add their classified fractional value. Actual hit damage/life loss and critical presentation must show the final resolved result rather than a scalar estimate.
 
 [STAT_AFFIX_AUDIT.md](STAT_AFFIX_AUDIT.md) records the historical Step 9 inventory and the Step 10 delta: 120 stable IDs (0–119), 107 pooled definitions including three guaranteed weapon bases, and 104 random v1 affixes. Removed families retain numeric IDs for schema-2 legacy gear but do not newly roll.
 
@@ -126,11 +126,13 @@ The six ordinary equipment operations are:
 3. Reroll Magic modifier
 4. Add Rare/Legendary modifier
 5. Reroll Rare/Legendary modifier
-6. Remove Rare/Legendary modifier
+6. Remove Magic/Rare/Legendary modifier
+
+Temporary Normal → Magic behavior preserves the implicit and adds exactly one Prefix and one Suffix. Magic → Rare preserves existing explicits and adds exactly two legal explicit modifiers, even to under-filled Magic gear; it does not refill all empty capacity. Magic and Rare/Legendary rerolls each replace exactly one randomly selected existing explicit on the same side. Rare/Legendary Add adds one explicit; Magic/Rare/Legendary Remove removes one explicit and may leave zero. Full Add and empty Remove fail without consuming currency. A future Add Magic Modifier currency is not part of this pass.
 
 The six Ancient relic counterparts are Ancient Normal → Magic, Ancient Magic → Rare, Ancient Rare → Legendary, Ancient Reroll, Ancient Add Modifier and Ancient Remove Modifier. Ancient operations apply only to the eligible current-cycle relic. Successful random outcomes and currency consumption form one immediate save transaction.
 
-Ancient currency uses distinct recognizable cursors rather than a blank square; manual GEAR/RELICS tab selection cancels any armed crafting intent, while a valid Ancient target may switch to the Relics tab automatically without losing the intent. Relic inventory cards have meaningful hover/click inspection, current-cycle authority, and projected active modifiers. These controls are functional placeholders; final art remains user-owned.
+Ancient currency inventory tiles and armed cursors use the supplied canonical artwork alone, without generated rune overlays or purple-square fallbacks; manual GEAR/RELICS tab selection cancels any armed crafting intent, while a valid Ancient target may switch to the Relics tab automatically without losing the intent. Existing relic crafting semantics stay separate from equipment implicits. The supplied art labels do not provide a dedicated Ancient Rare → Legendary image, so its current gold nearest-design mapping needs eventual user visual approval.
 
 ## 13. Pickup filters and dismantling
 
@@ -156,7 +158,7 @@ New Game clears relic history, active slots, cycle/rebirth history and Ancient c
 [SAVE_STATE_CONTRACT.md](SAVE_STATE_CONTRACT.md) and [RUNTIME_LIFECYCLE.md](RUNTIME_LIFECYCLE.md) are authoritative. Locked concepts are:
 
 - One logical current-run save with primary plus backup
-- Schema 3 and validated atomic writes, with schema-2 scalar-damage migration to X–X ranges and legacy-affix preservation
+- Schema 4 and validated atomic writes, with sequential schema-2/3 migration, scalar-damage X–X conversion and exact historical-affix preservation
 - Explicit New Game overwrite confirmation
 - Full gameplay/meta wipe on New Game with preferences preserved
 - One canonical system for Save & Main Menu and Save & Quit
@@ -173,7 +175,7 @@ The visual identity is stylized layered paper/cut-paper/storybook. Paper Battle 
 
 Functional implementation and final visual ownership are distinct. Codex may create functional controls, sensible basic placement and component wiring. The user retains final custom art, animated hover/click/pressed states, precision alignment, bespoke sprite transitions and visual polish. Runtime-built placeholders do not lock final artwork or geometry.
 
-Step 12.5 allows Inventory to coexist with either Stats or Enemy Inspection; Stats and Enemy Inspection are mutually exclusive. Gear tooltips group Prefixes above Suffixes, show actual roll and that exact tier's possible range, distinguish paired damage endpoints, mark local/global and locked/craftable affixes, and clearly identify historical rolls preserved by migration.
+Step 12.5 allows Inventory to coexist with either Stats or Enemy Inspection; Stats and Enemy Inspection are mutually exclusive. Gear tooltips show identity/base values, then an accented implicit line with a lock icon, then a divider and compact Prefix/Suffix lines with actual rolls, tier ranges, T numbers and local designation. They do not print literal LOCKED/UNLOCKED labels. The Pause Menu CODEX → MOD LIST browser reads live affix definitions, per-slot tiers and item-level gates from the same runtime catalog as item generation and crafting; its side filter describes normal explicit classification. Opening and backing through CODEX remain paused until Resume.
 
 ## 17. Environment and art direction
 
