@@ -47,6 +47,7 @@ public static class BaselineVerificationRunner
             "Assets/Prefabs/PaperBattle/Goblin2D.prefab",
             "Assets/Prefabs/PaperBattle/Hobgoblin2D.prefab",
             "Assets/Resources/PlayerSkills.asset",
+            "Assets/Resources/EnemyScalingProfile.asset",
             "Assets/Art/PaperBattle/ChibiPlayer/PlayerAnimation.asset",
             "Assets/Art/PaperBattle/ForestEnemies/GoblinAnimation.asset",
             "Assets/Art/PaperBattle/ForestEnemies/HobgoblinAnimation.asset"
@@ -96,6 +97,8 @@ public static class BaselineVerificationRunner
 
         var skills = Resources.Load<PlayerSkillCatalog>("PlayerSkills");
         if (skills == null) failures.Add("Resources.Load<PlayerSkillCatalog>(PlayerSkills) returned null.");
+        if (Resources.Load<EnemyScalingProfile>("EnemyScalingProfile") == null)
+            failures.Add("Resources.Load<EnemyScalingProfile>(EnemyScalingProfile) returned null.");
         for (int i = 0; i <= 5; i++)
         {
             string path = $"Assets/Art/PaperBattle/ForestCycle/{i * 20}_Percent.png";

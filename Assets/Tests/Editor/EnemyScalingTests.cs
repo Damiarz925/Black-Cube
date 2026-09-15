@@ -64,6 +64,7 @@ public sealed class EnemyScalingTests
         Assert.That(next.DamageFactor / hundred.DamageFactor, Is.EqualTo(1.015f).Within(.0001f));
         Assert.That(hundred.Armour, Is.EqualTo(495f));
         Assert.That(EnemyScalingMath.Calculate(300).ResistancePoints, Is.EqualTo(20f));
+        Assert.That(float.IsInfinity(EnemyScalingMath.Calculate(1000).ScaledLife(500f)), Is.False);
     }
 
     [Test]
@@ -100,5 +101,71 @@ public sealed class EnemyScalingTests
         EnemyScalingMath.ScaleOutgoing(ctx, EnemyScalingMath.Calculate(50).DamageFactor);
         Assert.That(ctx.Hits[0].Amount, Is.EqualTo(10f * EnemyScalingMath.Calculate(50).DamageFactor).Within(.001f));
         Assert.That(ctx.Hits[1].Amount, Is.EqualTo(5f * EnemyScalingMath.Calculate(50).DamageFactor).Within(.001f));
+        var host = new GameObject("poison attacker", typeof(StatsComponent));
+        var effect = ScriptableObject.CreateInstance<StatusEffects>();
+        try
+        {
+            effect.ConfigureRuntime("Poison", StatusEffects.StatusType.DamageOverTime,
+                StatusEffects.AilmentKind.Poison, ElementMask.Void, .1f, 2, 100,
+                StatusEffects.StackPolicy.StackAndRefresh, 4);
+            var baseVoid = new DamageContext(1); baseVoid.AddDamage(Element.Void, 5f);
+            AilmentCalculator.ComputeAilmentFromHit(effect, baseVoid, host.GetComponent<StatsComponent>(),
+                out float baseTick, out _, out _);
+            var scaledVoid = new DamageContext(1); scaledVoid.AddDamage(Element.Void, 5f);
+            EnemyScalingMath.ScaleOutgoing(scaledVoid, EnemyScalingMath.Calculate(50).DamageFactor);
+            AilmentCalculator.ComputeAilmentFromHit(effect, scaledVoid, host.GetComponent<StatsComponent>(),
+                out float scaledTick, out _, out _);
+            Assert.That(scaledTick / baseTick,
+                Is.EqualTo(EnemyScalingMath.Calculate(50).DamageFactor).Within(.0001f));
+        }
+        finally { UnityEngine.Object.DestroyImmediate(effect); UnityEngine.Object.DestroyImmediate(host); }
+    }
+
+    [Test]
+    public void RuntimeGeneratedActorsAndOptimizerAgreeWithCanonicalScalingAtRepresentativeLevels()
+    {
+        var prefabs = new[]
+        {
+            AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/PaperBattle/Goblin2D.prefab"),
+            AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/PaperBattle/Hobgoblin2D.prefab")
+        };
+        UnityEngine.Random.State saved = UnityEngine.Random.state;
+        try
+        {
+            UnityEngine.Random.InitState(11012);
+            foreach (int level in new[] { 1, 10, 25, 50, 75, 100 })
+            foreach (GameObject prefab in prefabs)
+            {
+                var actor = UnityEngine.Object.Instantiate(prefab);
+                try
+                {
+                    var ai = actor.GetComponent<EnemyAI>();
+                    var setup = actor.GetComponent<EnemyStatSetup>();
+                    var stats = actor.GetComponent<StatsComponent>();
+                    ai.GenerateIsolatedBuild(level, null, EnemyAI.EnemyRarity.Normal);
+                    var math = EnemyScalingMath.Calculate(level);
+                    Assert.That(setup.Intrinsic.LifeFactor, Is.EqualTo(math.LifeFactor));
+                    Assert.That(ai.LastOptimizerBaseStats[(int)StatTypes.Life],
+                        Is.EqualTo(math.ScaledLife(setup.AuthoredLevelOneLife)).Within(.001f));
+                    Assert.That(ai.LastOptimizerBaseStats[(int)StatTypes.FlatArmour], Is.EqualTo(math.Armour));
+                    Assert.That(ai.LastOptimizerBaseStats[(int)StatTypes.VoidRes], Is.EqualTo(math.ResistancePoints));
+                    Assert.That(actor.GetComponent<HealthComponent>().MaxLife,
+                        Is.GreaterThanOrEqualTo(math.ScaledLife(setup.AuthoredLevelOneLife)));
+                    Assert.That(CombatCalculator.GetMaximumResistance(Element.Void, stats),
+                        Is.GreaterThanOrEqualTo(CombatCalculator.BaseMaximumResistance));
+                    var parity = EnemyBuildOptimizer.Evaluate(ai.EquippedItems, ai.LastOptimizerBaseStats,
+                        ai.baseSpeed, ai.IntrinsicDamageFactor);
+                    Assert.That(ai.LastBuildEvaluation.Offense,
+                        Is.EqualTo(parity.Offense).Within(.001f));
+                    Assert.That(ai.LastBuildEvaluation.Defense,
+                        Is.EqualTo(parity.Defense).Within(.001f));
+                    if (level > 1)
+                        Assert.That(parity.Offense, Is.GreaterThan(EnemyBuildOptimizer.Evaluate(
+                            ai.EquippedItems, ai.LastOptimizerBaseStats, ai.baseSpeed, 1f).Offense));
+                }
+                finally { UnityEngine.Object.DestroyImmediate(actor); }
+            }
+        }
+        finally { UnityEngine.Random.state = saved; }
     }
 }
