@@ -22,7 +22,7 @@ IDs 270–279 are Iron Bastion, Living Fortress, Mana Shield, Arcane Overload, L
 
 ## Stat bindings
 
-The spokes bind respectively to `ArmourPercent`, `LifePercent`, `ManaPercent`, `MagicDmg`, `LightDmg`, `FireDmg`, `PoisonDmg`, `ProjectileDmg`, `PhysDmg`, and `ColdDmg`. Attack Speed binds to `AttackSpeed`; Projectile Amount is flat; Life and Mana Regeneration are flat units per second; ailment and hit-twice branches use their named percentage-point stats. Empty Travel has no modifier.
+The spokes bind respectively to `ArmourPercent`, `LifePercent`, `ManaPercent`, `MagicDmg`, `LightDmg`, `FireDmg`, `VoidDmg`, `ProjectileDmg`, `PhysDmg`, and `ColdDmg`. The historical Poison-named ordinary damage spoke now displays Void Damage and grants direct Void damage; Poison Chance and ailment-specialized keystones remain Poison-specific. Stable node IDs/geometry are unchanged. Attack Speed binds to `AttackSpeed`; Projectile Amount is flat; Life and Mana Regeneration are flat units per second; ailment and hit-twice branches use their named percentage-point stats. Empty Travel has no modifier.
 
 ## Art and interaction
 

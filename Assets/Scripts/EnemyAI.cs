@@ -39,6 +39,7 @@ public class EnemyAI : MonoBehaviour
     public float[] LastOptimizerBaseStats { get; private set; }
     public Element WeaponMainElement => equippedWeapon != null ? equippedWeapon.BaseElement : Element.Phys;
     public float EquippedWeaponBaseDamage => equippedWeapon != null ? equippedWeapon.GetEffectiveBaseDamage() : 0f;
+    public Gear EquippedWeapon => equippedWeapon;
     public EnemyDropTable DropTable { get { dropTable??=new EnemyDropTable();dropTable.EnsureDefaults();return dropTable; } }
 
     public Gear GetEquippedGear(LootManager.GearType type)
@@ -315,6 +316,8 @@ public class EnemyAI : MonoBehaviour
             {
                 gear.BaseElement = Element.Phys;        //set its element to phys
                 gear.BaseDamage = 2.5f + 1f * itemLevel;        //set its base damage to 2.5f + 1f * ilvl
+                gear.BaseDamageMin = gear.BaseDamage * .8f;
+                gear.BaseDamageMax = gear.BaseDamage * 1.2f;
                 gear.BaseAttackSpeed = 1.0f + 0.01f * itemLevel;        //set its base attack speed to 1 + (.01 * ilvl)
                 gear.BaseCritChance = 0.05f;        //set it's base crit chance to 5%
             }
@@ -363,15 +366,22 @@ public class EnemyAI : MonoBehaviour
     public DamageContext BuildNonCriticalAttackContext(bool logStats = false)
         => BuildNonCriticalAttackContext(logStats, false);
 
-    private DamageContext BuildNonCriticalAttackContext(bool logStats, bool rollWeapon)
+    public DamageContext BuildNonCriticalAttackContextAtRangeEnd(bool maximum)
+    {
+        if (equippedWeapon == null) return BuildNonCriticalAttackContext();
+        equippedWeapon.GetEffectiveBaseDamageRange(out float minimum, out float high);
+        return BuildNonCriticalAttackContext(false, false, maximum ? high : minimum);
+    }
+
+    private DamageContext BuildNonCriticalAttackContext(bool logStats, bool rollWeapon, float? weaponOverride = null)
     {
         DamageContext ctx = new DamageContext(4);       //create a damage context with an initial capacity of 4
 
         if (equippedWeapon == null || stats == null) return ctx;     //if equippedweapon is null, return the context now
 
         Element weaponElement = equippedWeapon.BaseElement;     //store the weapon's base element in weaponElement
-        float weaponBaseDamage = rollWeapon ? equippedWeapon.RollEffectiveBaseDamage()
-            : equippedWeapon.GetEffectiveBaseDamage();
+        float weaponBaseDamage = weaponOverride ?? (rollWeapon ? equippedWeapon.RollEffectiveBaseDamage()
+            : equippedWeapon.GetEffectiveBaseDamage());
 
         AddScaledElementalDamage(ctx, weaponElement, weaponBaseDamage, logStats);     //call addscaledelemental damage to add the scaled ele damage (the base element damage scaled by local mods matching that element on the item)
         AddGlobalFlatElements(ctx, weaponElement);      //call addgloablflatelements to add any flat elemental damage that does not match the weapon's base element

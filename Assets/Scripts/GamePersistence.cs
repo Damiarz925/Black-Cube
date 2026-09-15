@@ -140,8 +140,9 @@ public static class GamePersistence
             if(PoedbAffixCatalog.TryGet(mod.statType,gear.type,out var tiers))
             {
                 AffixTier tier=tiers.Find(t=>t.tierIndex==mod.tierIndex&&t.minItemLevel<=gear.itemLevel);
-                if(tier==null||mod.value<tier.minValue-.001f||mod.value>tier.maxValue+.001f)return false;
-                if(tier.pairedDamage&&(!mod.hasSecondaryValue||mod.HighValue<tier.minHighValue-.001f
+                if(tier==null||mod.value<tier.minValue-.001f||mod.value>tier.maxValue+.001f
+                    ||tier.pairedDamage!=mod.hasSecondaryValue)return false;
+                if(tier.pairedDamage&&(mod.HighValue<tier.minHighValue-.001f
                     ||mod.HighValue>tier.maxHighValue+.001f))return false;
             }
         }

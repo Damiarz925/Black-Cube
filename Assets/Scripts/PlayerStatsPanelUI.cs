@@ -132,11 +132,16 @@ public class PlayerStatsPanelUI : MonoBehaviour
             if (enemy != null)
             {
                 AddHeader("Basic Attack / Before Defenses");
-                foreach (var hit in enemy.BuildNonCriticalAttackContext().Hits)
+                var lowContext = enemy.BuildNonCriticalAttackContextAtRangeEnd(false);
+                var highContext = enemy.BuildNonCriticalAttackContextAtRangeEnd(true);
+                for (int i = 0; i < lowContext.Hits.Count; i++)
                 {
+                    var hit = lowContext.Hits[i];
                     if (hit.Amount <= 0f) continue;
                     var damage = Instantiate(rowPrefab, contentRoot);
-                    damage.Set($"{ItemTooltipUI.ElementName(hit.Element)} / Hit (Noncritical)", hit.Amount.ToString("0.##"));
+                    float high = i < highContext.Hits.Count ? highContext.Hits[i].Amount : hit.Amount;
+                    damage.Set($"{ItemTooltipUI.ElementName(hit.Element)} / Hit (Noncritical)",
+                        $"{hit.Amount:0.##}-{high:0.##} (Average {(hit.Amount+high)*.5f:0.##})");
                     _spawned.Add(damage.gameObject);
                 }
                 var crit = Instantiate(rowPrefab, contentRoot);
@@ -148,7 +153,9 @@ public class PlayerStatsPanelUI : MonoBehaviour
                 if (enemy.EquippedWeaponBaseDamage != 0f)
                 {
                     var weapon = Instantiate(rowPrefab, contentRoot);
-                    weapon.Set($"Weapon Base {ItemTooltipUI.ElementName(enemy.WeaponMainElement)}", enemy.EquippedWeaponBaseDamage.ToString("0.##"));
+                    enemy.EquippedWeapon.GetEffectiveBaseDamageRange(out float low, out float high);
+                    weapon.Set($"Weapon Base {ItemTooltipUI.ElementName(enemy.WeaponMainElement)}",
+                        $"{low:0.##}-{high:0.##} (Average {(low+high)*.5f:0.##})");
                     _spawned.Add(weapon.gameObject);
                 }
             }

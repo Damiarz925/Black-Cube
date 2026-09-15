@@ -17,7 +17,8 @@ public static class PlayerStatModelChecks
         var manager = EquipmentManager.Instance;
         Require(manager.GetEquipped(LootManager.GearType.BodyArmours) == null, "Use a fresh Play session with empty Body Armor");
         var starter = manager.GetEquipped(LootManager.GearType.Weapons);
-        Require(starter != null && starter.BaseDamage == 80, "Starter authored raw base damage remains 80");
+        Require(starter != null && starter.BaseDamage == 80 && starter.BaseDamageMin == 64
+            && starter.BaseDamageMax == 96, "Starter range is 64-96 with historical average 80");
         float starterAttackOutput = player.BuildNonCriticalAttackContext().Hits.Sum(h => h.Amount);
         Require(stats.GetStat(StatTypes.UnarmedDamage) == 0 && !stats.HasStat(StatTypes.WeaponBaseDmg), "Unarmed is zero with no competing intrinsic weapon base");
         Require(health.MaxLife == 1000 && stats.GetStat(StatTypes.Life) == 1000, "Baseline derived maximum is 1000");
@@ -50,7 +51,7 @@ public static class PlayerStatModelChecks
         var hud = Object.FindFirstObjectByType<PaperBattleHUD>(); hud.statsPanel.SetActive(true);
         health.LoseLife(health.CurrentLife + 1); Require(health.CurrentLife == 0, "Lethal damage clamps to zero");
         GameManager.Instance.RestartCurrentLevelAfterDeath(); Check(health, stats, 1200, 1200);
-        string report = $"PASS: baseline Life/maxHP1000; damage current900; +200/+500 Life swaps max1200/1500 with current900 unchanged; down-swap clamps1500->1200; up-swap preserves1200 (no transient base clamp); remove clamps to1000; no stacking/free healing. No weapon+Unarmed0 yields no hits/speed0; Unarmed7 yields7 but weapon raw base remains80 with actual attack output {starterAttackOutput:F2}; replacement42 then actual starter output restored. Lethal damage0 then actual restart fills derived1200. Enemy path unchanged. QA gear is Play-session only.";
+        string report = $"PASS: baseline Life/maxHP1000; damage current900; +200/+500 Life swaps max1200/1500 with current900 unchanged; down-swap clamps1500->1200; up-swap preserves1200 (no transient base clamp); remove clamps to1000; no stacking/free healing. No weapon+Unarmed0 yields no hits/speed0; Unarmed7 yields7 but starter base is 64-96 (average80) with average attack output {starterAttackOutput:F2}; scalar replacement42 remains a valid X-X fixture, then starter output restored. Lethal damage0 then actual restart fills derived1200. Enemy path unchanged. QA gear is Play-session only.";
         System.IO.File.WriteAllText("ReviewCaptures/stat-model-check.txt", report); Debug.Log(report);
     }
     static Gear LifeGear(float amount)

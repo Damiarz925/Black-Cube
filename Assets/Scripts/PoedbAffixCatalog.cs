@@ -22,6 +22,15 @@ public static class PoedbAffixCatalog
         for(int i=0;i<tiers.Count;i++)tiers[i].tierIndex=tiers.Count-i;
         return tiers;
     }
+    static List<AffixTier> ScalarFloat(params float[] rows)
+    {
+        var tiers=new List<AffixTier>();
+        for(int i=0;i<rows.Length;i+=3)
+            tiers.Add(new AffixTier{minItemLevel=(int)rows[i],minValue=rows[i+1],
+                maxValue=rows[i+2],weight=1});
+        for(int i=0;i<tiers.Count;i++)tiers[i].tierIndex=tiers.Count-i;
+        return tiers;
+    }
     static List<AffixTier> Pair(params int[] rows)
     {
         var tiers=new List<AffixTier>();
@@ -62,8 +71,9 @@ public static class PoedbAffixCatalog
                 tiers=Slot(slot,H,B,G,T,R,A,L)?Scalar(1,6,11,14,12,17,26,18,23,38,24,29,
                     50,30,35,60,36,41,72,42,45,84,46,48):new();return true;
             case StatTypes.AllRes:
-                tiers=Slot(slot,A,R,L)?Scalar(12,3,5,24,6,8,36,9,11,48,12,14,
-                    60,15,16,85,17,18):new();return true;
+                if(!Slot(slot,A,R,L))return false; // retain authored Black-Cube non-PoE slot intent
+                tiers=Scalar(12,3,5,24,6,8,36,9,11,48,12,14,
+                    60,15,16,85,17,18);return true;
             case StatTypes.Life:
                 if(!Slot(slot,H,B,G,T,A,R,L)){tiers=new();return true;}
                 var life=Scalar(1,3,9,5,10,24,11,25,39,18,40,54,24,55,69,
@@ -72,7 +82,7 @@ public static class PoedbAffixCatalog
                 tiers=slot==B?life:slot==H||slot==L?Through(life,64):slot==R?Through(life,44):Through(life,54);
                 return true;
             case StatTypes.Mana:
-                if(!Slot(slot,A,R,L)){tiers=new();return true;}
+                if(!Slot(slot,A,R,L))return false; // gloves/armour/boots keep authored values
                 var mana=Scalar(1,15,19,11,20,24,17,25,29,23,30,34,29,35,39,
                     35,40,44,42,45,49,51,50,54,60,55,59,69,60,64,
                     75,65,68,81,69,73,85,74,78);
@@ -82,7 +92,7 @@ public static class PoedbAffixCatalog
             case StatTypes.Intelligence:
                 bool allowed=stat==StatTypes.Strength?Slot(slot,W,A,R,L)
                     :stat==StatTypes.Dexterity?Slot(slot,W,A,R,G):Slot(slot,W,A,R,H);
-                if(!allowed){tiers=new();return true;}
+                if(!allowed)return false; // existing Black-Cube slots keep authored values
                 var attributes=Scalar(1,8,12,11,13,17,22,18,22,33,23,27,
                     44,28,32,55,33,37,66,38,42,74,43,50,82,51,55);
                 bool special=stat==StatTypes.Strength&&slot==L||stat==StatTypes.Dexterity&&slot==G
@@ -101,6 +111,12 @@ public static class PoedbAffixCatalog
                 tiers=Scalar(1,7,10,23,12,18,40,24,32,52,35,44,66,56,72,81,84,110);return true;
             case StatTypes.ManaOnKill:
                 tiers=Scalar(24,7,10,40,11,15,52,16,25,66,26,37,81,38,50);return true;
+            case StatTypes.LifeRegeneration:
+                if(!Slot(slot,H,B)){tiers=new();return true;}
+                var lifeRegen=ScalarFloat(1,1,2,7,2.1f,8,19,8.1f,16,31,16.1f,24,
+                    44,24.1f,32,55,32.1f,48,68,48.1f,64,74,64.1f,96,
+                    78,96.1f,128,83,128.1f,152,86,152.1f,176);
+                tiers=slot==B?lifeRegen:Through(lifeRegen,78);return true;
             case StatTypes.PhysDmg:
                 if(slot!=W)return false; // existing nonweapon identity keeps its authored values
                 tiers=Scalar(1,40,49,11,50,64,23,65,84,35,85,109,
@@ -109,6 +125,16 @@ public static class PoedbAffixCatalog
                 if(slot!=W)return false;
                 tiers=Scalar(1,5,7,11,8,10,22,11,13,30,14,16,
                     37,17,19,45,20,22,60,23,25,77,26,27);return true;
+            case StatTypes.CritChance:
+                if(slot==W)tiers=Scalar(1,10,14,20,15,19,30,20,24,44,25,29,59,30,34,73,35,38);
+                else if(slot==A)tiers=Scalar(5,10,14,20,15,19,30,20,24,44,25,29,58,30,34,72,35,38);
+                else return false;
+                return true;
+            case StatTypes.CritMult:
+                if(slot==W)tiers=Scalar(8,10,14,21,15,19,30,20,24,44,25,29,59,30,34,73,35,38);
+                else if(slot==A)tiers=Scalar(8,8,12,21,13,19,31,20,24,45,25,29,59,30,34,74,35,38);
+                else return false;
+                return true;
             case StatTypes.FlatPhys:
                 if(slot!=W)return false;
                 tiers=Pair(2,1,2,2,3,13,4,5,8,9,21,6,9,13,15,

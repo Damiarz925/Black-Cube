@@ -47,21 +47,3 @@ MonoBehaviour:
   modDatabase: {fileID: 11400000, guid: 8f4d473c0a3a48b4cb3b7369bc945f41, type: 2}
   lootManager: {fileID: 0}
   defaultStatWeight: 50
-  magicTierBias:
-  - 0.2
-  - 0.6
-  - 1
-  - 1.2
-  - 1.5
-  rareTierBias:
-  - 1.5
-  - 1.2
-  - 1
-  - 0.6
-  - 0.3
-  legendaryTierBias:
-  - 2
-  - 1.5
-  - 1
-  - 0.5
-  - 0.1

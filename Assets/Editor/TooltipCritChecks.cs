@@ -17,7 +17,7 @@ using Object = UnityEngine.Object;
 [InitializeOnLoad]
 public static class TooltipCritChecks
 {
-    const string Key = "BlackCube.TooltipCritChecks", Report = "ReviewCaptures/tooltip-crit-check.txt";
+    const string Key = "BlackCube.TooltipCritChecks", Report = "Logs/Step12_5-TooltipCrit-check.txt";
     static IEnumerator routine;
     static double ready;
     static TooltipCritChecks()
@@ -58,8 +58,18 @@ public static class TooltipCritChecks
         g.BaseDamage = 100; g.BaseAttackSpeed = 1; g.BaseCritChance = .05f;
         g.ApplyMods(new List<RolledMod>(mods)); Inventory.Instance.Add(g); return g;
     }
-    static string Row(string label) => Object.FindFirstObjectByType<PlayerStatsPanelUI>().GetComponentsInChildren<StatRowUI>()
-        .Single(r => r.GetComponentsInChildren<TMP_Text>().Any(t => t.text == label)).GetComponentsInChildren<TMP_Text>().First(t => t.text != label).text;
+    static string Row(string label)
+    {
+        string value=Object.FindFirstObjectByType<PlayerStatsPanelUI>().GetComponentsInChildren<StatRowUI>()
+            .Single(r => r.GetComponentsInChildren<TMP_Text>().Any(t => t.text == label))
+            .GetComponentsInChildren<TMP_Text>().First(t => t.text != label).text;
+        if(label.Contains(" / Hit (Noncritical)",StringComparison.Ordinal) || label.StartsWith("Weapon Base ",StringComparison.Ordinal))
+        {
+            int start=value.IndexOf("Average ",StringComparison.Ordinal);
+            if(start>=0) return value.Substring(start+8,value.IndexOf(')',start)-(start+8));
+        }
+        return value;
+    }
     static Vector2 Center(RectTransform r) => RectTransformUtility.WorldToScreenPoint(null, r.TransformPoint(r.rect.center));
     static IEnumerator Run()
     {
@@ -94,7 +104,7 @@ public static class TooltipCritChecks
         saved=UnityEngine.Random.state;
         for(int i=0;i<100;i++)
         {
-            UnityEngine.Random.InitState(i); bool expected=UnityEngine.Random.value<.28f;
+            UnityEngine.Random.InitState(i); weapon.RollEffectiveBaseDamage(); bool expected=UnityEngine.Random.value<.28f;
             UnityEngine.Random.InitState(i); if(p.BuildAttackContext().IsCrit!=expected) throw new Exception("Attack roll disagrees");
         }
         UnityEngine.Random.state=saved; Check(true,"100 seeded real attacks use exact28% probability");
@@ -104,7 +114,7 @@ public static class TooltipCritChecks
         var source=new object(); stats.AddModifier(new StatModifier(StatTypes.CritChance,StatOp.Additive,50,source));
         Near(p.GetFinalCritChance(),.35f,"Additional player source summed globally"); Check(Row("Critical Chance (Final)")=="35%","Player-source display refresh");
         stats.RemoveModifiersFromSource(source); stats.SetBaseStat(StatTypes.CritChance,10000); Near(p.GetFinalCritChance(),1,"Probability cap preserved");stats.SetBaseStat(StatTypes.CritChance,0);
-        foreach(Element element in new[]{Element.Phys,Element.Fire,Element.Cold,Element.Light,Element.Poison,Element.Void})
+        foreach(Element element in new[]{Element.Phys,Element.Fire,Element.Cold,Element.Light,Element.Void})
         {
             weapon.BaseElement=element; p.EquipWeapon(weapon);
             var hits=p.BuildNonCriticalAttackContext().Hits;
@@ -117,14 +127,14 @@ public static class TooltipCritChecks
         Check(Row("Physical / Hit (Noncritical)")=="234" && Row("Fire / Hit (Noncritical)")=="18","Existing mixed flat contribution:234 Physical and18 Fire; more factors multiply");
         stats.SetBaseStat(StatTypes.FlatFire,0);stats.SetBaseStat(StatTypes.GenericDmg,0);stats.SetBaseStat(StatTypes.GenericMult,0);stats.SetBaseStat(StatTypes.PhysMult,0);
         var progression=Object.FindFirstObjectByType<PlayerProgression>();progression.AddExperience(progression.RequiredXp);Check(progression.TrySpend(PassiveTreeDefinition.NodeId(PassiveBranch.Poison,0)),"Actual Poison passive purchased with a deterministically earned point");
-        Check(stats.GetRawStat(StatTypes.PoisonDmg)==5 && Row("Physical / Hit (Noncritical)")=="100" && Row("Critical Chance (Final)")=="28%","Poison passive remains scoped and tooltip refresh preserves unrelated values");
+        Check(stats.GetRawStat(StatTypes.VoidDmg)==5 && Row("Physical / Hit (Noncritical)")=="100" && Row("Critical Chance (Final)")=="28%","Poison passive remains scoped and tooltip refresh preserves unrelated values");
         progression.ResetProgression();
-        // Reuse the existing production DOT and six-type arithmetic regression fixtures.
+        // Reuse the existing production DOT and canonical typed-damage arithmetic fixtures.
         eq.Unequip(LootManager.GearType.Rings);eq.Unequip(LootManager.GearType.Belts);weapon.BaseCritChance=0;weapon.LocalIncCrit=0;
-        File.AppendAllText("ReviewCaptures/inventory-grid-check.txt", "\nTOOLTIP-CRIT regression rerun " + DateTime.Now.ToString("s") + "\n");
+        File.AppendAllText("Logs/Step12_5-InventoryGrid-check.txt", "\nTOOLTIP-CRIT regression rerun " + DateTime.Now.ToString("s") + "\n");
         typeof(InventoryGridChecks).GetMethod("VerifyDamageTypesAndAilments",System.Reflection.BindingFlags.Static|System.Reflection.BindingFlags.NonPublic)
             .Invoke(null,new object[]{p,stats,weapon});
-        Check(true,"Existing six-type and bleed/poison/ignite scaling, duration, health-loss regressions passed (inventory-grid-check.txt)");
+        Check(true,"Canonical typed damage and bleed/poison/ignite scaling, duration, health-loss regressions passed (inventory-grid-check.txt)");
         weapon.BaseCritChance=.05f;weapon.LocalIncCrit=1;eq.Equip(ring);eq.Equip(belt);p.EquipWeapon(weapon);
         yield return null; Canvas.ForceUpdateCanvases();
         var ui=hud.inventoryPanel.GetComponent<InventoryUI>();

@@ -7,6 +7,40 @@ public sealed class PoedbAffixFoundationTests
 {
     const string DatabasePath="Assets/Prefabs/Scriptable Objects/ModDatabase.asset";
 
+    [Test] public void ReusableValidatorChecksCatalogAndReachableFilterCategories()
+    {
+        var database=AssetDatabase.LoadAssetAtPath<ModDatabase>(DatabasePath);
+        var errors=new List<string>();
+        ItemizationValidator.ValidateCatalog(database,errors);
+        Assert.That(errors,Is.Empty,string.Join("\n",errors));
+        Assert.That(System.Array.Exists(InventoryModFilter.SimpleCategories,
+            entry=>entry.Category is ModFilterCategory.Evasion or ModFilterCategory.Block
+                or ModFilterCategory.Accuracy or ModFilterCategory.Cooldown),Is.False);
+    }
+
+    [Test] public void ReusableValidatorRejectsIllegalTierSideCapAndUnhandledPair()
+    {
+        var database=AssetDatabase.LoadAssetAtPath<ModDatabase>(DatabasePath);
+        var errors=new List<string>();
+        var bad=new List<RolledMod>{new(StatTypes.Life,1,99999f),
+            new(StatTypes.Life,1,99999f),new(StatTypes.FlatArmour,1,5f)};
+        ItemizationValidator.ValidateRolledMods(LootManager.GearType.BodyArmours,
+            LootManager.GearRarity.Magic,1,bad,database,errors);
+        Assert.That(errors,Has.Some.Contains("duplicate family"));
+        Assert.That(errors,Has.Some.Contains("illegal at ilvl"));
+        Assert.That(errors,Has.Some.Contains("capacity violated"));
+        errors.Clear();
+        var invalidPair=new AffixTier{tierIndex=1,minItemLevel=1,weight=1,
+            minValue=1,maxValue=2,pairedDamage=true,minHighValue=3,maxHighValue=4};
+        ItemizationValidator.ValidateTiers(StatTypes.FlatPhys,LootManager.GearType.Weapons,
+            new[]{invalidPair},errors);
+        Assert.That(errors,Is.Empty);
+        invalidPair.maxHighValue=0f;
+        ItemizationValidator.ValidateTiers(StatTypes.FlatPhys,LootManager.GearType.Weapons,
+            new[]{invalidPair},errors);
+        Assert.That(errors,Has.Some.Contains("paired high-roll"));
+    }
+
     [Test] public void DirectFamiliesUseVariableSlotRelativeCountsAndStrongestT1()
     {
         Assert.That(PoedbAffixCatalog.TryGet(StatTypes.Life,LootManager.GearType.BodyArmours,out var body),Is.True);
@@ -41,6 +75,49 @@ public sealed class PoedbAffixFoundationTests
             Is.EqualTo((5f,8f,112f,131f)));
         Assert.That(lightning.FindAll(t=>t.minItemLevel<=90).Count,Is.EqualTo(10),
             "Higher item level keeps all eligible lower tiers.");
+    }
+
+    [Test] public void OrdinaryCriticalRowsAreWeaponLocalOrAmuletGlobal()
+    {
+        Assert.That(PoedbAffixCatalog.TryGet(StatTypes.CritChance,LootManager.GearType.Weapons,
+            out var weaponChance),Is.True);
+        Assert.That(weaponChance.Count,Is.EqualTo(6));
+        Assert.That((weaponChance[0].minItemLevel,weaponChance[0].minValue,
+            weaponChance[5].minItemLevel,weaponChance[5].maxValue),
+            Is.EqualTo((1,10f,73,38f)));
+        Assert.That(PoedbAffixCatalog.TryGet(StatTypes.CritChance,LootManager.GearType.Amulets,
+            out var amuletChance),Is.True);
+        Assert.That(amuletChance[5].minItemLevel,Is.EqualTo(72));
+        Assert.That(PoedbAffixCatalog.TryGet(StatTypes.CritMult,LootManager.GearType.Weapons,
+            out var weaponMultiplier),Is.True);
+        Assert.That((weaponMultiplier[0].minValue,weaponMultiplier[5].minItemLevel),
+            Is.EqualTo((10f,73)));
+        Assert.That(PoedbAffixCatalog.TryGet(StatTypes.CritMult,LootManager.GearType.Amulets,
+            out var amuletMultiplier),Is.True);
+        Assert.That((amuletMultiplier[0].minValue,amuletMultiplier[5].minItemLevel),
+            Is.EqualTo((8f,74)));
+        Assert.That(PoedbAffixCatalog.TryGet(StatTypes.CritMult,LootManager.GearType.Gloves,
+            out _),Is.False,"Glove historical family has no ordinary non-influenced direct mapping.");
+        Assert.That(AffixPolicy.Side(StatTypes.CritChance),Is.EqualTo(AffixSide.Suffix));
+        Assert.That(AffixPolicy.Side(StatTypes.CritMult),Is.EqualTo(AffixSide.Suffix));
+    }
+
+    [Test] public void OrdinaryFlatLifeRegenerationUsesSlotRelativeBodyAndHelmetRows()
+    {
+        Assert.That(PoedbAffixCatalog.TryGet(StatTypes.LifeRegeneration,
+            LootManager.GearType.Helmets,out var helmet),Is.True);
+        Assert.That(helmet.Count,Is.EqualTo(9));
+        Assert.That((helmet[0].minItemLevel,helmet[0].minValue,
+            helmet[8].minItemLevel,helmet[8].maxValue),Is.EqualTo((1,1f,78,128f)));
+        Assert.That(PoedbAffixCatalog.TryGet(StatTypes.LifeRegeneration,
+            LootManager.GearType.BodyArmours,out var body),Is.True);
+        Assert.That(body.Count,Is.EqualTo(11));
+        Assert.That((body[10].minItemLevel,body[10].minValue,body[10].maxValue),
+            Is.EqualTo((86,152.1f,176f)));
+        Assert.That(AffixPolicy.Side(StatTypes.LifeRegeneration),Is.EqualTo(AffixSide.Suffix));
+        Assert.That(PoedbAffixCatalog.TryGet(StatTypes.ManaRegeneration,
+            LootManager.GearType.BodyArmours,out _),Is.False,
+            "Flat Black-Cube Mana/sec must not import PoE's increased-rate percent family.");
     }
 
     [Test] public void PrefixSuffixCapacityCountsLockedOriginalOnItsRealSide()

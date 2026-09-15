@@ -7,17 +7,17 @@ public class PoisonStatusEffect : StatusEffects
 {
     [Header("Poison Settings")]
     [SerializeField] private float poisonScalar = 0.10f;
-    [SerializeField] private int poisonMaxStacks = 100;
+    [SerializeField] private int poisonMaxStacks = 0; // 0 is unlimited; instances never share a timer.
 
     private void OnValidate()
     {
         ailmentKind = AilmentKind.Poison;
-        elements = ElementMask.Poison;
+        elements = ElementMask.Phys | ElementMask.Fire | ElementMask.Cold | ElementMask.Light | ElementMask.Void;
         statusType = StatusType.DamageOverTime;
         stackPolicy = StackPolicy.StackIndependently;
         effectMagnitude = poisonScalar;
-        tickDuration = 2;
-        baseTurnInterval = 4;
+        tickDuration = 4; // four ticks over eight global combat turns
+        baseTurnInterval = 2;
         maxStacks = poisonMaxStacks;
     }
 }

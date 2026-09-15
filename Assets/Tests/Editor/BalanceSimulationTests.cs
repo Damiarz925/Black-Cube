@@ -216,4 +216,79 @@ public sealed class BalanceSimulationTests
             UnityEngine.Object.DestroyImmediate(enemyHost);
         }
     }
+
+    [Test]
+    public void SnapshotDuelUsesProductionCriticalBaseAndTurnOwnedDamagingTicks()
+    {
+        var sourceHost = new GameObject("balance crit source", typeof(StatsComponent));
+        var targetHost = new GameObject("balance ailment target", typeof(StatsComponent));
+        var bleed = ScriptableObject.CreateInstance<StatusEffects>();
+        var poison = ScriptableObject.CreateInstance<StatusEffects>();
+        try
+        {
+            var source = sourceHost.GetComponent<StatsComponent>();
+            var target = targetHost.GetComponent<StatsComponent>();
+            var physical = new DamageContext(1); physical.AddDamage(Element.Phys, 100f);
+            var idle = new DamageContext(1);
+            var critical = BalanceCombatSimulator.Simulate(physical, source, 1000f, 1f, 1f,
+                idle, target, 1000f, .0001f, 0f, Array.Empty<StatusEffects>(), 51, 1.1f);
+            Assert.That(critical.EnemyRemainingLife, Is.EqualTo(850f).Within(.0001f));
+
+            source.SetBaseStat(StatTypes.BleedChance, 100f);
+            bleed.ConfigureRuntime("Bleed", StatusEffects.StatusType.DamageOverTime,
+                StatusEffects.AilmentKind.Bleed, ElementMask.Phys, .1f, 5, 5,
+                StatusEffects.StackPolicy.StackIndependently, 2);
+            var attackerOnlyTurns = BalanceCombatSimulator.Simulate(physical, source, 1000f, 1f, 0f,
+                idle, target, 1000f, .0001f, 0f, new[] { bleed }, 52, 3.1f);
+            var afflictedTurns = BalanceCombatSimulator.Simulate(physical, source, 1000f, 1f, 0f,
+                idle, target, 1000f, 1f, 0f, new[] { bleed }, 52, 3.1f);
+            Assert.That(attackerOnlyTurns.AilmentTicks, Is.Zero);
+            Assert.That(afflictedTurns.AilmentTicks, Is.GreaterThan(0));
+
+            source.SetBaseStat(StatTypes.BleedChance, 0f);
+            source.SetBaseStat(StatTypes.PoisonChance, 100f);
+            poison.ConfigureRuntime("Poison", StatusEffects.StatusType.DamageOverTime,
+                StatusEffects.AilmentKind.Poison, ElementMask.Phys, .1f, 4, 100,
+                StatusEffects.StackPolicy.StackIndependently, 2);
+            var globalPoison = BalanceCombatSimulator.Simulate(physical, source, 1000f, 1f, 0f,
+                idle, target, 1000f, .0001f, 0f, new[] { poison }, 53, 3.1f);
+            Assert.That(globalPoison.AilmentTicks, Is.GreaterThan(0));
+        }
+        finally
+        {
+            UnityEngine.Object.DestroyImmediate(bleed);
+            UnityEngine.Object.DestroyImmediate(poison);
+            UnityEngine.Object.DestroyImmediate(sourceHost);
+            UnityEngine.Object.DestroyImmediate(targetHost);
+        }
+    }
+
+    [Test]
+    public void SnapshotDuelRollsSeededWeaponEndpointsForEachRealStrike()
+    {
+        var sourceHost = new GameObject("balance ranged source", typeof(StatsComponent));
+        var targetHost = new GameObject("balance ranged target", typeof(StatsComponent));
+        try
+        {
+            var source = sourceHost.GetComponent<StatsComponent>();
+            var target = targetHost.GetComponent<StatsComponent>();
+            var average = new DamageContext(1); average.AddDamage(Element.Phys, 100f);
+            var low = new DamageContext(1); low.AddDamage(Element.Phys, 50f);
+            var high = new DamageContext(1); high.AddDamage(Element.Phys, 150f);
+            var idle = new DamageContext(1);
+            const int seed = 1212;
+            var random = new System.Random(seed);
+            float first = 50f + 100f * (float)random.NextDouble();
+            var outcome = BalanceCombatSimulator.Simulate(average, source, 1000f, 1f, 0f,
+                idle, target, 1000f, .0001f, 0f, Array.Empty<StatusEffects>(), seed, 1.1f,
+                low, high);
+            Assert.That(outcome.EnemyRemainingLife, Is.EqualTo(1000f-first).Within(.0001f));
+            Assert.That(outcome.EnemyRemainingLife, Is.Not.EqualTo(900f).Within(.0001f));
+        }
+        finally
+        {
+            UnityEngine.Object.DestroyImmediate(sourceHost);
+            UnityEngine.Object.DestroyImmediate(targetHost);
+        }
+    }
 }

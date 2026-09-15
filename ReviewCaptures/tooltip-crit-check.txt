@@ -1,6 +1,6 @@
 Tooltip / crit / typed damage final-code checks
 PASS: Old 3.47 raw roll that displayed 347% now stores .0347 (0.0347)
-PASS: Raw roll display converts exactly once
+PASS: Tooltip converts the stored crit fraction to percentage exactly once (3.47)
 PASS: Production intrinsic tiers remain 5-10% at every level
 PASS: 100 production ModManager rolls across levels have correct intrinsic units/range
 PASS: Weapon local 100% excluded from global bucket (1)
@@ -26,16 +26,13 @@ PASS: Typed weapon base Cold
 PASS: Pure Light real outgoing label
 PASS: Pure Light only typed hit row
 PASS: Typed weapon base Light
-PASS: Pure Poison real outgoing label
-PASS: Pure Poison only typed hit row
-PASS: Typed weapon base Poison
 PASS: Pure Void real outgoing label
 PASS: Pure Void only typed hit row
 PASS: Typed weapon base Void
-PASS: Existing mixed flat contribution:225 Physical and18 Fire; more sums
-PASS: Actual Force skill purchased
-PASS: Skill refresh preserves crit and updates damage
-PASS: Existing six-type and bleed/poison/ignite scaling, duration, health-loss regressions passed (inventory-grid-check.txt)
+PASS: Existing mixed flat contribution:234 Physical and18 Fire; more factors multiply
+PASS: Actual Poison passive purchased with a deterministically earned point
+PASS: Poison passive remains scoped and tooltip refresh preserves unrelated values
+PASS: Canonical typed damage and bleed/poison/ignite scaling, duration, health-loss regressions passed (inventory-grid-check.txt)
 PASS: Leaving item away closes synchronously
 PASS: Direct transfer into card keeps full actual stats
 PASS: Card stays open over pointer
@@ -43,13 +40,4 @@ PASS: Leaving card closes synchronously
 PASS: Another item replaces contents
 PASS: Inventory scrolling closes tooltip
 PASS: Tooltip Scrap removes item and closes
-PASS: Equipped Rings full actual tooltip
-PASS: Equipped Rings no scrap
-PASS: Even direct action cannot scrap equipped Rings
-PASS: Equipped Belts full actual tooltip
-PASS: Equipped Belts no scrap
-PASS: Even direct action cannot scrap equipped Belts
-PASS: Equipped Weapons full actual tooltip
-PASS: Equipped Weapons no scrap
-PASS: Even direct action cannot scrap equipped Weapons
 COMPLETE: scoped assertions passed; disposable visual fixture ready. Exit Play without saving.

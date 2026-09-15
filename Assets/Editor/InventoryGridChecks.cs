@@ -14,7 +14,7 @@ using Object=UnityEngine.Object;
 [InitializeOnLoad]
 public static class InventoryGridChecks
 {
-    const string Key="BlackCube.GridChecks",Report="ReviewCaptures/inventory-grid-check.txt";
+    const string Key="BlackCube.GridChecks",Report="Logs/Step12_5-InventoryGrid-check.txt";
     static IEnumerator run; static double ready;
     static InventoryGridChecks()
     {
@@ -62,8 +62,15 @@ public static class InventoryGridChecks
         Check(Mathf.Abs(CombatCalculator.CalculateFinalDamage(player.BuildAttackContext(),player.GetComponent<StatsComponent>(),neutral)-expected)<.01f,label+" neutral combat damage matches");Object.Destroy(neutral.gameObject);
         var rows=Object.FindFirstObjectByType<PlayerStatsPanelUI>().GetComponentsInChildren<StatRowUI>()
             .Where(r=>r.GetComponentsInChildren<TMP_Text>().Any(t=>t.text.EndsWith(" / Hit (Noncritical)")));
-        float value=rows.Sum(r=>float.Parse(r.GetComponentsInChildren<TMP_Text>().First(t=>!t.text.EndsWith(" / Hit (Noncritical)")).text));
+        float value=rows.Sum(r=>PreviewAverage(r.GetComponentsInChildren<TMP_Text>().First(t=>!t.text.EndsWith(" / Hit (Noncritical)")).text));
         Check(Mathf.Abs(value-expected)<.02f,label+" immediate displayed typed damage sum");
+    }
+    static float PreviewAverage(string text)
+    {
+        int start=text.IndexOf("Average ",StringComparison.Ordinal);
+        if(start>=0)
+        { start+=8;return float.Parse(text.Substring(start,text.IndexOf(')',start)-start),System.Globalization.CultureInfo.InvariantCulture); }
+        return float.Parse(text,System.Globalization.CultureInfo.InvariantCulture);
     }
     static IEnumerator Run()
     {
@@ -183,6 +190,8 @@ public static class InventoryGridChecks
         weapon.BaseElement=Element.Phys;
         var health=player.GetComponent<HealthComponent>();var controller=player.GetComponent<StatusController>();
         float life=stats.GetRawStat(StatTypes.Life);stats.SetBaseStat(StatTypes.Life,10000);health.RestoreFullLife();
+        stats.SetBaseStat(StatTypes.VoidRes,0);stats.SetBaseStat(StatTypes.AllRes,0);
+        stats.SetBaseStat(StatTypes.VoidDmg,0);stats.SetBaseStat(StatTypes.VoidMult,0);
         foreach(var name in new[]{"Bleed","Poison","Ignite"})
         {
             var effect=AssetDatabase.LoadAssetAtPath<StatusEffects>("Assets/Prefabs/Scriptable Objects/"+name+"Status.asset");
@@ -202,14 +211,15 @@ public static class InventoryGridChecks
                 stats.AddModifier(new StatModifier(StatTypes.GenericDotMult,StatOp.Multiplicative,ailmentScaled?30:0,effect));
                 stats.SetBaseStat(duration,scenario==4?2:0);
                 var ctx=player.BuildAttackContext();
-                // Include unrelated components and Poison's second eligible source.
+                // Void is unrelated to Bleed/Ignite but is first-class Poison source damage.
                 if(name=="Poison")ctx.AddDamage(Element.Poison,hitScaled?90:50);
                 ctx.AddDamage(Element.Void,777);
-                float eligible=(hitScaled?180:100)*(name=="Poison"?1.5f:1f);
+                float eligible=(hitScaled?180:100)+(name=="Poison"?(hitScaled?90:50)+777:0);
                 Check(Mathf.Abs(AilmentCalculator.GetSourceHitDamage(effect,ctx)-eligible)<.001f,name+" eligible scaled source scenario"+scenario);
                 AilmentCalculator.ComputeAilmentFromHit(effect,ctx,stats,out float tick,out int count,out int interval);
-                float expected=eligible*effect.Magnitude*(ailmentScaled?2.34f:1f)/effect.TickDuration;
-                Check(Mathf.Abs(tick-expected)<.001f && count==effect.TickDuration+(scenario==4?2:0) && interval==effect.BaseTurnInterval,
+                int baseTicks=name=="Bleed"?5:name=="Poison"?4:2;
+                float expected=eligible*effect.Magnitude*(ailmentScaled?2.34f:1f)/baseTicks;
+                Check(Mathf.Abs(tick-expected)<.001f && count==baseTicks+(scenario==4?2:0) && interval==2,
                     name+" "+new[]{"baseline","hit scaling only","ailment scaling only","layered hit and ailment scaling","duration +2 preserves tick"}[scenario]+$" tick={tick:0.###} ticks={count} total={tick*count:0.###}");
                 controller.ClearStatuses();float before=health.CurrentLife;
                 controller.ApplyAilmentFromHit(effect,ctx,stats);

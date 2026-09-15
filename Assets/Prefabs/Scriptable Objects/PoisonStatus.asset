@@ -14,13 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PoisonStatusEffect
   effectName: 
   effectMagnitude: 0.1
-  tickDuration: 2
-  maxStacks: 100
+  tickDuration: 4
+  maxStacks: 0
   stackPolicy: 1
   statusType: 0
-  elements: 16
+  elements: 47
   damageColor: {r: 1, g: 1, b: 1, a: 1}
   ailmentKind: 1
-  baseTurnInterval: 4
+  baseTurnInterval: 2
   poisonScalar: 0.1
-  poisonMaxStacks: 100
+  poisonMaxStacks: 0

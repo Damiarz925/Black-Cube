@@ -7,17 +7,17 @@ public class BleedStatusEffect : StatusEffects
 {
     [Header("Bleed Settings")]
     [SerializeField] private float bleedScalar = 0.50f; //Set the bleed scalar to do half of the hit damage per tick (modifiable in inspector)
-    [SerializeField] private int bleedMaxStacks = 4;    //Set the bleed status effect to have 4 max stacks (modifiable in inspector)
+    [SerializeField] private int bleedMaxStacks = 5;
 
     private void OnValidate()
     {
         ailmentKind = AilmentKind.Bleed;
         statusType = StatusType.DamageOverTime;
-        stackPolicy = StackPolicy.StackAndRefresh;
+        stackPolicy = StackPolicy.StackIndependently;
         elements = ElementMask.Phys;
         effectMagnitude = bleedScalar;
-        tickDuration = 2;
-        baseTurnInterval = 1;
+        tickDuration = 5; // five ticks over ten afflicted-actor turns
+        baseTurnInterval = 2;
         maxStacks = bleedMaxStacks;
     }
 }

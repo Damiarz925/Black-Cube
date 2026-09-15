@@ -18,11 +18,6 @@ public class ModManager : MonoBehaviour
     [Header("Default Weights")]
     [SerializeField] private int defaultStatWeight = 50;        //This is the default total weight of stats
 
-    [Header("Tier Bias By Rarity (index = tierIndex - 1")]
-    [SerializeField] private float[] magicTierBias = { 0.2f, 0.6f, 1.0f, 1.2f, 1.5f };      //These 3 are slight mod tier biasing based on the gear's rarity
-    [SerializeField] private float[] rareTierBias = { 1.5f, 1.2f, 1.0f, 0.6f, 0.3f };
-    [SerializeField] private float[] legendaryTierBias = { 2.0f, 1.5f, 1.0f, 0.5f, 0.1f };
-
     // Base rarity-independent weights for specific stats
     private static readonly Dictionary<StatTypes, int> baseStatWeights = new Dictionary<StatTypes, int>
     {
@@ -378,18 +373,6 @@ public class ModManager : MonoBehaviour
             if (usedGroups.Contains(g)) return false;
         }
         return true;
-    }
-
-    //Function used to grab the bias array for each rarity of gear by calling it with the item's rarity
-    private float[] GetBiasArray(LootManager.GearRarity rarity)
-    {
-        switch (rarity)
-        {
-            case LootManager.GearRarity.Magic: return magicTierBias;
-            case LootManager.GearRarity.Rare: return rareTierBias;
-            case LootManager.GearRarity.Legendary: return legendaryTierBias;
-            default: return magicTierBias;
-        }
     }
 
     //Function used to do a random weighted pick

@@ -1,9 +1,7 @@
 Player progression integration
-PASS XP: one award per death, third kill level/full heal, point spend, prerequisites, max ranks, real combat stat modifiers, multi-level carryover, malformed XP, level100 cap, Forest1/5 boss restart preserves progression and resets normal count0->1.
+PASS XP: one award per death, third kill level/full heal, point spend, sequential prerequisites, real combat stat modifiers, multi-level carryover, malformed XP, level100 cap, Forest1/5 boss restart preserves progression and resets normal count0->1.
 PASS combat lifecycle: lethal hit has no successor statuses; lethal enemy DOT stops either turn before successor hit/attack; lethal player DOT stops attack.
-PASS natural combat: 33 kills, 3 consecutive stages, zero deaths, 16 level-up heals; lowest observed HP=713.4/1000; level=17; no health/damage overrides; 12x wall-time acceleration only.
-PASS cleanup: one enemy after delayed destruction, 33 rewards for 33 kills, no new errors.
-PASS skill screen: opens, pauses battle, real button spends a point and updates rank; paused visual fixture ready.
-Fixture paused for UI review; exit Play to discard.
-PASS skill pause: 2 seconds at Time.timeScale=1 with no actor damage while screen open.
+PASS natural combat: 30 kills, 3 consecutive stages, zero deaths, 19 level-up heals; lowest observed HP=619.7/1000; level=20; no health/damage overrides; 12x wall-time acceleration only.
+PASS cleanup: one enemy after delayed destruction, 14 probabilistic equipment rewards for 30 kills, no new errors.
+PASS skill screen: opens, preserves the configured pause behavior, and a real button spends a point and updates rank; visual fixture ready.
 Fixture paused for UI review; exit Play to discard.

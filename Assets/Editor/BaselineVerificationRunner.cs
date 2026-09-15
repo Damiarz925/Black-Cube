@@ -146,14 +146,14 @@ public static class BaselineVerificationRunner
         string name = Argument("-baselineCheck");
         (string menu, string report, string marker) = name switch
         {
-            "AttackStats" => ("Black Cube/Play Checks/Verify Attack Stats and Status Gating", "ReviewCaptures/attack-stats-check.txt", "Visual fixture paused"),
+            "AttackStats" => ("Black Cube/Play Checks/Verify Attack Stats and Status Gating", "Logs/Step12_5-AttackStats-check.txt", "Visual fixture paused"),
             "MoreDamage" => ("Black Cube/Play Checks/Verify Independent More Damage", "ReviewCaptures/more-damage-play-check.txt", "COMPLETE:"),
             "PlayerProgression" => ("Black Cube/Play Checks/Verify XP Skills and Combat", "ReviewCaptures/player-progression-check.txt", "Fixture paused for UI review"),
             "AuthorizedProgression" => ("Black Cube/Play Checks/Authorized Progression Pass", "ReviewCaptures/authorized-progression-pass.txt", "UI READY:"),
             "DeferredProgression" => ("Black Cube/Play Checks/Run Deferred Pass", "ReviewCaptures/deferred-progression.txt", "PASS invalid configuration"),
             "Inventory" => ("Black Cube/Play Checks/Verify Inventory", "ReviewCaptures/inventory-check.txt", "Visual fixture ready"),
-            "InventoryGrid" => ("Black Cube/Play Checks/Verify Inventory Grid Filter and Gear Damage", "ReviewCaptures/inventory-grid-check.txt", "Visual fixture paused"),
-            "TooltipCrit" => ("Black Cube/Play Checks/Verify Tooltip Crit and Typed Damage", "ReviewCaptures/tooltip-crit-check.txt", "COMPLETE:"),
+            "InventoryGrid" => ("Black Cube/Play Checks/Verify Inventory Grid Filter and Gear Damage", "Logs/Step12_5-InventoryGrid-check.txt", "Visual fixture paused"),
+            "TooltipCrit" => ("Black Cube/Play Checks/Verify Tooltip Crit and Typed Damage", "Logs/Step12_5-TooltipCrit-check.txt", "COMPLETE:"),
             _ => throw new ArgumentException("Unknown -baselineCheck value: " + name)
         };
         SessionState.SetString(MenuKey + ".Report", report);

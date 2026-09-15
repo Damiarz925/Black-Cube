@@ -1,1 +1,1 @@
-PASS: live callback rejected; ten normals spawn boss without advancing; boss advances exactly once; duplicate callbacks grant no extra loot or progress; Forest10 -> Desert1; Desert10 -> Tundra1; death/restart keeps stage and resets count/boss. Paused Desert1 boss HUD fixture. Broader regressions deferred.
+PASS: live callback rejected; nine normals spawn stage10 boss; boss advances level exactly once; duplicate callbacks grant no extra loot or progress; forest boundaries10/11 and20/21; death/restart keeps level and resets encounter. Paused Forest2 level11 boss HUD fixture.

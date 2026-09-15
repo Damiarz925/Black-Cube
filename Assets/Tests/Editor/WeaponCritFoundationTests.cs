@@ -101,6 +101,11 @@ public sealed class WeaponCritFoundationTests
         Assert.That(critical.CritMultiplier,Is.EqualTo(CombatCalculator.BaseCriticalMultiplier));
         Assert.That(critical.Hits[0].Amount/normal.Hits[0].Amount,
             Is.EqualTo(CombatCalculator.BaseCriticalMultiplier).Within(.001f));
+        weapon.BaseDamageMin=80f;weapon.BaseDamageMax=120f;
+        var low=enemy.BuildNonCriticalAttackContextAtRangeEnd(false);
+        var high=enemy.BuildNonCriticalAttackContextAtRangeEnd(true);
+        Assert.That(low.Hits[0].Amount,Is.EqualTo(normal.Hits[0].Amount*.8f).Within(.001f));
+        Assert.That(high.Hits[0].Amount,Is.EqualTo(normal.Hits[0].Amount*1.2f).Within(.001f));
     }
 
     [Test] public void CriticalPopupUsesActualHealthLossAndReadableCritAccent()

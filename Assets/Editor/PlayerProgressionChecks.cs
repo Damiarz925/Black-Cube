@@ -94,7 +94,7 @@ public static class PlayerProgressionChecks
         xp.AddExperience(xp.RequiredXp+xp.RequirementAt(xp.Level+1)+34);
         Check(xp.Level==4 && xp.Experience==34 && xp.AvailablePoints==2 && hp.CurrentLife==1050,"Multi-level carryover");
         Check(xp.TrySpend(poisonNode) && xp.TrySpend(manaNode),"Poison/mana node purchase");
-        Check(Mathf.Approximately(stats.GetStat(StatTypes.PoisonDmg),.05f) && Mathf.Approximately(stats.GetStat(StatTypes.GenericDmg),0f) && stats.GetRawStat(StatTypes.ManaPercent)==5f,"Passives feed only their scoped combat stats");
+        Check(Mathf.Approximately(stats.GetStat(StatTypes.VoidDmg),.05f) && Mathf.Approximately(stats.GetStat(StatTypes.GenericDmg),0f) && stats.GetRawStat(StatTypes.ManaPercent)==5f,"Passives feed only their scoped combat stats");
         double before=xp.Experience;int lvl=xp.Level;
         xp.AddExperience(double.NaN);xp.AddExperience(double.PositiveInfinity);xp.AddExperience(-1);
         Check(xp.Experience==before && xp.Level==lvl,"Invalid XP rejected");

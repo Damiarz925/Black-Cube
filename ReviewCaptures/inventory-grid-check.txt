@@ -1,282 +1,111 @@
 Grid / pickup filter / nonweapon damage
+PASS: Level 1 uses forest set 1
+PASS: Level 11 uses desert set 1
+PASS: Level 41 uses city set 1
+PASS: Level 51 uses forest set 2
+PASS: Level 101 uses forest set 3
+PASS: Level 141 uses city set 3
+PASS: Level 151 uses corrupted forest set 1
+PASS: Level 201 uses corrupted forest set 2
+PASS: Level 251 uses corrupted forest set 3
+PASS: Level 291 uses corrupted city set 3
+PASS: Level 300 uses corrupted city set 3
+PASS: Level 999 uses corrupted city set 3
+PASS: Extracted item icon resources load
+PASS: Mod-highlight border resource loads
+PASS: Area-corruption border stage 0 loads
+PASS: Area-corruption border stage 1 loads
+PASS: Area-corruption border stage 2 loads
+PASS: Area-corruption border stage 3 loads
+PASS: Area-corruption border stage 4 loads
+PASS: Area-corruption border stage 5 loads
+PASS: Simple mod filter combines poison and mana affixes
+PASS: One hybrid affix counts once across selected categories
+PASS: Changing mode erases prior simple selections
+PASS: Advanced mod filter matches exact stat only
+PASS: Simple and advanced selections cannot coexist
+PASS: Every rollable affix has a simple category
 PASS: Baseline damage=100
 PASS: Baseline real attack matches
 PASS: Baseline neutral combat damage matches
-PASS: Baseline immediate displayed damage
+PASS: Baseline immediate displayed typed damage sum
 PASS: Rings supports GenericDmg
 PASS: Rings real tier midpoint GenericDmg 10.5 damage=110.5
 PASS: Rings real tier midpoint GenericDmg 10.5 real attack matches
 PASS: Rings real tier midpoint GenericDmg 10.5 neutral combat damage matches
-PASS: Rings real tier midpoint GenericDmg 10.5 immediate displayed damage
+PASS: Rings real tier midpoint GenericDmg 10.5 immediate displayed typed damage sum
 PASS: Rings removal damage=100
 PASS: Rings removal real attack matches
 PASS: Rings removal neutral combat damage matches
-PASS: Rings removal immediate displayed damage
+PASS: Rings removal immediate displayed typed damage sum
 PASS: Rings supports GenericMult
-PASS: Rings real tier midpoint GenericMult 5 damage=105
-PASS: Rings real tier midpoint GenericMult 5 real attack matches
-PASS: Rings real tier midpoint GenericMult 5 neutral combat damage matches
-PASS: Rings real tier midpoint GenericMult 5 immediate displayed damage
+PASS: Rings real tier midpoint GenericMult 2 damage=102
+PASS: Rings real tier midpoint GenericMult 2 real attack matches
+PASS: Rings real tier midpoint GenericMult 2 neutral combat damage matches
+PASS: Rings real tier midpoint GenericMult 2 immediate displayed typed damage sum
 PASS: Rings removal damage=100
 PASS: Rings removal real attack matches
 PASS: Rings removal neutral combat damage matches
-PASS: Rings removal immediate displayed damage
+PASS: Rings removal immediate displayed typed damage sum
 PASS: Helmets supports GenericDmg
 PASS: Helmets real tier midpoint GenericDmg 10.5 damage=110.5
 PASS: Helmets real tier midpoint GenericDmg 10.5 real attack matches
 PASS: Helmets real tier midpoint GenericDmg 10.5 neutral combat damage matches
-PASS: Helmets real tier midpoint GenericDmg 10.5 immediate displayed damage
+PASS: Helmets real tier midpoint GenericDmg 10.5 immediate displayed typed damage sum
 PASS: Helmets removal damage=100
 PASS: Helmets removal real attack matches
 PASS: Helmets removal neutral combat damage matches
-PASS: Helmets removal immediate displayed damage
+PASS: Helmets removal immediate displayed typed damage sum
 PASS: Helmets supports GenericMult
-PASS: Helmets real tier midpoint GenericMult 5 damage=105
-PASS: Helmets real tier midpoint GenericMult 5 real attack matches
-PASS: Helmets real tier midpoint GenericMult 5 neutral combat damage matches
-PASS: Helmets real tier midpoint GenericMult 5 immediate displayed damage
+PASS: Helmets real tier midpoint GenericMult 2 damage=102
+PASS: Helmets real tier midpoint GenericMult 2 real attack matches
+PASS: Helmets real tier midpoint GenericMult 2 neutral combat damage matches
+PASS: Helmets real tier midpoint GenericMult 2 immediate displayed typed damage sum
 PASS: Helmets removal damage=100
 PASS: Helmets removal real attack matches
 PASS: Helmets removal neutral combat damage matches
-PASS: Helmets removal immediate displayed damage
+PASS: Helmets removal immediate displayed typed damage sum
 PASS: Ring increased25 damage=125
 PASS: Ring increased25 real attack matches
 PASS: Ring increased25 neutral combat damage matches
-PASS: Ring increased25 immediate displayed damage
+PASS: Ring increased25 immediate displayed typed damage sum
 PASS: Combined increased25+20 additive damage=145
 PASS: Combined increased25+20 additive real attack matches
 PASS: Combined increased25+20 additive neutral combat damage matches
-PASS: Combined increased25+20 additive immediate displayed damage
+PASS: Combined increased25+20 additive immediate displayed typed damage sum
 PASS: Ring more20 plus helmet increased20 damage=144
 PASS: Ring more20 plus helmet increased20 real attack matches
 PASS: Ring more20 plus helmet increased20 neutral combat damage matches
-PASS: Ring more20 plus helmet increased20 immediate displayed damage
-PASS: Combined more20 and more30 additive50 damage=150
-PASS: Combined more20 and more30 additive50 real attack matches
-PASS: Combined more20 and more30 additive50 neutral combat damage matches
-PASS: Combined more20 and more30 additive50 immediate displayed damage
-PASS: More bucket exposes50 percent
-PASS: Generic50 plus matching Physical10 sum60 damage=160
-PASS: Generic50 plus matching Physical10 sum60 real attack matches
-PASS: Generic50 plus matching Physical10 sum60 neutral combat damage matches
-PASS: Generic50 plus matching Physical10 sum60 immediate displayed damage
-PASS: Existing Fire flat hit uses generic50 only damage=175
-PASS: Existing Fire flat hit uses generic50 only real attack matches
-PASS: Existing Fire flat hit uses generic50 only neutral combat damage matches
-PASS: Existing Fire flat hit uses generic50 only immediate displayed damage
+PASS: Ring more20 plus helmet increased20 immediate displayed typed damage sum
+PASS: Combined more20 and more30 multiply to56% effective damage=156
+PASS: Combined more20 and more30 multiply to56% effective real attack matches
+PASS: Combined more20 and more30 multiply to56% effective neutral combat damage matches
+PASS: Combined more20 and more30 multiply to56% effective immediate displayed typed damage sum
+PASS: More bucket exposes56 percent
+PASS: Generic factors1.2*1.3 times matching Physical1.1 damage=171.6
+PASS: Generic factors1.2*1.3 times matching Physical1.1 real attack matches
+PASS: Generic factors1.2*1.3 times matching Physical1.1 neutral combat damage matches
+PASS: Generic factors1.2*1.3 times matching Physical1.1 immediate displayed typed damage sum
+PASS: Existing Fire flat hit uses generic1.56 only damage=187.2
+PASS: Existing Fire flat hit uses generic1.56 only real attack matches
+PASS: Existing Fire flat hit uses generic1.56 only neutral combat damage matches
+PASS: Existing Fire flat hit uses generic1.56 only immediate displayed typed damage sum
 PASS: More ring removal damage=130
 PASS: More ring removal real attack matches
 PASS: More ring removal neutral combat damage matches
-PASS: More ring removal immediate displayed damage
+PASS: More ring removal immediate displayed typed damage sum
 PASS: Both removed damage=100
 PASS: Both removed real attack matches
 PASS: Both removed neutral combat damage matches
-PASS: Both removed immediate displayed damage
+PASS: Both removed immediate displayed typed damage sum
 PASS: Increased50 and more20 categories multiply damage=180
 PASS: Increased50 and more20 categories multiply real attack matches
 PASS: Increased50 and more20 categories multiply neutral combat damage matches
-PASS: Increased50 and more20 categories multiply immediate displayed damage
-PASS: Base more10 with source20 adds to30 percent
-PASS: Phys increased25+25 / more20+30 damage=225
-PASS: Phys increased25+25 / more20+30 real attack matches
-PASS: Phys increased25+25 / more20+30 neutral combat damage matches
-PASS: Phys increased25+25 / more20+30 immediate displayed damage
-PASS: Fire increased25+25 / more20+30 damage=225
-PASS: Fire increased25+25 / more20+30 real attack matches
-PASS: Fire increased25+25 / more20+30 neutral combat damage matches
-PASS: Fire increased25+25 / more20+30 immediate displayed damage
-PASS: Cold increased25+25 / more20+30 damage=225
-PASS: Cold increased25+25 / more20+30 real attack matches
-PASS: Cold increased25+25 / more20+30 neutral combat damage matches
-PASS: Cold increased25+25 / more20+30 immediate displayed damage
-PASS: Light increased25+25 / more20+30 damage=225
-PASS: Light increased25+25 / more20+30 real attack matches
-PASS: Light increased25+25 / more20+30 neutral combat damage matches
-PASS: Light increased25+25 / more20+30 immediate displayed damage
-PASS: Poison increased25+25 / more20+30 damage=225
-PASS: Poison increased25+25 / more20+30 real attack matches
-PASS: Poison increased25+25 / more20+30 neutral combat damage matches
-PASS: Poison increased25+25 / more20+30 immediate displayed damage
-PASS: Void increased25+25 / more20+30 damage=225
-PASS: Void increased25+25 / more20+30 real attack matches
-PASS: Void increased25+25 / more20+30 neutral combat damage matches
-PASS: Void increased25+25 / more20+30 immediate displayed damage
-PASS: Bleed eligible scaled source scenario0
-PASS: Bleed baseline tick=25 ticks=2 total=50
-PASS: Bleed actual scheduled health loss scenario0
-PASS: Bleed expires without lingering status scenario0
-PASS: Bleed eligible scaled source scenario1
-PASS: Bleed hit scaling only tick=45 ticks=2 total=90
-PASS: Bleed actual scheduled health loss scenario1
-PASS: Bleed expires without lingering status scenario1
-PASS: Bleed eligible scaled source scenario2
-PASS: Bleed ailment scaling only tick=56.25 ticks=2 total=112.5
-PASS: Bleed actual scheduled health loss scenario2
-PASS: Bleed expires without lingering status scenario2
-PASS: Bleed eligible scaled source scenario3
-PASS: Bleed layered hit and ailment scaling tick=101.25 ticks=2 total=202.5
-PASS: Bleed actual scheduled health loss scenario3
-PASS: Bleed expires without lingering status scenario3
-PASS: Bleed eligible scaled source scenario4
-PASS: Bleed duration +2 preserves tick tick=101.25 ticks=4 total=405
-PASS: Bleed actual scheduled health loss scenario4
-PASS: Bleed expires without lingering status scenario4
-PASS: Poison eligible scaled source scenario0
-PASS: Poison baseline tick=7.5 ticks=2 total=15
-PASS: Poison actual scheduled health loss scenario0
-PASS: Poison expires without lingering status scenario0
-PASS: Poison eligible scaled source scenario1
-PASS: Poison hit scaling only tick=13.5 ticks=2 total=27
-PASS: Poison actual scheduled health loss scenario1
-PASS: Poison expires without lingering status scenario1
-PASS: Poison eligible scaled source scenario2
-PASS: Poison ailment scaling only tick=16.875 ticks=2 total=33.75
-PASS: Poison actual scheduled health loss scenario2
-PASS: Poison expires without lingering status scenario2
-PASS: Poison eligible scaled source scenario3
-PASS: Poison layered hit and ailment scaling tick=30.375 ticks=2 total=60.75
-PASS: Poison actual scheduled health loss scenario3
-PASS: Poison expires without lingering status scenario3
-PASS: Poison eligible scaled source scenario4
-PASS: Poison duration +2 preserves tick tick=30.375 ticks=4 total=121.5
-PASS: Poison actual scheduled health loss scenario4
-PASS: Poison expires without lingering status scenario4
-PASS: Ignite eligible scaled source scenario0
-PASS: Ignite baseline tick=40 ticks=2 total=80
-PASS: Ignite actual scheduled health loss scenario0
-PASS: Ignite expires without lingering status scenario0
-PASS: Ignite eligible scaled source scenario1
-PASS: Ignite hit scaling only tick=72 ticks=2 total=144
-PASS: Ignite actual scheduled health loss scenario1
-PASS: Ignite expires without lingering status scenario1
-PASS: Ignite eligible scaled source scenario2
-PASS: Ignite ailment scaling only tick=90 ticks=2 total=180
-PASS: Ignite actual scheduled health loss scenario2
-PASS: Ignite expires without lingering status scenario2
-PASS: Ignite eligible scaled source scenario3
-PASS: Ignite layered hit and ailment scaling tick=162 ticks=2 total=324
-PASS: Ignite actual scheduled health loss scenario3
-PASS: Ignite expires without lingering status scenario3
-PASS: Ignite eligible scaled source scenario4
-PASS: Ignite duration +2 preserves tick tick=162 ticks=4 total=648
-PASS: Ignite actual scheduled health loss scenario4
-PASS: Ignite expires without lingering status scenario4
-PASS: Damage fixtures restored damage=100
-PASS: Damage fixtures restored real attack matches
-PASS: Damage fixtures restored neutral combat damage matches
-PASS: Damage fixtures restored immediate displayed damage
-PASS: Filter defaults OFF
-PASS: Default pickup kept
-PASS: Enabling does not retroactively scrap
-PASS: Inclusive level10 Legendary pickup +5
-PASS: Duplicate pickup/dismantle no extra reward
-PASS: Level11 above cutoff kept
-PASS: OR rule high-level Magic filtered
-PASS: Above both cutoffs kept
-PASS: Disabled level cutoff ignored
-PASS: Rarity inclusive Normal yield 1
-PASS: Rarity inclusive Magic yield 2
-PASS: Rarity inclusive Rare yield 3
-PASS: Rarity inclusive Legendary yield 5
-PASS: Equipment swap returns bypass active filter
-PASS: Equipped item protected
-PASS: Scrap not recursively filtered/dismantled
-PASS: Compact populated grid has multiple columns
-PASS: Populated grid scrolls beyond viewport
-PASS: Cells use LV label
-Visual fixture paused: filter OFF; many gear cells and one Scrap stack. Verify left equip, right scrap, filter controls, scroll and tooltip Scrap. Exit Play afterward.
-
-TOOLTIP-CRIT regression rerun 2026-09-07T02:13:50
-PASS: Phys increased25+25 / more20+30 damage=225
-PASS: Phys increased25+25 / more20+30 real attack matches
-PASS: Phys increased25+25 / more20+30 neutral combat damage matches
-PASS: Phys increased25+25 / more20+30 immediate displayed typed damage sum
-PASS: Fire increased25+25 / more20+30 damage=225
-PASS: Fire increased25+25 / more20+30 real attack matches
-PASS: Fire increased25+25 / more20+30 neutral combat damage matches
-PASS: Fire increased25+25 / more20+30 immediate displayed typed damage sum
-PASS: Cold increased25+25 / more20+30 damage=225
-PASS: Cold increased25+25 / more20+30 real attack matches
-PASS: Cold increased25+25 / more20+30 neutral combat damage matches
-PASS: Cold increased25+25 / more20+30 immediate displayed typed damage sum
-PASS: Light increased25+25 / more20+30 damage=225
-PASS: Light increased25+25 / more20+30 real attack matches
-PASS: Light increased25+25 / more20+30 neutral combat damage matches
-PASS: Light increased25+25 / more20+30 immediate displayed typed damage sum
-PASS: Poison increased25+25 / more20+30 damage=225
-PASS: Poison increased25+25 / more20+30 real attack matches
-PASS: Poison increased25+25 / more20+30 neutral combat damage matches
-PASS: Poison increased25+25 / more20+30 immediate displayed typed damage sum
-PASS: Void increased25+25 / more20+30 damage=225
-PASS: Void increased25+25 / more20+30 real attack matches
-PASS: Void increased25+25 / more20+30 neutral combat damage matches
-PASS: Void increased25+25 / more20+30 immediate displayed typed damage sum
-PASS: Bleed eligible scaled source scenario0
-PASS: Bleed baseline tick=25 ticks=2 total=50
-PASS: Bleed actual scheduled health loss scenario0
-PASS: Bleed expires without lingering status scenario0
-PASS: Bleed eligible scaled source scenario1
-PASS: Bleed hit scaling only tick=45 ticks=2 total=90
-PASS: Bleed actual scheduled health loss scenario1
-PASS: Bleed expires without lingering status scenario1
-PASS: Bleed eligible scaled source scenario2
-PASS: Bleed ailment scaling only tick=56.25 ticks=2 total=112.5
-PASS: Bleed actual scheduled health loss scenario2
-PASS: Bleed expires without lingering status scenario2
-PASS: Bleed eligible scaled source scenario3
-PASS: Bleed layered hit and ailment scaling tick=101.25 ticks=2 total=202.5
-PASS: Bleed actual scheduled health loss scenario3
-PASS: Bleed expires without lingering status scenario3
-PASS: Bleed eligible scaled source scenario4
-PASS: Bleed duration +2 preserves tick tick=101.25 ticks=4 total=405
-PASS: Bleed actual scheduled health loss scenario4
-PASS: Bleed expires without lingering status scenario4
-PASS: Poison eligible scaled source scenario0
-PASS: Poison baseline tick=7.5 ticks=2 total=15
-PASS: Poison actual scheduled health loss scenario0
-PASS: Poison expires without lingering status scenario0
-PASS: Poison eligible scaled source scenario1
-PASS: Poison hit scaling only tick=13.5 ticks=2 total=27
-PASS: Poison actual scheduled health loss scenario1
-PASS: Poison expires without lingering status scenario1
-PASS: Poison eligible scaled source scenario2
-PASS: Poison ailment scaling only tick=16.875 ticks=2 total=33.75
-PASS: Poison actual scheduled health loss scenario2
-PASS: Poison expires without lingering status scenario2
-PASS: Poison eligible scaled source scenario3
-PASS: Poison layered hit and ailment scaling tick=30.375 ticks=2 total=60.75
-PASS: Poison actual scheduled health loss scenario3
-PASS: Poison expires without lingering status scenario3
-PASS: Poison eligible scaled source scenario4
-PASS: Poison duration +2 preserves tick tick=30.375 ticks=4 total=121.5
-PASS: Poison actual scheduled health loss scenario4
-PASS: Poison expires without lingering status scenario4
-PASS: Ignite eligible scaled source scenario0
-PASS: Ignite baseline tick=40 ticks=2 total=80
-PASS: Ignite actual scheduled health loss scenario0
-PASS: Ignite expires without lingering status scenario0
-PASS: Ignite eligible scaled source scenario1
-PASS: Ignite hit scaling only tick=72 ticks=2 total=144
-PASS: Ignite actual scheduled health loss scenario1
-PASS: Ignite expires without lingering status scenario1
-PASS: Ignite eligible scaled source scenario2
-PASS: Ignite ailment scaling only tick=90 ticks=2 total=180
-PASS: Ignite actual scheduled health loss scenario2
-PASS: Ignite expires without lingering status scenario2
-PASS: Ignite eligible scaled source scenario3
-PASS: Ignite layered hit and ailment scaling tick=162 ticks=2 total=324
-PASS: Ignite actual scheduled health loss scenario3
-PASS: Ignite expires without lingering status scenario3
-PASS: Ignite eligible scaled source scenario4
-PASS: Ignite duration +2 preserves tick tick=162 ticks=4 total=648
-PASS: Ignite actual scheduled health loss scenario4
-PASS: Ignite expires without lingering status scenario4
-PASS: Damage fixtures restored damage=100
-PASS: Damage fixtures restored real attack matches
-PASS: Damage fixtures restored neutral combat damage matches
-PASS: Damage fixtures restored immediate displayed typed damage sum
-
-INDEPENDENT-MORE regression rerun 2026-09-08T12:54:22
+PASS: Increased50 and more20 categories multiply immediate displayed typed damage sum
+PASS: Base more10 with source20 multiplies to32 percent
+PASS: Mod-matching pickup survives auto-dismantle
+PASS: Mod-mismatch pickup auto-dismantles
+PASS: Mod-mismatch pickup cannot be processed twice
 PASS: Phys increased25+25 / more1.2*1.3 damage=234
 PASS: Phys increased25+25 / more1.2*1.3 real attack matches
 PASS: Phys increased25+25 / more1.2*1.3 neutral combat damage matches
@@ -302,43 +131,43 @@ PASS: Void increased25+25 / more1.2*1.3 real attack matches
 PASS: Void increased25+25 / more1.2*1.3 neutral combat damage matches
 PASS: Void increased25+25 / more1.2*1.3 immediate displayed typed damage sum
 PASS: Bleed eligible scaled source scenario0
-PASS: Bleed baseline tick=25 ticks=2 total=50
+PASS: Bleed baseline tick=10 ticks=5 total=50
 PASS: Bleed actual scheduled health loss scenario0
 PASS: Bleed expires without lingering status scenario0
 PASS: Bleed eligible scaled source scenario1
-PASS: Bleed hit scaling only tick=45 ticks=2 total=90
+PASS: Bleed hit scaling only tick=18 ticks=5 total=90
 PASS: Bleed actual scheduled health loss scenario1
 PASS: Bleed expires without lingering status scenario1
 PASS: Bleed eligible scaled source scenario2
-PASS: Bleed ailment scaling only tick=58.5 ticks=2 total=117
+PASS: Bleed ailment scaling only tick=23.4 ticks=5 total=117
 PASS: Bleed actual scheduled health loss scenario2
 PASS: Bleed expires without lingering status scenario2
 PASS: Bleed eligible scaled source scenario3
-PASS: Bleed layered hit and ailment scaling tick=105.3 ticks=2 total=210.6
+PASS: Bleed layered hit and ailment scaling tick=42.12 ticks=5 total=210.6
 PASS: Bleed actual scheduled health loss scenario3
 PASS: Bleed expires without lingering status scenario3
 PASS: Bleed eligible scaled source scenario4
-PASS: Bleed duration +2 preserves tick tick=105.3 ticks=4 total=421.2
+PASS: Bleed duration +2 preserves tick tick=42.12 ticks=7 total=294.84
 PASS: Bleed actual scheduled health loss scenario4
 PASS: Bleed expires without lingering status scenario4
 PASS: Poison eligible scaled source scenario0
-PASS: Poison baseline tick=7.5 ticks=2 total=15
+PASS: Poison baseline tick=23.175 ticks=4 total=92.7
 PASS: Poison actual scheduled health loss scenario0
 PASS: Poison expires without lingering status scenario0
 PASS: Poison eligible scaled source scenario1
-PASS: Poison hit scaling only tick=13.5 ticks=2 total=27
+PASS: Poison hit scaling only tick=26.175 ticks=4 total=104.7
 PASS: Poison actual scheduled health loss scenario1
 PASS: Poison expires without lingering status scenario1
 PASS: Poison eligible scaled source scenario2
-PASS: Poison ailment scaling only tick=17.55 ticks=2 total=35.1
+PASS: Poison ailment scaling only tick=54.23 ticks=4 total=216.918
 PASS: Poison actual scheduled health loss scenario2
 PASS: Poison expires without lingering status scenario2
 PASS: Poison eligible scaled source scenario3
-PASS: Poison layered hit and ailment scaling tick=31.59 ticks=2 total=63.18
+PASS: Poison layered hit and ailment scaling tick=61.25 ticks=4 total=244.998
 PASS: Poison actual scheduled health loss scenario3
 PASS: Poison expires without lingering status scenario3
 PASS: Poison eligible scaled source scenario4
-PASS: Poison duration +2 preserves tick tick=31.59 ticks=4 total=126.36
+PASS: Poison duration +2 preserves tick tick=61.25 ticks=6 total=367.497
 PASS: Poison actual scheduled health loss scenario4
 PASS: Poison expires without lingering status scenario4
 PASS: Ignite eligible scaled source scenario0
@@ -365,3 +194,22 @@ PASS: Damage fixtures restored damage=100
 PASS: Damage fixtures restored real attack matches
 PASS: Damage fixtures restored neutral combat damage matches
 PASS: Damage fixtures restored immediate displayed typed damage sum
+PASS: Filter defaults OFF
+PASS: Default pickup kept
+PASS: Enabling does not retroactively scrap
+PASS: Inclusive level10 Legendary pickup auto-dismantles
+PASS: Duplicate pickup/dismantle rejected
+PASS: Level11 above cutoff kept
+PASS: OR rule high-level Magic auto-dismantles
+PASS: Above both cutoffs kept
+PASS: Disabled level cutoff ignored
+PASS: Rarity inclusive Normal auto-dismantles
+PASS: Rarity inclusive Magic auto-dismantles
+PASS: Rarity inclusive Rare auto-dismantles
+PASS: Rarity inclusive Legendary auto-dismantles
+PASS: Equipment swap returns bypass active filter
+PASS: Equipped item protected
+PASS: Compact populated grid has multiple columns
+PASS: Populated grid scrolls beyond viewport
+PASS: Cells use LV label
+Visual fixture paused: filter OFF with many gear cells. Verify equip, dismantle, filter controls, scrolling and tooltips. Exit Play afterward.

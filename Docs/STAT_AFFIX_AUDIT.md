@@ -1,5 +1,9 @@
 # Black-Cube stat and affix audit
 
+## Step 12.5 live itemization delta
+
+The 120 serialized stat IDs and Step 10 historical identity count remain stable. `AffixDefinition`/`AffixTier` now support variable authored tier counts, paired damage endpoints and explicit Prefix/Suffix side metadata; T1 is the strongest eligible tier, not an assumed universal five-tier row. Guaranteed weapon bases remain outside random-affix capacity. Normal allows one explicit; Magic allows one Prefix plus one Suffix; Rare starts at 3–4 total with no more than three per side; Legendary starts at 5–6 and a six-affix item must split 3/3. The locked original consumes its side; ordinary crafting, generated drops and enemy gear share the same legality policy. Direct ordinary PoE analogue families now use the researched slot/gate/range table in [POEDB_AFFIX_BASELINE.md](POEDB_AFFIX_BASELINE.md), while other Black-Cube families keep their authored rows until Step 13. Newly rolled flat weapon damage has independent low/high endpoints; schema-2 scalars migrate to X–X and historical item tiers/values carry a legacy marker instead of being rewritten. The ordinary Poison-named passive branch grants Void direct damage, while Poison Chance remains ailment-specific. Poison stacks schedule on global combat turns, whereas Bleed/Ignite schedule on afflicted-actor turns. Fresh Step 12.5 EditMode evidence is 204/204, with fresh four-check synchronous Play evidence; balance and build gates remain pending.
+
 > **Step 10 delta with historical Step 9 inventory retained below:** The original matrices and proposed triage describe the `d658dc67` baseline and must not be read as current rollability. The current counters/policies are in this new section. `GAME_DESIGN_CONTRACT.md` governs approved intent; `PROJECT_STATE.md` reports current verification limits.
 
 ## Step 10 current reachability and consumer reconciliation

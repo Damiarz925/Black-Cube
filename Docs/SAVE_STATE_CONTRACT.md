@@ -2,17 +2,17 @@
 
 ## 1. Goals
 
-This is the authoritative design and shipped behavior for Step 6. It separates run state, meta progression, preferences, transient session state, and derived values; defines atomic checkpoint behavior; and prevents a partially restored game.
+This is the authoritative design and shipped behavior established in Step 6 and extended in Step 12.5. It separates run state, meta progression, preferences, transient session state, and derived values; defines atomic checkpoint behavior; and prevents a partially restored game.
 
 The production goals are: one canonical capture/apply path, resumable encounter-boundary checkpoints, explicit failure reporting, forward migration, validation before mutation, and no serialization of live-frame combat presentation.
 
 ## 2. Current save implementation
 
-`GamePersistence` stores schema version 2 as UTF-8 JSON files under `Application.persistentDataPath`: `current-save.json`, `current-save.json.bak`, and the transactional `current-save.json.tmp`. The envelope carries schema version, stable run ID, deterministic run seed, UTC timestamp, and the complete payload. Gear/relic/skill/passive ownership uses stable domain IDs rather than Unity object identity or list positions.
+`GamePersistence` stores schema version 3 as UTF-8 JSON files under `Application.persistentDataPath`: `current-save.json`, `current-save.json.bak`, and the transactional `current-save.json.tmp`. The envelope carries schema version, stable run ID, deterministic run seed, UTC timestamp, and the complete payload. Gear/relic/skill/passive ownership uses stable domain IDs rather than Unity object identity or list positions. Gear now serializes weapon minimum/maximum damage and optional paired affix endpoints.
 
 Capture creates a detached DTO without rewards, rolls, consumption, spawning, or progression changes. It validates before serialization, verifies the durable temporary file by parsing and validating it, atomically replaces the primary while rotating its previous version to backup, and reports success only afterward. Confirmed New Game additionally replaces the backup with the new run. Load validates the complete primary before mutation, tries backup on failure, and applies under a restoration guard; both invalid files remain untouched.
 
-Historical `BlackCube.Save.V1` remains a read-only migration source. When neither v2 file exists, a valid V1 snapshot is parsed/validated, expanded with clean defaults for fields it never stored, restored, and only then committed as v2. The V1 key is preserved and cannot be repeatedly imported once a new-format file exists.
+Historical `BlackCube.Save.V1` remains a read-only migration source. When neither current-format file exists, a valid V1 snapshot is parsed/validated, expanded with clean defaults for fields it never stored, restored, and only then committed as schema 3. Existing schema-2 JSON migrates to schema 3 in memory before validation/application: old scalar weapon damage and flat-damage affixes become X–X pairs. After successful load, the migrated checkpoint is atomically committed. A legacy-affix marker preserves historical item tiers/values instead of applying newly researched direct-family limits retroactively; newly generated schema-3 items must satisfy the current slot, tier, range and side-cap rules. The V1 key is preserved and cannot be repeatedly imported once a new-format file exists.
 
 The persistence-related `PlayerPrefs` inventory is:
 
@@ -24,7 +24,7 @@ The persistence-related `PlayerPrefs` inventory is:
 
 ## 3. Pause-menu explicit save behavior
 
-`GamePersistence.TrySave` is the only explicit gameplay-save entry point and now executes the complete schema-v2 capture/validation/file transaction. Existing `Save()` callers delegate to it.
+`GamePersistence.TrySave` is the only explicit gameplay-save entry point and executes the complete schema-3 capture/validation/file transaction. Existing `Save()` callers delegate to it.
 
 `SAVE & MAIN MENU` and `SAVE & QUIT` continue only after `TrySave` returns true. A failure leaves the player in the paused gameplay scene.
 
@@ -53,7 +53,7 @@ Classifications: A = save-persistent run state, B = meta-progression, C = user p
 | Passive allocations/ranks | A | `PlayerProgression` | Save stable node IDs/ranks; rebuild all stat/keystone modifiers after restore |
 | Selected active skill | A | `PlayerSkillController` | Save a stable skill ID, not an asset instance/reference |
 | Encounter-start player health/mana checkpoint | A | `GamePersistence` / `BattleManager` | Restores the clean start of the current encounter; do not capture arbitrary mid-frame values |
-| Inventory gear | A | `Inventory` | Full gear identity/rolls already supported by V1 |
+| Inventory gear | A | `Inventory` | Full stable gear identity, weapon min/max, paired affix endpoints, locked original and legacy-affix marker |
 | Equipped gear | A | `EquipmentManager` | Full gear identity plus slot; validate unique slots and prevent duplicate item ownership |
 | Ordinary crafting currency | A | `CurrencyInventory` | Run economy; nonnegative bounded counts |
 | Armed currency/cursor state | D | `CurrencyInventory`/UI | In-progress UI intent; cancel on save/load/menu transitions rather than resume it |
@@ -163,7 +163,7 @@ Use transaction-aware immediate checkpoints plus a short debounce for ordinary p
 
 ## 14. Version and migration policy
 
-The shipped storage envelope is schema 2 and is independent from the historical `BlackCube.Save.V1` key. Increment the schema version for any serialized meaning/shape change. Add sequential pure migrations (`V2 -> V3 -> ... -> current`) on DTOs before validation; never migrate by partially applying old data to live objects.
+The shipped storage envelope is schema 3 and is independent from the historical `BlackCube.Save.V1` key. Increment the schema version for any serialized meaning/shape change. Add sequential pure migrations (`V2 -> V3 -> ... -> current`) on DTOs before validation; never migrate by partially applying old data to live objects.
 
 Keep the original primary/backup untouched until migrated data validates and a new atomic file commits. Missing optional fields receive documented defaults. A version newer than the build is unsupported and must not be overwritten. A version older than the oldest supported migration should offer recovery/new game while retaining the files for support. Migration failure falls through to backup, then reports a recoverable load failure.
 

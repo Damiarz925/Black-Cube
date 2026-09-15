@@ -45,10 +45,21 @@ public sealed class GamePersistenceTests
         ring.mods[0]=new RolledMod(StatTypes.FireRes,8,8f,true);
         e.payload.gearItems.Add(ring);e.payload.inventoryGearIds.Add(ring.id);
         Assert.That(GamePersistence.ValidateEnvelope(e,out var error),Is.True,error);
+        ring.mods[0].hasSecondaryValue=true;ring.mods[0].secondaryValue=8f;
+        AssertInvalid(e,"affix");
+        ring.mods[0].hasSecondaryValue=false;
         ring.mods[0].value=50f;AssertInvalid(e,"affix");
         ring.mods[0].value=8f;ring.rarity=LootManager.GearRarity.Magic;
         ring.mods.Add(new RolledMod(StatTypes.ColdRes,8,8f));
         AssertInvalid(e,"side capacity");
+    }
+    [Test] public void CurrentPairedWeaponAffixNeedsBothLegalRolls()
+    {
+        var e=Valid();var weapon=Gear("paired-weapon",StatTypes.FlatPhys);
+        weapon.type=LootManager.GearType.Weapons;weapon.mods[0]=new RolledMod(StatTypes.FlatPhys,9,1f,2f,true);
+        e.payload.gearItems.Add(weapon);e.payload.inventoryGearIds.Add(weapon.id);
+        Assert.That(GamePersistence.ValidateEnvelope(e,out var error),Is.True,error);
+        weapon.mods[0].hasSecondaryValue=false;AssertInvalid(e,"affix");
     }
     [Test] public void DuplicateGearIdIsRejected(){var e=Valid();e.payload.gearItems.Add(Gear("a"));e.payload.gearItems.Add(Gear("a"));e.payload.inventoryGearIds.Add("a");AssertInvalid(e,"unique");}
     [Test] public void DuplicateGearOwnershipIsRejected(){var e=Valid();e.payload.gearItems.Add(Gear("a"));e.payload.inventoryGearIds.Add("a");e.payload.equippedGear.Add(new EquippedGearReference{slot=LootManager.GearType.Weapons,gearId="a"});AssertInvalid(e,"ownership");}

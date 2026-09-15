@@ -48,6 +48,7 @@ The core direct-hit elements are Physical, Fire, Cold, Lightning and **Void**. V
 - **Poison:** an ailment sourced from an eligible damaging hit, including Envenom's authored conversion. Its ticks deal **Void damage over time**. Poison resistance/penetration controls application/effect; Void resistance, Void penetration and the Void maximum-resistance cap mitigate its ticks. Poison-specific and Void offensive scaling each apply once; an already-Void-scaled source does not double-dip.
 - **Bleed:** damage-over-time ailment sourced from Physical damage.
 - **Ignite/Burn:** damage-over-time ailment sourced from Fire damage.
+- **Step 12.5 damaging-stack rules:** each application keeps its own snapshotted strength, remaining duration and next tick; status UI aggregates them without merging actual damage. Poison has no global stack cap, lasts eight **global combat turns**, and ticks every second global turn (four ticks). Bleed holds at most five independent stacks, lasts ten **afflicted-actor turns**, ticks every second such turn (five ticks), and a stronger incoming stack replaces the weakest remaining-total-damage stack at capacity. Ignite holds one stack, lasts four afflicted-actor turns, ticks every second (two ticks), and only a stronger application replaces it. An afflicted-actor turn is that actor's resolved turn, not the attacker's turn. Direct-hit ailment basis is snapshotted after damage range, outgoing increases/More and critical multiplier, but before target armour/resistance; the ailment then applies its own offense and target mitigation exactly once. Repeated hits/applications each roll independently.
 - **Shock:** a nonzero eligible Lightning hit generates `floor(effective chance / 100%)` guaranteed stacks plus a fractional-remainder roll. At five stacks, consume exactly five and trigger one already-mitigated secondary Lightning hit per threshold; keep overflow. The secondary basis is actual triggering Lightning damage dealt, multiplied by `min(100%, 50% × (1 + Shock Effect))`. It cannot recursively Shock, Hit Twice or retarget a replacement. Base lifetime is five global turns, refreshed on contribution. Lightning Strike's authored extra-hit interaction remains, and its real hits can add stacks.
 - **Chill:** an eligible nonzero Cold hit slows attack speed. `RawSlow = clamp(5% + ColdDamageDealt / TargetMaxLife, 5%, 30%)`; `FinalSlow = min(30%, RawSlow × (1 + ChillEffect))`. This dynamically multiplies real player/enemy gauge speed by `(1 - FinalSlow)`. Base lifetime is four global turns, minimum one after duration adjustments. Stronger replaces and refreshes, equal refreshes, weaker does not overwrite. Ice Strike guarantees its authored Chill application without converting it to a chance roll; resistance may reduce magnitude/duration.
 
@@ -102,7 +103,11 @@ Eight equipment slots are authoritative: Weapon, Helmet, Body Armour, Gloves, Bo
 
 Rarities are Normal, Magic, Rare and Legendary. Current approved modifier counts are Normal 1, Magic 2, Rare 3–4, and Legendary 5–6. Guaranteed weapon base damage/attack-speed/critical rolls are intrinsic and do not count against random crafting-affix limits. One original non-intrinsic modifier is locked; crafting may mutate only unlocked modifiers.
 
-Modifier tiers are item-level gated. Weapon-element matching damage rolls may be local to the weapon; other equipment rolls project globally. Duplicate stat/group exclusions and weighted definitions are part of the current affix model.
+Modifier tiers are item-level gated and may contain any authored number of tiers, including paired minimum/maximum damage rolls. T1 is the strongest tier eligible for that item's level and slot, not an assumed fifth row. Weapon-element matching damage rolls may be local to the weapon; other equipment rolls project globally. Duplicate stat/group exclusions and weighted definitions are part of the current affix model.
+
+Step 12.5 approves explicit Prefix/Suffix classification and rarity capacity: Normal one total (at most one per side), Magic two total (one Prefix and one Suffix), Rare four total (at most three of either side), Legendary six total (at most three of either side). Guaranteed weapon base rolls are intrinsic and outside these counts. The locked original affix occupies its side; add/reroll/remove/upgrades may not bypass a side cap or mutate the locked original. Ordinary PoE-style explicit tier gates and rolls for the direct-mapping families, together with Black-Cube slot deviations, are recorded in [POEDB_AFFIX_BASELINE.md](POEDB_AFFIX_BASELINE.md); nonmatching game-specific families retain authored data pending Step 13.
+
+Weapon base damage is a min–max range. The starter weapon is 64–96 (average 80). Every resolved hit, including Hit Twice and real multi-hit interactions, samples its own value within the range; noncritical previews show the average. The base critical damage multiplier is 1.5×; critical-multiplier stats add their classified fractional value. Actual hit damage/life loss and critical presentation must show the final resolved result rather than a scalar estimate.
 
 [STAT_AFFIX_AUDIT.md](STAT_AFFIX_AUDIT.md) records the historical Step 9 inventory and the Step 10 delta: 120 stable IDs (0–119), 107 pooled definitions including three guaranteed weapon bases, and 104 random v1 affixes. Removed families retain numeric IDs for schema-2 legacy gear but do not newly roll.
 
@@ -110,7 +115,7 @@ Final attributes clamp nonnegative after `(base + flat) × (1 + attribute-% incr
 
 Elemental maximum resistance starts at 75%, matching individual and Maximum All modifiers add percentage points, and effective caps cannot exceed 90%. Fire, Cold, Lightning and Void use the same rule; penetration lowers effective resistance after cap, never the maximum stat itself.
 
-Prefix/suffix separation is not implemented or approved as a current rule. It remains a possible future itemization layer.
+The ordinary Poison-named damage passive branch now grants Void direct damage. Poison-chance and ailment-specialized passives remain Poison-specific; stable passive IDs and tree geometry are unchanged.
 
 ## 12. Crafting
 
@@ -124,6 +129,8 @@ The six ordinary equipment operations are:
 6. Remove Rare/Legendary modifier
 
 The six Ancient relic counterparts are Ancient Normal → Magic, Ancient Magic → Rare, Ancient Rare → Legendary, Ancient Reroll, Ancient Add Modifier and Ancient Remove Modifier. Ancient operations apply only to the eligible current-cycle relic. Successful random outcomes and currency consumption form one immediate save transaction.
+
+Ancient currency uses distinct recognizable cursors rather than a blank square; manual GEAR/RELICS tab selection cancels any armed crafting intent, while a valid Ancient target may switch to the Relics tab automatically without losing the intent. Relic inventory cards have meaningful hover/click inspection, current-cycle authority, and projected active modifiers. These controls are functional placeholders; final art remains user-owned.
 
 ## 13. Pickup filters and dismantling
 
@@ -149,7 +156,7 @@ New Game clears relic history, active slots, cycle/rebirth history and Ancient c
 [SAVE_STATE_CONTRACT.md](SAVE_STATE_CONTRACT.md) and [RUNTIME_LIFECYCLE.md](RUNTIME_LIFECYCLE.md) are authoritative. Locked concepts are:
 
 - One logical current-run save with primary plus backup
-- Schema 2 and validated atomic writes
+- Schema 3 and validated atomic writes, with schema-2 scalar-damage migration to X–X ranges and legacy-affix preservation
 - Explicit New Game overwrite confirmation
 - Full gameplay/meta wipe on New Game with preferences preserved
 - One canonical system for Save & Main Menu and Save & Quit
@@ -165,6 +172,8 @@ Do not add multiple slots or exact-frame serialization without a later approved 
 The visual identity is stylized layered paper/cut-paper/storybook. Paper Battle is intentional, and menus/HUD should feel native to that world.
 
 Functional implementation and final visual ownership are distinct. Codex may create functional controls, sensible basic placement and component wiring. The user retains final custom art, animated hover/click/pressed states, precision alignment, bespoke sprite transitions and visual polish. Runtime-built placeholders do not lock final artwork or geometry.
+
+Step 12.5 allows Inventory to coexist with either Stats or Enemy Inspection; Stats and Enemy Inspection are mutually exclusive. Gear tooltips group Prefixes above Suffixes, show actual roll and that exact tier's possible range, distinguish paired damage endpoints, mark local/global and locked/craftable affixes, and clearly identify historical rolls preserved by migration.
 
 ## 17. Environment and art direction
 

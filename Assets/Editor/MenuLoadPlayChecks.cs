@@ -123,7 +123,9 @@ public static class MenuLoadPlayChecks
                 Require(hud.PauseMenu.IsOpen,"Could not seed transient pause state");
                 Require(GamePersistence.TrySave(),GamePersistence.LastError);
                 hud.GetButton(TopHUDButtonKind.Play).onClick.Invoke();
-                Require(GamePersistence.TryReadFile(GamePersistence.PrimaryPath,out var saved,out var saveError),saveError);savedRunId=saved.runId;
+                Require(GamePersistence.TryReadFile(GamePersistence.PrimaryPath,out var saved,out var saveError),saveError);
+                Require(saved.schemaVersion==GamePersistence.SchemaVersion,"Menu fixture did not write current schema");
+                savedRunId=saved.runId;
                 ReturnToMenu();step=2;Delay();return;
             case 2:
                 if(scene!=GameSceneNames.MainMenu)return;
@@ -146,7 +148,7 @@ public static class MenuLoadPlayChecks
                 var loadedHealth=loadedPlayer.GetComponent<HealthComponent>();var loadedMana=loadedPlayer.GetComponent<ManaComponent>();
                 Require(loadedHealth.CurrentLife>=checkpointLife-.01f&&loadedHealth.CurrentLife<checkpointLife+5f&&loadedMana.CurrentMana>=checkpointMana-.01f&&loadedMana.CurrentMana<checkpointMana+5f,"Encounter-start health/mana were not restored");
                 Require(!UnityEngine.Object.FindFirstObjectByType<PaperBattleHUD>().PauseMenu.IsOpen&&Mathf.Approximately(Time.timeScale,1f),"Transient pause state was restored");
-                Write("PASS: Main Menu -> Load Game restored the rich v2 schema and clean encounter checkpoint while clearing transient intent.");
+                Write("PASS: Main Menu -> Load Game restored rich schema3 state and clean encounter checkpoint while clearing transient intent.");
                 ReturnToMenu();step=4;Delay();return;
             case 4:
                 if(scene!=GameSceneNames.MainMenu)return;

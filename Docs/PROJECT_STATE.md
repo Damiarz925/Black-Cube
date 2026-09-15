@@ -9,6 +9,7 @@ Current-reality claims use this evidence order: (1) verified source code, (2) sc
 ## 1. Verified baseline
 
 - Repository branch: `codex/repository-cleanup-baseline`
+- Step 12.5 checkpoint commits: `83b83ba6` (relic/Ancient UI foundation), `4dc36790` (independent damaging ailments), and `e566a936` (range/crit, lawful variable affixes, tooltips/passive/UI and schema migration). The final validation/balance-lab reconciliation checkpoint follows these milestones on this branch; do not infer final game balance from structural pass gates.
 - Verified Step 6 implementation commit: `76c5687f8fcee69d089eb9b3efc0c9df5549ea6a` (`Implement versioned save and load system`)
 - Step 7 authority baseline: `a039bb1e116c919ee63a32913793d50da62d4ad5` (`Lock project state and game design contracts`)
 - Step 8 cleanup baseline: `00bbc93f5153108e34cb133c81dccb3879168782` (`Remove obsolete Prestige runtime path`)
@@ -22,6 +23,8 @@ Current-reality claims use this evidence order: (1) verified source code, (2) sc
 - Fresh Step 10 missing-reference validation: passing with zero failures
 - Fresh Step 10 Windows x64 strict build: succeeded, zero errors, 522 warnings; standalone headless smoke stayed responsive for 30 seconds through Main Menu startup (the unassigned placeholder Achievements button logged its known warning)
 - **Fresh Steps 11 + 12 Unity EditMode suite: 184/184 passing**, including five EnemyScaling and seven BalanceSimulation cases. The four synchronous real-scene equipment/stat/status/progression checks, rich schema-2 menu/load/New Game fixture, six-entry lifecycle/Pause soak and scaling-profile-aware reference scan passed. The finalized 250-build baseline generated 4,500 sampled rows at seed 11012 in 329.0 seconds (25-sample quick: 33.8 seconds). A fresh strict Windows x64 build succeeded with zero errors and 522 existing warnings; its standalone headless process remained responsive for more than 30 seconds through Main Menu startup, with only the known unassigned placeholder Achievements button message.
+
+**Fresh Step 12.5 evidence:** Unity EditMode 212/212 passed on 2026-09-15 (`Logs/Step12_5-final-editmode.xml`), including relic, independent ailment, range/crit, PoEDB/Black-Cube affix fallback, itemization validation, schema migration and pair rejection, passive and overlay cases. The seeded itemization audit passed 1,312 player/enemy/crafting cases with zero errors (`Logs/Step12_5-itemization-validation.txt`), and four synchronous real-scene combat/stat/status/progression checks passed after these edits (`Logs/BaselineSynchronousPlayChecks.txt`). Focused AttackStats, InventoryGrid, TooltipCrit and PlayerProgression scenes passed; the six-entry lifecycle/Pause soak, five-transition schema-3 menu/load check and reference scan passed; the balance smoke wrote 450 rows at seed 11012 across nine levels in 35.9 seconds. A strict Windows x64 build succeeded with zero errors and 522 existing warnings (`Logs/BaselineWindowsBuild.txt`); its newly built standalone player reached Main Menu and remained alive/responsive for 48 seconds. The preceding Steps 11 + 12 evidence is historical, not a substitute.
 
 Known baseline limits include one logical save slot; clean encounter-boundary rather than exact-frame restoration; functional/basic runtime-built menu overlays; two active enemy archetypes; six repeating forest backgrounds; no final campaign/content count; and the incomplete mechanics listed below.
 
@@ -45,7 +48,7 @@ The game has a coherent vertical slice rather than shipping-scale content. Comba
 - **Skills:** seven catalog skills can be selected one at a time and cast from the Skills panel when mana and a living encounter are available. Auto-attacks continue independently.
 - **Statuses:** Poison ticks are mitigated as Void DOT while retaining Poison application and visual identity. Bleed/Ignite retain DOT behavior. Shock has five-stack Lightning triggers; Chill dynamically slows either actor's real gauge from actual Cold-hit strength.
 - **Relics/Rebirth:** `RelicInventory` owns permanent-within-save relic history, four active slots and current-cycle crafting authority. `RebirthManager` performs the level-50 reset transaction and immediately saves it. New Game clears this entire layer.
-- **Persistence:** `GamePersistence` owns schema-2 DTO capture/validation, stable run identity/seed, atomic files, backup recovery, V1 migration, deterministic encounter restore and debounced autosaves. See [SAVE_STATE_CONTRACT.md](SAVE_STATE_CONTRACT.md).
+  - **Persistence:** `GamePersistence` owns schema-3 DTO capture/validation, stable run identity/seed, atomic files, backup recovery, V1 and V2 migration, legacy-affix preservation, deterministic encounter restore and debounced autosaves. See [SAVE_STATE_CONTRACT.md](SAVE_STATE_CONTRACT.md).
 - **UI:** `PaperBattleHUD` coordinates gameplay panels and time controls. Most feature panels are runtime-built over the authored paper battle prefab.
 
 Use [CODE_MAP.md](CODE_MAP.md) for file ownership and [DEVELOPER_HANDOFF.md](DEVELOPER_HANDOFF.md) for working entry points; this document deliberately does not repeat their line-by-line map.
@@ -65,20 +68,24 @@ Use [CODE_MAP.md](CODE_MAP.md) for file ownership and [DEVELOPER_HANDOFF.md](DEV
 ## 5. Implemented systems
 
 - Gauge-driven automatic player/enemy attacks and manual active-skill casting
+- Step 12.5 weapon min–max damage and an independent range roll per actual hit; starter weapon 64–96 (average 80); base critical damage 1.5× plus classified CritMult, final-damage/critical popups and range previews
 - Physical/elemental hit calculation, critical strikes, armour, resistances and penetration
 - Poison-as-Void DOT, Bleed and Ignite stacking/ticking; first-class direct Void damage, resistance, penetration and max resistance
+- Independent Poison (uncapped, four ticks over eight global turns), Bleed (five-stack strongest-selection, five ticks over ten afflicted-actor turns) and Ignite (one strongest stack, two ticks over four afflicted-actor turns), each based on post-outgoing/pre-target-mitigation hit snapshots
 - Symmetric Hit Twice; player life/mana regeneration, on-hit and credited on-kill recovery; Fireball passive-only Projectile Amount, conversion and scoped Magic/Projectile damage inputs
 - Enemy rarity, generated equipment candidates, and bounded build optimization
 - Provisional enemy intrinsic Life/damage/Armour/elemental-Void resistance progression through combat level 100 and slower post-100 continuation, separate from unchanged generated gear
 - Editor-only seeded balance lab with real generated-build/optimizer distributions, typed mitigation, synthetic-reference TTK/TTD and snapshot duels (not final gameplay balance)
 - Exactly-once enemy death rewards, equipment drops and world currency pickups
 - Eight-slot equipment, inventory grid, item tooltips, local/global weapon modifiers, stable item identity, pickup filters and auto-dismantling
+- Explicit Prefix/Suffix capacity and variable authored affix tiers shared by player loot, crafting and enemy generation; direct ordinary PoE analogue rows/slot deviations documented in [POEDB_AFFIX_BASELINE.md](POEDB_AFFIX_BASELINE.md), with Black-Cube-only families retained
+- Functional relic cards/inspection and six recognizable Ancient crafting cursors; manual Gear/Relics tab switches cancel armed intent
 - Six ordinary equipment-crafting operations and six corresponding Ancient relic-crafting operations
 - Level/XP progression to 100, passive allocation/refund connectivity, 290-node passive tree and 20 keystones
 - Seven levelable active skills, one selected skill, level-adjusted mana costs and independent Fireball projectiles
 - Relic inventory, four active slots, current-cycle crafting and confirmed Rebirth
 - Main Menu, HUD, gameplay panels, Pause/Options, Death Menu, restart, New Game confirmation and Load Game
-- Schema-2 transactional persistence, backup recovery, V1 migration, autosaves and clean deterministic encounter restoration
+- Schema-3 transactional persistence, backup recovery, V1/V2 scalar-to-pair migration, legacy-affix preservation, autosaves and clean deterministic encounter restoration
 - Layered paper player/enemy animation, swappable player weapon presentation, status/damage visuals, and repeating forest progression
 
 ## 6. Partially implemented or dead mechanics
@@ -106,7 +113,7 @@ Use [CODE_MAP.md](CODE_MAP.md) for file ownership and [DEVELOPER_HANDOFF.md](DEV
 
 ## 8. Current persistence
 
-Schema 2 writes `current-save.json`, `current-save.json.bak`, and `current-save.json.tmp` under `Application.persistentDataPath`. It has one current-run slot, validated atomic writes, primary→backup recovery, nondestructive PlayerPrefs V1 migration, stable item/relic/passive/skill IDs, and a two-second mutation debounce.
+Schema 3 writes `current-save.json`, `current-save.json.bak`, and `current-save.json.tmp` under `Application.persistentDataPath`. It has one current-run slot, validated atomic writes, primary→backup recovery, nondestructive PlayerPrefs V1 and schema-2 migration, stable item/relic/passive/skill IDs, paired damage rolls, a legacy-affix marker, and a two-second mutation debounce.
 
 New Game confirms replacement, clears all gameplay and relic/rebirth meta, preserves independent preferences, and makes primary/backup belong to the new run. Rebirth preserves relic history while resetting its established run state. Restart is an in-memory current-level reset, not disk load. Mid-combat load reconstructs the same deterministic encounter from its beginning and restores recorded encounter-start HP/mana rather than live-frame state. See [SAVE_STATE_CONTRACT.md](SAVE_STATE_CONTRACT.md) for the field and failure contract.
 
@@ -114,8 +121,8 @@ New Game confirms replacement, clears all gameplay and relic/rebirth meta, prese
 
 - **Main Menu:** authored shell with functional New Game, Load Game and placeholder Achievements; Options and overwrite confirmation are functional runtime-built overlays.
 - **HUD:** paper-styled top buttons for Skills, Passives, Enemy, Inventory, Stats, Pause and Play; run/level/encounter/resource summaries and status strips.
-- **Inventory/equipment:** responsive grid, eight equipment slots, ordinary/Ancient currency and relic tabs, filter controls, modifier highlighting, crafting targeting and item tooltips.
-- **Stats:** categorized player-stat panel with damage previews and equipment-derived refresh.
+- **Inventory/equipment:** responsive grid, eight equipment slots, ordinary/Ancient currency and manual Gear/Relics tabs, relic inspection, filter controls, modifier highlighting, crafting targeting and Prefix/Suffix exact-tier/paired-damage item tooltips.
+- **Stats:** categorized player-stat panel with damage-range/average previews and equipment-derived refresh; Inventory may remain open alongside Stats or Enemy Inspection, but those two inspection panels are mutually exclusive.
 - **Enemy Inspection:** current enemy identity, rarity, level, stats/build and equipment inspection.
 - **Skills:** seven skill entries, single-selection/forfeit behavior and Cast Active Skill control.
 - **Passive Tree:** pan/zoom 7,000-pixel graph with allocation/refund, details, points and optional pause-while-open preference.
@@ -126,7 +133,7 @@ These controls are functionally wired. Runtime-built modal/panel geometry and ge
 
 ## 10. Verification infrastructure
 
-- NUnit EditMode suite under `Assets/Tests/Editor` (fresh Steps 11 + 12 **184/184**; Step 10 historical baseline 172/172)
+- NUnit EditMode suite under `Assets/Tests/Editor` (fresh Step 12.5 **212/212**; Steps 11 + 12 historical baseline 184/184)
 - `EnemyScalingTests` for authored level-1 seeds, canonical curves/safety/idempotence, Poison/Void one-pass output, generated-actor and optimizer parity; `BalanceSimulationTests` for deterministic seeds, live-singleton isolation, production-math parity and snapshot status/mitigation behavior
 - `BalanceSimulationRunner` for ignored CSV/JSON/Markdown 25/250/1000-build sampled reports at representative levels; `BalanceSimulationWindow` for local configuration; see [ENEMY_SCALING_BASELINE.md](ENEMY_SCALING_BASELINE.md)
 - `GamePersistenceTests` for schema, corruption, migration, backup, deterministic seed, transactional failure and debounce behavior
@@ -148,10 +155,11 @@ Generated reports are written to `Logs` or `ReviewCaptures`; check timestamps be
 - The file-only `verify_boss_cadence.ps1` harness predates the current scene-lifecycle dependencies and no longer compiles its reduced Unity stubs; Unity's `ProgressionChecks` remains the passing cadence regression.
 - Save recovery exposes diagnostic status through logs/API rather than a polished player-facing recovery dialog.
 - There is no automated cloud conflict policy, multiple-slot UI or achievement integration.
+- The initial sandboxed 2026-09-15 Step 12.5 batchmode attempts could not reach the local Unity Licensing Client IPC and left older reports untouched. Running the Unity test/build process with broader host-process permissions connected to the existing Personal license; the final reports above are fresh reruns. No Unity Hub login repair or project-code workaround was required.
 
 ## 12. Roadmap position
 
-Steps 1–12 have completed their requested source and fresh regression/build gates. Steps 11 + 12 add central placeholder enemy intrinsic scaling and a deterministic Editor-only measurement lab, documented in [ENEMY_SCALING_BASELINE.md](ENEMY_SCALING_BASELINE.md). They do not change the 120 stable stat IDs or 107 pooled definitions (3 guaranteed weapon bases plus 104 random affixes), and they do not establish final combat balance.
+Steps 1–12.5 have completed their requested source and fresh regression/build gates, subject to the user-owned Unity settings changes still outside these commits. Steps 11 + 12 add central placeholder enemy intrinsic scaling and a deterministic Editor-only measurement lab, documented in [ENEMY_SCALING_BASELINE.md](ENEMY_SCALING_BASELINE.md); Step 12.5 reconciles its per-strike ranges, critical base and ailment turn ownership. They do not change the 120 stable stat IDs or 107 pooled definitions (3 guaranteed weapon bases plus 104 random affixes), and they do not establish final combat balance.
 
 Known later phases are Step 13 integrated balance and Step 14 final v1 zone/enemy/boss/content scope. Step 13 should compare real player progression against the lab's deliberately synthetic reference before changing the provisional enemy profile.
 

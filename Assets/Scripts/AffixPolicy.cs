@@ -9,6 +9,7 @@ public static class AffixPolicy
             or StatTypes.AllRes or StatTypes.Strength or StatTypes.Dexterity or StatTypes.Intelligence
             or StatTypes.AttackSpeed or StatTypes.CritChance or StatTypes.CritMult
             or StatTypes.LifeOnKill or StatTypes.ManaOnKill or StatTypes.ManaOnHit
+            or StatTypes.LifeRegeneration
             or StatTypes.LifeOnHit or StatTypes.ChanceToHitTwice
             or StatTypes.PoisonChance or StatTypes.BleedChance or StatTypes.IgniteChance
             or StatTypes.ShockChance or StatTypes.ChillChance

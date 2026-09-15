@@ -13,7 +13,7 @@ using Object=UnityEngine.Object;
 [InitializeOnLoad]
 public static class AttackStatsChecks
 {
-    const string Key="BlackCube.AttackStatsChecks", Report="ReviewCaptures/attack-stats-check.txt";
+    const string Key="BlackCube.AttackStatsChecks", Report="Logs/Step12_5-AttackStats-check.txt";
     static IEnumerator routine;
     static double ready;
     static int errors;
@@ -75,9 +75,16 @@ public static class AttackStatsChecks
         if(name=="Damage / Hit (Noncritical)")
             return panel.GetComponentsInChildren<StatRowUI>()
                 .Where(r=>r.GetComponentsInChildren<TMP_Text>().Any(t=>t.text.EndsWith(" / Hit (Noncritical)")))
-                .Sum(r=>float.Parse(r.GetComponentsInChildren<TMP_Text>().First(t=>!t.text.EndsWith(" / Hit (Noncritical)")).text)).ToString("0.##");
+                .Sum(r=>PreviewAverage(r.GetComponentsInChildren<TMP_Text>().First(t=>!t.text.EndsWith(" / Hit (Noncritical)")).text)).ToString("0.##");
         var row=panel.GetComponentsInChildren<StatRowUI>().FirstOrDefault(r=>r.GetComponentsInChildren<TMP_Text>().Any(t=>t.text==name));
         return row == null ? null : row.GetComponentsInChildren<TMP_Text>().First(t=>t.text!=name).text;
+    }
+    static float PreviewAverage(string text)
+    {
+        int start=text.IndexOf("Average ",StringComparison.Ordinal);
+        if(start>=0)
+        { start+=8;int end=text.IndexOf(')',start);return float.Parse(text.Substring(start,end-start),System.Globalization.CultureInfo.InvariantCulture); }
+        return float.Parse(text,System.Globalization.CultureInfo.InvariantCulture);
     }
     static HealthComponent Enemy=>BattleManager.Instance.CurrentEnemyAI.GetComponent<HealthComponent>();
     static void Turn()=>typeof(BattleManager).GetMethod("ResolvePlayerTurn",BindingFlags.NonPublic|BindingFlags.Instance).Invoke(BattleManager.Instance,null);
@@ -113,7 +120,7 @@ public static class AttackStatsChecks
         var armour=Gear(LootManager.GearType.BodyArmours,Element.Phys,0);armour.globalRolledMods.Add(new RolledMod(StatTypes.GenericDmg,1,25));equipment.Equip(armour);
         Check(!panel.IsSectionExpanded("Damage") && Value(panel,"Damage / Hit (Noncritical)")=="264","Gear refresh preserves collapsed state and updates primary damage");
         xp.AddExperience(xp.RequiredXp);Check(xp.TrySpend(PassiveTreeDefinition.NodeId(PassiveBranch.Poison,0)),"Poison passive purchased with a deterministically earned point");
-        Near(stats.GetRawStat(StatTypes.PoisonDmg),5f,"Poison passive updates only Poison damage");
+        Near(stats.GetRawStat(StatTypes.VoidDmg),5f,"Poison passive updates its Void-damage ordinary spoke");
         Near(player.BasicAttackDamage,264f,"Poison passive does not alter a physical hit");Check(Value(panel,"Damage / Hit (Noncritical)")=="264","Scoped passive refresh preserves unrelated hit damage");
         var other=Gear(LootManager.GearType.Weapons,Element.Fire,40);equipment.Equip(other);
         Near(player.BasicAttackDamage,118.8f,"Existing off-element flat contribution retained without adding a new system");
@@ -145,12 +152,13 @@ public static class AttackStatsChecks
         {
             game.StartZone(1);var g=Gear(LootManager.GearType.Weapons,element,20);equipment.Equip(g);yield return null;
             Turn();var summaries=Enemy.GetComponent<StatusController>().GetStatusSummaries();
-            string expected=element switch{Element.Phys=>"Bleed,Poison",Element.Fire=>"Burn",Element.Cold=>"Chill",Element.Light=>"Shock",Element.Poison=>"Poison",_=>""};
+            string expected=element switch{Element.Phys=>"Bleed,Poison",Element.Fire=>"Burn,Poison",
+                Element.Cold=>"Chill,Poison",Element.Light=>"Poison,Shock",_=>"Poison"};
             Check(string.Join(",",summaries.Select(s=>s.DisplayName).OrderBy(s=>s))==expected,"Actual player turn "+element+" applies only "+(expected==""?"no status":expected)+" with all chances100%");
         }
         var context=new DamageContext(3);context.AddDamage(Element.Fire,100);context.AddDamage(Element.Poison,7);
-        Near(AilmentCalculator.GetSourceHitDamage(poison,context),7,"Status source strength excludes unrelated damage");
-        context.AddDamage(Element.Phys,5);Near(AilmentCalculator.GetSourceHitDamage(poison,context),12,"Poison source includes both Physical and Poison");
+        Near(AilmentCalculator.GetSourceHitDamage(poison,context),107,"Poison source includes Fire and normalized Void");
+        context.AddDamage(Element.Phys,5);Near(AilmentCalculator.GetSourceHitDamage(poison,context),112,"Poison source includes Physical too");
         game.StartZone(1);equipment.Equip(Gear(LootManager.GearType.Weapons,Element.Poison,20));yield return null;
         stats.SetBaseStat(StatTypes.PoisonChance,0);Turn();
         Check(Enemy.GetComponent<StatusController>().GetStatusSummaries().Count==0,"Matching Poison damage still requires chance roll");

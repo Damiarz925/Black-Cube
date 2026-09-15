@@ -1,5 +1,5 @@
 Attack / stats / Legendary / element gating
-PASS: Shared outgoing pipeline applies flat, matching increased and separate more multipliers (231)
+PASS: Shared outgoing pipeline applies flat, matching increased and independent more factors (231)
 PASS: Real noncritical attack context equals display calculation (231)
 PASS: Open stats panel immediately refreshed on stat changes
 PASS: Actual combat mitigation pipeline with neutral target matches preview (231)
@@ -10,34 +10,34 @@ PASS: Life remains a meaningful stat
 PASS: HP zero remains displayable
 PASS: Damage category collapses
 PASS: Gear refresh preserves collapsed state and updates primary damage
-PASS: Damage skill purchased
-PASS: Skill modifier updates shared hit damage (283.8)
-PASS: Skill change immediately refreshes open stats
-PASS: Existing off-element flat contribution retained without adding a new system (129.36)
+PASS: Poison passive purchased with a deterministically earned point
+PASS: Poison passive updates its Void-damage ordinary spoke (5)
+PASS: Poison passive does not alter a physical hit (264)
+PASS: Scoped passive refresh preserves unrelated hit damage
+PASS: Existing off-element flat contribution retained without adding a new system (118.8)
 PASS: Weapon swap refreshes immediately
 PASS: Nonmatching weapon does not hide nonzero status chance
 PASS: Status category stays collapsed through value refresh
 PASS: Status category expands to current value
-PASS: Normal Scrap yield 1
+PASS: Normal dismantle uses consolidated currency yield 1
 PASS: Normal duplicate callback rejected
-PASS: Magic Scrap yield 2
+PASS: Magic dismantle uses consolidated currency yield 2
 PASS: Magic duplicate callback rejected
-PASS: Rare Scrap yield 3
+PASS: Rare dismantle uses consolidated currency yield 3
 PASS: Rare duplicate callback rejected
-PASS: Legendary Scrap yield 5
+PASS: Legendary dismantle uses consolidated currency yield 5
 PASS: Legendary duplicate callback rejected
-PASS: One stack11; self/equipped safeguards retained
+PASS: Equipped-item safeguard retained
 PASS: Actual player turn Phys applies only Bleed,Poison with all chances100%
-PASS: Actual player turn Fire applies only Burn with all chances100%
-PASS: Actual player turn Cold applies only Chill with all chances100%
-PASS: Actual player turn Light applies only Shock with all chances100%
+PASS: Actual player turn Fire applies only Burn,Poison with all chances100%
+PASS: Actual player turn Cold applies only Chill,Poison with all chances100%
+PASS: Actual player turn Light applies only Poison,Shock with all chances100%
 PASS: Actual player turn Poison applies only Poison with all chances100%
-PASS: Actual player turn Void applies only no status with all chances100%
-PASS: Status source strength excludes unrelated damage (7)
-PASS: Poison source includes both Physical and Poison (12)
+PASS: Actual player turn Void applies only Poison with all chances100%
+PASS: Poison source includes Fire and normalized Void (107)
+PASS: Poison source includes Physical too (112)
 PASS: Matching Poison damage still requires chance roll
 PASS: Lethal matching hit cannot apply statuses to successor
 PASS: Lethal DOT still stops turn before replacement hit/status
 PASS: No new gameplay errors during scoped fixture
-Visual fixture paused: primary damage140; categories populated; all status chances17% visible regardless of Physical weapon. Inventory has Scrap11 and Legendary Ring (+5 action). Exit Play after UI checks.
-Legendary-only visual fixture: Scrap1; tooltip +5 action must remove ring and leave one Scrap6 slot.
+Visual fixture paused: primary damage140; categories populated; all status chances17% visible regardless of Physical weapon. Dismantle rewards were recorded in the consolidated currency inventory. Exit Play after UI checks.

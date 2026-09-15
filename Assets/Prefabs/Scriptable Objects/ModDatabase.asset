@@ -3473,7 +3473,7 @@ MonoBehaviour:
     displayName: Life Regeneration
     allowedSlots: 0000000002000000i
     groups: []
-    side: 0
+    side: 1
     tiers:
     - tierIndex: 5
       minValue: 2

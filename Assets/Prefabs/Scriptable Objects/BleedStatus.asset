@@ -14,13 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BleedStatusEffect
   effectName: 
   effectMagnitude: 0.5
-  tickDuration: 2
-  maxStacks: 4
-  stackPolicy: 0
+  tickDuration: 5
+  maxStacks: 5
+  stackPolicy: 1
   statusType: 0
   elements: 1
   damageColor: {r: 1, g: 1, b: 1, a: 1}
   ailmentKind: 2
-  baseTurnInterval: 1
+  baseTurnInterval: 2
   bleedScalar: 0.5
-  bleedMaxStacks: 4
+  bleedMaxStacks: 5

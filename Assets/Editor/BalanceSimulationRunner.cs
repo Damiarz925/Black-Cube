@@ -88,6 +88,8 @@ namespace BlackCube
                 var playerStats = player.GetComponent<StatsComponent>();
                 var controller = player.GetComponent<PlayerController>();
                 var playerContext = controller.BuildNonCriticalAttackContext();
+                var playerLow = controller.BuildNonCriticalAttackContextAtRangeEnd(false);
+                var playerHigh = controller.BuildNonCriticalAttackContextAtRangeEnd(true);
                 float playerHitSeed = Sum(playerContext);
                 float playerLifeSeed = playerStats.GetStat(StatTypes.Life);
                 float playerSpeedSeed = controller.GetFinalAttackSpeed();
@@ -100,13 +102,13 @@ namespace BlackCube
                 var poison = ScriptableObject.CreateInstance<StatusEffects>();
                 created.Add(poison);
                 poison.ConfigureRuntime("Balance Poison", StatusEffects.StatusType.DamageOverTime,
-                    StatusEffects.AilmentKind.Poison, ElementMask.All, .1f, 2, 100,
-                    StatusEffects.StackPolicy.StackAndRefresh, 4);
+                    StatusEffects.AilmentKind.Poison, ElementMask.All, .1f, 4, 0,
+                    StatusEffects.StackPolicy.StackIndependently, 2);
                 var bleed = ScriptableObject.CreateInstance<StatusEffects>();
                 created.Add(bleed);
                 bleed.ConfigureRuntime("Balance Bleed", StatusEffects.StatusType.DamageOverTime,
-                    StatusEffects.AilmentKind.Bleed, ElementMask.Phys, .5f, 2, 4,
-                    StatusEffects.StackPolicy.StackAndRefresh, 1);
+                    StatusEffects.AilmentKind.Bleed, ElementMask.Phys, .5f, 5, 5,
+                    StatusEffects.StackPolicy.StackIndependently, 2);
                 var ignite = ScriptableObject.CreateInstance<StatusEffects>();
                 created.Add(ignite);
                 ignite.ConfigureRuntime("Balance Ignite", StatusEffects.StatusType.DamageOverTime,
@@ -118,6 +120,8 @@ namespace BlackCube
                     ConfigureReference(referenceStats, playerLifeSeed, level);
                     float playerFactor = ReferenceFactor(level);
                     DamageContext scaledPlayer = CopyAndScale(playerContext, playerFactor);
+                    DamageContext scaledPlayerLow = CopyAndScale(playerLow, playerFactor);
+                    DamageContext scaledPlayerHigh = CopyAndScale(playerHigh, playerFactor);
                     foreach (GameObject prefab in prefabs)
                     {
                         for (int sample = 0; sample < config.sampleCount; sample++)
@@ -131,7 +135,8 @@ namespace BlackCube
                                 ai.GenerateIsolatedBuild(level, roller, rarity);
                                 int duelSeed = unchecked(config.seed + level * 1000003 + sample * 97 + StableHash(prefab.name));
                                 rows.Add(Capture(prefab.name, level, sample, ai, actor,
-                                    scaledPlayer, playerSpeedSeed, controller.GetFinalCritChance(),
+                                    scaledPlayer, scaledPlayerLow, scaledPlayerHigh,
+                                    playerSpeedSeed, controller.GetFinalCritChance(),
                                     referenceStats, playerStats, ailments, duelSeed));
                             }
                             finally { UnityEngine.Object.DestroyImmediate(actor); }
@@ -249,7 +254,8 @@ namespace BlackCube
         }
 
         private static BalanceRow Capture(string name, int level, int sample, EnemyAI ai, GameObject actor,
-            DamageContext playerAttack, float playerSpeed, float playerCrit, StatsComponent reference,
+            DamageContext playerAttack, DamageContext playerLow, DamageContext playerHigh,
+            float playerSpeed, float playerCrit, StatsComponent reference,
             StatsComponent playerStats, StatusEffects[] ailments, int duelSeed)
         {
             var stats = actor.GetComponent<StatsComponent>();
@@ -257,10 +263,12 @@ namespace BlackCube
             var setup = actor.GetComponent<EnemyStatSetup>();
             var intrinsic = setup.Intrinsic;
             DamageContext enemyAttack = ai.BuildNonCriticalAttackContext();
+            DamageContext enemyLow = ai.BuildNonCriticalAttackContextAtRangeEnd(false);
+            DamageContext enemyHigh = ai.BuildNonCriticalAttackContextAtRangeEnd(true);
             float enemyHit = CombatCalculator.CalculateFinalDamage(enemyAttack, stats, reference);
             float playerHit = CombatCalculator.CalculateFinalDamage(playerAttack, playerStats, stats);
             float enemyCrit = ai.GetFinalCritChance();
-            float enemyCritMult = 1f + stats.GetStat(StatTypes.CritMult);
+            float enemyCritMult = CombatCalculator.BaseCriticalMultiplier + stats.GetStat(StatTypes.CritMult);
             float expectedHit = enemyHit * (1f + enemyCrit * (enemyCritMult - 1f));
             float hitTwice = Mathf.Clamp01(stats.GetStat(StatTypes.ChanceToHitTwice));
             float enemySpeed = Mathf.Max(.0001f, ai.GetFinalAttackSpeed());
@@ -321,7 +329,8 @@ namespace BlackCube
             {
                 var outcome = BalanceCombatSimulator.Simulate(playerAttack, playerStats, reference,
                     referenceLife, playerSpeed, playerCrit, enemyAttack, stats, stats, maxLife,
-                    enemySpeed, enemyCrit, ailments, duelSeed);
+                    enemySpeed, enemyCrit, ailments, duelSeed, 120f,
+                    playerLow, playerHigh, enemyLow, enemyHigh);
                 row.monteCarloDuration = outcome.Seconds;
                 row.monteCarloWinner = outcome.Winner;
                 row.monteCarloHits = outcome.Hits;

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 using NUnit.Framework;
+using UnityEditor;
 using UnityEngine;
 
 public sealed class AilmentFoundationTests
@@ -8,6 +9,21 @@ public sealed class AilmentFoundationTests
     readonly List<Object> cleanup=new();
     [TearDown]
     public void TearDown(){for(int i=cleanup.Count-1;i>=0;i--)if(cleanup[i]!=null)Object.DestroyImmediate(cleanup[i]);cleanup.Clear();}
+
+    [Test]
+    public void AuthoredAilmentAssetsMatchRuntimeCadenceAndIndependentCaps()
+    {
+        var poison=AssetDatabase.LoadAssetAtPath<PoisonStatusEffect>("Assets/Prefabs/Scriptable Objects/PoisonStatus.asset");
+        var bleed=AssetDatabase.LoadAssetAtPath<BleedStatusEffect>("Assets/Prefabs/Scriptable Objects/BleedStatus.asset");
+        var ignite=AssetDatabase.LoadAssetAtPath<IgniteStatusEffect>("Assets/Prefabs/Scriptable Objects/IgniteStatus.asset");
+        Assert.That(poison,Is.Not.Null);Assert.That(bleed,Is.Not.Null);Assert.That(ignite,Is.Not.Null);
+        Assert.That((poison.TickDuration,poison.BaseTurnInterval,poison.MaxStacks,poison._StackPolicy),
+            Is.EqualTo((4,2,0,StatusEffects.StackPolicy.StackIndependently)));
+        Assert.That((bleed.TickDuration,bleed.BaseTurnInterval,bleed.MaxStacks,bleed._StackPolicy),
+            Is.EqualTo((5,2,5,StatusEffects.StackPolicy.StackIndependently)));
+        Assert.That((ignite.TickDuration,ignite.BaseTurnInterval,ignite.MaxStacks,ignite._StackPolicy),
+            Is.EqualTo((2,2,1,StatusEffects.StackPolicy.ReplaceIfStronger)));
+    }
 
     [Test]
     public void IgniteTicksOnSecondAndFourthAfflictedTurnsAndUsesRemainingTotalReplacement()
