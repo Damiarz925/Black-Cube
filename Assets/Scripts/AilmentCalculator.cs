@@ -87,7 +87,13 @@ public static class AilmentCalculator
         if (keystones != null) totalAilmentDamage *= keystones.AilmentDamageMultiplier(effect.Ailment);
 
         // 5)Grab the base tick duration of the ailment
-        int baseTicks = Mathf.Max(1, effect.TickDuration);
+        int baseTicks = effect.Ailment switch
+        {
+            StatusEffects.AilmentKind.Poison=>4,
+            StatusEffects.AilmentKind.Bleed=>5,
+            StatusEffects.AilmentKind.Ignite=>2,
+            _=>Mathf.Max(1,effect.TickDuration)
+        };
         int extraTicks = 0;
 
         //Grab the attacker's duration stat for the ailment
@@ -112,7 +118,8 @@ public static class AilmentCalculator
         damagePerTick = totalAilmentDamage / baseTicks;
 
         //Set base interval to the effects base turn interval (how many turns between the effect applying)
-        int baseInterval = effect.BaseTurnInterval;
+        int baseInterval = effect.Ailment is StatusEffects.AilmentKind.Poison or StatusEffects.AilmentKind.Bleed or StatusEffects.AilmentKind.Ignite
+            ? 2 : effect.BaseTurnInterval;
         int tickRateFlat = 0;
 
         //Grab the attacker's tick rate modifier and add it to tickrateflat

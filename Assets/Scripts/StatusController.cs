@@ -72,6 +72,11 @@ public partial class StatusController : MonoBehaviour
         if (initialCap > 0) stacksPerHit = Mathf.Min(stacksPerHit, initialCap);
         var health = GetComponent<HealthComponent>();
         if (health != null && health.CurrentLife <= 0) return;
+        if(IsScheduledDamagingAilment(effect))
+        {
+            AddIndependentDamagingStacks(effect,stacksPerHit,damagePerTick,tickCount,sourceStats,effectiveInterval);
+            return;
+        }
         switch (effect._StackPolicy)    //Decide which stack policy to use based on the ailments defined stack policy from its SO
         {
             case StatusEffects.StackPolicy.StackAndRefresh:
@@ -117,10 +122,10 @@ public partial class StatusController : MonoBehaviour
         return triggers;
     }
 
-    public bool ApplyChill(StatusEffects effect, float slow, int duration)
+    public bool ApplyChill(StatusEffects effect, float slow, int duration,float maximumSlow=.3f)
     {
         if (effect == null || slow <= 0f) return false;
-        slow = Mathf.Clamp(slow, 0f, .3f);
+        slow = Mathf.Clamp(slow, 0f, Mathf.Max(.3f,maximumSlow));
         duration = Mathf.Max(1, duration);
         if (StatusDictionary.TryGetValue(effect, out StatusInstance existing)
             && existing.damagePerTick > slow + .0001f)
@@ -138,7 +143,7 @@ public partial class StatusController : MonoBehaviour
                 if (pair.Key != null && pair.Key._StatusType == StatusEffects.StatusType.Chill
                     && pair.Value.remainingTicks > 0)
                     strongest = Mathf.Max(strongest, pair.Value.damagePerTick);
-            return Mathf.Clamp(strongest, 0f, .3f);
+            return Mathf.Clamp(strongest, 0f, .6f);
         }
     }
 
@@ -181,9 +186,47 @@ public partial class StatusController : MonoBehaviour
 
     static int EffectiveStackCap(StatusEffects effect, StatsComponent sourceStats)
     {
-        var keystones = sourceStats != null ? sourceStats.GetComponent<PassiveKeystoneState>() : null;
-        return keystones != null ? keystones.EffectiveAilmentStackCap(effect) : effect.MaxStacks;
+        if(effect==null)return 0;
+        if(effect.Ailment==StatusEffects.AilmentKind.Poison)return 0;
+        var keystones=sourceStats!=null?sourceStats.GetComponent<PassiveKeystoneState>():null;
+        bool playerSource=sourceStats!=null&&sourceStats.GetComponent<PlayerController>()!=null;
+        var relics=playerSource?RelicInventory.Instance:null;
+        if(effect.Ailment==StatusEffects.AilmentKind.Bleed)
+        {
+            int cap=keystones!=null&&keystones.Has(PassiveKeystone.OpenWounds)?10:5;
+            return cap+(relics?.MaximumBleedStackBonus??0);
+        }
+        if(effect.Ailment==StatusEffects.AilmentKind.Ignite)
+        {
+            int cap=keystones!=null&&keystones.Has(PassiveKeystone.Wildfire)?2:1;
+            return cap+(relics?.MaximumIgniteStackBonus??0);
+        }
+        return keystones!=null?keystones.EffectiveAilmentStackCap(effect):effect.MaxStacks;
     }
+
+    static bool IsScheduledDamagingAilment(StatusEffects effect)=>effect._StatusType==StatusEffects.StatusType.DamageOverTime
+        && effect.Ailment is StatusEffects.AilmentKind.Poison or StatusEffects.AilmentKind.Bleed or StatusEffects.AilmentKind.Ignite;
+
+    void AddIndependentDamagingStacks(StatusEffects effect,int applications,float damagePerTick,int tickCount,
+        StatsComponent sourceStats,int interval)
+    {
+        if(!IndependentDictionary.TryGetValue(effect,out var list))IndependentDictionary[effect]=list=new List<StatusInstance>();
+        int cap=EffectiveStackCap(effect,sourceStats);
+        for(int i=0;i<applications;i++)
+        {
+            var incoming=new StatusInstance(effect,damagePerTick,1,tickCount,sourceStats,interval);
+            if(cap<=0||list.Count<cap){list.Add(incoming);continue;}
+            int weakest=-1;float weakestTotal=float.PositiveInfinity;
+            for(int j=0;j<list.Count;j++)
+            {
+                float remaining=RemainingMitigatedDamage(list[j]);
+                if(remaining<weakestTotal){weakestTotal=remaining;weakest=j;}
+            }
+            if(weakest>=0&&RemainingMitigatedDamage(incoming)>weakestTotal+0.0001f)list[weakest]=incoming;
+        }
+    }
+    float RemainingMitigatedDamage(StatusInstance instance)=>instance.remainingTicks
+        * CombatCalculator.CalculateAilmentTickDamage(instance.damagePerTick,instance.effect,instance.sourceStats,stats);
 
     // Used especially for Ignite: keep the instance with highest total damage over its lifetime.
     private void ReplaceIfStronger(StatusEffects effect, int stacksPerHit, float damagePerTick, int tickCount, StatsComponent sourceStats, int effectiveInterval)
@@ -214,13 +257,10 @@ public partial class StatusController : MonoBehaviour
     // --------------------------------------------------------------------
     // TICKING – call this once per global "turn" from BattleManager
     // --------------------------------------------------------------------
-    public void TickStatuses()
+    public void TickStatuses(bool afflictedActorTurn=true)
     {
         var health = GetComponent<HealthComponent>();
         if (health != null && health.CurrentLife <= 0) { ClearStatuses(); return; }
-        // One common per-stack tick value per effect for this global turn.
-        averagedTicks.Clear();
-        foreach (var summary in GetStatusSummaries()) averagedTicks[summary.Effect] = summary.DamagePerTick;
         if (StatusDictionary.Count == 0 && IndependentDictionary.Count == 0)    //If both dictionaries are empty, return
             return;
 
@@ -237,7 +277,9 @@ public partial class StatusController : MonoBehaviour
                 continue;
 
             if (effect._StatusType == StatusEffects.StatusType.DamageOverTime)
-                TickInstance(instance, pendingEffects); //Call TickInstance
+            {
+                if(ShouldAdvance(effect,afflictedActorTurn))TickInstance(instance,pendingEffects);
+            }
             else
                 instance.remainingTicks--; // Shock and Chill lifetimes count every global turn; their effects are queried dynamically.
 
@@ -269,7 +311,7 @@ public partial class StatusController : MonoBehaviour
                     continue;
                 }
 
-                TickInstance(instance, pendingEffects); //Tick the instance
+                if(ShouldAdvance(instance.effect,afflictedActorTurn))TickInstance(instance,pendingEffects);
 
                 if (instance.remainingTicks <= 0 || instance.stacks <= 0)   //Check again if the effect should expire, if so add it to the remove list
                     toRemove.Add(instance);
@@ -319,15 +361,14 @@ public partial class StatusController : MonoBehaviour
         // Decide if we tick this turn, and how many times.
         int effectiveInterval = instance.effectiveInterval; //effectiveinterval is the instance's interval
 
+        instance.remainingDurationTurns--;
         if (effectiveInterval > 0)  //if the interval is greater than 0, decrement the turns until next tick
         {
-            // Tick every N turns.
             instance.turnsUntilNextTick--;
-            if (instance.turnsUntilNextTick > 0) //if the turns until next tick is still greater than 0, return
-                return; // no tick this turn
+            if (instance.turnsUntilNextTick > 0) return;
 
             // 1 tick this turn
-            instance.turnsUntilNextTick = effectiveInterval;    //If it wasn't greater than 0, we reset the turnsuntilnexttick back to the effective interval and call applytick
+            instance.turnsUntilNextTick = effectiveInterval;
             ApplyTick(instance, pendingEffects);
         }
         else
@@ -343,7 +384,11 @@ public partial class StatusController : MonoBehaviour
                 ApplyTick(instance, pendingEffects);    //Call applytick using the instance and pendingeffects
             }
         }
+        if(instance.remainingDurationTurns<=0)instance.remainingTicks=0;
     }
+
+    static bool ShouldAdvance(StatusEffects effect,bool afflictedActorTurn)=>effect.Ailment==StatusEffects.AilmentKind.Poison
+        || effect.Ailment==StatusEffects.AilmentKind.GenericDot || afflictedActorTurn;
 
     private void ApplyTick(StatusInstance instance, List<PendingEffect> pendingEffects)
     {
@@ -360,9 +405,7 @@ public partial class StatusController : MonoBehaviour
             // Actual DOT damage.
             baseTick = instance.GetTickDamage();    //grab the tick damage and store it in baseTick, use combat calculator to calculate the tick damage
 
-            float finalTick = averagedTicks.TryGetValue(effect, out var mean)
-                ? mean * instance.stacks
-                : CombatCalculator.CalculateAilmentTickDamage(baseTick, effect, instance.sourceStats, stats);
+            float finalTick = CombatCalculator.CalculateAilmentTickDamage(baseTick, effect, instance.sourceStats, stats);
 
             if (finalTick > 0f) //if the final tick damage is greater than 0, add it to pending effects
                 pendingEffects.Add(new PendingEffect(finalTick, effect));

@@ -284,9 +284,9 @@ public class BattleManager : MonoBehaviour
         var originalStatuses = enemyStatusCont;
         globalTurnCounter++;        //increment global turn counter
 
-        TickStatusController(playerStatusCont);       //tick statuses on player and enemy
+        TickStatusController(playerStatusCont,true); // Player's afflicted-actor turn.
         if (playerHealth.CurrentLife <= 0f) return;
-        TickStatusController(enemyStatusCont);
+        TickStatusController(enemyStatusCont,false);
         if (enemyHealth != originalTarget || originalTarget.CurrentLife <= 0f) return;
 
         ResolvePlayerLogicalHit(null, originalTarget, originalStatuses, showImpact: true);
@@ -305,9 +305,9 @@ public class BattleManager : MonoBehaviour
         var originalTarget = playerHealth;
         globalTurnCounter++;        //increment global turn counter
 
-        TickStatusController(playerStatusCont);       //tick player and enemy statuses
+        TickStatusController(playerStatusCont,false);
         if (playerHealth.CurrentLife <= 0f) return;
-        TickStatusController(enemyStatusCont);
+        TickStatusController(enemyStatusCont,true); // Enemy's afflicted-actor turn.
         if (enemyHealth != originalAttacker || originalAttacker.CurrentLife <= 0f) return;
 
         ResolveEnemyLogicalHit(originalAttacker, originalTarget);
@@ -418,10 +418,10 @@ public class BattleManager : MonoBehaviour
         animator.SetTrigger("Attacking");
     }
 
-    private void TickStatusController(StatusController statusController)
+    private void TickStatusController(StatusController statusController,bool afflictedActorTurn)
     {
         if (statusController != null)
-            statusController.TickStatuses();
+            statusController.TickStatuses(afflictedActorTurn);
     }
 
     public bool TryCastPlayerSkill(PlayerSkillDefinition skill)
@@ -615,11 +615,11 @@ public class BattleManager : MonoBehaviour
     private void EnsureAilmentDefinitions()
     {
         if (poisonEffect == null) poisonEffect = RuntimeEffect("Poison", StatusEffects.StatusType.DamageOverTime,
-            StatusEffects.AilmentKind.Poison, ElementMask.Phys | ElementMask.Fire | ElementMask.Cold | ElementMask.Light | ElementMask.Void, .1f, 2, 100,
-            StatusEffects.StackPolicy.StackIndependently, 4, new Color(.3f, 1f, .22f));
+            StatusEffects.AilmentKind.Poison, ElementMask.Phys | ElementMask.Fire | ElementMask.Cold | ElementMask.Light | ElementMask.Void, .1f, 4, 0,
+            StatusEffects.StackPolicy.StackIndependently, 2, new Color(.3f, 1f, .22f));
         if (bleedEffect == null) bleedEffect = RuntimeEffect("Bleed", StatusEffects.StatusType.DamageOverTime,
-            StatusEffects.AilmentKind.Bleed, ElementMask.Phys, .5f, 2, 4,
-            StatusEffects.StackPolicy.StackAndRefresh, 1, new Color(1f, .16f, .25f));
+            StatusEffects.AilmentKind.Bleed, ElementMask.Phys, .5f, 5, 5,
+            StatusEffects.StackPolicy.StackIndependently, 2, new Color(1f, .16f, .25f));
         if (igniteEffect == null) igniteEffect = RuntimeEffect("Burn", StatusEffects.StatusType.DamageOverTime,
             StatusEffects.AilmentKind.Ignite, ElementMask.Fire, .8f, 2, 1,
             StatusEffects.StackPolicy.ReplaceIfStronger, 2, new Color(1f, .35f, .1f));
@@ -701,6 +701,8 @@ public class BattleManager : MonoBehaviour
         PassiveKeystoneState keystones = attacker.GetComponent<PassiveKeystoneState>();
         int threshold = Mathf.Max(1, Mathf.CeilToInt(5f
             * (keystones != null ? keystones.ShockStackRequirementMultiplier : 1f)));
+        if(attacker.GetComponent<PlayerController>()!=null&&RelicInventory.Instance!=null)
+            threshold=Mathf.Max(3,threshold-RelicInventory.Instance.ShockThresholdReduction);
         int duration = Mathf.Max(1, 5 + Mathf.RoundToInt(attacker.GetRawStat(StatTypes.ShockDuration)));
         float coefficient = Mathf.Min(1f, .5f * (1f + attacker.GetStat(StatTypes.ShockEffect))
             * (keystones != null ? keystones.ShockTriggeredHitMultiplier : 1f));
@@ -734,12 +736,13 @@ public class BattleManager : MonoBehaviour
         float resistanceFactor = 1f - Mathf.Clamp(resistance, -.9f, .9f);
         PassiveKeystoneState keystones = attacker.GetComponent<PassiveKeystoneState>();
         float effectiveness = keystones != null ? keystones.ChillEffectMultiplier : 1f;
-        float cap = .3f + (keystones != null ? keystones.DeepFreezeMaximumEffectIncrease : 0f);
+        float cap = .3f + (keystones != null ? keystones.DeepFreezeMaximumEffectIncrease : 0f)
+            + (attacker.GetComponent<PlayerController>()!=null?RelicInventory.Instance?.MaximumChillSlowIncrease??0f:0f);
         float slow = CalculateChillSlow(coldDealt, targetHealth.MaxLife,
             attacker.GetStat(StatTypes.ChillEffect), effectiveness, cap) * resistanceFactor;
         int duration = Mathf.Max(1, Mathf.RoundToInt((4f
             + attacker.GetRawStat(StatTypes.ChillDuration)) * resistanceFactor));
-        target.ApplyChill(chillEffect, Mathf.Min(cap, slow), duration);
+        target.ApplyChill(chillEffect, Mathf.Min(cap, slow), duration,cap);
     }
 
     public static float CalculateChillSlow(float coldDamageDealt, float targetMaximumLife,

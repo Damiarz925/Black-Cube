@@ -87,7 +87,9 @@ public class StatusHUD : MonoBehaviour
             }
             badge.gameObject.SetActive(true);badge.Summary=summary;
             var rect=(RectTransform)badge.transform;rect.anchorMin=rect.anchorMax=new Vector2(0,0);rect.pivot=Vector2.zero;rect.anchoredPosition=new Vector2(i*59,0);rect.sizeDelta=new Vector2(55,35);
-            badge.Label.text=summary.Count.ToString();badge.Label.color=Tint(summary);
+            badge.Label.text=summary.Effect.Ailment is StatusEffects.AilmentKind.Bleed or StatusEffects.AilmentKind.Ignite
+                ? $"{summary.Count}/{summary.MaximumStackCount}" : summary.Count.ToString();
+            badge.Label.color=Tint(summary);
             badge.Glyph.kind=summary.DisplayName;badge.Glyph.color=Tint(summary);badge.Glyph.SetVerticesDirty();
         }
         foreach(var pair in strip.Badges)if(!active.Contains(pair.Key))pair.Value.gameObject.SetActive(false);

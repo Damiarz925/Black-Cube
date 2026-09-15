@@ -186,9 +186,9 @@ public class ModifierTierDataTests
         try
         {
             StatsComponent attacker = attackerObject.AddComponent<StatsComponent>();
-            AssertAilmentInterval(attacker, "PoisonStatus.asset", StatTypes.PoisonTickRate, Element.Phys, 7f, -3);
+            AssertAilmentInterval(attacker, "PoisonStatus.asset", StatTypes.PoisonTickRate, Element.Phys, 7f, -5);
             AssertAilmentInterval(attacker, "IgniteStatus.asset", StatTypes.IgniteTickRate, Element.Fire, 7f, -5);
-            AssertAilmentInterval(attacker, "BleedStatus.asset", StatTypes.BleedTickRate, Element.Phys, 7f, -6);
+            AssertAilmentInterval(attacker, "BleedStatus.asset", StatTypes.BleedTickRate, Element.Phys, 7f, -5);
         }
         finally
         {

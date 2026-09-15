@@ -192,12 +192,12 @@ public sealed class Step10MechanicsTests
         var physical = new DamageContext(1); physical.AddDamage(Element.Phys, 100f);
         AilmentCalculator.ComputeAilmentFromHit(effect, physical, attacker,
             out float physicalTick, out _, out _);
-        Assert.That(physicalTick, Is.EqualTo(11.25f).Within(.001f));
+        Assert.That(physicalTick, Is.EqualTo(5.625f).Within(.001f));
 
         var alreadyScaledVoid = new DamageContext(1); alreadyScaledVoid.AddDamage(Element.Void, 150f);
         AilmentCalculator.ComputeAilmentFromHit(effect, alreadyScaledVoid, attacker,
             out float voidTick, out _, out _);
-        Assert.That(voidTick, Is.EqualTo(11.25f).Within(.001f), "Void increased damage must not double dip");
+        Assert.That(voidTick, Is.EqualTo(5.625f).Within(.001f), "Void increased damage must not double dip");
 
         defender.SetBaseStat(StatTypes.VoidRes, 50f);
         defender.SetBaseStat(StatTypes.PoisonRes, 90f);
