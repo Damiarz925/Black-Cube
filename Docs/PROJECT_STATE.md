@@ -21,6 +21,7 @@ Current-reality claims use this evidence order: (1) verified source code, (2) sc
 - Fresh Step 10 six-entry lifecycle and Pause Menu soak: passing
 - Fresh Step 10 missing-reference validation: passing with zero failures
 - Fresh Step 10 Windows x64 strict build: succeeded, zero errors, 522 warnings; standalone headless smoke stayed responsive for 30 seconds through Main Menu startup (the unassigned placeholder Achievements button logged its known warning)
+- **Fresh Steps 11 + 12 Unity EditMode suite: 184/184 passing**, including five EnemyScaling and seven BalanceSimulation cases. The four synchronous real-scene equipment/stat/status/progression checks, rich schema-2 menu/load/New Game fixture, six-entry lifecycle/Pause soak and scaling-profile-aware reference scan passed. The finalized 250-build baseline generated 4,500 sampled rows at seed 11012 in 329.0 seconds (25-sample quick: 33.8 seconds). A fresh strict Windows x64 build succeeded with zero errors and 522 existing warnings; its standalone headless process remained responsive for more than 30 seconds through Main Menu startup, with only the known unassigned placeholder Achievements button message.
 
 Known baseline limits include one logical save slot; clean encounter-boundary rather than exact-frame restoration; functional/basic runtime-built menu overlays; two active enemy archetypes; six repeating forest backgrounds; no final campaign/content count; and the incomplete mechanics listed below.
 
@@ -36,7 +37,7 @@ The game has a coherent vertical slice rather than shipping-scale content. Comba
 - **GameManager:** owns combat level, normal-kill count, boss position, death/restart flow, rewards, scene rebinding, New Game/load bootstrap, and immediate progression checkpoints.
 - **BattleManager:** owns player/enemy gauges, global-turn ordering, attacks, active-skill resolution, status ticking, current enemy, deterministic encounter spawning, and encounter-start resource capture.
 - **Player:** `PlayerController` builds basic and converted damage contexts from equipped weapon/stats. `HealthComponent`, `ManaComponent`, `StatsComponent`, `StatusController`, `PlayerSkillController`, and `PassiveKeystoneState` own their respective runtime domains.
-- **Enemies:** `EnemyAI` rolls rarity and generated equipment, asks `EnemyBuildOptimizer` to choose a bounded build, then attacks automatically. `EnemyStatSetup` initializes intrinsic stat buckets without Step 11 level scaling; enemy flat/increased Life gear and attributes now feed `HealthComponent` maximum life over the prefab seed.
+- **Enemies:** `EnemyStatSetup` applies central combat-level intrinsic Life, flat Armour and ordinary Fire/Cold/Lightning/Void resistance from each prefab's authored level-1 seed. `EnemyAI` rolls independent rarity/equipment, asks `EnemyBuildOptimizer` to score against that scaled pre-gear baseline/outgoing factor, then applies the factor once to the completed pre-crit attack. Gear Life/Life%, attributes and other legitimate modifiers feed final `HealthComponent` maximum Life normally; boss role receives no hidden multiplier.
 - **Combat/stats:** attacks use separate physical/elemental components, critical rolls, armour, elemental/ailment resistance, penetration, scoped damage, on-hit recovery, and DOT/status application. Stats are raw buckets with explicit percentage conversion rules.
 - **Inventory/equipment:** `Inventory` owns unequipped run gear and pickup filtering; `EquipmentManager` owns eight equipped slots and projects item modifiers onto the current player. Stable gear IDs support persistence.
 - **Crafting:** `CurrencyInventory` owns ordinary/Ancient stacks and transient armed intent. `EquipmentCrafting` and `AncientRelicCrafting` validate, mutate, consume, and checkpoint successful outcomes.
@@ -68,6 +69,8 @@ Use [CODE_MAP.md](CODE_MAP.md) for file ownership and [DEVELOPER_HANDOFF.md](DEV
 - Poison-as-Void DOT, Bleed and Ignite stacking/ticking; first-class direct Void damage, resistance, penetration and max resistance
 - Symmetric Hit Twice; player life/mana regeneration, on-hit and credited on-kill recovery; Fireball passive-only Projectile Amount, conversion and scoped Magic/Projectile damage inputs
 - Enemy rarity, generated equipment candidates, and bounded build optimization
+- Provisional enemy intrinsic Life/damage/Armour/elemental-Void resistance progression through combat level 100 and slower post-100 continuation, separate from unchanged generated gear
+- Editor-only seeded balance lab with real generated-build/optimizer distributions, typed mitigation, synthetic-reference TTK/TTD and snapshot duels (not final gameplay balance)
 - Exactly-once enemy death rewards, equipment drops and world currency pickups
 - Eight-slot equipment, inventory grid, item tooltips, local/global weapon modifiers, stable item identity, pickup filters and auto-dismantling
 - Six ordinary equipment-crafting operations and six corresponding Ancient relic-crafting operations
@@ -87,7 +90,7 @@ Use [CODE_MAP.md](CODE_MAP.md) for file ownership and [DEVELOPER_HANDOFF.md](DEV
 | Deep Freeze maximum-Chill increase | Extra application remains projected; authored maximum-effect-increase field has a zero default pending a separate tuning decision. Current Chill cap remains 30%. |
 | Minions | Minion damage scope/stat calculation exists, but there are no minion entities, commands or attacks. |
 | Status callbacks | Virtual apply/tick/expire/outgoing-damage hooks exist on `StatusEffects` but current ticking does not dispatch them. |
-| Enemy base scaling | Enemy item level, item count and build candidates grow with combat level. Base life/damage scaling remains an unused extension point; prefab life is constant per archetype. |
+| Integrated balance | Intrinsic enemy scaling now exists, but its profile and the lab's synthetic reference player are provisional; final TTK/TTD, enemy/gear/skill/passive/relic/XP/reward tuning belongs to Step 13. |
 | Achievements | Main Menu button only logs a placeholder message. No achievement system exists. |
 
 ## 7. Current content
@@ -123,7 +126,9 @@ These controls are functionally wired. Runtime-built modal/panel geometry and ge
 
 ## 10. Verification infrastructure
 
-- NUnit EditMode suite under `Assets/Tests/Editor` (172/172 at the fresh Step 10 baseline, including 29 Step 10 cases)
+- NUnit EditMode suite under `Assets/Tests/Editor` (fresh Steps 11 + 12 **184/184**; Step 10 historical baseline 172/172)
+- `EnemyScalingTests` for authored level-1 seeds, canonical curves/safety/idempotence, Poison/Void one-pass output, generated-actor and optimizer parity; `BalanceSimulationTests` for deterministic seeds, live-singleton isolation, production-math parity and snapshot status/mitigation behavior
+- `BalanceSimulationRunner` for ignored CSV/JSON/Markdown 25/250/1000-build sampled reports at representative levels; `BalanceSimulationWindow` for local configuration; see [ENEMY_SCALING_BASELINE.md](ENEMY_SCALING_BASELINE.md)
 - `GamePersistenceTests` for schema, corruption, migration, backup, deterministic seed, transactional failure and debounce behavior
 - `MenuLoadPlayChecks` for rich real-scene save/load, transient clearing, preferences and New Game replacement
 - `RuntimeLifecyclePlayChecks` for six entries, five returns, singleton/rebinding and Pause Menu behavior
@@ -136,8 +141,7 @@ Generated reports are written to `Logs` or `ReviewCaptures`; check timestamps be
 
 ## 11. Known risks and technical debt
 
-- Step 10 pool/consumer reconciliation has 172 fresh EditMode cases, synchronous real-scene, rich menu/load, lifecycle, reference, Windows build and headless standalone startup gates. These checks do not establish final combat balance, authored art/UI polish or every possible item permutation.
-- Enemy base survivability/damage does not scale with level independently of generated equipment.
+- Structural Step 11/12 coverage and representative seeded reports do not establish final combat balance, authored art/UI polish or every item permutation. The synthetic reference's higher-level duel losses are a Step 13 question, not an approved runtime player curve.
 - The active content pool is one normal enemy, one boss and one repeating environment family.
 - Much of the active UI is constructed in code; it is testable but harder to art-direct than final authored prefabs.
 - `PaperBattle.prefab` retains substantial legacy 3D content and dormant systems, increasing import and maintenance cost.
@@ -147,9 +151,9 @@ Generated reports are written to `Logs` or `ReviewCaptures`; check timestamps be
 
 ## 12. Roadmap position
 
-Steps 1–10 have completed their requested source and fresh regression/build gates. There are 120 stable stat IDs and 107 pooled definitions (3 guaranteed weapon bases plus 104 random affixes), with no pooled zero-tier definition. Step 11 enemy intrinsic level scaling has not begun.
+Steps 1–12 have completed their requested source and fresh regression/build gates. Steps 11 + 12 add central placeholder enemy intrinsic scaling and a deterministic Editor-only measurement lab, documented in [ENEMY_SCALING_BASELINE.md](ENEMY_SCALING_BASELINE.md). They do not change the 120 stable stat IDs or 107 pooled definitions (3 guaranteed weapon bases plus 104 random affixes), and they do not establish final combat balance.
 
-Known later phases are: Step 11 enemy base scaling; Step 13 balance; and Step 14 final v1 zone/enemy/boss/content scope. The current briefs do not define Step 12, so this document does not invent it.
+Known later phases are Step 13 integrated balance and Step 14 final v1 zone/enemy/boss/content scope. Step 13 should compare real player progression against the lab's deliberately synthetic reference before changing the provisional enemy profile.
 
 ## Maintenance rule
 

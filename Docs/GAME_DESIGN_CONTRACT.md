@@ -176,7 +176,7 @@ This document does not lock how many zones/backgrounds ship. The six current for
 
 Enemies may use generated equipment and builds. The existing bounded enemy build optimizer is intentional: it should evaluate real implemented offense/defense and retain archetype diversity rather than choosing arbitrary rolls.
 
-Current intrinsic/base enemy scaling is not final design. Step 11 owns base scaling; Step 13 owns balance. Dead mechanics must not receive invented optimizer value merely to make their affixes look useful.
+Step 11 now supplies provisional intrinsic scaling from each enemy prefab's level-1 Life seed: 4% Life and 3% outgoing damage growth through combat level 100, then 2%/1.5%; +5 flat Armour per level and +0.15 ordinary Fire/Cold/Lightning/Void resistance percentage points per level capped at +20 points. These are centralized placeholder implementation values, **not final enemy balance**. No hidden boss, attack-speed, crit, maximum-resistance, Poison-resistance or regeneration curve is approved by this baseline. Step 12's reference-player curve exists only in Editor diagnostics; it is not player progression design. Step 13 owns integrated balance. Dead mechanics must not receive invented optimizer value merely to make their affixes look useful.
 
 ## 19. Approved future mechanics
 
@@ -221,6 +221,6 @@ Do not lock total v1 combat levels, zones, backgrounds, normal enemies, bosses, 
 | Minions | Require entity, ownership and combat design. | Only a Minion damage scope/stat calculation exists; there are no minions. | Infrastructure only. | 9–10/content TBD |
 | Void / Poison | Void is a core element; Poison is Void DOT ailment with legacy enum compatibility. | Step 10 append-only stats 114–119 and direct/tick/gear/UI/optimizer mappings; fresh regression passes. | Reconciled for v1; final balance later. | 10 |
 | Status callbacks | Extensible status lifecycle should have an approved dispatch contract if retained. | Empty virtual hooks exist and are not called by current status ticking. | Dead extension surface. | 9–10 |
-| Enemy scaling | Enemies should scale intentionally across progression; exact balance is later. | Gear level/count grows, but prefab base life/damage has no level multiplier. | Partial system. | 11, then 13 |
+| Enemy scaling | Enemies should scale intentionally across progression; exact balance is later. | Central profile applies authored-seed Life/outgoing-damage, Armour and ordinary elemental/Void resistance before independently generated equipment. | Structural Step 11 baseline; Step 13 balance remains. | 11, then 13 |
 | Prestige (resolved) | Rebirth is the sole intended meta reset. | Step 8 removed the level-10 offer branch, placeholder continuation, public reset method and empty reward hook. Boss clears advance directly at every combat level. | Resolved; retain this historical row to prevent regression. | Completed in 8 |
 | Dismantle rewards | Future rarity fragments: Normal none, Magic one N→M fragment, Rare analogous M→R fragment. | Dismantling currently grants 1/2/3/5 random full ordinary currencies by rarity. | Approved future replacement, not a Step 7 bug fix. | Future crafting step |

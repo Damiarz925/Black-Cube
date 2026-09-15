@@ -39,9 +39,11 @@ namespace BlackCube
         {
             FieldInfo[] fields = typeof(BalanceRow).GetFields(BindingFlags.Instance | BindingFlags.Public);
             var output = new StringBuilder();
-            output.AppendLine(string.Join(",", fields.Select(field => field.Name)));
+            output.AppendLine(string.Join(",", fields.Select(field => field.Name)
+                .Concat(new[] { "referenceWarning" })));
             foreach (BalanceRow row in result.rows)
-                output.AppendLine(string.Join(",", fields.Select(field => Escape(field.GetValue(row)))));
+                output.AppendLine(string.Join(",", fields.Select(field => Escape(field.GetValue(row)))
+                    .Concat(new[] { Escape(result.warning) })));
             return output.ToString();
         }
 
@@ -89,10 +91,10 @@ namespace BlackCube
                 output.AppendLine();
                 output.AppendLine($"Dominant weapon element: {Top(rows.Select(row => row.dominantElement))}. "
                     + $"Approximate equipment-signature diversity: {rows.Select(row => row.equipmentSignature).Distinct().Count()}/{rows.Length}. "
-                    + $"Top affixes: {Top(rows.SelectMany(row => row.affixSignature.Split('|')))}.");
+                    + $"Top affixes: {Top(rows.SelectMany(row => (row.affixSignature ?? string.Empty).Split('|')))}.");
                 string rarityMix = string.Join(", ", rows.GroupBy(row => row.rarity)
                     .OrderBy(g => g.Key).Select(g => $"{(EnemyAI.EnemyRarity)g.Key}={g.Count()}"));
-                string slots = string.Join(", ", rows.SelectMany(row => row.equipmentSignature.Split('|'))
+                string slots = string.Join(", ", rows.SelectMany(row => (row.equipmentSignature ?? string.Empty).Split('|'))
                     .Where(slot => slot.Length > 0).Select(slot => slot.Split(':')[0])
                     .GroupBy(slot => slot).OrderByDescending(g => g.Count()).Take(5)
                     .Select(g => $"{g.Key}={g.Count()}"));

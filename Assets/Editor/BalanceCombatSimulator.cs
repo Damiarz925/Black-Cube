@@ -13,14 +13,18 @@ namespace BlackCube
             public readonly float Seconds;
             public readonly int Winner; // 1 reference player, -1 enemy, 0 horizon/draw
             public readonly int Hits, AilmentTicks, ShockTriggers, ChillApplications;
-            public Outcome(float seconds, int winner, int hits, int ticks, int shocks, int chills)
+            public readonly float PlayerRemainingLife, EnemyRemainingLife;
+            public Outcome(float seconds, int winner, int hits, int ticks, int shocks, int chills,
+                float playerRemainingLife, float enemyRemainingLife)
             { Seconds = seconds; Winner = winner; Hits = hits; AilmentTicks = ticks;
-                ShockTriggers = shocks; ChillApplications = chills; }
+                ShockTriggers = shocks; ChillApplications = chills;
+                PlayerRemainingLife = playerRemainingLife; EnemyRemainingLife = enemyRemainingLife; }
         }
 
         private sealed class Fighter
         {
             public StatsComponent Stats;
+            public StatsComponent DefenseStats;
             public DamageContext Context;
             public float Life, MaxLife, Speed, CritChance, CritMultiplier, HitTwice, NextAttack, ChillSlow;
             public int ChillTurns, ShockStacks;
@@ -39,10 +43,19 @@ namespace BlackCube
             float playerLife, float playerSpeed, float playerCrit, DamageContext enemyContext,
             StatsComponent enemyStats, float enemyLife, float enemySpeed, float enemyCrit,
             StatusEffects[] ailments, int seed, float horizon = 120f)
+            => Simulate(playerContext, playerStats, playerStats, playerLife, playerSpeed, playerCrit,
+                enemyContext, enemyStats, enemyStats, enemyLife, enemySpeed, enemyCrit,
+                ailments, seed, horizon);
+
+        public static Outcome Simulate(DamageContext playerContext, StatsComponent playerStats,
+            StatsComponent playerDefenseStats, float playerLife, float playerSpeed, float playerCrit,
+            DamageContext enemyContext, StatsComponent enemyStats, StatsComponent enemyDefenseStats,
+            float enemyLife, float enemySpeed, float enemyCrit, StatusEffects[] ailments,
+            int seed, float horizon = 120f)
         {
             var random = new System.Random(seed);
-            var player = Make(playerContext, playerStats, playerLife, playerSpeed, playerCrit);
-            var enemy = Make(enemyContext, enemyStats, enemyLife, enemySpeed, enemyCrit);
+            var player = Make(playerContext, playerStats, playerDefenseStats, playerLife, playerSpeed, playerCrit);
+            var enemy = Make(enemyContext, enemyStats, enemyDefenseStats, enemyLife, enemySpeed, enemyCrit);
             float time = 0f;
             int hits = 0, ticks = 0, shocks = 0, chills = 0;
             for (int events = 0; events < 10000 && time <= horizon; events++)
@@ -61,14 +74,15 @@ namespace BlackCube
                 if (player.Life <= 0f) break;
             }
             int winner = enemy.Life <= 0f ? 1 : player.Life <= 0f ? -1 : 0;
-            return new Outcome(time, winner, hits, ticks, shocks, chills);
+            return new Outcome(time, winner, hits, ticks, shocks, chills, player.Life, enemy.Life);
         }
 
-        private static Fighter Make(DamageContext context, StatsComponent stats, float life, float speed, float crit)
+        private static Fighter Make(DamageContext context, StatsComponent stats, StatsComponent defenseStats,
+            float life, float speed, float crit)
         {
             var fighter = new Fighter
             {
-                Context = context, Stats = stats, Life = life, MaxLife = life,
+                Context = context, Stats = stats, DefenseStats = defenseStats, Life = life, MaxLife = life,
                 Speed = Mathf.Max(.0001f, speed), CritChance = Mathf.Clamp01(crit),
                 CritMultiplier = 1f + stats.GetStat(StatTypes.CritMult),
                 HitTwice = Mathf.Clamp01(stats.GetStat(StatTypes.ChanceToHitTwice))
@@ -93,14 +107,14 @@ namespace BlackCube
             var context = Copy(source.Context);
             if (random.NextDouble() < source.CritChance)
                 EnemyScalingMath.ScaleOutgoing(context, source.CritMultiplier);
-            float dealt = CombatCalculator.CalculateFinalDamage(context, source.Stats, target.Stats);
+            float dealt = CombatCalculator.CalculateFinalDamage(context, source.Stats, target.DefenseStats);
             target.Life -= dealt;
             hits++;
             if (target.Life <= 0f) return;
             foreach (StatusEffects effect in ailments)
             {
                 if (effect == null || AilmentCalculator.GetSourceHitDamage(effect, context) <= 0f) continue;
-                float chance = ApplicationChance(effect.Ailment, source.Stats, target.Stats);
+                float chance = ApplicationChance(effect.Ailment, source.Stats, target.DefenseStats);
                 int applications = (int)Math.Floor(chance);
                 if (random.NextDouble() < chance - applications) applications++;
                 if (applications <= 0) continue;
@@ -120,12 +134,16 @@ namespace BlackCube
                         NextTick = time + secondsPerTick, TicksLeft = count });
             }
             float lightning = CombatCalculator.CalculateFinalElementDamage(context, Element.Light,
-                source.Stats, target.Stats);
-            if (lightning > 0f && random.NextDouble() < Mathf.Clamp01(
-                source.Stats.GetStat(StatTypes.ShockChance) * (1f - target.Stats.GetStat(StatTypes.ShockRes))))
+                source.Stats, target.DefenseStats);
+            float shockResistance = Mathf.Clamp(target.DefenseStats.GetStat(StatTypes.ShockRes)
+                + target.DefenseStats.GetStat(StatTypes.AllAilmentRes), -.9f, .9f);
+            int shockApplications = lightning > 0f ? RollApplications(random,
+                BattleManager.AdjustedChance(source.Stats, StatTypes.ShockChance)
+                    * (1f - shockResistance)) : 0;
+            if (shockApplications > 0)
             {
-                target.ShockStacks++;
-                if (target.ShockStacks >= 5)
+                target.ShockStacks += shockApplications;
+                while (target.ShockStacks >= 5)
                 {
                     target.ShockStacks -= 5;
                     target.Life -= lightning * Mathf.Min(1f, .5f * (1f + source.Stats.GetStat(StatTypes.ShockEffect)));
@@ -133,14 +151,19 @@ namespace BlackCube
                 }
             }
             float cold = CombatCalculator.CalculateFinalElementDamage(context, Element.Cold,
-                source.Stats, target.Stats);
-            if (cold > 0f && random.NextDouble() < Mathf.Clamp01(
-                source.Stats.GetStat(StatTypes.ChillChance) * (1f - target.Stats.GetStat(StatTypes.ChillRes))))
+                source.Stats, target.DefenseStats);
+            float chillResistance = Mathf.Clamp(target.DefenseStats.GetStat(StatTypes.ChillRes)
+                + target.DefenseStats.GetStat(StatTypes.AllAilmentRes), -.9f, .9f);
+            if (cold > 0f && RollApplications(random,
+                BattleManager.AdjustedChance(source.Stats, StatTypes.ChillChance)
+                    * (1f - chillResistance)) > 0)
             {
                 float slow = BattleManager.CalculateChillSlow(cold, target.MaxLife,
-                    source.Stats.GetStat(StatTypes.ChillEffect));
-                target.ChillSlow = Mathf.Max(target.ChillSlow, slow);
-                target.ChillTurns = Mathf.Max(target.ChillTurns, 4);
+                    source.Stats.GetStat(StatTypes.ChillEffect)) * (1f - chillResistance);
+                target.ChillSlow = Mathf.Max(target.ChillSlow, Mathf.Min(.3f, slow));
+                target.ChillTurns = Mathf.Max(target.ChillTurns, Mathf.Max(1,
+                    Mathf.RoundToInt((4f + source.Stats.GetRawStat(StatTypes.ChillDuration))
+                        * (1f - chillResistance))));
                 chills++;
             }
         }
@@ -168,7 +191,14 @@ namespace BlackCube
             };
             float resisted = Mathf.Clamp(target.GetStat(resistance) + target.GetStat(StatTypes.AllAilmentRes)
                 - source.GetStat(penetration), -.9f, .9f);
-            return Mathf.Max(0f, source.GetStat(chance) * (1f - resisted));
+            return Mathf.Max(0f, BattleManager.AdjustedChance(source, chance) * (1f - resisted));
+        }
+
+        private static int RollApplications(System.Random random, float chance)
+        {
+            chance = Mathf.Max(0f, chance);
+            int guaranteed = Mathf.FloorToInt(chance);
+            return guaranteed + (random.NextDouble() < chance - guaranteed ? 1 : 0);
         }
 
         private static float NextDot(Fighter fighter)
@@ -185,7 +215,7 @@ namespace BlackCube
                 Dot dot = fighter.Dots[i];
                 if (dot.NextTick > time + .00001f) continue;
                 fighter.Life -= CombatCalculator.CalculateAilmentTickDamage(dot.PerTick,
-                    dot.Effect, dot.Source, fighter.Stats);
+                    dot.Effect, dot.Source, fighter.DefenseStats);
                 ticks++;
                 dot.TicksLeft--;
                 if (dot.TicksLeft <= 0) fighter.Dots.RemoveAt(i);

@@ -17,6 +17,7 @@ public class PlayerController : MonoBehaviour
     private StatsComponent stats;   //Field for the player's statsComponent
     private HealthComponent health; //Field for the player's health component
     private DamageReceiver damageReceiver;
+    private bool ignoreRelicsForIsolatedBaseline;
     public float EquippedWeaponBaseDamage => equippedWeapon != null ? equippedWeapon.GetEffectiveBaseDamage() : 0f;
     public Element EquippedWeaponElement => equippedWeapon != null ? equippedWeapon.BaseElement : Element.Phys;
     public event System.Action AttackChanged;
@@ -52,7 +53,17 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private Gear CreateStarterWeapon()  //Creates starter weapon
+    private Gear CreateStarterWeapon() => CreateStarterWeapon(ModManager.Instance);
+
+#if UNITY_EDITOR
+    public Gear CreateStarterWeaponForIsolatedBaseline(ModManager roller)
+    {
+        ignoreRelicsForIsolatedBaseline = true;
+        return CreateStarterWeapon(roller);
+    }
+#endif
+
+    private Gear CreateStarterWeapon(ModManager roller)  //Creates starter weapon
     {
         GameObject go = new GameObject("Player_StarterWeapon"); //Creates the object as go, and names it
         go.transform.SetParent(transform);  //Sets the parent of the object's transform
@@ -62,8 +73,8 @@ public class PlayerController : MonoBehaviour
         gear.BaseDamage = 80f;  // Starter raw damage before actor-wide scaling.
         gear.BaseAttackSpeed = 1.2f;    // Starter attacks per second.
         gear.BaseCritChance = 0.05f;    //sets base crit chance to 5%
-        RolledMod starterAffix = ModManager.Instance != null
-            ? ModManager.Instance.RollAdditionalMod(gear, LootManager.GearRarity.Normal)
+        RolledMod starterAffix = roller != null
+            ? roller.RollAdditionalMod(gear, LootManager.GearRarity.Normal)
             : new RolledMod(StatTypes.GenericDmg, 1, Random.Range(5f, 10f));
         if (starterAffix != null) gear.ApplyMods(new System.Collections.Generic.List<RolledMod> { starterAffix });
 
@@ -225,7 +236,8 @@ public class PlayerController : MonoBehaviour
 
         // Pipeline: base + flat → increased → more
         float afterInc = rawAmount * (1f + incTotal);
-        float relicMore = RelicInventory.Instance != null ? RelicInventory.Instance.DamageMultiplier : 1f;
+        float relicMore = !ignoreRelicsForIsolatedBaseline && RelicInventory.Instance != null
+            ? RelicInventory.Instance.DamageMultiplier : 1f;
         float final = afterInc * moreTotal * relicMore;
 
         ctx.AddDamage(element, final);  //Adds the damage to the context
@@ -307,7 +319,8 @@ public class PlayerController : MonoBehaviour
         return keystones != null ? keystones.AttackSpeedMultiplier : 1f;
     }
 
-    float RelicAttackSpeedMultiplier() => RelicInventory.Instance != null ? RelicInventory.Instance.AttackSpeedMultiplier : 1f;
+    float RelicAttackSpeedMultiplier() => !ignoreRelicsForIsolatedBaseline && RelicInventory.Instance != null
+        ? RelicInventory.Instance.AttackSpeedMultiplier : 1f;
 
     // Called by EquipmentManager when a weapon is equipped.
     public void EquipWeapon(Gear weapon)

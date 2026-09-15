@@ -27,14 +27,12 @@ public class GearStatLists : MonoBehaviour
 
     private void OnDestroy() { if (Instance == this) Instance = null; }
 
-#if UNITY_EDITOR
-    public void ConfigureForIsolatedRolling()
+    private static Dictionary<LootManager.GearType, List<StatTypes>> canonicalPools;
+    public static List<StatTypes> GetCanonicalStatPoolForType(LootManager.GearType type)
     {
-        if (Instance == null) Instance = this;
-        statPools = BuildDefaultStatPools();
+        canonicalPools ??= BuildDefaultStatPools();
+        return canonicalPools[type];
     }
-    public void ReleaseIsolatedRolling() { if (Instance == this) Instance = null; }
-#endif
 
     public List<StatTypes> GetStatPoolForType(LootManager.GearType type)
     {

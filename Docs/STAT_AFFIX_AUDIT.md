@@ -19,6 +19,10 @@ Every one of the **104 currently random-generatable player affix identities** ha
 
 The historical Step 9 tables below preserve their precise old evidence and discrepancy decisions for comparison; their `N`, zero-tier and rollability cells are not Step 10 current-state claims.
 
+## Step 11 + 12 scaling/measurement delta
+
+Enemy intrinsic Life now starts from the authored prefab seed and grows through `EnemyScalingProfile`/`EnemyScalingMath` **before** the unchanged gear pools and affix rolls. Existing flat Life, Life%, Strength-derived Life, Armour%, ordinary/max resistance, Void, Hit Twice, ailments and optimizer projection remain equipment/stat consumers; no new stable stat ID, affix identity, tier, item-level gate or gear-definition multiplier was added. `EnemyBuildOptimizer` receives the scaled baseline and the separate intrinsic outgoing-damage factor, so its candidate comparison remains structurally aware of the Step 10 mechanics. `BalanceSimulationRunner` measures actual rolled gear/build distributions and records diversity questions for Step 13; its synthetic reference player is not a player affix or balance rule. The fresh 184/184 EditMode suite includes the scaling/optimizer parity and seeded-lab cases; generated distribution measurements are not final balance. The following Step 9 triage tables remain historical, including stale phrases that anticipated enemy-Life wiring in Step 11.
+
 ## Historical Step 9 inventory (sections 1–15; not current rollability)
 
 ## 1. Scope, method, and exact counts

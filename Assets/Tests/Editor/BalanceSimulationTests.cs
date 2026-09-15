@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Reflection;
 using NUnit.Framework;
 using UnityEngine;
 using BlackCube;
@@ -37,6 +38,43 @@ public sealed class BalanceSimulationTests
         Assert.That(first.rows.Zip(second.rows, (a, b) => a.equipmentSignature + a.affixSignature
             != b.equipmentSignature + b.affixSignature).Any(changed => changed), Is.True);
     }
+
+    [Test]
+    public void ExistingGameplaySingletonsCannotInfluenceIsolatedBaseline()
+    {
+        var config = new BalanceSimulationConfig { seed = 11012, sampleCount = 1, levels = new[] { 1 } };
+        BalanceResult before = BalanceSimulationRunner.Run(config);
+        object previousMod = ModManager.Instance;
+        object previousPools = GearStatLists.Instance;
+        object previousRelic = RelicInventory.Instance;
+        var fakeMod = new GameObject("live mods", typeof(ModManager));
+        var fakePools = new GameObject("live pools", typeof(GearStatLists));
+        var fakeRelic = new GameObject("live relics", typeof(RelicInventory));
+        try
+        {
+            SetInstance(typeof(ModManager), fakeMod.GetComponent<ModManager>());
+            SetInstance(typeof(GearStatLists), fakePools.GetComponent<GearStatLists>());
+            SetInstance(typeof(RelicInventory), fakeRelic.GetComponent<RelicInventory>());
+            BalanceResult during = BalanceSimulationRunner.Run(config);
+            for (int i = 0; i < before.rows.Length; i++)
+                Assert.That(JsonUtility.ToJson(during.rows[i]), Is.EqualTo(JsonUtility.ToJson(before.rows[i])));
+            Assert.That(ModManager.Instance, Is.EqualTo(fakeMod.GetComponent<ModManager>()));
+            Assert.That(GearStatLists.Instance, Is.EqualTo(fakePools.GetComponent<GearStatLists>()));
+            Assert.That(RelicInventory.Instance, Is.EqualTo(fakeRelic.GetComponent<RelicInventory>()));
+        }
+        finally
+        {
+            SetInstance(typeof(ModManager), previousMod);
+            SetInstance(typeof(GearStatLists), previousPools);
+            SetInstance(typeof(RelicInventory), previousRelic);
+            UnityEngine.Object.DestroyImmediate(fakeMod);
+            UnityEngine.Object.DestroyImmediate(fakePools);
+            UnityEngine.Object.DestroyImmediate(fakeRelic);
+        }
+    }
+
+    private static void SetInstance(Type type, object value) => type.GetProperty("Instance",
+        BindingFlags.Public | BindingFlags.Static).GetSetMethod(true).Invoke(null, new[] { value });
 
     [Test]
     public void ReferenceCurveAndMitigationUseProductionMath()
@@ -83,6 +121,24 @@ public sealed class BalanceSimulationTests
     }
 
     [Test]
+    public void EveryReferenceReportFormatCarriesExactSyntheticPlayerWarning()
+    {
+        var result = new BalanceResult
+        {
+            config = new BalanceSimulationConfig { sampleCount = 1, levels = new[] { 1 } },
+            archetypes = new[] { "test" },
+            rows = new[] { new BalanceRow { archetype = "test", level = 1,
+                referencePlayerLife = 1000f, referencePlayerHit = 80f } }
+        };
+        string csv = (string)typeof(BalanceReportWriter).GetMethod("Csv",
+            BindingFlags.NonPublic | BindingFlags.Static).Invoke(null, new object[] { result });
+        Assert.That(csv, Does.Contain("referenceWarning"));
+        Assert.That(csv, Does.Contain(result.warning));
+        Assert.That(JsonUtility.ToJson(result), Does.Contain(result.warning));
+        Assert.That(BalanceReportWriter.Markdown(result), Does.Contain(result.warning));
+    }
+
+    [Test]
     public void MonteCarloIsSeededAndExercisesHitTwicePoisonShockAndChill()
     {
         var a = new GameObject("attacker", typeof(StatsComponent));
@@ -122,6 +178,42 @@ public sealed class BalanceSimulationTests
             UnityEngine.Object.DestroyImmediate(poison);
             UnityEngine.Object.DestroyImmediate(a);
             UnityEngine.Object.DestroyImmediate(b);
+        }
+    }
+
+    [Test]
+    public void SnapshotDuelUsesSyntheticDefenseAndExactShockThresholdDamage()
+    {
+        var offenseHost = new GameObject("player offense", typeof(StatsComponent));
+        var defenseHost = new GameObject("synthetic defense", typeof(StatsComponent));
+        var enemyHost = new GameObject("enemy", typeof(StatsComponent));
+        try
+        {
+            var playerOffense = offenseHost.GetComponent<StatsComponent>();
+            var playerDefense = defenseHost.GetComponent<StatsComponent>();
+            var enemy = enemyHost.GetComponent<StatsComponent>();
+            playerDefense.SetBaseStat(StatTypes.FlatArmour, 1000f);
+            var idle = new DamageContext(1);
+            var physical = new DamageContext(1); physical.AddDamage(Element.Phys, 100f);
+            var armored = BalanceCombatSimulator.Simulate(idle, playerOffense, playerDefense,
+                1000f, .0001f, 0f, physical, enemy, enemy, 1000f, 1f, 0f,
+                Array.Empty<StatusEffects>(), 42, 1.1f);
+            Assert.That(armored.PlayerRemainingLife,
+                Is.EqualTo(1000f - CombatCalculator.ApplyArmourValue(100f, 1000f, 0f)).Within(.0001f));
+
+            playerOffense.SetBaseStat(StatTypes.ShockChance, 100f);
+            var lightning = new DamageContext(1); lightning.AddDamage(Element.Light, 10f);
+            var shocked = BalanceCombatSimulator.Simulate(lightning, playerOffense, playerDefense,
+                1000f, 1f, 0f, idle, enemy, enemy, 1000f, .0001f, 0f,
+                Array.Empty<StatusEffects>(), 42, 5.1f);
+            Assert.That(shocked.ShockTriggers, Is.EqualTo(1));
+            Assert.That(shocked.EnemyRemainingLife, Is.EqualTo(945f).Within(.0001f));
+        }
+        finally
+        {
+            UnityEngine.Object.DestroyImmediate(offenseHost);
+            UnityEngine.Object.DestroyImmediate(defenseHost);
+            UnityEngine.Object.DestroyImmediate(enemyHost);
         }
     }
 }

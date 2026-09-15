@@ -48,8 +48,7 @@ namespace BlackCube
         [MenuItem("Black Cube/Balance/Run Baseline Simulation")]
         public static void RunBaseline()
         {
-            var config = new BalanceSimulationConfig();
-            config.Validate();
+            var config = BalanceSimulationConfig.FromCommandLine();
             BalanceResult result = Run(config);
             BalanceReportWriter.Write(result);
             UnityEngine.Debug.Log($"Balance baseline: {result.rows.Length} rows in {result.elapsedSeconds:F1}s, output {config.outputDirectory}");
@@ -58,7 +57,7 @@ namespace BlackCube
         [MenuItem("Black Cube/Balance/Run Quick Simulation")]
         public static void RunQuick()
         {
-            var config = new BalanceSimulationConfig { sampleCount = 25 };
+            var config = BalanceSimulationConfig.FromCommandLine(25);
             BalanceResult result = Run(config);
             BalanceReportWriter.Write(result);
             UnityEngine.Debug.Log($"Balance quick: {result.rows.Length} rows in {result.elapsedSeconds:F1}s");
@@ -85,8 +84,7 @@ namespace BlackCube
             try
             {
                 ModManager roller = PrepareRoller(created);
-                PrepareStatPools(created);
-                var player = PrepareStarterPlayer(created);
+                var player = PrepareStarterPlayer(created, roller);
                 var playerStats = player.GetComponent<StatsComponent>();
                 var controller = player.GetComponent<PlayerController>();
                 var playerContext = controller.BuildNonCriticalAttackContext();
@@ -154,14 +152,6 @@ namespace BlackCube
             }
             finally
             {
-                foreach (var item in created)
-                {
-                    if (item is GameObject go)
-                    {
-                        go.GetComponent<ModManager>()?.ReleaseIsolatedRolling();
-                        go.GetComponent<GearStatLists>()?.ReleaseIsolatedRolling();
-                    }
-                }
                 for (int i = created.Count - 1; i >= 0; i--)
                     if (created[i] != null) UnityEngine.Object.DestroyImmediate(created[i]);
                 UnityEngine.Random.state = savedRandomState;
@@ -173,24 +163,15 @@ namespace BlackCube
             var database = AssetDatabase.LoadAssetAtPath<ModDatabase>(DatabasePath);
             if (database == null) throw new InvalidOperationException($"Missing {DatabasePath}");
             database.Initialize(); // lazy lookup cache only; no serialized asset edits.
-            var roller = ModManager.Instance;
-            if (roller != null) return roller;
-            var go = new GameObject("Balance isolated mod roller", typeof(ModManager));
+            var go = new GameObject("Balance isolated mod roller");
+            go.SetActive(false); // never installs or replaces a live singleton
             created.Add(go);
-            roller = go.GetComponent<ModManager>();
+            var roller = go.AddComponent<ModManager>();
             roller.ConfigureForIsolatedRolling(database);
             return roller;
         }
 
-        private static void PrepareStatPools(List<UnityEngine.Object> created)
-        {
-            if (GearStatLists.Instance != null) return;
-            var go = new GameObject("Balance isolated stat pools", typeof(GearStatLists));
-            created.Add(go);
-            go.GetComponent<GearStatLists>().ConfigureForIsolatedRolling();
-        }
-
-        private static GameObject PrepareStarterPlayer(List<UnityEngine.Object> created)
+        private static GameObject PrepareStarterPlayer(List<UnityEngine.Object> created, ModManager roller)
         {
             var go = new GameObject("Balance starter player", typeof(StatsComponent), typeof(HealthComponent),
                 typeof(PlayerStatSetup), typeof(PlayerController));
@@ -199,8 +180,7 @@ namespace BlackCube
             typeof(PlayerStatSetup).GetMethod("Awake", BindingFlags.Instance | BindingFlags.NonPublic)?.Invoke(setup, null);
             var controller = go.GetComponent<PlayerController>();
             typeof(PlayerController).GetMethod("Awake", BindingFlags.Instance | BindingFlags.NonPublic)?.Invoke(controller, null);
-            Gear starter = (Gear)typeof(PlayerController).GetMethod("CreateStarterWeapon",
-                BindingFlags.Instance | BindingFlags.NonPublic).Invoke(controller, null);
+            Gear starter = controller.CreateStarterWeaponForIsolatedBaseline(roller);
             var stats = go.GetComponent<StatsComponent>();
             foreach (RolledMod mod in starter.globalRolledMods)
                 stats.AddModifier(new StatModifier(mod.statType,
@@ -339,8 +319,8 @@ namespace BlackCube
             };
             if (sample < 25)
             {
-                var outcome = BalanceCombatSimulator.Simulate(playerAttack, playerStats,
-                    referenceLife, playerSpeed, playerCrit, enemyAttack, stats, maxLife,
+                var outcome = BalanceCombatSimulator.Simulate(playerAttack, playerStats, reference,
+                    referenceLife, playerSpeed, playerCrit, enemyAttack, stats, stats, maxLife,
                     enemySpeed, enemyCrit, ailments, duelSeed);
                 row.monteCarloDuration = outcome.Seconds;
                 row.monteCarloWinner = outcome.Winner;

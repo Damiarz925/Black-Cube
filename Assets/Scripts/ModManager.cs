@@ -10,6 +10,9 @@ public class ModManager : MonoBehaviour
 
     [Header("References")]
     [SerializeField] private ModDatabase modDatabase;
+#if UNITY_EDITOR
+    private bool useIsolatedPools;
+#endif
 
     [Header("Default Weights")]
     [SerializeField] private int defaultStatWeight = 50;        //This is the default total weight of stats
@@ -69,11 +72,10 @@ public class ModManager : MonoBehaviour
 #if UNITY_EDITOR
     public void ConfigureForIsolatedRolling(ModDatabase database)
     {
-        if (Instance == null) Instance = this;
         modDatabase = database;
         modDatabase?.Initialize();
+        useIsolatedPools = true;
     }
-    public void ReleaseIsolatedRolling() { if (Instance == this) Instance = null; }
 #endif
 
     //Function used to roll mods for items
@@ -192,7 +194,17 @@ public class ModManager : MonoBehaviour
         Element weaponElement,
         bool forEnemy)
     {
-        List<StatTypes> pool = GearStatLists.Instance.GetStatPoolForType(itemType);     //this grabs the stat pool for the passed in item type and stores it in pool
+#if UNITY_EDITOR
+        List<StatTypes> pool = useIsolatedPools
+            ? GearStatLists.GetCanonicalStatPoolForType(itemType)
+            : GearStatLists.Instance != null
+                ? GearStatLists.Instance.GetStatPoolForType(itemType)
+                : GearStatLists.GetCanonicalStatPoolForType(itemType);
+#else
+        List<StatTypes> pool = GearStatLists.Instance != null
+            ? GearStatLists.Instance.GetStatPoolForType(itemType)
+            : GearStatLists.GetCanonicalStatPoolForType(itemType);
+#endif
         var candidates = new List<(StatTypes stat, int weight)>();      //Create a list of candidates, with the key being the stat and the value being the weight of that stat
 
         foreach (var stat in pool)  //for each stat in the pool
