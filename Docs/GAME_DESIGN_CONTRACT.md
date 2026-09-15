@@ -102,6 +102,8 @@ Rarities are Normal, Magic, Rare and Legendary. Current approved modifier counts
 
 Modifier tiers are item-level gated. Weapon-element matching damage rolls may be local to the weapon; other equipment rolls project globally. Duplicate stat/group exclusions and weighted definitions are part of the current affix model.
 
+[STAT_AFFIX_AUDIT.md](STAT_AFFIX_AUDIT.md) is the Step 9 implementation inventory and proposed v1 triage: 114 stable IDs, 97 actually generatable definitions, eleven pool-listed zero-tier records, and six internal/non-rollable stats. Its recommendations do not approve unresolved mechanics; the user-decision table must be resolved before Step 10 changes roll pools or formulas.
+
 Prefix/suffix separation is not implemented or approved as a current rule. It remains a possible future itemization layer.
 
 ## 12. Crafting
@@ -217,8 +219,8 @@ Do not lock total v1 combat levels, zones, backgrounds, normal enemies, bosses, 
 | Maximum resistance | Approved maximum-cap rules should control achievable resistance bounds. | Max-resistance stats are unconsumed; calculator clamps final reduction to ±90%. | Unresolved/dead affixes. | 9–10 |
 | Projectile Amount / Bullet Hell | Additional projectile count should affect projectile-producing skills once exact behavior is approved. | Passive/stat/keystone values exist; projectile launcher creates one projectile. | Partial projection, missing consumer. | 9–10 |
 | Enemy Hit Twice | Enemy behavior requires an explicit decision. | Player attacks consume Hit Twice; enemy turns do not. | Unresolved asymmetry/dead enemy roll. | 9–10 |
-| Cooldowns | No final cooldown model is yet approved. | Cooldown Recovery can roll/display but skills have no cooldown timer. | Unresolved/dead affix. | 9–10 |
-| Attributes, skill levels, kill resources | Require explicit formulas and ordering. | Affixes/data/UI exist but combat/progression does not consume them. | Dead affix families. | 9–10 |
+| Cooldowns | No final cooldown model is yet approved. | Cooldown Recovery is pool-listed/displayable but has zero tiers and cannot generate; skills have no cooldown timer. | Unresolved/dead pool exposure. | 9–10 |
+| Attributes, skill levels, kill resources | Require explicit formulas and ordering. | Attribute and kill-resource affixes generate but have no consumers. Skill-level entries are pool-listed/displayable but zero-tier and cannot generate. | Dead/unreachable affix families. | 9–10 |
 | Minions | Require entity, ownership and combat design. | Only a Minion damage scope/stat calculation exists; there are no minions. | Infrastructure only. | 9–10/content TBD |
 | Void | Final identity must be explicitly approved. | Enum/mask/tooltip support exists; normal player weapon generation excludes Void and no gameplay rule is defined. | Unresolved. | 9–10 |
 | Status callbacks | Extensible status lifecycle should have an approved dispatch contract if retained. | Empty virtual hooks exist and are not called by current status ticking. | Dead extension surface. | 9–10 |

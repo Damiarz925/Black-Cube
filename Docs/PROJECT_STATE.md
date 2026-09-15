@@ -2,7 +2,7 @@
 
 > This document answers: **What does the current repository actually do?** It records verified implementation reality, not intended design. Codex may update it after verified implementation milestones, but must not use it to invent design. Update the baseline commit, verification totals, and material behavior changes together.
 
-For intended behavior, read [GAME_DESIGN_CONTRACT.md](GAME_DESIGN_CONTRACT.md). For detailed ownership and persistence rules, read [RUNTIME_LIFECYCLE.md](RUNTIME_LIFECYCLE.md) and [SAVE_STATE_CONTRACT.md](SAVE_STATE_CONTRACT.md).
+For intended behavior, read [GAME_DESIGN_CONTRACT.md](GAME_DESIGN_CONTRACT.md). For the exhaustive current stat/affix inventory and Step 10 triage, read [STAT_AFFIX_AUDIT.md](STAT_AFFIX_AUDIT.md). For detailed ownership and persistence rules, read [RUNTIME_LIFECYCLE.md](RUNTIME_LIFECYCLE.md) and [SAVE_STATE_CONTRACT.md](SAVE_STATE_CONTRACT.md).
 
 Current-reality claims use this evidence order: (1) verified source code, (2) scenes/prefabs/assets, (3) tests and verification tooling, (4) `RUNTIME_LIFECYCLE.md`, (5) `SAVE_STATE_CONTRACT.md`, then (6) `CODE_MAP.md` and `DEVELOPER_HANDOFF.md`. Lower-ranked summaries never override verified runtime evidence.
 
@@ -11,6 +11,7 @@ Current-reality claims use this evidence order: (1) verified source code, (2) sc
 - Repository branch: `codex/repository-cleanup-baseline`
 - Verified Step 6 implementation commit: `76c5687f8fcee69d089eb9b3efc0c9df5549ea6a` (`Implement versioned save and load system`)
 - Step 7 authority baseline: `a039bb1e116c919ee63a32913793d50da62d4ad5` (`Lock project state and game design contracts`)
+- Step 8 cleanup baseline: `00bbc93f5153108e34cb133c81dccb3879168782` (`Remove obsolete Prestige runtime path`)
 - Unity: `6000.6.0f1` (`f7f8ed4d1e24`)
 - Enabled build scenes, in order: `Assets/Scenes/Main Menu.unity`, `Assets/Scenes/SampleScene.unity`
 - Source inventory at this milestone: 94 runtime C# files, 23 Editor C# files, 12 EditMode test files, and 45 sources under `Tools` (`.cs`, `.py`, `.ps1`)
@@ -87,9 +88,9 @@ Use [CODE_MAP.md](CODE_MAP.md) for file ownership and [DEVELOPER_HANDOFF.md](DEV
 | Shock | Shock statuses can be applied/tracked, but they do not accumulate into a general threshold-triggered Lightning effect. Lightning Strike separately converts Shock Chance applications directly into extra hits. |
 | Enemy Hit Twice | The player path consumes `ChanceToHitTwice`; the enemy attack path does not. Enemy builds can therefore receive no combat value from it. |
 | Projectile Amount | Passives and Bullet Hell expose projectile-count values and damage tradeoffs, but `SkillProjectile` launches one projectile and does not consume the count. |
-| Cooldown Recovery | Rollable/displayable percentage stat; there is no active-skill cooldown state or timer. |
+| Cooldown Recovery | Pool-listed/displayable percentage stat with no tiers, so it cannot currently generate; there is no active-skill cooldown state or timer. |
 | Attributes/scaling | Strength, Dexterity, Intelligence and their scaling affixes exist in enums/pools/UI but are not projected into combat/resources. |
-| Skill-level modifiers | `Plus1*` affixes roll and display but do not change skill behavior or levels. |
+| Skill-level modifiers | Seven `Plus1*` stats are pool-listed/displayable but have no tiers and cannot currently generate; active skills have no level model. |
 | Kill-resource modifiers | Life/Mana on Kill exist in item data/UI but enemy reward resolution does not apply them. On-hit recovery does work. |
 | Minions | Minion damage scope/stat calculation exists, but there are no minion entities, commands or attacks. |
 | Void | `Element.Void` and masks exist. Player loot excludes unfinished Void weapon bases and no final Void mechanic is implemented. |
@@ -130,7 +131,7 @@ These controls are functionally wired. Runtime-built modal/panel geometry and ge
 
 ## 10. Verification infrastructure
 
-- NUnit EditMode suite under `Assets/Tests/Editor` (136 tests at this baseline)
+- NUnit EditMode suite under `Assets/Tests/Editor` (143 tests at this baseline)
 - `GamePersistenceTests` for schema, corruption, migration, backup, deterministic seed, transactional failure and debounce behavior
 - `MenuLoadPlayChecks` for rich real-scene save/load, transient clearing, preferences and New Game replacement
 - `RuntimeLifecyclePlayChecks` for six entries, five returns, singleton/rebinding and Pause Menu behavior
@@ -155,9 +156,9 @@ Generated reports are written to `Logs` or `ReviewCaptures`; check timestamps be
 
 ## 12. Roadmap position
 
-Steps 1–8 are complete. Step 7 locked current-state and intended-design documentation. Step 8 removed the superseded Prestige branch/API: every boss clear now advances directly to the next combat level, while Rebirth remains the sole run-reset/meta-progression system.
+Steps 1–9 are complete. Step 7 locked current-state and intended-design documentation. Step 8 removed the superseded Prestige branch/API: every boss clear now advances directly to the next combat level, while Rebirth remains the sole run-reset/meta-progression system. Step 9 audited all 114 stable stat IDs and separated 97 actually generatable definitions from eleven pool-listed zero-tier records and six internal/non-rollable stats; it made no runtime mechanic changes.
 
-Known later phases are: Steps 9–10 incomplete-mechanics decisions and implementation; Step 11 enemy base scaling; Step 13 balance; and Step 14 final v1 zone/enemy/boss/content scope. The current briefs do not define Step 12, so this document does not invent it.
+Known later phases are: Step 10 approved incomplete-mechanics implementation/removal; Step 11 enemy base scaling; Step 13 balance; and Step 14 final v1 zone/enemy/boss/content scope. The current briefs do not define Step 12, so this document does not invent it.
 
 ## Maintenance rule
 

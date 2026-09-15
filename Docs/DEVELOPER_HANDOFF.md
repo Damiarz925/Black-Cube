@@ -6,11 +6,12 @@ Read these documents in order before changing behavior:
 
 1. [GAME_DESIGN_CONTRACT.md](GAME_DESIGN_CONTRACT.md) — intended behavior and design law.
 2. [PROJECT_STATE.md](PROJECT_STATE.md) — what the verified repository currently does.
-3. This handoff — workflow and practical entry points.
-4. [CODE_MAP.md](CODE_MAP.md) — file ownership and script connections.
-5. [RUNTIME_LIFECYCLE.md](RUNTIME_LIFECYCLE.md) — lifecycle, reset and transition rules.
-6. [SAVE_STATE_CONTRACT.md](SAVE_STATE_CONTRACT.md) — persistence rules.
-7. [PASSIVE_TREE.md](PASSIVE_TREE.md) — passive-tree specifics.
+3. [STAT_AFFIX_AUDIT.md](STAT_AFFIX_AUDIT.md) — exhaustive stat/affix reality, triage, decisions and Step 10 backlog.
+4. This handoff — workflow and practical entry points.
+5. [CODE_MAP.md](CODE_MAP.md) — file ownership and script connections.
+6. [RUNTIME_LIFECYCLE.md](RUNTIME_LIFECYCLE.md) — lifecycle, reset and transition rules.
+7. [SAVE_STATE_CONTRACT.md](SAVE_STATE_CONTRACT.md) — persistence rules.
+8. [PASSIVE_TREE.md](PASSIVE_TREE.md) — passive-tree specifics.
 
 Code is evidence for current state, not automatic authority for intended design. If implementation and design disagree, report and register the discrepancy instead of silently changing either side.
 
@@ -63,7 +64,7 @@ BattleManager is the timing authority. At `turnThreshold = 100`, gauge increment
 
 Player attacks use [BuildNonCriticalAttackContext](../Assets/Scripts/PlayerController.cs) for previews and apply one critical roll in `BuildAttackContext` for actual combat. Each typed component is part of one hit. The damage formula is `(effective weapon base + matching global flat) * (1 + elemental increased + generic increased) * product(1 + each applicable more roll / 100)`. Extra flat elements are scaled separately; do not include the weapon base twice. [EnemyAI](../Assets/Scripts/EnemyAI.cs) builds comparable contexts from generated enemy gear.
 
-[CombatCalculator](../Assets/Scripts/CombatCalculator.cs) applies armour and physical penetration to Physical damage. Non-Physical hits use resistance and matching penetration, clamped from -90% to 90%; ailment ticks have their own resistance path. `StatMappings.GetResistStat` rejects Physical lookups because the live hit path does not use a Physical resistance stat. The `Max*Res` stats do not replace the calculator's hard-coded cap. Penetration and CritMult are not classified percent stats in StatsComponent, so their existing raw values are treated as fractions. Audit their data before balancing them as percentage points.
+[CombatCalculator](../Assets/Scripts/CombatCalculator.cs) applies armour and physical penetration to Physical damage. Non-Physical hits use resistance and matching penetration, clamped from -90% to 90%; ailment ticks have their own resistance path. `StatMappings.GetResistStat` rejects Physical lookups because the live hit path does not use a Physical resistance stat. The `Max*Res` stats do not replace the calculator's hard-coded cap. Penetration and `CritMult` are classified percentage-point stats in `StatsComponent`: raw 20 becomes 0.20 for consumers. Preserve that convention unless a separately approved balance migration changes both data and formulas.
 
 To change starting damage/speed, edit `CreateStarterWeapon`. To change overall scaling, edit the attack context formulas on both player/enemy and use the attack-stat fixtures. To change defenses, edit CombatCalculator and test a known fixed hit against zero and nonzero defenses. Do not add damage to animation events; that duplicates the gauge hit.
 
@@ -118,7 +119,7 @@ The optimizer intentionally gives no invented value to roll-eligible mechanics t
 
 ## Statuses, UI and other systems
 
-[AilmentCalculator](../Assets/Scripts/AilmentCalculator.cs) selects eligible source elements: Poison physical/poison, Bleed physical, Ignite fire, Chill cold, Shock lightning. Chance is a single probability check; values above 100% do not add extra stacks. Tick duration/rate are **global turns**, not seconds. Both actor turns tick both status controllers, so changing attack speed changes real-time DOT pacing. Generic DOT and matching ailment more rolls each multiply independently on the already-scaled source hit; hit scaling is not reapplied. Extra duration adds equally strong ticks; it does not dilute each tick. The four stack policies are in StatusController. Its Display partial also supplies frequency-weighted tick averages; changing tooltip summary math can affect actual ticks.
+[AilmentCalculator](../Assets/Scripts/AilmentCalculator.cs) selects eligible source elements: Poison physical/poison, Bleed physical, Ignite fire, Chill cold, Shock lightning. `BattleManager.RollOverflowApplications` turns each full 100% chance into one guaranteed application and rolls the fractional remainder; applicable keystones adjust chance first. Tick duration/rate are **global turns**, not seconds. Both actor turns tick both status controllers, so changing attack speed changes real-time DOT pacing. Generic DOT and matching ailment more rolls each multiply independently on the already-scaled source hit; hit scaling is not reapplied. Extra duration adds equally strong ticks; it does not dilute each tick. The four stack policies are in StatusController. Its Display partial also supplies frequency-weighted tick averages; changing tooltip summary math can affect actual ticks.
 
 The HUD reads state; InventoryUI/PlayerStatsPanelUI manage views from change events. ItemTooltipUI formats actual item values and protects equipped items from scrapping. DamagePopup renders numbers after life loss and uses a snapshot position so a destroyed enemy does not drag the popup. EquipmentGlyph/StatusGlyph/DamageNumberAccent generate UI mesh art. Legacy ThemeSet/ThemeDefinition/LevelGenerator/Pool build optional 3D scenery; they are separate from the paper forest and battle spawn points. LevelGenerator reseeds Unity's global RNG, so enabling it can affect later random rolls.
 
