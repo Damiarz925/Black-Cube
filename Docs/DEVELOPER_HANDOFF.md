@@ -1,14 +1,26 @@
 # Black Cube developer handoff
 
-Final verification: 122 first-party source files mapped; 3,940 combat/equipment/enemy assertions, 6,314 encounter/boss progression assertions, and 729 forest-cycle assertions pass. Player, enemy and forest asset checks pass. See [final-handoff-checks.json](final-handoff-checks.json) and [enemy batch report](../ReviewCaptures/ForestEnemies/README.md). Unity import/live rendering are still manual checks.
+## Authoritative reading order
 
-Start with [CODE_MAP.md](CODE_MAP.md): it links every first-party runtime, editor and art-tool source file and explains its responsibility. Source comments describe contracts; this guide explains how to make changes without needing the conversation.
+Read these documents in order before changing behavior:
+
+1. [GAME_DESIGN_CONTRACT.md](GAME_DESIGN_CONTRACT.md) — intended behavior and design law.
+2. [PROJECT_STATE.md](PROJECT_STATE.md) — what the verified repository currently does.
+3. This handoff — workflow and practical entry points.
+4. [CODE_MAP.md](CODE_MAP.md) — file ownership and script connections.
+5. [RUNTIME_LIFECYCLE.md](RUNTIME_LIFECYCLE.md) — lifecycle, reset and transition rules.
+6. [SAVE_STATE_CONTRACT.md](SAVE_STATE_CONTRACT.md) — persistence rules.
+7. [PASSIVE_TREE.md](PASSIVE_TREE.md) — passive-tree specifics.
+
+Code is evidence for current state, not automatic authority for intended design. If implementation and design disagree, report and register the discrepancy instead of silently changing either side.
+
+For UI work, Codex owns functional controls, sensible basic placement and component wiring. The user retains final ownership of custom art, animated interaction states, precision alignment, bespoke sprite transitions and presentation polish. Runtime-built/basic controls therefore do not lock final visual design.
+
+Step 6 verification is green in Unity 6000.6.0f1: 136/136 EditMode tests, the rich real-scene save→menu→load/New Game check, the six-entry lifecycle and Pause Menu soak, all four synchronous gameplay checks, and missing-reference validation with zero failures. A fresh Windows x64 build completed with zero errors and remained running through the standalone smoke window. Reports are written under `Logs/` by the corresponding runners. Older file-only assertion reports remain useful supplemental checks; see [final-handoff-checks.json](final-handoff-checks.json) and the [enemy batch report](../ReviewCaptures/ForestEnemies/README.md).
 
 Runtime ownership, reset and transition rules are recorded in [RUNTIME_LIFECYCLE.md](RUNTIME_LIFECYCLE.md). Persistent managers are first created by gameplay, detach from their authored prefab parent before `DontDestroyOnLoad`, clear gameplay references on unload, and bind only objects from the new gameplay scene. Confirmed New Game now clears the entire saved gameplay profile—including relic history, rebirth cycle and Ancient currency—while preserving independent preferences.
 
 The implemented Step 6 persistence contract is recorded in [SAVE_STATE_CONTRACT.md](SAVE_STATE_CONTRACT.md). `GamePersistence.TrySave` writes schema-v2 UTF-8 JSON under `Application.persistentDataPath` through a validated temporary file, atomic primary replacement, and one backup. Load validates before mutation, falls back primary→backup, migrates historical `BlackCube.Save.V1` only when no new-format file exists, and restores a deterministic clean encounter start with recorded player life/mana. Pause Menu Save & Main Menu / Save & Quit remain gated on that one canonical entry point.
-
-Step 6 verification is green in Unity 6000.6.0f1: 136/136 EditMode tests, the rich real-scene save→menu→load/New Game check, the six-entry lifecycle and Pause Menu soak, all four synchronous gameplay checks, and missing-reference validation with zero failures. A fresh Windows x64 build completes with zero errors and remains running through the standalone smoke window. Reports are written under `Logs/` by the corresponding runners.
 
 ## Open and navigate
 
@@ -49,7 +61,7 @@ BattleManager is the timing authority. At `turnThreshold = 100`, gauge increment
 
 Player attacks use [BuildNonCriticalAttackContext](../Assets/Scripts/PlayerController.cs) for previews and apply one critical roll in `BuildAttackContext` for actual combat. Each typed component is part of one hit. The damage formula is `(effective weapon base + matching global flat) * (1 + elemental increased + generic increased) * product(1 + each applicable more roll / 100)`. Extra flat elements are scaled separately; do not include the weapon base twice. [EnemyAI](../Assets/Scripts/EnemyAI.cs) builds comparable contexts from generated enemy gear.
 
-[CombatCalculator](../Assets/Scripts/CombatCalculator.cs) applies armour to physical damage, then resistance/penetration, clamped from -90% to 90%. Ailment ticks have their own resistance path. **Current limitation:** physical resistance falls through to FireRes in StatMappings and is actually consumed by the hit pipeline. This pass documents that behavior; it does not redesign it. The `Max*Res` stats do not replace the calculator's hard-coded cap. Penetration and CritMult are not classified percent stats in StatsComponent, so their existing raw values are treated as fractions. Audit their data before balancing them as percentage points.
+[CombatCalculator](../Assets/Scripts/CombatCalculator.cs) applies armour and physical penetration to Physical damage. Non-Physical hits use resistance and matching penetration, clamped from -90% to 90%; ailment ticks have their own resistance path. `StatMappings.GetResistStat` rejects Physical lookups because the live hit path does not use a Physical resistance stat. The `Max*Res` stats do not replace the calculator's hard-coded cap. Penetration and CritMult are not classified percent stats in StatsComponent, so their existing raw values are treated as fractions. Audit their data before balancing them as percentage points.
 
 To change starting damage/speed, edit `CreateStarterWeapon`. To change overall scaling, edit the attack context formulas on both player/enemy and use the attack-stat fixtures. To change defenses, edit CombatCalculator and test a known fixed hit against zero and nonzero defenses. Do not add damage to animation events; that duplicates the gauge hit.
 

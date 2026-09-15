@@ -1,5 +1,19 @@
 # First-party source map
 
+## Documentation entry points
+
+Read the project documentation in this order before changing behavior:
+
+1. [GAME_DESIGN_CONTRACT.md](GAME_DESIGN_CONTRACT.md) — approved intended behavior; code does not silently override it.
+2. [PROJECT_STATE.md](PROJECT_STATE.md) — verified current repository behavior and known gaps.
+3. [DEVELOPER_HANDOFF.md](DEVELOPER_HANDOFF.md) — development workflow and practical entry points.
+4. This code map — file-level ownership and connections.
+5. [RUNTIME_LIFECYCLE.md](RUNTIME_LIFECYCLE.md) — lifecycle, resets and scene transitions.
+6. [SAVE_STATE_CONTRACT.md](SAVE_STATE_CONTRACT.md) — persistence semantics and schema boundaries.
+7. [PASSIVE_TREE.md](PASSIVE_TREE.md) — authoritative passive-tree structure and mechanics.
+
+When implementation and intended design disagree, preserve both facts: update `PROJECT_STATE.md` with verified reality and add or retain the discrepancy in `GAME_DESIGN_CONTRACT.md`. Do not infer a design change from code alone.
+
 Every runtime/editor C# file and art-tool C#/Python/PowerShell file is listed below. Unity tutorial, TextMesh Pro, Store Assets, Packages, Library and generated project files are excluded. Archived art tools are explicitly labeled; do not run them to update current art.
 
 | File | Responsibility and connection |
@@ -9,7 +23,7 @@ Every runtime/editor C# file and art-tool C#/Python/PowerShell file is listed be
 | [Assets/Scripts/AilmentCalculator.cs](../Assets/Scripts/AilmentCalculator.cs) | Converts eligible pre-defense hit components into per-tick strength, tick count and global-turn interval. Generic hit scaling is already in the source hit and must not be applied twice. |
 | [Assets/Scripts/BattleManager.cs](../Assets/Scripts/BattleManager.cs) | Owns combat clocks, target replacement and damage resolution; records clean encounter-start resource checkpoints after deterministic spawns. |
 | [Assets/Scripts/BleedStatusEffect.cs](../Assets/Scripts/BleedStatusEffect.cs) | Bleed asset defaults and editor validation for physical-hit damage over time. Active stacks and ticking belong to StatusController, not this shared asset. |
-| [Assets/Scripts/CombatCalculator.cs](../Assets/Scripts/CombatCalculator.cs) | Pure hit and DOT mitigation shared by both sides. Evasion has no hit roll here; physical resistance currently falls through StatMappings to FireRes, an existing limitation. |
+| [Assets/Scripts/CombatCalculator.cs](../Assets/Scripts/CombatCalculator.cs) | Pure hit and DOT mitigation shared by both sides. Evasion has no hit roll here; Physical uses armour plus physical penetration, while non-Physical damage uses resistance plus matching penetration. |
 | [Assets/Scripts/DamageContext.cs](../Assets/Scripts/DamageContext.cs) | Per-attack snapshot of typed damage components and critical metadata. The components are one attack, not separate combat turns; critical scaling is applied by the attacker. |
 | [Assets/Scripts/DamageNumberAccent.cs](../Assets/Scripts/DamageNumberAccent.cs) | Draws the decorative UI geometry behind styled damage numbers. Presentation only: no damage calculation or timing authority. |
 | [Assets/Scripts/DamagePopup.cs](../Assets/Scripts/DamagePopup.cs) | Creates styled screen-space numbers from world-space targets; popup instances snapshot positions so target destruction does not move them. DamageReceiver has already applied life loss. |
@@ -62,7 +76,7 @@ Every runtime/editor C# file and art-tool C#/Python/PowerShell file is listed be
 | [Assets/Scripts/StatCategoryMapping.cs](../Assets/Scripts/StatCategoryMapping.cs) | Maps stat enum members to display sections and labels. Explicit cases depend on names, not enum ordering; newly added stats need an intentional display category. |
 | [Assets/Scripts/StatDisplayFormatting.cs](../Assets/Scripts/StatDisplayFormatting.cs) | Friendly names and raw-value formatting for stats and tooltips. Percent classification must agree with StatsComponent; display formatting never changes gameplay units. |
 | [Assets/Scripts/StatHeaderUI.cs](../Assets/Scripts/StatHeaderUI.cs) | Small serialized TMP label binding for a stats section heading; PlayerStatsPanelUI creates and manages these views. |
-| [Assets/Scripts/StatMappings.cs](../Assets/Scripts/StatMappings.cs) | Maps damage elements to stat keys for attacker scaling and defender mitigation. Unsupported elements use fallback keys; physical resistance currently maps to FireRes even in the hit pipeline. |
+| [Assets/Scripts/StatMappings.cs](../Assets/Scripts/StatMappings.cs) | Maps damage elements to stat keys for attacker scaling and defender mitigation. Physical resistance lookup now rejects invalid use because Physical is routed through armour; unsupported elements retain fallback keys. |
 | [Assets/Scripts/StatModifiers.cs](../Assets/Scripts/StatModifiers.cs) | Stat operations and a modifier source token used for removal on gear/skill changes. Most values are raw points; non-bucket multiplicative operations take a fractional multiplier delta. |
 | [Assets/Scripts/StatRowUI.cs](../Assets/Scripts/StatRowUI.cs) | Binds a stat name/value pair to serialized TMP labels. Formatting and which rows exist are decided by PlayerStatsPanelUI. |
 | [Assets/Scripts/StatsComponent.cs](../Assets/Scripts/StatsComponent.cs) | Actor stat store with cached StatValue entries and batched change events. GetStat converts classified percent points to fractions; GetRawStat preserves stored units. |
