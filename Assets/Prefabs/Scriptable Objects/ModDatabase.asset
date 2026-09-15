@@ -17,2566 +17,3847 @@ MonoBehaviour:
     displayName: Weapon Damage
     allowedSlots: 07000000i
     groups: []
+    side: 0
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 26
       maxValue: 54
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 51
       maxValue: 106
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 101
       maxValue: 209
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 198
       maxValue: 412
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 390
       maxValue: 810
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 15
     tierSpread: 0.35
   - statType: 1
     displayName: Weapon Attack Speed
     allowedSlots: 07000000i
     groups: []
+    side: 0
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 0.45
       maxValue: 0.75
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 0.6
       maxValue: 0.9
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 0.75
       maxValue: 1.05
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 0.9
       maxValue: 1.2
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 1.05
       maxValue: 1.4
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 2
     displayName: Weapon Base Critical Chance
     allowedSlots: 07000000i
     groups: []
+    side: 0
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 5
       maxValue: 10
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 5
       maxValue: 10
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 5
       maxValue: 10
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 5
       maxValue: 10
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 5
       maxValue: 10
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 3
     displayName: Chance to Block
     allowedSlots:
     groups: []
+    side: 0
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 5
       maxValue: 10
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 7
       maxValue: 15
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 11
       maxValue: 23
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 16
       maxValue: 34
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 24
       maxValue: 51
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 5
     tierSpread: 0.35
   - statType: 4
     displayName: Added Physical Damage
     allowedSlots: 07000000i
     groups: []
+    side: 0
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 5
       maxValue: 11
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 10
       maxValue: 21
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 20
       maxValue: 42
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 40
       maxValue: 82
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 78
       maxValue: 162
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 15
     tierSpread: 0.35
   - statType: 5
     displayName: Added Cold Damage
     allowedSlots: 07000000i
     groups: []
+    side: 0
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 5
       maxValue: 11
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 10
       maxValue: 21
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 20
       maxValue: 42
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 40
       maxValue: 82
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 78
       maxValue: 162
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 15
     tierSpread: 0.35
   - statType: 6
     displayName: Added Lightning Damage
     allowedSlots: 07000000i
     groups: []
+    side: 0
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 5
       maxValue: 11
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 10
       maxValue: 21
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 20
       maxValue: 42
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 40
       maxValue: 82
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 78
       maxValue: 162
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 15
     tierSpread: 0.35
   - statType: 7
     displayName: Added Fire Damage
     allowedSlots: 07000000i
     groups: []
+    side: 0
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 5
       maxValue: 11
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 10
       maxValue: 21
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 20
       maxValue: 42
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 40
       maxValue: 82
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 78
       maxValue: 162
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 15
     tierSpread: 0.35
   - statType: 8
     displayName: Increased Damage
     allowedSlots: 03000000000000000200000004000000050000000100000007000000i
     groups: []
+    side: 0
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 7
       maxValue: 14
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 11
       maxValue: 24
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 19
       maxValue: 40
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 32
       maxValue: 67
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 55
       maxValue: 113
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 8
     tierSpread: 0.35
   - statType: 9
     displayName: More Damage
     allowedSlots: 03000000000000000200000004000000050000000100000007000000i
     groups: []
+    side: 0
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 1
       maxValue: 3
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 2
       maxValue: 4
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 3
       maxValue: 6
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 5
       maxValue: 10
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 7
       maxValue: 15
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 10
     displayName: Damage Over Time Multiplier
     allowedSlots: 03000000000000000200000004000000050000000100000007000000i
     groups: []
+    side: 0
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 3
       maxValue: 7
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 5
       maxValue: 11
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 8
       maxValue: 17
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 12
       maxValue: 26
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 20
       maxValue: 40
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 11
     displayName: Increased Critical Strike Chance
     allowedSlots: 030000000000000004000000050000000100000007000000i
     groups: []
+    side: 1
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 7
       maxValue: 14
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 11
       maxValue: 24
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 19
       maxValue: 40
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 32
       maxValue: 67
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 55
       maxValue: 113
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 8
     tierSpread: 0.35
   - statType: 12
     displayName: Critical Strike Multiplier
     allowedSlots: 030000000100000007000000i
     groups: []
+    side: 1
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 8
       maxValue: 18
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 13
       maxValue: 28
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 20
       maxValue: 43
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 30
       maxValue: 65
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 50
       maxValue: 100
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 13
     displayName: Added Base Critical Chance
     allowedSlots: 030000000100000007000000i
     groups: []
+    side: 0
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 1
       maxValue: 1
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 1
       maxValue: 2
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 1
       maxValue: 2
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 2
       maxValue: 3
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 2
       maxValue: 4
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 3
     tierSpread: 0.35
   - statType: 14
     displayName: Increased Physical Damage
     allowedSlots: 03000000000000000100000007000000i
     groups: []
+    side: 0
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 7
       maxValue: 14
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 11
       maxValue: 24
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 19
       maxValue: 40
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 32
       maxValue: 67
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 55
       maxValue: 113
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 8
     tierSpread: 0.35
   - statType: 15
     displayName: Increased Cold Damage
     allowedSlots: 0300000004000000050000000100000007000000i
     groups: []
+    side: 0
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 7
       maxValue: 14
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 11
       maxValue: 24
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 19
       maxValue: 40
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 32
       maxValue: 67
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 55
       maxValue: 113
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 8
     tierSpread: 0.35
   - statType: 16
     displayName: Increased Lightning Damage
     allowedSlots: 04000000050000000100000007000000i
     groups: []
+    side: 0
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 7
       maxValue: 14
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 11
       maxValue: 24
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 19
       maxValue: 40
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 32
       maxValue: 67
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 55
       maxValue: 113
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 8
     tierSpread: 0.35
   - statType: 17
     displayName: Increased Fire Damage
     allowedSlots: 00000000050000000100000007000000i
     groups: []
+    side: 0
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 7
       maxValue: 14
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 11
       maxValue: 24
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 19
       maxValue: 40
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 32
       maxValue: 67
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 55
       maxValue: 113
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 8
     tierSpread: 0.35
   - statType: 18
     displayName: More Physical Damage
     allowedSlots: 03000000000000000100000007000000i
     groups: []
+    side: 0
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 2
       maxValue: 4
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 3
       maxValue: 6
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 4
       maxValue: 9
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 6
       maxValue: 13
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 10
       maxValue: 20
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 19
     displayName: More Cold Damage
     allowedSlots: 0300000004000000050000000100000007000000i
     groups: []
+    side: 0
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 2
       maxValue: 4
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 3
       maxValue: 6
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 4
       maxValue: 9
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 6
       maxValue: 13
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 10
       maxValue: 20
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 20
     displayName: More Lightning Damage
     allowedSlots: 04000000050000000100000007000000i
     groups: []
+    side: 0
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 2
       maxValue: 4
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 3
       maxValue: 6
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 4
       maxValue: 9
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 6
       maxValue: 13
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 10
       maxValue: 20
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 21
     displayName: More Fire Damage
     allowedSlots: 00000000050000000100000007000000i
     groups: []
+    side: 0
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 2
       maxValue: 4
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 3
       maxValue: 6
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 4
       maxValue: 9
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 6
       maxValue: 13
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 10
       maxValue: 20
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 22
     displayName: Physical Penetration
     allowedSlots: 03000000000000000100000007000000i
     groups: []
+    side: 0
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 2
       maxValue: 4
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 3
       maxValue: 6
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 5
       maxValue: 9
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 8
       maxValue: 13
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 12
       maxValue: 19
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 5
     tierSpread: 0.35
   - statType: 23
     displayName: Cold Penetration
     allowedSlots: 0300000004000000050000000100000007000000i
     groups: []
+    side: 0
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 2
       maxValue: 3
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 3
       maxValue: 5
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 4
       maxValue: 7
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 6
       maxValue: 10
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 10
       maxValue: 15
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 5
     tierSpread: 0.35
   - statType: 24
     displayName: Lightning Penetration
     allowedSlots: 04000000050000000100000007000000i
     groups: []
+    side: 0
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 2
       maxValue: 4
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 3
       maxValue: 6
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 5
       maxValue: 9
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 8
       maxValue: 13
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 12
       maxValue: 19
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 25
     displayName: Fire Penetration
     allowedSlots: 00000000050000000100000007000000i
     groups: []
+    side: 0
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 2
       maxValue: 4
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 3
       maxValue: 6
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 5
       maxValue: 9
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 8
       maxValue: 13
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 12
       maxValue: 19
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 5
     tierSpread: 0.35
   - statType: 26
     displayName: Increased Poison Damage
     allowedSlots: 03000000040000000100000007000000i
     groups: []
+    side: 0
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 7
       maxValue: 14
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 11
       maxValue: 24
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 19
       maxValue: 40
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 32
       maxValue: 67
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 55
       maxValue: 113
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 8
     tierSpread: 0.35
   - statType: 27
     displayName: Increased Ignite Damage
     allowedSlots: 000000000100000007000000i
     groups: []
+    side: 0
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 7
       maxValue: 14
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 11
       maxValue: 24
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 19
       maxValue: 40
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 32
       maxValue: 67
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 55
       maxValue: 113
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 8
     tierSpread: 0.35
   - statType: 28
     displayName: Increased Bleed Damage
     allowedSlots: 03000000000000000100000007000000i
     groups: []
+    side: 0
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 7
       maxValue: 14
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 11
       maxValue: 24
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 19
       maxValue: 40
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 32
       maxValue: 67
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 55
       maxValue: 113
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 8
     tierSpread: 0.35
   - statType: 29
     displayName: More Poison Damage
     allowedSlots: 03000000040000000100000007000000i
     groups: []
+    side: 0
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 2
       maxValue: 4
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 3
       maxValue: 6
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 4
       maxValue: 9
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 6
       maxValue: 13
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 10
       maxValue: 20
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 30
     displayName: More Ignite Damage
     allowedSlots: 000000000100000007000000i
     groups: []
+    side: 0
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 2
       maxValue: 4
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 3
       maxValue: 6
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 4
       maxValue: 9
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 6
       maxValue: 13
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 10
       maxValue: 20
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 31
     displayName: More Bleed Damage
     allowedSlots: 03000000000000000100000007000000i
     groups: []
+    side: 0
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 2
       maxValue: 4
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 3
       maxValue: 6
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 4
       maxValue: 9
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 6
       maxValue: 13
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 10
       maxValue: 20
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 32
     displayName: Chance to Poison
     allowedSlots: 03000000040000000100000007000000i
     groups: []
+    side: 1
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 14
       maxValue: 28
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 21
       maxValue: 44
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 33
       maxValue: 69
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 52
       maxValue: 109
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 82
       maxValue: 170
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 33
     displayName: Chance to Ignite
     allowedSlots: 000000000100000007000000i
     groups: []
+    side: 1
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 14
       maxValue: 28
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 21
       maxValue: 44
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 33
       maxValue: 69
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 52
       maxValue: 109
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 82
       maxValue: 170
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 34
     displayName: Chance to Bleed
     allowedSlots: 03000000000000000100000007000000i
     groups: []
+    side: 1
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 14
       maxValue: 28
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 21
       maxValue: 44
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 33
       maxValue: 69
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 52
       maxValue: 109
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 82
       maxValue: 170
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 35
     displayName: Poison Speed
     allowedSlots: 03000000040000000100000007000000i
     groups: []
+    side: 0
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 1
       maxValue: 1
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 1
       maxValue: 2
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 1
       maxValue: 3
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 2
       maxValue: 5
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 3
       maxValue: 7
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 5
     tierSpread: 0.35
   - statType: 36
     displayName: Ignite Speed
     allowedSlots: 000000000100000007000000i
     groups: []
+    side: 0
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 1
       maxValue: 1
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 1
       maxValue: 2
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 1
       maxValue: 3
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 2
       maxValue: 5
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 3
       maxValue: 7
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 5
     tierSpread: 0.35
   - statType: 37
     displayName: Bleed Speed
     allowedSlots: 03000000000000000100000007000000i
     groups: []
+    side: 0
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 1
       maxValue: 1
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 1
       maxValue: 2
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 1
       maxValue: 3
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 2
       maxValue: 5
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 3
       maxValue: 7
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 5
     tierSpread: 0.35
   - statType: 38
     displayName: Poison Duration
     allowedSlots: 03000000040000000100000007000000i
     groups: []
+    side: 1
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 1
       maxValue: 1
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 1
       maxValue: 1
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 1
       maxValue: 1
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 1
       maxValue: 2
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 1
       maxValue: 2
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 5
     tierSpread: 0.35
   - statType: 39
     displayName: Ignite Duration
     allowedSlots: 000000000100000007000000i
     groups: []
+    side: 1
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 1
       maxValue: 1
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 1
       maxValue: 1
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 1
       maxValue: 1
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 1
       maxValue: 2
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 1
       maxValue: 2
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 5
     tierSpread: 0.35
   - statType: 40
     displayName: Bleed Duration
     allowedSlots: 03000000000000000100000007000000i
     groups: []
+    side: 1
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 1
       maxValue: 1
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 1
       maxValue: 1
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 1
       maxValue: 1
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 1
       maxValue: 2
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 1
       maxValue: 2
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 5
     tierSpread: 0.35
   - statType: 41
     displayName: Poison Penetration
     allowedSlots: 03000000040000000100000007000000i
     groups: []
+    side: 0
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 2
       maxValue: 4
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 3
       maxValue: 6
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 5
       maxValue: 9
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 8
       maxValue: 13
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 12
       maxValue: 19
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 4
     tierSpread: 0.35
   - statType: 42
     displayName: Ignite Penetration
     allowedSlots: 000000000100000007000000i
     groups: []
+    side: 0
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 3
       maxValue: 5
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 4
       maxValue: 8
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 7
       maxValue: 12
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 10
       maxValue: 17
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 16
       maxValue: 25
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 4
     tierSpread: 0.35
   - statType: 43
     displayName: Bleed Penetration
     allowedSlots: 03000000000000000100000007000000i
     groups: []
+    side: 0
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 2
       maxValue: 4
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 3
       maxValue: 6
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 5
       maxValue: 9
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 8
       maxValue: 13
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 12
       maxValue: 19
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 4
     tierSpread: 0.35
   - statType: 44
     displayName: Chance to Shock
     allowedSlots: 040000000500000007000000i
     groups: []
+    side: 1
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 7
       maxValue: 14
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 10
       maxValue: 20
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 14
       maxValue: 28
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 19
       maxValue: 40
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 27
       maxValue: 57
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 4
     tierSpread: 0.35
   - statType: 45
     displayName: Chance to Chill
     allowedSlots: 040000000500000007000000i
     groups: []
+    side: 1
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 7
       maxValue: 14
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 10
       maxValue: 20
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 14
       maxValue: 28
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 19
       maxValue: 40
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 27
       maxValue: 57
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 4
     tierSpread: 0.35
   - statType: 46
     displayName: Shock Effect
     allowedSlots: 040000000500000007000000i
     groups: []
+    side: 0
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 3
       maxValue: 7
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 5
       maxValue: 10
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 6
       maxValue: 13
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 9
       maxValue: 19
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 13
       maxValue: 27
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 4
     tierSpread: 0.35
   - statType: 47
     displayName: Chill Effect
     allowedSlots: 040000000500000007000000i
     groups: []
+    side: 0
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 3
       maxValue: 7
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 5
       maxValue: 10
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 6
       maxValue: 13
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 9
       maxValue: 19
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 13
       maxValue: 27
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 4
     tierSpread: 0.35
   - statType: 48
     displayName: Shock Duration
     allowedSlots: 040000000500000007000000i
     groups: []
+    side: 1
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 1
       maxValue: 1
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 1
       maxValue: 1
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 1
       maxValue: 1
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 1
       maxValue: 2
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 1
       maxValue: 2
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 4
     tierSpread: 0.35
   - statType: 49
     displayName: Chill Duration
     allowedSlots: 040000000500000007000000i
     groups: []
+    side: 1
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 1
       maxValue: 1
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 1
       maxValue: 1
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 1
       maxValue: 1
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 1
       maxValue: 2
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 1
       maxValue: 2
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 4
     tierSpread: 0.35
   - statType: 50
     displayName: Added Armour
     allowedSlots: 03000000000000000200000004000000i
     groups: []
+    side: 0
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 26
       maxValue: 54
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 41
       maxValue: 85
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 64
       maxValue: 132
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 100
       maxValue: 207
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 156
       maxValue: 324
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 51
     displayName: Added Evasion
     allowedSlots:
     groups: []
+    side: 0
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 26
       maxValue: 54
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 41
       maxValue: 85
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 64
       maxValue: 132
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 100
       maxValue: 207
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 156
       maxValue: 324
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 52
     displayName: Increased Armour
     allowedSlots: 03000000000000000200000004000000i
     groups: []
+    side: 0
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 8
       maxValue: 17
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 11
       maxValue: 24
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 16
       maxValue: 34
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 23
       maxValue: 48
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 32
       maxValue: 67
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 4
     tierSpread: 0.35
   - statType: 53
     displayName: Increased Evasion
     allowedSlots:
     groups: []
+    side: 0
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 8
       maxValue: 17
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 11
       maxValue: 24
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 16
       maxValue: 34
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 23
       maxValue: 48
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 32
       maxValue: 67
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 4
     tierSpread: 0.35
   - statType: 54
     displayName: Cold Resistance
     allowedSlots: 03000000000000000200000004000000050000000100000006000000i
     groups: []
+    side: 1
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 3
       maxValue: 7
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 5
       maxValue: 11
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 8
       maxValue: 17
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 12
       maxValue: 26
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 20
       maxValue: 40
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 55
     displayName: Lightning Resistance
     allowedSlots: 03000000000000000200000004000000050000000100000006000000i
     groups: []
+    side: 1
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 3
       maxValue: 7
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 5
       maxValue: 11
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 8
       maxValue: 17
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 12
       maxValue: 26
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 20
       maxValue: 40
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 56
     displayName: Fire Resistance
     allowedSlots: 03000000000000000200000004000000050000000100000006000000i
     groups: []
+    side: 1
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 3
       maxValue: 7
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 5
       maxValue: 11
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 8
       maxValue: 17
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 12
       maxValue: 26
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 20
       maxValue: 40
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 57
     displayName: All Elemental Resistance
     allowedSlots: 00000000020000000500000006000000i
     groups: []
+    side: 1
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 2
       maxValue: 4
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 3
       maxValue: 6
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 4
       maxValue: 8
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 6
       maxValue: 11
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 8
       maxValue: 16
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 4
     tierSpread: 0.35
   - statType: 58
     displayName: Maximum Cold Resistance
     allowedSlots: 0000000002000000i
     groups: []
+    side: 0
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 1
       maxValue: 1
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 1
       maxValue: 2
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 2
       maxValue: 3
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 2
       maxValue: 5
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 4
       maxValue: 8
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 59
     displayName: Maximum Lightning Resistance
     allowedSlots: 0000000002000000i
     groups: []
+    side: 0
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 1
       maxValue: 1
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 1
       maxValue: 2
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 2
       maxValue: 3
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 2
       maxValue: 5
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 4
       maxValue: 8
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 60
     displayName: Maximum Fire Resistance
     allowedSlots: 0000000002000000i
     groups: []
+    side: 0
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 1
       maxValue: 1
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 1
       maxValue: 2
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 2
       maxValue: 3
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 2
       maxValue: 5
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 4
       maxValue: 8
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 61
     displayName: Maximum All Resistance
     allowedSlots: 0200000006000000i
     groups: []
+    side: 0
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 1
       maxValue: 1
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 1
       maxValue: 2
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 1
       maxValue: 3
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 2
       maxValue: 4
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 3
       maxValue: 5
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 4
     tierSpread: 0.35
   - statType: 62
     displayName: Poison Resistance
     allowedSlots: 000000000200000004000000i
     groups: []
+    side: 0
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 3
       maxValue: 7
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 5
       maxValue: 11
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 8
       maxValue: 17
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 12
       maxValue: 26
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 20
       maxValue: 40
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 63
     displayName: Ignite Resistance
     allowedSlots: 000000000200000004000000i
     groups: []
+    side: 0
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 3
       maxValue: 7
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 5
       maxValue: 11
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 8
       maxValue: 17
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 12
       maxValue: 26
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 20
       maxValue: 40
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 64
     displayName: Bleed Resistance
     allowedSlots: 000000000200000004000000i
     groups: []
+    side: 0
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 3
       maxValue: 7
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 5
       maxValue: 11
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 8
       maxValue: 17
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 12
       maxValue: 26
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 20
       maxValue: 40
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 65
     displayName: Shock Resistance
     allowedSlots: 000000000200000004000000i
     groups: []
+    side: 0
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 3
       maxValue: 7
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 5
       maxValue: 11
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 8
       maxValue: 17
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 12
       maxValue: 26
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 20
       maxValue: 40
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 66
     displayName: Chill Resistance
     allowedSlots: 000000000200000004000000i
     groups: []
+    side: 0
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 3
       maxValue: 7
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 5
       maxValue: 11
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 8
       maxValue: 17
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 12
       maxValue: 26
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 20
       maxValue: 40
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 67
     displayName: All Ailment Resistance
     allowedSlots: 02000000i
     groups: []
+    side: 0
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 2
       maxValue: 5
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 3
       maxValue: 7
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 5
       maxValue: 9
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 6
       maxValue: 13
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 9
       maxValue: 19
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 4
     tierSpread: 0.35
   - statType: 68
     displayName: Added Life
     allowedSlots: 03000000000000000200000004000000050000000100000006000000i
     groups: []
+    side: 0
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 120
       maxValue: 250
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 237
       maxValue: 492
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 466
       maxValue: 967
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 917
       maxValue: 1904
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 1804
       maxValue: 3746
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 15
     tierSpread: 0.35
   - statType: 69
     displayName: Added Mana
     allowedSlots: 03000000000000000200000004000000050000000100000006000000i
     groups: []
+    side: 0
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 58
       maxValue: 122
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 115
       maxValue: 239
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 227
       maxValue: 471
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 446
       maxValue: 926
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 878
       maxValue: 1822
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 15
     tierSpread: 0.35
   - statType: 70
     displayName: Increased Life
     allowedSlots: 02000000i
     groups: []
+    side: 0
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 3
       maxValue: 7
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 5
       maxValue: 11
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 8
       maxValue: 17
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 12
       maxValue: 26
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 20
       maxValue: 40
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 71
     displayName: Increased Mana
     allowedSlots: 0200000004000000i
     groups: []
+    side: 0
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 4
       maxValue: 8
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 6
       maxValue: 13
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 9
       maxValue: 19
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 14
       maxValue: 29
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 21
       maxValue: 44
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 72
     displayName: Life Regeneration
     allowedSlots: 0000000002000000i
     groups: []
+    side: 0
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 2
       maxValue: 4
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 3
       maxValue: 7
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 5
       maxValue: 10
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 8
       maxValue: 16
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 12
       maxValue: 25
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 73
     displayName: Mana Regeneration
     allowedSlots: 000000000200000004000000i
     groups: []
+    side: 0
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 2
       maxValue: 4
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 3
       maxValue: 7
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 5
       maxValue: 10
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 8
       maxValue: 16
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 12
       maxValue: 25
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 74
     displayName: Life on Hit
     allowedSlots: 02000000i
     groups: []
+    side: 1
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 8
       maxValue: 17
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 13
       maxValue: 26
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 20
       maxValue: 41
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 31
       maxValue: 64
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 48
       maxValue: 100
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 75
     displayName: Mana on Hit
     allowedSlots: 0200000004000000i
     groups: []
+    side: 1
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 4
       maxValue: 8
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 6
       maxValue: 13
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 10
       maxValue: 21
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 16
       maxValue: 32
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 24
       maxValue: 50
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 76
     displayName: Life on Kill
     allowedSlots: 02000000i
     groups: []
+    side: 1
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 15
       maxValue: 31
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 24
       maxValue: 49
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 38
       maxValue: 79
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 59
       maxValue: 123
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 93
       maxValue: 193
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 77
     displayName: Mana on Kill
     allowedSlots: 0200000004000000i
     groups: []
+    side: 1
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 7
       maxValue: 15
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 12
       maxValue: 24
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 19
       maxValue: 39
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 29
       maxValue: 61
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 46
       maxValue: 95
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 78
     displayName: Damage per 100 Maximum Mana
     allowedSlots: 04000000i
     groups: []
+    side: 0
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 1
       maxValue: 1
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 1.5
       maxValue: 1.5
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 2
       maxValue: 2
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 2.5
       maxValue: 2.5
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 3
       maxValue: 3
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 79
     displayName: Damage per 100 Current Mana
     allowedSlots: 04000000i
     groups: []
+    side: 0
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 2
       maxValue: 2
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 3
       maxValue: 3
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 4
       maxValue: 4
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 5
       maxValue: 5
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 6
       maxValue: 6
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 80
     displayName: 
     allowedSlots:
     groups: []
+    side: 0
     tiers: []
     tierTopMultiplier: 6
     tierSpread: 0.35
@@ -2584,102 +3865,151 @@ MonoBehaviour:
     displayName: Increased Attack Speed
     allowedSlots: 03000000050000000100000007000000i
     groups: []
+    side: 1
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 2
       maxValue: 5
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 4
       maxValue: 8
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 6
       maxValue: 12
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 9
       maxValue: 18
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 13
       maxValue: 27
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 82
     displayName: Accuracy
     allowedSlots:
     groups: []
+    side: 0
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 7
       maxValue: 14
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 11
       maxValue: 24
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 19
       maxValue: 40
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 32
       maxValue: 67
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 55
       maxValue: 113
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 83
     displayName: Chance to Hit Twice
     allowedSlots: 010000000600000007000000i
     groups: []
+    side: 1
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 1
       maxValue: 2
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 2
       maxValue: 4
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 3
       maxValue: 6
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 5
       maxValue: 9
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 7
       maxValue: 13
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 84
     displayName: 
     allowedSlots:
     groups: []
+    side: 0
     tiers: []
     tierTopMultiplier: 6
     tierSpread: 0.35
@@ -2687,602 +4017,887 @@ MonoBehaviour:
     displayName: +1 Physical Skill Level
     allowedSlots: 01000000i
     groups: []
+    side: 0
     tiers:
     - tierIndex: 1
       minValue: 1
       maxValue: 1
       minItemLevel: 40
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 86
     displayName: +1 Fire Skill Level
     allowedSlots: 01000000i
     groups: []
+    side: 0
     tiers:
     - tierIndex: 1
       minValue: 1
       maxValue: 1
       minItemLevel: 40
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 87
     displayName: +1 Cold Skill Level
     allowedSlots: 01000000i
     groups: []
+    side: 0
     tiers:
     - tierIndex: 1
       minValue: 1
       maxValue: 1
       minItemLevel: 40
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 88
     displayName: +1 Lightning Skill Level
     allowedSlots: 01000000i
     groups: []
+    side: 0
     tiers:
     - tierIndex: 1
       minValue: 1
       maxValue: 1
       minItemLevel: 40
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 89
     displayName: +1 Poison Skill Level
     allowedSlots: 01000000i
     groups: []
+    side: 0
     tiers:
     - tierIndex: 1
       minValue: 1
       maxValue: 1
       minItemLevel: 40
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 90
     displayName: +1 Bleed Skill Level
     allowedSlots: 01000000i
     groups: []
+    side: 0
     tiers:
     - tierIndex: 1
       minValue: 1
       maxValue: 1
       minItemLevel: 40
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 91
     displayName: +1 Ignite Skill Level
     allowedSlots: 01000000i
     groups: []
+    side: 0
     tiers:
     - tierIndex: 1
       minValue: 1
       maxValue: 1
       minItemLevel: 40
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 92
     displayName: Strength
     allowedSlots: 03000000000000000200000004000000050000000100000006000000i
     groups: []
+    side: 1
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 3
       maxValue: 6
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 6
       maxValue: 12
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 11
       maxValue: 22
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 20
       maxValue: 40
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 36
       maxValue: 72
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 93
     displayName: Intelligence
     allowedSlots: 03000000000000000200000004000000050000000100000006000000i
     groups: []
+    side: 1
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 3
       maxValue: 6
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 6
       maxValue: 12
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 11
       maxValue: 22
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 20
       maxValue: 40
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 36
       maxValue: 72
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 94
     displayName: Dexterity
     allowedSlots: 03000000000000000200000004000000050000000100000006000000i
     groups: []
+    side: 1
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 3
       maxValue: 6
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 6
       maxValue: 12
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 11
       maxValue: 22
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 20
       maxValue: 40
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 36
       maxValue: 72
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 95
     displayName: Increased Strength
     allowedSlots: 000000000200000006000000i
     groups: []
+    side: 0
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 2
       maxValue: 4
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 3
       maxValue: 6
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 5
       maxValue: 9
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 7
       maxValue: 13
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 10
       maxValue: 19
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 96
     displayName: Increased Intelligence
     allowedSlots: 020000000400000006000000i
     groups: []
+    side: 0
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 2
       maxValue: 4
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 3
       maxValue: 6
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 5
       maxValue: 9
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 7
       maxValue: 13
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 10
       maxValue: 19
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 97
     displayName: Increased Dexterity
     allowedSlots: 030000000200000006000000i
     groups: []
+    side: 0
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 2
       maxValue: 4
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 3
       maxValue: 6
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 5
       maxValue: 9
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 7
       maxValue: 13
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 10
       maxValue: 19
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 98
     displayName: Life per Strength
     allowedSlots: 000000000200000006000000i
     groups: []
+    side: 0
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 1
       maxValue: 2
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 2
       maxValue: 3
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 3
       maxValue: 5
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 4
       maxValue: 7
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 6
       maxValue: 10
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 99
     displayName: Damage per Strength
     allowedSlots: 000000000200000006000000i
     groups: []
+    side: 0
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 0.1
       maxValue: 0.2
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 0.15
       maxValue: 0.3
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 0.25
       maxValue: 0.45
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 0.35
       maxValue: 0.65
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 0.5
       maxValue: 0.9
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 100
     displayName: Mana per Intelligence
     allowedSlots: 020000000400000006000000i
     groups: []
+    side: 0
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 1
       maxValue: 2
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 2
       maxValue: 3
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 3
       maxValue: 5
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 4
       maxValue: 7
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 6
       maxValue: 10
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 101
     displayName: DoT Multiplier per Intelligence
     allowedSlots: 020000000400000006000000i
     groups: []
+    side: 0
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 0.05
       maxValue: 0.1
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 0.08
       maxValue: 0.15
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 0.12
       maxValue: 0.22
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 0.18
       maxValue: 0.32
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 0.25
       maxValue: 0.45
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 102
     displayName: Attack Speed per Dexterity
     allowedSlots: 030000000200000006000000i
     groups: []
+    side: 0
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 0.03
       maxValue: 0.06
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 0.05
       maxValue: 0.09
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 0.07
       maxValue: 0.13
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 0.1
       maxValue: 0.18
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 0.15
       maxValue: 0.25
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 103
     displayName: Accuracy per Dexterity
     allowedSlots:
     groups: []
+    side: 0
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 0.25
       maxValue: 0.5
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 0.4
       maxValue: 0.8
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 0.6
       maxValue: 1.2
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 0.9
       maxValue: 1.8
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 1.3
       maxValue: 2.7
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 104
     displayName: Added Fire Damage per Strength
     allowedSlots: 06000000i
     groups: []
+    side: 0
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 0.05
       maxValue: 0.1
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 0.08
       maxValue: 0.16
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 0.13
       maxValue: 0.25
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 0.2
       maxValue: 0.4
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 0.3
       maxValue: 0.6
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 105
     displayName: Added Lightning Damage per Intelligence
     allowedSlots: 06000000i
     groups: []
+    side: 0
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 0.05
       maxValue: 0.1
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 0.08
       maxValue: 0.16
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 0.13
       maxValue: 0.25
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 0.2
       maxValue: 0.4
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 0.3
       maxValue: 0.6
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 106
     displayName: Added Cold Damage per Dexterity
     allowedSlots: 06000000i
     groups: []
+    side: 0
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 0.05
       maxValue: 0.1
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 0.08
       maxValue: 0.16
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 0.13
       maxValue: 0.25
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 0.2
       maxValue: 0.4
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 0.3
       maxValue: 0.6
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 107
     displayName: Damage per Lowest Attribute
     allowedSlots: 06000000i
     groups: []
+    side: 0
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 0.05
       maxValue: 0.1
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 0.08
       maxValue: 0.16
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 0.13
       maxValue: 0.25
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 0.2
       maxValue: 0.4
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 0.3
       maxValue: 0.6
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 108
     displayName: 
     allowedSlots: 
     groups: []
+    side: 0
     tiers: []
     tierTopMultiplier: 6
     tierSpread: 0.35
@@ -3290,6 +4905,7 @@ MonoBehaviour:
     displayName: 
     allowedSlots: 
     groups: []
+    side: 0
     tiers: []
     tierTopMultiplier: 6
     tierSpread: 0.35
@@ -3297,6 +4913,7 @@ MonoBehaviour:
     displayName: 
     allowedSlots: 
     groups: []
+    side: 0
     tiers: []
     tierTopMultiplier: 6
     tierSpread: 0.35
@@ -3304,6 +4921,7 @@ MonoBehaviour:
     displayName: 
     allowedSlots: 
     groups: []
+    side: 0
     tiers: []
     tierTopMultiplier: 6
     tierSpread: 0.35
@@ -3311,6 +4929,7 @@ MonoBehaviour:
     displayName: 
     allowedSlots: 
     groups: []
+    side: 0
     tiers: []
     tierTopMultiplier: 6
     tierSpread: 0.35
@@ -3318,6 +4937,7 @@ MonoBehaviour:
     displayName: 
     allowedSlots: 
     groups: []
+    side: 0
     tiers: []
     tierTopMultiplier: 6
     tierSpread: 0.35
@@ -3325,191 +4945,287 @@ MonoBehaviour:
     displayName: Added Void Damage
     allowedSlots: 07000000i
     groups: []
+    side: 0
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 5
       maxValue: 11
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 10
       maxValue: 21
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 20
       maxValue: 42
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 40
       maxValue: 82
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 78
       maxValue: 162
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 15
     tierSpread: 0.35
   - statType: 115
     displayName: Increased Void Damage
     allowedSlots: 00000000050000000100000007000000i
     groups: []
+    side: 0
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 7
       maxValue: 14
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 11
       maxValue: 24
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 19
       maxValue: 40
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 32
       maxValue: 67
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 55
       maxValue: 113
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 8
     tierSpread: 0.35
   - statType: 116
     displayName: More Void Damage
     allowedSlots: 00000000050000000100000007000000i
     groups: []
+    side: 0
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 2
       maxValue: 4
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 3
       maxValue: 6
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 4
       maxValue: 9
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 6
       maxValue: 13
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 10
       maxValue: 20
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 117
     displayName: Void Penetration
     allowedSlots: 00000000050000000100000007000000i
     groups: []
+    side: 0
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 2
       maxValue: 4
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 3
       maxValue: 6
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 5
       maxValue: 9
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 8
       maxValue: 13
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 12
       maxValue: 19
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 5
     tierSpread: 0.35
   - statType: 118
     displayName: Void Resistance
     allowedSlots: 03000000000000000200000004000000050000000100000006000000i
     groups: []
+    side: 1
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 3
       maxValue: 7
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 5
       maxValue: 11
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 8
       maxValue: 17
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 12
       maxValue: 26
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 20
       maxValue: 40
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 119
     displayName: Maximum Void Resistance
     allowedSlots: 0000000002000000i
     groups: []
+    side: 0
     tiers:
-    - tierIndex: 1
+    - tierIndex: 5
       minValue: 1
       maxValue: 1
       minItemLevel: 1
       weight: 50
-    - tierIndex: 2
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
       minValue: 1
       maxValue: 2
       minItemLevel: 20
       weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     - tierIndex: 3
       minValue: 2
       maxValue: 3
       minItemLevel: 40
       weight: 20
-    - tierIndex: 4
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
       minValue: 2
       maxValue: 5
       minItemLevel: 60
       weight: 10
-    - tierIndex: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
       minValue: 4
       maxValue: 8
       minItemLevel: 75
       weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     tierTopMultiplier: 6
     tierSpread: 0.35

@@ -13,7 +13,8 @@ using UnityEngine;
     public float baseDamage,baseAttackSpeed,baseCritChance; public List<RolledMod> mods=new();
     public static GearSaveData Capture(Gear gear){var d=new GearSaveData{type=gear.ItemType,rarity=gear.ItemRarity,itemLevel=gear.ItemLevel,element=gear.BaseElement,baseDamage=gear.BaseDamage,baseAttackSpeed=gear.BaseAttackSpeed,baseCritChance=gear.BaseCritChance};foreach(var m in gear.rolledMods)if(m!=null)d.mods.Add(Clone(m));return d;}
     public Gear Create(string name="Loaded Gear")=>GearSnapshotData.FromLegacy(this,Guid.NewGuid().ToString("N")).Create(name);
-    static RolledMod Clone(RolledMod m)=>new(m.statType,m.tierIndex,m.value,m.lockedOriginal);
+    static RolledMod Clone(RolledMod m)=>new(m.statType,m.tierIndex,m.value,m.HighValue,m.lockedOriginal)
+        {hasSecondaryValue=m.hasSecondaryValue};
 }
 [Serializable] public sealed class EquippedGearSaveData{public LootManager.GearType slot;public GearSaveData gear;}
 [Serializable] public sealed class GameSaveData
@@ -38,25 +39,26 @@ using UnityEngine;
 [Serializable] public sealed class GearSnapshotData
 {
     public string id; public LootManager.GearType type; public LootManager.GearRarity rarity; public int itemLevel; public Element element;
-    public float baseDamage,baseAttackSpeed,baseCritChance; public List<RolledMod> mods=new();
-    public static GearSnapshotData Capture(Gear gear){var d=new GearSnapshotData{id=gear.PersistentId,type=gear.ItemType,rarity=gear.ItemRarity,itemLevel=gear.ItemLevel,element=gear.BaseElement,baseDamage=gear.BaseDamage,baseAttackSpeed=gear.BaseAttackSpeed,baseCritChance=gear.BaseCritChance};foreach(var m in gear.rolledMods)if(m!=null)d.mods.Add(Clone(m));return d;}
-    public static GearSnapshotData FromLegacy(GearSaveData old,string stableId){var d=new GearSnapshotData{id=stableId,type=old.type,rarity=old.rarity,itemLevel=old.itemLevel,element=old.element,baseDamage=old.baseDamage,baseAttackSpeed=old.baseAttackSpeed,baseCritChance=old.baseCritChance};if(old.mods!=null)foreach(var m in old.mods)if(m!=null)d.mods.Add(Clone(m));return d;}
+    public float baseDamage,baseDamageMin,baseDamageMax,baseAttackSpeed,baseCritChance; public bool legacyAffixRules; public List<RolledMod> mods=new();
+    public static GearSnapshotData Capture(Gear gear){var d=new GearSnapshotData{id=gear.PersistentId,type=gear.ItemType,rarity=gear.ItemRarity,itemLevel=gear.ItemLevel,element=gear.BaseElement,baseDamage=gear.BaseDamage,baseDamageMin=gear.BaseDamageMin>0||gear.BaseDamageMax>0?gear.BaseDamageMin:gear.BaseDamage,baseDamageMax=gear.BaseDamageMin>0||gear.BaseDamageMax>0?gear.BaseDamageMax:gear.BaseDamage,baseAttackSpeed=gear.BaseAttackSpeed,baseCritChance=gear.BaseCritChance,legacyAffixRules=gear.LegacyAffixRules};foreach(var m in gear.rolledMods)if(m!=null)d.mods.Add(Clone(m));return d;}
+    public static GearSnapshotData FromLegacy(GearSaveData old,string stableId){var d=new GearSnapshotData{id=stableId,type=old.type,rarity=old.rarity,itemLevel=old.itemLevel,element=old.element,baseDamage=old.baseDamage,baseDamageMin=old.baseDamage,baseDamageMax=old.baseDamage,baseAttackSpeed=old.baseAttackSpeed,baseCritChance=old.baseCritChance,legacyAffixRules=true};if(old.mods!=null)foreach(var m in old.mods)if(m!=null)d.mods.Add(Clone(m));return d;}
     public Gear Create(string name="Loaded Gear")
     {
-        var go=new GameObject(name);var gear=go.AddComponent<Gear>();gear.Initialize(type,rarity,Mathf.Max(1,itemLevel),element);gear.RestorePersistentId(id);
+        var go=new GameObject(name);var gear=go.AddComponent<Gear>();gear.Initialize(type,rarity,Mathf.Max(1,itemLevel),element);gear.RestorePersistentId(id);gear.RestoreLegacyAffixRules(legacyAffixRules);
         var copies=new List<RolledMod>();if(mods!=null)foreach(var m in mods)if(m!=null)copies.Add(Clone(m));gear.ApplyMods(copies);gear.SetRarity(rarity);
-        if(!copies.Exists(m=>m.statType==StatTypes.WeaponBaseDmg))gear.BaseDamage=baseDamage;if(!copies.Exists(m=>m.statType==StatTypes.WeaponBaseAttackSpeed))gear.BaseAttackSpeed=baseAttackSpeed;if(!copies.Exists(m=>m.statType==StatTypes.WeaponBaseCrit))gear.BaseCritChance=baseCritChance;return gear;
+        if(!copies.Exists(m=>m.statType==StatTypes.WeaponBaseDmg)){gear.BaseDamage=baseDamage;gear.BaseDamageMin=baseDamageMin;gear.BaseDamageMax=baseDamageMax;}if(!copies.Exists(m=>m.statType==StatTypes.WeaponBaseAttackSpeed))gear.BaseAttackSpeed=baseAttackSpeed;if(!copies.Exists(m=>m.statType==StatTypes.WeaponBaseCrit))gear.BaseCritChance=baseCritChance;return gear;
     }
-    static RolledMod Clone(RolledMod m)=>new(m.statType,m.tierIndex,m.value,m.lockedOriginal);
+    static RolledMod Clone(RolledMod m)=>new(m.statType,m.tierIndex,m.value,m.HighValue,m.lockedOriginal)
+        {hasSecondaryValue=m.hasSecondaryValue};
 }
 public enum SaveLoadSource{None,Primary,Backup,LegacyV1}
 
 public static class GamePersistence
 {
-    public const string SaveKey="BlackCube.Save.V1"; public const int SchemaVersion=2;
+    public const string SaveKey="BlackCube.Save.V1"; public const int SchemaVersion=3;
     public const string PrimaryFileName="current-save.json",BackupFileName="current-save.json.bak",TemporaryFileName="current-save.json.tmp";
     public const float AutosaveDebounceSeconds=2f;
-    static bool loadRequested,confirmedNewGameRequested,restoring,dirty,hasEncounterCheckpoint; static float dirtySince,encounterStartLife,encounterStartMana;
+    static bool loadRequested,confirmedNewGameRequested,restoring,dirty,hasEncounterCheckpoint,pendingSchemaMigration; static float dirtySince,encounterStartLife,encounterStartMana;
     static string runId,saveDirectoryOverride; static int runSeed;
     public static string SaveDirectoryOverride{get=>saveDirectoryOverride;set=>saveDirectoryOverride=value;}
     public static string SaveDirectory=>string.IsNullOrWhiteSpace(saveDirectoryOverride)?Application.persistentDataPath:saveDirectoryOverride;
@@ -89,7 +91,8 @@ public static class GamePersistence
         try
         {
             if(!ApplyEnvelope(e,out error))throw new InvalidOperationException(error);runId=e.runId;runSeed=e.runSeed;hasEncounterCheckpoint=true;encounterStartLife=e.payload.encounterStartLife;encounterStartMana=e.payload.encounterStartMana;
-            if(source==SaveLoadSource.LegacyV1&&!WriteEnvelope(e,false,out error))throw new IOException("Legacy restore succeeded but migration commit failed: "+error);
+            if((source==SaveLoadSource.LegacyV1||pendingSchemaMigration)&&!WriteEnvelope(e,false,out error))throw new IOException("Restore succeeded but migration commit failed: "+error);
+            pendingSchemaMigration=false;
             restoring=false;
             LastLoadSource=source;LastError=null;dirty=false;if(source==SaveLoadSource.Backup)Debug.LogWarning("GamePersistence: primary invalid; restored backup.");if(source==SaveLoadSource.LegacyV1)Debug.Log("GamePersistence: migrated PlayerPrefs V1.");return true;
         }
@@ -122,8 +125,29 @@ public static class GamePersistence
     static bool ValidateGear(GameStatePayload p,out string error)
     {
         error=null;if(p.gearItems==null||p.inventoryGearIds==null||p.equippedGear==null)return Fail("Gear collections are missing.",out error);var ids=new HashSet<string>();var owned=new HashSet<string>();var slots=new HashSet<LootManager.GearType>();
-        foreach(var g in p.gearItems){if(g==null||string.IsNullOrWhiteSpace(g.id)||!ids.Add(g.id))return Fail("Gear IDs must be unique.",out error);if(!Enum.IsDefined(typeof(LootManager.GearType),g.type)||!Enum.IsDefined(typeof(LootManager.GearRarity),g.rarity)||!Enum.IsDefined(typeof(Element),g.element)||g.element==Element.Count||g.itemLevel<1||g.itemLevel>1000000||!Finite(g.baseDamage)||!Finite(g.baseAttackSpeed)||!Finite(g.baseCritChance)||g.baseDamage<0||g.baseAttackSpeed<0||g.baseCritChance<0)return Fail("Gear base data is invalid.",out error);if(g.mods==null)return Fail("Gear modifiers are missing.",out error);foreach(var m in g.mods)if(m==null||!Enum.IsDefined(typeof(StatTypes),m.statType)||m.tierIndex<1||m.tierIndex>5||!Finite(m.value)||!ValidGearModifier(g.type,m.statType))return Fail("Gear modifier is invalid.",out error);}
+        foreach(var g in p.gearItems){if(g==null||string.IsNullOrWhiteSpace(g.id)||!ids.Add(g.id))return Fail("Gear IDs must be unique.",out error);if(!Enum.IsDefined(typeof(LootManager.GearType),g.type)||!Enum.IsDefined(typeof(LootManager.GearRarity),g.rarity)||!Enum.IsDefined(typeof(Element),g.element)||g.element==Element.Count||g.itemLevel<1||g.itemLevel>1000000||!Finite(g.baseDamage)||!Finite(g.baseDamageMin)||!Finite(g.baseDamageMax)||!Finite(g.baseAttackSpeed)||!Finite(g.baseCritChance)||g.baseDamage<0||g.baseDamageMin<0||g.baseDamageMax<g.baseDamageMin||g.baseAttackSpeed<0||g.baseCritChance<0)return Fail("Gear base data is invalid.",out error);if(g.mods==null)return Fail("Gear modifiers are missing.",out error);foreach(var m in g.mods)if(m==null||!Enum.IsDefined(typeof(StatTypes),m.statType)||m.tierIndex<1||m.tierIndex>20||!Finite(m.value)||!Finite(m.secondaryValue)||m.hasSecondaryValue&&m.secondaryValue<m.value||!ValidGearModifier(g.type,m.statType))return Fail("Gear modifier is invalid.",out error);if(!g.legacyAffixRules&&!ValidateCurrentAffixes(g))return Fail("Gear affix tier, slot, family or side capacity is invalid.",out error);}
         foreach(string id in p.inventoryGearIds)if(string.IsNullOrWhiteSpace(id)||!ids.Contains(id)||!owned.Add(id))return Fail("Inventory ownership is invalid.",out error);foreach(var x in p.equippedGear)if(x==null||!Enum.IsDefined(typeof(LootManager.GearType),x.slot)||string.IsNullOrWhiteSpace(x.gearId)||!ids.Contains(x.gearId)||!owned.Add(x.gearId)||!slots.Add(x.slot))return Fail("Equipped ownership is invalid.",out error);return owned.Count==ids.Count||Fail("Every gear item must have one owner.",out error);
+    }
+    static bool ValidateCurrentAffixes(GearSnapshotData gear)
+    {
+        int total=0,prefix=0,suffix=0;var families=new HashSet<StatTypes>();
+        foreach(var mod in gear.mods)
+        {
+            if(Gear.IsWeaponBaseStat(mod.statType))continue;
+            total++;
+            if(!families.Add(mod.statType))return false;
+            if(AffixPolicy.Side(mod.statType)==AffixSide.Prefix)prefix++;else suffix++;
+            if(PoedbAffixCatalog.TryGet(mod.statType,gear.type,out var tiers))
+            {
+                AffixTier tier=tiers.Find(t=>t.tierIndex==mod.tierIndex&&t.minItemLevel<=gear.itemLevel);
+                if(tier==null||mod.value<tier.minValue-.001f||mod.value>tier.maxValue+.001f)return false;
+                if(tier.pairedDamage&&(!mod.hasSecondaryValue||mod.HighValue<tier.minHighValue-.001f
+                    ||mod.HighValue>tier.maxHighValue+.001f))return false;
+            }
+        }
+        return total<=AffixPolicy.MaximumTotal(gear.rarity)
+            && prefix<=AffixPolicy.MaximumOnSide(gear.rarity)
+            && suffix<=AffixPolicy.MaximumOnSide(gear.rarity);
     }
     static bool ValidateCurrencies(List<CurrencyStackData> list,out string error){error=null;if(list==null)return Fail("Currency collection is missing.",out error);var seen=new HashSet<CraftingCurrencyType>();foreach(var x in list)if(!Enum.IsDefined(typeof(CraftingCurrencyType),x.type)||x.amount<=0||!seen.Add(x.type))return Fail("Currency stack is invalid.",out error);return true;}
     static bool ValidateRelics(GameStatePayload p,out string error)
@@ -134,10 +158,25 @@ public static class GamePersistence
     }
     public static bool TryReadBestEnvelope(out SaveEnvelope e,out SaveLoadSource source,out string error)
     {
-        e=null;source=SaveLoadSource.None;var failures=new List<string>();if(File.Exists(PrimaryPath)){if(TryReadFile(PrimaryPath,out e,out var x)){source=SaveLoadSource.Primary;error=null;return true;}failures.Add("primary: "+x);}if(File.Exists(BackupPath)){if(TryReadFile(BackupPath,out e,out var x)){source=SaveLoadSource.Backup;error=null;return true;}failures.Add("backup: "+x);}
+        e=null;source=SaveLoadSource.None;pendingSchemaMigration=false;var failures=new List<string>();if(File.Exists(PrimaryPath)){if(TryReadFile(PrimaryPath,out e,out var x)){source=SaveLoadSource.Primary;error=null;return true;}failures.Add("primary: "+x);}if(File.Exists(BackupPath)){if(TryReadFile(BackupPath,out e,out var x)){source=SaveLoadSource.Backup;error=null;return true;}failures.Add("backup: "+x);}
         if(!File.Exists(PrimaryPath)&&!File.Exists(BackupPath)&&PlayerPrefs.HasKey(SaveKey)){if(TryMigrateLegacy(PlayerPrefs.GetString(SaveKey),out e,out var x)){source=SaveLoadSource.LegacyV1;error=null;return true;}failures.Add("legacy: "+x);}error=failures.Count==0?"No gameplay save exists.":"No valid save: "+string.Join("; ",failures);return false;
     }
-    public static bool TryReadFile(string path,out SaveEnvelope e,out string error){e=null;error=null;try{string json=File.ReadAllText(path,Encoding.UTF8);if(string.IsNullOrWhiteSpace(json))return Fail("File is empty.",out error);e=JsonUtility.FromJson<SaveEnvelope>(json);return ValidateEnvelope(e,out error);}catch(Exception ex){return Fail(ex.Message,out error);}}
+    public static bool TryReadFile(string path,out SaveEnvelope e,out string error){e=null;error=null;try{string json=File.ReadAllText(path,Encoding.UTF8);if(string.IsNullOrWhiteSpace(json))return Fail("File is empty.",out error);e=JsonUtility.FromJson<SaveEnvelope>(json);bool migrated=e?.schemaVersion==2;if(migrated)MigrateSchema2(e);bool valid=ValidateEnvelope(e,out error);pendingSchemaMigration=valid&&migrated;return valid;}catch(Exception ex){pendingSchemaMigration=false;return Fail(ex.Message,out error);}}
+    static void MigrateSchema2(SaveEnvelope e)
+    {
+        if(e.payload?.gearItems!=null)foreach(var gear in e.payload.gearItems)
+        {
+            if(gear==null)continue;
+            gear.baseDamageMin=gear.baseDamageMax=gear.baseDamage;
+            gear.legacyAffixRules=true;
+            if(gear.mods!=null)foreach(var mod in gear.mods)if(mod!=null)
+            {
+                mod.hasSecondaryValue=false;
+                mod.secondaryValue=mod.value;
+            }
+        }
+        e.schemaVersion=SchemaVersion;
+    }
     public static bool TryMigrateLegacy(string json,out SaveEnvelope e,out string error)
     {
         e=null;error=null;try{if(string.IsNullOrWhiteSpace(json))return Fail("Legacy JSON is empty.",out error);var old=JsonUtility.FromJson<GameSaveData>(json);if(old==null||old.version!=1)return Fail("Legacy version is not V1.",out error);old.inventory??=new();old.equipped??=new();old.currencies??=new();old.relics??=new();string id=Guid.NewGuid().ToString("N");var p=new GameStatePayload{encounterStartLife=100,encounterStartMana=100,relicCycle=Mathf.Max(0,old.relicCycle)};
@@ -170,7 +209,7 @@ public static class GamePersistence
         while(queue.Count>0){int current=queue.Dequeue();foreach(int adjacent in PassiveTreeDefinition.AdjacentNodeIds(current))if(allocated.Contains(adjacent)&&reached.Add(adjacent))queue.Enqueue(adjacent);}return reached.Count==allocated.Count;
     }
     static double RequirementAt(int level){const double x=300d,y=619d;return level<100?Math.Max(1d,Math.Round(x*Math.Pow(y/x,(level-10)/6d))):0d;}
-    public static void ResetStaticStateForTests(){loadRequested=confirmedNewGameRequested=restoring=dirty=hasEncounterCheckpoint=false;runId=null;runSeed=0;encounterStartLife=encounterStartMana=dirtySince=0;LastError=null;LastLoadSource=SaveLoadSource.None;}
+    public static void ResetStaticStateForTests(){loadRequested=confirmedNewGameRequested=restoring=dirty=hasEncounterCheckpoint=pendingSchemaMigration=false;runId=null;runSeed=0;encounterStartLife=encounterStartMana=dirtySince=0;LastError=null;LastLoadSource=SaveLoadSource.None;}
 }
 public sealed class GamePersistenceHost:MonoBehaviour
 {

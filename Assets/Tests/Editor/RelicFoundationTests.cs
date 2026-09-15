@@ -37,6 +37,27 @@ public sealed class RelicFoundationTests
     }
 
     [Test]
+    public void SelectedSkillLevelRelicAffectsOnlyEquippedActiveSkill()
+    {
+        var relics=Track(new GameObject("relics",typeof(RelicInventory))).GetComponent<RelicInventory>();
+        SetInstance(typeof(RelicInventory),relics);
+        var relic=new RelicData{id="skill-relic",cycle=1,rarity=LootManager.GearRarity.Normal,
+            craftableThisCycle=true,modifiers=new List<RelicModifier>{
+                new(RelicModifierType.EquippedSkillLevel,1f,true)}};
+        relics.Restore(new List<RelicData>{relic},1,new[]{0,-1,-1,-1});
+        var actor=Track(new GameObject("skill actor",typeof(StatsComponent),typeof(ManaComponent),
+            typeof(PlayerSkillController))).GetComponent<PlayerSkillController>();
+        typeof(PlayerSkillController).GetMethod("Awake",BindingFlags.Instance|BindingFlags.NonPublic)
+            .Invoke(actor,null);
+        Assert.That(actor.RestoreSelection(true,PlayerSkillId.HeavyStrike),Is.True);
+        Assert.That(actor.EffectiveSkillLevel(actor.SelectedSkill),Is.EqualTo(2));
+        PlayerSkillDefinition other=null;
+        foreach(var skill in actor.Skills)if(skill.id==PlayerSkillId.Fireball){other=skill;break;}
+        Assert.That(other,Is.Not.Null);
+        Assert.That(actor.EffectiveSkillLevel(other),Is.EqualTo(1));
+    }
+
+    [Test]
     public void OwnedRelicsHaveVisibleGlyphClickableTooltipAndCurrentCycleAncientTarget()
     {
         var relics=Track(new GameObject("relics",typeof(RelicInventory))).GetComponent<RelicInventory>();SetInstance(typeof(RelicInventory),relics);

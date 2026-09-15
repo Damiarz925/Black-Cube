@@ -8,6 +8,10 @@ public class Gear : MonoBehaviour
 {
     [SerializeField] private string persistentId;
     public string PersistentId => persistentId;
+    // Historical schema-2/PlayerPrefs rolls retain their exact values and
+    // tier numbering; new items are validated against the current catalog.
+    public bool LegacyAffixRules { get; private set; }
+    public void RestoreLegacyAffixRules(bool value) => LegacyAffixRules=value;
     private void Awake() => EnsurePersistentId();
     public string EnsurePersistentId()
     {
@@ -41,11 +45,14 @@ public class Gear : MonoBehaviour
 
     public Element BaseElement; //Variable of type Element (enum) that will store the base element of the weapon
     public float BaseDamage;    //Variable to store the weapon's base damage
+    public float BaseDamageMin;
+    public float BaseDamageMax;
     public float BaseAttackSpeed;   //Variable to store a weapon's base attack speed
     public float BaseCritChance;    //Variable to store a weapon's base crit chance
 
     // Local weapon-only modifiers
     public float LocalFlatDamage;
+    public float LocalFlatDamageMax;
     public float LocalIncDamage;
     public float LocalBaseCrit;
     public float LocalIncCrit;
@@ -103,15 +110,16 @@ public class Gear : MonoBehaviour
     public void RebuildMods()
     {
         var copy = new List<RolledMod>(rolledMods);
-        float fallbackDamage = BaseDamage, fallbackSpeed = BaseAttackSpeed, fallbackCrit = BaseCritChance;
+        float fallbackDamage = BaseDamage, fallbackMin = BaseDamageMin, fallbackMax = BaseDamageMax;
+        float fallbackSpeed = BaseAttackSpeed, fallbackCrit = BaseCritChance;
         bool hasDamageBase = copy.Exists(m => m != null && m.statType == StatTypes.WeaponBaseDmg);
         bool hasSpeedBase = copy.Exists(m => m != null && m.statType == StatTypes.WeaponBaseAttackSpeed);
         bool hasCritBase = copy.Exists(m => m != null && m.statType == StatTypes.WeaponBaseCrit);
-        BaseDamage = BaseAttackSpeed = BaseCritChance = 0f;
-        LocalFlatDamage = LocalIncDamage = LocalBaseCrit = LocalIncCrit = LocalIncAttackSpeed = 0f;
+        BaseDamage = BaseDamageMin = BaseDamageMax = BaseAttackSpeed = BaseCritChance = 0f;
+        LocalFlatDamage = LocalFlatDamageMax = LocalIncDamage = LocalBaseCrit = LocalIncCrit = LocalIncAttackSpeed = 0f;
         globalRolledMods.Clear();
         ApplyMods(copy);
-        if (!hasDamageBase) BaseDamage = fallbackDamage;
+        if (!hasDamageBase) { BaseDamage = fallbackDamage; BaseDamageMin = fallbackMin; BaseDamageMax = fallbackMax; }
         if (!hasSpeedBase) BaseAttackSpeed = fallbackSpeed;
         if (!hasCritBase) BaseCritChance = fallbackCrit;
         modNumber = CraftingModCount;
@@ -169,7 +177,9 @@ public class Gear : MonoBehaviour
 
                 //Base Damage Stats
                 case StatTypes.WeaponBaseDmg:
-                    BaseDamage = mod.value;
+                    BaseDamageMin = mod.value;
+                    BaseDamageMax = mod.HighValue;
+                    BaseDamage = (BaseDamageMin + BaseDamageMax) * .5f;
                     break;
                 case StatTypes.WeaponBaseAttackSpeed:
                     BaseAttackSpeed = mod.value;
@@ -194,7 +204,10 @@ public class Gear : MonoBehaviour
                         {
                             //If it is a flat modifier, add it's value to the local flat damage of the weapon
                             if (mod.statType is StatTypes.FlatPhys or StatTypes.FlatCold or StatTypes.FlatLight or StatTypes.FlatFire or StatTypes.FlatVoid)
+                            {
                                 LocalFlatDamage += mod.value;
+                                LocalFlatDamageMax += mod.HighValue;
+                            }
                             //Otherwise, add it's value to the local increased damage of the weapon
                             else
                                 LocalIncDamage += (mod.value/100);
@@ -245,8 +258,26 @@ public class Gear : MonoBehaviour
     //Finds the effective base damage by adding the local flat to the base damage and multiplying it by  1 + the local increased damage (local inc dmg should be stored as a decimal)
     public float GetEffectiveBaseDamage()
     {
-        float damageWithFlat = BaseDamage + LocalFlatDamage;
-        return damageWithFlat * (1f + LocalIncDamage);
+        GetEffectiveBaseDamageRange(out float minimum, out float maximum);
+        return (minimum + maximum) * .5f;
+    }
+
+    public bool IsLocalAffix(StatTypes stat) => itemType == LootManager.GearType.Weapons
+        && (MatchesBaseElement(stat) || stat is StatTypes.AttackSpeed or StatTypes.CritChance
+            or StatTypes.BaseCritChance);
+
+    public void GetEffectiveBaseDamageRange(out float minimum, out float maximum)
+    {
+        float baseMin = BaseDamageMin > 0f || BaseDamageMax > 0f ? BaseDamageMin : BaseDamage;
+        float baseMax = BaseDamageMin > 0f || BaseDamageMax > 0f ? BaseDamageMax : BaseDamage;
+        minimum = Mathf.Max(0f, (baseMin + LocalFlatDamage) * (1f + LocalIncDamage));
+        maximum = Mathf.Max(minimum, (baseMax + LocalFlatDamageMax) * (1f + LocalIncDamage));
+    }
+
+    public float RollEffectiveBaseDamage()
+    {
+        GetEffectiveBaseDamageRange(out float minimum, out float maximum);
+        return UnityEngine.Random.Range(minimum, maximum);
     }
 
     //Finds the effective base damage by adding the base crit chance to the local base crit and multiplying it by 1 + the local increased crit chance (local inc crit should be stored as a decimal)

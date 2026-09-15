@@ -65,13 +65,13 @@ public class DamagePopup : MonoBehaviour
         Spawn(damage, target, defaultColor);
     }
 
-    public void Spawn(float damage, Transform target, Element element)
+    public void Spawn(float damage, Transform target, Element element, bool critical = false)
     {
         int index=element switch {Element.Phys=>0,Element.Fire=>1,Element.Cold=>2,Element.Light=>3,Element.Poison=>4,Element.Void=>6,_=>-1};
         // Atlas slot 6 remains the authored Ignite digit atlas. Void can use its
         // dedicated material without accidentally borrowing Ignite's atlas.
         int atlasIndex = element == Element.Void ? -1 : index;
-        SpawnStyled(damage, target, GetColorForElement(element), GetMaterial(index),atlasIndex);
+        SpawnStyled(damage, target, GetColorForElement(element), GetMaterial(index),atlasIndex,critical);
     }
 
     public void Spawn(float damage, Transform target, StatusEffects effect)
@@ -89,7 +89,7 @@ public class DamagePopup : MonoBehaviour
     private Material GetMaterial(int index) => numberMaterials!=null && index>=0 && index<numberMaterials.Length ? numberMaterials[index] : null;
     private Texture2D GetAtlas(int index) => numberAtlases!=null && index>=0 && index<numberAtlases.Length ? numberAtlases[index] : null;
 
-    private void SpawnStyled(float damage, Transform target, Color color, Material material,int styleIndex=-1)
+    private void SpawnStyled(float damage, Transform target, Color color, Material material,int styleIndex=-1,bool critical=false)
     {
         if (popupPrefab == null || popupRoot == null || canvas == null || target == null)
         {
@@ -98,6 +98,7 @@ public class DamagePopup : MonoBehaviour
         }
 
         GameObject go = Instantiate(popupPrefab, popupRoot);
+        if (critical) go.transform.localScale *= 1.2f;
         var text = go.GetComponentInChildren<TextMeshProUGUI>();
         string value = Mathf.RoundToInt(damage).ToString();
         var atlas = GetAtlas(styleIndex);
@@ -110,7 +111,7 @@ public class DamagePopup : MonoBehaviour
         }
         else if (text != null)
         {
-            text.text = value;
+            text.text = critical ? "CRIT " + value : value;
             text.color = color;
             if(material != null)
             {

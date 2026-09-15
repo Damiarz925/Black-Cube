@@ -217,7 +217,7 @@ public sealed class PlayerProgression : MonoBehaviour
             AddPercent(StatTypes.MagicDmg, PassiveBranch.Magic);
             AddPercent(StatTypes.LightDmg, PassiveBranch.Lightning);
             AddPercent(StatTypes.FireDmg, PassiveBranch.Fire);
-            AddPercent(StatTypes.PoisonDmg, PassiveBranch.Poison);
+            AddPercent(StatTypes.VoidDmg, PassiveBranch.Poison);
             AddPercent(StatTypes.ProjectileDmg, PassiveBranch.Projectile);
             AddPercent(StatTypes.PhysDmg, PassiveBranch.Physical);
             AddPercent(StatTypes.ColdDmg, PassiveBranch.Cold);

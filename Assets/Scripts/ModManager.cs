@@ -10,6 +10,7 @@ public class ModManager : MonoBehaviour
 
     [Header("References")]
     [SerializeField] private ModDatabase modDatabase;
+    public ModDatabase Database => modDatabase;
 #if UNITY_EDITOR
     private bool useIsolatedPools;
 #endif
@@ -104,7 +105,7 @@ public class ModManager : MonoBehaviour
         // NORMAL RANDOM MODS
         for (int i = 0; i < remaining; i++) //Loop through all of remaining 
         {
-            RolledMod mod = RollSingleMod(itemType, rarity, itemLevel, usedStats, usedGroups, weaponElement, forEnemy);  //Grab a mod by callilng rollsinglemod
+            RolledMod mod = RollSingleMod(itemType, rarity, itemLevel, usedStats, usedGroups, weaponElement, forEnemy, mods);
             if (mod == null) break; //If the mod is null, break
 
             mods.Add(mod);  //Add the mod to mods
@@ -135,7 +136,7 @@ public class ModManager : MonoBehaviour
             if (modDatabase != null && modDatabase.TryGetDefinition(existing.statType, out var definition) && definition.groups != null)
                 foreach (string group in definition.groups) usedGroups.Add(group);
         }
-        return RollSingleMod(gear.ItemType, rarity, gear.ItemLevel, usedStats, usedGroups, gear.BaseElement, false);
+        return RollSingleMod(gear.ItemType, rarity, gear.ItemLevel, usedStats, usedGroups, gear.BaseElement, false, gear.rolledMods);
     }
 
     public RolledMod RerollModifier(Gear gear, RolledMod replaced, LootManager.GearRarity rarity)
@@ -151,7 +152,7 @@ public class ModManager : MonoBehaviour
             if (modDatabase != null && modDatabase.TryGetDefinition(existing.statType, out var definition) && definition.groups != null)
                 foreach (string group in definition.groups) usedGroups.Add(group);
         }
-        return RollSingleMod(gear.ItemType, rarity, gear.ItemLevel, usedStats, usedGroups, gear.BaseElement, false);
+        return RollSingleMod(gear.ItemType, rarity, gear.ItemLevel, usedStats, usedGroups, gear.BaseElement, false, gear.rolledMods, replaced);
     }
 
     static void ReserveIntrinsicWeaponStats(Gear gear, HashSet<StatTypes> usedStats)
@@ -171,7 +172,7 @@ public class ModManager : MonoBehaviour
         HashSet<StatTypes> usedStats,
         HashSet<string> usedGroups)
     {
-        RolledMod mod = RollTierAndValue(stat, rarity, itemLevel);  //Uses the stat, rarity, and item level to roll the tier of the stat and its value
+        RolledMod mod = RollTierAndValue(stat, LootManager.GearType.Weapons, itemLevel);
         if (mod == null) return;
 
         mods.Add(mod);  //adds the mod, ensures its specific mod type and mod group can't roll again
@@ -192,7 +193,9 @@ public class ModManager : MonoBehaviour
         HashSet<StatTypes> usedStats,
         HashSet<string> usedGroups,
         Element weaponElement,
-        bool forEnemy)
+        bool forEnemy,
+        IReadOnlyList<RolledMod> existing,
+        RolledMod excluded = null)
     {
 #if UNITY_EDITOR
         List<StatTypes> pool = useIsolatedPools
@@ -220,7 +223,9 @@ public class ModManager : MonoBehaviour
             if (!GroupsAvailable(def, usedGroups))  //Check if the group is available, if not, skip it
                 continue;
 
-            var availableTier = def.tiers.Where(t => t.minItemLevel <= itemLevel).ToList();     //Decide what item tiers are valid to roll based on the item's ilvl and the min ilvl that each tier rolls at
+            if (!AffixPolicy.CanAdd(existing, rarity, def.side, excluded)) continue;
+
+            var availableTier = ApplicableTiers(def,itemType).Where(t => t.minItemLevel <= itemLevel).ToList();
             if (availableTier.Count == 0)   //If it can't roll more than 0 tiers, skip it
                 continue;
 
@@ -234,7 +239,7 @@ public class ModManager : MonoBehaviour
             return null;
 
         StatTypes chosenStat = WeightedRandomPick(candidates);  //Call weightedrandompick to choose a random mod from candidates
-        return RollTierAndValue(chosenStat, rarity, itemLevel);     //Call rolltierandvalue to decide on the actual mod tier and value within that tier, then return that value
+        return RollTierAndValue(chosenStat, itemType, itemLevel);
     }
 
     /// <summary>Stats that remain valid player affixes but cannot benefit enemies without player-only systems.</summary>
@@ -333,28 +338,32 @@ public class ModManager : MonoBehaviour
         }
     }
 
-    private RolledMod RollTierAndValue(StatTypes stat, LootManager.GearRarity rarity, int itemLevel)
+    public static List<AffixTier> ApplicableTiers(AffixDefinitions def,LootManager.GearType slot)
+    {
+        if(def==null)return new List<AffixTier>();
+        return PoedbAffixCatalog.TryGet(def.statType,slot,out var direct)
+            ? direct : def.tiers ?? new List<AffixTier>();
+    }
+
+    private RolledMod RollTierAndValue(StatTypes stat, LootManager.GearType slot, int itemLevel)
     {
         AffixDefinitions def = modDatabase.GetDefinition(stat);     //grab definition of the passed in stat
-        var available = def.tiers.Where(t => t.minItemLevel <= itemLevel).ToList();     //create a list of available tiers
+        var available = ApplicableTiers(def,slot).Where(t => t.minItemLevel <= itemLevel).ToList();
         if (available.Count == 0) return null;  //if there are no available tiers, return
 
-        float[] biasArray = GetBiasArray(rarity);   //grab the bias array, using the rarity of the item
-        var tierCandidates = new List<(AffixTier tier, float weight)>();        //Create a new list of tier candidates, using the tier as key and weight of that tier as the value
-
-        foreach (var tier in available)
-        {
-            int index = Mathf.Clamp(tier.tierIndex - 1, 0, biasArray.Length - 1);   //create an index variable that is the index - 1 clamped between 0 and the length of the bias array
-            float finalWeight = tier.weight * biasArray[index];     //calculate the final weight by multiplying the weight by the bias array at index (should be based on the rarity of the item)
-            if (finalWeight <= 0) continue;     //if the mod has less than or equal to 0 weight, skip it
-
-            tierCandidates.Add((tier, finalWeight));        //add it to tier candidates, using the final calculated weight
-        }
-
-        if (tierCandidates.Count == 0) return null;     //if tier candidates is empty, return null
-
-        AffixTier chosenTier = WeightedRandomPick(tierCandidates);          //call weighted random pick to choose a tier
+        // Temporary equal weighting across all eligible tiers, independent of
+        // rarity; family-level weighted selection remains separate above.
+        AffixTier chosenTier = available[Random.Range(0,available.Count)];
         float roll = Random.Range(chosenTier.minValue, chosenTier.maxValue);            //choose a roll by rolling a random range between the tier's min and max values
+
+        if(chosenTier.pairedDamage)
+            return new RolledMod(stat,chosenTier.tierIndex,roll,
+                Random.Range(chosenTier.minHighValue,chosenTier.maxHighValue),false);
+
+        // This intrinsic tier stores an average base value. Resolve a natural
+        // 80%-120% weapon range while preserving that exact expected average.
+        if (stat == StatTypes.WeaponBaseDmg)
+            return new RolledMod(stat, chosenTier.tierIndex, roll * .8f, roll * 1.2f, false);
 
         return new RolledMod(stat, chosenTier.tierIndex, roll);     //return a new rolledmod using the calculated values.
     }

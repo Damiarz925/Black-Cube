@@ -71,7 +71,9 @@ public class PlayerController : MonoBehaviour
         Gear gear = go.AddComponent<Gear>();    //Adds a gear component to the newly created starter weapon, and assigns that gear component to the variable gear
 
         gear.Initialize(LootManager.GearType.Weapons, LootManager.GearRarity.Normal, 1, Element.Phys);
-        gear.BaseDamage = 80f;  // Starter raw damage before actor-wide scaling.
+        gear.BaseDamage = 80f;  // Historical average; independent hits roll 64-96.
+        gear.BaseDamageMin = 64f;
+        gear.BaseDamageMax = 96f;
         gear.BaseAttackSpeed = 1.2f;    // Starter attacks per second.
         gear.BaseCritChance = 0.05f;    //sets base crit chance to 5%
         RolledMod starterAffix = roller != null
@@ -109,6 +111,16 @@ public class PlayerController : MonoBehaviour
     // --------------------------------------------------------------------
     // Shared outgoing hit pipeline. UI inspection does not consume a critical roll.
     public DamageContext BuildNonCriticalAttackContext()
+        => BuildNonCriticalAttackContext(false, null);
+
+    public DamageContext BuildNonCriticalAttackContextAtRangeEnd(bool maximum)
+    {
+        if (equippedWeapon == null) return BuildNonCriticalAttackContext();
+        equippedWeapon.GetEffectiveBaseDamageRange(out float minimum, out float high);
+        return BuildNonCriticalAttackContext(false, maximum ? high : minimum);
+    }
+
+    private DamageContext BuildNonCriticalAttackContext(bool rollWeapon, float? weaponOverride)
     {
         DamageContext ctx = new DamageContext(4);   //Builds a damage context, passing in 4 as the initial capacity
         if (equippedWeapon == null)
@@ -119,7 +131,8 @@ public class PlayerController : MonoBehaviour
         }
 
         Element weaponElement = equippedWeapon.BaseElement; //assign the weapon's base element to weaponElement variable
-        float weaponBaseDamage = equippedWeapon.GetEffectiveBaseDamage();   //get the weapon's effective base damage, then assign that to the weaponBaseDamage variable
+        float weaponBaseDamage = weaponOverride ?? (rollWeapon ? equippedWeapon.RollEffectiveBaseDamage()
+            : equippedWeapon.GetEffectiveBaseDamage());
 
         //Pass in context, weapon element, and weapon base. Calculate the scaled final damage of the weapon's base element.
         AddScaledElementalDamage(ctx, weaponElement, weaponBaseDamage);
@@ -132,27 +145,27 @@ public class PlayerController : MonoBehaviour
 
     public DamageContext BuildAttackContext()
     {
-        var ctx = BuildNonCriticalAttackContext();
+        var ctx = BuildNonCriticalAttackContext(true, null);
         return ApplyCriticalRoll(ctx);
     }
 
     public DamageContext BuildAttackContext(Element conversionElement, float nonMatchingConversion)
     {
-        var ctx = BuildNonCriticalConvertedAttackContext(conversionElement, nonMatchingConversion);
+        var ctx = ApplyKeystones(BuildNonCriticalConvertedRaw(conversionElement, nonMatchingConversion, true));
         return ApplyCriticalRoll(ctx);
     }
 
     public DamageContext BuildAttackContext(Element conversionElement, float nonMatchingConversion, DamageScope scopes)
     {
-        var ctx = BuildNonCriticalConvertedRaw(conversionElement, nonMatchingConversion);
+        var ctx = BuildNonCriticalConvertedRaw(conversionElement, nonMatchingConversion, true);
         ctx.Scopes = scopes;
         return ApplyCriticalRoll(ApplyKeystones(ctx));
     }
 
     public DamageContext BuildNonCriticalConvertedAttackContext(Element conversionElement, float nonMatchingConversion)
-        => ApplyKeystones(BuildNonCriticalConvertedRaw(conversionElement, nonMatchingConversion));
+        => ApplyKeystones(BuildNonCriticalConvertedRaw(conversionElement, nonMatchingConversion, false));
 
-    DamageContext BuildNonCriticalConvertedRaw(Element conversionElement, float nonMatchingConversion)
+    DamageContext BuildNonCriticalConvertedRaw(Element conversionElement, float nonMatchingConversion, bool rollWeapon)
     {
         var ctx = new DamageContext(5);
         float conversion = Mathf.Clamp01(nonMatchingConversion);
@@ -164,7 +177,7 @@ public class PlayerController : MonoBehaviour
         }
 
         Element weaponElement = equippedWeapon.BaseElement;
-        float weaponRaw = equippedWeapon.GetEffectiveBaseDamage()
+        float weaponRaw = (rollWeapon ? equippedWeapon.RollEffectiveBaseDamage() : equippedWeapon.GetEffectiveBaseDamage())
                           + stats.GetStat(StatMappings.GetFlatDamageStat(weaponElement))
                           + DerivedStatCalculator.AddedFlatDamage(stats, weaponElement);
         AddConvertedRawDamage(ctx, weaponElement, weaponRaw, conversionElement, conversion);
@@ -189,7 +202,7 @@ public class PlayerController : MonoBehaviour
         //Get the weapons final critical chance
         float critChance = GetFinalCritChance();
         //Directly calculate the weapon's crit multiplier (assumes Crit multi is a decimal value).
-        float critMult = 1f + stats.GetStat(StatTypes.CritMult); // Raw percentage points are converted to a fraction by StatsComponent.
+        float critMult = CombatCalculator.BaseCriticalMultiplier + stats.GetStat(StatTypes.CritMult);
 
         //Roll randomly to decide if the attack is a critical strike or not
         bool isCrit = Random.value < Mathf.Clamp01(critChance);

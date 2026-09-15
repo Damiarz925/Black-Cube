@@ -72,7 +72,9 @@ public sealed class PlayerSkillController : MonoBehaviour
     {
         if (skill == null) return 1;
         StatsComponent stats = GetComponent<StatsComponent>();
-        return CalculateEffectiveSkillLevel(stats != null ? stats.GetRawStat(SkillLevelStat(skill.id)) : 0f);
+        float added=stats != null ? stats.GetRawStat(SkillLevelStat(skill.id)) : 0f;
+        if(skill==SelectedSkill)added+=RelicInventory.Instance?.EquippedSkillLevelBonus??0;
+        return CalculateEffectiveSkillLevel(added);
     }
 
     public static int CalculateEffectiveSkillLevel(float addedLevels) =>

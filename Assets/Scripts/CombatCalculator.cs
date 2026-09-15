@@ -4,6 +4,8 @@ using UnityEngine;
 
 public static class CombatCalculator
 {
+    // Base crit is real damage even before any increased critical multiplier affix.
+    public const float BaseCriticalMultiplier = 1.5f;
     public const float BaseMaximumResistance = .75f;
     public const float HardMaximumResistance = .90f;
 

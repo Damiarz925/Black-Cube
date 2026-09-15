@@ -22,7 +22,8 @@ public static class ItemTooltipFormatter
         if (item.ItemType == LootManager.GearType.Weapons)
         {
             s.AppendLine();
-            s.AppendLine($"<b>{ItemTooltipUI.ElementName(item.BaseElement)} Damage:</b> {item.GetEffectiveBaseDamage():0.##}");
+            item.GetEffectiveBaseDamageRange(out float minimum,out float maximum);
+            s.AppendLine($"<b>{ItemTooltipUI.ElementName(item.BaseElement)} Damage:</b> {minimum:0.##}–{maximum:0.##}  <color=#85898F>(Average {(minimum+maximum)*.5f:0.##})</color>");
             s.AppendLine($"<b>Crit Chance:</b> {item.GetEffectiveBaseCrit()*100:0.##}%");
             s.AppendLine($"<b>Attacks Per Second:</b> {item.GetEffectiveAttackSpeed():0.0#}");
         }
@@ -32,13 +33,46 @@ public static class ItemTooltipFormatter
             if (mod != null && !Gear.IsWeaponBaseStat(mod.statType)) mods.Add(mod);
         mods.Sort(Compare);
         if (mods.Count == 0) s.AppendLine("<color=#85898F>No modifiers</color>");
-        foreach (var mod in mods)
+        foreach (var side in new[]{AffixSide.Prefix,AffixSide.Suffix})
         {
-            string value = $"{mod.value:+0.##;-0.##;0}{(StatsComponent.IsPercentStat(mod.statType) ? "%" : "")}";
-            string lockState = mod.lockedOriginal ? "<color=#D8B45A>◆ LOCKED / PERMANENT NORMAL BASE</color>" : "<color=#85898F>◇ UNLOCKED / CRAFTABLE</color>";
-            s.AppendLine($"{StatDisplayFormatting.ToFriendlyName(mod.statType)}: {value}  {lockState}");
+            s.AppendLine($"<b>{(side==AffixSide.Prefix?"PREFIXES":"SUFFIXES")}</b>");
+            bool any=false;
+            foreach (var mod in mods)
+            {
+                if(AffixPolicy.Side(mod.statType)!=side)continue;
+                any=true;
+                bool percent=StatsComponent.IsPercentStat(mod.statType);
+                bool paired=item.IsLocalAffix(mod.statType) && (mod.statType is StatTypes.FlatPhys
+                    or StatTypes.FlatFire or StatTypes.FlatCold or StatTypes.FlatLight or StatTypes.FlatVoid);
+                string unit=percent?"%":"";
+                string rolled=paired?$"Adds {mod.value:0.##}–{mod.HighValue:0.##} {ItemTooltipUI.ElementName(item.BaseElement)} Damage"
+                    :$"{StatDisplayFormatting.ToFriendlyName(mod.statType)}: {mod.value:+0.##;-0.##;0}{unit}";
+                string range=TierRange(item,mod,percent);
+                string flags=$"{(item.IsLocalAffix(mod.statType)?"LOCAL":"GLOBAL")}, {(mod.lockedOriginal?"LOCKED ORIGINAL":"CRAFTABLE")}";
+                s.AppendLine($"<color=#E4C979><b>{rolled}</b></color>  <color=#85898F>T{mod.tierIndex} {range} [{flags}]</color>");
+            }
+            if(!any)s.AppendLine("<color=#85898F>—</color>");
         }
         return s.ToString().TrimEnd();
+    }
+
+    static string TierRange(Gear item,RolledMod mod,bool percent)
+    {
+        AffixDefinitions def=ModManager.Instance?.Database?.GetDefinition(mod.statType);
+#if UNITY_EDITOR
+        if(def==null)def=UnityEditor.AssetDatabase.LoadAssetAtPath<ModDatabase>(
+            "Assets/Prefabs/Scriptable Objects/ModDatabase.asset")?.GetDefinition(mod.statType);
+#endif
+        var tiers=ModManager.ApplicableTiers(def,item.ItemType);
+        var tier=tiers.Find(t=>t.tierIndex==mod.tierIndex);
+        if(tier==null)return "(historical tier / range unavailable)";
+        bool valid=mod.value>=tier.minValue-.001f&&mod.value<=tier.maxValue+.001f
+            && (!mod.hasSecondaryValue || !tier.pairedDamage || mod.HighValue>=tier.minHighValue-.001f
+                && mod.HighValue<=tier.maxHighValue+.001f);
+        if(!valid)return "(historical roll / current range differs)";
+        string unit=percent?"%":"";
+        return tier.pairedDamage?$"(min {tier.minValue:0.##}–{tier.maxValue:0.##}, max {tier.minHighValue:0.##}–{tier.maxHighValue:0.##})"
+            :$"({tier.minValue:0.##}–{tier.maxValue:0.##}{unit})";
     }
 
     public static string DescribeRelic(RelicData relic)
@@ -64,6 +98,8 @@ public static class ItemTooltipFormatter
 
     public static int Compare(RolledMod a, RolledMod b)
     {
+        int side=AffixPolicy.Side(a.statType).CompareTo(AffixPolicy.Side(b.statType));
+        if(side!=0)return side;
         int group = Group(a.statType).CompareTo(Group(b.statType));
         if (group != 0) return group;
         int canonical = OrderWithinGroup(a.statType).CompareTo(OrderWithinGroup(b.statType));

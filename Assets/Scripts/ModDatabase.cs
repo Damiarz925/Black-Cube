@@ -31,6 +31,7 @@ public class ModDatabase : ScriptableObject
         foreach (var def in allAffixes) //loop through each definition in allaffixes
         {
             if (def == null) continue;  //if def is null, skip it
+            def.EnsureTiersGenerated();
             lookupByEnum[def.statType] = def;   //set lookupbyenum at that stat type to def
 
             int id = (int)def.statType; //id is the affix definition's stat type casted to int

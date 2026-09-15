@@ -639,9 +639,10 @@ public class PassiveTreeTests
             Assert.That(progression.TrySpend(poison0), Is.True);
             Assert.That(progression.TrySpend(poison0), Is.False);
             Assert.That(progression.GetBonus(PassiveBranch.Poison), Is.EqualTo(5));
-            Assert.That(stats.GetRawStat(StatTypes.PoisonDmg), Is.EqualTo(5f));
+            Assert.That(stats.GetRawStat(StatTypes.VoidDmg), Is.EqualTo(5f));
+            Assert.That(stats.GetRawStat(StatTypes.PoisonDmg), Is.EqualTo(0f),"Poison-specific affixes remain separate.");
             AilmentCalculator.ComputeAilmentFromHit(poisonEffect, poisonContext, stats, out float poisonAfter, out _, out _);
-            Assert.That(poisonAfter, Is.EqualTo(poisonBefore * 1.05f).Within(.001f), "Allocated Poison damage must reach the final ailment consumer exactly once");
+            Assert.That(poisonAfter, Is.EqualTo(poisonBefore * 1.05f).Within(.001f), "Allocated Void damage must reach Poison's Void source exactly once");
             Assert.That(stats.GetRawStat(StatTypes.ColdDmg), Is.EqualTo(0f), "Poison must not grant Cold damage");
             Assert.That(stats.GetRawStat(StatTypes.GenericDmg), Is.EqualTo(0f));
 
@@ -652,7 +653,7 @@ public class PassiveTreeTests
             AllocateFirst(progression, PassiveBranch.Projectile);
             AllocateFirst(progression, PassiveBranch.Cold);
             Assert.That(stats.GetRawStat(StatTypes.ColdDmg), Is.EqualTo(5f));
-            Assert.That(stats.GetRawStat(StatTypes.PoisonDmg), Is.EqualTo(5f), "Cold must not alter Poison damage");
+            Assert.That(stats.GetRawStat(StatTypes.VoidDmg), Is.EqualTo(5f), "Cold must not alter Void damage");
             AllocateFirst(progression, PassiveBranch.Fire);
             AllocateFirst(progression, PassiveBranch.Lightning);
             AllocateFirst(progression, PassiveBranch.Physical);
@@ -663,7 +664,7 @@ public class PassiveTreeTests
             Assert.That(stats.GetRawStat(StatTypes.MagicDmg), Is.EqualTo(5f));
             Assert.That(stats.GetRawStat(StatTypes.ProjectileDmg), Is.EqualTo(5f));
             Assert.That(stats.GetRawStat(StatTypes.ColdDmg), Is.EqualTo(5f));
-            Assert.That(stats.GetRawStat(StatTypes.PoisonDmg), Is.EqualTo(5f));
+            Assert.That(stats.GetRawStat(StatTypes.VoidDmg), Is.EqualTo(5f));
             Assert.That(stats.GetRawStat(StatTypes.FireDmg), Is.EqualTo(5f));
             Assert.That(stats.GetRawStat(StatTypes.LightDmg), Is.EqualTo(5f));
             Assert.That(stats.GetRawStat(StatTypes.PhysDmg), Is.EqualTo(5f));

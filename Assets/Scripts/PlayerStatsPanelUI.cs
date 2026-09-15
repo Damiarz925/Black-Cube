@@ -93,11 +93,16 @@ public class PlayerStatsPanelUI : MonoBehaviour
         {
             var header = Instantiate(headerPrefab, contentRoot);
             header.SetText("Basic Attack / Before Defenses"); _spawned.Add(header.gameObject);
-            foreach (var hit in player.BuildNonCriticalAttackContext().Hits)
+            var lowContext = player.BuildNonCriticalAttackContextAtRangeEnd(false);
+            var highContext = player.BuildNonCriticalAttackContextAtRangeEnd(true);
+            for (int i = 0; i < lowContext.Hits.Count; i++)
             {
+                var hit = lowContext.Hits[i];
                 if (hit.Amount <= 0f) continue;
                 var damage = Instantiate(rowPrefab, contentRoot);
-                damage.Set($"{ItemTooltipUI.ElementName(hit.Element)} / Hit (Noncritical)", hit.Amount.ToString("0.##"));
+                float high = i < highContext.Hits.Count ? highContext.Hits[i].Amount : hit.Amount;
+                damage.Set($"{ItemTooltipUI.ElementName(hit.Element)} / Hit (Noncritical)",
+                    $"{hit.Amount:0.##}-{high:0.##} (Average {(hit.Amount+high)*.5f:0.##})");
                 _spawned.Add(damage.gameObject);
             }
             var crit = Instantiate(rowPrefab, contentRoot);
@@ -109,7 +114,9 @@ public class PlayerStatsPanelUI : MonoBehaviour
             if (player.EquippedWeaponBaseDamage != 0)
             {
                 var weapon = Instantiate(rowPrefab, contentRoot);
-                weapon.Set($"Weapon Base {ItemTooltipUI.ElementName(player.EquippedWeaponElement)}", player.EquippedWeaponBaseDamage.ToString("0.##"));
+                player.EquippedWeapon.GetEffectiveBaseDamageRange(out float low, out float high);
+                weapon.Set($"Weapon Base {ItemTooltipUI.ElementName(player.EquippedWeaponElement)}",
+                    $"{low:0.##}-{high:0.##} (Average {(low+high)*.5f:0.##})");
                 _spawned.Add(weapon.gameObject);
             }
             if (StatDisplayFormatting.ShouldDisplay(playerStats, StatTypes.UnarmedDamage))

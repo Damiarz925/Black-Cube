@@ -361,13 +361,17 @@ public class EnemyAI : MonoBehaviour
     }
 
     public DamageContext BuildNonCriticalAttackContext(bool logStats = false)
+        => BuildNonCriticalAttackContext(logStats, false);
+
+    private DamageContext BuildNonCriticalAttackContext(bool logStats, bool rollWeapon)
     {
         DamageContext ctx = new DamageContext(4);       //create a damage context with an initial capacity of 4
 
         if (equippedWeapon == null || stats == null) return ctx;     //if equippedweapon is null, return the context now
 
         Element weaponElement = equippedWeapon.BaseElement;     //store the weapon's base element in weaponElement
-        float weaponBaseDamage = equippedWeapon.GetEffectiveBaseDamage();       //store the weapon's base damage in weaponBaseDamage (call GetEffectiveBaseDamage from Gear class on equippedWeapon)
+        float weaponBaseDamage = rollWeapon ? equippedWeapon.RollEffectiveBaseDamage()
+            : equippedWeapon.GetEffectiveBaseDamage();
 
         AddScaledElementalDamage(ctx, weaponElement, weaponBaseDamage, logStats);     //call addscaledelemental damage to add the scaled ele damage (the base element damage scaled by local mods matching that element on the item)
         AddGlobalFlatElements(ctx, weaponElement);      //call addgloablflatelements to add any flat elemental damage that does not match the weapon's base element
@@ -379,13 +383,13 @@ public class EnemyAI : MonoBehaviour
 
     public DamageContext BuildAttackContext()       //builds the attack context, called when enemy attacks
     {
-        DamageContext ctx = BuildNonCriticalAttackContext(logStats: true);
+        DamageContext ctx = BuildNonCriticalAttackContext(logStats: true, rollWeapon: true);
 
         if (equippedWeapon == null || stats == null)
             return ctx;
 
         float critChance = GetFinalCritChance();        //call get final crit chance and store it in critchance
-        float critMult = 1f + stats.GetStat(StatTypes.CritMult);        //grab the crit multi and add 1 to it, store it in critmult
+        float critMult = CombatCalculator.BaseCriticalMultiplier + stats.GetStat(StatTypes.CritMult);
 
         bool isCrit = Random.value < Mathf.Clamp01(critChance);         //decide if the attack is a critical hit by checking if a random value is less than the crit chance (clamped between 0 and 1)
 

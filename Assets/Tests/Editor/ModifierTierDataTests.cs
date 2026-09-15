@@ -99,7 +99,7 @@ public class ModifierTierDataTests
     }
 
     [Test]
-    public void TierGenerator_PopulatesCanonicalMetadata()
+    public void TierMetadata_PreservesAuthoredVariableLengthWithoutSyntheticGeneration()
     {
         var def = new AffixDefinitions
         {
@@ -108,14 +108,10 @@ public class ModifierTierDataTests
 
         def.EnsureTiersGenerated();
 
-        Assert.That(def.tiers.Count, Is.EqualTo(5));
-        for (int i = 0; i < 5; i++)
-        {
-            Assert.That(def.tiers[i].tierIndex, Is.EqualTo(i + 1));
-            Assert.That(def.tiers[i].minItemLevel, Is.EqualTo(ExpectedLevels[i]));
-            Assert.That(def.tiers[i].weight, Is.EqualTo(ExpectedWeights[i]));
-            Assert.That(def.tiers[i].minValue, Is.LessThanOrEqualTo(def.tiers[i].maxValue));
-        }
+        Assert.That(def.tiers.Count, Is.EqualTo(1));
+        Assert.That(def.tiers[0].tierIndex, Is.EqualTo(1));
+        Assert.That(def.tiers[0].minValue, Is.EqualTo(10f));
+        Assert.That(def.tiers[0].maxValue, Is.EqualTo(20f));
     }
 
     [Test]
@@ -271,7 +267,7 @@ public class ModifierTierDataTests
             {
                 Assert.That(def.tiers[i].minValue, Is.EqualTo(expected[i][0]).Within(.0001f), stat + " T" + (i + 1) + " min");
                 Assert.That(def.tiers[i].maxValue, Is.EqualTo(expected[i][1]).Within(.0001f), stat + " T" + (i + 1) + " max");
-                Assert.That(def.tiers[i].tierIndex, Is.EqualTo(i + 1), stat.ToString());
+                Assert.That(def.tiers[i].tierIndex, Is.EqualTo(def.tiers.Count - i), stat.ToString());
                 Assert.That(def.tiers[i].minItemLevel, Is.EqualTo(ExpectedLevels[i]), stat.ToString());
                 Assert.That(def.tiers[i].weight, Is.EqualTo(ExpectedWeights[i]), stat.ToString());
             }

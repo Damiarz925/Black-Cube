@@ -74,9 +74,9 @@ public class PaperBattleHUD : MonoBehaviour
 
     public void ToggleSkills(){if(CanOpenGameplayPanel())GetComponent<PlayerSkillMenuUI>()?.Toggle();}
     public void TogglePassives(){if(CanOpenGameplayPanel())GetComponent<SkillTreeUI>()?.Toggle();}
-    public void ToggleInventory(){if(!CanOpenGameplayPanel())return;bool open=inventoryPanel!=null&&!inventoryPanel.activeSelf;CloseGameplayPanels();if(inventoryPanel!=null)inventoryPanel.SetActive(open);RefreshMenuStates();}
-    public void ToggleStats(){if(!CanOpenGameplayPanel()||statsPanel==null)return;bool open=!statsPanel.activeSelf;CloseGameplayPanels();statsPanel.SetActive(open);RefreshMenuStates();}
-    public void ToggleEnemyInspection(){if(!CanOpenGameplayPanel())return;bool open=!IsEnemyInspectionOpen;CloseGameplayPanels();if(open)enemyInspection?.Open();RefreshMenuStates();}
+    public void ToggleInventory(){if(!CanOpenGameplayPanel())return;if(inventoryPanel!=null)inventoryPanel.SetActive(!inventoryPanel.activeSelf);RefreshMenuStates();}
+    public void ToggleStats(){if(!CanOpenGameplayPanel()||statsPanel==null)return;bool open=!statsPanel.activeSelf;enemyInspection?.Close();GetComponent<SkillTreeUI>()?.Close();statsPanel.SetActive(open);RefreshMenuStates();}
+    public void ToggleEnemyInspection(){if(!CanOpenGameplayPanel())return;bool open=!IsEnemyInspectionOpen;if(statsPanel!=null)statsPanel.SetActive(false);GetComponent<SkillTreeUI>()?.Close();if(open)enemyInspection?.Open();else enemyInspection?.Close();RefreshMenuStates();}
     public void CloseEnemyInspection(){enemyInspection?.Close();RefreshMenuStates();}
     public void PauseGameplay(){if(!CanOpenPanel())return;CloseGameplayPanels();Time.timeScale=0f;pauseMenu?.Open();RefreshPlaybackControls();}
     public void PlayGameplay(){if(!CanOpenPanel())return;pauseMenu?.Close();Time.timeScale=1f;RefreshPlaybackControls();}

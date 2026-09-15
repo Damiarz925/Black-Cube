@@ -28,7 +28,8 @@ public class InventoryTooltipLayoutTests
         Assert.That(first.IndexOf("Attacks Per Second:"),Is.LessThan(first.IndexOf(ItemTooltipFormatter.Divider)));
         Assert.That(first,Does.Contain("<b>Attacks Per Second:</b> 1.2"));
         Assert.That(first,Does.Not.Contain("Base damage:"));
-        Assert.That(first,Does.Contain("◆ LOCKED"));
+        Assert.That(first,Does.Contain("LOCKED ORIGINAL"));
+        Assert.That(first.IndexOf("PREFIXES"),Is.LessThan(first.IndexOf("SUFFIXES")));
         Assert.That(first.IndexOf("Fire Damage",System.StringComparison.Ordinal),Is.LessThan(first.IndexOf("Attack Speed",System.StringComparison.Ordinal)));
         string fireResistance=StatDisplayFormatting.ToFriendlyName(StatTypes.FireRes);
         Assert.That(first.IndexOf("Attack Speed",System.StringComparison.Ordinal),Is.LessThan(first.IndexOf(fireResistance,System.StringComparison.Ordinal)));
@@ -40,7 +41,7 @@ public class InventoryTooltipLayoutTests
     {
         Gear armour=Track(new GameObject("armour")).AddComponent<Gear>();armour.Initialize(LootManager.GearType.BodyArmours,LootManager.GearRarity.Rare,42,Element.Phys);
         armour.rolledMods.Add(new RolledMod(StatTypes.LifeRegeneration,1,3,false));armour.rolledMods.Add(new RolledMod(StatTypes.FlatArmour,1,25,true));
-        string item=ItemTooltipFormatter.DescribeGear(armour);Assert.That(item,Does.Contain("ITEM LEVEL 42"));Assert.That(item,Does.Contain(ItemTooltipFormatter.Divider));Assert.That(item,Does.Contain("◆ LOCKED"));
+        string item=ItemTooltipFormatter.DescribeGear(armour);Assert.That(item,Does.Contain("ITEM LEVEL 42"));Assert.That(item,Does.Contain(ItemTooltipFormatter.Divider));Assert.That(item,Does.Contain("LOCKED ORIGINAL"));
         var relic=new RelicData{id="r",cycle=2,rarity=LootManager.GearRarity.Legendary,craftableThisCycle=true,modifiers=new List<RelicModifier>{new(RelicModifierType.IncreasedExperience,8,false),new(RelicModifierType.MoreDamage,7,true),new(RelicModifierType.MoreAttackSpeed,4,false)}};
         string text=ItemTooltipFormatter.DescribeRelic(relic);Assert.That(text.IndexOf("More Damage"),Is.LessThan(text.IndexOf("More Attack Speed")));Assert.That(text.IndexOf("More Attack Speed"),Is.LessThan(text.IndexOf("Increased Experience")));Assert.That(text,Does.Contain("CURRENT CYCLE / CRAFTABLE"));
     }
@@ -53,7 +54,7 @@ public class InventoryTooltipLayoutTests
         var canvas=Track(new GameObject("canvas",typeof(RectTransform),typeof(Canvas)));var anchor=Track(new GameObject("anchor",typeof(RectTransform)));anchor.transform.SetParent(canvas.transform,false);
         ItemTooltipUI tooltip=ItemTooltipUI.Create(canvas.transform);typeof(ItemTooltipUI).GetMethod("OnEnable",BindingFlags.Instance|BindingFlags.NonPublic).Invoke(tooltip,null);tooltip.Show(gear,(RectTransform)anchor.transform,false);string before=tooltip.BodyText;
         currency.Add(CraftingCurrencyType.NormalToMagic);currency.Arm(CraftingCurrencyType.NormalToMagic);
-        Assert.That(currency.TryApplyArmedToGear(gear),Is.True);Assert.That(tooltip.gameObject.activeSelf,Is.True);Assert.That(tooltip.BodyText,Is.Not.EqualTo(before));Assert.That(tooltip.BodyText,Does.Contain("◇ UNLOCKED"));
+        Assert.That(currency.TryApplyArmedToGear(gear),Is.True);Assert.That(tooltip.gameObject.activeSelf,Is.True);Assert.That(tooltip.BodyText,Is.Not.EqualTo(before));Assert.That(tooltip.BodyText,Does.Contain("CRAFTABLE"));
         inventory.Remove(gear);Assert.That(tooltip.gameObject.activeSelf,Is.False);
     }
 

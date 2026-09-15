@@ -440,8 +440,11 @@ public class BattleManager : MonoBehaviour
                 // cost has been paid and cannot drift while the projectile flies.
                 DamageContext snapshot = playerController.BuildAttackContext(
                     skill.conversionElement, skill.nonMatchingConversion, skill.DamageScopes);
+                bool hitTwice = Random.value < Mathf.Clamp01(AdjustedChance(playerStats, StatTypes.ChanceToHitTwice));
+                DamageContext? bonusSnapshot = hitTwice ? playerController.BuildAttackContext(
+                    skill.conversionElement, skill.nonMatchingConversion, skill.DamageScopes) : null;
                 SkillProjectile.Launch(player.transform, currentEnemy.transform, skill.conversionElement,
-                    () => ResolvePlayerProjectile(skill, target, statuses, snapshot), offset);
+                    () => ResolvePlayerProjectile(skill, target, statuses, snapshot, bonusSnapshot), offset);
             }
         }
         else
@@ -452,13 +455,12 @@ public class BattleManager : MonoBehaviour
     }
 
     private void ResolvePlayerProjectile(PlayerSkillDefinition skill, HealthComponent target,
-        StatusController statuses, DamageContext snapshot)
+        StatusController statuses, DamageContext snapshot, DamageContext? bonusSnapshot)
     {
         if (!IsSameLivingEnemy(target)) return;
         ResolvePlayerLogicalHit(skill, target, statuses, showImpact: true, normalSnapshot: snapshot);
-        if (IsSameLivingEnemy(target)
-            && Random.value < Mathf.Clamp01(AdjustedChance(playerStats, StatTypes.ChanceToHitTwice)))
-            ResolvePlayerLogicalHit(skill, target, statuses, showImpact: true, normalSnapshot: snapshot);
+        if (IsSameLivingEnemy(target) && bonusSnapshot.HasValue)
+            ResolvePlayerLogicalHit(skill, target, statuses, showImpact: true, normalSnapshot: bonusSnapshot.Value);
     }
 
     public int GetPlayerProjectileCount(PlayerSkillDefinition skill)

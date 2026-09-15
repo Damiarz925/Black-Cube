@@ -75,7 +75,6 @@ public sealed class EnemyInspectionPanelUI : MonoBehaviour
             return;
 
         hud.statsPanel.SetActive(false);
-        if (hud.inventoryPanel != null) hud.inventoryPanel.SetActive(false);
         GetComponent<SkillTreeUI>()?.Close();
         panel.SetActive(true);
         panel.transform.SetAsLastSibling();

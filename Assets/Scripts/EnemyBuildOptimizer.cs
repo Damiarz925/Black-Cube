@@ -260,7 +260,8 @@ public static class EnemyBuildOptimizer
         float critChance = !ReferenceEquals(weapon, null)
             ? Mathf.Clamp01(weapon.GetEffectiveBaseCrit(stats.Get(StatTypes.BaseCritChance)) * (1f + stats.Get(StatTypes.CritChance)))
             : 0f;
-        float critExtra = Mathf.Max(0f, stats.Get(StatTypes.CritMult));
+        float critExtra = CombatCalculator.BaseCriticalMultiplier - 1f
+            + Mathf.Max(0f, stats.Get(StatTypes.CritMult));
 
         float normalFinal = 0f;
         float criticalFinal = 0f;

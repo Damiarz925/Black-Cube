@@ -138,6 +138,35 @@ public class HudControlTests
     }
 
     [Test]
+    public void InventoryCoexistsWithEitherStatsPanelButStatsPanelsExcludeEachOther()
+    {
+        BuildFixture(out GameObject canvas,out GameObject playerObject,out PaperBattleHUD hud);
+        try
+        {
+            hud.ToggleInventory();Assert.That(hud.inventoryPanel.activeSelf,Is.True);
+            hud.ToggleStats();Assert.That(hud.inventoryPanel.activeSelf,Is.True);
+            Assert.That(hud.statsPanel.activeSelf,Is.True);
+            hud.ToggleStats();Assert.That(hud.inventoryPanel.activeSelf,Is.True);
+            Assert.That(hud.statsPanel.activeSelf,Is.False);
+            hud.ToggleEnemyInspection();Assert.That(hud.inventoryPanel.activeSelf,Is.True);
+            Assert.That(hud.IsEnemyInspectionOpen,Is.True);
+            hud.ToggleStats();Assert.That(hud.IsEnemyInspectionOpen,Is.False);
+            Assert.That(hud.statsPanel.activeSelf,Is.True);
+            Assert.That(hud.inventoryPanel.activeSelf,Is.True);
+            hud.ToggleEnemyInspection();Assert.That(hud.statsPanel.activeSelf,Is.False);
+            Assert.That(hud.IsEnemyInspectionOpen,Is.True);
+            hud.ToggleInventory();Assert.That(hud.inventoryPanel.activeSelf,Is.False);
+            Assert.That(hud.IsEnemyInspectionOpen,Is.True);
+            hud.ToggleInventory();Assert.That(hud.inventoryPanel.activeSelf,Is.True);
+            hud.CloseEnemyInspection();Assert.That(hud.inventoryPanel.activeSelf,Is.True);
+            hud.PauseGameplay();Assert.That(hud.inventoryPanel.activeSelf,Is.False);
+            Assert.That(hud.PauseMenu.IsOpen,Is.True);
+            hud.PlayGameplay();
+        }
+        finally{Time.timeScale=1f;Object.DestroyImmediate(canvas);Object.DestroyImmediate(playerObject);}
+    }
+
+    [Test]
     public void MainControls_AreUniqueOwnCallbacksNavigateAndPersistPanelState()
     {
         BuildFixture(out GameObject canvas,out GameObject playerObject,out PaperBattleHUD hud);

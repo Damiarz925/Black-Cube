@@ -232,6 +232,7 @@ public static class PassiveTreeDefinition
     {
         PassiveBranch.IncreasedProjectileAmount => "Increased Projectile Amount",
         PassiveBranch.AttackSpeed => "Attack Speed", PassiveBranch.BleedChance => "Bleed Chance",
+        PassiveBranch.Poison => "Void Damage",
         PassiveBranch.PoisonChance => "Poison Chance", PassiveBranch.ChillChance => "Chill Chance",
         PassiveBranch.IgniteChance => "Ignite Chance", PassiveBranch.ShockChance => "Shock Chance",
         PassiveBranch.ChanceToHitTwice => "Chance to Hit Twice",
@@ -245,7 +246,7 @@ public static class PassiveTreeDefinition
         PassiveBranch.Defense => "armour", PassiveBranch.Life => "maximum HP",
         PassiveBranch.Mana => "maximum mana", PassiveBranch.Magic => "Magic-tagged damage",
         PassiveBranch.Lightning => "Lightning damage", PassiveBranch.Fire => "Fire damage",
-        PassiveBranch.Poison => "Poison damage", PassiveBranch.Projectile => "projectile skill damage",
+        PassiveBranch.Poison => "Void damage", PassiveBranch.Projectile => "projectile skill damage",
         PassiveBranch.Physical => "Physical damage", PassiveBranch.Cold => "Cold damage",
         PassiveBranch.IncreasedProjectileAmount => "additional projectile amount",
         PassiveBranch.AttackSpeed => "attack speed", PassiveBranch.BleedChance => "Bleed chance",

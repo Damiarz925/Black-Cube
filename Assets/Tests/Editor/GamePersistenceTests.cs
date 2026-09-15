@@ -23,8 +23,33 @@ public sealed class GamePersistenceTests
     [Test] public void NoSaveReturnsClearFailure(){Assert.That(GamePersistence.TryReadBestEnvelope(out _,out var source,out var error),Is.False);Assert.That(source,Is.EqualTo(SaveLoadSource.None));Assert.That(error,Does.Contain("No gameplay save"));}
     [Test] public void ValidEnvelopePasses(){Assert.That(GamePersistence.ValidateEnvelope(Valid(),out var error),Is.True,error);}
     [Test] public void FutureSchemaIsRejected(){var e=Valid();e.schemaVersion=99;AssertInvalid(e,"newer");}
+    [Test] public void Schema2ScalarGearMigratesToExactConstantDamageRange()
+    {
+        var old=Valid();old.schemaVersion=2;
+        var item=Gear("old-weapon");item.type=LootManager.GearType.Weapons;
+        item.baseDamage=87f;item.mods[0]=new RolledMod(StatTypes.FlatPhys,2,17f,true);
+        old.payload.gearItems.Add(item);old.payload.inventoryGearIds.Add(item.id);
+        File.WriteAllText(GamePersistence.PrimaryPath,JsonUtility.ToJson(old));
+        Assert.That(GamePersistence.TryReadFile(GamePersistence.PrimaryPath,out var migrated,out var error),Is.True,error);
+        Assert.That(migrated.schemaVersion,Is.EqualTo(3));
+        Assert.That(migrated.payload.gearItems[0].baseDamageMin,Is.EqualTo(87f));
+        Assert.That(migrated.payload.gearItems[0].baseDamageMax,Is.EqualTo(87f));
+        Assert.That(migrated.payload.gearItems[0].legacyAffixRules,Is.True);
+        Assert.That(migrated.payload.gearItems[0].mods[0].HighValue,Is.EqualTo(17f));
+    }
     [Test] public void UnknownEnumIsRejected(){var e=Valid();e.payload.currencies.Add(new CurrencyStackData((CraftingCurrencyType)999,1));AssertInvalid(e,"Currency");}
     [Test] public void InvalidModifierIsRejected(){var e=Valid();e.payload.gearItems.Add(Gear("a",(StatTypes)999));e.payload.inventoryGearIds.Add("a");AssertInvalid(e,"modifier");}
+    [Test] public void CurrentDirectAffixTierAndSideCapacityAreValidated()
+    {
+        var e=Valid();var ring=Gear("direct-ring",StatTypes.FireRes);
+        ring.mods[0]=new RolledMod(StatTypes.FireRes,8,8f,true);
+        e.payload.gearItems.Add(ring);e.payload.inventoryGearIds.Add(ring.id);
+        Assert.That(GamePersistence.ValidateEnvelope(e,out var error),Is.True,error);
+        ring.mods[0].value=50f;AssertInvalid(e,"affix");
+        ring.mods[0].value=8f;ring.rarity=LootManager.GearRarity.Magic;
+        ring.mods.Add(new RolledMod(StatTypes.ColdRes,8,8f));
+        AssertInvalid(e,"side capacity");
+    }
     [Test] public void DuplicateGearIdIsRejected(){var e=Valid();e.payload.gearItems.Add(Gear("a"));e.payload.gearItems.Add(Gear("a"));e.payload.inventoryGearIds.Add("a");AssertInvalid(e,"unique");}
     [Test] public void DuplicateGearOwnershipIsRejected(){var e=Valid();e.payload.gearItems.Add(Gear("a"));e.payload.inventoryGearIds.Add("a");e.payload.equippedGear.Add(new EquippedGearReference{slot=LootManager.GearType.Weapons,gearId="a"});AssertInvalid(e,"ownership");}
     [Test] public void InvalidPassiveAllocationIsRejected(){var e=Valid();e.payload.passiveRanks.Add(new PassiveRankData(PassiveTreeDefinition.NodeCount,1));AssertInvalid(e,"Passive");}
@@ -62,7 +87,7 @@ public sealed class GamePersistenceTests
     [Test] public void RichSnapshotJsonRoundTripPreservesAuthoritativeFields()
     {
         var e=Valid();e.payload.passiveRanks.Add(new PassiveRankData(0,1));e.payload.availablePassivePoints=1;e.payload.hasSelectedSkill=true;e.payload.selectedSkill=PlayerSkillId.Fireball;
-        var gear=Gear("gear-rich",StatTypes.FireDmg);gear.rarity=LootManager.GearRarity.Rare;gear.itemLevel=37;gear.baseDamage=42.5f;gear.baseAttackSpeed=1.35f;gear.baseCritChance=.07f;e.payload.gearItems.Add(gear);e.payload.equippedGear.Add(new EquippedGearReference{slot=LootManager.GearType.Rings,gearId=gear.id});
+        var gear=Gear("gear-rich",StatTypes.FireDmg);gear.rarity=LootManager.GearRarity.Rare;gear.itemLevel=37;gear.baseDamage=42.5f;gear.baseDamageMin=35f;gear.baseDamageMax=50f;gear.baseAttackSpeed=1.35f;gear.baseCritChance=.07f;e.payload.gearItems.Add(gear);e.payload.equippedGear.Add(new EquippedGearReference{slot=LootManager.GearType.Rings,gearId=gear.id});
         e.payload.currencies.Add(new CurrencyStackData(CraftingCurrencyType.AddRareModifier,8));e.payload.currencies.Add(new CurrencyStackData(CraftingCurrencyType.AncientReroll,3));
         var relic=new RelicData{id="relic-3",cycle=3,rarity=LootManager.GearRarity.Magic,craftableThisCycle=true};relic.modifiers.Add(new RelicModifier(RelicModifierType.MoreDamage,7.25f,true));e.payload.relicCycle=3;e.payload.relics.Add(relic);e.payload.activeRelicIds[2]=relic.id;
         string json=JsonUtility.ToJson(e);var restored=JsonUtility.FromJson<SaveEnvelope>(json);Assert.That(GamePersistence.ValidateEnvelope(restored,out var error),Is.True,error);
