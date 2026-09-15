@@ -66,6 +66,16 @@ public class ModManager : MonoBehaviour
 
     private void OnDestroy() { if (Instance == this) Instance = null; }
 
+#if UNITY_EDITOR
+    public void ConfigureForIsolatedRolling(ModDatabase database)
+    {
+        if (Instance == null) Instance = this;
+        modDatabase = database;
+        modDatabase?.Initialize();
+    }
+    public void ReleaseIsolatedRolling() { if (Instance == this) Instance = null; }
+#endif
+
     //Function used to roll mods for items
     public List<RolledMod> RollModsForItem(
         LootManager.GearType itemType,      //Takes args for gear type, rarity, ilvl and mod count

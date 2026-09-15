@@ -27,6 +27,15 @@ public class GearStatLists : MonoBehaviour
 
     private void OnDestroy() { if (Instance == this) Instance = null; }
 
+#if UNITY_EDITOR
+    public void ConfigureForIsolatedRolling()
+    {
+        if (Instance == null) Instance = this;
+        statPools = BuildDefaultStatPools();
+    }
+    public void ReleaseIsolatedRolling() { if (Instance == this) Instance = null; }
+#endif
+
     public List<StatTypes> GetStatPoolForType(LootManager.GearType type)
     {
         return statPools[type];

@@ -112,6 +112,9 @@ __pycache__/
 # Repository-root scratch exports.
 /_tmp_*
 
+# Deterministic balance-lab generated reports (committed observations live in Docs).
+/Logs/Balance/
+
 # Huge third-party/store asset payloads. Other store assets remain allowed.
 /[Aa]ssets/[Ss]tore [Aa]ssets/[Aa]llsky/
 /[Aa]ssets/[Ss]tore [Aa]ssets/[Aa]llsky.meta
