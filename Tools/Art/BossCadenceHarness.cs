@@ -25,7 +25,7 @@ public enum Element {Phys}
 public class LevelGenerator:UnityEngine.MonoBehaviour{}
 public class ZoneManager:UnityEngine.MonoBehaviour {
     public int zoneLevel;public void GenerateZone(){}public int GetSeedForZone(int l){return l;}
-    public void RewardZoneClear(int l){} public bool ShouldOfferPrestige(int l){return false;}public void GrantPrestigeRewards(int l){}
+    public void RewardZoneClear(int l){}
     // PRODUCTION_QUOTA
 }
 public class PlayerProgression:UnityEngine.MonoBehaviour {public int awards;public void ResetProgression(){awards=0;}public void AwardEnemy(int l,bool b){awards++;}}

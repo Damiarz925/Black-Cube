@@ -22,6 +22,8 @@ Runtime ownership, reset and transition rules are recorded in [RUNTIME_LIFECYCLE
 
 The implemented Step 6 persistence contract is recorded in [SAVE_STATE_CONTRACT.md](SAVE_STATE_CONTRACT.md). `GamePersistence.TrySave` writes schema-v2 UTF-8 JSON under `Application.persistentDataPath` through a validated temporary file, atomic primary replacement, and one backup. Load validates before mutation, falls back primary→backup, migrates historical `BlackCube.Save.V1` only when no new-format file exists, and restores a deterministic clean encounter start with recorded player life/mana. Pause Menu Save & Main Menu / Save & Quit remain gated on that one canonical entry point.
 
+Step 8 removed the superseded Prestige runtime route. Boss death now always advances directly to the next combat level after the existing empty zone-clear reward hook. Do not add a second reset path: New Game replaces the gameplay/meta save, Restart restarts the current combat level, Rebirth performs the approved relic/meta reset, and Load restores the current save.
+
 ## Open and navigate
 
 The project currently records **Unity 6000.6.0f1** in [ProjectVersion.txt](../ProjectSettings/ProjectVersion.txt). Open the project with that version and let Unity finish importing. Package versions, including URP and UGUI, are pinned in [manifest.json](../Packages/manifest.json).
@@ -120,7 +122,7 @@ The optimizer intentionally gives no invented value to roll-eligible mechanics t
 
 The HUD reads state; InventoryUI/PlayerStatsPanelUI manage views from change events. ItemTooltipUI formats actual item values and protects equipped items from scrapping. DamagePopup renders numbers after life loss and uses a snapshot position so a destroyed enemy does not drag the popup. EquipmentGlyph/StatusGlyph/DamageNumberAccent generate UI mesh art. Legacy ThemeSet/ThemeDefinition/LevelGenerator/Pool build optional 3D scenery; they are separate from the paper forest and battle spawn points. LevelGenerator reseeds Unity's global RNG, so enabling it can affect later random rolls.
 
-Implemented: auto-combat, equipment/local-global stat scaling, loot/inventory/filter/currency crafting, save/load, XP/skills, rebirth/relics, DOT stacking, status displays, death/restart, and paper backgrounds/poses. Present but incomplete: evasion has stat fields only and no hit test; shock/chill have display/lifetime plumbing but no gameplay response; the older prestige reward hook still auto-continues; achievements are absent; status virtual hooks are not dispatched; several enum stats and legacy theme/bounds fields have no consumer.
+Implemented: auto-combat, equipment/local-global stat scaling, loot/inventory/filter/currency crafting, save/load, XP/skills, rebirth/relics, DOT stacking, status displays, death/restart, and paper backgrounds/poses. Present but incomplete: evasion has stat fields only and no hit test; shock/chill have display/lifetime plumbing but no gameplay response; achievements are absent; status virtual hooks are not dispatched; several enum stats and legacy theme/bounds fields have no consumer.
 
 ## How to validate changes yourself
 
@@ -129,11 +131,12 @@ From the project root in PowerShell, run each C# harness in a **fresh PowerShell
 ```powershell
 powershell -NoProfile -File Tools/Art/verify_combat_animation.ps1
 powershell -NoProfile -File Tools/Art/verify_forest_cycle.ps1
-powershell -NoProfile -File Tools/Art/verify_boss_cadence.ps1
 python Tools/Art/verify_chibi_player_assets.py
 python Tools/Art/verify_forest_assets.py
 python Tools/Art/verify_forest_enemies.py
 ```
+
+`verify_boss_cadence.ps1` is currently a known exception: its reduced Unity stubs predate GameManager's scene-lifecycle dependencies and do not compile the current source. Use Unity `ProgressionChecks` for cadence coverage until that historical harness is modernized or retired.
 
 These are file/logic checks with stubs, not a Unity build. Forest source-identity checking requires the original `D:/Documents/BlackCubeAssets/Level Art/Forest/Forest 1` folder. If moving computers, update recorded source locations deliberately; do not treat missing source files as passing validation.
 

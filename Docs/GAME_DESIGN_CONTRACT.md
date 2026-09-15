@@ -134,7 +134,7 @@ Fragment integration applies to manual and filter-driven dismantling when eventu
 
 Rebirth is the intended meta-progression reset system and becomes available at level 50+. It resets run progression according to the established contract, retains permanent-within-save relic history, advances the cycle, creates one new current-cycle relic, restricts Ancient crafting to current-cycle authority, and supports four active relic slots.
 
-New Game clears relic history, active slots, cycle/rebirth history and Ancient currency. Obsolete Prestige must not become a competing design; it is scheduled for removal/cleanup in Step 8.
+New Game clears relic history, active slots, cycle/rebirth history and Ancient currency. Rebirth is the only run-reset/meta-progression system; the superseded Prestige runtime path was removed in Step 8 and must not be reintroduced as a competing design.
 
 ## 15. Save, load and restart semantics
 
@@ -223,5 +223,5 @@ Do not lock total v1 combat levels, zones, backgrounds, normal enemies, bosses, 
 | Void | Final identity must be explicitly approved. | Enum/mask/tooltip support exists; normal player weapon generation excludes Void and no gameplay rule is defined. | Unresolved. | 9–10 |
 | Status callbacks | Extensible status lifecycle should have an approved dispatch contract if retained. | Empty virtual hooks exist and are not called by current status ticking. | Dead extension surface. | 9–10 |
 | Enemy scaling | Enemies should scale intentionally across progression; exact balance is later. | Gear level/count grows, but prefab base life/damage has no level multiplier. | Partial system. | 11, then 13 |
-| Prestige | Rebirth is the sole intended meta reset. | Obsolete level-10 placeholder logs and auto-continues; reward hooks are empty. | Remove/clean up; do not expand. | 8 |
+| Prestige (resolved) | Rebirth is the sole intended meta reset. | Step 8 removed the level-10 offer branch, placeholder continuation, public reset method and empty reward hook. Boss clears advance directly at every combat level. | Resolved; retain this historical row to prevent regression. | Completed in 8 |
 | Dismantle rewards | Future rarity fragments: Normal none, Magic one N→M fragment, Rare analogous M→R fragment. | Dismantling currently grants 1/2/3/5 random full ordinary currencies by rarity. | Approved future replacement, not a Step 7 bug fix. | Future crafting step |

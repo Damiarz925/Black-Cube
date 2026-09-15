@@ -76,7 +76,7 @@ RUNTIME = {
 'ThemeDefinition':'Legacy 3D theme art and per-category placement rules. ZoneManager currently applies the skybox; BackgroundSprite/AmbientTint are not the active paper-forest background source.',
 'ThemeSet':'Weighted legacy 3D theme catalog with optional exact level overrides. The paper forest cycle instead uses six sprites on ZoneManager.',
 'ThemeSpawnRules':'Legacy scenery placement controls in world units/degrees, with count, density and skip probability. PositionJitter x/y fields perturb world X/Z; vertical offset is separate.',
-'ZoneManager':'Selects the six paper forest images in ten-level blocks repeating every sixty levels. Also retains optional legacy 3D scenery generation and placeholder prestige/scaling hooks.',
+'ZoneManager':'Selects the six paper forest images in ten-level blocks repeating every sixty levels. Also retains optional legacy 3D scenery generation and future scaling hooks.',
 }
 EDITOR = {
 'AttackStatsChecks':'Opt-in Play fixture for deterministic damage previews, status gating and legendary tooltips.',

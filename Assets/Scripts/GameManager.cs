@@ -1,4 +1,4 @@
-// Developer map: Session run coordinator: nine normal kills lead to stage10 boss, whose death advances the combat level. Claims enemy death once before XP/loot/spawn callbacks; encounter restart retains PlayerProgression.
+// Developer map: Session run coordinator: nine normal kills lead to stage10 boss, whose death advances directly to the next combat level. Claims enemy death once before XP/loot/spawn callbacks; encounter restart retains PlayerProgression.
 // See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -326,42 +326,18 @@ public class GameManager : MonoBehaviour
 
         if (zoneManager == null)
         {
-            Debug.LogWarning("GameManager: ZoneManager is null during zone clear; starting next zone without zone reward checks.");
-            StartZone(currentZoneLevel + 1);
-            GamePersistence.Save();
-            return;
-        }
-
-        zoneManager.RewardZoneClear(currentZoneLevel);      //call reward zone clear from zone manager (Might just put this in game manager instead. Doesn't make sense in zone manager)
-
-        if (zoneManager.ShouldOfferPrestige(currentZoneLevel))      //check if prestige should be offered. (Might just put that in game manager instead, doesn't really make sense to be in zone manager
-        {
-            ShowPrestigeMenu();     //Show prestige menu if necessary
+            Debug.LogWarning("GameManager: ZoneManager is null during zone clear; starting next zone without zone rewards.");
         }
         else
         {
-            StartZone(currentZoneLevel + 1);        //Increment the zone level by 1 and start the next zone
+            zoneManager.RewardZoneClear(currentZoneLevel);
         }
+
+        StartZone(NextCombatLevelAfterBoss(currentZoneLevel));
         GamePersistence.Save();
     }
 
-    private void ShowPrestigeMenu()     //Not currently implemented (I'll be putting this in the prestige script later.) Prestige will be accessed through a menu button. The initial show prestige will simply make it visible, selectable and highlight it
-    {
-        // TODO: open prestige UI, let player choose.
-        Debug.Log("GameManager: Showing prestige menu (placeholder: auto-continue).");
-        StartZone(currentZoneLevel + 1);
-    }
-
-    public void PerformPrestige()   //Not currently implemented (probably redundant, I'll create a separate script for managing prestige)
-    {
-        Debug.Log($"GameManager: Performing prestige at zone {currentZoneLevel}.");
-        if (zoneManager != null)
-            zoneManager.GrantPrestigeRewards(currentZoneLevel);
-        else
-            Debug.LogWarning("GameManager: ZoneManager is null; prestige rewards were not granted.");
-
-        StartNewRun();
-    }
+    private static int NextCombatLevelAfterBoss(int clearedLevel) => Mathf.Max(1, clearedLevel + 1);
 
     private void EnsureSceneReferences()
     {

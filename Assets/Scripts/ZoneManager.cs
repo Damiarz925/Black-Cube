@@ -1,4 +1,4 @@
-// Developer map: Selects the six paper forest images in ten-level blocks repeating every sixty levels. Also retains optional legacy 3D scenery generation and placeholder prestige/scaling hooks.
+// Developer map: Selects the six paper forest images in ten-level blocks repeating every sixty levels. Also retains optional legacy 3D scenery generation and future scaling hooks.
 // See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using System.Collections.Generic;
 using UnityEngine;
@@ -257,22 +257,9 @@ public class ZoneManager : MonoBehaviour
         return zoneLevel;
     }
 
-    //This will check if the zone level is high enough to allow the player to prestige when completed. Likely display an animation to make it clear.
-    //If this is called regardless of whether showPrestige is already true in the class that calls it, add one later so that it is only offered and animated once, then remains visible after until prestige occurs
-    public bool ShouldOfferPrestige(int zoneLevel)
-    {
-        return zoneLevel >= 10; // Example threshold, adjust as needed
-    }
-
-    //Rewards the player based on the level of the zone, passed in zoneLevel is likely redundant, as the zoneManager should instantiate its own zoneLevel.
+    // Extension point for ordinary combat-level-clear rewards; currently no reward is defined.
     public void RewardZoneClear(int zoneLevel)
     {
         // TODO: grant loot / xp / currency here
-    }
-
-    //This function doesn't feel fitting for this script, likely add a separate prestige script that couples rewards granted with other prestige related actions.
-    public void GrantPrestigeRewards(int highestZoneThisRun)
-    {
-        // TODO: grant meta rewards here
     }
 }

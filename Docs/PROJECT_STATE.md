@@ -9,11 +9,12 @@ Current-reality claims use this evidence order: (1) verified source code, (2) sc
 ## 1. Verified baseline
 
 - Repository branch: `codex/repository-cleanup-baseline`
-- Verified implementation commit: `76c5687f8fcee69d089eb9b3efc0c9df5549ea6a` (`Implement versioned save and load system`)
+- Verified Step 6 implementation commit: `76c5687f8fcee69d089eb9b3efc0c9df5549ea6a` (`Implement versioned save and load system`)
+- Step 7 authority baseline: `a039bb1e116c919ee63a32913793d50da62d4ad5` (`Lock project state and game design contracts`)
 - Unity: `6000.6.0f1` (`f7f8ed4d1e24`)
 - Enabled build scenes, in order: `Assets/Scenes/Main Menu.unity`, `Assets/Scenes/SampleScene.unity`
-- Source inventory at this milestone: 94 runtime C# files, 23 Editor C# files, 11 EditMode test files, and 45 sources under `Tools` (`.cs`, `.py`, `.ps1`)
-- EditMode suite: 136/136 passing
+- Source inventory at this milestone: 94 runtime C# files, 23 Editor C# files, 12 EditMode test files, and 45 sources under `Tools` (`.cs`, `.py`, `.ps1`)
+- EditMode suite: 143/143 passing
 - Real-scene rich save → Main Menu → load/New Game check: passing
 - Six-entry lifecycle and Pause Menu soak: passing
 - Missing-reference validation: passing with zero failures
@@ -94,7 +95,6 @@ Use [CODE_MAP.md](CODE_MAP.md) for file ownership and [DEVELOPER_HANDOFF.md](DEV
 | Void | `Element.Void` and masks exist. Player loot excludes unfinished Void weapon bases and no final Void mechanic is implemented. |
 | Status callbacks | Virtual apply/tick/expire/outgoing-damage hooks exist on `StatusEffects` but current ticking does not dispatch them. |
 | Enemy base scaling | Enemy item level, item count and build candidates grow with combat level. Base life/damage scaling remains an unused extension point; prefab life is constant per archetype. |
-| Prestige | Zone level 10+ reaches an obsolete placeholder that logs and auto-continues. Reward methods are empty; Rebirth is the functional reset system. |
 | Achievements | Main Menu button only logs a placeholder message. No achievement system exists. |
 
 ## 7. Current content
@@ -146,18 +146,18 @@ Generated reports are written to `Logs` or `ReviewCaptures`; check timestamps be
 - Rollable but unconsumed affixes create dead player/enemy item outcomes and misleading displayed power.
 - Shock and Chill presentation can imply mechanics that are not actually applied.
 - Enemy base survivability/damage does not scale with level independently of generated equipment.
-- Obsolete Prestige code remains in the post-boss route, although it currently only auto-continues.
 - The active content pool is one normal enemy, one boss and one repeating environment family.
 - Much of the active UI is constructed in code; it is testable but harder to art-direct than final authored prefabs.
 - `PaperBattle.prefab` retains substantial legacy 3D content and dormant systems, increasing import and maintenance cost.
+- The file-only `verify_boss_cadence.ps1` harness predates the current scene-lifecycle dependencies and no longer compiles its reduced Unity stubs; Unity's `ProgressionChecks` remains the passing cadence regression.
 - Save recovery exposes diagnostic status through logs/API rather than a polished player-facing recovery dialog.
 - There is no automated cloud conflict policy, multiple-slot UI or achievement integration.
 
 ## 12. Roadmap position
 
-Steps 1–6 are complete. Step 7 locks current-state and intended-design documentation without changing runtime behavior.
+Steps 1–8 are complete. Step 7 locked current-state and intended-design documentation. Step 8 removed the superseded Prestige branch/API: every boss clear now advances directly to the next combat level, while Rebirth remains the sole run-reset/meta-progression system.
 
-Known later phases are: Step 8 obsolete Prestige cleanup; Steps 9–10 incomplete-mechanics decisions and implementation; Step 11 enemy base scaling; Step 13 balance; and Step 14 final v1 zone/enemy/boss/content scope. The current Step 7 brief does not define Step 12, so this document does not invent it.
+Known later phases are: Steps 9–10 incomplete-mechanics decisions and implementation; Step 11 enemy base scaling; Step 13 balance; and Step 14 final v1 zone/enemy/boss/content scope. The current briefs do not define Step 12, so this document does not invent it.
 
 ## Maintenance rule
 
