@@ -23273,8 +23273,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerProgression
   maxLevel: 100
-  maxEnemiesFrom99To100: 1000
-  bossXpMultiplier: 8
+  maxEnemiesFrom99To100: 45
+  bossXpMultiplier: 5
   level: 1
   experience: 0
   availablePoints: 0

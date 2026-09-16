@@ -20,13 +20,20 @@ namespace BlackCube
         public float enemyIntrinsicDamageFactor,enemyWeaponBaseDamage;
         public int enemyGearPieces,enemyRarity;
         public float skillCost,skillDirectHit,skillAilmentDps,skillBurst10,skillSustain30,engagedTtk,ailmentShare;
+        public float basicAilmentDps,skillDirectDps;
+        public float eventEngagedWinRate,eventIdleWinRate,eventVictorySeconds,eventIdleVictorySeconds;
+        public float eventDeathSeconds,eventAilmentShare,eventManaRemaining,eventSkillCasts;
         public int selectedGear,implicitCount,explicitCount,passiveCount,craftedItems;
+        public int resistanceImplicitCount,resistanceExplicitCount,allResCount;
+        public float resistanceImplicitPoints;
+        public int prefixCount,suffixCount,topTierExplicitCount;
     }
 
     [Serializable] public sealed class CoreBalanceReferenceReport
     {
         public string methodology="Production actor stats, legal rolled equipment/implicits/passives and enemy generation. "
-            +"Expected-hit and ailment throughput TTK/TTD and 10/30-second skill estimates are diagnostic; Shock/Chill and event-timed mana simulation are pending.";
+            +"Expected-hit TTK/TTD and 10/30-second throughput are diagnostic; three seeded event-timed duels per row also model automatic attacks, engaged skills, mana recovery, DOT turns, Shock and Chill. "
+            +"Engaged casting uses a declared 1.5-second human cadence, not a runtime cooldown; projectile travel and ranged skill-hit weapon variance remain estimates.";
         public int seed,samples;
         public CoreBalanceReferenceRow[] rows;
         public double elapsedSeconds;
@@ -44,6 +51,7 @@ namespace BlackCube
         static readonly LootManager.GearType[] Slots={LootManager.GearType.Weapons,LootManager.GearType.Helmets,
             LootManager.GearType.BodyArmours,LootManager.GearType.Gloves,LootManager.GearType.Boots,
             LootManager.GearType.Amulets,LootManager.GearType.Rings,LootManager.GearType.Belts};
+        const int DuelTrials=3;
 
         [MenuItem("Black Cube/Balance/Run Step 13 Real Reference Quick")]
         public static void RunQuick()=>RunFromCommandLine(5);
@@ -223,7 +231,7 @@ namespace BlackCube
             LootManager.GearType slot,int level,int track,PlayerSkillId archetype)
         {
             int attempts=CandidateCount(slot,track);
-            Gear best=null;float bestScore=float.NegativeInfinity;
+                Gear best=null;float bestScore=float.NegativeInfinity;
             for(int candidate=0;candidate<attempts;candidate++)
             {
                 var rarity=loot.RollItemRarity(level);
@@ -236,7 +244,7 @@ namespace BlackCube
                 var go=new GameObject($"Legal {slot} candidate",typeof(Gear));go.transform.SetParent(player.transform,false);
                 var gear=go.GetComponent<Gear>();gear.Initialize(slot,rarity,itemLevel,element);gear.ApplyMods(mods);
                 ValidateGear(gear,database);
-                float score=Score(gear,archetype);
+                float score=Score(gear,archetype,player.GetComponent<StatsComponent>(),track);
                 if(score>bestScore)
                 {
                     if(best!=null)UnityEngine.Object.DestroyImmediate(best.gameObject);
@@ -259,7 +267,7 @@ namespace BlackCube
             return baseCount*(track==0?1:track==1?3:6);
         }
 
-        static float Score(Gear gear,PlayerSkillId archetype)
+        static float Score(Gear gear,PlayerSkillId archetype,StatsComponent currentStats,int track)
         {
             float score=0f;
             if(gear.ItemType==LootManager.GearType.Weapons)
@@ -277,10 +285,26 @@ namespace BlackCube
             {
                 if(Gear.IsWeaponBaseStat(mod.statType))continue;
                 float value=mod.value;
+                float resistanceNeed=1f;
+                if(track>0&&currentStats!=null)
+                {
+                    StatTypes resistance=mod.statType;
+                    if(resistance is StatTypes.FireRes or StatTypes.ColdRes or StatTypes.LightRes or StatTypes.VoidRes)
+                        resistanceNeed=Mathf.Clamp01((.75f-currentStats.GetStat(resistance)
+                            -currentStats.GetStat(StatTypes.AllRes))/.75f);
+                    else if(resistance==StatTypes.AllRes)
+                    {
+                        resistanceNeed=0f;
+                        foreach(var core in new[]{StatTypes.FireRes,StatTypes.ColdRes,
+                            StatTypes.LightRes,StatTypes.VoidRes})
+                            resistanceNeed+=Mathf.Clamp01((.75f-currentStats.GetStat(core)
+                                -currentStats.GetStat(StatTypes.AllRes))/.75f)/4f;
+                    }
+                }
                 score+=mod.statType switch
                 {
-                    StatTypes.FireRes or StatTypes.ColdRes or StatTypes.LightRes or StatTypes.VoidRes=>value*.18f,
-                    StatTypes.AllRes=>value*.58f,
+                    StatTypes.FireRes or StatTypes.ColdRes or StatTypes.LightRes or StatTypes.VoidRes=>value*.18f*resistanceNeed,
+                    StatTypes.AllRes=>value*.58f*resistanceNeed,
                     StatTypes.Life=>value*.05f,
                     StatTypes.LifePercent=>value*.36f,
                     StatTypes.Mana or StatTypes.ManaPercent=>value*.05f,
@@ -388,6 +412,28 @@ namespace BlackCube
                 float critFactor=1f+playerCrit*(playerCritMult-1f);
                 float playerDps=playerHit*(1f+playerCrit*(playerCritMult-1f))
                     *hitTwice*playerSpeed;
+                int resistanceImplicitCount=0,resistanceExplicitCount=0,allResCount=0;
+                int prefixCount=0,suffixCount=0,topTierExplicitCount=0;
+                float resistanceImplicitPoints=0f;
+                foreach(var gear in player.GetComponentsInChildren<Gear>(true))
+                    foreach(var mod in gear.rolledMods)
+                    {
+                        if(mod==null||Gear.IsWeaponBaseStat(mod.statType))continue;
+                        bool resistance=mod.statType is StatTypes.FireRes or StatTypes.ColdRes
+                            or StatTypes.LightRes or StatTypes.VoidRes or StatTypes.AllRes;
+                        if(mod.statType==StatTypes.AllRes)allResCount++;
+                        if(mod.lockedOriginal)
+                        {
+                            if(resistance){resistanceImplicitCount++;resistanceImplicitPoints+=mod.value;}
+                        }
+                        else
+                        {
+                            if(resistance)resistanceExplicitCount++;
+                            if(AffixPolicy.Side(mod.statType)==AffixSide.Prefix)prefixCount++;
+                            else suffixCount++;
+                            if(mod.tierIndex==1)topTierExplicitCount++;
+                        }
+                    }
                 var enemyNormal=ai.BuildNonCriticalAttackContext();
                 float enemyHit=CombatCalculator.CalculateFinalDamage(enemyNormal,enemyStats,playerStats);
                 float enemyDps=enemyHit*(1f+Mathf.Clamp01(ai.GetFinalCritChance())
@@ -431,14 +477,51 @@ namespace BlackCube
                 float burst=playerDps+basicAilment+skillHit*burstCasts/10f+burstAilment;
                 float sustained=playerDps+basicAilment+skillHit*sustainedCasts/30f+skillAilment;
                 float skillDirectDps=skillHit*sustainedCasts/30f;
+                var playerLow=controller.BuildNonCriticalAttackContextAtRangeEnd(false);
+                var playerHigh=controller.BuildNonCriticalAttackContextAtRangeEnd(true);
+                var enemyLow=ai.BuildNonCriticalAttackContextAtRangeEnd(false);
+                var enemyHigh=ai.BuildNonCriticalAttackContextAtRangeEnd(true);
+                int engagedWins=0,idleWins=0,engagedLosses=0;
+                float engagedWinSeconds=0f,idleWinSeconds=0f,deathSeconds=0f;
+                float eventAilment=0f,eventMana=0f,eventCasts=0f;
+                for(int trial=0;trial<DuelTrials;trial++)
+                {
+                    int duelSeed=unchecked(seed*131071+combatLevel*8191+sample*1013
+                        +track*173+(int)archetype*41+(autoBaseline?7:0)
+                        +(role=="boss"?29:0)+trial*113);
+                    var idle=BalanceCombatSimulator.Simulate(normal,playerStats,
+                        playerHealth.MaxLife,playerSpeed,playerCrit,enemyNormal,enemyStats,
+                        health.MaxLife,enemySpeed,Mathf.Clamp01(ai.GetFinalCritChance()),
+                        ailments,duelSeed,120f,playerLow,playerHigh,enemyLow,enemyHigh);
+                    if(idle.Winner==1){idleWins++;idleWinSeconds+=idle.Seconds;}
+                    var engaged=idle;
+                    if(skill!=null)
+                    {
+                        var basis=specialized.Hits==null?direct:specialized;
+                        var plan=new BalanceCombatSimulator.ActiveSkillPlan(skill,direct,basis,
+                            cost,mana.MaxMana,regen,hitCount);
+                        engaged=BalanceCombatSimulator.SimulateWithSkill(normal,playerStats,
+                            playerHealth.MaxLife,playerSpeed,playerCrit,enemyNormal,enemyStats,
+                            health.MaxLife,enemySpeed,Mathf.Clamp01(ai.GetFinalCritChance()),
+                            ailments,plan,duelSeed,120f,playerLow,playerHigh,enemyLow,enemyHigh);
+                    }
+                    if(engaged.Winner==1){engagedWins++;engagedWinSeconds+=engaged.Seconds;}
+                    else if(engaged.Winner==-1){engagedLosses++;deathSeconds+=engaged.Seconds;}
+                    eventAilment+=engaged.AilmentEnemyDamage/
+                        Mathf.Max(.0001f,engaged.AilmentEnemyDamage+engaged.DirectEnemyDamage);
+                    eventMana+=engaged.ManaRemaining;eventCasts+=engaged.SkillCasts;
+                }
                 return new CoreBalanceReferenceRow
                 {
                     seed=seed,sample=sample,playerLevel=playerLevel,combatLevel=combatLevel,gearTrack=track,relicTrack=relicTrack,
                     archetype=archetype,autoBaseline=autoBaseline,enemyRole=role,playerLife=playerHealth.MaxLife,
                     playerMana=mana.MaxMana,manaRegeneration=regen,
                     playerSpeed=playerSpeed,playerNormalHit=playerHit,playerBasicDps=playerDps+basicAilment,
-                    fireRes=playerStats.GetStat(StatTypes.FireRes),coldRes=playerStats.GetStat(StatTypes.ColdRes),
-                    lightRes=playerStats.GetStat(StatTypes.LightRes),voidRes=playerStats.GetStat(StatTypes.VoidRes),
+                    basicAilmentDps=basicAilment,skillDirectDps=skillDirectDps,
+                    fireRes=playerStats.GetStat(StatTypes.FireRes)+playerStats.GetStat(StatTypes.AllRes),
+                    coldRes=playerStats.GetStat(StatTypes.ColdRes)+playerStats.GetStat(StatTypes.AllRes),
+                    lightRes=playerStats.GetStat(StatTypes.LightRes)+playerStats.GetStat(StatTypes.AllRes),
+                    voidRes=playerStats.GetStat(StatTypes.VoidRes)+playerStats.GetStat(StatTypes.AllRes),
                     armour=playerStats.GetStat(StatTypes.FlatArmour)
                         *(1f+playerStats.GetStat(StatTypes.ArmourPercent)),
                     implicitScore=implicitScore,explicitScore=explicitScore,
@@ -450,9 +533,21 @@ namespace BlackCube
                     normalTtd=playerHealth.MaxLife/Mathf.Max(.0001f,enemyDps),skillCost=cost,
                     skillDirectHit=skillHit,skillAilmentDps=skillAilment,skillBurst10=burst,
                     skillSustain30=sustained,engagedTtk=health.MaxLife/Mathf.Max(.0001f,sustained),
-                    ailmentShare=skillAilment/Mathf.Max(.0001f,skillAilment+skillDirectDps),
+                    ailmentShare=(basicAilment+skillAilment)/Mathf.Max(.0001f,sustained),
+                    eventEngagedWinRate=engagedWins/(float)DuelTrials,
+                    eventIdleWinRate=idleWins/(float)DuelTrials,
+                    eventVictorySeconds=engagedWins>0?engagedWinSeconds/engagedWins:0f,
+                    eventIdleVictorySeconds=idleWins>0?idleWinSeconds/idleWins:0f,
+                    eventDeathSeconds=engagedLosses>0?deathSeconds/engagedLosses:0f,
+                    eventAilmentShare=eventAilment/DuelTrials,
+                    eventManaRemaining=eventMana/DuelTrials,eventSkillCasts=eventCasts/DuelTrials,
                     selectedGear=selected,implicitCount=implicits,explicitCount=explicits,
-                    passiveCount=passives,craftedItems=crafted
+                    passiveCount=passives,craftedItems=crafted,
+                    resistanceImplicitCount=resistanceImplicitCount,
+                    resistanceExplicitCount=resistanceExplicitCount,
+                    allResCount=allResCount,resistanceImplicitPoints=resistanceImplicitPoints,
+                    prefixCount=prefixCount,suffixCount=suffixCount,
+                    topTierExplicitCount=topTierExplicitCount
                 };
             }
         }

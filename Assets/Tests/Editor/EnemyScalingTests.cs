@@ -7,6 +7,75 @@ using UnityEngine;
 public sealed class EnemyScalingTests
 {
     [Test]
+    public void FirstRunXpUsesCheckpointKillPacingAndFiveNormalEquivalentBossReward()
+    {
+        var host=new GameObject("step 13 xp",typeof(PlayerProgression));
+        try
+        {
+            var progression=host.GetComponent<PlayerProgression>();
+            foreach(int level in new[]{1,10,25,50,75,99})
+            {
+                double normal=progression.EnemyReward(level,EnemyAI.EnemyRarity.Normal,false);
+                double boss=progression.EnemyReward(level,EnemyAI.EnemyRarity.Normal,true);
+                Assert.That(boss/normal,Is.EqualTo(5d).Within(.0001d));
+                Assert.That(progression.RequirementAt(level)/normal,
+                    Is.InRange(7.999d,45.001d));
+            }
+            Assert.That(progression.RequirementAt(99)/
+                progression.EnemyReward(99,EnemyAI.EnemyRarity.Normal,false),
+                Is.EqualTo(45d).Within(.0001d));
+        }
+        finally{UnityEngine.Object.DestroyImmediate(host);}
+    }
+
+    [Test]
+    public void RealPlayerProgressionOwnsLevelLifeAndRestoresItWithoutSyntheticRunnerScaling()
+    {
+        var player=new GameObject("level-life regression",typeof(StatsComponent),
+            typeof(HealthComponent),typeof(PlayerStatSetup));
+        var progressionHost=new GameObject("level-life progression",typeof(PlayerProgression));
+        try
+        {
+            var stats=player.GetComponent<StatsComponent>();
+            var health=player.GetComponent<HealthComponent>();
+            var progression=progressionHost.GetComponent<PlayerProgression>();
+            typeof(PlayerStatSetup).GetMethod("Awake",BindingFlags.Instance|BindingFlags.NonPublic)
+                .Invoke(player.GetComponent<PlayerStatSetup>(),null);
+            typeof(HealthComponent).GetMethod("Awake",BindingFlags.Instance|BindingFlags.NonPublic)
+                .Invoke(health,null);
+            typeof(PlayerProgression).GetField("boundStats",BindingFlags.Instance|BindingFlags.NonPublic)
+                .SetValue(progression,stats);
+            Assert.That(progression.RestoreProgression(1,0,0,new int[PassiveTreeDefinition.NodeCount]),Is.True);
+            Assert.That(health.MaxLife,Is.EqualTo(1000f).Within(.01f));
+            Assert.That(progression.RestoreProgression(75,0,74,new int[PassiveTreeDefinition.NodeCount]),Is.True);
+            Assert.That(health.MaxLife,Is.EqualTo(1000f*Math.Pow(1.012,49)
+                *Math.Pow(1.025,25)).Within(.1f));
+            Assert.That(progression.RestoreProgression(100,0,99,new int[PassiveTreeDefinition.NodeCount]),Is.True);
+            Assert.That(health.MaxLife,Is.EqualTo(1000f*Math.Pow(1.012,49)
+                *Math.Pow(1.025,50)).Within(.1f));
+            progression.ResetProgression();
+            Assert.That(health.MaxLife,Is.EqualTo(1000f).Within(.01f));
+        }
+        finally
+        {
+            UnityEngine.Object.DestroyImmediate(progressionHost);
+            UnityEngine.Object.DestroyImmediate(player);
+        }
+    }
+
+    [Test]
+    public void EnemyEquipmentTierAccessIsSeparateFromPlayerLootAndBounded()
+    {
+        Assert.That(EnemyAI.EffectiveEnemyGearItemLevel(1),Is.EqualTo(1));
+        Assert.That(EnemyAI.EffectiveEnemyGearItemLevel(25),Is.EqualTo(3));
+        Assert.That(EnemyAI.EffectiveEnemyGearItemLevel(50),Is.EqualTo(6));
+        Assert.That(EnemyAI.EffectiveEnemyGearItemLevel(75),Is.EqualTo(8));
+        Assert.That(EnemyAI.EffectiveEnemyGearItemLevel(100),Is.EqualTo(11));
+        Assert.That(EnemyAI.EffectiveEnemyGearItemLevel(300),Is.EqualTo(15));
+        Assert.That(LootManager.RarityRatesForLevel(100).w,Is.EqualTo(4f));
+    }
+
+    [Test]
     public void CurrentPrefabSeedsAndLevelOneRemainUnchanged()
     {
         CheckPrefab("Assets/Prefabs/PaperBattle/Goblin2D.prefab", 250f, false);
@@ -59,7 +128,7 @@ public sealed class EnemyScalingTests
         var hundred = EnemyScalingMath.Calculate(100);
         var next = EnemyScalingMath.Calculate(101);
         Assert.That(hundred.LifeFactor, Is.EqualTo(Math.Pow(1.04, 99)).Within(.01));
-        Assert.That(hundred.DamageFactor, Is.EqualTo(Math.Pow(1.03, 99)).Within(.01));
+        Assert.That(hundred.DamageFactor, Is.EqualTo(Math.Pow(1.03,99)).Within(.01));
         Assert.That(next.LifeFactor / hundred.LifeFactor, Is.EqualTo(1.02f).Within(.0001f));
         Assert.That(next.DamageFactor / hundred.DamageFactor, Is.EqualTo(1.015f).Within(.0001f));
         Assert.That(hundred.Armour, Is.EqualTo(495f));
@@ -133,7 +202,7 @@ public sealed class EnemyScalingTests
         try
         {
             UnityEngine.Random.InitState(11012);
-            foreach (int level in new[] { 1, 10, 25, 50, 75, 100 })
+            foreach (int level in new[] { 1, 10, 25, 50, 75, 100, 150 })
             foreach (GameObject prefab in prefabs)
             {
                 var actor = UnityEngine.Object.Instantiate(prefab);
@@ -143,6 +212,19 @@ public sealed class EnemyScalingTests
                     var setup = actor.GetComponent<EnemyStatSetup>();
                     var stats = actor.GetComponent<StatsComponent>();
                     ai.GenerateIsolatedBuild(level, null, EnemyAI.EnemyRarity.Normal);
+                    var role=actor.GetComponent<HealthComponent>();
+                    role.SetEnemyRole(false);
+                    float normalRaw=0f;
+                    foreach(var hit in ai.BuildNonCriticalAttackContext().Hits)normalRaw+=hit.Amount;
+                    role.SetEnemyRole(true);
+                    float bossRaw=0f;
+                    foreach(var hit in ai.BuildNonCriticalAttackContext().Hits)bossRaw+=hit.Amount;
+                    if(normalRaw>0f)
+                        Assert.That(bossRaw/normalRaw,
+                            Is.EqualTo(EnemyAI.BossRoleDamageMultiplier).Within(.0001f));
+                    role.SetEnemyRole(prefab.GetComponent<HealthComponent>().IsBoss);
+                    foreach(var equipped in ai.EquippedItems)
+                        Assert.That(equipped.ItemLevel,Is.EqualTo(EnemyAI.EffectiveEnemyGearItemLevel(level)));
                     var math = EnemyScalingMath.Calculate(level);
                     Assert.That(setup.Intrinsic.LifeFactor, Is.EqualTo(math.LifeFactor));
                     Assert.That(ai.LastOptimizerBaseStats[(int)StatTypes.Life],

@@ -7,10 +7,10 @@ using UnityEngine;
 /// <summary>Session progression lives with GameManager; encounter restart never resets it.</summary>
 public sealed class PlayerProgression : MonoBehaviour
 {
-    [Header("Forgiving prototype XP (rebalance here)")]
+    [Header("First-run combat XP pacing")]
     [SerializeField, Min(1)] int maxLevel = 100;
-    [SerializeField, Min(1)] float maxEnemiesFrom99To100 = 1000;
-    [SerializeField, Min(1)] float bossXpMultiplier = 8f;
+    [SerializeField, Min(1)] float maxEnemiesFrom99To100 = 45;
+    [SerializeField, Min(1)] float bossXpMultiplier = 5f;
     [SerializeField] int level = 1;
     [SerializeField] double experience;
     [SerializeField] int availablePoints;
@@ -32,6 +32,16 @@ public sealed class PlayerProgression : MonoBehaviour
     public double RequiredXp => RequirementAt(level);
     public double RequirementAt(int atLevel) => atLevel < maxLevel ? Math.Max(1d, Math.Round(ReqAtLevel10Xp * Math.Pow(GetRequirementGrowth(), atLevel - ReqAnchorLevel10))) : 0d;
     public double EnemyReward(int combatLevel, EnemyAI.EnemyRarity rarity, bool wasBoss) => RequirementAt(combatLevel) / KillsToLevelUp(combatLevel) * EnemyXpMultiplier(rarity, wasBoss);
+    // Level-owned Life grows before equipment/passive percentage multipliers.
+    // The gentler early rate keeps first-run midgame TTD credible; the late
+    // rate supports the enemy's authored pre-100 growth. Level 1 remains 1000.
+    public static float LevelLifeBonus(int atLevel)
+    {
+        int level=Mathf.Clamp(atLevel,1,100);
+        int early=Mathf.Min(level-1,49);
+        int late=Mathf.Max(0,level-50);
+        return 1000f*((float)(Math.Pow(1.012d,early)*Math.Pow(1.025d,late))-1f);
+    }
 
     private void Awake() => NormalizeAllocations();
     private void OnEnable() => NormalizeAllocations();
@@ -143,13 +153,19 @@ public sealed class PlayerProgression : MonoBehaviour
         experience += amount * (RelicInventory.Instance != null ? RelicInventory.Instance.ExperienceMultiplier : 1f);
         var player = FindFirstObjectByType<PlayerController>();
         var health = player != null ? player.GetComponent<HealthComponent>() : null;
+        bool leveled=false;
         while (!AtCap && experience >= RequiredXp)
         {
             experience -= RequiredXp;
             level++;
             availablePoints++;
-            if (health != null) health.RestoreFullLife();
+            leveled=true;
             Debug.Log($"Player level {level}: +1 passive point, full HP.");
+        }
+        if(leveled)
+        {
+            BindStats();ApplySkills();
+            if(health!=null)health.RestoreFullLife();
         }
         if (AtCap) experience = 0;
         Changed?.Invoke();
@@ -211,6 +227,8 @@ public sealed class PlayerProgression : MonoBehaviour
         try
         {
             boundStats.RemoveModifiersFromSource(this);
+            float levelLife=LevelLifeBonus(level);
+            if(levelLife>0f)boundStats.AddModifier(new StatModifier(StatTypes.Life,StatOp.Flat,levelLife,this));
             AddPercent(StatTypes.ArmourPercent, PassiveBranch.Defense);
             AddPercent(StatTypes.LifePercent, PassiveBranch.Life);
             AddPercent(StatTypes.ManaPercent, PassiveBranch.Mana);
@@ -296,11 +314,18 @@ public sealed class PlayerProgression : MonoBehaviour
 
     double KillsToLevelUp(int atLevel)
     {
-        if (atLevel <= 1) return 1d;
-        if (atLevel >= TopTransitionLevel) return Math.Max(1d, maxEnemiesFrom99To100);
-        double max = Math.Max(1d, maxEnemiesFrom99To100);
-        double progress = (atLevel - 1d) / (TopTransitionLevel - 1d);
-        return Math.Round(Math.Pow(max, progress));
+        // Normal-enemy XP equivalents, interpolated against the combat-time
+        // checkpoints instead of an exponential late-game kill wall.
+        int[] levels = { 1, 10, 25, 50, 75, TopTransitionLevel };
+        double[] kills = { 8d, 10d, 16d, 22d, 32d,
+            Math.Max(1d, maxEnemiesFrom99To100) };
+        if (atLevel <= levels[0]) return kills[0];
+        for (int i = 1; i < levels.Length; i++)
+            if (atLevel <= levels[i])
+                return Math.Max(1d, Math.Round(kills[i - 1] +
+                    (kills[i] - kills[i - 1]) * (atLevel - levels[i - 1]) /
+                    (levels[i] - levels[i - 1])));
+        return kills[kills.Length - 1];
     }
 
     double EnemyXpMultiplier(EnemyAI.EnemyRarity rarity, bool wasBoss)

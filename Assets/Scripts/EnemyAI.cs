@@ -5,6 +5,9 @@ using UnityEngine;
 
 public class EnemyAI : MonoBehaviour
 {
+    // Boss pressure is role-owned and separate from the authored level-1
+    // prefab Life seeds and the shared intrinsic level curve.
+    public const float BossRoleDamageMultiplier = 1.8f;
     [Header("Base stats / refs")]
     public float baseSpeed = 0.5f;        //Enemy base speed, defaulted to 2f (overriden by stats component I think)
 
@@ -301,7 +304,11 @@ public class EnemyAI : MonoBehaviour
 
         var element = RollItemElement(type == LootManager.GearType.Weapons);
 
-        int itemLevel = zoneLevel;          //set item level equal to zone level
+        // Enemy gear is not player loot. Its authored tier access must grow much
+        // more slowly because intrinsic damage already compounds by combat level.
+        // Keeping the optimizer and enemy rarity/mod counts intact avoids a
+        // second exponential weapon/affix multiplier at the 50/75 tier gates.
+        int itemLevel = EffectiveEnemyGearItemLevel(zoneLevel);
         gear.Initialize(type, gearRarity, itemLevel, element);       //initailize gear, passing in the gear type, rarity, ilvl, and element
 
         int modCount = Gear.RollEnemyModNumber(gearRarity); //preserve the existing enemy intrinsic count profile
@@ -325,6 +332,9 @@ public class EnemyAI : MonoBehaviour
 
         return gear;    //return the gear item
     }
+
+    public static int EffectiveEnemyGearItemLevel(int combatLevel) =>
+        Mathf.Min(15,1+Mathf.Max(1,combatLevel)/10);
 
     private void EquipWeapon(Gear weapon)
     {
@@ -386,7 +396,8 @@ public class EnemyAI : MonoBehaviour
         AddScaledElementalDamage(ctx, weaponElement, weaponBaseDamage, logStats);     //call addscaledelemental damage to add the scaled ele damage (the base element damage scaled by local mods matching that element on the item)
         AddGlobalFlatElements(ctx, weaponElement);      //call addgloablflatelements to add any flat elemental damage that does not match the weapon's base element
         // Scale the completed pre-crit attack package once. Ailment magnitude derives from this source hit.
-        EnemyScalingMath.ScaleOutgoing(ctx, IntrinsicDamageFactor);
+        EnemyScalingMath.ScaleOutgoing(ctx, IntrinsicDamageFactor
+            * (health != null && health.IsBoss ? BossRoleDamageMultiplier : 1f));
 
         return ctx;
     }

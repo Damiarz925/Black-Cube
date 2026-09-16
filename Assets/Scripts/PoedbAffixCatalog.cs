@@ -71,9 +71,11 @@ public static class PoedbAffixCatalog
                 tiers=Slot(slot,H,B,G,T,R,A,L)?Scalar(1,6,11,14,12,17,26,18,23,38,24,29,
                     50,30,35,60,36,41,72,42,45,84,46,48):new();return true;
             case StatTypes.AllRes:
-                if(!Slot(slot,A,R,L))return false; // retain authored Black-Cube non-PoE slot intent
-                tiers=Scalar(12,3,5,24,6,8,36,9,11,48,12,14,
-                    60,15,16,85,17,18);return true;
+                if(!Slot(slot,B,A,R,L))return false; // Body retains its authored eligibility
+                // One Ring and four core resistances justify a Black-Cube-specific
+                // premium ladder, without making every slot an AllRes source.
+                tiers=Scalar(1,5,7,12,7,10,24,10,13,36,13,16,
+                    48,16,19,60,19,22,85,22,25);return true;
             case StatTypes.Life:
                 if(!Slot(slot,H,B,G,T,A,R,L)){tiers=new();return true;}
                 var life=Scalar(1,3,9,5,10,24,11,25,39,18,40,54,24,55,69,

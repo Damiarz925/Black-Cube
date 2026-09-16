@@ -291,4 +291,70 @@ public sealed class BalanceSimulationTests
             UnityEngine.Object.DestroyImmediate(targetHost);
         }
     }
+
+    [Test]
+    public void EngagedDuelSchedulesInstantSkillsAgainstRealManaRecoveryWithoutStoppingAutoAttacks()
+    {
+        var playerHost=new GameObject("active player",typeof(StatsComponent));
+        var enemyHost=new GameObject("active enemy",typeof(StatsComponent));
+        try
+        {
+            var direct=new DamageContext(1);direct.AddDamage(Element.Phys,100f);
+            var idle=new DamageContext(1);
+            var skill=new PlayerSkillDefinition{id=PlayerSkillId.HeavyStrike,
+                manaCost=20f,hitDamageMultiplier=1f};
+            var plan=new BalanceCombatSimulator.ActiveSkillPlan(skill,direct,direct,20f,20f,10f,
+                castSpacing:1.5f);
+            var result=BalanceCombatSimulator.SimulateWithSkill(idle,playerHost.GetComponent<StatsComponent>(),
+                1000f,.0001f,0f,idle,enemyHost.GetComponent<StatsComponent>(),
+                350f,.0001f,0f,Array.Empty<StatusEffects>(),plan,13001,7f);
+            Assert.That(result.Winner,Is.EqualTo(1));
+            Assert.That(result.SkillCasts,Is.EqualTo(4));
+            Assert.That(result.Seconds,Is.EqualTo(6f).Within(.01f));
+            Assert.That(result.DirectEnemyDamage,Is.EqualTo(350f).Within(.01f));
+        }
+        finally
+        {
+            UnityEngine.Object.DestroyImmediate(playerHost);
+            UnityEngine.Object.DestroyImmediate(enemyHost);
+        }
+    }
+
+    [Test]
+    public void EngagedEnvenomGuaranteedPoisonUsesSpecializedBasisDespiteZeroDirectHitAndChance()
+    {
+        var playerHost=new GameObject("poison player",typeof(StatsComponent));
+        var enemyHost=new GameObject("poison enemy",typeof(StatsComponent));
+        var poison=ScriptableObject.CreateInstance<StatusEffects>();
+        try
+        {
+            poison.ConfigureRuntime("Poison",StatusEffects.StatusType.DamageOverTime,
+                StatusEffects.AilmentKind.Poison,ElementMask.Phys,.1f,4,0,
+                StatusEffects.StackPolicy.StackIndependently,2);
+            var empty=new DamageContext(1);
+            var basis=new DamageContext(1);basis.AddDamage(Element.Phys,100f);
+            var skill=new PlayerSkillDefinition{id=PlayerSkillId.Envenom,
+                specializedAilment=StatusEffects.AilmentKind.Poison,
+                guaranteedAilmentApplications=1,suppressDirectDamage=true};
+            var plan=new BalanceCombatSimulator.ActiveSkillPlan(skill,empty,basis,0f,100f,0f);
+            var result=BalanceCombatSimulator.SimulateWithSkill(empty,playerHost.GetComponent<StatsComponent>(),
+                1000f,1f,0f,empty,enemyHost.GetComponent<StatsComponent>(),
+                500f,1f,0f,new[]{poison},plan,13002,4.1f);
+            Assert.That(result.SkillCasts,Is.GreaterThan(0));
+            Assert.That(result.DirectEnemyDamage,Is.Zero);
+            Assert.That(result.AilmentTicks,Is.GreaterThan(0));
+            Assert.That(result.AilmentEnemyDamage,Is.GreaterThan(0f));
+            skill.guaranteedAilmentApplications=0;
+            var noGuarantee=BalanceCombatSimulator.SimulateWithSkill(empty,playerHost.GetComponent<StatsComponent>(),
+                1000f,1f,0f,empty,enemyHost.GetComponent<StatsComponent>(),
+                500f,1f,0f,new[]{poison},plan,13002,4.1f);
+            Assert.That(noGuarantee.AilmentTicks,Is.Zero);
+        }
+        finally
+        {
+            UnityEngine.Object.DestroyImmediate(poison);
+            UnityEngine.Object.DestroyImmediate(playerHost);
+            UnityEngine.Object.DestroyImmediate(enemyHost);
+        }
+    }
 }

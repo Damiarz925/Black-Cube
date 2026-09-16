@@ -38,6 +38,14 @@ public class ModManager : MonoBehaviour
         {StatTypes.CritMult, 15 },
         {StatTypes.BaseCritChance, 5 },
 
+        // Four core defenses compete with offensive/utility suffixes and only
+        // one Ring exists. AllRes has a premium but bounded selection weight.
+        {StatTypes.AllRes, 200 },
+        {StatTypes.FireRes, 80 },
+        {StatTypes.ColdRes, 80 },
+        {StatTypes.LightRes, 80 },
+        {StatTypes.VoidRes, 80 },
+
         // +1 skills
         {StatTypes.Plus1Phys, 5 },
         {StatTypes.Plus1Fire, 5 },

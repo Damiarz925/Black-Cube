@@ -120,6 +120,9 @@ public static class BaselineVerificationRunner
     public static void BuildStep12_5GWindows()
         => BuildWindowsAt("Builds/Step12_5GWindows/BlackCube.exe", "Logs/Step12_5GWindowsBuild.txt");
 
+    public static void BuildStep13Windows()
+        => BuildWindowsAt("Builds/Step13Windows/BlackCube.exe", "Logs/Step13WindowsBuild.txt");
+
     static void BuildWindowsAt(string executable, string reportPath)
     {
         string output = Path.GetFullPath(executable);

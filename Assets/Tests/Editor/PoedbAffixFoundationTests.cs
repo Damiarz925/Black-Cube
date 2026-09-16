@@ -8,6 +8,18 @@ public sealed class PoedbAffixFoundationTests
 {
     const string DatabasePath="Assets/Prefabs/Scriptable Objects/ModDatabase.asset";
 
+    [Test] public void BlackCubeAllResLadderRemainsSlotBoundAndPremium()
+    {
+        Assert.That(PoedbAffixCatalog.TryGet(StatTypes.AllRes,
+            LootManager.GearType.BodyArmours,out var body),Is.True);
+        Assert.That(body.Count,Is.EqualTo(7));
+        Assert.That(body[0].minItemLevel,Is.EqualTo(1));
+        Assert.That(body[6].minValue,Is.EqualTo(22f));
+        Assert.That(body[6].maxValue,Is.EqualTo(25f));
+        Assert.That(PoedbAffixCatalog.TryGet(StatTypes.AllRes,
+            LootManager.GearType.Gloves,out _),Is.False);
+    }
+
     [Test] public void ReusableValidatorChecksCatalogAndReachableFilterCategories()
     {
         var database=AssetDatabase.LoadAssetAtPath<ModDatabase>(DatabasePath);

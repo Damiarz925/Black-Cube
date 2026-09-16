@@ -10,7 +10,11 @@ using UnityEngine;
 public static class ItemizationValidationRunner
 {
     [MenuItem("Black Cube/Validation/Validate Itemization")]
-    public static void Run()
+    public static void Run()=>RunAt("Logs/Step12_5G-itemization-validation.txt");
+
+    public static void RunStep13()=>RunAt("Logs/Step13-itemization-validation.txt");
+
+    static void RunAt(string reportPath)
     {
         const string path = "Assets/Prefabs/Scriptable Objects/ModDatabase.asset";
         var database = AssetDatabase.LoadAssetAtPath<ModDatabase>(path);
@@ -71,9 +75,9 @@ public static class ItemizationValidationRunner
                             }
                             finally { UnityEngine.Object.DestroyImmediate(gearHost); }
                         }
-            string output = Path.GetFullPath("Logs/Step12_5G-itemization-validation.txt");
+            string output = Path.GetFullPath(reportPath);
             Directory.CreateDirectory(Path.GetDirectoryName(output));
-            File.WriteAllText(output, $"Step 12.5G itemization audit: {cases} deterministic cases, "
+            File.WriteAllText(output, $"Itemization audit: {cases} deterministic cases, "
                 + $"{errors.Count} errors\n" + string.Join("\n", errors));
             if (errors.Count > 0) throw new InvalidOperationException($"Itemization audit found {errors.Count} errors; see {output}");
             Debug.Log($"Itemization audit passed: {cases} cases; {output}");
