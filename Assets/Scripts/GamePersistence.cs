@@ -167,7 +167,27 @@ public static class GamePersistence
         e=null;source=SaveLoadSource.None;pendingSchemaMigration=false;var failures=new List<string>();if(File.Exists(PrimaryPath)){if(TryReadFile(PrimaryPath,out e,out var x)){source=SaveLoadSource.Primary;error=null;return true;}failures.Add("primary: "+x);}if(File.Exists(BackupPath)){if(TryReadFile(BackupPath,out e,out var x)){source=SaveLoadSource.Backup;error=null;return true;}failures.Add("backup: "+x);}
         if(!File.Exists(PrimaryPath)&&!File.Exists(BackupPath)&&PlayerPrefs.HasKey(SaveKey)){if(TryMigrateLegacy(PlayerPrefs.GetString(SaveKey),out e,out var x)){source=SaveLoadSource.LegacyV1;error=null;return true;}failures.Add("legacy: "+x);}error=failures.Count==0?"No gameplay save exists.":"No valid save: "+string.Join("; ",failures);return false;
     }
-    public static bool TryReadFile(string path,out SaveEnvelope e,out string error){e=null;error=null;try{string json=File.ReadAllText(path,Encoding.UTF8);if(string.IsNullOrWhiteSpace(json))return Fail("File is empty.",out error);e=JsonUtility.FromJson<SaveEnvelope>(json);bool migrated=e?.schemaVersion==2||e?.schemaVersion==3||e?.schemaVersion==4;if(e?.schemaVersion==2)MigrateSchema2(e);if(e?.schemaVersion==3)MigrateEquipmentImplicits(e);if(e?.schemaVersion==4)MigrateSchema4(e);bool valid=ValidateEnvelope(e,out error);pendingSchemaMigration=valid&&migrated;return valid;}catch(Exception ex){pendingSchemaMigration=false;return Fail(ex.Message,out error);}}
+    public static bool TryReadFile(string path,out SaveEnvelope e,out string error){e=null;error=null;try{string json=File.ReadAllText(path,Encoding.UTF8);if(string.IsNullOrWhiteSpace(json))return Fail("File is empty.",out error);e=JsonUtility.FromJson<SaveEnvelope>(json);bool migrated=e?.schemaVersion==2||e?.schemaVersion==3||e?.schemaVersion==4;if(e?.schemaVersion==2)MigrateSchema2(e);if(e?.schemaVersion==3)MigrateEquipmentImplicits(e);if(e?.schemaVersion==4)MigrateSchema4(e);bool normalized=NormalizeFragmentPayload(e?.payload);bool valid=ValidateEnvelope(e,out error);pendingSchemaMigration=valid&&(migrated||normalized);return valid;}catch(Exception ex){pendingSchemaMigration=false;return Fail(ex.Message,out error);}}
+    static bool NormalizeFragmentPayload(GameStatePayload payload)
+    {
+        if(payload==null||payload.currencies==null)return false;
+        bool changed=false;
+        changed|=NormalizeOne(CraftingCurrencyType.NormalToMagic,ref payload.normalToMagicFragments,payload.currencies);
+        changed|=NormalizeOne(CraftingCurrencyType.MagicToRare,ref payload.magicToRareFragments,payload.currencies);
+        return changed;
+    }
+    static bool NormalizeOne(CraftingCurrencyType type,ref int fragments,List<CurrencyStackData> currencies)
+    {
+        if(fragments<10)return false;
+        int full=fragments/10;
+        for(int i=0;i<currencies.Count;i++)if(currencies[i].type==type)
+        {
+            if(currencies[i].amount>int.MaxValue-full)return false;
+            currencies[i]=new CurrencyStackData(type,currencies[i].amount+full);
+            fragments%=10;return true;
+        }
+        currencies.Add(new CurrencyStackData(type,full));fragments%=10;return true;
+    }
     // Schema 3 already serialized the locked-original flag and exact rolls;
     // PlayerPrefs V1 gear may need its first surviving roll marked. Reuse that
     // field as the implicit. Schema 4 distinguishes strict new caps from

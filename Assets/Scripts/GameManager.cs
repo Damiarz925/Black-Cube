@@ -214,7 +214,7 @@ public class GameManager : MonoBehaviour
 
         EnsureSceneReferences();
 
-        EnemyDropResult drops=(enemyAI!=null?enemyAI.DropTable:new EnemyDropTable()).Roll();
+        EnemyDropResult drops=(enemyAI!=null?enemyAI.DropTable:new EnemyDropTable()).Roll(isBoss:wasBoss);
         Transform pickupTarget=FindAnyObjectByType<PlayerController>()?.transform;
         foreach(var currency in drops.currencies)CurrencyWorldPickup.Spawn(currency,enemyHealth.transform.position,pickupTarget);
 

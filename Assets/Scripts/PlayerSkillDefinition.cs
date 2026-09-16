@@ -35,6 +35,7 @@ public sealed class PlayerSkillDefinition
     [Tooltip("When non-negative, replaces the status asset's source-damage coefficient for this skill.")]
     public float absoluteAilmentCoefficient = -1f;
     [Min(0)] public int guaranteedAdditionalChill;
+    [Min(0)] public int guaranteedAilmentApplications;
     public bool suppressDirectDamage;
     public DamageScope DamageScopes => (projectile ? DamageScope.Projectile : DamageScope.None)
                                        | (magic ? DamageScope.Magic : DamageScope.None);
@@ -43,19 +44,21 @@ public sealed class PlayerSkillDefinition
     {
         return new List<PlayerSkillDefinition>
         {
-            New(PlayerSkillId.HeavyStrike, "Heavy Strike", "A crushing physical hit for 130% damage.", 30, 1.3f),
+            New(PlayerSkillId.HeavyStrike, "Heavy Strike", "A crushing physical hit for 130% damage.", 30, 1.3f,
+                Element.Phys,1f),
             New(PlayerSkillId.IceStrike, "Ice Strike", "120% damage, 50% converted to Cold, plus one additional Chill.", 20, 1.2f,
                 Element.Cold, .5f, guaranteedChill: 1),
-            New(PlayerSkillId.LightningStrike, "Lightning Strike", "Each hit deals 55% damage. Shock Chance grants additional independent hits.", 10, .55f,
+            New(PlayerSkillId.LightningStrike, "Lightning Strike", "Each hit deals 55% damage. Shock Chance grants additional independent hits.", 20, .55f,
                 Element.Light, .5f, shockHits: true),
             New(PlayerSkillId.Fireball, "Fireball", "Launch a projectile for 200% damage, with 50% converted to Fire.", 100, 2f,
                 Element.Fire, .5f, projectile: true),
             New(PlayerSkillId.Envenom, "Envenom", "Deal no hit damage; use the normal attack as the basis for Poison.", 20, 0f,
-                specialized: StatusEffects.AilmentKind.Poison, suppressDirect: true),
+                specialized: StatusEffects.AilmentKind.Poison, suppressDirect: true,guaranteedAilment:1),
             New(PlayerSkillId.Shiv, "Shiv", "Deal 70% hit damage. Bleeds use twice this attack's normal Bleed basis.", 30, .7f,
-                specialized: StatusEffects.AilmentKind.Bleed, ailmentBasis: 2f),
+                Element.Phys,1f,StatusEffects.AilmentKind.Bleed,2f,guaranteedAilment:1),
             New(PlayerSkillId.Immolate, "Immolate", "Deal 10% hit damage; a 50% Fire conversion fuels an Ignite with a 250% basis.", 60, .1f,
-                Element.Fire, .5f, StatusEffects.AilmentKind.Ignite, 1f, absoluteAilment: 2.5f)
+                Element.Fire, .5f, StatusEffects.AilmentKind.Ignite, 1f, absoluteAilment: 2.5f,
+                guaranteedAilment:1)
         };
     }
 
@@ -63,7 +66,7 @@ public sealed class PlayerSkillDefinition
         float hitMultiplier, Element conversion = Element.Phys, float conversionAmount = 0f,
         StatusEffects.AilmentKind specialized = StatusEffects.AilmentKind.None, float ailmentBasis = 1f,
         bool projectile = false, bool shockHits = false, int guaranteedChill = 0, bool suppressDirect = false,
-        float absoluteAilment = -1f)
+        float absoluteAilment = -1f,int guaranteedAilment=0)
     {
         return new PlayerSkillDefinition
         {
@@ -73,7 +76,9 @@ public sealed class PlayerSkillDefinition
             specializedAilment = specialized, ailmentBasisMultiplier = ailmentBasis,
             absoluteAilmentCoefficient = absoluteAilment,
             projectile = projectile, additionalHitsFromShockChance = shockHits,
-            guaranteedAdditionalChill = guaranteedChill, suppressDirectDamage = suppressDirect
+            guaranteedAdditionalChill = guaranteedChill,
+            guaranteedAilmentApplications = guaranteedAilment,
+            suppressDirectDamage = suppressDirect
         };
     }
 }

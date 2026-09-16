@@ -676,12 +676,16 @@ public class BattleManager : MonoBehaviour
             ? specialized : ctx;
         DamageContext igniteBasis = skill != null && skill.specializedAilment == StatusEffects.AilmentKind.Ignite
             ? specialized : ctx;
+        int specializedGuarantee=skill!=null?Mathf.Max(0,skill.guaranteedAilmentApplications):0;
 
         ApplyConfiguredStatus(poisonEffect, StatTypes.PoisonChance, poisonBasis, attackerStats, targetStatusCont,
-            poisonTransmutation ? 1 : 0, poisonTransmutation ? 1f : -1f, poisonTransmutation);
-        ApplyConfiguredStatus(bleedEffect, StatTypes.BleedChance, bleedBasis, attackerStats, targetStatusCont);
+            poisonTransmutation ? 1 : skill!=null&&skill.specializedAilment==StatusEffects.AilmentKind.Poison
+                ?specializedGuarantee:0, poisonTransmutation ? 1f : -1f, poisonTransmutation);
+        ApplyConfiguredStatus(bleedEffect, StatTypes.BleedChance, bleedBasis, attackerStats, targetStatusCont,
+            skill!=null&&skill.specializedAilment==StatusEffects.AilmentKind.Bleed?specializedGuarantee:0);
         ApplyConfiguredStatus(igniteEffect, StatTypes.IgniteChance, igniteBasis, attackerStats, targetStatusCont,
-            0, skill != null && skill.specializedAilment == StatusEffects.AilmentKind.Ignite
+            skill!=null&&skill.specializedAilment==StatusEffects.AilmentKind.Ignite?specializedGuarantee:0,
+            skill != null && skill.specializedAilment == StatusEffects.AilmentKind.Ignite
                 ? skill.absoluteAilmentCoefficient : -1f);
         ApplyChillFromHit(ctx, attackerStats, targetStatusCont,
             skill != null ? skill.guaranteedAdditionalChill : 0);

@@ -45,9 +45,11 @@ public sealed class FragmentEconomyTests
         Assert.That(currency.Count(CraftingCurrencyType.MagicToRare), Is.EqualTo(2));
         Assert.That(currency.AddFragments(CraftingCurrencyType.RerollMagic, 1), Is.False);
         Assert.That(currency.RestoreFragments(9, 8), Is.True);
-        Assert.That(currency.RestoreFragments(10, 0), Is.False);
-        Assert.That(currency.NormalToMagicFragments, Is.EqualTo(9));
+        Assert.That(currency.RestoreFragments(23, 18), Is.True);
+        Assert.That(currency.NormalToMagicFragments, Is.EqualTo(3));
         Assert.That(currency.MagicToRareFragments, Is.EqualTo(8));
+        Assert.That(currency.Count(CraftingCurrencyType.NormalToMagic), Is.EqualTo(3));
+        Assert.That(currency.Count(CraftingCurrencyType.MagicToRare), Is.EqualTo(3));
     }
 
     [Test] public void ManualAndPickupFilterDismantleShareFragmentRuleWithoutDuplicateRewards()

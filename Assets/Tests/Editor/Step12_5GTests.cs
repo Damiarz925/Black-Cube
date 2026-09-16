@@ -347,7 +347,7 @@ public sealed class Step12_5GTests
         Assert.That(body.GetPreferredValues(lifeLine).x,Is.LessThan(416f));
     }
 
-    [Test] public void FiftyThousandRarityRollsReachConstructibleLegendariesWithoutRateChange()
+    [Test] public void FiftyThousandLevelAwareRarityRollsReachConstructibleLegendaries()
     {
         var host=new GameObject("Seeded rarity audit");created.Add(host);
         var loot=host.AddComponent<LootManager>();
@@ -360,14 +360,14 @@ public sealed class Step12_5GTests
         var filterProbe=gearHost.GetComponent<Gear>();
         const int rollsPerLevel=10000;
         var report=new System.Text.StringBuilder();
-        report.AppendLine("Step 12.5G seeded Legendary audit; weights 1 / 71 = 1.40845%. No rate tuning.");
+        report.AppendLine("Step 12.5G seeded Legendary constructibility audit using current level-aware Step 13 player-drop rates.");
         foreach(int level in new[]{1,25,50,75,100})
         {
             UnityEngine.Random.InitState(125000+level);
             int legendary=0,constructed=0,failures=0,legalityFailures=0,filterRejections=0;
             for(int i=0;i<rollsPerLevel;i++)
             {
-                if(loot.RollItemRarity()!=LootManager.GearRarity.Legendary)continue;
+                if(loot.RollItemRarity(level)!=LootManager.GearRarity.Legendary)continue;
                 legendary++;
                 var slot=loot.RollItemType();
                 var element=slot==LootManager.GearType.Weapons?Element.Fire:Element.Phys;
@@ -396,6 +396,39 @@ public sealed class Step12_5GTests
         string output=Path.GetFullPath("Logs/Step12_5G-legendary-drop.txt");
         Directory.CreateDirectory(Path.GetDirectoryName(output));
         File.WriteAllText(output,report.ToString());
+    }
+
+    [Test] public void Step13PlayerRarityBandsAreSmoothAndRemainSeparateFromEnemyRarity()
+    {
+        var host=new GameObject("Level-aware player rarity");created.Add(host);
+        var loot=host.AddComponent<LootManager>();
+        var expected=new Dictionary<int,Vector4>
+        {
+            {1,new Vector4(60,31,8,1)},
+            {20,new Vector4(42,39,17,2)},
+            {50,new Vector4(28,41,28,3)},
+            {75,new Vector4(19,35,42,4)},
+            {100,new Vector4(19,35,42,4)}
+        };
+        foreach(var pair in expected)
+        {
+            Vector4 rates=LootManager.RarityRatesForLevel(pair.Key);
+            Assert.That(rates,Is.EqualTo(pair.Value));
+            Assert.That(rates.x+rates.y+rates.z+rates.w,Is.EqualTo(100f).Within(.001f));
+            UnityEngine.Random.InitState(130000+pair.Key);
+            int[] counts=new int[4];
+            for(int i=0;i<50000;i++)counts[(int)loot.RollItemRarity(pair.Key)]++;
+            float[] targets={rates.x,rates.y,rates.z,rates.w};
+            for(int rarity=0;rarity<4;rarity++)
+                Assert.That(counts[rarity]*100f/50000f,
+                    Is.EqualTo(targets[rarity]).Within(.65f),$"level {pair.Key} rarity {rarity}");
+        }
+        foreach(int level in new[]{2,10,19,21,35,49,51,65,74})
+        {
+            Vector4 rates=LootManager.RarityRatesForLevel(level);
+            Assert.That(rates.x+rates.y+rates.z+rates.w,Is.EqualTo(100f).Within(.001f));
+            Assert.That((rates-LootManager.RarityRatesForLevel(level-1)).magnitude,Is.LessThan(2f));
+        }
     }
 
     List<RolledMod> Construct(LootManager.GearType slot,LootManager.GearRarity rarity,

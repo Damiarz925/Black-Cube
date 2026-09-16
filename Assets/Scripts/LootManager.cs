@@ -6,9 +6,7 @@ using UnityEngine;
 public class LootManager : MonoBehaviour
 {
     Dictionary<GearType, int> TypeDictionary = new();       //Dictionary with geartype as key, integer as value
-    Dictionary<GearRarity, int> RarityDictionary = new();   //Dictionary with rarity as key, integer as value
     int totalTypeWeight;
-    int totalRarityWeight;
 
     public enum GearType        //GearType enum stores the various types of gear
     {
@@ -52,9 +50,7 @@ public class LootManager : MonoBehaviour
             return;
 
         TypeDictionary.Clear();
-        RarityDictionary.Clear();
         totalTypeWeight = 0;
-        totalRarityWeight = 0;
 
         TypeDictionary.Add(GearType.Weapons, 20);
         TypeDictionary.Add(GearType.Helmets, 20);
@@ -67,14 +63,6 @@ public class LootManager : MonoBehaviour
 
         foreach (var item in TypeDictionary)    //Calculate the total Type weight by addint the weights of each item
             totalTypeWeight += item.Value;
-
-        RarityDictionary.Add(GearRarity.Normal, 40);        //Add all of the Rarities and their weightings to the rarity dictionary, and calculate  a total weighting for rarity
-        RarityDictionary.Add(GearRarity.Magic, 20);
-        RarityDictionary.Add(GearRarity.Rare, 10);
-        RarityDictionary.Add(GearRarity.Legendary, 1);
-
-        foreach (var item in RarityDictionary)
-            totalRarityWeight += item.Value;
 
         initialized = true;
     }
@@ -101,7 +89,7 @@ public class LootManager : MonoBehaviour
         int itemLevel = zoneLevel + enemyRarityMod;     //Calculate item level as the level of the zone + the enemy rarity modifier
 
         var type = RollItemType();          //assign variable type by rolling an item type
-        var rarity = RollItemRarity();      //assign variable rarity by rolling the item rarity
+        var rarity = RollItemRarity(itemLevel);
 
         Debug.Log($"[Loot] Rolled type={type}, rarity={rarity}, zoneLevel={zoneLevel}, enemyRarity={enemyRarity}");
 
@@ -157,20 +145,35 @@ public class LootManager : MonoBehaviour
 
     public GearRarity RollItemRarity()
     {
-        InitializeLootTables();
+        if(zoneManager==null)zoneManager=FindFirstObjectByType<ZoneManager>();
+        return RollItemRarity(zoneManager!=null?zoneManager.zoneLevel:1);
+    }
 
-        if (totalRarityWeight <= 0)
-            return GearRarity.Normal;
+    // Player drops have their own level-dependent rates; enemy-equipped rarity is
+    // still driven by EnemyAI.CurrentRarity and is never sampled from this table.
+    public static Vector4 RarityRatesForLevel(int level)
+    {
+        level=Mathf.Max(1,level);
+        if(level<20)return Blend(level,1,20,new Vector4(60,31,8,1),new Vector4(42,39,17,2));
+        if(level<50)return Blend(level,20,50,new Vector4(42,39,17,2),new Vector4(28,41,28,3));
+        if(level<75)return Blend(level,50,75,new Vector4(28,41,28,3),new Vector4(19,35,42,4));
+        return new Vector4(19,35,42,4);
+    }
 
-        int roll = Random.Range(0, totalRarityWeight);      //Roll randomly between 0 and the total rarity weight
-        foreach (var pair in RarityDictionary)
-        {
-            GearRarity rarity = pair.Key;       //Create variable rarity and give it the rarity value for the item from the dictionary
-            int weight = pair.Value;            //create variable weight and give it the weight value for the item from the dictionary
-            if (roll < weight) return rarity;   //If the roll is less than the weight, return that rarity
-            roll -= weight;     //Subtract weight from the roll and loop
-        }
-        return GearRarity.Normal;   //If we didn't pick a rarity in the loop, return normal by default
+    static Vector4 Blend(int level,int low,int high,Vector4 start,Vector4 end)
+    {
+        float t=Mathf.SmoothStep(0f,1f,(level-low)/(float)(high-low));
+        return Vector4.Lerp(start,end,t);
+    }
+
+    public GearRarity RollItemRarity(int itemLevel)
+    {
+        Vector4 rates=RarityRatesForLevel(itemLevel);
+        float roll=Random.value*100f;
+        if(roll<rates.x)return GearRarity.Normal;
+        if(roll<rates.x+rates.y)return GearRarity.Magic;
+        if(roll<rates.x+rates.y+rates.z)return GearRarity.Rare;
+        return GearRarity.Legendary;
     }
 
     public Element RollItemElement(bool forWeapon = false)

@@ -8,7 +8,7 @@ using UnityEngine;
 public sealed class CurrencyDropRule
 {
     public CraftingCurrencyType currency;
-    [Range(0f,1f)] public float chance=.1f;
+    [Range(0f,1f)] public float chance;
     public CurrencyDropRule(CraftingCurrencyType type,float probability){currency=type;chance=probability;}
 }
 
@@ -25,21 +25,39 @@ public sealed class EnemyDropTable
     [SerializeField] List<CurrencyDropRule> currencyRules=Defaults();
     public IReadOnlyList<CurrencyDropRule> CurrencyRules=>currencyRules;
 
-    public EnemyDropResult Roll(Func<float> next=null)
+    public EnemyDropResult Roll(Func<float> next=null,bool isBoss=false)
     {
         EnsureDefaults();next??=()=>UnityEngine.Random.value;
-        var result=new EnemyDropResult{equipment=next()<Mathf.Clamp01(equipmentChance)};
+        // Preserve the independent equipment and ordinary-currency rolls for
+        // both roles. The boss then receives one extra guaranteed ordinary orb.
+        bool equipmentRoll=next()<Mathf.Clamp01(equipmentChance);
+        var result=new EnemyDropResult{equipment=isBoss||equipmentRoll};
         foreach(var rule in currencyRules)if(rule!=null&&!CurrencyInventory.IsAncient(rule.currency)&&next()<Mathf.Clamp01(rule.chance))result.currencies.Add(rule.currency);
+        if(isBoss)
+        {
+            var types=OrdinaryTypes();
+            int index=Mathf.Clamp(Mathf.FloorToInt(next()*types.Length),0,types.Length-1);
+            result.currencies.Add(types[index]);
+        }
         return result;
     }
 
     public void EnsureDefaults()
     {
         currencyRules??=new List<CurrencyDropRule>();
-        foreach(var type in OrdinaryTypes())if(!currencyRules.Exists(rule=>rule!=null&&rule.currency==type))currencyRules.Add(new CurrencyDropRule(type,.1f));
+        foreach(var type in OrdinaryTypes())if(!currencyRules.Exists(rule=>rule!=null&&rule.currency==type))currencyRules.Add(new CurrencyDropRule(type,DefaultChance(type)));
     }
 
-    static List<CurrencyDropRule> Defaults(){var list=new List<CurrencyDropRule>();foreach(var type in OrdinaryTypes())list.Add(new CurrencyDropRule(type,.1f));return list;}
+    public static float DefaultChance(CraftingCurrencyType type)=>type switch
+    {
+        CraftingCurrencyType.NormalToMagic or CraftingCurrencyType.RerollMagic=>.07f,
+        CraftingCurrencyType.MagicToRare=>.05f,
+        CraftingCurrencyType.RerollRareModifier=>.04f,
+        CraftingCurrencyType.AddRareModifier=>.03f,
+        CraftingCurrencyType.RemoveRareModifier=>.02f,
+        _=>0f
+    };
+    static List<CurrencyDropRule> Defaults(){var list=new List<CurrencyDropRule>();foreach(var type in OrdinaryTypes())list.Add(new CurrencyDropRule(type,DefaultChance(type)));return list;}
     public static CraftingCurrencyType[] OrdinaryTypes()=>new[]{CraftingCurrencyType.NormalToMagic,CraftingCurrencyType.RerollMagic,CraftingCurrencyType.MagicToRare,CraftingCurrencyType.RerollRareModifier,CraftingCurrencyType.AddRareModifier,CraftingCurrencyType.RemoveRareModifier};
 }
 

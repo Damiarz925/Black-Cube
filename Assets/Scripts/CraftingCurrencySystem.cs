@@ -93,9 +93,15 @@ public sealed class CurrencyInventory : MonoBehaviour
     }
     public bool RestoreFragments(int normalToMagic, int magicToRare)
     {
-        if (normalToMagic < 0 || normalToMagic >= 10 || magicToRare < 0 || magicToRare >= 10) return false;
-        normalToMagicFragments = normalToMagic; magicToRareFragments = magicToRare;
-        Changed?.Invoke(); return true;
+        if (normalToMagic < 0 || magicToRare < 0
+            || Count(CraftingCurrencyType.NormalToMagic) > int.MaxValue - normalToMagic / 10
+            || Count(CraftingCurrencyType.MagicToRare) > int.MaxValue - magicToRare / 10) return false;
+        int normalOrbs=normalToMagic/10,rareOrbs=magicToRare/10;
+        normalToMagicFragments = normalToMagic % 10;
+        magicToRareFragments = magicToRare % 10;
+        if(normalOrbs>0)stacks[CraftingCurrencyType.NormalToMagic]=Count(CraftingCurrencyType.NormalToMagic)+normalOrbs;
+        if(rareOrbs>0)stacks[CraftingCurrencyType.MagicToRare]=Count(CraftingCurrencyType.MagicToRare)+rareOrbs;
+        SyncSerialized();Changed?.Invoke();GamePersistence.MarkDirty();return true;
     }
     public void ClearFragments()
     {

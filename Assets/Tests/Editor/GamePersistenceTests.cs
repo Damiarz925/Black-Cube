@@ -42,6 +42,20 @@ public sealed class GamePersistenceTests
         copy.payload.magicToRareFragments=10;AssertInvalid(copy,"Fragment");
         copy.payload.magicToRareFragments=0;copy.payload.normalToMagicFragments=-1;AssertInvalid(copy,"Fragment");
     }
+    [Test] public void LoadedOverfilledFragmentsNormalizeIntoWholeCurrenciesOnce()
+    {
+        var e=Valid();e.payload.normalToMagicFragments=23;e.payload.magicToRareFragments=18;
+        e.payload.currencies.Add(new CurrencyStackData(CraftingCurrencyType.NormalToMagic,4));
+        File.WriteAllText(GamePersistence.PrimaryPath,JsonUtility.ToJson(e));
+        Assert.That(GamePersistence.TryReadFile(GamePersistence.PrimaryPath,out var normalized,out var error),Is.True,error);
+        Assert.That(normalized.payload.normalToMagicFragments,Is.EqualTo(3));
+        Assert.That(normalized.payload.magicToRareFragments,Is.EqualTo(8));
+        Assert.That(normalized.payload.currencies.Find(x=>x.type==CraftingCurrencyType.NormalToMagic).amount,Is.EqualTo(6));
+        Assert.That(normalized.payload.currencies.Find(x=>x.type==CraftingCurrencyType.MagicToRare).amount,Is.EqualTo(1));
+        Assert.That(GamePersistence.ValidateEnvelope(normalized,out error),Is.True,error);
+        Assert.That(GamePersistence.TryReadFile(GamePersistence.PrimaryPath,out var again,out error),Is.True,error);
+        Assert.That(again.payload.currencies.Find(x=>x.type==CraftingCurrencyType.NormalToMagic).amount,Is.EqualTo(6));
+    }
     [Test] public void Schema2ScalarGearMigratesToExactConstantDamageRange()
     {
         var old=Valid();old.schemaVersion=2;

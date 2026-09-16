@@ -88,15 +88,19 @@ public class InventoryTooltipLayoutTests
     }
 
     [Test]
-    public void DefaultEnemyDropTable_RollsEquipmentAtHalfAndEveryBasicCurrencyIndependentlyAtTenPercent()
+    public void DefaultEnemyDropTable_UsesTunedIndependentRatesAndBossGuarantees()
     {
         var table=new EnemyDropTable();int calls=0;
-        float[] rolls={.49f,.09f,.11f,.01f,.9f,.099f,.1f};
+        float[] rolls={.49f,.069f,.11f,.01f,.9f,.029f,.1f};
         EnemyDropResult result=table.Roll(()=>rolls[calls++]);
         Assert.That(calls,Is.EqualTo(7));Assert.That(table.equipmentChance,Is.EqualTo(.5f));Assert.That(result.equipment,Is.True);
-        Assert.That(table.CurrencyRules.Count,Is.EqualTo(6));foreach(var rule in table.CurrencyRules)Assert.That(rule.chance,Is.EqualTo(.1f));
+        Assert.That(table.CurrencyRules.Count,Is.EqualTo(6));foreach(var rule in table.CurrencyRules)Assert.That(rule.chance,Is.EqualTo(EnemyDropTable.DefaultChance(rule.currency)));
         Assert.That(result.currencies,Is.EqualTo(new[]{CraftingCurrencyType.NormalToMagic,CraftingCurrencyType.MagicToRare,CraftingCurrencyType.AddRareModifier}));
         EnemyDropResult miss=table.Roll(()=>.5f);Assert.That(miss.equipment,Is.False);Assert.That(miss.currencies,Is.Empty);
+        calls=0;float[] bossRolls={.99f,.99f,.99f,.99f,.99f,.99f,.99f,.999f};
+        EnemyDropResult boss=table.Roll(()=>bossRolls[calls++],isBoss:true);
+        Assert.That(calls,Is.EqualTo(8));Assert.That(boss.equipment,Is.True);
+        Assert.That(boss.currencies,Is.EqualTo(new[]{CraftingCurrencyType.RemoveRareModifier}));
     }
 
     [Test]
