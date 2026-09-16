@@ -12,8 +12,8 @@ public sealed class BalanceSimulationTests
     {
         var shiv=PlayerSkillDefinition.CreateDefaults()
             .Single(skill=>skill.id==PlayerSkillId.Shiv);
-        Assert.That(shiv.hitDamageMultiplier,Is.EqualTo(.5f));
-        Assert.That(shiv.ailmentBasisMultiplier,Is.EqualTo(20f));
+        Assert.That(shiv.hitDamageMultiplier,Is.EqualTo(.2f));
+        Assert.That(shiv.ailmentBasisMultiplier,Is.EqualTo(6f));
         Assert.That(shiv.specializedAilment,Is.EqualTo(StatusEffects.AilmentKind.Bleed));
         Assert.That(shiv.guaranteedAilmentApplications,Is.EqualTo(1));
         var catalog=Resources.Load<PlayerSkillCatalog>("PlayerSkills");

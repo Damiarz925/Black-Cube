@@ -95,16 +95,16 @@ MonoBehaviour:
     suppressDirectDamage: 1
   - id: 5
     displayName: Shiv
-    description: Deal 50% hit damage and apply a strongly Bleed-weighted ailment basis.
+    description: Deal 20% hit damage and apply a strongly Bleed-weighted ailment basis.
     manaCost: 30
-    hitDamageMultiplier: 0.5
+    hitDamageMultiplier: 0.2
     baseHitCount: 1
     additionalHitsFromShockChance: 0
     projectile: 0
     conversionElement: 0
     nonMatchingConversion: 1
     specializedAilment: 2
-    ailmentBasisMultiplier: 20
+    ailmentBasisMultiplier: 6
     absoluteAilmentCoefficient: -1
     guaranteedAdditionalChill: 0
     guaranteedAilmentApplications: 1
