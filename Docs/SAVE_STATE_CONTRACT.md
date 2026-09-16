@@ -8,11 +8,11 @@ The production goals are: one canonical capture/apply path, resumable encounter-
 
 ## 2. Current save implementation
 
-`GamePersistence` stores schema version 5 as UTF-8 JSON files under `Application.persistentDataPath`: `current-save.json`, `current-save.json.bak`, and the transactional `current-save.json.tmp`. The envelope carries schema version, stable run ID, deterministic run seed, UTC timestamp, and the complete payload. Gear/relic/skill/passive ownership uses stable domain IDs rather than Unity object identity or list positions. Gear serializes weapon minimum/maximum damage and optional paired affix endpoints; the currency payload stores the two ordinary-currency fragment remainders.
+`GamePersistence` stores schema version 6 as UTF-8 JSON files under `Application.persistentDataPath`: `current-save.json`, `current-save.json.bak`, and the transactional `current-save.json.tmp`. The envelope carries schema version, stable run ID, deterministic run seed, UTC timestamp, and the complete payload. Gear/relic/skill/passive ownership uses stable domain IDs rather than Unity object identity or list positions. Gear serializes weapon minimum/maximum damage and optional paired affix endpoints; the currency payload stores the two ordinary-currency fragment remainders; each relic stores its generated level and each modifier stores tier metadata.
 
 Capture creates a detached DTO without rewards, rolls, consumption, spawning, or progression changes. It validates before serialization, verifies the durable temporary file by parsing and validating it, atomically replaces the primary while rotating its previous version to backup, and reports success only afterward. Confirmed New Game additionally replaces the backup with the new run. Load validates the complete primary before mutation, tries backup on failure, and applies under a restoration guard; both invalid files remain untouched.
 
-Historical `BlackCube.Save.V1` remains a read-only migration source. When neither current-format file exists, a valid V1 snapshot is parsed/validated, expanded with clean defaults for fields it never stored, restored, and only then committed as schema 5. Existing schema-2 JSON migrates sequentially through schemas 3, 4 and 5 in memory before validation/application: old scalar weapon damage and flat-damage affixes become X–X pairs. Schema-3 equipment migrates its actual locked-original roll into the permanent implicit role using the already serialized lock field; tier, value and paired endpoints do not reroll. The historical roll leaves explicit occupancy. If surviving historical explicits violate new 2/2 Rare side caps, the entire item is retained with its legacy-affix compatibility marker rather than losing mods. Schema-4 saves initialize the new fragment fields to zero; loaded counts of ten or more normalize into full currencies plus remainders. After successful load, the migrated checkpoint is atomically committed. Newly generated schema-5 items must satisfy the current implicit, slot, tier, range and explicit-cap rules. The V1 key is preserved and cannot be repeatedly imported once a new-format file exists.
+Historical `BlackCube.Save.V1` remains a read-only migration source. When neither current-format file exists, a valid V1 snapshot is parsed/validated, expanded with clean defaults for fields it never stored, restored, and only then committed as schema 6. Existing schema-2 JSON migrates sequentially through schemas 3, 4, 5 and 6 in memory before validation/application: old scalar weapon damage and flat-damage affixes become X–X pairs. Schema-3 equipment migrates its actual locked-original roll into the permanent implicit role using the already serialized lock field; tier, value and paired endpoints do not reroll. The historical roll leaves explicit occupancy. If surviving historical explicits violate new 2/2 Rare side caps, the entire item is retained with its legacy-affix compatibility marker rather than losing mods. Schema-4 saves initialize fragment fields to zero. Schema-5 relics receive relic level 1 and legacy tier marker 0 while retaining exact type/value/lock state; no relic rerolls. Loaded fragment counts of ten or more normalize into full currencies plus remainders. After successful load, the migrated checkpoint is atomically committed. Newly generated schema-6 items/relics must satisfy current validation. The V1 key is preserved and cannot be repeatedly imported once a new-format file exists.
 
 The persistence-related `PlayerPrefs` inventory is:
 
@@ -24,7 +24,7 @@ The persistence-related `PlayerPrefs` inventory is:
 
 ## 3. Pause-menu explicit save behavior
 
-`GamePersistence.TrySave` is the only explicit gameplay-save entry point and executes the complete schema-5 capture/validation/file transaction. Existing `Save()` callers delegate to it.
+`GamePersistence.TrySave` is the only explicit gameplay-save entry point and executes the complete schema-6 capture/validation/file transaction. Existing `Save()` callers delegate to it.
 
 `SAVE & MAIN MENU` and `SAVE & QUIT` continue only after `TrySave` returns true. A failure leaves the player in the paused gameplay scene.
 
@@ -111,7 +111,7 @@ Preserve Step 4: Restart means restart the current combat level. It retains the 
 
 ## 9. Rebirth contract
 
-Preserve the current atomic transaction: require level 50 plus explicit confirmation; clear equipment, inventory, ordinary and prior Ancient currency; reset run progression and combat to level 1; clear combat transients; equip a starter weapon; lock prior relics; increment the cycle; create one craftable current-cycle relic with one locked modifier; grant one of each Ancient operation; retain relic history and active slots; then save once after the full transaction succeeds. Pending confirmation is never persisted.
+Preserve the current atomic transaction: require combat zone 60 plus explicit confirmation; clear equipment, inventory, ordinary and prior Ancient currency; reset player/run progression and combat to level 1; clear combat transients; lock prior relics; increment the cycle; create one craftable current-cycle relic with one locked tiered modifier; grant one of each Ancient operation; retain relic history and active slots; provision exactly one starter after active relic effects resolve; then save once after the full transaction succeeds. Pending confirmation is never persisted.
 
 ## 10. Save & Quit contract
 
@@ -163,7 +163,7 @@ Use transaction-aware immediate checkpoints plus a short debounce for ordinary p
 
 ## 14. Version and migration policy
 
-The shipped storage envelope is schema 5 and is independent from the historical `BlackCube.Save.V1` key. Schema 4 distinguished strict new implicit/explicit legality from schema-3 historical side-cap exceptions; schema 5 adds ordinary-currency fragment persistence. Increment the schema version for any later serialized meaning/shape change. Add sequential pure migrations (`V2 -> V3 -> V4 -> V5 -> ... -> current`) on DTOs before validation; never migrate by partially applying old data to live objects.
+The shipped storage envelope is schema 6 and is independent from the historical `BlackCube.Save.V1` key. Schema 4 distinguished strict new implicit/explicit legality from schema-3 historical side-cap exceptions; schema 5 adds ordinary-currency fragment persistence; schema 6 adds stored relic level and modifier tier. Increment the schema version for any later serialized meaning/shape change. Add sequential pure migrations (`V2 -> V3 -> V4 -> V5 -> V6 -> ... -> current`) on DTOs before validation; never migrate by partially applying old data to live objects.
 
 Keep the original primary/backup untouched until migrated data validates and a new atomic file commits. Missing optional fields receive documented defaults. A version newer than the build is unsupported and must not be overwritten. A version older than the oldest supported migration should offer recovery/new game while retaining the files for support. Migration failure falls through to backup, then reports a recoverable load failure.
 

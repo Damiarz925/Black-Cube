@@ -84,7 +84,7 @@ Damage per Maximum Mana and Damage per Current Mana add global *increased* damag
 
 - Player level cap is 100.
 - Leveling grants passive progression through the current point system.
-- Rebirth becomes available at level 50 or above.
+- Rebirth becomes available at authoritative combat zone 60 or above.
 - **New Game:** completely clears gameplay and relic/rebirth meta progression, including Ancient currency, while preserving independent preferences.
 - **Rebirth:** resets the established run layer, preserves relic history, advances the relic cycle and creates/manages the new-cycle relic.
 - **Restart after death:** restarts the current combat level and preserves the build/meta state defined in [RUNTIME_LIFECYCLE.md](RUNTIME_LIFECYCLE.md).
@@ -150,7 +150,7 @@ Both dismantle modes use the same single-claim path. Current equipment no longer
 
 ## 14. Rebirth and relics
 
-Rebirth is the intended meta-progression reset system and becomes available at level 50+. It resets run progression according to the established contract, retains permanent-within-save relic history, advances the cycle, creates one new current-cycle relic, restricts Ancient crafting to current-cycle authority, and supports four active relic slots.
+Rebirth is the intended meta-progression reset system and becomes available at combat zone 60+. It resets run progression according to the established contract, retains permanent-within-save relic history, advances the cycle, creates one levelled current-cycle relic, provisions a new starter after active relic effects are resolved, restricts Ancient crafting to current-cycle authority, and supports four active relic slots.
 
 New Game clears relic history, active slots, cycle/rebirth history and Ancient currency. Rebirth is the only run-reset/meta-progression system; the superseded Prestige runtime path was removed in Step 8 and must not be reintroduced as a competing design.
 
@@ -213,7 +213,15 @@ The resolved Step 10 rules above supersede the removed items from this unresolve
 
 ## 21. Content scope intentionally deferred
 
-Do not lock total v1 combat levels, zones, backgrounds, normal enemies, bosses, encounter variations, campaign ending, final boss-mode structure or post-campaign loop here. Step 14 owns the v1 content contract. Balance values beyond explicitly recorded current skill/item rules belong to Step 13.
+The Step 14 ledger is [V1_CONTENT_CONTRACT.md](V1_CONTENT_CONTRACT.md). The proposed 6 biomes × 10 scenes × 6 corruption variants (360 levels) is not promoted to locked scope because this contract previously deferred total campaign length and current production only proves one six-state forest family. Rebirth uses zone 360 solely as its level-100 reference. Enemy/boss rosters, whether seven skills are the final set, active boss-mode classification, and post-ilvl-100 progression remain explicit user decisions.
+
+## 21A. Step 14 progression rules
+
+- Rebirth unlocks at authoritative combat zone 60. It preserves permanent relic state, resets the run, provisions exactly one starter through the New Game authority, then begins combat.
+- Relic level is stored at creation as `clamp(1 + floor((zone - 60) * 99 / 300), 1, 100)`. Numerical tiers unlock T5/T4/T3/T2/T1 at relic levels 1/20/40/60/80.
+- Higher level biases eligible item and relic tiers toward stronger results through one shared policy; lower tiers remain possible and T1 is not guaranteed.
+- Baseline starters sit below the weakest reasonable natural level-one weapon. Active relics may intentionally override that early upgrade expectation with element, base-damage, item-level and one-time Legendary transformations.
+- Starter element conflicts use strongest tier then active-slot order. Starter item-level and Legendary chance sources add and cap at 100; base-damage percentages add.
 
 ## 22. Design discrepancy register
 
@@ -233,4 +241,4 @@ Do not lock total v1 combat levels, zones, backgrounds, normal enemies, bosses, 
 | Status callbacks | Extensible status lifecycle should have an approved dispatch contract if retained. | Empty virtual hooks exist and are not called by current status ticking. | Dead extension surface. | 9–10 |
 | Enemy scaling | Enemies should scale intentionally across progression; exact balance is later. | Central profile applies authored-seed Life/outgoing-damage, Armour and ordinary elemental/Void resistance before independently generated equipment. | Structural Step 11 baseline; Step 13 balance remains. | 11, then 13 |
 | Prestige (resolved) | Rebirth is the sole intended meta reset. | Step 8 removed the level-10 offer branch, placeholder continuation, public reset method and empty reward hook. Boss clears advance directly at every combat level. | Resolved; retain this historical row to prevent regression. | Completed in 8 |
-| Dismantle rewards | Normal none; Magic one N→M fragment; Rare one M→R fragment; Legendary two M→R fragments; ten matching fragments make one orb. | Step 13 implements one authoritative manual/auto path, schema-5 persistence and UI counts. | Implemented; historical stacked scrap conversion remains for old saves only. | Completed in 13 |
+| Dismantle rewards | Normal none; Magic one N→M fragment; Rare one M→R fragment; Legendary two M→R fragments; ten matching fragments make one orb. | Step 13 implements one authoritative manual/auto path, persistence and UI counts; schema 6 retains the fragment fields. | Implemented; historical stacked scrap conversion remains for old saves only. | Completed in 13 |

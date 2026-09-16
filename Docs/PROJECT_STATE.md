@@ -53,8 +53,8 @@ The game has a coherent vertical slice rather than shipping-scale content. Comba
 - **Progression:** `PlayerProgression` owns level, XP, passive points and 290 binary allocations. It rebuilds stats and keystone projections when allocations change.
 - **Skills:** seven catalog skills can be selected one at a time and cast from the Skills panel when mana and a living encounter are available. Auto-attacks continue independently.
 - **Statuses:** Poison ticks are mitigated as Void DOT while retaining Poison application and visual identity. Bleed/Ignite retain DOT behavior. Shock has five-stack Lightning triggers; Chill dynamically slows either actor's real gauge from actual Cold-hit strength.
-- **Relics/Rebirth:** `RelicInventory` owns permanent-within-save relic history, four active slots and current-cycle crafting authority. `RebirthManager` performs the level-50 reset transaction and immediately saves it. New Game clears this entire layer.
-  - **Persistence:** `GamePersistence` owns schema-5 DTO capture/validation, stable run identity/seed, atomic files, backup recovery, sequential V1/V2/V3/V4 migration, legacy-affix preservation, fragment normalization, deterministic encounter restore and debounced autosaves. See [SAVE_STATE_CONTRACT.md](SAVE_STATE_CONTRACT.md).
+- **Relics/Rebirth:** `RelicInventory` owns permanent-within-save relic history, four active slots and current-cycle crafting authority. `RebirthManager` performs the combat-zone-60 reset transaction, provisions the relic-modified starter, and immediately saves it. New Game clears this entire layer.
+  - **Persistence:** `GamePersistence` owns schema-6 DTO capture/validation, stable run identity/seed, atomic files, backup recovery, sequential V1/V2/V3/V4/V5 migration, legacy-affix/relic-value preservation, fragment normalization, deterministic encounter restore and debounced autosaves. See [SAVE_STATE_CONTRACT.md](SAVE_STATE_CONTRACT.md).
 - **UI:** `PaperBattleHUD` coordinates gameplay panels and time controls. Most feature panels are runtime-built over the authored paper battle prefab.
 
 Use [CODE_MAP.md](CODE_MAP.md) for file ownership and [DEVELOPER_HANDOFF.md](DEVELOPER_HANDOFF.md) for working entry points; this document deliberately does not repeat their line-by-line map.
@@ -68,7 +68,7 @@ Use [CODE_MAP.md](CODE_MAP.md) for file ownership and [DEVELOPER_HANDOFF.md](DEV
 5. **Boss cadence:** nine normal enemies are followed by the boss as encounter stage 10. Boss death advances the combat level and starts a new normal encounter.
 6. **Presentation progression:** six forest images each cover ten combat levels and repeat after level 60; combat levels themselves continue.
 7. **Death/Restart:** Death Menu shows killer details. Restart resets the current combat level to normal encounter 1 and full player resources while retaining progression, build, currencies, skill and relic meta.
-8. **Rebirth:** at player level 50+, confirmation clears run inventory/equipment/currencies/progression, creates the next-cycle relic, grants one of each Ancient operation, returns to level 1 with starter gear, and saves. Existing relic history/slots remain.
+8. **Rebirth:** at combat zone 60+, confirmation clears run inventory/equipment/currencies/progression, creates the next-cycle levelled relic, grants one of each Ancient operation, returns to player level 1 with exactly one relic-modified starter, and saves. Existing relic history/slots remain.
 9. **Save/exit:** Pause Menu Save & Main Menu and Save & Quit use the same canonical transactional checkpoint and do not leave gameplay when saving fails.
 
 ## 5. Implemented systems
@@ -178,9 +178,15 @@ Generated reports are written to `Logs` or `ReviewCaptures`; check timestamps be
 
 ## 12. Roadmap position
 
-Steps 1–13 have completed their requested source, regression, strict-build and standalone-startup gates. Steps 11 + 12 add central enemy intrinsic scaling and the synthetic diagnostic lab in [ENEMY_SCALING_BASELINE.md](ENEMY_SCALING_BASELINE.md); Step 12.5 reconciles per-strike ranges, critical base and ailment turn ownership; Step 12.5G adds full implicit/explicit equipment structure, one-step crafting, canonical Ancient art and the paused affix Codex; Step 13 adds production reference characters, integrated balance/economy/progression tuning, fragments/schema 5 and measured holdouts. The 120 stable stat IDs and 107 pooled definitions (3 guaranteed weapon bases plus 104 random affixes) remain intact.
+Steps 1–13 completed their requested gates. Step 14 adds the v1 scope ledger, weaker/idempotent starter authority, zone-60 Rebirth provisioning, interactable relic cards, relic levels/tiers/starter transformations, centralized item/relic tier quality weighting, and schema 6. See [V1_CONTENT_CONTRACT.md](V1_CONTENT_CONTRACT.md). The 360-level world proposal is not locked because existing authoritative documents only confirm the current repeating forest family; biome/scene counts and post-ilvl-100 power remain user decisions.
 
-The next known phase is Step 14 final v1 zone/enemy/boss/content scope. Step 14 was not started during Step 13.
+### Step 14 progression delta
+
+- Baseline starter: Physical level 1, 18–27 damage, 0.45 attacks/second, 5% base critical and deterministic minimum T5 Increased Damage implicit. It is about 7.4% below the weakest level-one natural base-power reference after its implicit.
+- New Game and Rebirth call one idempotent `EnsureStarterWeapon` path; load restores the persisted weapon and creates none.
+- Rebirth eligibility uses combat zone 60, not player level. Generated relic level stores the zone-derived 1–100 result; legacy values remain exact at level 1/tier marker 0.
+- Relic inventory cards own their full raycast/click surface. Normal clicks equip/unequip without replacement; Ancient-armed clicks exclusively target crafting.
+- Equipment item level remains capped at 100. Late-world gear progression is deliberately unresolved.
 
 ## Maintenance rule
 
