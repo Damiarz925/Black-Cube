@@ -79,7 +79,7 @@ public sealed class RelicFoundationTests
         }
         var oldSlot=Array.Find(slots,x=>ReferenceEquals(x.Item,older));
         var currentSlot=Array.Find(slots,x=>ReferenceEquals(x.Item,current));
-        oldSlot.Activate();Assert.That(UnityEngine.Object.FindAnyObjectByType<RelicTooltipUI>(),Is.Not.Null);
+        oldSlot.OnPointerEnter(null);Assert.That(UnityEngine.Object.FindAnyObjectByType<RelicTooltipUI>(),Is.Not.Null);
         currencies.Arm(CraftingCurrencyType.AncientNormalToMagic);
         oldSlot.Activate();Assert.That(older.rarity,Is.EqualTo(LootManager.GearRarity.Normal));Assert.That(currencies.Count(CraftingCurrencyType.AncientNormalToMagic),Is.EqualTo(2));
         currentSlot.Activate();Assert.That(current.rarity,Is.EqualTo(LootManager.GearRarity.Magic));Assert.That(currencies.Count(CraftingCurrencyType.AncientNormalToMagic),Is.EqualTo(1));

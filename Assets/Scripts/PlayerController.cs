@@ -45,12 +45,9 @@ public class PlayerController : MonoBehaviour
     {
         damagePopup = FindFirstObjectByType<DamagePopup>();
 
-        if (equippedWeapon == null)
-        {
-            Gear starter = CreateStarterWeapon();
-            if (EquipmentManager.Instance != null) EquipmentManager.Instance.Equip(starter);
-            else EquipWeapon(starter);
-        }
+        // GameManager owns New Game/Load ordering. Isolated player fixtures still
+        // receive a weapon without needing the complete persistent runtime.
+        if (equippedWeapon == null && GameManager.Instance == null) EnsureStarterWeapon();
         NotifyRelicChanged();
     }
 
@@ -66,48 +63,76 @@ public class PlayerController : MonoBehaviour
 
     private Gear CreateStarterWeapon(ModManager roller)  //Creates starter weapon
     {
+        var relics=ignoreRelicsForIsolatedBaseline?null:RelicInventory.Instance;
+        int itemLevel=Mathf.Clamp(1+(relics?.StarterItemLevelBonus??0),1,100);
+        Element element=relics?.StarterElement??Element.Phys;
+        float baseMultiplier=1f+(relics?.StarterBaseDamagePercent??0f)/100f;
+        float legendaryChance=relics?.StarterLegendaryChance??0f;
+        bool legendary=false;
+        var oldRandom=Random.state;
+        int seed=GamePersistence.CurrentRunSeed;
+        if(seed==0)seed=0x14BC2026;
+        seed=unchecked(seed*397^(relics?.CurrentCycle??0));
+        Random.InitState(seed);
+        try{legendary=legendaryChance>0f&&Random.value*100f<legendaryChance;}
+        finally{Random.state=oldRandom;}
+        var rarity=legendary?LootManager.GearRarity.Legendary:LootManager.GearRarity.Normal;
         GameObject go = new GameObject("Player_StarterWeapon"); //Creates the object as go, and names it
         go.transform.SetParent(transform);  //Sets the parent of the object's transform
         Gear gear = go.AddComponent<Gear>();    //Adds a gear component to the newly created starter weapon, and assigns that gear component to the variable gear
 
-        gear.Initialize(LootManager.GearType.Weapons, LootManager.GearRarity.Normal, 1, Element.Phys);
-        gear.BaseDamage = 80f;  // Historical average; independent hits roll 64-96.
-        gear.BaseDamageMin = 64f;
-        gear.BaseDamageMax = 96f;
-        gear.BaseAttackSpeed = 1.2f;    // Starter attacks per second.
+        gear.Initialize(LootManager.GearType.Weapons, rarity, itemLevel, element);
+        // 22.5 * .45 with the minimum +7% implicit is about 7.4% below the
+        // weakest reasonable level-one natural base (26 * .45) before both
+        // weapons' common 5% critical contribution.
+        gear.BaseDamage = 22.5f*baseMultiplier;
+        gear.BaseDamageMin = 18f*baseMultiplier;
+        gear.BaseDamageMax = 27f*baseMultiplier;
+        gear.BaseAttackSpeed = .45f;
         gear.BaseCritChance = 0.05f;    //sets base crit chance to 5%
         // Starter base damage/speed/crit are authored above, so keep those
         // values rather than applying the three random weapon-base rolls.
         // Its one permanent implicit still comes from the same legal natural
         // equipment pool and tier gates used by dropped Normal weapons.
-        RolledMod starterAffix = null;
-        if (roller != null)
+        var generated=new System.Collections.Generic.List<RolledMod>();
+        if(legendary&&roller!=null)
         {
-            for (int attempt = 0; attempt < 64 && starterAffix == null; attempt++)
+            oldRandom=Random.state;Random.InitState(unchecked(seed^0x5A17E21));
+            try
             {
-                var natural = roller.RollEquipmentModsForItem(
-                    LootManager.GearType.Weapons, LootManager.GearRarity.Normal, 1, Element.Phys);
-                starterAffix = natural?.Find(mod => mod.lockedOriginal && !Gear.IsWeaponBaseStat(mod.statType));
+                for(int attempt=0;attempt<32&&generated.Count!=7;attempt++)
+                {
+                    generated.Clear();var natural=roller.RollEquipmentModsForItem(LootManager.GearType.Weapons,rarity,itemLevel,element);
+                    if(natural!=null)foreach(var mod in natural)if(!Gear.IsWeaponBaseStat(mod.statType))generated.Add(mod);
+                }
             }
+            finally{Random.state=oldRandom;}
         }
-        else
+        if(legendary&&generated.Count!=7){Debug.LogError("Starter Legendary generation could not produce one implicit and six legal explicits.");generated.Clear();gear.SetRarity(LootManager.GearRarity.Normal);}
+        if(generated.Count==0)
         {
-            Debug.LogWarning("Starter weapon rolled before ModManager was available; using the historical fallback implicit.");
-            starterAffix = new RolledMod(StatTypes.GenericDmg, 1, Random.Range(5f, 10f), true);
+            var definition=roller?.Database?.GetDefinition(StatTypes.GenericDmg);
+            var tiers=ModManager.ApplicableTiers(definition,LootManager.GearType.Weapons);
+            AffixTier weakest=null;foreach(var tier in tiers)if(tier.minItemLevel<=itemLevel&&(weakest==null||tier.tierIndex>weakest.tierIndex))weakest=tier;
+            generated.Add(weakest!=null?new RolledMod(StatTypes.GenericDmg,weakest.tierIndex,weakest.minValue,true):new RolledMod(StatTypes.GenericDmg,5,7f,true));
         }
-        if (starterAffix == null)
-            Debug.LogError("Starter weapon could not construct a legal implicit from the equipment catalog.");
-        if (starterAffix != null) gear.ApplyMods(new System.Collections.Generic.List<RolledMod> { starterAffix });
+        gear.ApplyMods(generated);
 
         return gear;    //Return the gear object
     }
 
-    public void ResetToStarterWeapon()
+    public Gear EnsureStarterWeapon()
     {
+        Gear existing=EquipmentManager.Instance?.GetEquipped(LootManager.GearType.Weapons);
+        if(existing!=null){if(equippedWeapon!=existing)EquipWeapon(existing);return existing;}
+        if(equippedWeapon!=null)return equippedWeapon;
         Gear starter = CreateStarterWeapon();
         if (EquipmentManager.Instance != null) EquipmentManager.Instance.Equip(starter);
         else EquipWeapon(starter);
+        return starter;
     }
+
+    public void ResetToStarterWeapon()=>EnsureStarterWeapon();
 
     public void TakeDamage(float damage, StatusEffects effect = null)  // Already-mitigated damage; effect selects the popup style.
     {

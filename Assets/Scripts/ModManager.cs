@@ -402,9 +402,8 @@ public class ModManager : MonoBehaviour
         var available = ApplicableTiers(def,slot).Where(t => t.minItemLevel <= itemLevel).ToList();
         if (available.Count == 0) return null;  //if there are no available tiers, return
 
-        // Temporary equal weighting across all eligible tiers, independent of
-        // rarity; family-level weighted selection remains separate above.
-        AffixTier chosenTier = available[Random.Range(0,available.Count)];
+        AffixTier chosenTier = AffixTierWeightPolicy.Choose(available,
+            tier => tier.tierIndex, tier => tier.weight, itemLevel, Random.value);
         float roll = Random.Range(chosenTier.minValue, chosenTier.maxValue);            //choose a roll by rolling a random range between the tier's min and max values
 
         if(chosenTier.pairedDamage)

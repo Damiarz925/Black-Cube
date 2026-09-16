@@ -58,9 +58,9 @@ public sealed class Step12_5GTests
         var host=new GameObject("Isolated starter controller");created.Add(host);
         var controller=host.AddComponent<PlayerController>();
         var starter=controller.CreateStarterWeaponForIsolatedBaseline(roller);
-        Assert.That(starter.BaseDamageMin,Is.EqualTo(64f));
-        Assert.That(starter.BaseDamageMax,Is.EqualTo(96f));
-        Assert.That(starter.BaseAttackSpeed,Is.EqualTo(1.2f));
+        Assert.That(starter.BaseDamageMin,Is.EqualTo(18f));
+        Assert.That(starter.BaseDamageMax,Is.EqualTo(27f));
+        Assert.That(starter.BaseAttackSpeed,Is.EqualTo(.45f));
         Assert.That(starter.BaseCritChance,Is.EqualTo(.05f));
         Assert.That(starter.ImplicitMod,Is.Not.Null);
         Assert.That(starter.CraftingModCount,Is.Zero);

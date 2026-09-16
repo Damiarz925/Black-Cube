@@ -43,19 +43,23 @@ public sealed class ObsoleteResetRemovalTests
     }
 
     [Test]
-    public void RebirthRemainsTheLevelFiftyMetaReset()
+    public void RebirthUnlocksFromAuthoritativeCombatZoneSixty()
     {
         host = new GameObject("Rebirth authority fixture");
-        var progression = host.AddComponent<PlayerProgression>();
-        host.AddComponent<RelicInventory>();
-        var rebirth = host.AddComponent<RebirthManager>();
-        FieldInfo level = typeof(PlayerProgression).GetField("level", BindingFlags.Instance | BindingFlags.NonPublic);
+        typeof(GameManager).GetProperty("Instance",BindingFlags.Static|BindingFlags.Public).GetSetMethod(true).Invoke(null,new object[]{null});
+        typeof(RelicInventory).GetProperty("Instance",BindingFlags.Static|BindingFlags.Public).GetSetMethod(true).Invoke(null,new object[]{null});
+        typeof(RebirthManager).GetProperty("Instance",BindingFlags.Static|BindingFlags.Public).GetSetMethod(true).Invoke(null,new object[]{null});
+        var manager = host.AddComponent<GameManager>();
+        var rebirth = host.GetComponent<RebirthManager>() ?? host.AddComponent<RebirthManager>();
+        typeof(GameManager).GetProperty("Instance",BindingFlags.Static|BindingFlags.Public).GetSetMethod(true).Invoke(null,new object[]{manager});
+        typeof(RebirthManager).GetProperty("Instance",BindingFlags.Static|BindingFlags.Public).GetSetMethod(true).Invoke(null,new object[]{rebirth});
+        FieldInfo zone = typeof(GameManager).GetField("currentZoneLevel", BindingFlags.Instance | BindingFlags.NonPublic);
 
-        level.SetValue(progression, RebirthManager.RequiredLevel - 1);
+        zone.SetValue(manager, RebirthManager.RequiredZone - 1);
         Assert.That(rebirth.Eligible, Is.False);
         Assert.That(rebirth.RequestRebirth(), Is.False);
 
-        level.SetValue(progression, RebirthManager.RequiredLevel);
+        zone.SetValue(manager, RebirthManager.RequiredZone);
         Assert.That(rebirth.Eligible, Is.True);
         Assert.That(rebirth.RequestRebirth(), Is.True);
         Assert.That(rebirth.ConfirmationPending, Is.True);

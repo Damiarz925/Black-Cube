@@ -91,7 +91,7 @@ public static class ItemTooltipFormatter
     public static string DescribeRelic(RelicData relic)
     {
         if (relic == null) return string.Empty;
-        var s = new StringBuilder($"<b>{relic.rarity} RELIC</b>  <color=#85898F>•  CYCLE {relic.cycle}</color>\n");
+        var s = new StringBuilder($"<b>{relic.rarity} RELIC</b>  <color=#85898F>•  RELIC LEVEL {relic.relicLevel}  •  CYCLE {relic.cycle}</color>\n");
         s.AppendLine(relic.craftableThisCycle ? "<color=#B88AE0>CURRENT CYCLE / CRAFTABLE</color>" : "<color=#85898F>PAST CYCLE / LOCKED</color>");
         s.AppendLine($"<color=#555A63>{Divider}</color>");
         s.AppendLine("<b>RELIC MODIFIERS</b>");
@@ -103,8 +103,10 @@ public static class ItemTooltipFormatter
             var definition=RelicModifierDefinitions.Get(mod.type);
             string label=definition?.Label??mod.type.ToString();
             string unit=definition==null||definition.Percent?"%":"";
-            string range=definition==null?"LEGACY":definition.FixedValue?$"+{definition.Minimum:0.##}{unit}":$"{definition.Minimum:0.##}–{definition.Maximum:0.##}{unit}";
-            s.AppendLine($"{label}: <b>{mod.value:+0.##;-0.##;0}{unit}</b>  ({range})  {(mod.lockedOriginal ? "[LOCKED]" : "[CRAFTABLE]")}");
+            var tier=definition?.Tier(mod.tierIndex);
+            string range=tier==null?"LEGACY / preserved":tier.FixedValue?$"{tier.Minimum:0.##}{unit}":$"{tier.Minimum:0.##}–{tier.Maximum:0.##}{unit}";
+            string tierText=tier==null?"LEGACY":$"T{tier.TierIndex}";
+            s.AppendLine($"{label}: <b>{mod.value:+0.##;-0.##;0}{unit}</b>  ({range}) {tierText}  {(mod.lockedOriginal ? "[LOCKED]" : "[CRAFTABLE]")}");
         }
         return s.ToString().TrimEnd();
     }

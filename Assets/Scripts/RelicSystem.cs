@@ -13,7 +13,10 @@ public enum RelicModifierType
     IncreasedMaximumLife=3, IncreasedMaximumMana=4, AllResistances=5,
     IncreasedVoidDamage=6, IncreasedAilmentDamage=7, ChanceToHitTwice=8,
     ProjectileAmount=9, MaximumBleedStacks=10, MaximumIgniteStacks=11,
-    EquippedSkillLevel=12, ShockThresholdReduction=13, MaximumChillSlow=14
+    EquippedSkillLevel=12, ShockThresholdReduction=13, MaximumChillSlow=14,
+    StarterWeaponFire=15, StarterWeaponCold=16, StarterWeaponLightning=17,
+    StarterWeaponVoid=18, StarterWeaponBaseDamage=19, StarterWeaponItemLevel=20,
+    StarterWeaponLegendaryChance=21
 }
 
 [Serializable]
@@ -22,7 +25,8 @@ public sealed class RelicModifier
     public RelicModifierType type;
     public float value;
     public bool lockedOriginal;
-    public RelicModifier(RelicModifierType type, float value, bool locked) { this.type=type; this.value=value; lockedOriginal=locked; }
+    public int tierIndex;
+    public RelicModifier(RelicModifierType type, float value, bool locked, int tierIndex=0) { this.type=type; this.value=value; lockedOriginal=locked; this.tierIndex=tierIndex; }
 }
 
 [Serializable]
@@ -32,6 +36,7 @@ public sealed class RelicData
     public int cycle;
     public LootManager.GearRarity rarity;
     public bool craftableThisCycle;
+    public int relicLevel=1;
     public List<RelicModifier> modifiers = new();
     public int ModifierCount => modifiers?.Count ?? 0;
 }
@@ -39,7 +44,7 @@ public sealed class RelicData
 public static class RelicRolls
 {
     // Stable-ID weighted definitions are separate from equipment Prefix/Suffix rules.
-    public static RelicModifier Roll(bool locked, ISet<RelicModifierType> excluded = null)
+    public static RelicModifier Roll(int relicLevel, bool locked, ISet<RelicModifierType> excluded = null)
     {
         int total=0;
         foreach(var definition in RelicModifierDefinitions.All)if(excluded==null||!excluded.Contains(definition.Id))total+=definition.Weight;
@@ -49,8 +54,10 @@ public static class RelicRolls
         {
             if(excluded!=null&&excluded.Contains(definition.Id))continue;
             choice-=definition.Weight;if(choice>=0)continue;
-            float value=definition.FixedValue?definition.Minimum:UnityEngine.Random.Range(definition.Minimum,definition.Maximum);
-            return new RelicModifier(definition.Id,value,locked);
+            var eligible=new List<RelicModifierTier>();foreach(var tier in definition.Tiers)if(tier.MinimumRelicLevel<=relicLevel)eligible.Add(tier);
+            var chosen=AffixTierWeightPolicy.Choose(eligible,tier=>tier.TierIndex,tier=>tier.Weight,relicLevel,UnityEngine.Random.value);
+            float value=chosen.FixedValue?chosen.Minimum:UnityEngine.Random.Range(chosen.Minimum,chosen.Maximum);
+            return new RelicModifier(definition.Id,value,locked,chosen.TierIndex);
         }
         throw new InvalidOperationException("Relic modifier weights did not resolve a choice.");
     }
@@ -78,12 +85,21 @@ public sealed class RelicInventory : MonoBehaviour
         activeIndices[slot]=index;PublishChanged();return true;
     }
     public void Unequip(int slot){if(slot>=0&&slot<ActiveSlotCount&&activeIndices[slot]!=-1){activeIndices[slot]=-1;PublishChanged();}}
-    public RelicData BeginNewCycle()
+    public bool ToggleEquip(RelicData relic,out string feedback)
+    {
+        feedback=null;if(relic==null||!relics.Contains(relic)){feedback="Relic unavailable";return false;}
+        int index=relics.IndexOf(relic);
+        for(int slot=0;slot<ActiveSlotCount;slot++)if(activeIndices[slot]==index){Unequip(slot);feedback="Relic unequipped";return true;}
+        for(int slot=0;slot<ActiveSlotCount;slot++)if(activeIndices[slot]<0){Equip(relic,slot);feedback="Relic equipped";return true;}
+        feedback="Relic slots full";return false;
+    }
+    public static int LevelForZone(int zoneLevel)=>Mathf.Clamp(1+Mathf.FloorToInt((zoneLevel-60)*99f/300f),1,100);
+    public RelicData BeginNewCycle(int zoneLevel=60)
     {
         foreach(var relic in relics) relic.craftableThisCycle=false;
         currentCycle++;
-        var created=new RelicData{id=Guid.NewGuid().ToString("N"),cycle=currentCycle,rarity=LootManager.GearRarity.Normal,craftableThisCycle=true};
-        created.modifiers.Add(RelicRolls.Roll(true));relics.Add(created);PublishChanged();return created;
+        var created=new RelicData{id=Guid.NewGuid().ToString("N"),cycle=currentCycle,rarity=LootManager.GearRarity.Normal,craftableThisCycle=true,relicLevel=LevelForZone(zoneLevel)};
+        created.modifiers.Add(RelicRolls.Roll(created.relicLevel,true));relics.Add(created);PublishChanged();return created;
     }
     public bool IsCurrentCraftable(RelicData relic)=>relic!=null&&relic.craftableThisCycle&&relic.cycle==currentCycle&&relics.Contains(relic);
     public float DamageMultiplier=>Product(RelicModifierType.MoreDamage);
@@ -101,6 +117,19 @@ public sealed class RelicInventory : MonoBehaviour
     public int EquippedSkillLevelBonus=>Mathf.RoundToInt(Sum(RelicModifierType.EquippedSkillLevel));
     public int ShockThresholdReduction=>Mathf.Min(2,Mathf.RoundToInt(Sum(RelicModifierType.ShockThresholdReduction)));
     public float MaximumChillSlowIncrease=>Sum(RelicModifierType.MaximumChillSlow)/100f;
+    public float StarterBaseDamagePercent=>Sum(RelicModifierType.StarterWeaponBaseDamage);
+    public int StarterItemLevelBonus=>Mathf.RoundToInt(Sum(RelicModifierType.StarterWeaponItemLevel));
+    public float StarterLegendaryChance=>Mathf.Min(100f,Sum(RelicModifierType.StarterWeaponLegendaryChance));
+    public Element StarterElement
+    {
+        get
+        {
+            RelicModifier winner=null;int winnerSlot=int.MaxValue;
+            for(int slot=0;slot<ActiveSlotCount;slot++){var relic=Active(slot);if(relic==null)continue;foreach(var mod in relic.modifiers)if(IsStarterElement(mod.type)&&(winner==null||mod.tierIndex<winner.tierIndex||mod.tierIndex==winner.tierIndex&&slot<winnerSlot)){winner=mod;winnerSlot=slot;}}
+            return winner==null?Element.Phys:winner.type switch{RelicModifierType.StarterWeaponFire=>Element.Fire,RelicModifierType.StarterWeaponCold=>Element.Cold,RelicModifierType.StarterWeaponLightning=>Element.Light,RelicModifierType.StarterWeaponVoid=>Element.Void,_=>Element.Phys};
+        }
+    }
+    static bool IsStarterElement(RelicModifierType type)=>type is RelicModifierType.StarterWeaponFire or RelicModifierType.StarterWeaponCold or RelicModifierType.StarterWeaponLightning or RelicModifierType.StarterWeaponVoid;
     float Product(RelicModifierType type){float value=1f;foreach(var relic in ActiveRelics())foreach(var mod in relic.modifiers)if(mod.type==type)value*=1f+mod.value/100f;return value;}
     float Sum(RelicModifierType type){float value=0f;foreach(var relic in ActiveRelics())foreach(var mod in relic.modifiers)if(mod.type==type)value+=mod.value;return value;}
     IEnumerable<RelicData> ActiveRelics(){for(int i=0;i<ActiveSlotCount;i++){var relic=Active(i);if(relic!=null)yield return relic;}}
@@ -172,17 +201,17 @@ public static class AncientRelicCrafting
     }
     static void FillToMinimum(RelicData relic){while(relic.ModifierCount<Minimum(relic.rarity))Add(relic);}
     static void Add(RelicData relic)=>relic.modifiers.Add(RollFor(relic,false));
-    static RelicModifier RollFor(RelicData relic,bool locked){var used=new HashSet<RelicModifierType>();foreach(var mod in relic.modifiers)if(mod!=null)used.Add(mod.type);return RelicRolls.Roll(locked,used);}
+    static RelicModifier RollFor(RelicData relic,bool locked){var used=new HashSet<RelicModifierType>();foreach(var mod in relic.modifiers)if(mod!=null)used.Add(mod.type);return RelicRolls.Roll(Mathf.Clamp(relic.relicLevel,1,100),locked,used);}
     static bool HasUnlocked(RelicData relic)=>Unlocked(relic).Count>0;
     static List<RelicModifier> Unlocked(RelicData relic){var result=new List<RelicModifier>();foreach(var mod in relic.modifiers)if(mod!=null&&!mod.lockedOriginal)result.Add(mod);return result;}
 }
 
 public sealed class RebirthManager : MonoBehaviour
 {
-    public const int RequiredLevel=50;
+    public const int RequiredZone=60;
     public static RebirthManager Instance{get;private set;}
     public bool ConfirmationPending{get;private set;}
-    public bool Eligible=>GetComponent<PlayerProgression>()?.Level>=RequiredLevel;
+    public bool Eligible=>GameManager.Instance!=null&&GameManager.Instance.CurrentCombatLevel>=RequiredZone;
     void Awake(){if(Instance!=null&&Instance!=this){Destroy(this);return;}Instance=this;}
     void OnDestroy(){if(Instance==this)Instance=null;}
     public bool RequestRebirth(){if(!Eligible)return false;ConfirmationPending=true;return true;}
@@ -193,11 +222,13 @@ public sealed class RebirthManager : MonoBehaviour
         EquipmentManager.Instance?.ResetForRebirth();
         Inventory.Instance?.ResetForRebirth();
         CurrencyInventory.Instance?.Restore(Array.Empty<CurrencyStackData>());
-        var relics=GetComponent<RelicInventory>();if(relics==null)relics=gameObject.AddComponent<RelicInventory>();
-        relics.BeginNewCycle();
+        var relics=RelicInventory.Instance;if(relics==null)relics=gameObject.AddComponent<RelicInventory>();
+        int reachedZone=GameManager.Instance!=null?GameManager.Instance.CurrentCombatLevel:RequiredZone;
+        relics.BeginNewCycle(reachedZone);
         foreach(CraftingCurrencyType type in Enum.GetValues(typeof(CraftingCurrencyType)))if(CurrencyInventory.IsAncient(type))CurrencyInventory.Instance?.Add(type);
         var player=FindAnyObjectByType<PlayerController>();
-        if(player!=null){player.GetComponent<StatusController>()?.ClearStatuses();player.GetComponent<HealthComponent>()?.ReviveToFullLife();player.GetComponent<ManaComponent>()?.RestoreFull();player.ResetToStarterWeapon();}
+        if(player!=null){player.GetComponent<StatusController>()?.ClearStatuses();player.GetComponent<HealthComponent>()?.ReviveToFullLife();player.GetComponent<ManaComponent>()?.RestoreFull();}
+        player?.EnsureStarterWeapon();
         GetComponent<GameManager>()?.StartNewRun();
         GamePersistence.Save();
         return true;
@@ -282,7 +313,7 @@ public sealed class RebirthConfirmationUI:MonoBehaviour
         Button(confirmation.transform,"CONFIRM",new Vector2(.08f,.08f),new Vector2(.47f,.34f),Confirm,out _);
         Button(confirmation.transform,"CANCEL",new Vector2(.53f,.08f),new Vector2(.92f,.34f),Cancel,out _);confirmation.SetActive(false);
     }
-    void Update(){Build();bool eligible=RebirthManager.Instance!=null&&RebirthManager.Instance.Eligible;openButton.gameObject.SetActive(eligible);if(openLabel!=null)openLabel.text=eligible?"REBIRTH / LEVEL 50+":"REBIRTH LOCKED";}
+    void Update(){Build();bool eligible=RebirthManager.Instance!=null&&RebirthManager.Instance.Eligible;openButton.gameObject.SetActive(true);openButton.interactable=eligible;if(openLabel!=null)openLabel.text=eligible?"REBIRTH / ZONE 60+":"REBIRTH LOCKED / REACH ZONE 60";}
     void Open(){if(RebirthManager.Instance!=null&&RebirthManager.Instance.RequestRebirth())confirmation.SetActive(true);}
     void Confirm(){if(RebirthManager.Instance!=null&&RebirthManager.Instance.ConfirmRebirth())confirmation.SetActive(false);}
     void Cancel(){RebirthManager.Instance?.Cancel();confirmation.SetActive(false);}

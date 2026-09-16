@@ -17,8 +17,8 @@ public static class PlayerStatModelChecks
         var manager = EquipmentManager.Instance;
         Require(manager.GetEquipped(LootManager.GearType.BodyArmours) == null, "Use a fresh Play session with empty Body Armor");
         var starter = manager.GetEquipped(LootManager.GearType.Weapons);
-        Require(starter != null && starter.BaseDamage == 80 && starter.BaseDamageMin == 64
-            && starter.BaseDamageMax == 96, "Starter range is 64-96 with historical average 80");
+        Require(starter != null && Mathf.Approximately(starter.BaseDamage,22.5f) && Mathf.Approximately(starter.BaseDamageMin,18f)
+            && Mathf.Approximately(starter.BaseDamageMax,27f), "Starter range is the Step 14 baseline 18-27 with average 22.5");
         float starterAttackOutput = player.BuildNonCriticalAttackContext().Hits.Sum(h => h.Amount);
         Require(stats.GetStat(StatTypes.UnarmedDamage) == 0 && !stats.HasStat(StatTypes.WeaponBaseDmg), "Unarmed is zero with no competing intrinsic weapon base");
         Require(health.MaxLife == 1000 && stats.GetStat(StatTypes.Life) == 1000, "Baseline derived maximum is 1000");
@@ -38,7 +38,7 @@ public static class PlayerStatModelChecks
         stats.SetBaseStat(StatTypes.UnarmedDamage, 7);
         Require(player.BuildAttackContext().Hits.Sum(h => h.Amount) == 7, "Positive unarmed stat drives unarmed damage");
         manager.Equip(starter);
-        Require(starter.BaseDamage == 80
+        Require(Mathf.Approximately(starter.BaseDamage,22.5f)
             && Mathf.Abs(player.BuildNonCriticalAttackContext().Hits.Sum(h => h.Amount) - starterAttackOutput) < .0001f,
             "Unarmed base is not added to the actual starter attack output");
         stats.SetBaseStat(StatTypes.UnarmedDamage, 0);
@@ -51,7 +51,7 @@ public static class PlayerStatModelChecks
         var hud = Object.FindFirstObjectByType<PaperBattleHUD>(); hud.statsPanel.SetActive(true);
         health.LoseLife(health.CurrentLife + 1); Require(health.CurrentLife == 0, "Lethal damage clamps to zero");
         GameManager.Instance.RestartCurrentLevelAfterDeath(); Check(health, stats, 1200, 1200);
-        string report = $"PASS: baseline Life/maxHP1000; damage current900; +200/+500 Life swaps max1200/1500 with current900 unchanged; down-swap clamps1500->1200; up-swap preserves1200 (no transient base clamp); remove clamps to1000; no stacking/free healing. No weapon+Unarmed0 yields no hits/speed0; Unarmed7 yields7 but starter base is 64-96 (average80) with average attack output {starterAttackOutput:F2}; scalar replacement42 remains a valid X-X fixture, then starter output restored. Lethal damage0 then actual restart fills derived1200. Enemy path unchanged. QA gear is Play-session only.";
+        string report = $"PASS: baseline Life/maxHP1000; damage current900; +200/+500 Life swaps max1200/1500 with current900 unchanged; down-swap clamps1500->1200; up-swap preserves1200 (no transient base clamp); remove clamps to1000; no stacking/free healing. No weapon+Unarmed0 yields no hits/speed0; Unarmed7 yields7 but starter base is 18-27 (average22.5) with average attack output {starterAttackOutput:F2}; scalar replacement42 remains a valid X-X fixture, then starter output restored. Lethal damage0 then actual restart fills derived1200. Enemy path unchanged. QA gear is Play-session only.";
         System.IO.File.WriteAllText("ReviewCaptures/stat-model-check.txt", report); Debug.Log(report);
     }
     static Gear LifeGear(float amount)

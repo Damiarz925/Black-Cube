@@ -4,6 +4,7 @@ using System.Reflection;
 using NUnit.Framework;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.TestTools;
 
 public class CraftingAndRebirthTests
 {
@@ -98,10 +99,11 @@ public class CraftingAndRebirthTests
     public void RepeatedConfirmedRebirthLocksOldRelicAndReplacesAncientStacks()
     {
         var inventoryHost=Track(new GameObject("inventory"));inventoryHost.AddComponent<Inventory>();var currency=inventoryHost.AddComponent<CurrencyInventory>();SetInstance(typeof(CurrencyInventory),currency);
-        var rebirthHost=Track(new GameObject("rebirth"));var progression=rebirthHost.AddComponent<PlayerProgression>();var relics=rebirthHost.AddComponent<RelicInventory>();var rebirth=rebirthHost.AddComponent<RebirthManager>();
-        SetLevel(progression,50);Assert.That(rebirth.RequestRebirth(),Is.True);Assert.That(rebirth.ConfirmRebirth(),Is.True);RelicData first=relics.Relics[0];
+        SetInstance(typeof(GameManager),null);SetInstance(typeof(RelicInventory),null);SetInstance(typeof(RebirthManager),null);
+        var managerHost=Track(new GameObject("combat progression"));var manager=managerHost.AddComponent<GameManager>();var relics=managerHost.GetComponent<RelicInventory>()??managerHost.AddComponent<RelicInventory>();var rebirth=managerHost.GetComponent<RebirthManager>()??managerHost.AddComponent<RebirthManager>();SetInstance(typeof(GameManager),manager);SetInstance(typeof(RelicInventory),relics);SetInstance(typeof(RebirthManager),rebirth);
+        SetZone(manager,60);Assert.That(rebirth.RequestRebirth(),Is.True);LogAssert.Expect(LogType.Error,"GameManager: Cannot start zone because ZoneManager is missing.");Assert.That(rebirth.ConfirmRebirth(),Is.True);RelicData first=relics.Relics[0];
         CurrencyInventory.Instance.Add(CraftingCurrencyType.AncientReroll,7);
-        SetLevel(progression,50);Assert.That(rebirth.RequestRebirth(),Is.True);Assert.That(rebirth.ConfirmRebirth(),Is.True);
+        SetZone(manager,60);Assert.That(rebirth.RequestRebirth(),Is.True);LogAssert.Expect(LogType.Error,"GameManager: Cannot start zone because ZoneManager is missing.");Assert.That(rebirth.ConfirmRebirth(),Is.True);
         Assert.That(relics.Relics.Count,Is.EqualTo(2));Assert.That(first.craftableThisCycle,Is.False);Assert.That(relics.IsCurrentCraftable(relics.Relics[1]),Is.True);
         foreach(CraftingCurrencyType type in System.Enum.GetValues(typeof(CraftingCurrencyType)))if(CurrencyInventory.IsAncient(type))Assert.That(CurrencyInventory.Instance.Count(type),Is.EqualTo(1),type.ToString());
     }
@@ -118,5 +120,6 @@ public class CraftingAndRebirthTests
     }
     static void SetInstance(System.Type type,object value)=>type.GetProperty("Instance",BindingFlags.Static|BindingFlags.Public).GetSetMethod(true).Invoke(null,new[]{value});
     static void SetLevel(PlayerProgression progression,int value)=>typeof(PlayerProgression).GetField("level",BindingFlags.Instance|BindingFlags.NonPublic).SetValue(progression,value);
+    static void SetZone(GameManager manager,int value)=>typeof(GameManager).GetField("currentZoneLevel",BindingFlags.Instance|BindingFlags.NonPublic).SetValue(manager,value);
     GameObject Track(GameObject value){cleanup.Add(value);return value;}
 }

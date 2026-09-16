@@ -294,7 +294,7 @@ public sealed class CurrencyInventoryPanel : MonoBehaviour
             var glyph=iconGo.GetComponent<Image>();glyph.preserveAspect=true;glyph.raycastTarget=false;
             var labelGo=new GameObject("Label",typeof(RectTransform),typeof(TextMeshProUGUI));labelGo.transform.SetParent(go.transform,false);
             var rect=(RectTransform)labelGo.transform;rect.anchorMin=Vector2.zero;rect.anchorMax=Vector2.one;rect.offsetMin=new Vector2(72,5);rect.offsetMax=new Vector2(-8,-5);
-            var label=labelGo.GetComponent<TextMeshProUGUI>();label.fontSize=12;label.raycastTarget=false;var slot=go.GetComponent<RelicSlotUI>();slot.Initialize(relic,label);relicEntries[relic]=slot;go.GetComponent<Button>().onClick.AddListener(slot.Activate);
+            var label=labelGo.GetComponent<TextMeshProUGUI>();label.fontSize=12;label.raycastTarget=false;var slot=go.GetComponent<RelicSlotUI>();slot.Initialize(relic,label);relicEntries[relic]=slot;
         }
         RelicTooltipUI.RefreshVisible();
     }
@@ -482,22 +482,25 @@ public sealed class CurrencyTooltipUI : MonoBehaviour
     }
 }
 
-public sealed class RelicSlotUI:MonoBehaviour,IPointerClickHandler,IPointerEnterHandler,IPointerExitHandler
+public sealed class RelicSlotUI:MonoBehaviour,IPointerClickHandler,IPointerEnterHandler,IPointerExitHandler,ISubmitHandler
 {
-    RelicData relic;TMP_Text label;public void Initialize(RelicData value,TMP_Text target=null){relic=value;label=target;RefreshPresentation();}
+    RelicData relic;TMP_Text label;public string LastFeedback{get;private set;} public void Initialize(RelicData value,TMP_Text target=null){relic=value;label=target;RefreshPresentation();}
     public RelicData Item=>relic;
     public void RefreshPresentation()
     {
         if(relic==null)return;
         var glyph=transform.Find("Relic glyph")?.GetComponent<Image>();if(glyph!=null)glyph.sprite=PlaceholderIcon.Relic(relic.rarity,relic.cycle);
-        if(label!=null)label.text=$"<b>{relic.rarity.ToString().ToUpperInvariant()} RELIC</b>  •  CYCLE {relic.cycle}\n{relic.ModifierCount} MODIFIERS  •  {(relic.craftableThisCycle?"CRAFTABLE":"PAST CYCLE")}";
+        if(label!=null)label.text=$"<b>{relic.rarity.ToString().ToUpperInvariant()} RELIC</b>  •  LEVEL {relic.relicLevel}  •  CYCLE {relic.cycle}\n{relic.ModifierCount} MODIFIERS  •  {(relic.craftableThisCycle?"CRAFTABLE":"PAST CYCLE")}";
     }
-    public void OnPointerClick(PointerEventData data){if(data.button==PointerEventData.InputButton.Right)RelicTooltipUI.Show(relic,(RectTransform)transform);}
+    public void OnPointerClick(PointerEventData data){if(data.button==PointerEventData.InputButton.Right)RelicTooltipUI.Show(relic,(RectTransform)transform);else if(data.button==PointerEventData.InputButton.Left)Activate();}
     public void Activate()
     {
-        if(CurrencyInventory.Instance?.ArmedCurrency is CraftingCurrencyType currency&&CurrencyInventory.IsAncient(currency))CurrencyInventory.Instance.TryApplyArmedToRelic(relic);
-        else RelicTooltipUI.Show(relic,(RectTransform)transform);
+        if(CurrencyInventory.Instance?.ArmedCurrency is CraftingCurrencyType currency&&CurrencyInventory.IsAncient(currency))
+        {bool applied=CurrencyInventory.Instance.TryApplyArmedToRelic(relic);LastFeedback=applied?"Ancient crafting applied":"Ancient operation invalid";return;}
+        string feedback="Relic unavailable";bool changed=RelicInventory.Instance!=null&&RelicInventory.Instance.ToggleEquip(relic,out feedback);LastFeedback=feedback;
+        if(!changed&&feedback=="Relic slots full"){if(label!=null)label.text+="\n<color=#FFB85C>RELIC SLOTS FULL</color>";Debug.LogWarning(feedback);}
     }
+    public void OnSubmit(BaseEventData data)=>Activate();
     public void OnPointerEnter(PointerEventData data)=>RelicTooltipUI.Show(relic,(RectTransform)transform);
     public void OnPointerExit(PointerEventData data)=>RelicTooltipUI.Hide();
 }

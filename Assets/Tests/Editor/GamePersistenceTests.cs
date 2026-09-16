@@ -28,7 +28,7 @@ public sealed class GamePersistenceTests
         var old=Valid();old.schemaVersion=4;
         File.WriteAllText(GamePersistence.PrimaryPath,JsonUtility.ToJson(old));
         Assert.That(GamePersistence.TryReadFile(GamePersistence.PrimaryPath,out var migrated,out var error),Is.True,error);
-        Assert.That(migrated.schemaVersion,Is.EqualTo(5));
+        Assert.That(migrated.schemaVersion,Is.EqualTo(GamePersistence.SchemaVersion));
         Assert.That(migrated.payload.normalToMagicFragments,Is.Zero);
         Assert.That(migrated.payload.magicToRareFragments,Is.Zero);
     }
@@ -41,6 +41,17 @@ public sealed class GamePersistenceTests
         Assert.That(copy.payload.magicToRareFragments,Is.EqualTo(9));
         copy.payload.magicToRareFragments=10;AssertInvalid(copy,"Fragment");
         copy.payload.magicToRareFragments=0;copy.payload.normalToMagicFragments=-1;AssertInvalid(copy,"Fragment");
+    }
+    [Test] public void Schema5RelicsMigrateAtLevelOneWithoutChangingTheirEffects()
+    {
+        var old=Valid();old.schemaVersion=5;old.payload.relicCycle=1;
+        var relic=new RelicData{id="legacy-relic",cycle=1,relicLevel=88,craftableThisCycle=true};
+        relic.modifiers.Add(new RelicModifier(RelicModifierType.MoreDamage,7.25f,true,2));
+        old.payload.relics.Add(relic);old.payload.activeRelicIds[0]=relic.id;
+        File.WriteAllText(GamePersistence.PrimaryPath,JsonUtility.ToJson(old));
+        Assert.That(GamePersistence.TryReadFile(GamePersistence.PrimaryPath,out var migrated,out var error),Is.True,error);
+        Assert.That(migrated.schemaVersion,Is.EqualTo(6));Assert.That(migrated.payload.relics[0].relicLevel,Is.EqualTo(1));
+        Assert.That(migrated.payload.relics[0].modifiers[0].tierIndex,Is.Zero);Assert.That(migrated.payload.relics[0].modifiers[0].value,Is.EqualTo(7.25f));
     }
     [Test] public void LoadedOverfilledFragmentsNormalizeIntoWholeCurrenciesOnce()
     {
@@ -64,7 +75,7 @@ public sealed class GamePersistenceTests
         old.payload.gearItems.Add(item);old.payload.inventoryGearIds.Add(item.id);
         File.WriteAllText(GamePersistence.PrimaryPath,JsonUtility.ToJson(old));
         Assert.That(GamePersistence.TryReadFile(GamePersistence.PrimaryPath,out var migrated,out var error),Is.True,error);
-        Assert.That(migrated.schemaVersion,Is.EqualTo(5));
+        Assert.That(migrated.schemaVersion,Is.EqualTo(GamePersistence.SchemaVersion));
         Assert.That(migrated.payload.gearItems[0].baseDamageMin,Is.EqualTo(87f));
         Assert.That(migrated.payload.gearItems[0].baseDamageMax,Is.EqualTo(87f));
         Assert.That(migrated.payload.gearItems[0].legacyAffixRules,Is.True);
@@ -82,7 +93,7 @@ public sealed class GamePersistenceTests
         File.WriteAllText(GamePersistence.PrimaryPath,JsonUtility.ToJson(old));
         Assert.That(GamePersistence.TryReadFile(GamePersistence.PrimaryPath,out var migrated,out var error),Is.True,error);
         var item=migrated.payload.gearItems[0];
-        Assert.That(migrated.schemaVersion,Is.EqualTo(5));
+        Assert.That(migrated.schemaVersion,Is.EqualTo(GamePersistence.SchemaVersion));
         Assert.That(item.mods.Count,Is.EqualTo(4));
         Assert.That(item.mods[0].lockedOriginal,Is.True);
         Assert.That(item.mods[0].value,Is.EqualTo(31f));
@@ -157,7 +168,7 @@ public sealed class GamePersistenceTests
             mods=new System.Collections.Generic.List<RolledMod>
             {new(StatTypes.FireRes,3,21f,false),new(StatTypes.Life,2,35f,false)}});
         Assert.That(GamePersistence.TryMigrateLegacy(JsonUtility.ToJson(old),out var migrated,out var error),Is.True,error);
-        Assert.That(migrated.schemaVersion,Is.EqualTo(5));
+        Assert.That(migrated.schemaVersion,Is.EqualTo(GamePersistence.SchemaVersion));
         var mods=migrated.payload.gearItems[0].mods;
         Assert.That(mods[0].lockedOriginal,Is.True);
         Assert.That(mods[0].value,Is.EqualTo(21f));

@@ -55,7 +55,7 @@ public enum SaveLoadSource{None,Primary,Backup,LegacyV1}
 
 public static class GamePersistence
 {
-    public const string SaveKey="BlackCube.Save.V1"; public const int SchemaVersion=5;
+    public const string SaveKey="BlackCube.Save.V1"; public const int SchemaVersion=6;
     public const string PrimaryFileName="current-save.json",BackupFileName="current-save.json.bak",TemporaryFileName="current-save.json.tmp";
     public const float AutosaveDebounceSeconds=2f;
     static bool loadRequested,confirmedNewGameRequested,restoring,dirty,hasEncounterCheckpoint,pendingSchemaMigration; static float dirtySince,encounterStartLife,encounterStartMana;
@@ -159,7 +159,7 @@ public static class GamePersistence
     static bool ValidateRelics(GameStatePayload p,out string error)
     {
         error=null;if(p.relics==null||p.activeRelicIds==null||p.activeRelicIds.Count!=RelicInventory.ActiveSlotCount||p.relicCycle<0)return Fail("Relic collection or cycle is invalid.",out error);var ids=new HashSet<string>();int craftable=0;
-        foreach(var r in p.relics){if(r==null||string.IsNullOrWhiteSpace(r.id)||!ids.Add(r.id)||r.cycle<1||r.cycle>p.relicCycle||!Enum.IsDefined(typeof(LootManager.GearRarity),r.rarity)||r.modifiers==null)return Fail("Relic identity or cycle is invalid.",out error);if(r.craftableThisCycle){craftable++;if(r.cycle!=p.relicCycle)return Fail("Craftable relic cycle is invalid.",out error);}foreach(var m in r.modifiers)if(m==null||!Enum.IsDefined(typeof(RelicModifierType),m.type)||!Finite(m.value)||m.value<0)return Fail("Relic modifier is invalid.",out error);}
+        foreach(var r in p.relics){if(r==null||string.IsNullOrWhiteSpace(r.id)||!ids.Add(r.id)||r.cycle<1||r.cycle>p.relicCycle||r.relicLevel<1||r.relicLevel>100||!Enum.IsDefined(typeof(LootManager.GearRarity),r.rarity)||r.modifiers==null)return Fail("Relic identity, level or cycle is invalid.",out error);if(r.craftableThisCycle){craftable++;if(r.cycle!=p.relicCycle)return Fail("Craftable relic cycle is invalid.",out error);}foreach(var m in r.modifiers)if(m==null||!Enum.IsDefined(typeof(RelicModifierType),m.type)||!Finite(m.value)||m.value<0||m.tierIndex<0||m.tierIndex>5)return Fail("Relic modifier is invalid.",out error);}
         if(craftable>1||p.relicCycle==0&&p.relics.Count>0)return Fail("Relic current-cycle relationship is invalid.",out error);var active=new HashSet<string>();foreach(string id in p.activeRelicIds)if(!string.IsNullOrEmpty(id)&&(!ids.Contains(id)||!active.Add(id)))return Fail("Active relic slot is invalid.",out error);return true;
     }
     public static bool TryReadBestEnvelope(out SaveEnvelope e,out SaveLoadSource source,out string error)
@@ -167,7 +167,7 @@ public static class GamePersistence
         e=null;source=SaveLoadSource.None;pendingSchemaMigration=false;var failures=new List<string>();if(File.Exists(PrimaryPath)){if(TryReadFile(PrimaryPath,out e,out var x)){source=SaveLoadSource.Primary;error=null;return true;}failures.Add("primary: "+x);}if(File.Exists(BackupPath)){if(TryReadFile(BackupPath,out e,out var x)){source=SaveLoadSource.Backup;error=null;return true;}failures.Add("backup: "+x);}
         if(!File.Exists(PrimaryPath)&&!File.Exists(BackupPath)&&PlayerPrefs.HasKey(SaveKey)){if(TryMigrateLegacy(PlayerPrefs.GetString(SaveKey),out e,out var x)){source=SaveLoadSource.LegacyV1;error=null;return true;}failures.Add("legacy: "+x);}error=failures.Count==0?"No gameplay save exists.":"No valid save: "+string.Join("; ",failures);return false;
     }
-    public static bool TryReadFile(string path,out SaveEnvelope e,out string error){e=null;error=null;try{string json=File.ReadAllText(path,Encoding.UTF8);if(string.IsNullOrWhiteSpace(json))return Fail("File is empty.",out error);e=JsonUtility.FromJson<SaveEnvelope>(json);bool migrated=e?.schemaVersion==2||e?.schemaVersion==3||e?.schemaVersion==4;if(e?.schemaVersion==2)MigrateSchema2(e);if(e?.schemaVersion==3)MigrateEquipmentImplicits(e);if(e?.schemaVersion==4)MigrateSchema4(e);bool normalized=NormalizeFragmentPayload(e?.payload);bool valid=ValidateEnvelope(e,out error);pendingSchemaMigration=valid&&(migrated||normalized);return valid;}catch(Exception ex){pendingSchemaMigration=false;return Fail(ex.Message,out error);}}
+    public static bool TryReadFile(string path,out SaveEnvelope e,out string error){e=null;error=null;try{string json=File.ReadAllText(path,Encoding.UTF8);if(string.IsNullOrWhiteSpace(json))return Fail("File is empty.",out error);e=JsonUtility.FromJson<SaveEnvelope>(json);bool migrated=e?.schemaVersion is 2 or 3 or 4 or 5;if(e?.schemaVersion==2)MigrateSchema2(e);if(e?.schemaVersion==3)MigrateEquipmentImplicits(e);if(e?.schemaVersion==4)MigrateSchema4(e);if(e?.schemaVersion==5)MigrateSchema5(e);bool normalized=NormalizeFragmentPayload(e?.payload);bool valid=ValidateEnvelope(e,out error);pendingSchemaMigration=valid&&(migrated||normalized);return valid;}catch(Exception ex){pendingSchemaMigration=false;return Fail(ex.Message,out error);}}
     static bool NormalizeFragmentPayload(GameStatePayload payload)
     {
         if(payload==null||payload.currencies==null)return false;
@@ -224,7 +224,13 @@ public static class GamePersistence
     static void MigrateSchema4(SaveEnvelope e)
     {
         if(e.payload!=null){e.payload.normalToMagicFragments=0;e.payload.magicToRareFragments=0;}
-        e.schemaVersion=SchemaVersion;
+        e.schemaVersion=5;
+    }
+    static void MigrateSchema5(SaveEnvelope e)
+    {
+        if(e.payload?.relics!=null)foreach(var relic in e.payload.relics)if(relic!=null)
+        {relic.relicLevel=1;if(relic.modifiers!=null)foreach(var modifier in relic.modifiers)if(modifier!=null)modifier.tierIndex=0;}
+        e.schemaVersion=6;
     }
     static void MigrateSchema2(SaveEnvelope e)
     {
@@ -245,7 +251,7 @@ public static class GamePersistence
     {
         e=null;error=null;try{if(string.IsNullOrWhiteSpace(json))return Fail("Legacy JSON is empty.",out error);var old=JsonUtility.FromJson<GameSaveData>(json);if(old==null||old.version!=1)return Fail("Legacy version is not V1.",out error);old.inventory??=new();old.equipped??=new();old.currencies??=new();old.relics??=new();string id=Guid.NewGuid().ToString("N");var p=new GameStatePayload{encounterStartLife=100,encounterStartMana=100,relicCycle=Mathf.Max(0,old.relicCycle)};
             foreach(var x in old.inventory){if(x==null)return Fail("Legacy inventory is malformed.",out error);var g=GearSnapshotData.FromLegacy(x,Guid.NewGuid().ToString("N"));p.gearItems.Add(g);p.inventoryGearIds.Add(g.id);}foreach(var x in old.equipped){if(x?.gear==null)return Fail("Legacy equipment is malformed.",out error);var g=GearSnapshotData.FromLegacy(x.gear,Guid.NewGuid().ToString("N"));p.gearItems.Add(g);p.equippedGear.Add(new EquippedGearReference{slot=x.slot,gearId=g.id});}
-            foreach(var x in old.currencies)p.currencies.Add(x);foreach(var x in old.relics)if(x!=null)p.relics.Add(CloneRelic(x));else return Fail("Legacy relic is malformed.",out error);for(int i=0;i<RelicInventory.ActiveSlotCount;i++){int index=old.activeRelicIndices!=null&&i<old.activeRelicIndices.Length?old.activeRelicIndices[i]:-1;if(index < -1 || index >= p.relics.Count)return Fail("Legacy active relic slot is invalid.",out error);p.activeRelicIds.Add(index>=0?p.relics[index].id:string.Empty);}e=new SaveEnvelope{runId=id,runSeed=Seed(id),savedAtUtc=DateTime.UtcNow.ToString("O",CultureInfo.InvariantCulture),payload=p};e.schemaVersion=3;MigrateEquipmentImplicits(e);MigrateSchema4(e);return ValidateEnvelope(e,out error);
+            foreach(var x in old.currencies)p.currencies.Add(x);foreach(var x in old.relics)if(x!=null)p.relics.Add(CloneRelic(x));else return Fail("Legacy relic is malformed.",out error);for(int i=0;i<RelicInventory.ActiveSlotCount;i++){int index=old.activeRelicIndices!=null&&i<old.activeRelicIndices.Length?old.activeRelicIndices[i]:-1;if(index < -1 || index >= p.relics.Count)return Fail("Legacy active relic slot is invalid.",out error);p.activeRelicIds.Add(index>=0?p.relics[index].id:string.Empty);}e=new SaveEnvelope{runId=id,runSeed=Seed(id),savedAtUtc=DateTime.UtcNow.ToString("O",CultureInfo.InvariantCulture),payload=p};e.schemaVersion=3;MigrateEquipmentImplicits(e);MigrateSchema4(e);MigrateSchema5(e);return ValidateEnvelope(e,out error);
         }catch(Exception ex){return Fail(ex.Message,out error);}
     }
     static bool ApplyEnvelope(SaveEnvelope e,out string error)
@@ -260,7 +266,7 @@ public static class GamePersistence
     }
     static void CopyPrimaryToBackup(){File.Copy(PrimaryPath,TemporaryPath,true);using(var stream=new FileStream(TemporaryPath,FileMode.Open,FileAccess.ReadWrite,FileShare.None))stream.Flush(true);if(!TryReadFile(TemporaryPath,out _,out var error))throw new IOException(error);if(File.Exists(BackupPath))File.Replace(TemporaryPath,BackupPath,null,true);else File.Move(TemporaryPath,BackupPath);}
     static void WriteDurable(string path,string value){using var stream=new FileStream(path,FileMode.Create,FileAccess.Write,FileShare.None);using var writer=new StreamWriter(stream,new UTF8Encoding(false));writer.Write(value);writer.Flush();stream.Flush(true);}
-    static RelicData CloneRelic(RelicData x){var c=new RelicData{id=x.id,cycle=x.cycle,rarity=x.rarity,craftableThisCycle=x.craftableThisCycle};if(x.modifiers!=null)foreach(var m in x.modifiers)if(m!=null)c.modifiers.Add(new RelicModifier(m.type,m.value,m.lockedOriginal));return c;}
+    static RelicData CloneRelic(RelicData x){var c=new RelicData{id=x.id,cycle=x.cycle,rarity=x.rarity,craftableThisCycle=x.craftableThisCycle,relicLevel=x.relicLevel};if(x.modifiers!=null)foreach(var m in x.modifiers)if(m!=null)c.modifiers.Add(new RelicModifier(m.type,m.value,m.lockedOriginal,m.tierIndex));return c;}
     static bool Finite(float v)=>!float.IsNaN(v)&&!float.IsInfinity(v);static bool Finite(double v)=>!double.IsNaN(v)&&!double.IsInfinity(v);static bool Fail(string value,out string error){error=value;return false;}static int Seed(string value){unchecked{int h=17;foreach(char c in value)h=h*31+c;return h==0?1:h;}}
     static bool ValidGearModifier(LootManager.GearType type,StatTypes stat)
     {

@@ -119,7 +119,7 @@ public class GameManager : MonoBehaviour
         var player = FindAnyObjectByType<PlayerController>();
         player?.GetComponent<PlayerSkillController>()?.RestoreSelection(false, default);
         player?.GetComponent<StatusController>()?.ClearStatuses();
-        player?.ResetToStarterWeapon();
+        player?.EnsureStarterWeapon();
         StartNewRun();
         if (commit && !GamePersistence.CommitConfirmedNewGame())
         {
