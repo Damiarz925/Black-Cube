@@ -54,8 +54,8 @@ public sealed class PlayerSkillDefinition
                 Element.Fire, .5f, projectile: true),
             New(PlayerSkillId.Envenom, "Envenom", "Deal no hit damage; use the normal attack as the basis for Poison.", 20, 0f,
                 specialized: StatusEffects.AilmentKind.Poison, suppressDirect: true,guaranteedAilment:1),
-            New(PlayerSkillId.Shiv, "Shiv", "Deal 70% hit damage. Bleeds use twice this attack's normal Bleed basis.", 30, .7f,
-                Element.Phys,1f,StatusEffects.AilmentKind.Bleed,2f,guaranteedAilment:1),
+            New(PlayerSkillId.Shiv, "Shiv", "Deal 50% hit damage and apply a strongly Bleed-weighted ailment basis.", 30, .5f,
+                Element.Phys,1f,StatusEffects.AilmentKind.Bleed,20f,guaranteedAilment:1),
             New(PlayerSkillId.Immolate, "Immolate", "Deal 10% hit damage; a 50% Fire conversion fuels an Ignite with a 250% basis.", 60, .1f,
                 Element.Fire, .5f, StatusEffects.AilmentKind.Ignite, 1f, absoluteAilment: 2.5f,
                 guaranteedAilment:1)

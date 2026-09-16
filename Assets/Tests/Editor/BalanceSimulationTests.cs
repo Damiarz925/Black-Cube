@@ -8,6 +8,22 @@ using BlackCube;
 public sealed class BalanceSimulationTests
 {
     [Test]
+    public void ShivKeepsAHitButUsesDedicatedBleedWeightedCoefficients()
+    {
+        var shiv=PlayerSkillDefinition.CreateDefaults()
+            .Single(skill=>skill.id==PlayerSkillId.Shiv);
+        Assert.That(shiv.hitDamageMultiplier,Is.EqualTo(.5f));
+        Assert.That(shiv.ailmentBasisMultiplier,Is.EqualTo(20f));
+        Assert.That(shiv.specializedAilment,Is.EqualTo(StatusEffects.AilmentKind.Bleed));
+        Assert.That(shiv.guaranteedAilmentApplications,Is.EqualTo(1));
+        var catalog=Resources.Load<PlayerSkillCatalog>("PlayerSkills");
+        Assert.That(catalog,Is.Not.Null);
+        var production=catalog.skills.Single(skill=>skill.id==PlayerSkillId.Shiv);
+        Assert.That(production.hitDamageMultiplier,Is.EqualTo(shiv.hitDamageMultiplier));
+        Assert.That(production.ailmentBasisMultiplier,Is.EqualTo(shiv.ailmentBasisMultiplier));
+    }
+
+    [Test]
     public void CurrentEnemyDiscoveryAndSeededSamplingAreDeterministicAndIsolated()
     {
         string[] names = BalanceSimulationRunner.DiscoverEnemies().Select(prefab => prefab.name).ToArray();

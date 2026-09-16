@@ -290,17 +290,18 @@ namespace BlackCube
                 {
                     StatTypes resistance=mod.statType;
                     if(resistance is StatTypes.FireRes or StatTypes.ColdRes or StatTypes.LightRes or StatTypes.VoidRes)
-                        resistanceNeed=Mathf.Clamp01((.75f-currentStats.GetStat(resistance)
-                            -currentStats.GetStat(StatTypes.AllRes))/.75f);
+                        resistanceNeed=currentStats.GetStat(resistance)
+                            +currentStats.GetStat(StatTypes.AllRes)<.75f?1f:.1f;
                     else if(resistance==StatTypes.AllRes)
                     {
                         resistanceNeed=0f;
                         foreach(var core in new[]{StatTypes.FireRes,StatTypes.ColdRes,
                             StatTypes.LightRes,StatTypes.VoidRes})
-                            resistanceNeed+=Mathf.Clamp01((.75f-currentStats.GetStat(core)
-                                -currentStats.GetStat(StatTypes.AllRes))/.75f)/4f;
+                            if(currentStats.GetStat(core)+currentStats.GetStat(StatTypes.AllRes)<.75f)
+                                resistanceNeed+=.25f;
                     }
                 }
+                if(track==2)resistanceNeed*=1.4f;
                 score+=mod.statType switch
                 {
                     StatTypes.FireRes or StatTypes.ColdRes or StatTypes.LightRes or StatTypes.VoidRes=>value*.18f*resistanceNeed,
@@ -313,6 +314,12 @@ namespace BlackCube
                     StatTypes.PoisonChance when archetype==PlayerSkillId.Envenom=>value*.35f,
                     StatTypes.BleedChance when archetype==PlayerSkillId.Shiv=>value*.35f,
                     StatTypes.IgniteChance when archetype==PlayerSkillId.Immolate=>value*.35f,
+                    StatTypes.PoisonDmg or StatTypes.PoisonMult or StatTypes.GenericDotMult
+                        when archetype==PlayerSkillId.Envenom=>value*.24f,
+                    StatTypes.BleedDmg or StatTypes.BleedMult or StatTypes.GenericDotMult
+                        when archetype==PlayerSkillId.Shiv=>value*.24f,
+                    StatTypes.IgniteDmg or StatTypes.IgniteMult or StatTypes.GenericDotMult
+                        when archetype==PlayerSkillId.Immolate=>value*.24f,
                     StatTypes.ShockChance when archetype==PlayerSkillId.LightningStrike=>value*.32f,
                     _=>value*.025f
                 };
