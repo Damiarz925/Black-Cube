@@ -138,14 +138,15 @@ Ancient currency inventory tiles and armed cursors use the supplied canonical ar
 
 Items rejected by the modifier pickup filter intentionally auto-dismantle. This is approved behavior and must not be redesigned as an accidental discard bug.
 
-Current full-orb dismantle rewards are implementation reality, not the approved future fragment model. The future mechanic is:
+The approved fragment model is now implementation reality for manual and filter-driven dismantling:
 
 - Normal dismantles yield no fragments.
 - Magic dismantles yield one fragment toward Normal → Magic currency.
 - Ten matching fragments combine into one full orb.
 - Rare dismantles yield the analogous fragment toward Magic → Rare currency.
+- Legendary dismantles yield two Magic → Rare fragments.
 
-Fragment integration applies to manual and filter-driven dismantling when eventually implemented. It is not part of Step 7.
+Both dismantle modes use the same single-claim path. Current equipment no longer awards random full ordinary currencies; historical stacked scrap objects retain their legacy conversion on load. Fragments clear with ordinary currency on New Game/Rebirth and persist on Restart/Load.
 
 ## 14. Rebirth and relics
 
@@ -158,7 +159,7 @@ New Game clears relic history, active slots, cycle/rebirth history and Ancient c
 [SAVE_STATE_CONTRACT.md](SAVE_STATE_CONTRACT.md) and [RUNTIME_LIFECYCLE.md](RUNTIME_LIFECYCLE.md) are authoritative. Locked concepts are:
 
 - One logical current-run save with primary plus backup
-- Schema 4 and validated atomic writes, with sequential schema-2/3 migration, scalar-damage X–X conversion and exact historical-affix preservation
+- Schema 5 and validated atomic writes, with sequential schema-2/3/4 migration, scalar-damage X–X conversion, exact historical-affix preservation and fragment defaults/normalization
 - Explicit New Game overwrite confirmation
 - Full gameplay/meta wipe on New Game with preferences preserved
 - One canonical system for Save & Main Menu and Save & Quit
@@ -187,14 +188,12 @@ This document does not lock how many zones/backgrounds ship. The six current for
 
 Enemies may use generated equipment and builds. The existing bounded enemy build optimizer is intentional: it should evaluate real implemented offense/defense and retain archetype diversity rather than choosing arbitrary rolls.
 
-Step 11 now supplies provisional intrinsic scaling from each enemy prefab's level-1 Life seed: 4% Life and 3% outgoing damage growth through combat level 100, then 2%/1.5%; +5 flat Armour per level and +0.15 ordinary Fire/Cold/Lightning/Void resistance percentage points per level capped at +20 points. These are centralized placeholder implementation values, **not final enemy balance**. No hidden boss, attack-speed, crit, maximum-resistance, Poison-resistance or regeneration curve is approved by this baseline. Step 12's reference-player curve exists only in Editor diagnostics; it is not player progression design. Step 13 owns integrated balance. Dead mechanics must not receive invented optimizer value merely to make their affixes look useful.
+Step 11 supplies centralized intrinsic scaling from each enemy prefab's level-1 Life seed: 4% Life and 3% outgoing damage growth through combat level 100, then 2%/1.5%; +5 flat Armour per level and +0.15 ordinary Fire/Cold/Lightning/Void resistance percentage points per level capped at +20 points. Step 13 retains this curve, separately caps enemy equipment tier access and applies an explicit 1.8× boss-role outgoing-damage multiplier; it does not alter authored level-one Life seeds or add a hidden boss Life curve. Step 12's synthetic reference-player curve remains Editor diagnostics only; Step 13 adds real progression-owned player Life and production-gear reference characters. These are playtest baselines, not final launch balance. Dead mechanics must not receive invented optimizer value merely to make their affixes look useful.
 
 ## 19. Approved future mechanics
 
-- Dismantle fragments and ten-fragment orb combination as specified above
 - More shipping environments/enemies/bosses after a dedicated content contract
 - Continued modular paper-layer environment production and corruption progression
-- Potential prefix/suffix itemization, only after explicit approval
 - A possible active top-down/bullet-hell boss mode, discussed but not currently locked
 
 An item in this section is not authorization to implement it during unrelated work.
@@ -234,4 +233,4 @@ Do not lock total v1 combat levels, zones, backgrounds, normal enemies, bosses, 
 | Status callbacks | Extensible status lifecycle should have an approved dispatch contract if retained. | Empty virtual hooks exist and are not called by current status ticking. | Dead extension surface. | 9–10 |
 | Enemy scaling | Enemies should scale intentionally across progression; exact balance is later. | Central profile applies authored-seed Life/outgoing-damage, Armour and ordinary elemental/Void resistance before independently generated equipment. | Structural Step 11 baseline; Step 13 balance remains. | 11, then 13 |
 | Prestige (resolved) | Rebirth is the sole intended meta reset. | Step 8 removed the level-10 offer branch, placeholder continuation, public reset method and empty reward hook. Boss clears advance directly at every combat level. | Resolved; retain this historical row to prevent regression. | Completed in 8 |
-| Dismantle rewards | Future rarity fragments: Normal none, Magic one N→M fragment, Rare analogous M→R fragment. | Dismantling currently grants 1/2/3/5 random full ordinary currencies by rarity. | Approved future replacement, not a Step 7 bug fix. | Future crafting step |
+| Dismantle rewards | Normal none; Magic one N→M fragment; Rare one M→R fragment; Legendary two M→R fragments; ten matching fragments make one orb. | Step 13 implements one authoritative manual/auto path, schema-5 persistence and UI counts. | Implemented; historical stacked scrap conversion remains for old saves only. | Completed in 13 |

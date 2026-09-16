@@ -9,6 +9,7 @@ Current-reality claims use this evidence order: (1) verified source code, (2) sc
 ## 1. Verified baseline
 
 - Repository branch: `codex/repository-cleanup-baseline`
+- Step 13 implementation checkpoints: `ceff2ce1` (fragments/Deep Freeze), `a4982ba8` (loot/reference foundation), `ab0d0bcc` (integrated progression/combat validation), `1603cc4c` (reference gearing/skill baseline), and `34c5b3cb` (final Shiv outlier correction). No Step 13 commit has been pushed.
 - Step 12.5G implementation checkpoint: `f6ffb5d2` (`Implement Step 12.5G itemization, Ancient art, and affix Codex`); fresh source-equivalent verification is recorded below. The documentation reconciliation checkpoint follows it locally, with no push.
 - Step 12.5 checkpoint commits: `83b83ba6` (relic/Ancient UI foundation), `4dc36790` (independent damaging ailments), and `e566a936` (range/crit, lawful variable affixes, tooltips/passive/UI and schema migration). The final validation/balance-lab reconciliation checkpoint follows these milestones on this branch; do not infer final game balance from structural pass gates.
 - Verified Step 6 implementation commit: `76c5687f8fcee69d089eb9b3efc0c9df5549ea6a` (`Implement versioned save and load system`)
@@ -28,6 +29,8 @@ Current-reality claims use this evidence order: (1) verified source code, (2) sc
 **Historical Step 12.5 evidence (pre-12.5G):** Unity EditMode 212/212 passed on 2026-09-15 (`Logs/Step12_5-final-editmode.xml`), including relic, independent ailment, range/crit, PoEDB/Black-Cube affix fallback, itemization validation, schema migration and pair rejection, passive and overlay cases. The seeded itemization audit passed 1,312 player/enemy/crafting cases with zero errors (`Logs/Step12_5-itemization-validation.txt`), and four synchronous real-scene combat/stat/status/progression checks passed after those edits (`Logs/BaselineSynchronousPlayChecks.txt`). Focused AttackStats, InventoryGrid, TooltipCrit and PlayerProgression scenes passed; the six-entry lifecycle/Pause soak, five-transition schema-3 menu/load check and reference scan passed; the balance smoke wrote 450 rows at seed 11012 across nine levels in 35.9 seconds. A strict Windows x64 build succeeded with zero errors and 522 existing warnings (`Logs/BaselineWindowsBuild.txt`); its standalone player reached Main Menu and remained alive/responsive for 48 seconds. These results are not fresh Step 12.5G verification.
 
 **Fresh Step 12.5G evidence (2026-09-15):** the latest-source Unity EditMode suite passed **232/232** with no skips (`Logs/Step12_5G-editmode.xml`). The production itemization audit passed **1,312** natural-player/enemy/crafting cases with zero errors (`Logs/Step12_5G-itemization-validation.txt`); a separate 50,000-roll seeded rarity audit observed 709 Legendary rolls (1.418%, unchanged intended weight 1/71), all 709 legally constructed with no failures, and pickup filters disabled for that audit (`Logs/Step12_5G-legendary-drop.txt`). Reference validation found zero missing assets/scripts/references (`Logs/Step12_5G-reference-validation.txt`). Four synchronous real-scene equipment/stat/status/progression checks, the five-transition current-schema menu/load/New Game fixture, and six-entry/five-return lifecycle soak all passed (`Logs/Step12_5G-synchronous-play-checks.txt`, `Logs/Step12_5G-menu-load-play-checks.txt`, `Logs/Step12_5G-lifecycle-play-checks.txt`). A strict Windows x64 build succeeded with zero errors and 528 warnings (`Logs/Step12_5GWindowsBuild.txt`); its standalone player reached Main Menu and remained alive/responsive for more than 30 seconds, with only the existing unassigned Achievements-button warning (`Logs/Step12_5G-standalone-smoke.log`). Because the original checkout was open in Unity, fresh Unity tests/build ran against a disposable byte-for-byte tracked-file snapshot plus the exact Step 12.5G new assets/scripts; the 205 output build files were copied to `Builds/Step12_5GWindows` and SHA-256 matched. This is source-equivalent verification, not a claim that the locked original Editor performed the batch run.
+
+**Fresh Step 13 evidence (2026-09-16):** final-source EditMode passed **248/248** with no failures/skips (`Logs/Step13-final-correction-editmode.xml`); itemization passed **1,312/1,312** cases; reference validation, four synchronous checks, the six-entry lifecycle/Pause soak and Main Menu/New Game/Load fixture passed. Final production-reference simulation completed five tuning seeds (39,600 rows) and three untouched holdouts (23,760 rows); a separate 1,500-build high-level enemy audit recorded optimizer diversity. The strict Windows x64 build succeeded with zero errors and 523 warnings at `Builds/Step13Windows/BlackCube.exe`; the exact player reached Main Menu and remained responsive through a 30-second headless smoke. Detailed targets, deviations and playtest risks are in [CORE_BALANCE_BASELINE.md](CORE_BALANCE_BASELINE.md).
 
 Known baseline limits include one logical save slot; clean encounter-boundary rather than exact-frame restoration; functional/basic runtime-built menu overlays; two active enemy archetypes; six repeating forest backgrounds; no final campaign/content count; and the incomplete mechanics listed below.
 
@@ -51,7 +54,7 @@ The game has a coherent vertical slice rather than shipping-scale content. Comba
 - **Skills:** seven catalog skills can be selected one at a time and cast from the Skills panel when mana and a living encounter are available. Auto-attacks continue independently.
 - **Statuses:** Poison ticks are mitigated as Void DOT while retaining Poison application and visual identity. Bleed/Ignite retain DOT behavior. Shock has five-stack Lightning triggers; Chill dynamically slows either actor's real gauge from actual Cold-hit strength.
 - **Relics/Rebirth:** `RelicInventory` owns permanent-within-save relic history, four active slots and current-cycle crafting authority. `RebirthManager` performs the level-50 reset transaction and immediately saves it. New Game clears this entire layer.
-  - **Persistence:** `GamePersistence` owns schema-4 DTO capture/validation, stable run identity/seed, atomic files, backup recovery, V1/V2/V3 migration, legacy-affix preservation, deterministic encounter restore and debounced autosaves. See [SAVE_STATE_CONTRACT.md](SAVE_STATE_CONTRACT.md).
+  - **Persistence:** `GamePersistence` owns schema-5 DTO capture/validation, stable run identity/seed, atomic files, backup recovery, sequential V1/V2/V3/V4 migration, legacy-affix preservation, fragment normalization, deterministic encounter restore and debounced autosaves. See [SAVE_STATE_CONTRACT.md](SAVE_STATE_CONTRACT.md).
 - **UI:** `PaperBattleHUD` coordinates gameplay panels and time controls. Most feature panels are runtime-built over the authored paper battle prefab.
 
 Use [CODE_MAP.md](CODE_MAP.md) for file ownership and [DEVELOPER_HANDOFF.md](DEVELOPER_HANDOFF.md) for working entry points; this document deliberately does not repeat their line-by-line map.
@@ -109,10 +112,10 @@ Current Ancient currency-to-art assignments (visual only; relic semantics unchan
 |---|---|
 | Accuracy / evasion / block | Existing IDs remain loadable/displayable, but new v1 pools exclude these unapproved miss/avoidance families. No combat hit test/block mitigation exists. |
 | Cooldown Recovery / Mana Cost affix | Existing IDs remain loadable, but neither newly generates; there is no cooldown loop, and skill mana cost is computed from skill level instead. |
-| Deep Freeze maximum-Chill increase | Extra application remains projected; authored maximum-effect-increase field has a zero default pending a separate tuning decision. Current Chill cap remains 30%. |
+| Deep Freeze maximum-Chill increase | Implemented: +10 percentage points to the normal 30% maximum Chill slow, capped at 40%, while retaining the keystone's 25% less-effect downside. |
 | Minions | Minion damage scope/stat calculation exists, but there are no minion entities, commands or attacks. |
 | Status callbacks | Virtual apply/tick/expire/outgoing-damage hooks exist on `StatusEffects` but current ticking does not dispatch them. |
-| Integrated balance | Intrinsic enemy scaling now exists, but its profile and the lab's synthetic reference player are provisional; final TTK/TTD, enemy/gear/skill/passive/relic/XP/reward tuning belongs to Step 13. |
+| Integrated balance | Step 13 provides the first production-gear/player-progression baseline, source-locked tuning/holdouts and explicit residual risks. It is a credible playtest baseline, not final launch balance; see `CORE_BALANCE_BASELINE.md`. |
 | Achievements | Main Menu button only logs a placeholder message. No achievement system exists. |
 
 ## 7. Current content
@@ -124,11 +127,11 @@ Current Ancient currency-to-art assignments (visual only; relic semantics unchan
 - **Skills:** Heavy Strike, Ice Strike, Lightning Strike, Fireball, Envenom, Shiv and Immolate.
 - **Passive tree:** 290 allocatable binary nodes—ten spokes, ten bridges, forty statless ring nodes, ten inner keystones and ten outer keystones. See [PASSIVE_TREE.md](PASSIVE_TREE.md).
 - **Art pipeline:** the active player is the authored chibi body/weapon pipeline; active enemies use registered authored forest-enemy frames; backgrounds use installed paper forest PNGs. Deterministic preparation/install/verification scripts live under `Tools/Art`. Several older player and 3D-theme pipelines remain as archived/optional material.
-- **Planned, not current content:** additional zones, enemies, bosses, final campaign length, bullet-hell boss play, fragments, minions and achievements are not implemented or locked here.
+- **Planned, not current content:** additional zones, enemies, bosses, final campaign length, bullet-hell boss play, minions and achievements are not implemented or locked here. Dismantle fragments are current Step 13 functionality.
 
 ## 8. Current persistence
 
-Schema 4 writes `current-save.json`, `current-save.json.bak`, and `current-save.json.tmp` under `Application.persistentDataPath`. It has one current-run slot, validated atomic writes, primary→backup recovery, nondestructive PlayerPrefs V1 and sequential schema-2/3 migration, stable item/relic/passive/skill IDs, paired damage rolls, historical locked-original-to-implicit migration with a legacy-affix compatibility marker, and a two-second mutation debounce.
+Schema 5 writes `current-save.json`, `current-save.json.bak`, and `current-save.json.tmp` under `Application.persistentDataPath`. It has one current-run slot, validated atomic writes, primary→backup recovery, nondestructive PlayerPrefs V1 and sequential schema-2/3/4 migration, stable item/relic/passive/skill IDs, paired damage rolls, historical locked-original-to-implicit migration with a legacy-affix compatibility marker, persisted/normalized dismantle-fragment remainders, and a two-second mutation debounce.
 
 New Game confirms replacement, clears all gameplay and relic/rebirth meta, preserves independent preferences, and makes primary/backup belong to the new run. Rebirth preserves relic history while resetting its established run state. Restart is an in-memory current-level reset, not disk load. Mid-combat load reconstructs the same deterministic encounter from its beginning and restores recorded encounter-start HP/mana rather than live-frame state. See [SAVE_STATE_CONTRACT.md](SAVE_STATE_CONTRACT.md) for the field and failure contract.
 
@@ -148,9 +151,10 @@ These controls are functionally wired. Runtime-built modal/panel geometry and ge
 
 ## 10. Verification infrastructure
 
-- NUnit EditMode suite under `Assets/Tests/Editor` (fresh Step 12.5G **232/232**; Step 12.5 historical baseline 212/212; Steps 11 + 12 historical baseline 184/184)
+- NUnit EditMode suite under `Assets/Tests/Editor` (fresh Step 13 **248/248**; Step 12.5G historical baseline 232/232; Step 12.5 historical baseline 212/212)
 - `EnemyScalingTests` for authored level-1 seeds, canonical curves/safety/idempotence, Poison/Void one-pass output, generated-actor and optimizer parity; `BalanceSimulationTests` for deterministic seeds, live-singleton isolation, production-math parity and snapshot status/mitigation behavior
 - `BalanceSimulationRunner` for ignored CSV/JSON/Markdown 25/250/1000-build sampled reports at representative levels; `BalanceSimulationWindow` for local configuration; see [ENEMY_SCALING_BASELINE.md](ENEMY_SCALING_BASELINE.md)
+- `CoreBalanceReferenceRunner` for deterministic legal production-player P50/P75/P90, relic, skill, resistance, checkpoint and post-100 reports; see [CORE_BALANCE_BASELINE.md](CORE_BALANCE_BASELINE.md)
 - `GamePersistenceTests` for schema, corruption, migration, backup, deterministic seed, transactional failure and debounce behavior
 - `MenuLoadPlayChecks` for rich real-scene save/load, transient clearing, preferences and New Game replacement
 - `RuntimeLifecyclePlayChecks` for six entries, five returns, singleton/rebinding and Pause Menu behavior
@@ -163,7 +167,7 @@ Generated reports are written to `Logs` or `ReviewCaptures`; check timestamps be
 
 ## 11. Known risks and technical debt
 
-- Structural Step 11/12 coverage and representative seeded reports do not establish final combat balance, authored art/UI polish or every item permutation. The synthetic reference's higher-level duel losses are a Step 13 question, not an approved runtime player curve.
+- Step 13 is a first integrated baseline, not final combat balance. Boss victories are shorter than requested at several levels, level-100 boss loss rate is high, Heavy/physical gearing remains an offensive outlier, several skills lag late, P90 all-four resistance caps are attainable but not the majority, and selected-combat-relic acceleration/useful-upgrade frequency still require human play.
 - The active content pool is one normal enemy, one boss and one repeating environment family.
 - Much of the active UI is constructed in code; it is testable but harder to art-direct than final authored prefabs.
 - `PaperBattle.prefab` retains substantial legacy 3D content and dormant systems, increasing import and maintenance cost.
@@ -174,9 +178,9 @@ Generated reports are written to `Logs` or `ReviewCaptures`; check timestamps be
 
 ## 12. Roadmap position
 
-Steps 1–12.5 and the focused Step 12.5G follow-up have completed their requested source, regression, strict-build and standalone-startup gates, subject to the four user-owned Unity settings changes still outside Codex commits and the original Editor project lock caveat above. Steps 11 + 12 add central placeholder enemy intrinsic scaling and a deterministic Editor-only measurement lab, documented in [ENEMY_SCALING_BASELINE.md](ENEMY_SCALING_BASELINE.md); Step 12.5 reconciles its per-strike ranges, critical base and ailment turn ownership. Step 12.5G adds full implicit/explicit equipment structure, one-step crafting, canonical Ancient art and the paused affix Codex. None changes the 120 stable stat IDs or 107 pooled definitions (3 guaranteed weapon bases plus 104 random affixes), or establishes final combat balance.
+Steps 1–13 have completed their requested source, regression, strict-build and standalone-startup gates. Steps 11 + 12 add central enemy intrinsic scaling and the synthetic diagnostic lab in [ENEMY_SCALING_BASELINE.md](ENEMY_SCALING_BASELINE.md); Step 12.5 reconciles per-strike ranges, critical base and ailment turn ownership; Step 12.5G adds full implicit/explicit equipment structure, one-step crafting, canonical Ancient art and the paused affix Codex; Step 13 adds production reference characters, integrated balance/economy/progression tuning, fragments/schema 5 and measured holdouts. The 120 stable stat IDs and 107 pooled definitions (3 guaranteed weapon bases plus 104 random affixes) remain intact.
 
-Known later phases are Step 13 integrated balance and Step 14 final v1 zone/enemy/boss/content scope. Step 13 should compare real player progression against the lab's deliberately synthetic reference before changing the provisional enemy profile.
+The next known phase is Step 14 final v1 zone/enemy/boss/content scope. Step 14 was not started during Step 13.
 
 ## Maintenance rule
 
