@@ -37,6 +37,7 @@ public class BattleManager : MonoBehaviour
 
     private EnemyAI enemyAI;
     public EnemyAI CurrentEnemyAI => enemyAI;
+    public EncounterDefinition CurrentEncounter { get; private set; }
     public event System.Action<EnemyAI> CurrentEnemyChanged;
     private StatusController enemyStatusCont;
     private StatsComponent enemyStats;
@@ -128,15 +129,22 @@ public class BattleManager : MonoBehaviour
             return;
         }
 
-        GameObject prefab = null;       //create a variable prefab set to null
-
+        var zoneManager = FindFirstObjectByType<ZoneManager>();
+        int zoneLevel = zoneManager != null ? zoneManager.zoneLevel : GameManager.Instance?.CurrentCombatLevel ?? 1;
+        int stage = spawnBoss ? WorldProgression.BossStage : GameManager.Instance?.EncounterStage ?? 1;
+        WorldContentDatabase content = zoneManager != null ? zoneManager.WorldContent : WorldContentCatalog.Reference;
+        WorldPosition world = WorldProgression.Resolve(zoneLevel, stage, content);
+        CurrentEncounter = world.Encounter;
+        GameObject prefab;
         if (spawnBoss)
         {
-            prefab = bossEnemyPrefab != null ? bossEnemyPrefab : normalEnemyPrefab;     //if spawn boss is true, set the prefab to bossenemyprefab if it isn't null, if it is, use a normal enemy prefab
+            BossDefinition boss = content?.Boss(CurrentEncounter?.bossId);
+            prefab = boss?.prefab != null ? boss.prefab : bossEnemyPrefab != null ? bossEnemyPrefab : normalEnemyPrefab;
         }
         else
         {
-            prefab = normalEnemyPrefab;     //if spawn boss is false, set the prefab to use the normal enemy prefab
+            EnemyArchetypeDefinition enemy = content?.Enemy(CurrentEncounter?.enemyArchetypeId);
+            prefab = enemy?.prefab != null ? enemy.prefab : normalEnemyPrefab;
         }
 
         if (prefab == null)     //if prefab is still null, give error message and return
@@ -176,10 +184,8 @@ public class BattleManager : MonoBehaviour
             return;
         }
 
-        var zoneManager = FindFirstObjectByType<ZoneManager>();     //find the zone manager for the current zone
-        int zoneLevel = zoneManager != null ? zoneManager.zoneLevel : 1;        //get the zone level from the zone manager, if the zone manager is null, set zone level to 1
-
         Debug.Log($"BattleManager: Spawning {(spawnBoss ? "BOSS" : "normal")} enemy at zone level {zoneLevel}. " +
+                  $"encounterId={CurrentEncounter?.stableId ?? "unresolved"}, " +
                   $"normalPrefab={(normalEnemyPrefab ? normalEnemyPrefab.name : "null")}, " +
                   $"bossPrefab={(bossEnemyPrefab ? bossEnemyPrefab.name : "null")}");
 

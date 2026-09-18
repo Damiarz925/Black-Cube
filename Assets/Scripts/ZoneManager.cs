@@ -1,4 +1,4 @@
-// Developer map: Selects the six paper forest images in ten-level blocks repeating every sixty levels. Also retains optional legacy 3D scenery generation and future scaling hooks.
+// Developer map: Presents the authoritative WorldProgression position and its location/corruption art. Also retains optional legacy 3D scenery generation.
 // See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,20 +8,37 @@ public class ZoneManager : MonoBehaviour
     [Header("Stage Progression")]
     [SerializeField] private string[] zoneNames = { "Forest", "Desert", "Tundra" };
     [SerializeField, Min(1)] private int stagesPerZone = 10;
+    [SerializeField] private WorldContentDatabase worldContent;
     [Header("Paper Forest Backgrounds")]
     [SerializeField] private SpriteRenderer paperBackground;
     [SerializeField] private Sprite[] forestBackgrounds;
     private bool HasForestCycle => forestBackgrounds != null && forestBackgrounds.Length == 6;
-    public static int ForestBackgroundIndex(int level) => ((Mathf.Max(1, level) - 1) / 10) % 6;
-    public string LocationLabel => HasForestCycle
-        ? ZoneName + " · Level " + Mathf.Max(1, zoneLevel)
-        : ZoneName + " " + StageNumber;
-    public int StageNumber => (Mathf.Max(1, zoneLevel) - 1) % Mathf.Max(1, stagesPerZone) + 1;
+    public WorldContentDatabase WorldContent => worldContent != null ? worldContent : WorldContentCatalog.Reference;
+    public WorldPosition CurrentWorldPosition => WorldProgression.Resolve(zoneLevel,
+        GameManager.Instance != null ? GameManager.Instance.EncounterStage : 1, WorldContent);
+    // Compatibility alias for existing corruption-themed UI. The arithmetic now lives only in WorldProgression.
+    public static int ForestBackgroundIndex(int level) => WorldProgression.Resolve(level).CorruptionIndex;
+    public string LocationLabel
+    {
+        get
+        {
+            WorldPosition position = CurrentWorldPosition;
+            string suffix = position.UsesPost360Fallback ? " · ENDLESS FALLBACK" : string.Empty;
+            return $"{position.BiomeLabel} · {position.LocationLabel} · {position.CorruptionLabel}{suffix}";
+        }
+    }
+    public int StageNumber => CurrentWorldPosition.LocationIndex + 1;
+    public int CorruptionPercentage => CurrentWorldPosition.Corruption?.percentage ?? 0;
     public string ZoneName
     {
         get
         {
-            if (HasForestCycle) return "Forest " + (ForestBackgroundIndex(zoneLevel) + 1);
+            if (HasForestCycle)
+            {
+                WorldPosition position = CurrentWorldPosition;
+                // Kept for legacy diagnostics; player-facing labels use LocationLabel.
+                return position.BiomeLabel + " " + (position.CorruptionIndex + 1);
+            }
             if (zoneNames == null || zoneNames.Length == 0) return "Forest";
             int index = Mathf.Min((Mathf.Max(1, zoneLevel) - 1) / Mathf.Max(1, stagesPerZone), zoneNames.Length - 1);
             return string.IsNullOrWhiteSpace(zoneNames[index]) ? "Zone " + (index + 1) : zoneNames[index];
@@ -95,8 +112,11 @@ public class ZoneManager : MonoBehaviour
 
     private void ApplyPaperBackground()
     {
-        if (paperBackground == null || !HasForestCycle) return;
-        var sprite = forestBackgrounds[ForestBackgroundIndex(zoneLevel)];
+        if (paperBackground == null) return;
+        WorldPosition position = CurrentWorldPosition;
+        CorruptionPresentationDefinition presentation = position.Location?.Presentation(position.Corruption?.stableId);
+        var sprite = presentation?.backgroundOverride != null ? presentation.backgroundOverride : position.Location?.baseBackground;
+        if (sprite == null && HasForestCycle) sprite = forestBackgrounds[position.CorruptionIndex];
         if (sprite != null) paperBackground.sprite = sprite;
     }
 
