@@ -16,6 +16,7 @@ public class CraftingAndRebirthTests
     {
         ModManager manager=CreateModManager();
         Gear gear=CreateGear(LootManager.GearRarity.Normal);
+        gear.RestoreCraftingState(LootManager.GearRarity.Legendary,14,14); // Isolate the complete operation sequence from the finite-budget test.
         gear.ApplyMods(manager.RollEquipmentModsForItem(gear.ItemType,gear.ItemRarity,gear.ItemLevel,gear.BaseElement));
         Assert.That(gear.CraftingModCount,Is.EqualTo(0));
         RolledMod locked=gear.rolledMods.Single(m=>!Gear.IsWeaponBaseStat(m.statType));

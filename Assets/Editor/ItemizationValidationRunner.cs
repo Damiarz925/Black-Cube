@@ -14,6 +14,7 @@ public static class ItemizationValidationRunner
 
     public static void RunStep13()=>RunAt("Logs/Step13-itemization-validation.txt");
     public static void RunStep14()=>RunAt("Logs/Step14-itemization-validation.txt");
+    public static void RunStep14_5()=>RunAt("Logs/Step14_5-itemization-validation.txt");
 
     static void RunAt(string reportPath)
     {

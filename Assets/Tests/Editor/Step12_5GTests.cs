@@ -129,6 +129,7 @@ public sealed class Step12_5GTests
     [Test] public void CraftingChangesOnlyExplicitsAndLeavesUnderFilledItemsUnderFilled()
     {
         var gear=NewGear(LootManager.GearRarity.Normal);
+        gear.RestoreCraftingState(LootManager.GearRarity.Legendary,14,14); // Legacy operation-coverage fixture; Step14_5FoundationTests owns natural budgets.
         gear.ApplyMods(Construct(gear.ItemType,gear.ItemRarity,gear.ItemLevel,gear.BaseElement));
         var implicitMod=gear.ImplicitMod;
         Assert.That(gear.CraftingModCount,Is.Zero);
@@ -155,6 +156,7 @@ public sealed class Step12_5GTests
         Assert.That(gear.ImplicitMod,Is.SameAs(implicitMod));
         Assert.That(EquipmentCrafting.TryApply(CraftingCurrencyType.AddRareModifier,gear,roller),Is.True);
         Assert.That(gear.CraftingModCount,Is.EqualTo(4));
+        gear.RestoreCraftingState(LootManager.GearRarity.Legendary,14,14);
         for(int i=0;i<4;i++)Assert.That(EquipmentCrafting.TryApply(CraftingCurrencyType.RemoveRareModifier,gear,roller),Is.True);
         Assert.That(gear.CraftingModCount,Is.Zero);
         Assert.That(EquipmentCrafting.TryApply(CraftingCurrencyType.RemoveRareModifier,gear,roller),Is.False);

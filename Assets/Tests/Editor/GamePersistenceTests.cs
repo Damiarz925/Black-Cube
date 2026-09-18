@@ -50,7 +50,7 @@ public sealed class GamePersistenceTests
         old.payload.relics.Add(relic);old.payload.activeRelicIds[0]=relic.id;
         File.WriteAllText(GamePersistence.PrimaryPath,JsonUtility.ToJson(old));
         Assert.That(GamePersistence.TryReadFile(GamePersistence.PrimaryPath,out var migrated,out var error),Is.True,error);
-        Assert.That(migrated.schemaVersion,Is.EqualTo(6));Assert.That(migrated.payload.relics[0].relicLevel,Is.EqualTo(1));
+        Assert.That(migrated.schemaVersion,Is.EqualTo(GamePersistence.SchemaVersion));Assert.That(migrated.payload.relics[0].relicLevel,Is.EqualTo(1));
         Assert.That(migrated.payload.relics[0].modifiers[0].tierIndex,Is.Zero);Assert.That(migrated.payload.relics[0].modifiers[0].value,Is.EqualTo(7.25f));
     }
     [Test] public void LoadedOverfilledFragmentsNormalizeIntoWholeCurrenciesOnce()
@@ -66,6 +66,17 @@ public sealed class GamePersistenceTests
         Assert.That(GamePersistence.ValidateEnvelope(normalized,out error),Is.True,error);
         Assert.That(GamePersistence.TryReadFile(GamePersistence.PrimaryPath,out var again,out error),Is.True,error);
         Assert.That(again.payload.currencies.Find(x=>x.type==CraftingCurrencyType.NormalToMagic).amount,Is.EqualTo(6));
+    }
+    [Test] public void Schema6GearMigratesWithCurrentRarityAsOriginAndFullPotential()
+    {
+        var old=Valid();old.schemaVersion=6;var item=Gear("schema-six");item.rarity=LootManager.GearRarity.Rare;
+        item.originRarity=default;item.currentCraftingPotential=item.maximumCraftingPotential=0;
+        old.payload.gearItems.Add(item);old.payload.inventoryGearIds.Add(item.id);
+        File.WriteAllText(GamePersistence.PrimaryPath,JsonUtility.ToJson(old));
+        Assert.That(GamePersistence.TryReadFile(GamePersistence.PrimaryPath,out var migrated,out var error),Is.True,error);
+        var gear=migrated.payload.gearItems[0];Assert.That(gear.originRarity,Is.EqualTo(LootManager.GearRarity.Rare));
+        Assert.That(gear.currentCraftingPotential,Is.EqualTo(10));Assert.That(gear.maximumCraftingPotential,Is.EqualTo(10));
+        Assert.That(gear.mods[0].value,Is.EqualTo(5f));
     }
     [Test] public void Schema2ScalarGearMigratesToExactConstantDamageRange()
     {
@@ -234,6 +245,19 @@ public sealed class GamePersistenceTests
             UnityEngine.Object.DestroyImmediate(sourceObject);
         }
     }
+    [Test] public void Schema7GearRoundTripPreservesOriginPotentialEmpowermentAndSpecialProvenance()
+    {
+        var sourceObject=new GameObject("schema seven source");Gear created=null;
+        try
+        {
+            var source=sourceObject.AddComponent<Gear>();source.Initialize(LootManager.GearType.Rings,LootManager.GearRarity.Magic,100,Element.Phys);source.SetRarity(LootManager.GearRarity.Legendary);source.RestoreCraftingState(LootManager.GearRarity.Magic,3,8);
+            source.ApplyMods(new System.Collections.Generic.List<RolledMod>{new(StatTypes.GenericDmg,1,5,true),new(StatTypes.Life,1,75){isEmpowered=true},new(StatTypes.FireRes,1,40){isBossSpecial=true,specialPoolId="fixture-pool",specialModifierId="fixture-mod",specialAffixSide=AffixSide.Suffix}});
+            var snapshot=JsonUtility.FromJson<GearSnapshotData>(JsonUtility.ToJson(GearSnapshotData.Capture(source)));created=snapshot.Create();
+            Assert.That(created.ItemRarity,Is.EqualTo(LootManager.GearRarity.Legendary));Assert.That(created.OriginRarity,Is.EqualTo(LootManager.GearRarity.Magic));Assert.That(created.CurrentCraftingPotential,Is.EqualTo(3));Assert.That(created.MaximumCraftingPotential,Is.EqualTo(8));
+            Assert.That(created.rolledMods[1].isEmpowered,Is.True);Assert.That(created.rolledMods[1].value,Is.EqualTo(75));Assert.That(created.rolledMods[2].isBossSpecial,Is.True);Assert.That(created.rolledMods[2].specialPoolId,Is.EqualTo("fixture-pool"));Assert.That(created.rolledMods[2].specialModifierId,Is.EqualTo("fixture-mod"));Assert.That(created.rolledMods[2].specialAffixSide,Is.EqualTo(AffixSide.Suffix));
+        }
+        finally{if(created!=null)UnityEngine.Object.DestroyImmediate(created.gameObject);UnityEngine.Object.DestroyImmediate(sourceObject);}
+    }
     [Test] public void RapidDirtySignalsCoalesceBehindOneDebounceWindow()
     {
         GamePersistence.MarkDirty();GamePersistence.MarkDirty();GamePersistence.MarkDirty();Assert.That(GamePersistence.HasPendingAutosave,Is.True);Assert.That(GamePersistence.FlushPendingAutosave(),Is.False);Assert.That(GamePersistence.HasPendingAutosave,Is.True);Assert.That(GamePersistence.AutosaveDebounceSeconds,Is.InRange(1f,3f));
@@ -245,5 +269,5 @@ public sealed class GamePersistenceTests
 
     void AssertInvalid(SaveEnvelope e,string contains){Assert.That(GamePersistence.ValidateEnvelope(e,out var error),Is.False);Assert.That(error,Does.Contain(contains).IgnoreCase);}
     static SaveEnvelope Valid(){var e=new SaveEnvelope{runId="run-1",runSeed=123,savedAtUtc="2026-01-01T00:00:00Z",payload=new GameStatePayload{combatLevel=8,completedNormalEncounters=4,playerLevel=3,experience=1,availablePassivePoints=2,encounterStartLife=62,encounterStartMana=17}};for(int i=0;i<RelicInventory.ActiveSlotCount;i++)e.payload.activeRelicIds.Add(string.Empty);return e;}
-    static GearSnapshotData Gear(string id,StatTypes stat=StatTypes.GenericDmg)=>new(){id=id,type=LootManager.GearType.Rings,rarity=LootManager.GearRarity.Normal,itemLevel=2,element=Element.Phys,mods=new System.Collections.Generic.List<RolledMod>{new(stat,1,5,true)}};
+    static GearSnapshotData Gear(string id,StatTypes stat=StatTypes.GenericDmg)=>new(){id=id,type=LootManager.GearType.Rings,rarity=LootManager.GearRarity.Normal,originRarity=LootManager.GearRarity.Normal,currentCraftingPotential=6,maximumCraftingPotential=6,itemLevel=2,element=Element.Phys,mods=new System.Collections.Generic.List<RolledMod>{new(stat,1,5,true)}};
 }

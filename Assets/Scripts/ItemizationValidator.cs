@@ -63,11 +63,18 @@ public static class ItemizationValidator
         foreach (RolledMod mod in mods)
         {
             if (mod == null) { errors.Add("Item contains a null modifier."); continue; }
+            if (mod.isEmpowered && (mod.lockedOriginal || mod.isBossSpecial || mod.tierIndex != 1))
+                errors.Add($"{slot}: {mod.statType} has invalid Empowered provenance.");
+            if (mod.isBossSpecial && (mod.lockedOriginal || mod.isEmpowered || string.IsNullOrWhiteSpace(mod.specialPoolId)
+                || string.IsNullOrWhiteSpace(mod.specialModifierId) || !Enum.IsDefined(typeof(AffixSide),mod.specialAffixSide)))
+                errors.Add($"{slot}: {mod.statType} has invalid boss-special provenance.");
+            if (!mod.isBossSpecial && (!string.IsNullOrEmpty(mod.specialPoolId)||!string.IsNullOrEmpty(mod.specialModifierId)))
+                errors.Add($"{slot}: {mod.statType} has orphaned special-pool provenance.");
             if (!mod.lockedOriginal && !stats.Add(mod.statType))
                 errors.Add($"{slot}: duplicate explicit family {mod.statType}.");
-            var definition = database.GetDefinition(mod.statType);
-            if (definition == null) errors.Add($"{slot}: stable {mod.statType} definition missing.");
-            else if (!mod.lockedOriginal && definition.groups != null)
+            var definition = mod.isBossSpecial ? null : database.GetDefinition(mod.statType);
+            if (!mod.isBossSpecial && definition == null) errors.Add($"{slot}: stable {mod.statType} definition missing.");
+            else if (!mod.isBossSpecial && !mod.lockedOriginal && definition.groups != null)
                 foreach (string group in definition.groups.Where(group => !string.IsNullOrWhiteSpace(group)))
                     if (!groups.Add(group)) errors.Add($"{slot}: duplicate explicit exclusive group {group}.");
             if (Gear.IsWeaponBaseStat(mod.statType))
@@ -80,7 +87,13 @@ public static class ItemizationValidator
             else
             {
                 total++;
-                if (AffixPolicy.Side(mod.statType) == AffixSide.Prefix) prefixes++; else suffixes++;
+                if (AffixPolicy.Side(mod) == AffixSide.Prefix) prefixes++; else suffixes++;
+            }
+            if (mod.isBossSpecial)
+            {
+                if (!Finite(mod.value) || (mod.hasSecondaryValue && !Finite(mod.secondaryValue)))
+                    errors.Add($"{slot}: {mod.statType} boss-special roll is not finite.");
+                continue;
             }
             if (!pool.Contains(mod.statType)) { errors.Add($"{slot}: illegal slot for {mod.statType}."); continue; }
             if (definition == null) continue;
@@ -89,13 +102,15 @@ public static class ItemizationValidator
             var tier = Tiers(definition, slot).FirstOrDefault(t => t != null && t.tierIndex == mod.tierIndex);
             if (tier == null || tier.minItemLevel > itemLevel)
             { errors.Add($"{slot}: {mod.statType} T{mod.tierIndex} is illegal at ilvl {itemLevel}."); continue; }
-            if (!Finite(mod.value) || mod.value < tier.minValue-.0001f || mod.value > tier.maxValue+.0001f)
+            float minimum=tier.minValue,maximum=tier.maxValue,minimumHigh=tier.minHighValue,maximumHigh=tier.maxHighValue;
+            if(mod.isEmpowered)EmpowermentCrafting.EmpoweredRange(definition,tier,out minimum,out maximum,out minimumHigh,out maximumHigh);
+            if (!Finite(mod.value) || mod.value < minimum-.0001f || mod.value > maximum+.0001f)
                 errors.Add($"{slot}: {mod.statType} first roll is outside T{mod.tierIndex}.");
             if (tier.pairedDamage != mod.hasSecondaryValue)
                 errors.Add($"{slot}: {mod.statType} has an unhandled dual-roll modifier.");
             if (tier.pairedDamage && (!Finite(mod.secondaryValue)
-                || mod.secondaryValue < tier.minHighValue-.0001f
-                || mod.secondaryValue > tier.maxHighValue+.0001f
+                || mod.secondaryValue < minimumHigh-.0001f
+                || mod.secondaryValue > maximumHigh+.0001f
                 || mod.secondaryValue < mod.value))
                 errors.Add($"{slot}: {mod.statType} second roll is outside T{mod.tierIndex}.");
         }

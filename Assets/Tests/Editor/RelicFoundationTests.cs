@@ -96,7 +96,7 @@ public sealed class RelicFoundationTests
         panel.ShowRelics();Assert.That(panel.IsShowingRelics,Is.True);
         panel.ShowEquipment();Assert.That(panel.IsShowingRelics,Is.False);
         var cursor=CraftingCurrencyCursorUI.Ensure(canvas.rootCanvas);
-        Assert.That(panel.GetComponentsInChildren<CurrencySlotUI>(true).Length,Is.EqualTo(12),"All source entries exist before cursor checks.");
+        Assert.That(panel.GetComponentsInChildren<CurrencySlotUI>(true).Length,Is.EqualTo(13),"All source entries, including the endgame catalyst, exist before cursor checks.");
         foreach(CraftingCurrencyType type in Enum.GetValues(typeof(CraftingCurrencyType)))
         {
             if(!CurrencyInventory.IsAncient(type))continue;
