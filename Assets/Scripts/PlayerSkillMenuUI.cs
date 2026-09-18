@@ -26,6 +26,7 @@ public sealed class PlayerSkillMenuUI : MonoBehaviour
         if (controller == null) controller = hud.player.gameObject.AddComponent<PlayerSkillController>();
         Build();
         controller.SelectionChanged += Refresh;
+        controller.QueueChanged += Refresh;
         controller.Mana.ManaChanged += Refresh;
         Refresh();
     }
@@ -34,7 +35,7 @@ public sealed class PlayerSkillMenuUI : MonoBehaviour
     {
         Transform canvas = hud.GetComponentInParent<Canvas>().transform;
         castButton = Button(canvas, "Cast Active Skill", new Vector2(.42f, .012f), new Vector2(.60f, .09f), out castLabel);
-        castButton.onClick.AddListener(() => { controller.TryCastSelected(); Refresh(); });
+        castButton.onClick.AddListener(() => { controller.TryQueueSelected(); Refresh(); });
 
         panel = Box(canvas, "Active Skill Menu", Vector2.zero, Vector2.one, Panel);
         var panelCanvas = panel.AddComponent<Canvas>();
@@ -68,7 +69,7 @@ public sealed class PlayerSkillMenuUI : MonoBehaviour
         }
         var footer = Text(panel.transform, "Footer", new Vector2(.07f, .035f), new Vector2(.93f, .12f), 15);
         footer.alignment = TextAlignmentOptions.Center;
-        footer.text = "Skill values are provisional and editable on PlayerSkillController. Casting does not replace automatic basic attacks.";
+        footer.text = "Skill values are provisional. A queued skill replaces the next scheduled basic attack.";
         panel.SetActive(false);
         IsOpen = false;
     }
@@ -88,9 +89,12 @@ public sealed class PlayerSkillMenuUI : MonoBehaviour
         if (selected != null)
         {
             float cost = controller.ManaCost(selected);
-            castLabel.text = $"CAST  {selected.displayName.ToUpperInvariant()}  /  {cost:0} MANA";
-            castButton.interactable = controller.Mana.CanSpend(cost)
+            castLabel.text = controller.QueuedSkill == selected
+                ? $"QUEUED  {selected.displayName.ToUpperInvariant()}  /  NEXT ATTACK"
+                : $"QUEUE  {selected.displayName.ToUpperInvariant()}  /  {cost:0} MANA";
+            castButton.interactable = (controller.QueuedSkill == selected || controller.Mana.CanSpend(cost))
                 && BattleManager.Instance != null && BattleManager.Instance.CanCastPlayerSkill;
+            CorruptionUIButtonSkin.Ensure(castButton)?.SetSelected(controller.QueuedSkill == selected);
         }
         if (!IsOpen || skillButtons == null) return;
         for (int i = 0; i < skillButtons.Length; i++)
@@ -133,6 +137,7 @@ public sealed class PlayerSkillMenuUI : MonoBehaviour
         if (controller != null)
         {
             controller.SelectionChanged -= Refresh;
+            controller.QueueChanged -= Refresh;
             controller.Mana.ManaChanged -= Refresh;
         }
         if (panel != null) Destroy(panel);

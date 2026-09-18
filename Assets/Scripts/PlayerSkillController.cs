@@ -1,4 +1,4 @@
-// Developer map: Owns the single equipped active skill and spends mana before BattleManager casts it.
+// Developer map: Owns the single equipped active skill and its transient next-attack queue.
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -9,8 +9,11 @@ public sealed class PlayerSkillController : MonoBehaviour
     [SerializeField] private List<PlayerSkillDefinition> skills = new();
     public IReadOnlyList<PlayerSkillDefinition> Skills => skills;
     public PlayerSkillDefinition SelectedSkill { get; private set; }
+    public PlayerSkillDefinition QueuedSkill { get; private set; }
+    public bool HasQueuedSkill => QueuedSkill != null;
     public ManaComponent Mana { get; private set; }
     public event System.Action SelectionChanged;
+    public event System.Action QueueChanged;
 
     private void Awake()
     {
@@ -34,6 +37,7 @@ public sealed class PlayerSkillController : MonoBehaviour
     {
         if (skill == null || SelectedSkill != skill) return false;
         SelectedSkill = null;
+        ClearQueuedSkill();
         SelectionChanged?.Invoke();
         GamePersistence.MarkDirty();
         return true;
@@ -48,6 +52,7 @@ public sealed class PlayerSkillController : MonoBehaviour
             if (next == null) return false;
         }
         SelectedSkill = next;
+        ClearQueuedSkill();
         SelectionChanged?.Invoke();
         return true;
     }
@@ -98,14 +103,37 @@ public sealed class PlayerSkillController : MonoBehaviour
         _ => StatTypes.Plus1Phys
     };
 
-    public bool TryCastSelected()
+    public bool TryQueueSelected()
     {
         if (SelectedSkill == null || BattleManager.Instance == null) return false;
         float cost = ManaCost(SelectedSkill);
         if (!BattleManager.Instance.CanCastPlayerSkill || !Mana.CanSpend(cost)) return false;
-        if (!Mana.TrySpend(cost)) return false;
-        if (BattleManager.Instance.TryCastPlayerSkill(SelectedSkill)) return true;
-        Mana.Restore(cost);
-        return false;
+        if (QueuedSkill == SelectedSkill) return true;
+        QueuedSkill = SelectedSkill;
+        QueueChanged?.Invoke();
+        return true;
+    }
+
+    // Compatibility entry point retained for existing UI/tests; skills no longer cast instantly.
+    public bool TryCastSelected() => TryQueueSelected();
+
+    public bool TryConsumeQueuedForAttack(out PlayerSkillDefinition skill, out float manaSpent)
+    {
+        skill = QueuedSkill;
+        manaSpent = 0f;
+        if (skill == null) return false;
+        QueuedSkill = null;
+        QueueChanged?.Invoke();
+        float cost = ManaCost(skill);
+        if (!Mana.TrySpend(cost)) { skill = null; return false; }
+        manaSpent = cost;
+        return true;
+    }
+
+    public void ClearQueuedSkill()
+    {
+        if (QueuedSkill == null) return;
+        QueuedSkill = null;
+        QueueChanged?.Invoke();
     }
 }

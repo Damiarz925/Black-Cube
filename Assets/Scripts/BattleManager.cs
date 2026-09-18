@@ -289,11 +289,26 @@ public class BattleManager : MonoBehaviour
         TickStatusController(enemyStatusCont,false);
         if (enemyHealth != originalTarget || originalTarget.CurrentLife <= 0f) return;
 
-        ResolvePlayerLogicalHit(null, originalTarget, originalStatuses, showImpact: true);
+        var skillController = player != null ? player.GetComponent<PlayerSkillController>() : null;
+        if (skillController != null && skillController.TryConsumeQueuedForAttack(out var queued, out float manaSpent))
+        {
+            // Resolve against the enemy that exists at the scheduled attack event,
+            // not the target that happened to exist when the button was pressed.
+            if (!TryCastPlayerSkill(queued))
+            {
+                skillController.Mana.Restore(manaSpent);
+                ResolveBasicPlayerAttack(originalTarget, originalStatuses);
+            }
+        }
+        else ResolveBasicPlayerAttack(originalTarget, originalStatuses);
+    }
 
+    private void ResolveBasicPlayerAttack(HealthComponent target, StatusController statuses)
+    {
+        ResolvePlayerLogicalHit(null, target, statuses, showImpact: true);
         // Hit Twice is one independent bonus hit, and deliberately does not recurse.
-        if (IsSameLivingEnemy(originalTarget) && Random.value < Mathf.Clamp01(AdjustedChance(playerStats, StatTypes.ChanceToHitTwice)))
-            ResolvePlayerLogicalHit(null, originalTarget, originalStatuses, showImpact: true);
+        if (IsSameLivingEnemy(target) && Random.value < Mathf.Clamp01(AdjustedChance(playerStats, StatTypes.ChanceToHitTwice)))
+            ResolvePlayerLogicalHit(null, target, statuses, showImpact: true);
     }
 
     private void ResolveEnemyTurn()
@@ -370,6 +385,10 @@ public class BattleManager : MonoBehaviour
             Debug.LogError("BattleManager: Player reference not set for respawn.");
             return;
         }
+
+        // A restart restores a clean encounter boundary. Queued attacks are
+        // transient combat intent and must never survive that boundary.
+        player.GetComponent<PlayerSkillController>()?.ClearQueuedSkill();
 
         if (playerSpawnPoint != null)
         {
