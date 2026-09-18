@@ -68,7 +68,11 @@ Starter-specific stable families can select Fire/Cold/Lightning/Void base identi
 
 ## 13. Post-Level-100 / Endgame
 
-**USER DESIGN DECISION REQUIRED — POST-ILVL-100 GEAR PROGRESSION:** player level and equipment item level cap at 100, while the proposed world/relic reference extends to combat level 360. No approved system explains player/equipment power growth from 100–360. Possible future directions include a separate endgame progression layer, bounded tier evolution, or Rebirth-focused power, but Step 14 chooses and implements none. Enemy balance above 100 must not assume an imaginary solution.
+**LOCKED FOR V1 / FOUNDATION IMPLEMENTED:** player and equipment item level remain capped at 100. Post-100 item power comes from deliberately applying Empowerment to eligible T1 numeric explicits, with per-item caps of 1/2/3/4/5/6 at combat levels 120/160/210/260/310/360. Empowerment Catalysts exist in inventory/save/crafting but intentionally have no normal-enemy drop source.
+
+**LOCKED FOR V1 / CONTENT NOT YET IMPLEMENTED:** optional challenge bosses require an entry/farming loop and reward Empowerment plus boss-specific crafting. Stable special-affix pool and same-side Legendary replacement architecture exists, but actual bosses, pool contents, catalysts, encounter rules, and rewards remain future content. Deep endgame also requires an extremely rare bounded implicit-repair/replacement path; ordinary crafting cannot alter implicits.
+
+The target item journey is natural-drop selection and finite Crafting Potential at levels 1–100, then player-built refinement of strong ilvl-100 gear. Zone 360 is a progression reference, not authorization to add ilvl 360 gear or claim that 360 authored levels already exist.
 
 ## 14. UI / Menus / Codex
 
@@ -96,7 +100,13 @@ Starter-specific stable families can select Fire/Cold/Lightning/Void base identi
 
 ## 20. Save / Persistence
 
-**CURRENTLY IMPLEMENTED:** schema-6 atomic primary/backup JSON, validated transactional restore, encounter-start resume, deterministic run identity, stable gear/relic state, and sequential V1→V2→V3→V4→V5→V6 migration. New Game confirms replacement and clears run/relic history/currency as contracted.
+**CURRENTLY IMPLEMENTED:** schema-7 atomic primary/backup JSON, validated transactional restore, encounter-start resume, deterministic run identity, stable gear/relic state, and sequential V1→V2→V3→V4→V5→V6→V7 migration. Schema 7 persists OriginRarity, Potential, Empowered state/value, and boss-special provenance. New Game confirms replacement and clears run/relic history/currency as contracted.
+
+## 20A. Step 14.5 item/crafting content status
+
+Natural Normal/Magic/Rare/Legendary equipment has 6/8/10/14 maximum Crafting Potential. Ordinary upgrades/rerolls cost 1; Add/Remove cost 2. Upgrades retain their lower origin maximum. Empowerment Catalyst is logical/placeholder content only. A developer-created in-memory special-affix fixture verifies the API; no production boss pool or boss catalyst asset exists.
+
+Inventory overload is a release UX requirement: later pickup/filter/Codex work must support desired-mod profiles, match counts/ranking, and stronger auto-dismantle decisions. This is not permission to redesign the filter during unrelated content work.
 
 ## 21. Release-Required Polish
 

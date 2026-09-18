@@ -54,7 +54,7 @@ The game has a coherent vertical slice rather than shipping-scale content. Comba
 - **Skills:** seven catalog skills can be selected one at a time and cast from the Skills panel when mana and a living encounter are available. Auto-attacks continue independently.
 - **Statuses:** Poison ticks are mitigated as Void DOT while retaining Poison application and visual identity. Bleed/Ignite retain DOT behavior. Shock has five-stack Lightning triggers; Chill dynamically slows either actor's real gauge from actual Cold-hit strength.
 - **Relics/Rebirth:** `RelicInventory` owns permanent-within-save relic history, four active slots and current-cycle crafting authority. `RebirthManager` performs the combat-zone-60 reset transaction, provisions the relic-modified starter, and immediately saves it. New Game clears this entire layer.
-  - **Persistence:** `GamePersistence` owns schema-6 DTO capture/validation, stable run identity/seed, atomic files, backup recovery, sequential V1/V2/V3/V4/V5 migration, legacy-affix/relic-value preservation, fragment normalization, deterministic encounter restore and debounced autosaves. See [SAVE_STATE_CONTRACT.md](SAVE_STATE_CONTRACT.md).
+  - **Persistence:** `GamePersistence` owns schema-7 DTO capture/validation, stable run identity/seed, atomic files, backup recovery, sequential V1/V2/V3/V4/V5/V6 migration, legacy-affix/relic-value preservation, fragments, OriginRarity/Potential/Empowerment state, deterministic encounter restore and debounced autosaves. See [SAVE_STATE_CONTRACT.md](SAVE_STATE_CONTRACT.md).
 - **UI:** `PaperBattleHUD` coordinates gameplay panels and time controls. Most feature panels are runtime-built over the authored paper battle prefab.
 
 Use [CODE_MAP.md](CODE_MAP.md) for file ownership and [DEVELOPER_HANDOFF.md](DEVELOPER_HANDOFF.md) for working entry points; this document deliberately does not repeat their line-by-line map.
@@ -131,7 +131,7 @@ Current Ancient currency-to-art assignments (visual only; relic semantics unchan
 
 ## 8. Current persistence
 
-Schema 5 writes `current-save.json`, `current-save.json.bak`, and `current-save.json.tmp` under `Application.persistentDataPath`. It has one current-run slot, validated atomic writes, primary→backup recovery, nondestructive PlayerPrefs V1 and sequential schema-2/3/4 migration, stable item/relic/passive/skill IDs, paired damage rolls, historical locked-original-to-implicit migration with a legacy-affix compatibility marker, persisted/normalized dismantle-fragment remainders, and a two-second mutation debounce.
+Schema 7 writes `current-save.json`, `current-save.json.bak`, and `current-save.json.tmp` under `Application.persistentDataPath`. It has one current-run slot, validated atomic writes, primary→backup recovery, nondestructive PlayerPrefs V1 and sequential schema-2/3/4/5/6 migration, stable item/relic/passive/skill IDs, paired damage rolls, historical compatibility, fragments, OriginRarity/Potential/Empowered/special provenance, and a two-second mutation debounce.
 
 New Game confirms replacement, clears all gameplay and relic/rebirth meta, preserves independent preferences, and makes primary/backup belong to the new run. Rebirth preserves relic history while resetting its established run state. Restart is an in-memory current-level reset, not disk load. Mid-combat load reconstructs the same deterministic encounter from its beginning and restores recorded encounter-start HP/mana rather than live-frame state. See [SAVE_STATE_CONTRACT.md](SAVE_STATE_CONTRACT.md) for the field and failure contract.
 
@@ -178,7 +178,7 @@ Generated reports are written to `Logs` or `ReviewCaptures`; check timestamps be
 
 ## 12. Roadmap position
 
-Steps 1–13 completed their requested gates. Step 14 adds the v1 scope ledger, weaker/idempotent starter authority, zone-60 Rebirth provisioning, interactable relic cards, relic levels/tiers/starter transformations, centralized item/relic tier quality weighting, and schema 6. See [V1_CONTENT_CONTRACT.md](V1_CONTENT_CONTRACT.md). The 360-level world proposal is not locked because existing authoritative documents only confirm the current repeating forest family; biome/scene counts and post-ilvl-100 power remain user decisions.
+Steps 1–13 completed their requested gates. Step 14 adds the v1 scope ledger, starter/Rebirth/relic progression, tier quality weighting, and schema 6. Step 14.5 adds queued skill replacement and the schema-7 finite-crafting/Empowerment foundation. See [V1_CONTENT_CONTRACT.md](V1_CONTENT_CONTRACT.md). The 360-level world proposal is not locked because existing authoritative documents only confirm the current repeating forest family; biome/scene counts remain user decisions.
 
 ### Step 14 progression delta
 
@@ -191,3 +191,10 @@ Steps 1–13 completed their requested gates. Step 14 adds the v1 scope ledger, 
 ## Maintenance rule
 
 Update this file only from verified code, assets, tests and runtime evidence. Record what ships now, including defects and placeholders. Never promote an implementation accident into intended design; put intent in [GAME_DESIGN_CONTRACT.md](GAME_DESIGN_CONTRACT.md) and register conflicts there.
+## Step 14.5 current state
+
+The active skill button now queues a single replacement for the next scheduled basic attack. The gauge continues untouched, Mana is paid at resolution, a target is chosen at resolution, insufficient resolution Mana falls back to a basic attack, and the queue is excluded from saves.
+
+Equipment now owns origin rarity and finite Crafting Potential (natural N/M/R/L: 6/8/10/14). Ordinary crafting spends centralized success-only costs, upgrades do not increase the origin maximum, and tooltips expose current/max Potential. Schema 7 persists and validates these fields while schema-6 migration preserves old rolls and grants full current-rarity Potential.
+
+The post-100 foundation keeps item level capped at 100. Empowerment unlocks per-item caps at 120/160/210/260/310/360, converts only eligible T1 numeric explicits to authored or 1.25× ranges, and locks them against ordinary reroll/remove. Empowerment Catalyst exists with placeholder presentation and persistence but no production source. Stable boss-special pool/replacement data and a 3-Potential Legendary service exist; no bosses or production pools were added. Final skill balance, challenge content, rare implicit manipulation, and inventory-overload UX remain later work.

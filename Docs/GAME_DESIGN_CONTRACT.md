@@ -159,7 +159,7 @@ New Game clears relic history, active slots, cycle/rebirth history and Ancient c
 [SAVE_STATE_CONTRACT.md](SAVE_STATE_CONTRACT.md) and [RUNTIME_LIFECYCLE.md](RUNTIME_LIFECYCLE.md) are authoritative. Locked concepts are:
 
 - One logical current-run save with primary plus backup
-- Schema 5 and validated atomic writes, with sequential schema-2/3/4 migration, scalar-damage X–X conversion, exact historical-affix preservation and fragment defaults/normalization
+- Schema 7 and validated atomic writes, with sequential schema-2/3/4/5/6 migration, exact historical-affix preservation, fragment normalization, and origin/Potential/Empowerment persistence
 - Explicit New Game overwrite confirmation
 - Full gameplay/meta wipe on New Game with preferences preserved
 - One canonical system for Save & Main Menu and Save & Quit
@@ -224,6 +224,18 @@ The Step 14 ledger is [V1_CONTENT_CONTRACT.md](V1_CONTENT_CONTRACT.md). The prop
 - Starter element conflicts use strongest tier then active-slot order. Starter item-level and Legendary chance sources add and cap at 100; base-damage percentages add.
 
 ## 22. Design discrepancy register
+
+## 21B. Step 14.5 attack and endgame-item contract
+
+- Activating the equipped skill queues one replacement for the next scheduled player basic attack. Queuing never attacks, spends Mana, or changes the attack gauge. Resolution rechecks and spends Mana; if Mana became insufficient, the queue clears and that opportunity resolves as a basic attack. The current valid enemy is targeted at resolution, and clean encounter restore never restores a queued skill.
+- Because a skill now consumes a basic-attack opportunity, final balance must make every skill materially stronger than a basic attack or equivalently useful. Shiv is a known review target. Step 14.5 intentionally preserves existing multi-hit, projectile, ailment, Shock, and Hit Twice semantics and changes no skill numbers.
+- Every equipment item stores `OriginRarity`, current rarity, and current/maximum Crafting Potential. Natural Normal/Magic/Rare/Legendary maximums are 6/8/10/14; upgrades never raise the origin-derived maximum. Successful ordinary upgrades and rerolls cost 1, while Add and Remove cost 2. Invalid or failed work spends neither Potential nor currency, and ordinary crafting never changes an implicit.
+- Equipment item level remains capped at 100. At combat levels 120/160/210/260/310/360, an item may hold 1/2/3/4/5/6 player-applied Empowered explicit modifiers. Only an ordinary, numeric, authored-empowerable T1 explicit is eligible. The temporary default range is 125% of both T1 endpoints, unless the family supplies a custom range. Empowered modifiers cannot be ordinarily rerolled or removed and Empowerment consumes no ordinary Potential.
+- The Empowerment Catalyst is implemented as a persisted logical currency with a temporary first-party icon, but has no production drop source. Its intended source is optional post-100 challenge content.
+- Boss-special affix pools have stable pool/content IDs, side, slot, range, progression, weight, and description data. The replacement service targets Legendary gear, replaces one non-Empowered explicit on the same side, preserves explicit count and implicit, and costs 3 Potential only on success. No production pool, catalyst, boss, or drop was added.
+- Deep endgame must eventually offer an extremely rare, bounded way to repair or replace an implicit. Ordinary crafting must remain unable to do so; exact source and operation semantics are deliberately deferred.
+- The levels 1–100 item journey is finding better bases/implicits/natural explicits and finitely repairing promising drops. Post-100 is refining ilvl-100 gear through Empowerment, optional challenge-boss specialization, and eventually rare implicit repair. A zone-360 aspiration is a player-built Legendary with six strong explicits, several/all Empowered, and legal boss-special affixes—not one astronomically perfect natural drop.
+- Inventory overload remains a V1 UX requirement. Later work should extend highlighting, pickup filters, auto-dismantle, and Codex data with desired-modifier profiles, match scoring, visual ranking, and stronger criteria; Step 14.5 adds no replacement loot-filter UI.
 
 | System | Intended design | Current implementation | Status | Roadmap step |
 |---|---|---|---|---|

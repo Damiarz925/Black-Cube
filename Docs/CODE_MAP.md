@@ -177,3 +177,19 @@ Every runtime/editor C# file and art-tool C#/Python/PowerShell file is listed be
 | [Tools/Art/wire_player_attack.py](../Tools/Art/wire_player_attack.py) | Legacy PlayerAttack reference installer that rewrites the player prefab; superseded by install_chibi_player.py. |
 | [Tools/Art/wire_player_idle.py](../Tools/Art/wire_player_idle.py) | Legacy PlayerIdle metadata/reference installer; superseded by install_chibi_player.py and may require old external sources. |
 | [Tools/document_first_party.py](../Tools/document_first_party.py) | Maintains these reviewed responsibility comments and the linked code map, checking token/AST identity for each application. The original documentation baseline is kept as historical evidence. |
+## Step 14.5 attack/item progression map
+
+| File | Responsibility |
+|---|---|
+| [PlayerSkillController.cs](../Assets/Scripts/PlayerSkillController.cs) | Owns selected/queued skill state, queue validation, resolution-time Mana payment, and transient queue clearing. |
+| [BattleManager.cs](../Assets/Scripts/BattleManager.cs) | Replaces the scheduled basic attack with one queued skill, or falls back to basic if resolution cannot pay. |
+| [PlayerSkillMenuUI.cs](../Assets/Scripts/PlayerSkillMenuUI.cs) | Presents QUEUE/QUEUED and next-attack state without driving the attack timer. |
+| [Gear.cs](../Assets/Scripts/Gear.cs) | Stores current/origin rarity and current/maximum Crafting Potential; item level remains clamped to 100. |
+| [EndgameItemization.cs](../Assets/Scripts/EndgameItemization.cs) | Central Potential values/costs, Empowerment thresholds/ranges/service, and boss-special pool/replacement API. |
+| [CraftingCurrencySystem.cs](../Assets/Scripts/CraftingCurrencySystem.cs) | Applies ordinary success-only Potential costs and the persisted Empowerment Catalyst inventory operation. |
+| [AffixDefinitions.cs](../Assets/Scripts/AffixDefinitions.cs), [RolledMod.cs](../Assets/Scripts/RolledMod.cs) | Author empowerability/custom range and persist Empowered/boss-special identity. |
+| [ItemizationValidator.cs](../Assets/Scripts/ItemizationValidator.cs) | Validates ordinary, Empowered, and boss-special rolled-mod provenance/ranges. |
+| [GamePersistence.cs](../Assets/Scripts/GamePersistence.cs) | Schema-7 capture, validation, roundtrip, and schema-6 legacy defaults. |
+| [Step14_5FoundationTests.cs](../Assets/Tests/Editor/Step14_5FoundationTests.cs) | Deterministic queue, Potential, Empowerment, Catalyst, and special-affix contract coverage. |
+
+Boss-special data is deliberately plain serializable architecture, not a production pool asset. Deep-endgame implicit manipulation is documented only; `Gear` still represents the implicit separately so a future bounded authority can replace it without exposing ordinary crafting access.
