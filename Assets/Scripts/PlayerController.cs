@@ -108,7 +108,7 @@ public class PlayerController : MonoBehaviour
             }
             finally{Random.state=oldRandom;}
         }
-        if(legendary&&generated.Count!=7){Debug.LogError("Starter Legendary generation could not produce one implicit and six legal explicits.");generated.Clear();gear.SetRarity(LootManager.GearRarity.Normal);}
+        if(legendary&&generated.Count!=7){Debug.LogError("Starter Legendary generation could not produce one implicit and six legal explicits.");generated.Clear();gear.SetRarity(LootManager.GearRarity.Normal);gear.RestoreCraftingState(LootManager.GearRarity.Normal,CraftingPotentialProfile.Maximum(LootManager.GearRarity.Normal),CraftingPotentialProfile.Maximum(LootManager.GearRarity.Normal));}
         if(generated.Count==0)
         {
             var definition=roller?.Database?.GetDefinition(StatTypes.GenericDmg);

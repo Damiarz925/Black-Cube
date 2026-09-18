@@ -20,6 +20,11 @@ public class RolledMod
     [Tooltip("Permanent equipment implicit. Historical serialized field name is preserved for save migration.")]
     public bool lockedOriginal;
     public bool IsImplicit => lockedOriginal;
+    public bool isEmpowered;
+    public bool isBossSpecial;
+    public string specialPoolId;
+    public string specialModifierId;
+    public AffixSide specialAffixSide;
 
     public RolledMod(StatTypes statType, int tierIndex, float value, bool lockedOriginal = false) //Constructor used to initialize a rolled modifier with its stat type, tier, and final value
     {

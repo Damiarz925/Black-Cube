@@ -22,6 +22,7 @@ public static class InventoryArtCatalog
         CraftingCurrencyType.AncientReroll => Load("UI/Currency/AncientBlueReroll"),
         CraftingCurrencyType.AncientAddModifier => Load("UI/Currency/AncientAddYellow"),
         CraftingCurrencyType.AncientRemoveModifier => Load("UI/Currency/AncientRemove"),
+        CraftingCurrencyType.EmpowermentCatalyst => PlaceholderIcon.EmpowermentCatalyst,
         _ => null
     };
 
@@ -68,6 +69,15 @@ public static class PlaceholderIcon
             _=>new Color32(190,196,212,255)
         };
         return Icons[key]=Build(key,tint,Mathf.Abs(cycle)%6);
+    }
+    public static Sprite EmpowermentCatalyst
+    {
+        get
+        {
+            const string key="currency/empowerment";
+            if(Icons.TryGetValue(key,out var existing)&&existing!=null)return existing;
+            return Icons[key]=Build(key,new Color32(52,185,222,255),4);
+        }
     }
     static Sprite Build(string name,Color32 tint,int mark)
     {

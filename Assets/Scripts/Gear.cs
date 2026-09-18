@@ -33,6 +33,9 @@ public class Gear : MonoBehaviour
     internal void AddScrap(int count) { stackCount = checked(stackCount + count); }
     [SerializeField] private LootManager.GearType itemType; //Field for the item type
     [SerializeField] private LootManager.GearRarity itemRarity; //Field for the item rarity
+    [SerializeField] private LootManager.GearRarity originRarity;
+    [SerializeField] private int currentCraftingPotential;
+    [SerializeField] private int maximumCraftingPotential;
     [SerializeField] private int itemLevel; //Field for the item level of the gear
     [SerializeField] private PaperWeaponVisual weaponVisual;
     public PaperWeaponVisual WeaponVisual => weaponVisual;
@@ -61,6 +64,13 @@ public class Gear : MonoBehaviour
     //These 4 lines define getters for the private variables, itemType, itemRarity, itemLevel, and modNumber
     public LootManager.GearType ItemType => itemType;
     public LootManager.GearRarity ItemRarity => itemRarity;
+    public LootManager.GearRarity OriginRarity => originRarity;
+    public int CurrentCraftingPotential => currentCraftingPotential;
+    public int MaximumCraftingPotential => maximumCraftingPotential;
+    public int EmpoweredModifierCount
+    {
+        get { int count=0;foreach(var mod in rolledMods)if(mod!=null&&mod.isEmpowered)count++;return count; }
+    }
     public int ItemLevel => itemLevel;
     public int ModCount => modNumber;
     public RolledMod ImplicitMod
@@ -91,7 +101,10 @@ public class Gear : MonoBehaviour
         EnsurePersistentId();
         itemType = type;
         itemRarity = rarity;
-        itemLevel = level;
+        originRarity = rarity;
+        maximumCraftingPotential = CraftingPotentialProfile.Maximum(rarity);
+        currentCraftingPotential = maximumCraftingPotential;
+        itemLevel = Mathf.Clamp(level,1,100);
         modNumber = RollModNumber();
         BaseElement = element == Element.Poison ? Element.Void : element;
     }
@@ -103,6 +116,20 @@ public class Gear : MonoBehaviour
     {
         itemRarity = rarity;
         modNumber = CraftingModCount;
+    }
+
+    public bool TrySpendCraftingPotential(int amount)
+    {
+        if(amount<0||currentCraftingPotential<amount)return false;
+        currentCraftingPotential-=amount;
+        return true;
+    }
+
+    public void RestoreCraftingState(LootManager.GearRarity origin,int current,int maximum)
+    {
+        originRarity=origin;
+        maximumCraftingPotential=maximum;
+        currentCraftingPotential=Mathf.Clamp(current,0,maximum);
     }
 
     public void EnsureOriginalModifierLocked()

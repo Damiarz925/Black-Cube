@@ -48,6 +48,9 @@ public static class AffixPolicy
         return AffixSide.Prefix;
     }
 
+    public static AffixSide Side(RolledMod mod) => mod != null && mod.isBossSpecial
+        ? mod.specialAffixSide : Side(mod != null ? mod.statType : default);
+
     public static int MaximumTotal(LootManager.GearRarity rarity) => rarity switch
     {
         LootManager.GearRarity.Normal => 0,
@@ -73,7 +76,7 @@ public static class AffixPolicy
             if(mod==null || ReferenceEquals(mod,excluded) || Gear.IsWeaponBaseStat(mod.statType)
                 || mod.lockedOriginal)continue;
             total++;
-            if(Side(mod.statType)==side)sideCount++;else otherSideCount++;
+            if(Side(mod)==side)sideCount++;else otherSideCount++;
         }
         return total < MaximumTotal(rarity) && sideCount < MaximumOnSide(rarity)
             && otherSideCount <= MaximumOnSide(rarity);

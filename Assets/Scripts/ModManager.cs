@@ -185,7 +185,7 @@ public class ModManager : MonoBehaviour
 
     public RolledMod RerollModifier(Gear gear, RolledMod replaced, LootManager.GearRarity rarity)
     {
-        if (gear == null || replaced == null || replaced.lockedOriginal) return null;
+        if (gear == null || replaced == null || replaced.lockedOriginal || replaced.isEmpowered || replaced.isBossSpecial) return null;
         var usedStats = new HashSet<StatTypes>();
         ReserveIntrinsicWeaponStats(gear, usedStats);
         var usedGroups = new HashSet<string>();

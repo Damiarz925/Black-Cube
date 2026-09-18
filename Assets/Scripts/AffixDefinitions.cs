@@ -27,6 +27,9 @@ public class AffixDefinitions
     public string[] groups;
     public AffixSide side;
     public List<AffixTier> tiers = new();
+    public bool empowerable = true;
+    public bool hasCustomEmpoweredRange;
+    public float empoweredMin, empoweredMax, empoweredMinHigh, empoweredMaxHigh;
     // Historical authoring fields stay serialized for existing assets but no
     // longer generate or truncate a universal five-tier ladder.
     public float tierTopMultiplier = 6f;

@@ -19,6 +19,7 @@ public static class ItemTooltipFormatter
         if (item.IsScrap) return $"<color=#BFA86A><b>MATERIAL</b></color>\n\nStack Count: {item.StackCount}\nCannot be equipped or crafted.";
         var s = new StringBuilder();
         s.AppendLine($"<color=#85898F>{ItemSlotUI.DisplayType(item.ItemType).ToUpperInvariant()}  •  ITEM LEVEL {item.ItemLevel}</color>");
+        s.AppendLine($"<color=#8DC9D8><b>CRAFTING POTENTIAL: {item.CurrentCraftingPotential} / {item.MaximumCraftingPotential}</b></color>  <color=#85898F>ORIGIN {item.OriginRarity.ToString().ToUpperInvariant()}</color>");
         if (item.ItemType == LootManager.GearType.Weapons)
         {
             s.AppendLine();
@@ -43,7 +44,7 @@ public static class ItemTooltipFormatter
             bool any=false;
             foreach (var mod in mods)
             {
-                if(mod.lockedOriginal || AffixPolicy.Side(mod.statType)!=side)continue;
+                if(mod.lockedOriginal || AffixPolicy.Side(mod)!=side)continue;
                 any=true;
                 AppendMod(s,item,mod,false);
             }
@@ -61,12 +62,13 @@ public static class ItemTooltipFormatter
         string rolled=paired?$"Adds {mod.value:0.##}–{mod.HighValue:0.##} {ItemTooltipUI.ElementName(item.BaseElement)} Damage"
             :$"{StatDisplayFormatting.ToFriendlyName(mod.statType)}: {mod.value:+0.##;-0.##;0}{unit}";
         string range=TierRange(item,mod,percent);
-        string color=implicitLine?"#9FC8BC":"#E4C979";
+        string color=implicitLine?"#9FC8BC":mod.isEmpowered?"#73D8EE":mod.isBossSpecial?"#D88BFF":"#E4C979";
         // Reserve a compact space for the runtime-built padlock Image. TMP's
         // shipped font does not contain the Unicode lock emoji.
         string prefix=implicitLine?"   ":"";
         string local=item.IsLocalAffix(mod.statType)?"  <color=#85898F>LOCAL</color>":"";
-        s.AppendLine($"<color={color}>{prefix}<b>{rolled}</b></color>  <color=#85898F>{range} T{mod.tierIndex}</color>{local}");
+        string rank=mod.isEmpowered?"EMPOWERED":mod.isBossSpecial?"BOSS-SPECIAL":$"T{mod.tierIndex}";
+        s.AppendLine($"<color={color}>{prefix}<b>{rolled}</b></color>  <color=#85898F>{range} {rank}</color>{local}");
     }
 
     static string TierRange(Gear item,RolledMod mod,bool percent)
@@ -76,16 +78,19 @@ public static class ItemTooltipFormatter
         if(def==null)def=UnityEditor.AssetDatabase.LoadAssetAtPath<ModDatabase>(
             "Assets/Prefabs/Scriptable Objects/ModDatabase.asset")?.GetDefinition(mod.statType);
 #endif
+        if(mod.isBossSpecial)return "(special pool roll)";
         var tiers=ModManager.ApplicableTiers(def,item.ItemType);
         var tier=tiers.Find(t=>t.tierIndex==mod.tierIndex);
         if(tier==null)return "(historical tier / range unavailable)";
-        bool valid=mod.value>=tier.minValue-.001f&&mod.value<=tier.maxValue+.001f
-            && (!mod.hasSecondaryValue || !tier.pairedDamage || mod.HighValue>=tier.minHighValue-.001f
-                && mod.HighValue<=tier.maxHighValue+.001f);
+        float min=tier.minValue,max=tier.maxValue,minHigh=tier.minHighValue,maxHigh=tier.maxHighValue;
+        if(mod.isEmpowered)EmpowermentCrafting.EmpoweredRange(def,tier,out min,out max,out minHigh,out maxHigh);
+        bool valid=mod.value>=min-.011f&&mod.value<=max+.011f
+            && (!mod.hasSecondaryValue || !tier.pairedDamage || mod.HighValue>=minHigh-.011f
+                && mod.HighValue<=maxHigh+.011f);
         if(!valid)return "(historical roll / current range differs)";
         string unit=percent?"%":"";
-        return tier.pairedDamage?$"(min {tier.minValue:0.##}–{tier.maxValue:0.##}, max {tier.minHighValue:0.##}–{tier.maxHighValue:0.##})"
-            :$"({tier.minValue:0.##}–{tier.maxValue:0.##}{unit})";
+        return tier.pairedDamage?$"(min {min:0.##}–{max:0.##}, max {minHigh:0.##}–{maxHigh:0.##})"
+            :$"({min:0.##}–{max:0.##}{unit})";
     }
 
     public static string DescribeRelic(RelicData relic)
