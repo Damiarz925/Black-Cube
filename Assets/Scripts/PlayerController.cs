@@ -63,6 +63,9 @@ public class PlayerController : MonoBehaviour
 
     private Gear CreateStarterWeapon(ModManager roller)  //Creates starter weapon
     {
+        PlayerIdentityState identity=GameManager.Instance!=null?GameManager.Instance.GetComponent<PlayerIdentityState>():null;
+        string weaponTypeId=identity?.ClassDefinition?.SignatureWeaponTypeId??WeaponTypeCatalog.HistoricalDefaultId;
+        WeaponTypeDefinition weaponProfile=WeaponTypeCatalog.Get(weaponTypeId);
         var relics=ignoreRelicsForIsolatedBaseline?null:RelicInventory.Instance;
         int itemLevel=Mathf.Clamp(1+(relics?.StarterItemLevelBonus??0),1,100);
         Element element=relics?.StarterElement??Element.Phys;
@@ -81,15 +84,15 @@ public class PlayerController : MonoBehaviour
         go.transform.SetParent(transform);  //Sets the parent of the object's transform
         Gear gear = go.AddComponent<Gear>();    //Adds a gear component to the newly created starter weapon, and assigns that gear component to the variable gear
 
-        gear.Initialize(LootManager.GearType.Weapons, rarity, itemLevel, element);
+        gear.Initialize(LootManager.GearType.Weapons, rarity, itemLevel, element, weaponTypeId);
         // 22.5 * .45 with the minimum +7% implicit is about 7.4% below the
         // weakest reasonable level-one natural base (26 * .45) before both
         // weapons' common 5% critical contribution.
-        gear.BaseDamage = 22.5f*baseMultiplier;
-        gear.BaseDamageMin = 18f*baseMultiplier;
-        gear.BaseDamageMax = 27f*baseMultiplier;
-        gear.BaseAttackSpeed = .45f;
-        gear.BaseCritChance = 0.05f;    //sets base crit chance to 5%
+        gear.BaseDamageMin = weaponProfile.BaseDamageMin*baseMultiplier;
+        gear.BaseDamageMax = weaponProfile.BaseDamageMax*baseMultiplier;
+        gear.BaseDamage = (gear.BaseDamageMin+gear.BaseDamageMax)*.5f;
+        gear.BaseAttackSpeed = weaponProfile.AttacksPerSecond;
+        gear.BaseCritChance = weaponProfile.BaseCritChance;
         // Starter base damage/speed/crit are authored above, so keep those
         // values rather than applying the three random weapon-base rolls.
         // Its one permanent implicit still comes from the same legal natural
@@ -102,7 +105,7 @@ public class PlayerController : MonoBehaviour
             {
                 for(int attempt=0;attempt<32&&generated.Count!=7;attempt++)
                 {
-                    generated.Clear();var natural=roller.RollEquipmentModsForItem(LootManager.GearType.Weapons,rarity,itemLevel,element);
+                    generated.Clear();var natural=roller.RollEquipmentModsForItem(LootManager.GearType.Weapons,rarity,itemLevel,element,weaponTypeId);
                     if(natural!=null)foreach(var mod in natural)if(!Gear.IsWeaponBaseStat(mod.statType))generated.Add(mod);
                 }
             }

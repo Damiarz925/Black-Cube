@@ -32,6 +32,7 @@ public class Gear : MonoBehaviour
     internal void InitializeScrap(int count) { isScrap = true; stackCount = count; }
     internal void AddScrap(int count) { stackCount = checked(stackCount + count); }
     [SerializeField] private LootManager.GearType itemType; //Field for the item type
+    [SerializeField] private string weaponTypeId;
     [SerializeField] private LootManager.GearRarity itemRarity; //Field for the item rarity
     [SerializeField] private LootManager.GearRarity originRarity;
     [SerializeField] private int currentCraftingPotential;
@@ -63,6 +64,8 @@ public class Gear : MonoBehaviour
 
     //These 4 lines define getters for the private variables, itemType, itemRarity, itemLevel, and modNumber
     public LootManager.GearType ItemType => itemType;
+    public string WeaponTypeId => itemType == LootManager.GearType.Weapons
+        ? (WeaponTypeCatalog.IsValid(weaponTypeId) ? weaponTypeId : WeaponTypeCatalog.HistoricalDefaultId) : string.Empty;
     public LootManager.GearRarity ItemRarity => itemRarity;
     public LootManager.GearRarity OriginRarity => originRarity;
     public int CurrentCraftingPotential => currentCraftingPotential;
@@ -96,10 +99,12 @@ public class Gear : MonoBehaviour
 
     //Initialize method to be called when creating a new gear object, sets the item type, rarity, ilvl and number of rolled mods (by calling RollModNumber) and using passed in values for the other variables
     //Assumes this gear instance is fresh or cleared before reinitializing
-    public void Initialize(LootManager.GearType type, LootManager.GearRarity rarity, int level, Element element)
+    public void Initialize(LootManager.GearType type, LootManager.GearRarity rarity, int level, Element element, string stableWeaponTypeId = null)
     {
         EnsurePersistentId();
         itemType = type;
+        weaponTypeId = type == LootManager.GearType.Weapons && WeaponTypeCatalog.IsValid(stableWeaponTypeId)
+            ? stableWeaponTypeId : type == LootManager.GearType.Weapons ? WeaponTypeCatalog.HistoricalDefaultId : string.Empty;
         itemRarity = rarity;
         originRarity = rarity;
         maximumCraftingPotential = CraftingPotentialProfile.Maximum(rarity);
@@ -107,6 +112,12 @@ public class Gear : MonoBehaviour
         itemLevel = Mathf.Clamp(level,1,100);
         modNumber = RollModNumber();
         BaseElement = element == Element.Poison ? Element.Void : element;
+    }
+
+    public bool SetWeaponType(string stableId)
+    {
+        if(itemType!=LootManager.GearType.Weapons||!WeaponTypeCatalog.IsValid(stableId))return false;
+        weaponTypeId=stableId;return true;
     }
 
     public static bool IsWeaponBaseStat(StatTypes stat) => stat is StatTypes.WeaponBaseDmg

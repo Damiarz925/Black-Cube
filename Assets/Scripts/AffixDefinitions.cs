@@ -24,6 +24,8 @@ public class AffixDefinitions
     public StatTypes statType;
     public string displayName;
     public LootManager.GearType[] allowedSlots;
+    [Tooltip("Optional stable weapon type IDs. Empty means every weapon type.")]
+    public string[] allowedWeaponTypeIds;
     public string[] groups;
     public AffixSide side;
     public List<AffixTier> tiers = new();
@@ -37,6 +39,13 @@ public class AffixDefinitions
 
     public int Id => (int)statType;
     public override string ToString() => $"{statType} ({Id})";
+
+    public bool AllowsWeaponType(string weaponTypeId)
+    {
+        if(allowedWeaponTypeIds==null||allowedWeaponTypeIds.Length==0)return true;
+        foreach(string id in allowedWeaponTypeIds)if(id==weaponTypeId)return true;
+        return false;
+    }
 
     public void EnsureTiersGenerated()
     {

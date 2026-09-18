@@ -45,6 +45,7 @@ public class GameManager : MonoBehaviour
         if (GetComponent<PlayerProgression>() == null) gameObject.AddComponent<PlayerProgression>();
         if (GetComponent<RelicInventory>() == null) gameObject.AddComponent<RelicInventory>();
         if (GetComponent<RebirthManager>() == null) gameObject.AddComponent<RebirthManager>();
+        if (GetComponent<PlayerIdentityState>() == null) gameObject.AddComponent<PlayerIdentityState>();
         if (GetComponent<GamePersistenceHost>() == null) gameObject.AddComponent<GamePersistenceHost>();
         DontDestroyOnLoad(gameObject);
         SceneManager.sceneLoaded += OnSceneLoaded;
@@ -116,6 +117,7 @@ public class GameManager : MonoBehaviour
     private bool StartFreshGame(bool commit)
     {
         GamePersistence.BeginFreshRunIdentity();
+        GetComponent<PlayerIdentityState>()?.BeginNewGame(GameLaunchSelection.ConsumeOrDefault());
         var player = FindAnyObjectByType<PlayerController>();
         player?.GetComponent<PlayerSkillController>()?.RestoreSelection(false, default);
         player?.GetComponent<StatusController>()?.ClearStatuses();

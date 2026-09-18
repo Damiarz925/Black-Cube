@@ -127,7 +127,8 @@ public class ModManager : MonoBehaviour
 
     /// <summary>Natural equipment: one independent implicit and a full, balanced explicit set.</summary>
     public List<RolledMod> RollEquipmentModsForItem(LootManager.GearType itemType,
-        LootManager.GearRarity rarity, int itemLevel, Element weaponElement)
+        LootManager.GearRarity rarity, int itemLevel, Element weaponElement,
+        string weaponTypeId = WeaponTypeCatalog.HistoricalDefaultId)
     {
         var mods = new List<RolledMod>();
         var baseStats = new HashSet<StatTypes>();
@@ -140,7 +141,7 @@ public class ModManager : MonoBehaviour
             if (mods.Count != 3) return null;
         }
         var implicitMod = RollSingleMod(itemType, rarity, itemLevel, baseStats, baseGroups,
-            weaponElement, false, mods, ignoreCapacity: true);
+            weaponElement, false, mods, ignoreCapacity: true, weaponTypeId: weaponTypeId);
         if (implicitMod == null) return null;
         implicitMod.lockedOriginal = true;
         mods.Add(implicitMod);
@@ -154,7 +155,7 @@ public class ModManager : MonoBehaviour
         {
             AffixSide side = index % 2 == 0 ? AffixSide.Prefix : AffixSide.Suffix;
             RolledMod mod = RollSingleMod(itemType, rarity, itemLevel, usedStats, usedGroups,
-                weaponElement, false, mods, requiredSide: side);
+                weaponElement, false, mods, requiredSide: side, weaponTypeId: weaponTypeId);
             if (mod == null) return null;
             mods.Add(mod);
             usedStats.Add(mod.statType);
@@ -180,7 +181,7 @@ public class ModManager : MonoBehaviour
                 foreach (string group in definition.groups) usedGroups.Add(group);
         }
         return RollSingleMod(gear.ItemType, rarity, gear.ItemLevel, usedStats, usedGroups,
-            gear.BaseElement, false, gear.rolledMods, requiredSide: requiredSide);
+            gear.BaseElement, false, gear.rolledMods, requiredSide: requiredSide, weaponTypeId: gear.WeaponTypeId);
     }
 
     public RolledMod RerollModifier(Gear gear, RolledMod replaced, LootManager.GearRarity rarity)
@@ -198,7 +199,7 @@ public class ModManager : MonoBehaviour
         }
         return RollSingleMod(gear.ItemType, rarity, gear.ItemLevel, usedStats, usedGroups,
             gear.BaseElement, false, gear.rolledMods, replaced,
-            requiredSide: AffixPolicy.Side(replaced.statType));
+            requiredSide: AffixPolicy.Side(replaced.statType), weaponTypeId: gear.WeaponTypeId);
     }
 
     static void ReserveIntrinsicWeaponStats(Gear gear, HashSet<StatTypes> usedStats)
@@ -242,7 +243,7 @@ public class ModManager : MonoBehaviour
         bool forEnemy,
         IReadOnlyList<RolledMod> existing,
         RolledMod excluded = null, AffixSide? requiredSide = null,
-        bool ignoreCapacity = false)
+        bool ignoreCapacity = false, string weaponTypeId = null)
     {
 #if UNITY_EDITOR
         List<StatTypes> pool = useIsolatedPools
@@ -276,7 +277,8 @@ public class ModManager : MonoBehaviour
                 ? !AffixPolicy.CanAddEnemy(existing, rarity, def.side)
                 : !AffixPolicy.CanAdd(existing, rarity, def.side, excluded))) continue;
 
-            var availableTier = ApplicableTiers(def,itemType).Where(t => t.minItemLevel <= itemLevel).ToList();
+            string effectiveWeaponType=itemType==LootManager.GearType.Weapons&&WeaponTypeCatalog.IsValid(weaponTypeId)?weaponTypeId:WeaponTypeCatalog.HistoricalDefaultId;
+            var availableTier = ApplicableTiers(def,itemType,effectiveWeaponType).Where(t => t.minItemLevel <= itemLevel).ToList();
             if (availableTier.Count == 0)   //If it can't roll more than 0 tiers, skip it
                 continue;
 
@@ -290,7 +292,7 @@ public class ModManager : MonoBehaviour
             return null;
 
         StatTypes chosenStat = WeightedRandomPick(candidates);  //Call weightedrandompick to choose a random mod from candidates
-        return RollTierAndValue(chosenStat, itemType, itemLevel);
+        return RollTierAndValue(chosenStat, itemType, itemLevel, weaponTypeId);
     }
 
     /// <summary>Stats that remain valid player affixes but cannot benefit enemies without player-only systems.</summary>
@@ -390,16 +392,19 @@ public class ModManager : MonoBehaviour
     }
 
     public static List<AffixTier> ApplicableTiers(AffixDefinitions def,LootManager.GearType slot)
+        =>ApplicableTiers(def,slot,slot==LootManager.GearType.Weapons?WeaponTypeCatalog.HistoricalDefaultId:string.Empty);
+
+    public static List<AffixTier> ApplicableTiers(AffixDefinitions def,LootManager.GearType slot,string weaponTypeId)
     {
-        if(def==null)return new List<AffixTier>();
+        if(def==null||(slot==LootManager.GearType.Weapons&&!def.AllowsWeaponType(weaponTypeId)))return new List<AffixTier>();
         return PoedbAffixCatalog.TryGet(def.statType,slot,out var direct)
             ? direct : def.tiers ?? new List<AffixTier>();
     }
 
-    private RolledMod RollTierAndValue(StatTypes stat, LootManager.GearType slot, int itemLevel)
+    private RolledMod RollTierAndValue(StatTypes stat, LootManager.GearType slot, int itemLevel,string weaponTypeId=null)
     {
         AffixDefinitions def = modDatabase.GetDefinition(stat);     //grab definition of the passed in stat
-        var available = ApplicableTiers(def,slot).Where(t => t.minItemLevel <= itemLevel).ToList();
+        var available = ApplicableTiers(def,slot,slot==LootManager.GearType.Weapons&&WeaponTypeCatalog.IsValid(weaponTypeId)?weaponTypeId:WeaponTypeCatalog.HistoricalDefaultId).Where(t => t.minItemLevel <= itemLevel).ToList();
         if (available.Count == 0) return null;  //if there are no available tiers, return
 
         AffixTier chosenTier = AffixTierWeightPolicy.Choose(available,

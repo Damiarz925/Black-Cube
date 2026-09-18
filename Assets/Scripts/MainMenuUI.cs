@@ -19,7 +19,12 @@ public class MainMenuUI : MonoBehaviour
     private GameObject optionsPanel;
     private TMP_Text pausePassiveTreeLabel;
     private GameObject newGameConfirmation;
+    private GameObject classSelectionPanel;
+    private TMP_Text classSelectionLabel;
+    private Button beginSelectedClassButton;
+    private string selectedClassId;
     public bool NewGameConfirmationVisible => newGameConfirmation != null && newGameConfirmation.activeSelf;
+    public bool ClassSelectionVisible => classSelectionPanel != null && classSelectionPanel.activeSelf;
 
     private void Awake()
     {
@@ -43,6 +48,7 @@ public class MainMenuUI : MonoBehaviour
 
         EnsureOptionsMenu();
         EnsureNewGameConfirmation();
+        EnsureClassSelection();
 
         if (root != null)
             foreach (var button in root.GetComponentsInChildren<Button>(true))
@@ -69,12 +75,28 @@ public class MainMenuUI : MonoBehaviour
             newGameConfirmation.transform.SetAsLastSibling();
             return;
         }
-        ConfirmNewGame();
+        OpenClassSelection();
     }
 
     public void ConfirmNewGame()
     {
         if (newGameConfirmation != null) newGameConfirmation.SetActive(false);
+        OpenClassSelection();
+    }
+
+    public bool SelectClass(string classId)
+    {
+        if(!PlayerClassCatalog.TryGet(classId,out var definition))return false;
+        selectedClassId=classId;
+        if(classSelectionLabel!=null)classSelectionLabel.text=$"{definition.DisplayName.ToUpperInvariant()}  /  SIGNATURE {WeaponTypeCatalog.Get(definition.SignatureWeaponTypeId).DisplayName.ToUpperInvariant()}";
+        if(beginSelectedClassButton!=null)beginSelectedClassButton.interactable=true;
+        return true;
+    }
+
+    public void StartSelectedClass()
+    {
+        if(!GameLaunchSelection.SelectNewGameClass(selectedClassId))return;
+        if(classSelectionPanel!=null)classSelectionPanel.SetActive(false);
         GamePersistence.RequestConfirmedNewGame();
         SceneManager.LoadScene(GameSceneNames.Gameplay);
     }
@@ -83,6 +105,8 @@ public class MainMenuUI : MonoBehaviour
     {
         GamePersistence.RequestNewGame();
         if (newGameConfirmation != null) newGameConfirmation.SetActive(false);
+        if (classSelectionPanel != null) classSelectionPanel.SetActive(false);
+        selectedClassId=null;GameLaunchSelection.Clear();
     }
 
     public void OnLoadGameClicked()
@@ -144,6 +168,38 @@ public class MainMenuUI : MonoBehaviour
         ((RectTransform)cancel.transform).sizeDelta = new Vector2(280f, 80f);
         cancel.onClick.AddListener(CancelNewGame);
         newGameConfirmation.SetActive(false);
+    }
+
+    private void EnsureClassSelection()
+    {
+        if(root==null||newGameButton==null||classSelectionPanel!=null)return;
+        classSelectionPanel=new GameObject("New Game Class Selection",typeof(RectTransform),typeof(CanvasRenderer),typeof(Image));
+        classSelectionPanel.transform.SetParent(root.transform,false);var rect=(RectTransform)classSelectionPanel.transform;
+        rect.anchorMin=rect.anchorMax=rect.pivot=Vector2.one*.5f;rect.sizeDelta=new Vector2(980,680);
+        classSelectionPanel.GetComponent<Image>().color=new Color(.025f,.03f,.04f,.99f);
+        CreateLabel(classSelectionPanel.transform,"CHOOSE YOUR CLASS",new Vector2(0,275),new Vector2(900,60),34);
+        for(int i=0;i<PlayerClassCatalog.All.Count;i++)
+        {
+            var definition=PlayerClassCatalog.All[i];int column=i%2,row=i/2;
+            Button button=CloneMenuButton(newGameButton,classSelectionPanel.transform,"Choose "+definition.DisplayName,definition.DisplayName.ToUpperInvariant());
+            ((RectTransform)button.transform).anchoredPosition=new Vector2(-230+column*460,170-row*115);
+            ((RectTransform)button.transform).sizeDelta=new Vector2(390,80);string id=definition.Id;
+            button.onClick.AddListener(()=>SelectClass(id));
+        }
+        classSelectionLabel=CreateLabel(classSelectionPanel.transform,"SELECT A CLASS",new Vector2(0,-190),new Vector2(900,55),20);
+        beginSelectedClassButton=CloneMenuButton(newGameButton,classSelectionPanel.transform,"Begin Selected Class","BEGIN");
+        ((RectTransform)beginSelectedClassButton.transform).anchoredPosition=new Vector2(-170,-270);((RectTransform)beginSelectedClassButton.transform).sizeDelta=new Vector2(280,70);
+        beginSelectedClassButton.interactable=false;beginSelectedClassButton.onClick.AddListener(StartSelectedClass);
+        Button cancel=CloneMenuButton(newGameButton,classSelectionPanel.transform,"Cancel Class Selection","CANCEL");
+        ((RectTransform)cancel.transform).anchoredPosition=new Vector2(170,-270);((RectTransform)cancel.transform).sizeDelta=new Vector2(280,70);cancel.onClick.AddListener(CancelNewGame);
+        classSelectionPanel.SetActive(false);
+    }
+
+    private void OpenClassSelection()
+    {
+        selectedClassId=null;if(beginSelectedClassButton!=null)beginSelectedClassButton.interactable=false;
+        if(classSelectionLabel!=null)classSelectionLabel.text="SELECT A CLASS";
+        if(classSelectionPanel!=null){classSelectionPanel.SetActive(true);classSelectionPanel.transform.SetAsLastSibling();}
     }
 
     private static Button CloneMenuButton(Button template, Transform parent, string objectName, string label)

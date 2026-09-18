@@ -166,7 +166,7 @@ public sealed class PauseMenuTests
     {
         Assert.That(GamePersistence.TrySave(), Is.False);
         Assert.That(GamePersistence.LastError, Does.Contain("gameplay authorities"));
-        Assert.That(GamePersistence.SchemaVersion, Is.EqualTo(7));
+        Assert.That(GamePersistence.SchemaVersion, Is.EqualTo(8));
         Assert.That(GamePersistence.PrimaryPath, Does.EndWith(GamePersistence.PrimaryFileName));
     }
 

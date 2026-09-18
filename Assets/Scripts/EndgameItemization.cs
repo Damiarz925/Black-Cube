@@ -53,7 +53,7 @@ public static class EmpowermentCrafting
             if(mod==null||mod.lockedOriginal||mod.isEmpowered||mod.isBossSpecial||Gear.IsWeaponBaseStat(mod.statType)||mod.tierIndex!=1)continue;
             var definition=ModManager.Instance?.Database?.GetDefinition(mod.statType);
             if(!IsEmpowerable(definition,mod.statType))continue;
-            var tier=ModManager.ApplicableTiers(definition,gear.ItemType).Find(x=>x.tierIndex==1);
+            var tier=ModManager.ApplicableTiers(definition,gear.ItemType,gear.WeaponTypeId).Find(x=>x.tierIndex==1);
             if(tier!=null)candidates.Add((mod,tier,definition));
         }
         if(candidates.Count==0)return false;

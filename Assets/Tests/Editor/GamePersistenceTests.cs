@@ -81,7 +81,7 @@ public sealed class GamePersistenceTests
     [Test] public void Schema2ScalarGearMigratesToExactConstantDamageRange()
     {
         var old=Valid();old.schemaVersion=2;
-        var item=Gear("old-weapon");item.type=LootManager.GearType.Weapons;
+        var item=Gear("old-weapon");item.type=LootManager.GearType.Weapons;item.weaponTypeId=WeaponTypeIds.Sword;
         item.baseDamage=87f;item.mods[0]=new RolledMod(StatTypes.FlatPhys,2,17f,true);
         old.payload.gearItems.Add(item);old.payload.inventoryGearIds.Add(item.id);
         File.WriteAllText(GamePersistence.PrimaryPath,JsonUtility.ToJson(old));
@@ -116,7 +116,7 @@ public sealed class GamePersistenceTests
     [Test] public void Schema3PairedLockedWeaponRollAndBaseRangeRemainExact()
     {
         var old=Valid();old.schemaVersion=3;
-        var weapon=Gear("old-paired");weapon.type=LootManager.GearType.Weapons;
+        var weapon=Gear("old-paired");weapon.type=LootManager.GearType.Weapons;weapon.weaponTypeId=WeaponTypeIds.Sword;
         weapon.itemLevel=100;weapon.baseDamage=80f;weapon.baseDamageMin=64f;
         weapon.baseDamageMax=96f;
         weapon.mods[0]=new RolledMod(StatTypes.FlatFire,1,21f,38f,true);
@@ -152,7 +152,7 @@ public sealed class GamePersistenceTests
     [Test] public void CurrentPairedWeaponAffixNeedsBothLegalRolls()
     {
         var e=Valid();var weapon=Gear("paired-weapon",StatTypes.FlatPhys);
-        weapon.type=LootManager.GearType.Weapons;weapon.mods[0]=new RolledMod(StatTypes.FlatPhys,9,1f,2f,true);
+        weapon.type=LootManager.GearType.Weapons;weapon.weaponTypeId=WeaponTypeIds.Sword;weapon.mods[0]=new RolledMod(StatTypes.FlatPhys,9,1f,2f,true);
         e.payload.gearItems.Add(weapon);e.payload.inventoryGearIds.Add(weapon.id);
         Assert.That(GamePersistence.ValidateEnvelope(e,out var error),Is.True,error);
         weapon.mods[0].hasSecondaryValue=false;AssertInvalid(e,"affix");

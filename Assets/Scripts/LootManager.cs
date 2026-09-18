@@ -98,7 +98,10 @@ public class LootManager : MonoBehaviour
         if (gear == null)
             gear = obj.AddComponent<Gear>();
 
-        gear.Initialize(type, rarity, itemLevel, element);       //Initialize the gear item
+        // Existing random loot retains Sword as its compatibility profile until
+        // weapon-type drop weighting is approved; all six types are supported by Gear.
+        gear.Initialize(type, rarity, itemLevel, element,
+            type==GearType.Weapons?WeaponTypeCatalog.HistoricalDefaultId:null);
 
         Debug.Log($"[Loot] After Initialize: gear.ItemType={gear.ItemType}, gear.ItemRarity={gear.ItemRarity}, ilvl={gear.ItemLevel}, modCount={gear.ModCount}");
 
@@ -108,7 +111,7 @@ public class LootManager : MonoBehaviour
             // Exclusive groups can dead-end a full 3P/3S construction. Retry
             // construction without changing the rolled rarity or drop rate.
             for (int attempt = 0; attempt < 64 && mods == null; attempt++)
-                mods = ModManager.Instance.RollEquipmentModsForItem(type, rarity, itemLevel, element);
+                mods = ModManager.Instance.RollEquipmentModsForItem(type, rarity, itemLevel, element,gear.WeaponTypeId);
         }
 
         if (mods == null)

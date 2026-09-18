@@ -79,7 +79,7 @@ public static class ItemTooltipFormatter
             "Assets/Prefabs/Scriptable Objects/ModDatabase.asset")?.GetDefinition(mod.statType);
 #endif
         if(mod.isBossSpecial)return "(special pool roll)";
-        var tiers=ModManager.ApplicableTiers(def,item.ItemType);
+        var tiers=ModManager.ApplicableTiers(def,item.ItemType,item.WeaponTypeId);
         var tier=tiers.Find(t=>t.tierIndex==mod.tierIndex);
         if(tier==null)return "(historical tier / range unavailable)";
         float min=tier.minValue,max=tier.maxValue,minHigh=tier.minHighValue,maxHigh=tier.maxHighValue;
