@@ -52,7 +52,7 @@ Every runtime/editor C# file and art-tool C#/Python/PowerShell file is listed be
 | [Assets/Scripts/Inventory.cs](../Assets/Scripts/Inventory.cs) | Session equipment ownership, pickup-only auto-dismantling, shared random-currency rewards and legacy Scrap migration. |
 | [Assets/Scripts/CraftingCurrencySystem.cs](../Assets/Scripts/CraftingCurrencySystem.cs) | Stackable ordinary/Ancient currency and armed target validation. Equipment upgrades add two explicits, rerolls replace one same-side explicit, Add/Remove change one; the implicit is excluded. Inventory tile/cursor use `InventoryArtCatalog`. |
 | [Assets/Scripts/InventoryArtCatalog.cs](../Assets/Scripts/InventoryArtCatalog.cs) | Resource-path mapping for six ordinary and six supplied Ancient currency sprites. Currency artwork is loaded alone for inventory/cursor; generated placeholder art remains only for relic identity cards. |
-| [Assets/Scripts/GamePersistence.cs](../Assets/Scripts/GamePersistence.cs) | Canonical schema-7 UTF-8 persistence: detached DTO capture, gear/relic validation, atomic primary/backup writes, sequential migration, guarded encounter restore and debounced autosave. Combat level remains the sole saved world coordinate. |
+| [Assets/Scripts/GamePersistence.cs](../Assets/Scripts/GamePersistence.cs) | Canonical schema-8 UTF-8 persistence: detached DTO capture, class/weapon/gear/relic validation, atomic primary/backup writes, sequential migration, guarded encounter restore and debounced autosave. Combat level remains the sole saved world coordinate. |
 | [Assets/Scripts/RelicSystem.cs](../Assets/Scripts/RelicSystem.cs) | Zone-60 Rebirth, persisted level/tier relics, permanent/current-cycle ownership, starter-weapon transformations, Ancient crafting, active-slot multipliers and relic UI. |
 | [Assets/Scripts/InventoryFilterUI.cs](../Assets/Scripts/InventoryFilterUI.cs) | Builds the pickup-filter controls and edits Inventory cutoff settings. Enabled level/rarity cutoffs combine with OR; existing inventory is not retroactively scrapped. |
 | [Assets/Scripts/InventoryUI.cs](../Assets/Scripts/InventoryUI.cs) | Maintains Gear-to-slot views and a shared root-canvas tooltip, with a responsive scrolling grid. Subscribes to inventory changes while enabled and preserves unchanged slot objects. |
@@ -199,3 +199,11 @@ Every runtime/editor C# file and art-tool C#/Python/PowerShell file is listed be
 | [Step14_5FoundationTests.cs](../Assets/Tests/Editor/Step14_5FoundationTests.cs) | Deterministic queue, Potential, Empowerment, Catalyst, and special-affix contract coverage. |
 
 Boss-special data is deliberately plain serializable architecture, not a production pool asset. Deep-endgame implicit manipulation is documented only; `Gear` still represents the implicit separately so a future bounded authority can replace it without exposing ordinary crafting access.
+# Step 16 ownership additions
+
+- `ClassWeaponArchitecture.cs`: stable class/weapon IDs and catalogs, placeholder weapon profiles, New Game launch selection, persistent player identity, subclass fixture/catalog seam, two-slot weapon skill bindings, and passive extension metadata.
+- `MainMenuUI.cs`: overwrite confirmation followed by mandatory six-class New Game selection.
+- `Gear.cs` / `PlayerController.cs`: stable weapon type on items and one signature-aware shared starter pipeline.
+- `PlayerSkillController.cs` / `PlayerSkillMenuUI.cs`: equipped-weapon pair resolution, two controls, one replaceable queue, and queue clearing on weapon change.
+- `GamePersistence.cs`: schema-8 capture/validate/apply and schema-7 class/weapon migration.
+- `PassiveTreeDefinition.cs` / `AffixDefinitions.cs`: optional extension metadata and optional stable weapon-type restrictions; existing content is unchanged.

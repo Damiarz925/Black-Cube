@@ -57,7 +57,7 @@ The game has a coherent vertical slice rather than shipping-scale content. Comba
 - **World/encounters:** `WorldProgression` derives the six-biome, ten-location, six-corruption position and stage encounter from combat level. `WorldContentDatabase` supplies stable-ID locations, weighted normal pools, bosses and future challenge records; current non-forest slots are placeholder definitions.
 - **Statuses:** Poison ticks are mitigated as Void DOT while retaining Poison application and visual identity. Bleed/Ignite retain DOT behavior. Shock has five-stack Lightning triggers; Chill dynamically slows either actor's real gauge from actual Cold-hit strength.
 - **Relics/Rebirth:** `RelicInventory` owns permanent-within-save relic history, four active slots and current-cycle crafting authority. `RebirthManager` performs the combat-zone-60 reset transaction, provisions the relic-modified starter, and immediately saves it. New Game clears this entire layer.
-  - **Persistence:** `GamePersistence` owns schema-7 DTO capture/validation, stable run identity/seed, atomic files, backup recovery, sequential V1/V2/V3/V4/V5/V6 migration, legacy-affix/relic-value preservation, fragments, OriginRarity/Potential/Empowerment state, deterministic encounter restore and debounced autosaves. See [SAVE_STATE_CONTRACT.md](SAVE_STATE_CONTRACT.md).
+  - **Persistence:** `GamePersistence` owns schema-8 DTO capture/validation, stable run/class/weapon identity, atomic files, backup recovery, sequential V1/V2/V3/V4/V5/V6/V7 migration, historical value preservation, subclass state, deterministic encounter restore and debounced autosaves. See [SAVE_STATE_CONTRACT.md](SAVE_STATE_CONTRACT.md).
 - **UI:** `PaperBattleHUD` coordinates gameplay panels and time controls. Most feature panels are runtime-built over the authored paper battle prefab.
 
 Use [CODE_MAP.md](CODE_MAP.md) for file ownership and [DEVELOPER_HANDOFF.md](DEVELOPER_HANDOFF.md) for working entry points; this document deliberately does not repeat their line-by-line map.
@@ -135,7 +135,7 @@ Current Ancient currency-to-art assignments (visual only; relic semantics unchan
 
 ## 8. Current persistence
 
-Schema 7 writes `current-save.json`, `current-save.json.bak`, and `current-save.json.tmp` under `Application.persistentDataPath`. It has one current-run slot, validated atomic writes, primary→backup recovery, nondestructive PlayerPrefs V1 and sequential schema-2/3/4/5/6 migration, stable item/relic/passive/skill IDs, paired damage rolls, historical compatibility, fragments, OriginRarity/Potential/Empowered/special provenance, and a two-second mutation debounce.
+Schema 8 writes `current-save.json`, `current-save.json.bak`, and `current-save.json.tmp` under `Application.persistentDataPath`. It adds stable base-class, subclass milestone/selection, and weapon-type identity to the established atomic one-slot/backup model and sequential schema-2/3/4/5/6/7 migration.
 
 New Game confirms replacement, clears all gameplay and relic/rebirth meta, preserves independent preferences, and makes primary/backup belong to the new run. Rebirth preserves relic history while resetting its established run state. Restart is an in-memory current-level reset, not disk load. Mid-combat load reconstructs the same deterministic encounter from its beginning and restores recorded encounter-start HP/mana rather than live-frame state. See [SAVE_STATE_CONTRACT.md](SAVE_STATE_CONTRACT.md) for the field and failure contract.
 
@@ -207,4 +207,8 @@ The post-100 foundation keeps item level capped at 100. Empowerment unlocks per-
 
 `WorldContentArchitecture` supplies the authoritative formula, stable-ID serializable definitions, deterministic weighted encounter resolution, final-position post-360 fallback, and a ScriptableObject authoring seam. `ZoneManager` exposes derived biome/location/corruption labels and presentation; `BattleManager` selects the resolved archetype/boss definition before using the migrated prefab reference. Challenge encounter data is structurally separate and has no launcher or production content.
 
-The reference catalog resolves all levels 1–360 and stages 1–10, but deliberately reuses the six forest corruption sprites, `enemy.goblin`, and `boss.hobgoblin` across placeholder locations. Step 16 content authoring has not started. Save schema remains 7 because combat level already derives all new world coordinates.
+The reference catalog resolves all levels 1–360 and stages 1–10, but deliberately reuses the six forest corruption sprites, `enemy.goblin`, and `boss.hobgoblin` across placeholder locations.
+
+## Step 16 current state
+
+Six stable base classes, six stable weapon types, New Game class selection, signature starter routing, unrestricted cross-class weapon equipping, schema-8 class/weapon/subclass persistence, a two-slot weapon-skill queue, subclass/story-milestone seams, optional weapon-type affix restrictions, and passive extension metadata are implemented. Production skill mappings and subclass identities remain deliberately empty. See [CLASS_WEAPON_ARCHITECTURE.md](CLASS_WEAPON_ARCHITECTURE.md).

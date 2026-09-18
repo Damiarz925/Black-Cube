@@ -100,7 +100,11 @@ The target item journey is natural-drop selection and finite Crafting Potential 
 
 ## 20. Save / Persistence
 
-**CURRENTLY IMPLEMENTED:** schema-7 atomic primary/backup JSON, validated transactional restore, encounter-start resume, deterministic run identity, stable gear/relic state, and sequential V1→V2→V3→V4→V5→V6→V7 migration. Schema 7 persists OriginRarity, Potential, Empowered state/value, and boss-special provenance. New Game confirms replacement and clears run/relic history/currency as contracted.
+**CURRENTLY IMPLEMENTED:** schema-8 atomic primary/backup JSON, validated transactional restore, encounter-start resume, deterministic run identity, stable gear/relic/class/weapon state, and sequential V1→V2→V3→V4→V5→V6→V7→V8 migration. Schema 8 adds class, subclass-unlock/selection, and weapon-type identity. New Game confirms replacement and clears run/relic history/currency as contracted.
+
+### Step 16 scope lock
+
+V1 targets six base classes, six freely equippable weapon types, and exactly two authored active skills per weapon. The twelve final weapon-skill assignments remain TBD, as do the twelve production subclass identities/effects. The story-boss milestone hook exists, but the boss/content does not. No base-class innate stat bonuses or Accuracy stat ship in this step. See [CLASS_WEAPON_ARCHITECTURE.md](CLASS_WEAPON_ARCHITECTURE.md).
 
 ## 20A. Step 14.5 item/crafting content status
 

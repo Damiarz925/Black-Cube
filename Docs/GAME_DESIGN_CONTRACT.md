@@ -159,7 +159,11 @@ New Game clears relic history, active slots, cycle/rebirth history and Ancient c
 [SAVE_STATE_CONTRACT.md](SAVE_STATE_CONTRACT.md) and [RUNTIME_LIFECYCLE.md](RUNTIME_LIFECYCLE.md) are authoritative. Locked concepts are:
 
 - One logical current-run save with primary plus backup
-- Schema 7 and validated atomic writes, with sequential schema-2/3/4/5/6 migration, exact historical-affix preservation, fragment normalization, and origin/Potential/Empowerment persistence
+- Schema 8 and validated atomic writes, with sequential schema-2/3/4/5/6/7 migration, exact historical-affix preservation, fragment normalization, origin/Potential/Empowerment persistence, stable base-class/subclass state, and stable weapon types
+
+## Step 16 class/weapon contract
+
+V1 has six base classes and six signature weapon mappings, but any class may equip any weapon. Classes add no innate stats. Each weapon owns exactly two skill slots and the player has one replaceable next-attack queue. Final skill-to-weapon mappings and final subclass identities are not yet approved and remain unassigned production content. Story completion unlocks one class-valid subclass selection through `story.main.complete`; Rebirth preserves class and subclass state. Ranged weapon metadata ships without Accuracy, whose hit-chance design remains unresolved. See [CLASS_WEAPON_ARCHITECTURE.md](CLASS_WEAPON_ARCHITECTURE.md).
 - Explicit New Game overwrite confirmation
 - Full gameplay/meta wipe on New Game with preferences preserved
 - One canonical system for Save & Main Menu and Save & Quit
