@@ -59,7 +59,8 @@ public static class Step15WorldPlayCheck
         {
             Button load=ButtonNamed("Load Game Button");Require(!load.interactable,"Cold menu unexpectedly enabled Load.");
             Write("PASS cold Main Menu exposed New Game and correctly disabled Load without a save.");
-            SessionState.SetInt(StateKey,1);ButtonNamed("Start Game Button").onClick.Invoke();readyAt=EditorApplication.timeSinceStartup+1;return;
+            SessionState.SetInt(StateKey,1);ButtonNamed("Start Game Button").onClick.Invoke();
+            var menu=UnityEngine.Object.FindFirstObjectByType<MainMenuUI>();Require(menu!=null&&menu.ClassSelectionVisible,"New Game class selection did not open.");Require(menu.SelectClass(PlayerClassIds.Warrior),"Could not select compatibility Warrior class.");menu.StartSelectedClass();readyAt=EditorApplication.timeSinceStartup+1;return;
         }
         if(state==1&&scene.name==GameSceneNames.Gameplay&&GameManager.Instance!=null&&BattleManager.Instance!=null)
         {

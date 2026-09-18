@@ -113,6 +113,10 @@ public static class RuntimeLifecyclePlayChecks
                 bool confirm = GamePersistence.HasSave;
                 ButtonNamed("Start Game Button").onClick.Invoke();
                 if (confirm) ButtonNamed("Confirm Start New Game").onClick.Invoke();
+                var menu=UnityEngine.Object.FindFirstObjectByType<MainMenuUI>();
+                Require(menu!=null&&menu.ClassSelectionVisible,"New Game class selection did not open during lifecycle soak");
+                Require(menu.SelectClass(PlayerClassIds.Warrior),"Lifecycle soak could not select Warrior");
+                menu.StartSelectedClass();
             }
             Delay();
             return;

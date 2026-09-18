@@ -29,13 +29,16 @@ public readonly struct PassiveNodeDefinition
     public readonly float Magnitude;
     public readonly int PrerequisiteId;
     public readonly PassiveKeystone Keystone;
+    public readonly PassiveExtensionMetadata ExtensionMetadata;
 
     public PassiveNodeDefinition(int id, PassiveBranch branch, int position,
-        PassiveNodeSize size, float magnitude, int prerequisiteId, PassiveKeystone keystone = PassiveKeystone.None)
+        PassiveNodeSize size, float magnitude, int prerequisiteId, PassiveKeystone keystone = PassiveKeystone.None,
+        PassiveExtensionMetadata extensionMetadata = null)
     {
         Id = id; Branch = branch; Position = position; Size = size;
         Magnitude = magnitude; PrerequisiteId = prerequisiteId;
         Keystone = keystone;
+        ExtensionMetadata=extensionMetadata;
     }
 }
 
