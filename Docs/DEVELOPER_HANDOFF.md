@@ -1,8 +1,8 @@
 # Black Cube developer handoff
 
-## Step 14 current integration note
+## Step 15 current integration note
 
-Step 14.5 is the current repository baseline. Fresh runs and Rebirth share `PlayerController.EnsureStarterWeapon`; the unaided starter is 18–27 damage (22.5 average), 0.45 attacks/second, 5% base critical chance, and a deterministic minimum legal implicit. Rebirth unlocks from authoritative combat zone 60, creates a persisted level-1–100 relic from the reached zone, preserves active relics, applies their starter transformations, provisions exactly one starter, and then begins combat. Relic cards are full click/hover targets for equip/unequip and Ancient crafting. Equipment and tiered relic modifiers use `AffixTierWeightPolicy`; lower eligible tiers remain possible while expected quality rises with level. Persistence is schema 7, adding origin/Potential/Empowered/special provenance after schema 6's relic metadata. The authoritative v1 scope ledger and unresolved 360-world-content decisions are in [V1_CONTENT_CONTRACT.md](V1_CONTENT_CONTRACT.md).
+Step 15 is the current repository baseline. The V1 main world is structurally locked as six biomes × ten base locations × six corruption states = 360 combat levels. `WorldProgression` is the sole mapping authority, while `WorldContentDatabase` definitions provide stable IDs, weighted normal pools, bosses, presentations, future hooks, and separate optional challenge records. Current all-world forest/Goblin/Hobgoblin reuse is explicitly placeholder content. Persistence remains schema 7 because combat level derives the world position. The full contract is [WORLD_CONTENT_ARCHITECTURE.md](WORLD_CONTENT_ARCHITECTURE.md).
 
 ## Step 12.5G integration note
 
@@ -24,6 +24,7 @@ Read these documents in order before changing behavior:
 6. [RUNTIME_LIFECYCLE.md](RUNTIME_LIFECYCLE.md) — lifecycle, reset and transition rules.
 7. [SAVE_STATE_CONTRACT.md](SAVE_STATE_CONTRACT.md) — persistence rules.
 8. [PASSIVE_TREE.md](PASSIVE_TREE.md) — passive-tree specifics.
+9. [WORLD_CONTENT_ARCHITECTURE.md](WORLD_CONTENT_ARCHITECTURE.md) — world mapping, IDs, encounters, placeholders, and authoring validation.
 
 Code is evidence for current state, not automatic authority for intended design. If implementation and design disagree, report and register the discrepancy instead of silently changing either side.
 
@@ -49,15 +50,16 @@ Edit the main prefab for scene wiring. [PaperBattleSceneBuilder.cs](../Assets/Ed
 
 1. [PlayerStatSetup](../Assets/Scripts/PlayerStatSetup.cs) initializes baseline stats early (`DefaultExecutionOrder(-100)`). [HealthComponent](../Assets/Scripts/HealthComponent.cs) reads player Life. Enemy health uses its serialized `maxLife` instead.
 2. [GameManager](../Assets/Scripts/GameManager.cs) calls [PlayerController.EnsureStarterWeapon](../Assets/Scripts/PlayerController.cs) for fresh runs; Rebirth uses the same idempotent authority. The unaided template is 18–27 damage (average 22.5), 0.45 attacks/second, base crit 5%, plus a deterministic minimum legal implicit. Active relics may change its element, base damage, effective item level, and one-time Legendary outcome. [EquipmentManager](../Assets/Scripts/EquipmentManager.cs) applies global modifiers and informs the player which weapon is equipped.
-3. [GameManager](../Assets/Scripts/GameManager.cs) starts the session and combat level. [ZoneManager](../Assets/Scripts/ZoneManager.cs) selects the background. [BattleManager](../Assets/Scripts/BattleManager.cs) instantiates the normal enemy at its serialized spawn transform and initializes its components/gear.
+3. [GameManager](../Assets/Scripts/GameManager.cs) starts the session and combat level. [WorldProgression](../Assets/Scripts/WorldContentArchitecture.cs) derives biome/location/corruption/encounter, [ZoneManager](../Assets/Scripts/ZoneManager.cs) presents it, and [BattleManager](../Assets/Scripts/BattleManager.cs) resolves the stable-ID enemy/boss definition before instantiation.
 4. BattleManager fills separate player/enemy gauges and resolves turns. It ticks both actors' statuses before a turn's attack. Damage may kill an actor and synchronously change the encounter, so target-identity and life checks must remain after status and damage callbacks.
 5. [DamageReceiver](../Assets/Scripts/DamageReceiver.cs) deducts already-mitigated life and requests a popup. HealthComponent reports death to GameManager; `TryClaimEnemyDeath` prevents duplicate XP/loot callbacks.
 6. Nine normal kills trigger encounter stage ten in the boss slot; boss death advances the combat level. XP and loot are awarded before the next spawn. A player death opens [DeathMenuUI](../Assets/Scripts/DeathMenuUI.cs); restarting the current level resets encounter progress but keeps XP/skills.
 
 ```mermaid
 flowchart LR
-  GM[GameManager] --> Z[ZoneManager / forest image]
-  GM --> BM[BattleManager / gauges and spawns]
+  GM[GameManager] --> W[WorldProgression + definitions]
+  W --> Z[ZoneManager / location + corruption]
+  W --> BM[BattleManager / encounter definition]
   EQ[EquipmentManager] --> PC[PlayerController / attack snapshot]
   ST[StatsComponent] --> PC
   PC --> BM
@@ -115,7 +117,7 @@ Older PlayerIdle/PlayerAttack installers are archived experiments and may overwr
 
 ## Enemies, forest stages and progression
 
-Normal and boss selection are serialized `normalEnemyPrefab`/`bossEnemyPrefab` references on BattleManager in PaperBattle.prefab: [Goblin2D.prefab](../Assets/Prefabs/PaperBattle/Goblin2D.prefab) and [Hobgoblin2D.prefab](../Assets/Prefabs/PaperBattle/Hobgoblin2D.prefab). These apply across all six forest stages with the nine-normal-kills-then-stage-ten-boss cadence. Normal HP remains 250 and boss HP 500. Do not change random EnemyRarity to decide boss role: HealthComponent's spawned boss flag is authoritative.
+Normal and boss selection is definition-driven. Each location references an encounter table; stages 1–9 choose its weighted enemy-archetype pool deterministically, and stage 10 resolves its boss. The reference definitions use `enemy.goblin` and `boss.hobgoblin`; because those placeholder records intentionally contain no prefab asset, BattleManager falls back to the existing serialized [Goblin2D.prefab](../Assets/Prefabs/PaperBattle/Goblin2D.prefab) and [Hobgoblin2D.prefab](../Assets/Prefabs/PaperBattle/Hobgoblin2D.prefab). Authored definitions may directly supply prefabs later. Normal HP remains 250 and boss HP 500. Do not change random EnemyRarity to decide boss role: HealthComponent's spawned boss flag is authoritative.
 
 [PaperEnemyAnimationSet](../Assets/Scripts/PaperEnemyAnimationSet.cs) configures display name, rest/attack frames and popup offset. [GoblinAnimation.asset](../Assets/Art/PaperBattle/ForestEnemies/GoblinAnimation.asset) and [HobgoblinAnimation.asset](../Assets/Art/PaperBattle/ForestEnemies/HobgoblinAnimation.asset) feed PaperSpriteActor. The shared eight-frame gauge convention now also drives enemies; ResolveEnemyTurn selects impact immediately before actual damage, after status-kill/target guards. Enemy weapons are baked into their authored cels; the player's separate equipment attachment path remains independent. The resting enemy uses one stable pose and the attack cycle returns exactly to it.
 
@@ -129,7 +131,7 @@ Enemy gear generation rolls every candidate before selection. Each chosen slot r
 
 Step 10 optimizer projects actual Life/Life%, derived attributes, Void damage/mitigation, maximum-resistance caps, Hit Twice and expected Shock/Chill effects. Enemy candidate rolling rejects resource-only Mana, player active-skill levels and kill recovery before scoring. Deprecated Accuracy/Evasion/Block/Cooldown/Mana Cost leave new pools, while stable IDs and legacy item loading remain intact. Final scoring/balance weights remain later work.
 
-[ZoneManager.ForestBackgroundIndex](../Assets/Scripts/ZoneManager.cs) is `((max(1,level)-1)/10)%6`: levels 1–10 use 0%, 11–20 use 20%, through 51–60 at 100%; 61 returns to 0%. The combat level keeps increasing. Within each combat level, encounter stages1-9 are goblins and stage10 is the hobgoblin boss. GameManager.EncounterStage supplies this HUD number. ZoneManager.StageNumber is a legacy background-group field; it is not the encounter counter. The six sprites in [ForestCycle](../Assets/Art/PaperBattle/ForestCycle) control the current background; legacy zoneNames, ThemeSet and 3D plans do not override a valid six-sprite configuration. `generate3DScenery` stays false in the paper prefab.
+[WorldProgression](../Assets/Scripts/WorldContentArchitecture.cs) maps `z=clamp(level,1,360)-1` to biome `z/60`, corruption `(z%60)/10`, and location `(z%60)%10`. `ZoneManager.ForestBackgroundIndex` remains only a compatibility wrapper for existing corruption-themed UI. The HUD reads definition display names plus combat level, encounter stage, and explicit corruption percentage. The six sprites in [ForestCycle](../Assets/Art/PaperBattle/ForestCycle) are the current presentation fallback for all placeholder locations, not sixty completed location backgrounds. `generate3DScenery` stays false in the paper prefab.
 
 [PlayerProgression](../Assets/Scripts/PlayerProgression.cs) owns the 290-node passive tree. Existing IDs 0–279 remain stable; ten specialized keystones append 280–289 directly beyond their bridge terminals. `PassiveKeystoneState` recomputes all twenty keystone effects without mutating base stats. The outer travel ring exits laterally from both sides of every specialized terminal; each outer keystone remains a radial leaf and is never required for ring travel. Deep Freeze's maximum-effect increase remains a centralized zero-default tuning field pending balance. See [PASSIVE_TREE.md](PASSIVE_TREE.md) for graph, mechanics, art, zoom, and migration rules.
 
@@ -167,7 +169,7 @@ For focused checks, use the `Black Cube/Play Checks` menu matching Attack Stats,
 
 `AffixTierWeightPolicy` owns tier quality bias for both `ModManager` and `RelicRolls`. Tune that one policy rather than inserting item-specific probability code. Relic definitions now own variable tier lists; tier index 0 is reserved for preserved pre-schema-6 legacy rolls. `RelicInventory.LevelForZone` owns the 60→1 / 360→100 formula and starter element/bonus aggregation. `RelicSlotUI` owns the inventory-card pointer path; remove neither its root raycast image nor its Ancient-first click branch.
 
-The world/content audit is in [V1_CONTENT_CONTRACT.md](V1_CONTENT_CONTRACT.md). Do not balance post-100 enemies around an assumed gear system or treat 360 as approved world scope until the listed user decisions are resolved.
+The world/content ledger is [V1_CONTENT_CONTRACT.md](V1_CONTENT_CONTRACT.md). The 360-level structure is approved, but production biome art, enemy/boss rosters, and challenge encounters remain unauthored; do not balance around placeholder reuse.
 
 ## This batch's boundaries
 
@@ -181,3 +183,9 @@ All equipment creation must call `Gear.Initialize` so OriginRarity and full natu
 `SpecialAffixPoolDefinition` is the Step 15/16 seam for optional challenge content. Production content must supply stable pool/content/mod IDs and legal side/item data, then award a dedicated future catalyst. Do not add special definitions to `ModDatabase` normal generation. The current service replaces a same-side non-Empowered explicit on Legendary gear, preserves count/implicit, and spends 3 Potential on success.
 
 Remaining approved work includes actual challenge encounters and acquisition, production special pools, exact rare implicit-manipulation semantics, final skill/item balance, and inventory match-scoring UX. Item level must stay at or below 100. No Step-13-scale simulation should be repeated until the major V1 systems/content are present and the user explicitly requests final balance.
+
+## Step 15 handoff
+
+Use [WORLD_CONTENT_ARCHITECTURE.md](WORLD_CONTENT_ARCHITECTURE.md) before authoring Step 16 content. Add definitions and stable references; do not add biome/location arithmetic to managers or UI. A biome must cover its exact 60-level range and own ten base locations, every location must map all six corruption tiers and a valid encounter table, and every table must resolve normal and boss references.
+
+Run **Black Cube → Validation → Validate World Content** after content edits. Challenge encounters remain outside `WorldProgression` and require a future launcher; do not squeeze them into the 9+1 cadence. Levels above 360 intentionally reuse level-360 content while retaining the actual combat level for scaling and persistence.

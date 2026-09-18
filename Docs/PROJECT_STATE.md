@@ -32,7 +32,9 @@ Current-reality claims use this evidence order: (1) verified source code, (2) sc
 
 **Fresh Step 13 evidence (2026-09-16):** final-source EditMode passed **248/248** with no failures/skips (`Logs/Step13-final-correction-editmode.xml`); itemization passed **1,312/1,312** cases; reference validation, four synchronous checks, the six-entry lifecycle/Pause soak and Main Menu/New Game/Load fixture passed. Final production-reference simulation completed five tuning seeds (39,600 rows) and three untouched holdouts (23,760 rows); a separate 1,500-build high-level enemy audit recorded optimizer diversity. The strict Windows x64 build succeeded with zero errors and 523 warnings at `Builds/Step13Windows/BlackCube.exe`; the exact player reached Main Menu and remained responsive through a 30-second headless smoke. Detailed targets, deviations and playtest risks are in [CORE_BALANCE_BASELINE.md](CORE_BALANCE_BASELINE.md).
 
-Known baseline limits include one logical save slot; clean encounter-boundary rather than exact-frame restoration; functional/basic runtime-built menu overlays; two active enemy archetypes; six repeating forest backgrounds; no final campaign/content count; and the incomplete mechanics listed below.
+**Fresh Step 15 evidence (2026-09-18):** focused world/encounter tests passed **16/16** and the complete EditMode suite passed **302/302** with no failures/skips. World-content validation covered all 360 levels, six corruption tiers, ranges, IDs, enemy pools and stage-10 bosses with zero errors. Reference validation passed with zero failures. A real-scene cold Menu → New Game → level 1/61 mapping → save → Menu → Load fixture restored the same derived level-61 world position. The strict Windows x64 build succeeded with zero errors and 523 warnings at `Builds/Step15Windows/BlackCube.exe`; its hidden standalone player remained alive and responsive through the requested ten-second startup smoke. No balance simulations were run.
+
+Known baseline limits include one logical save slot; clean encounter-boundary rather than exact-frame restoration; functional/basic runtime-built menu overlays; only one production normal enemy and boss; six forest corruption images reused by placeholder world definitions; and the incomplete mechanics listed below.
 
 ## 2. Current product state
 
@@ -51,7 +53,8 @@ The game has a coherent vertical slice rather than shipping-scale content. Comba
 - **Inventory/equipment:** `Inventory` owns unequipped run gear and pickup filtering; `EquipmentManager` owns eight equipped slots and projects item modifiers onto the current player. Stable gear IDs support persistence.
 - **Crafting:** `CurrencyInventory` owns ordinary/Ancient stacks and transient armed intent. `EquipmentCrafting` and `AncientRelicCrafting` validate, mutate, consume, and checkpoint successful outcomes.
 - **Progression:** `PlayerProgression` owns level, XP, passive points and 290 binary allocations. It rebuilds stats and keystone projections when allocations change.
-- **Skills:** seven catalog skills can be selected one at a time and cast from the Skills panel when mana and a living encounter are available. Auto-attacks continue independently.
+- **Skills:** seven catalog skills can be selected one at a time and queued from the Skills panel to replace the next scheduled basic attack.
+- **World/encounters:** `WorldProgression` derives the six-biome, ten-location, six-corruption position and stage encounter from combat level. `WorldContentDatabase` supplies stable-ID locations, weighted normal pools, bosses and future challenge records; current non-forest slots are placeholder definitions.
 - **Statuses:** Poison ticks are mitigated as Void DOT while retaining Poison application and visual identity. Bleed/Ignite retain DOT behavior. Shock has five-stack Lightning triggers; Chill dynamically slows either actor's real gauge from actual Cold-hit strength.
 - **Relics/Rebirth:** `RelicInventory` owns permanent-within-save relic history, four active slots and current-cycle crafting authority. `RebirthManager` performs the combat-zone-60 reset transaction, provisions the relic-modified starter, and immediately saves it. New Game clears this entire layer.
   - **Persistence:** `GamePersistence` owns schema-7 DTO capture/validation, stable run identity/seed, atomic files, backup recovery, sequential V1/V2/V3/V4/V5/V6 migration, legacy-affix/relic-value preservation, fragments, OriginRarity/Potential/Empowerment state, deterministic encounter restore and debounced autosaves. See [SAVE_STATE_CONTRACT.md](SAVE_STATE_CONTRACT.md).
@@ -66,7 +69,7 @@ Use [CODE_MAP.md](CODE_MAP.md) for file ownership and [DEVELOPER_HANDOFF.md](DEV
 3. **Gameplay:** level 1 begins with the authored 64–96 starter weapon, now carrying one legal permanent implicit without randomized overrides to its base range, speed or crit. Separate player/enemy gauges produce automatic turns; the player may inspect panels, change the build, or cast the selected active skill.
 4. **Encounter rewards:** an enemy death is claimed once, awards XP, independently rolls a 50% equipment drop and 10% chances for each ordinary currency, then advances and checkpoints.
 5. **Boss cadence:** nine normal enemies are followed by the boss as encounter stage 10. Boss death advances the combat level and starts a new normal encounter.
-6. **Presentation progression:** six forest images each cover ten combat levels and repeat after level 60; combat levels themselves continue.
+6. **World progression:** each biome spans six corruption bands of ten locations. The current reference catalog reuses the matching six forest images, Goblin, and Hobgoblin until production definitions replace placeholders.
 7. **Death/Restart:** Death Menu shows killer details. Restart resets the current combat level to normal encounter 1 and full player resources while retaining progression, build, currencies, skill and relic meta.
 8. **Rebirth:** at combat zone 60+, confirmation clears run inventory/equipment/currencies/progression, creates the next-cycle levelled relic, grants one of each Ancient operation, returns to player level 1 with exactly one relic-modified starter, and saves. Existing relic history/slots remain.
 9. **Save/exit:** Pause Menu Save & Main Menu and Save & Quit use the same canonical transactional checkpoint and do not leave gameplay when saving fails.
@@ -122,6 +125,7 @@ Current Ancient currency-to-art assignments (visual only; relic semantics unchan
 
 - **Active enemy:** Goblin normal prefab with authored idle/attack/hit presentation.
 - **Active boss:** Hobgoblin boss prefab with authored idle/attack presentation.
+- **World definitions:** six biome definitions, sixty base-location definitions, six explicit corruption tiers, six encounter tables, and complete 1–360 mappings. Only the Forest/Goblin/Hobgoblin references are production examples; the rest are marked placeholders.
 - **Legacy inactive prefabs:** Ghoul2D and GhoulBoss2D remain in the repository but are not wired into the active PaperBattle slots.
 - **Environment:** one forest thematic family represented by six corruption/progression images: 0%, 20%, 40%, 60%, 80%, 100%. Each lasts ten combat levels, then the sequence repeats.
 - **Skills:** Heavy Strike, Ice Strike, Lightning Strike, Fireball, Envenom, Shiv and Immolate.
@@ -178,7 +182,7 @@ Generated reports are written to `Logs` or `ReviewCaptures`; check timestamps be
 
 ## 12. Roadmap position
 
-Steps 1–13 completed their requested gates. Step 14 adds the v1 scope ledger, starter/Rebirth/relic progression, tier quality weighting, and schema 6. Step 14.5 adds queued skill replacement and the schema-7 finite-crafting/Empowerment foundation. See [V1_CONTENT_CONTRACT.md](V1_CONTENT_CONTRACT.md). The 360-level world proposal is not locked because existing authoritative documents only confirm the current repeating forest family; biome/scene counts remain user decisions.
+Steps 1–13 completed their requested gates. Step 14 adds the v1 scope ledger, starter/Rebirth/relic progression, tier quality weighting, and schema 6. Step 14.5 adds queued skill replacement and the schema-7 finite-crafting/Empowerment foundation. Step 15 locks and implements the data-driven six-biome × ten-location × six-corruption mapping while retaining placeholder content. See [V1_CONTENT_CONTRACT.md](V1_CONTENT_CONTRACT.md) and [WORLD_CONTENT_ARCHITECTURE.md](WORLD_CONTENT_ARCHITECTURE.md).
 
 ### Step 14 progression delta
 
@@ -198,3 +202,9 @@ The active skill button now queues a single replacement for the next scheduled b
 Equipment now owns origin rarity and finite Crafting Potential (natural N/M/R/L: 6/8/10/14). Ordinary crafting spends centralized success-only costs, upgrades do not increase the origin maximum, and tooltips expose current/max Potential. Schema 7 persists and validates these fields while schema-6 migration preserves old rolls and grants full current-rarity Potential.
 
 The post-100 foundation keeps item level capped at 100. Empowerment unlocks per-item caps at 120/160/210/260/310/360, converts only eligible T1 numeric explicits to authored or 1.25× ranges, and locks them against ordinary reroll/remove. Empowerment Catalyst exists with placeholder presentation and persistence but no production source. Stable boss-special pool/replacement data and a 3-Potential Legendary service exist; no bosses or production pools were added. Final skill balance, challenge content, rare implicit manipulation, and inventory-overload UX remain later work.
+
+## Step 15 current state
+
+`WorldContentArchitecture` supplies the authoritative formula, stable-ID serializable definitions, deterministic weighted encounter resolution, final-position post-360 fallback, and a ScriptableObject authoring seam. `ZoneManager` exposes derived biome/location/corruption labels and presentation; `BattleManager` selects the resolved archetype/boss definition before using the migrated prefab reference. Challenge encounter data is structurally separate and has no launcher or production content.
+
+The reference catalog resolves all levels 1–360 and stages 1–10, but deliberately reuses the six forest corruption sprites, `enemy.goblin`, and `boss.hobgoblin` across placeholder locations. Step 16 content authoring has not started. Save schema remains 7 because combat level already derives all new world coordinates.

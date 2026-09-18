@@ -18,11 +18,11 @@ Black-Cube is an idle/auto-battle action RPG centered on:
 - Itemization and gear crafting
 - A large passive tree
 - Repeated encounter and combat-level progression
-- Active skills layered over automatic attacks
+- Active skills queued to replace scheduled automatic attacks
 - Rebirth and relic-based meta progression
 - A stylized layered paper/cut-paper/storybook presentation
 
-Basic attacks continue automatically without active input. Active skills supplement that loop rather than replace it. A more directly controlled top-down or bullet-hell boss mode has been discussed, but it is not locked for the current core or v1 scope.
+Basic attacks continue automatically without active input. Activating the equipped skill queues it to replace the next scheduled basic attack; it is not an additional attack. A more directly controlled top-down or bullet-hell boss mode has been discussed, but it is not locked for the current core or v1 scope.
 
 ## 3. Core gameplay loop
 
@@ -37,7 +37,7 @@ Moment-to-moment input should focus on build decisions, inspection, crafting, ac
 - Boss defeat advances the combat level and begins the next level's normal sequence.
 - Player and enemy damage use the same broad stat/damage-context language, while their exact sources may differ.
 - Active skills may convert damage, add hits/projectiles, specialize ailments, and consume mana.
-- The total campaign length and shipping counts of zones, enemies and bosses are deliberately not locked here.
+- V1 main progression is 360 combat levels. Production enemy and boss roster counts remain unresolved.
 
 ## 5. Damage types
 
@@ -211,9 +211,11 @@ Do not guess rules for:
 
 The resolved Step 10 rules above supersede the removed items from this unresolved list. Remaining items belong to later design/content steps unless a specific authority assigns them otherwise.
 
-## 21. Content scope intentionally deferred
+## 21. V1 world structure
 
-The Step 14 ledger is [V1_CONTENT_CONTRACT.md](V1_CONTENT_CONTRACT.md). The proposed 6 biomes × 10 scenes × 6 corruption variants (360 levels) is not promoted to locked scope because this contract previously deferred total campaign length and current production only proves one six-state forest family. Rebirth uses zone 360 solely as its level-100 reference. Enemy/boss rosters, whether seven skills are the final set, active boss-mode classification, and post-ilvl-100 progression remain explicit user decisions.
+The V1 main progression is locked at six biomes × ten base locations per biome × six corruption states (0/20/40/60/80/100%) = 360 combat levels. Within a biome, levels are ordered in six ten-location corruption bands. Each combat level retains the nine-normal-plus-stage-10-boss loop. [WORLD_CONTENT_ARCHITECTURE.md](WORLD_CONTENT_ARCHITECTURE.md) is the authoritative mapping and authoring contract. Current all-world Goblin/Hobgoblin/forest reuse is explicitly placeholder content, not completion of the V1 roster or art set.
+
+Combat levels above 360 use the final authored table as a safe endless fallback while retaining their numerical level; exact post-360 gameplay is unresolved. Enemy/boss rosters, whether seven skills are the final set, and active boss-mode classification remain explicit decisions.
 
 ## 21A. Step 14 progression rules
 
@@ -236,6 +238,14 @@ The Step 14 ledger is [V1_CONTENT_CONTRACT.md](V1_CONTENT_CONTRACT.md). The prop
 - Deep endgame must eventually offer an extremely rare, bounded way to repair or replace an implicit. Ordinary crafting must remain unable to do so; exact source and operation semantics are deliberately deferred.
 - The levels 1–100 item journey is finding better bases/implicits/natural explicits and finitely repairing promising drops. Post-100 is refining ilvl-100 gear through Empowerment, optional challenge-boss specialization, and eventually rare implicit repair. A zone-360 aspiration is a player-built Legendary with six strong explicits, several/all Empowered, and legal boss-special affixes—not one astronomically perfect natural drop.
 - Inventory overload remains a V1 UX requirement. Later work should extend highlighting, pickup filters, auto-dismantle, and Codex data with desired-modifier profiles, match scoring, visual ranking, and stronger criteria; Step 14.5 adds no replacement loot-filter UI.
+
+## 21C. Step 15 encounter/content contract
+
+- Combat level is the sole persisted main-world coordinate. Biome, base location, corruption tier, encounter table, and label are derived through `WorldProgression`; do not duplicate its arithmetic or add redundant save fields.
+- Stable content IDs, never scene-object names, identify biomes, locations, encounter tables, enemy archetypes, bosses, and challenge content.
+- Main progression tables provide weighted normal pools for stages 1–9 and one boss reference for stage 10. Definitions reserve future skill, modifier, reward, story, Codex, environment, and presentation hooks without implementing those systems prematurely.
+- Optional challenge encounters are progression-independent records with unlock, entry resource, boss, reward resource, special-affix pool, and repeatability data. They do not enter the main 9+1 loop.
+- Ten base visuals per biome may combine with six corruption presentations; 360 unique background files are neither required nor intended.
 
 | System | Intended design | Current implementation | Status | Roadmap step |
 |---|---|---|---|---|

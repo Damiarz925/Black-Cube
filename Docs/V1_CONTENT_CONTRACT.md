@@ -1,6 +1,6 @@
 # Black-Cube v1 content contract
 
-This is the Step 14 scope ledger. Status describes the repository as verified against the current design documents; it does not turn a proposal into approved scope.
+This is the V1 scope ledger through Step 15. Status distinguishes implemented architecture, placeholder references, and production-complete content.
 
 ## 1. V1 Product Definition
 
@@ -12,9 +12,9 @@ This is the Step 14 scope ledger. Status describes the repository as verified ag
 
 ## 3. World / Biomes
 
-**CURRENTLY IMPLEMENTED:** one forest family, six corruption/progression backgrounds (0/20/40/60/80/100%), ten combat levels per background, repeating every 60 levels.
+**LOCKED FOR V1 / ARCHITECTURE IMPLEMENTED:** six biomes × ten base locations per biome × six explicit corruption presentations (0/20/40/60/80/100%) = 360 main-progression combat levels. One resolver derives biome, location, corruption, stage, and encounter from combat level. Levels above 360 safely reuse the final authored position as an endless fallback pending a later post-360 design.
 
-**USER DECISION REQUIRED:** the proposed v1 world is six biomes × ten distinct scenes per biome × six corruption variants = 360 combat levels. Existing authoritative documents do not approve those biome/scene counts and explicitly say final campaign length is unlocked. Therefore 360 is the current relic-scaling reference maximum, not yet a locked content commitment.
+**PLACEHOLDER CONTENT:** the current reference catalog maps all positions but reuses the paper forest, Goblin, and Hobgoblin. It does not represent completed biome/location/enemy/boss production content. See [WORLD_CONTENT_ARCHITECTURE.md](WORLD_CONTENT_ARCHITECTURE.md).
 
 ## 4. Encounter Structure
 
@@ -72,7 +72,7 @@ Starter-specific stable families can select Fire/Cold/Lightning/Void base identi
 
 **LOCKED FOR V1 / CONTENT NOT YET IMPLEMENTED:** optional challenge bosses require an entry/farming loop and reward Empowerment plus boss-specific crafting. Stable special-affix pool and same-side Legendary replacement architecture exists, but actual bosses, pool contents, catalysts, encounter rules, and rewards remain future content. Deep endgame also requires an extremely rare bounded implicit-repair/replacement path; ordinary crafting cannot alter implicits.
 
-The target item journey is natural-drop selection and finite Crafting Potential at levels 1–100, then player-built refinement of strong ilvl-100 gear. Zone 360 is a progression reference, not authorization to add ilvl 360 gear or claim that 360 authored levels already exist.
+The target item journey is natural-drop selection and finite Crafting Potential at levels 1–100, then player-built refinement of strong ilvl-100 gear. Zone 360 is the final V1 main-world mapping point, but equipment item level remains capped at 100 and the current placeholder catalog is not authored world completion.
 
 ## 14. UI / Menus / Codex
 
@@ -122,9 +122,7 @@ All locked systems pass focused and full regression; every required biome/scene/
 
 ## 24. Unresolved User Decisions
 
-1. Approve or revise 6 biomes × 10 scenes × 6 variants and the 360-level total.
-2. Approve required normal-enemy and boss rosters/mechanics, including final boss.
-3. Confirm whether the seven current skills are the complete v1 set.
-4. Classify active top-down/bullet-hell boss play as v1 or post-v1.
-5. Choose post-ilvl-100 player/equipment progression before balancing levels 100–360.
-6. Approve audio, tutorial, accessibility/input, achievement, and final art scope/counts.
+1. Approve required normal-enemy and boss rosters/mechanics, including final boss.
+2. Confirm whether the seven current skills are the complete v1 set.
+3. Classify active top-down/bullet-hell boss play as v1 or post-v1.
+4. Approve audio, tutorial, accessibility/input, achievement, and final art scope/counts.
