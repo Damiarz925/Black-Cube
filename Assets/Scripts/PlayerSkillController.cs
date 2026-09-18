@@ -7,13 +7,17 @@ public sealed class PlayerSkillController : MonoBehaviour
 {
     [SerializeField] private PlayerSkillCatalog catalog;
     [SerializeField] private List<PlayerSkillDefinition> skills = new();
+    private readonly List<PlayerSkillDefinition> weaponSkills = new(2);
     public IReadOnlyList<PlayerSkillDefinition> Skills => skills;
+    public IReadOnlyList<PlayerSkillDefinition> WeaponSkills => weaponSkills;
     public PlayerSkillDefinition SelectedSkill { get; private set; }
     public PlayerSkillDefinition QueuedSkill { get; private set; }
     public bool HasQueuedSkill => QueuedSkill != null;
     public ManaComponent Mana { get; private set; }
     public event System.Action SelectionChanged;
     public event System.Action QueueChanged;
+    public event System.Action WeaponSkillsChanged;
+    private PlayerController player;
 
     private void Awake()
     {
@@ -22,6 +26,24 @@ public sealed class PlayerSkillController : MonoBehaviour
         if (catalog != null && catalog.skills != null && catalog.skills.Count > 0)
             skills = catalog.skills;
         if (skills == null || skills.Count == 0) skills = PlayerSkillDefinition.CreateDefaults();
+        player=GetComponent<PlayerController>();
+        if(player!=null)player.AttackChanged+=RefreshWeaponSkills;
+        RefreshWeaponSkills();
+    }
+
+    private void OnDestroy(){if(player!=null)player.AttackChanged-=RefreshWeaponSkills;}
+
+    public void RefreshWeaponSkills()
+    {
+        string weaponTypeId=player?.EquippedWeapon?.WeaponTypeId;
+        var ids=WeaponSkillBindings.For(weaponTypeId);
+        var next=new List<PlayerSkillDefinition>(2);
+        foreach(var id in ids)
+        {foreach(var definition in skills)if(definition!=null&&definition.id==id){next.Add(definition);break;}if(next.Count==2)break;}
+        bool changed=next.Count!=weaponSkills.Count;
+        if(!changed)for(int i=0;i<next.Count;i++)if(next[i]!=weaponSkills[i]){changed=true;break;}
+        if(!changed)return;
+        weaponSkills.Clear();weaponSkills.AddRange(next);ClearQueuedSkill();WeaponSkillsChanged?.Invoke();
     }
 
     public bool TrySelect(PlayerSkillDefinition skill)
@@ -112,6 +134,15 @@ public sealed class PlayerSkillController : MonoBehaviour
         QueuedSkill = SelectedSkill;
         QueueChanged?.Invoke();
         return true;
+    }
+
+    public bool TryQueueWeaponSkill(int index)
+    {
+        if(index<0||index>=weaponSkills.Count||BattleManager.Instance==null)return false;
+        PlayerSkillDefinition skill=weaponSkills[index];float cost=ManaCost(skill);
+        if(!BattleManager.Instance.CanCastPlayerSkill||!Mana.CanSpend(cost))return false;
+        if(QueuedSkill==skill)return true;
+        QueuedSkill=skill;QueueChanged?.Invoke();return true;
     }
 
     // Compatibility entry point retained for existing UI/tests; skills no longer cast instantly.
