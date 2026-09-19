@@ -260,7 +260,8 @@ Combat levels above 360 use the final authored table as a safe endless fallback 
 | Maximum resistance | 75% baseline, matching/all additions and 90% hard cap before penetration. | Step 10 shared calculator includes Void and both actors; fresh regression passes. | Reconciled for v1. | 10 |
 | Projectile Amount / Bullet Hell | Fireball gains one independent target-snapshotted projectile per whole passive addition. | Step 10 launcher consumes the count and keystone contribution; fresh regression passes. | Reconciled for v1. | 10 |
 | Enemy Hit Twice | One extra legitimate, nonrecursive hit against the same living actor. | Step 10 symmetric enemy path and optimizer valuation; fresh regression passes. | Reconciled for v1. | 10 |
-| Cooldowns | No final cooldown model approved. | Recovery stays as legacy stable ID but leaves new pools/filter; skills have no cooldown timer. | Intentionally deprecated for v1. | 10 |
+| Cooldowns | Attack Speed and Cast Speed remain distinct. | Step 17 appends Cast Speed and consumes it only for eligible independent Staff AutoCooldown skills; legacy Cooldown Recovery remains unchanged. | Implemented first pass; final Staff skills/balance remain TBD. | 17 |
+
 | Attributes, skill levels, kill resources | Use the locked Step 10 formulas and exactly-once death claim. | Step 10 derived projection, seven skill levels and kill recovery wired; fresh regression passes. | Reconciled for v1. | 10 |
 | Minions | Require entity, ownership and combat design. | Only a Minion damage scope/stat calculation exists; there are no minions. | Infrastructure only. | 9–10/content TBD |
 | Void / Poison | Void is a core element; Poison is Void DOT ailment with legacy enum compatibility. | Step 10 append-only stats 114–119 and direct/tick/gear/UI/optimizer mappings; fresh regression passes. | Reconciled for v1; final balance later. | 10 |
@@ -268,3 +269,9 @@ Combat levels above 360 use the final authored table as a safe endless fallback 
 | Enemy scaling | Enemies should scale intentionally across progression; exact balance is later. | Central profile applies authored-seed Life/outgoing-damage, Armour and ordinary elemental/Void resistance before independently generated equipment. | Structural Step 11 baseline; Step 13 balance remains. | 11, then 13 |
 | Prestige (resolved) | Rebirth is the sole intended meta reset. | Step 8 removed the level-10 offer branch, placeholder continuation, public reset method and empty reward hook. Boss clears advance directly at every combat level. | Resolved; retain this historical row to prevent regression. | Completed in 8 |
 | Dismantle rewards | Normal none; Magic one N→M fragment; Rare one M→R fragment; Legendary two M→R fragments; ten matching fragments make one orb. | Step 13 implements one authoritative manual/auto path, persistence and UI counts; schema 6 retains the fragment fields. | Implemented; historical stacked scrap conversion remains for old saves only. | Completed in 13 |
+
+## Step 17 contract additions
+
+The shared Passive Tree V2 has 366 nodes, six permanent class starts, broad generic access with thematic density, a 1.60 weapon-specialization premium, rare keystones, and 100 earned points at level 100. Respecs are free and graph-safe. Staff AutoCooldown/Cast Speed, Bow Precision/projectile latency, Axe Rage/Rage Finisher, and local Weapon DPS are implemented first passes, not final tuning.
+
+Six character slots are character-owned save containers; class, progression, inventory, relics, and passives do not cross slots. Ordinary preferences remain global. Schema 9 grants migrated characters a one-time full Passive Tree V2 refund without changing non-passive progression.

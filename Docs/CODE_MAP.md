@@ -199,6 +199,21 @@ Every runtime/editor C# file and art-tool C#/Python/PowerShell file is listed be
 | [Step14_5FoundationTests.cs](../Assets/Tests/Editor/Step14_5FoundationTests.cs) | Deterministic queue, Potential, Empowerment, Catalyst, and special-affix contract coverage. |
 
 Boss-special data is deliberately plain serializable architecture, not a production pool asset. Deep-endgame implicit manipulation is documented only; `Gear` still represents the implicit separately so a future bounded authority can replace it without exposing ordinary crafting access.
+
+## Step 17 passive/weapon/save map
+
+| File | Responsibility |
+|---|---|
+| [PassiveTreeDefinition.cs](../Assets/Scripts/PassiveTreeDefinition.cs) | Generates the authoritative 366-node V2 graph, effects, regions, positions, stable IDs, weapon restrictions, and transformation metadata. |
+| [PlayerProgression.cs](../Assets/Scripts/PlayerProgression.cs) | Exact level-owned point budget, selected-class origin, graph-safe allocation/refunds, Refund All, and equipped-weapon-gated stat projection. |
+| [SkillTreeUI.cs](../Assets/Scripts/SkillTreeUI.cs) | V2 coordinate rendering, pan/zoom/tooltips/states/connections, class landmarks, and Refund All confirmation. |
+| [WeaponMechanics.cs](../Assets/Scripts/WeaponMechanics.cs) | Central Bow/projectile and Axe Rage/Rage-Finisher profiles/runtime authority. |
+| [PlayerSkillController.cs](../Assets/Scripts/PlayerSkillController.cs) | QueuedAttackReplacement plus two independent AutoCooldown slots and Cast Speed formula. |
+| [BattleManager.cs](../Assets/Scripts/BattleManager.cs) | Target-snapshotted projectiles, Precision composition, Rage event multiplier/generation, and production impact resolution. |
+| [GamePersistence.cs](../Assets/Scripts/GamePersistence.cs) | Schema 9, six active-slot files, Slot 1 legacy migration, summaries, and V1 passive refund migration. |
+| [MainMenuUI.cs](../Assets/Scripts/MainMenuUI.cs) | Six-slot New Game/Load selection, occupied-slot confirmation, class selection, and slot summaries. |
+| [Step17TestRunner.cs](../Assets/Editor/Step17TestRunner.cs) | Tree report/overview, content/reference validation, and Step 17 Windows build entry points. |
+| [Step17RealSceneChecks.cs](../Assets/Editor/Step17RealSceneChecks.cs) | Focused production-scene class/passive/weapon/Bow/Staff/Rage smoke. |
 # Step 16 ownership additions
 
 - `ClassWeaponArchitecture.cs`: stable class/weapon IDs and catalogs, placeholder weapon profiles, New Game launch selection, persistent player identity, subclass fixture/catalog seam, two-slot weapon skill bindings, and passive extension metadata.

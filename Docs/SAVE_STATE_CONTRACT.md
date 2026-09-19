@@ -163,7 +163,7 @@ Use transaction-aware immediate checkpoints plus a short debounce for ordinary p
 
 ## 14. Version and migration policy
 
-The shipped storage envelope is schema 8 and is independent from the historical `BlackCube.Save.V1` key. Schema 4 distinguished strict new implicit/explicit legality from schema-3 historical side-cap exceptions; schema 5 adds fragments; schema 6 adds relic level/tier; schema 7 adds OriginRarity, Potential, Empowerment, and boss-special provenance; schema 8 adds base-class, subclass milestone/selection, and weapon-type identity. Add sequential pure migrations (`V2 -> V3 -> V4 -> V5 -> V6 -> V7 -> V8 -> ... -> current`) on DTOs before validation; never migrate by partially applying old data to live objects.
+The shipped storage envelope is schema 9 and is independent from the historical `BlackCube.Save.V1` key. Schema 4 distinguished strict new implicit/explicit legality from schema-3 historical side-cap exceptions; schema 5 adds fragments; schema 6 adds relic level/tier; schema 7 adds OriginRarity, Potential, Empowerment, and boss-special provenance; schema 8 adds base-class, subclass milestone/selection, and weapon-type identity; schema 9 clears V1 passive allocations and refunds exactly one earned point per level for V2. Keep migrations sequential and DTO-only before validation.
 
 Schema-6 gear migrates without rerolling or changing any affix/value: its current rarity becomes legacy OriginRarity, it receives that rarity's full 6/8/10/14 Potential, and its preexisting modifiers remain ordinary/unempowered/non-special. Queued active-skill state is combat-transient and is never serialized; a restored encounter starts with no queued skill.
 
@@ -179,7 +179,7 @@ Write serialized bytes to a temporary file in the same directory, flush/close, p
 
 Gameplay snapshots are UTF-8 JSON files under `Application.persistentDataPath`, using temp + atomic replacement and primary + backup. Small user preferences remain in `PlayerPrefs`, including the inventory/mod-filter preference record.
 
-The exact logical files are `current-save.json`, `current-save.json.bak`, and `current-save.json.tmp`. Do not expose absolute paths in gameplay UI; log them for diagnostics.
+Each character slot owns `slot-01.json` through `slot-06.json`, plus its own `.bak` and `.tmp`. The active slot is the only capture/load target. The prior `current-save.json`/`.bak` pair is read as a legacy single character and copied non-destructively into Slot 1 once; the historical source is retained. Do not expose absolute paths in gameplay UI; log them for diagnostics.
 
 ## 17. Derived versus serialized state
 

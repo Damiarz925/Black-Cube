@@ -212,3 +212,11 @@ The reference catalog resolves all levels 1–360 and stages 1–10, but deliber
 ## Step 16 current state
 
 Six stable base classes, six stable weapon types, New Game class selection, signature starter routing, unrestricted cross-class weapon equipping, schema-8 class/weapon/subclass persistence, a two-slot weapon-skill queue, subclass/story-milestone seams, optional weapon-type affix restrictions, and passive extension metadata are implemented. Production skill mappings and subclass identities remain deliberately empty. See [CLASS_WEAPON_ARCHITECTURE.md](CLASS_WEAPON_ARCHITECTURE.md).
+
+## Step 17 current state
+
+Passive Tree V2 ships with 366 nodes, six class starts, six bridge regions, a shared center, explicit generated coordinates, stable `tree.v2.*` IDs, free graph-safe respecs, and a confirmed Refund All action. Level 1 owns one passive point and level 100 owns exactly 100. Weapon effects use a centralized 1.60 specialization premium and activate only for the matching equipped type. See [PASSIVE_TREE_V2.md](PASSIVE_TREE_V2.md).
+
+Cast Speed/Staff AutoCooldown, Bow Precision and projectile latency/barrages, Axe Rage and Rage Finisher, and local Average Weapon DPS are production systems. Final Staff skills and all other final weapon-skill assignments remain unapproved. See [WEAPON_MECHANICS.md](WEAPON_MECHANICS.md).
+
+Persistence is schema 9 with six independent character slots, per-slot primary/backup/temp files, summaries and explicit selected-slot load/save. Legacy `current-save.json` migrates non-destructively to Slot 1 once. Schema 8 clears V1 passive allocations and grants the character's full level-owned V2 point total. Global preferences remain outside character files.

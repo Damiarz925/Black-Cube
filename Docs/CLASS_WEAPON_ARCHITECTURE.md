@@ -31,10 +31,10 @@ Each base class exposes exactly two stable subclass-slot references. `SubclassDe
 
 ## Passive-tree seam
 
-`PassiveExtensionMetadata` supports stable sections, class starts, affinity tags, subclass requirements, specialization/exclusivity groups, and travel-node classification. `PassiveNodeDefinition` can carry this metadata without changing current nodes, effects, IDs, edges, allocation, or save behavior. Allocation validity operates on graph adjacency and root connections rather than a required circular geometry. The Step 17 visual/topology redesign has not started.
+`PassiveExtensionMetadata` supports stable sections, class starts, affinity tags, subclass requirements, specialization/exclusivity groups, travel classification, stable transformation identity, and optional transformed effects. Passive Tree V2 now uses explicit graph positions/edges and selected-class reachability; every production node is transformation-ready while all transformed effect sets remain empty. See [PASSIVE_TREE_V2.md](PASSIVE_TREE_V2.md).
 
 ## Persistence and unresolved decisions
 
-Schema 8 adds base class ID, story/subclass state, and stable weapon type per weapon. Schema-7 migration defaults historical classes to Warrior and historical weapons to Sword, preserving damage, speed, critical chance, affixes, rarity, item level, element, Potential, and provenance exactly.
+Schema 8 adds base class ID, story/subclass state, and stable weapon type per weapon. Schema 9 adds the one-time Passive Tree V2 refund and six per-character file slots. Schema-7 migration defaults historical classes to Warrior and historical weapons to Sword, preserving item state exactly before sequential V8/V9 migration.
 
-Ranged metadata and projectile hooks are real, but Accuracy/hit chance remains unresolved; Accuracy was not reintroduced. Final weapon skill assignments, weapon drop weighting, all twelve subclass identities/effects, subclass respec, class art/audio, and the passive-tree redesign remain future content work.
+Bow Precision and target-snapshotted projectile latency are real; Accuracy was not reintroduced. Staff supports data-driven AutoCooldown skills and Axe supports Rage. Final weapon skill assignments, weapon drop weighting, all twelve subclass identities/effects, subclass respec, and class art/audio remain future content work.

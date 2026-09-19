@@ -354,4 +354,11 @@ public class Gear : MonoBehaviour
     {
         return BaseAttackSpeed * (1f + LocalIncAttackSpeed);
     }
+
+    public float GetAverageWeaponDps()
+    {
+        if(ItemType!=LootManager.GearType.Weapons)return 0f;
+        GetEffectiveBaseDamageRange(out float minimum,out float maximum);
+        return (minimum+maximum)*.5f*GetEffectiveAttackSpeed();
+    }
 }

@@ -189,3 +189,11 @@ Remaining approved work includes actual challenge encounters and acquisition, pr
 Use [WORLD_CONTENT_ARCHITECTURE.md](WORLD_CONTENT_ARCHITECTURE.md) before authoring Step 16 content. Add definitions and stable references; do not add biome/location arithmetic to managers or UI. A biome must cover its exact 60-level range and own ten base locations, every location must map all six corruption tiers and a valid encounter table, and every table must resolve normal and boss references.
 
 Run **Black Cube → Validation → Validate World Content** after content edits. Challenge encounters remain outside `WorldProgression` and require a future launcher; do not squeeze them into the 9+1 cadence. Levels above 360 intentionally reuse level-360 content while retaining the actual combat level for scaling and persistence.
+
+## Step 17 handoff
+
+Read [PASSIVE_TREE_V2.md](PASSIVE_TREE_V2.md) and [WEAPON_MECHANICS.md](WEAPON_MECHANICS.md) before changing tree topology or weapon behavior. Keep stat IDs append-only, preserve `CooldownRecovery` at 84, and route new tree values through node effects rather than branch-specific projection code. Weapon-specific effects must remain conditional on the equipped stable weapon ID.
+
+Character saves now live in `slot-01.json` through `slot-06.json`, each with `.bak`/`.tmp`. Always select the active slot before capture/load. Do not serialize Staff cooldown progress, Rage, an armed Finisher, queued skills, projectiles, or other combat transients. Legacy single-file migration retains its source and seeds Slot 1 once.
+
+The fresh Step 17 evidence is under `Logs/Step17*`, `Logs/MenuLoadPlayChecks.txt`, `Logs/Step16-class-weapon-play-check.txt`, and `ReviewCaptures/PassiveTreeV2*`. The full EditMode suite passed 305/305 before the final documentation/build pass. No BalanceLab or broad tuning simulation belongs in this step.

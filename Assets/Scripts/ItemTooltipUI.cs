@@ -27,6 +27,7 @@ public static class ItemTooltipFormatter
             s.AppendLine($"<b>{ItemTooltipUI.ElementName(item.BaseElement)} Damage:</b> {minimum:0.##}–{maximum:0.##}  <color=#85898F>(Average {(minimum+maximum)*.5f:0.##})</color>");
             s.AppendLine($"<b>Crit Chance:</b> {item.GetEffectiveBaseCrit()*100:0.##}%");
             s.AppendLine($"<b>Attacks Per Second:</b> {item.GetEffectiveAttackSpeed():0.0#}");
+            s.AppendLine($"<b>Average Weapon DPS:</b> {item.GetAverageWeaponDps():0.##}  <color=#85898F>(local damage × local APS; Crit excluded)</color>");
         }
         var mods = new List<RolledMod>();
         foreach (var mod in item.rolledMods)
