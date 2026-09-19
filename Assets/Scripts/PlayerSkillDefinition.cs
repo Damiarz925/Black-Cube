@@ -14,11 +14,16 @@ public enum PlayerSkillId
     Shiv,
     Immolate
 }
+public enum PlayerSkillCastMode{QueuedAttackReplacement,AutoCooldown}
 
 [Serializable]
 public sealed class PlayerSkillDefinition
 {
     public PlayerSkillId id;
+    public PlayerSkillCastMode castMode=PlayerSkillCastMode.QueuedAttackReplacement;
+    [Min(.01f)] public float baseCooldown=3f;
+    public bool scalesWithCastSpeed=true;
+    public bool supportsPrecision;
     public string displayName;
     [TextArea] public string description;
     [Min(0f)] public float manaCost;

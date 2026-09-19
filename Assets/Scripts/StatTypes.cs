@@ -170,5 +170,13 @@ public enum StatTypes
     VoidMult = 116,
     VoidPenetration = 117,
     VoidRes = 118,
-    MaxVoidRes = 119
+    MaxVoidRes = 119,
+
+    // Step 17 production mechanics. Append only: these values are serialized.
+    CastSpeed = 120,
+    ProjectilePrecisionChance = 121,
+    ProjectilePrecisionMultiplier = 122,
+    RageGeneration = 123,
+    RageEffect = 124,
+    RageDecayReduction = 125
 }

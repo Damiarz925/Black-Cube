@@ -8,6 +8,7 @@ public sealed class PlayerSkillController : MonoBehaviour
     [SerializeField] private PlayerSkillCatalog catalog;
     [SerializeField] private List<PlayerSkillDefinition> skills = new();
     private readonly List<PlayerSkillDefinition> weaponSkills = new(2);
+    readonly float[] autoCooldownRemaining={0f,0f};
     public IReadOnlyList<PlayerSkillDefinition> Skills => skills;
     public IReadOnlyList<PlayerSkillDefinition> WeaponSkills => weaponSkills;
     public PlayerSkillDefinition SelectedSkill { get; private set; }
@@ -17,6 +18,7 @@ public sealed class PlayerSkillController : MonoBehaviour
     public event System.Action SelectionChanged;
     public event System.Action QueueChanged;
     public event System.Action WeaponSkillsChanged;
+    public event System.Action CooldownsChanged;
     private PlayerController player;
 
     private void Awake()
@@ -32,6 +34,7 @@ public sealed class PlayerSkillController : MonoBehaviour
     }
 
     private void OnDestroy(){if(player!=null)player.AttackChanged-=RefreshWeaponSkills;}
+    private void Update()=>TickAutoCooldowns(Time.deltaTime);
 
     public void RefreshWeaponSkills()
     {
@@ -43,7 +46,9 @@ public sealed class PlayerSkillController : MonoBehaviour
         bool changed=next.Count!=weaponSkills.Count;
         if(!changed)for(int i=0;i<next.Count;i++)if(next[i]!=weaponSkills[i]){changed=true;break;}
         if(!changed)return;
-        weaponSkills.Clear();weaponSkills.AddRange(next);ClearQueuedSkill();WeaponSkillsChanged?.Invoke();
+        weaponSkills.Clear();weaponSkills.AddRange(next);ClearQueuedSkill();
+        for(int i=0;i<autoCooldownRemaining.Length;i++)autoCooldownRemaining[i]=i<weaponSkills.Count&&weaponSkills[i].castMode==PlayerSkillCastMode.AutoCooldown?EffectiveCooldown(weaponSkills[i]):0f;
+        WeaponSkillsChanged?.Invoke();CooldownsChanged?.Invoke();
     }
 
     public bool TrySelect(PlayerSkillDefinition skill)
@@ -140,6 +145,7 @@ public sealed class PlayerSkillController : MonoBehaviour
     {
         if(index<0||index>=weaponSkills.Count||BattleManager.Instance==null)return false;
         PlayerSkillDefinition skill=weaponSkills[index];float cost=ManaCost(skill);
+        if(skill.castMode!=PlayerSkillCastMode.QueuedAttackReplacement)return false;
         if(!BattleManager.Instance.CanCastPlayerSkill||!Mana.CanSpend(cost))return false;
         if(QueuedSkill==skill)return true;
         QueuedSkill=skill;QueueChanged?.Invoke();return true;
@@ -167,4 +173,35 @@ public sealed class PlayerSkillController : MonoBehaviour
         QueuedSkill = null;
         QueueChanged?.Invoke();
     }
+
+    public const float MinimumAutoCooldown=.20f;
+    public float EffectiveCooldown(PlayerSkillDefinition skill)
+    {
+        if(skill==null)return 0f;float speed=skill.scalesWithCastSpeed?Mathf.Max(0f,GetComponent<StatsComponent>().GetStat(StatTypes.CastSpeed)):0f;
+        return Mathf.Max(MinimumAutoCooldown,Mathf.Max(.01f,skill.baseCooldown)/(1f+speed));
+    }
+    public float CooldownRemaining(int slot)=>slot>=0&&slot<autoCooldownRemaining.Length?autoCooldownRemaining[slot]:0f;
+    public bool AutoSkillReady(int slot)=>slot>=0&&slot<weaponSkills.Count&&weaponSkills[slot].castMode==PlayerSkillCastMode.AutoCooldown&&autoCooldownRemaining[slot]<=0f;
+    public void TickAutoCooldowns(float deltaTime)=>TickAutoCooldowns(deltaTime,skill=>BattleManager.Instance!=null&&BattleManager.Instance.CanCastPlayerSkill&&BattleManager.Instance.TryCastPlayerSkill(skill));
+    public void TickAutoCooldowns(float deltaTime,System.Func<PlayerSkillDefinition,bool> tryCast)
+    {
+        if(deltaTime<=0f||weaponSkills.Count==0||tryCast==null)return;bool changed=false;
+        for(int i=0;i<weaponSkills.Count&&i<2;i++)
+        {
+            var skill=weaponSkills[i];if(skill==null||skill.castMode!=PlayerSkillCastMode.AutoCooldown)continue;
+            if(autoCooldownRemaining[i]>0f){autoCooldownRemaining[i]=Mathf.Max(0f,autoCooldownRemaining[i]-deltaTime);changed=true;}
+            if(autoCooldownRemaining[i]>0f)continue;
+            float cost=ManaCost(skill);if(!Mana.TrySpend(cost))continue;
+            if(tryCast(skill)){autoCooldownRemaining[i]=EffectiveCooldown(skill);changed=true;}else Mana.Restore(cost);
+        }
+        if(changed)CooldownsChanged?.Invoke();
+    }
+#if UNITY_EDITOR
+    public void ConfigureDeveloperAutoSkills(PlayerSkillDefinition first,PlayerSkillDefinition second)
+    {
+        weaponSkills.Clear();if(first!=null)weaponSkills.Add(first);if(second!=null)weaponSkills.Add(second);
+        for(int i=0;i<autoCooldownRemaining.Length;i++)autoCooldownRemaining[i]=i<weaponSkills.Count&&weaponSkills[i].castMode==PlayerSkillCastMode.AutoCooldown?EffectiveCooldown(weaponSkills[i]):0f;
+        WeaponSkillsChanged?.Invoke();CooldownsChanged?.Invoke();
+    }
+#endif
 }

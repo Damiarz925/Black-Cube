@@ -31,6 +31,9 @@ public struct DamageContext
     public bool IsCrit; //Bool for whether the hit is a critical strike
     public float CritMultiplier;    //Float for the crit multiplier of the hit
     public DamageScope Scopes;      //Explicit non-elemental tags used by scoped passive bonuses.
+    public bool IsPrecision;
+    public float PrecisionMultiplier;
+    public bool WeaponMechanicsApplied;
 
     public DamageContext(int initialCapacity = 4)   //Pass in the initial capacity of the hit list, or it defaults to 4. (DamageContext constructor)
     {
@@ -38,6 +41,9 @@ public struct DamageContext
         IsCrit = false; //IsCrit is false by default
         CritMultiplier = 1f;    //Crit multi is 1 by default
         Scopes = DamageScope.None;
+        IsPrecision=false;
+        PrecisionMultiplier=1f;
+        WeaponMechanicsApplied=false;
     }
 
     //AddDamage function is used to actually add the damage amount for each hit to the hit list. (Called for each element type, pass in element and damage amount)

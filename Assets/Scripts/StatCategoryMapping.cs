@@ -133,6 +133,12 @@ public static class StatCategoryMapping
             case StatTypes.BaseCritChance:
             case StatTypes.ProjectileAmount:
             case StatTypes.ProjectileSpeed:
+            case StatTypes.CastSpeed:
+            case StatTypes.ProjectilePrecisionChance:
+            case StatTypes.ProjectilePrecisionMultiplier:
+            case StatTypes.RageGeneration:
+            case StatTypes.RageEffect:
+            case StatTypes.RageDecayReduction:
                 return StatCategory.Utility;
 
             // Attributes / scaling

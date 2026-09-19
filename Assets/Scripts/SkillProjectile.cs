@@ -9,7 +9,8 @@ public sealed class SkillProjectile : MonoBehaviour
     private static AudioClip heavyImpactClip;
     public static AudioClip HeavyImpactClip => heavyImpactClip != null ? heavyImpactClip : (heavyImpactClip = CreateImpactClip());
 
-    public static void Launch(Transform source, Transform target, Element element, Action onImpact, float lateralOffset = 0f)
+    public static void Launch(Transform source, Transform target, Element element, Action onImpact, float lateralOffset = 0f,
+        float travelDuration=.38f,float launchDelay=0f)
     {
         if (source == null || target == null) return;
         var go = new GameObject("Fireball Projectile", typeof(SpriteRenderer), typeof(SkillProjectile));
@@ -21,14 +22,15 @@ public sealed class SkillProjectile : MonoBehaviour
         go.transform.position = source.position + Vector3.up * .9f + Vector3.right * lateralOffset;
         go.transform.localScale = Vector3.one * .55f;
         go.GetComponent<SkillProjectile>().StartCoroutine(
-            go.GetComponent<SkillProjectile>().Fly(target, onImpact));
+            go.GetComponent<SkillProjectile>().Fly(target,onImpact,travelDuration,launchDelay));
     }
 
-    private IEnumerator Fly(Transform target, Action onImpact)
+    private IEnumerator Fly(Transform target,Action onImpact,float duration,float launchDelay)
     {
+        if(launchDelay>0f)yield return new WaitForSeconds(launchDelay);
         Vector3 start = transform.position;
         float elapsed = 0f;
-        const float duration = .38f;
+        duration=Mathf.Max(.01f,duration);
         while (elapsed < duration && target != null)
         {
             elapsed += Time.deltaTime;

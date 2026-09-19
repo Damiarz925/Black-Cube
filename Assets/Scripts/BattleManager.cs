@@ -29,6 +29,8 @@ public class BattleManager : MonoBehaviour
     private StatsComponent playerStats;
     private HealthComponent playerHealth;
     private DamageReceiver playerDamageReceiver;
+    private RageState playerRage;
+    private float currentAttackEventMultiplier=1f;
 
     private Animator playerAnimator;
     private Animator enemyAnimator;
@@ -95,6 +97,7 @@ public class BattleManager : MonoBehaviour
         playerStats = player.GetComponent<StatsComponent>();
         playerHealth = player.GetComponent<HealthComponent>();
         playerDamageReceiver = GetOrAddDamageReceiver(player);
+        playerRage=player.GetComponent<RageState>()??player.AddComponent<RageState>();
         playerAnimator = player.GetComponent<Animator>();
         playerSprite = player.GetComponent<PaperSpriteActor>();
         EnsureAilmentDefinitions();
@@ -296,21 +299,29 @@ public class BattleManager : MonoBehaviour
         if (enemyHealth != originalTarget || originalTarget.CurrentLife <= 0f) return;
 
         var skillController = player != null ? player.GetComponent<PlayerSkillController>() : null;
-        if (skillController != null && skillController.TryConsumeQueuedForAttack(out var queued, out float manaSpent))
+        currentAttackEventMultiplier=playerRage!=null?playerRage.BeginAttackEventMultiplier():1f;bool resolved=false;
+        try{if (skillController != null && skillController.TryConsumeQueuedForAttack(out var queued, out float manaSpent))
         {
             // Resolve against the enemy that exists at the scheduled attack event,
             // not the target that happened to exist when the button was pressed.
             if (!TryCastPlayerSkill(queued))
             {
                 skillController.Mana.Restore(manaSpent);
-                ResolveBasicPlayerAttack(originalTarget, originalStatuses);
+                ResolveBasicPlayerAttack(originalTarget, originalStatuses);resolved=true;
             }
+            else resolved=true;
         }
-        else ResolveBasicPlayerAttack(originalTarget, originalStatuses);
+        else {ResolveBasicPlayerAttack(originalTarget, originalStatuses);resolved=true;}}
+        finally{playerRage?.CompleteAttackEvent(resolved);currentAttackEventMultiplier=1f;}
     }
 
     private void ResolveBasicPlayerAttack(HealthComponent target, StatusController statuses)
     {
+        if(playerController?.EquippedWeapon!=null&&WeaponTypeCatalog.TryGet(playerController.EquippedWeapon.WeaponTypeId,out var profile)&&profile.IsRanged)
+        {
+            int count=CalculateProjectileCount(playerStats.GetRawStat(StatTypes.ProjectileAmount),0);float travel=WeaponMechanicProfile.ProjectileTravelTime(playerStats.GetStat(StatTypes.ProjectileSpeed));
+            for(int i=0;i<count;i++){DamageContext snapshot=ApplyPrecision(ApplyWeaponMechanics(playerController.BuildAttackContext()),profile.SupportsPrecision);int index=i;SkillProjectile.Launch(player.transform,currentEnemy.transform,playerController.EquippedWeaponElement,()=>ResolvePlayerProjectile(null,target,statuses,snapshot,null),(i-(count-1)*.5f)*.18f,travel,index*WeaponMechanicProfile.ProjectileBarrageSpacing);}return;
+        }
         ResolvePlayerLogicalHit(null, target, statuses, showImpact: true);
         // Hit Twice is one independent bonus hit, and deliberately does not recurse.
         if (IsSameLivingEnemy(target) && Random.value < Mathf.Clamp01(AdjustedChance(playerStats, StatTypes.ChanceToHitTwice)))
@@ -351,7 +362,8 @@ public class BattleManager : MonoBehaviour
             rawTotal += hit.Amount;
         }
 
-        float damageTaken = CombatCalculator.CalculateFinalDamage(ctx, enemyStats, playerStats);        //calculate damage taken by passing in context, enemy stats, and player stats
+        float damageTaken = CombatCalculator.CalculateFinalDamage(ctx, enemyStats, playerStats)
+            * (playerRage?.IncomingDamageMultiplier ?? 1f);        // Rage defense applies after ordinary mitigation.
 
         Debug.Log($"[Turn {globalTurnCounter}] Enemy hits player. " +
                   $"Raw={rawTotal:F1}, Final(after res/armour)={damageTaken:F1}, " +
@@ -366,6 +378,7 @@ public class BattleManager : MonoBehaviour
             // impact once this particular enemy is actually applying its hit.
             if (enemySprite != null) enemySprite.Strike();
             playerDamageReceiver.TakeDamage(damageTaken, ctx);     //call lose life in player script, passing in damage taken
+            playerRage?.GainFromDamageTaken(damageTaken,playerHealth.MaxLife);
 
             if (damageTaken > 0f && originalAttacker != null && enemyStats != null)
                 originalAttacker.RestoreLife(enemyStats.GetStat(StatTypes.LifeOnHit));
@@ -463,13 +476,14 @@ public class BattleManager : MonoBehaviour
                 float offset = (i - (projectileCount - 1) * .5f) * .18f;
                 // Build at cast time: current-mana scaling is locked after the
                 // cost has been paid and cannot drift while the projectile flies.
-                DamageContext snapshot = playerController.BuildAttackContext(
-                    skill.conversionElement, skill.nonMatchingConversion, skill.DamageScopes);
+                DamageContext snapshot = ApplyPrecision(ApplyWeaponMechanics(playerController.BuildAttackContext(
+                    skill.conversionElement, skill.nonMatchingConversion, skill.DamageScopes)),CanPrecision(skill));
                 bool hitTwice = Random.value < Mathf.Clamp01(AdjustedChance(playerStats, StatTypes.ChanceToHitTwice));
-                DamageContext? bonusSnapshot = hitTwice ? playerController.BuildAttackContext(
-                    skill.conversionElement, skill.nonMatchingConversion, skill.DamageScopes) : null;
+                DamageContext? bonusSnapshot = hitTwice ? ApplyPrecision(ApplyWeaponMechanics(playerController.BuildAttackContext(
+                    skill.conversionElement, skill.nonMatchingConversion, skill.DamageScopes)),CanPrecision(skill)) : null;
                 SkillProjectile.Launch(player.transform, currentEnemy.transform, skill.conversionElement,
-                    () => ResolvePlayerProjectile(skill, target, statuses, snapshot, bonusSnapshot), offset);
+                    () => ResolvePlayerProjectile(skill, target, statuses, snapshot, bonusSnapshot), offset,
+                    WeaponMechanicProfile.ProjectileTravelTime(playerStats.GetStat(StatTypes.ProjectileSpeed)),i*WeaponMechanicProfile.ProjectileBarrageSpacing);
             }
         }
         else
@@ -529,6 +543,7 @@ public class BattleManager : MonoBehaviour
         DamageContext normal = normalSnapshot ?? (skill == null
             ? playerController.BuildAttackContext()
             : playerController.BuildAttackContext(skill.conversionElement, skill.nonMatchingConversion, skill.DamageScopes));
+        normal=ApplyWeaponMechanics(normal);
         var keystones = player != null ? player.GetComponent<PassiveKeystoneState>() : null;
         if (shockTriggered && keystones != null && !Mathf.Approximately(keystones.ShockTriggeredHitMultiplier, 1f))
             normal = TransformContext(normal, keystones.ShockTriggeredHitMultiplier, Element.Phys, 0f);
@@ -537,7 +552,7 @@ public class BattleManager : MonoBehaviour
         int skillLevel = skill != null && skillController != null ? skillController.EffectiveSkillLevel(skill) : 1;
         float skillLevelFactor = PlayerSkillController.SkillDamageLevelFactor(skillLevel);
         DamageContext direct = poisonTransmutation
-            ? new DamageContext(1) { Scopes = normal.Scopes, IsCrit = normal.IsCrit, CritMultiplier = normal.CritMultiplier }
+            ? new DamageContext(1) { Scopes = normal.Scopes, IsCrit = normal.IsCrit, CritMultiplier = normal.CritMultiplier,IsPrecision=normal.IsPrecision,PrecisionMultiplier=normal.PrecisionMultiplier }
             : skill == null ? normal : TransformContext(normal, skill.hitDamageMultiplier * skillLevelFactor, skill.conversionElement, 0f);
 
         DamageContext specialized = default;
@@ -563,6 +578,7 @@ public class BattleManager : MonoBehaviour
         if (damageTaken > 0f && enemyDamageReceiver != null)
         {
             enemyDamageReceiver.TakeDamage(damageTaken, direct);
+            playerRage?.GainFromDamageDealt(damageTaken,target.MaxLife);
             playerHealth.RestoreLife(playerStats.GetStat(StatTypes.LifeOnHit));
             GetPlayerMana()?.Restore(playerStats.GetStat(StatTypes.ManaOnHit));
         }
@@ -602,6 +618,7 @@ public class BattleManager : MonoBehaviour
             IsCrit = source.IsCrit,
             CritMultiplier = source.CritMultiplier,
             Scopes = source.Scopes
+            ,IsPrecision=source.IsPrecision,PrecisionMultiplier=source.PrecisionMultiplier,WeaponMechanicsApplied=source.WeaponMechanicsApplied
         };
         if (source.Hits == null || multiplier <= 0f) return result;
         conversion = Mathf.Clamp01(conversion);
@@ -617,6 +634,20 @@ public class BattleManager : MonoBehaviour
             result.AddDamage(conversionElement, scaled * conversion);
         }
         return result;
+    }
+
+    bool CanPrecision(PlayerSkillDefinition skill)
+    {
+        if(skill?.supportsPrecision==true)return true;return playerController?.EquippedWeapon!=null&&WeaponTypeCatalog.TryGet(playerController.EquippedWeapon.WeaponTypeId,out var profile)&&profile.SupportsPrecision;
+    }
+    DamageContext ApplyPrecision(DamageContext source,bool capable)
+    {
+        if(!capable)return source;float chance=WeaponMechanicProfile.PrecisionChance(playerStats.GetStat(StatTypes.ProjectilePrecisionChance));if(Random.value>=chance)return source;
+        float multiplier=WeaponMechanicProfile.PrecisionMultiplier(playerStats.GetStat(StatTypes.ProjectilePrecisionMultiplier));var result=TransformContext(source,multiplier,Element.Phys,0);result.IsPrecision=true;result.PrecisionMultiplier=multiplier;return result;
+    }
+    DamageContext ApplyWeaponMechanics(DamageContext source)
+    {
+        if(source.WeaponMechanicsApplied)return source;float multiplier=currentAttackEventMultiplier*(playerRage?.SustainedDamageMultiplier??1f);var result=Mathf.Approximately(multiplier,1)?source:TransformContext(source,multiplier,Element.Phys,0);result.WeaponMechanicsApplied=true;return result;
     }
 
     private void PlayHeavyStrikeFeedback()

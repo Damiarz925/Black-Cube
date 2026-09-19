@@ -149,6 +149,12 @@ public class StatsComponent : MonoBehaviour
             case StatTypes.ChanceToHitTwice:
             case StatTypes.CooldownRecovery:
             case StatTypes.ProjectileSpeed:
+            case StatTypes.CastSpeed:
+            case StatTypes.ProjectilePrecisionChance:
+            case StatTypes.ProjectilePrecisionMultiplier:
+            case StatTypes.RageGeneration:
+            case StatTypes.RageEffect:
+            case StatTypes.RageDecayReduction:
 
             // Penetration
             case StatTypes.PhysPenetration:
