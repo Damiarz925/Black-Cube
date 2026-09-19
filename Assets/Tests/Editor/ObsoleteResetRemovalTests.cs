@@ -84,6 +84,6 @@ public sealed class ObsoleteResetRemovalTests
 
     static void AssertMethod(Type type, string name, BindingFlags flags)
     {
-        Assert.That(type.GetMethod(name, flags), Is.Not.Null, type.Name + "." + name);
+        Assert.That(type.GetMethods(flags).Any(method=>method.Name==name), Is.True, type.Name + "." + name);
     }
 }

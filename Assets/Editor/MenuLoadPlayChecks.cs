@@ -89,7 +89,11 @@ public static class MenuLoadPlayChecks
                 Require(GamePersistence.RequestLoad()&&GamePersistence.LoadRequested,"Load request fixture was not created");
                 Button newGame=UnityEngine.Object.FindObjectsByType<Button>(FindObjectsInactive.Include,FindObjectsSortMode.None).Single(button=>button.name=="Start Game Button");
                 newGame.onClick.Invoke();
+                Require(menu.SlotSelectionVisible&&menu.VisibleSlotCount==6,"New Game did not present all six character slots");
+                ButtonNamed("Character Slot 1").onClick.Invoke();
                 ButtonNamed("Confirm Start New Game").onClick.Invoke();
+                ButtonNamed("Choose Warrior").onClick.Invoke();
+                ButtonNamed("Begin Selected Class").onClick.Invoke();
                 step=1;Delay();return;
             case 1:
                 if(scene!=GameSceneNames.Gameplay||CurrencyInventory.Instance==null||GameManager.Instance==null)return;
@@ -98,7 +102,7 @@ public static class MenuLoadPlayChecks
                 var progression=GameManager.Instance.GetComponent<PlayerProgression>();
                 int root=Enumerable.Range(0,PassiveTreeDefinition.NodeCount).First(PassiveTreeDefinition.IsRootConnected);
                 var ranks=new int[PassiveTreeDefinition.NodeCount];ranks[root]=1;
-                Require(progression.RestoreProgression(3,1d,1,ranks),"Could not seed rich progression fixture");
+                Require(progression.RestoreProgression(3,1d,2,ranks),"Could not seed rich progression fixture");
                 var player=UnityEngine.Object.FindFirstObjectByType<PlayerController>();
                 var skill=player.GetComponent<PlayerSkillController>();
                 Require(skill.RestoreSelection(true,PlayerSkillId.Fireball),"Could not seed active skill fixture");
@@ -134,6 +138,7 @@ public static class MenuLoadPlayChecks
                 Button savedLoadButton=UnityEngine.Object.FindObjectsByType<Button>(FindObjectsInactive.Include,FindObjectsSortMode.None).Single(button=>button.name=="Load Game Button");
                 Require(savedLoadButton.gameObject.activeInHierarchy&&savedLoadButton.interactable,"Authored Load Game button was not available for the saved game");
                 savedLoadButton.onClick.Invoke();
+                ButtonNamed("Character Slot 1").onClick.Invoke();
                 step=3;Delay();return;
             case 3:
                 if(scene!=GameSceneNames.Gameplay||CurrencyInventory.Instance==null)return;
@@ -141,7 +146,7 @@ public static class MenuLoadPlayChecks
                 Require(CurrencyInventory.Instance.Count(CraftingCurrencyType.MagicToRare)==23,"Existing saved currency was not restored through the Load Game route");
                 Require(CurrencyInventory.Instance.Count(CraftingCurrencyType.AncientReroll)==4&&!CurrencyInventory.Instance.ArmedCurrency.HasValue,"Ancient currency or transient armed intent restored incorrectly");
                 var loadedProgression=GameManager.Instance.GetComponent<PlayerProgression>();
-                Require(loadedProgression.Level==3&&loadedProgression.Experience==1d&&loadedProgression.AvailablePoints==1&&loadedProgression.CopyRanks().Count(x=>x==1)==1,"Player progression did not round-trip");
+                Require(loadedProgression.Level==3&&loadedProgression.Experience==1d&&loadedProgression.AvailablePoints==2&&loadedProgression.CopyRanks().Count(x=>x==1)==1,"Player progression did not round-trip");
                 var loadedPlayer=UnityEngine.Object.FindFirstObjectByType<PlayerController>();
                 Require(loadedPlayer.GetComponent<PlayerSkillController>().SelectedSkill?.id==PlayerSkillId.Fireball,"Selected skill did not round-trip");
                 Require(Inventory.Instance.Items.Any(x=>x.PersistentId=="integration-helmet")&&EquipmentManager.Instance.EquippedItems.Values.Any(x=>x.PersistentId=="integration-ring"),"Stable gear ownership did not round-trip");
@@ -155,16 +160,20 @@ public static class MenuLoadPlayChecks
                 if(scene!=GameSceneNames.MainMenu)return;
                 string beforeCancel=File.ReadAllText(GamePersistence.PrimaryPath);
                 ButtonNamed("Start Game Button").onClick.Invoke();
+                ButtonNamed("Character Slot 1").onClick.Invoke();
                 Require(UnityEngine.Object.FindFirstObjectByType<MainMenuUI>().NewGameConfirmationVisible,"Existing save did not require overwrite confirmation");
                 ButtonNamed("Cancel New Game").onClick.Invoke();
                 Require(File.ReadAllText(GamePersistence.PrimaryPath)==beforeCancel,"Cancel changed the existing save");
                 ButtonNamed("Start Game Button").onClick.Invoke();
+                ButtonNamed("Character Slot 1").onClick.Invoke();
                 ButtonNamed("Confirm Start New Game").onClick.Invoke();
+                ButtonNamed("Choose Mage").onClick.Invoke();
+                ButtonNamed("Begin Selected Class").onClick.Invoke();
                 step=5;Delay();return;
             case 5:
                 if(scene!=GameSceneNames.Gameplay||GameManager.Instance==null)return;
                 Require(!GamePersistence.LoadRequested,"Second New Game inherited a Load Game request");
-                Require(GameManager.Instance.GetComponent<PlayerProgression>().Level==1&&Inventory.Instance.Items.Count==0&&CurrencyInventory.Instance.Stacks.Count==0&&RelicInventory.Instance.Relics.Count==0&&RelicInventory.Instance.CurrentCycle==0,"Confirmed New Game retained save-owned progress");
+                Require(GameManager.Instance.GetComponent<PlayerProgression>().Level==1&&GameManager.Instance.GetComponent<PlayerProgression>().AvailablePoints==1&&GameManager.Instance.GetComponent<PlayerIdentityState>().BaseClassId==PlayerClassIds.Mage&&Inventory.Instance.Items.Count==0&&CurrencyInventory.Instance.Stacks.Count==0&&RelicInventory.Instance.Relics.Count==0&&RelicInventory.Instance.CurrentCycle==0,"Confirmed New Game retained save-owned progress or class selection");
                 Require(Inventory.Instance.FilterLevelEnabled&&Inventory.Instance.FilterLevel==31,"Confirmed New Game cleared independent filter preferences");
                 Require(GamePersistence.TryReadFile(GamePersistence.PrimaryPath,out var fresh,out var freshError),freshError);
                 Require(GamePersistence.TryReadFile(GamePersistence.BackupPath,out var backup,out var backupError),backupError);
@@ -192,7 +201,9 @@ public static class MenuLoadPlayChecks
         for(int attempt=0;attempt<64&&mods==null;attempt++)
             mods=roller.RollEquipmentModsForItem(type,rarity,itemLevel,element);
         Require(mods!=null,$"Could not construct integration {rarity} {type} at ilvl {itemLevel}");
-        return new GearSnapshotData{id=id,type=type,rarity=rarity,itemLevel=itemLevel,
+        int potential=CraftingPotentialProfile.Maximum(rarity);
+        return new GearSnapshotData{id=id,type=type,rarity=rarity,originRarity=rarity,
+            currentCraftingPotential=potential,maximumCraftingPotential=potential,itemLevel=itemLevel,
             element=element,mods=mods}.Create(name);
     }
     static Button ButtonNamed(string name)=>UnityEngine.Object.FindObjectsByType<Button>(FindObjectsInactive.Include,FindObjectsSortMode.None).Single(button=>button.name==name);

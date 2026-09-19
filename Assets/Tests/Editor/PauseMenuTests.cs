@@ -166,8 +166,8 @@ public sealed class PauseMenuTests
     {
         Assert.That(GamePersistence.TrySave(), Is.False);
         Assert.That(GamePersistence.LastError, Does.Contain("gameplay authorities"));
-        Assert.That(GamePersistence.SchemaVersion, Is.EqualTo(8));
-        Assert.That(GamePersistence.PrimaryPath, Does.EndWith(GamePersistence.PrimaryFileName));
+        Assert.That(GamePersistence.SchemaVersion, Is.EqualTo(9));
+        Assert.That(GamePersistence.PrimaryPath, Does.EndWith("slot-01.json"));
     }
 
     void BuildFixture()

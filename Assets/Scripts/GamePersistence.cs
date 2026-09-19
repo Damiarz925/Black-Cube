@@ -35,7 +35,11 @@ using UnityEngine;
     public List<PassiveRankData> passiveRanks=new(); public List<GearSnapshotData> gearItems=new(); public List<string> inventoryGearIds=new();
     public List<EquippedGearReference> equippedGear=new(); public List<CurrencyStackData> currencies=new(); public int normalToMagicFragments,magicToRareFragments; public List<RelicData> relics=new(); public List<string> activeRelicIds=new();
 }
-[Serializable] public sealed class PassiveRankData{public int nodeId,rank;public PassiveRankData(int id,int value){nodeId=id;rank=value;}}
+[Serializable] public sealed class PassiveRankData{public int nodeId,rank;public string stableNodeId;public PassiveRankData(int id,int value){nodeId=id;rank=value;stableNodeId=id>=0&&id<PassiveTreeDefinition.NodeCount?PassiveTreeDefinition.Node(id).StableId:string.Empty;}}
+[Serializable] public sealed class CharacterSlotSummary
+{
+    public int slot;public bool occupied;public string baseClassId,selectedSubclassId,lastPlayedUtc;public int playerLevel,combatLevel;
+}
 [Serializable] public sealed class EquippedGearReference{public LootManager.GearType slot;public string gearId;}
 [Serializable] public sealed class GearSnapshotData
 {
@@ -57,21 +61,36 @@ public enum SaveLoadSource{None,Primary,Backup,LegacyV1}
 
 public static class GamePersistence
 {
-    public const string SaveKey="BlackCube.Save.V1"; public const int SchemaVersion=8;
+    public const string SaveKey="BlackCube.Save.V1"; public const int SchemaVersion=9;public const int CharacterSlotCount=6;
     public const string PrimaryFileName="current-save.json",BackupFileName="current-save.json.bak",TemporaryFileName="current-save.json.tmp";
     public const float AutosaveDebounceSeconds=2f;
     static bool loadRequested,confirmedNewGameRequested,restoring,dirty,hasEncounterCheckpoint,pendingSchemaMigration; static float dirtySince,encounterStartLife,encounterStartMana;
-    static string runId,saveDirectoryOverride; static int runSeed;
+    static string runId,saveDirectoryOverride; static int runSeed,activeSlot=1;
     public static string SaveDirectoryOverride{get=>saveDirectoryOverride;set=>saveDirectoryOverride=value;}
     public static string SaveDirectory=>string.IsNullOrWhiteSpace(saveDirectoryOverride)?Application.persistentDataPath:saveDirectoryOverride;
-    public static string PrimaryPath=>Path.Combine(SaveDirectory,PrimaryFileName); public static string BackupPath=>Path.Combine(SaveDirectory,BackupFileName); public static string TemporaryPath=>Path.Combine(SaveDirectory,TemporaryFileName);
-    public static bool HasSave=>File.Exists(PrimaryPath)||File.Exists(BackupPath)||PlayerPrefs.HasKey(SaveKey); public static bool LoadRequested=>loadRequested; public static bool ConfirmedNewGameRequested=>confirmedNewGameRequested;
+    public static int ActiveSlot=>activeSlot;
+    public static string SlotPath(int slot)=>Path.Combine(SaveDirectory,$"slot-{ValidateSlot(slot):00}.json");
+    public static string SlotBackupPath(int slot)=>SlotPath(slot)+".bak";
+    public static string SlotTemporaryPath(int slot)=>SlotPath(slot)+".tmp";
+    public static string PrimaryPath=>SlotPath(activeSlot); public static string BackupPath=>SlotBackupPath(activeSlot); public static string TemporaryPath=>SlotTemporaryPath(activeSlot);
+    public static string LegacyPrimaryPath=>Path.Combine(SaveDirectory,PrimaryFileName);public static string LegacyBackupPath=>Path.Combine(SaveDirectory,BackupFileName);
+    public static bool HasSave{get{EnsureLegacySlotMigration();for(int i=1;i<=CharacterSlotCount;i++)if(HasSlot(i))return true;return PlayerPrefs.HasKey(SaveKey);}}
+    public static bool HasSlot(int slot){ValidateSlot(slot);return File.Exists(SlotPath(slot))||File.Exists(SlotBackupPath(slot));}
+    public static bool LoadRequested=>loadRequested; public static bool ConfirmedNewGameRequested=>confirmedNewGameRequested;
     public static bool IsRestoring=>restoring; public static bool HasPendingAutosave=>dirty; public static string CurrentRunId=>runId; public static int CurrentRunSeed=>runSeed;
     public static SaveLoadSource LastLoadSource{get;private set;} public static string LastError{get;private set;}
-    public static bool RequestLoad(){if(!HasSave)return false;loadRequested=true;confirmedNewGameRequested=false;return true;}
+    public static bool RequestLoad()=>RequestLoad(activeSlot);
+    public static bool RequestLoad(int slot){ValidateSlot(slot);EnsureLegacySlotMigration();if(!HasSlot(slot)&&(slot!=1||!PlayerPrefs.HasKey(SaveKey)))return false;activeSlot=slot;loadRequested=true;confirmedNewGameRequested=false;return true;}
     public static void RequestNewGame(){loadRequested=confirmedNewGameRequested=dirty=false;}
+    public static void RequestNewGame(int slot){ValidateSlot(slot);activeSlot=slot;RequestNewGame();}
     public static void RequestConfirmedNewGame(){loadRequested=false;confirmedNewGameRequested=true;dirty=false;}
+    public static void RequestConfirmedNewGame(int slot){ValidateSlot(slot);activeSlot=slot;RequestConfirmedNewGame();}
     public static bool ConsumeLoadRequest(){bool v=loadRequested;loadRequested=false;return v;} public static bool ConsumeConfirmedNewGameRequest(){bool v=confirmedNewGameRequested;confirmedNewGameRequested=false;return v;}
+    public static CharacterSlotSummary GetSlotSummary(int slot)
+    {
+        ValidateSlot(slot);EnsureLegacySlotMigration();var summary=new CharacterSlotSummary{slot=slot,occupied=false};
+        int previous=activeSlot;activeSlot=slot;try{if(!TryReadBestEnvelope(out var e,out _,out _))return summary;summary.occupied=true;summary.baseClassId=e.payload.baseClassId;summary.selectedSubclassId=e.payload.selectedSubclassId;summary.playerLevel=e.payload.playerLevel;summary.combatLevel=e.payload.combatLevel;summary.lastPlayedUtc=e.savedAtUtc;return summary;}finally{activeSlot=previous;}
+    }
     public static void BeginFreshRunIdentity(){runId=Guid.NewGuid().ToString("N");runSeed=Seed(runId);hasEncounterCheckpoint=false;encounterStartLife=encounterStartMana=0f;}
     public static void RecordEncounterStart(HealthComponent health,ManaComponent mana){if(restoring||health==null||mana==null)return;encounterStartLife=health.CurrentLife;encounterStartMana=mana.CurrentMana;hasEncounterCheckpoint=true;MarkDirty();}
     public static int EncounterSeed(int level,int completed,bool boss){unchecked{int h=runSeed;h=h*397^level;h=h*397^completed;return h*397^(boss?1:0);}}
@@ -120,8 +139,8 @@ public static class GamePersistence
         if(p.combatLevel<1||p.combatLevel>1000000||p.completedNormalEncounters<0||p.completedNormalEncounters>9||(p.bossEncounter&&p.completedNormalEncounters!=9))return Fail("Combat position is invalid.",out error);
         if(p.playerLevel<1||p.playerLevel>100||!Finite(p.experience)||p.experience<0||p.availablePassivePoints<0)return Fail("Player progression is invalid.",out error);
         if(!PlayerClassCatalog.IsValid(p.baseClassId))return Fail("Base class ID is unknown.",out error);if(!string.IsNullOrEmpty(p.selectedSubclassId)&&(!p.subclassChoiceUnlocked||!SubclassCatalog.TryGet(p.selectedSubclassId,out var subclass)||subclass.ParentClassId!=p.baseClassId))return Fail("Subclass selection is invalid for this class.",out error);
-        int allocated=0;var seenRanks=new HashSet<int>();if(p.passiveRanks==null)return Fail("Passive allocations are missing.",out error);foreach(var r in p.passiveRanks)if(r==null||r.nodeId<0||r.nodeId>=PassiveTreeDefinition.NodeCount||r.rank!=1||!seenRanks.Add(r.nodeId))return Fail("Passive allocation is invalid or duplicated.",out error);else allocated++;
-        if(allocated+p.availablePassivePoints>p.playerLevel-1||!ValidPassiveTopology(seenRanks))return Fail("Passive point accounting or topology is invalid.",out error);if(p.playerLevel<100&&p.experience>=RequirementAt(p.playerLevel)||p.playerLevel==100&&p.experience!=0)return Fail("XP does not match player level.",out error);
+        int allocated=0;var seenRanks=new HashSet<int>();if(p.passiveRanks==null)return Fail("Passive allocations are missing.",out error);foreach(var r in p.passiveRanks){int id=!string.IsNullOrEmpty(r?.stableNodeId)?PassiveTreeDefinition.NodeId(r.stableNodeId):r?.nodeId??-1;if(r==null||id<0||id>=PassiveTreeDefinition.NodeCount||PassiveTreeDefinition.IsClassStart(id)||r.rank!=1||!seenRanks.Add(id))return Fail("Passive allocation is invalid or duplicated.",out error);allocated++;}
+        if(allocated+p.availablePassivePoints!=p.playerLevel||!ValidPassiveTopology(seenRanks,p.baseClassId))return Fail("Passive point accounting or topology is invalid.",out error);if(p.playerLevel<100&&p.experience>=RequirementAt(p.playerLevel)||p.playerLevel==100&&p.experience!=0)return Fail("XP does not match player level.",out error);
         if(p.hasSelectedSkill&&!Enum.IsDefined(typeof(PlayerSkillId),p.selectedSkill))return Fail("Selected skill ID is unknown.",out error);if(!Finite(p.encounterStartLife)||!Finite(p.encounterStartMana)||p.encounterStartLife<=0||p.encounterStartLife>1000000000f||p.encounterStartMana<0||p.encounterStartMana>1000000000f)return Fail("Encounter checkpoint resources are invalid.",out error);
         if(p.normalToMagicFragments<0||p.normalToMagicFragments>=10||p.magicToRareFragments<0||p.magicToRareFragments>=10)return Fail("Fragment remainder is invalid.",out error);
         return ValidateGear(p,out error)&&ValidateCurrencies(p.currencies,out error)&&ValidateRelics(p,out error);
@@ -172,9 +191,9 @@ public static class GamePersistence
     public static bool TryReadBestEnvelope(out SaveEnvelope e,out SaveLoadSource source,out string error)
     {
         e=null;source=SaveLoadSource.None;pendingSchemaMigration=false;var failures=new List<string>();if(File.Exists(PrimaryPath)){if(TryReadFile(PrimaryPath,out e,out var x)){source=SaveLoadSource.Primary;error=null;return true;}failures.Add("primary: "+x);}if(File.Exists(BackupPath)){if(TryReadFile(BackupPath,out e,out var x)){source=SaveLoadSource.Backup;error=null;return true;}failures.Add("backup: "+x);}
-        if(!File.Exists(PrimaryPath)&&!File.Exists(BackupPath)&&PlayerPrefs.HasKey(SaveKey)){if(TryMigrateLegacy(PlayerPrefs.GetString(SaveKey),out e,out var x)){source=SaveLoadSource.LegacyV1;error=null;return true;}failures.Add("legacy: "+x);}error=failures.Count==0?"No gameplay save exists.":"No valid save: "+string.Join("; ",failures);return false;
+        if(activeSlot==1&&!File.Exists(PrimaryPath)&&!File.Exists(BackupPath)&&PlayerPrefs.HasKey(SaveKey)){if(TryMigrateLegacy(PlayerPrefs.GetString(SaveKey),out e,out var x)){source=SaveLoadSource.LegacyV1;error=null;return true;}failures.Add("legacy: "+x);}error=failures.Count==0?"No gameplay save exists.":"No valid save: "+string.Join("; ",failures);return false;
     }
-    public static bool TryReadFile(string path,out SaveEnvelope e,out string error){e=null;error=null;try{string json=File.ReadAllText(path,Encoding.UTF8);if(string.IsNullOrWhiteSpace(json))return Fail("File is empty.",out error);e=JsonUtility.FromJson<SaveEnvelope>(json);bool migrated=e?.schemaVersion is 2 or 3 or 4 or 5 or 6 or 7;if(e?.schemaVersion==2)MigrateSchema2(e);if(e?.schemaVersion==3)MigrateEquipmentImplicits(e);if(e?.schemaVersion==4)MigrateSchema4(e);if(e?.schemaVersion==5)MigrateSchema5(e);if(e?.schemaVersion==6)MigrateSchema6(e);if(e?.schemaVersion==7)MigrateSchema7(e);bool normalized=NormalizeFragmentPayload(e?.payload);bool valid=ValidateEnvelope(e,out error);pendingSchemaMigration=valid&&(migrated||normalized);return valid;}catch(Exception ex){pendingSchemaMigration=false;return Fail(ex.Message,out error);}}
+    public static bool TryReadFile(string path,out SaveEnvelope e,out string error){e=null;error=null;try{string json=File.ReadAllText(path,Encoding.UTF8);if(string.IsNullOrWhiteSpace(json))return Fail("File is empty.",out error);e=JsonUtility.FromJson<SaveEnvelope>(json);bool migrated=e?.schemaVersion is 2 or 3 or 4 or 5 or 6 or 7 or 8;if(e?.schemaVersion==2)MigrateSchema2(e);if(e?.schemaVersion==3)MigrateEquipmentImplicits(e);if(e?.schemaVersion==4)MigrateSchema4(e);if(e?.schemaVersion==5)MigrateSchema5(e);if(e?.schemaVersion==6)MigrateSchema6(e);if(e?.schemaVersion==7)MigrateSchema7(e);if(e?.schemaVersion==8)MigrateSchema8(e);bool normalized=NormalizeFragmentPayload(e?.payload);bool valid=ValidateEnvelope(e,out error);pendingSchemaMigration=valid&&(migrated||normalized);return valid;}catch(Exception ex){pendingSchemaMigration=false;return Fail(ex.Message,out error);}}
     static bool NormalizeFragmentPayload(GameStatePayload payload)
     {
         if(payload==null||payload.currencies==null)return false;
@@ -261,6 +280,11 @@ public static class GamePersistence
         }
         e.schemaVersion=8;
     }
+    static void MigrateSchema8(SaveEnvelope e)
+    {
+        if(e.payload!=null){e.payload.passiveRanks=new List<PassiveRankData>();e.payload.availablePassivePoints=Mathf.Clamp(e.payload.playerLevel,1,100);}
+        e.schemaVersion=9;
+    }
     static void MigrateSchema2(SaveEnvelope e)
     {
         if(e.payload?.gearItems!=null)foreach(var gear in e.payload.gearItems)
@@ -280,14 +304,14 @@ public static class GamePersistence
     {
         e=null;error=null;try{if(string.IsNullOrWhiteSpace(json))return Fail("Legacy JSON is empty.",out error);var old=JsonUtility.FromJson<GameSaveData>(json);if(old==null||old.version!=1)return Fail("Legacy version is not V1.",out error);old.inventory??=new();old.equipped??=new();old.currencies??=new();old.relics??=new();string id=Guid.NewGuid().ToString("N");var p=new GameStatePayload{encounterStartLife=100,encounterStartMana=100,relicCycle=Mathf.Max(0,old.relicCycle)};
             foreach(var x in old.inventory){if(x==null)return Fail("Legacy inventory is malformed.",out error);var g=GearSnapshotData.FromLegacy(x,Guid.NewGuid().ToString("N"));p.gearItems.Add(g);p.inventoryGearIds.Add(g.id);}foreach(var x in old.equipped){if(x?.gear==null)return Fail("Legacy equipment is malformed.",out error);var g=GearSnapshotData.FromLegacy(x.gear,Guid.NewGuid().ToString("N"));p.gearItems.Add(g);p.equippedGear.Add(new EquippedGearReference{slot=x.slot,gearId=g.id});}
-            foreach(var x in old.currencies)p.currencies.Add(x);foreach(var x in old.relics)if(x!=null)p.relics.Add(CloneRelic(x));else return Fail("Legacy relic is malformed.",out error);for(int i=0;i<RelicInventory.ActiveSlotCount;i++){int index=old.activeRelicIndices!=null&&i<old.activeRelicIndices.Length?old.activeRelicIndices[i]:-1;if(index < -1 || index >= p.relics.Count)return Fail("Legacy active relic slot is invalid.",out error);p.activeRelicIds.Add(index>=0?p.relics[index].id:string.Empty);}e=new SaveEnvelope{runId=id,runSeed=Seed(id),savedAtUtc=DateTime.UtcNow.ToString("O",CultureInfo.InvariantCulture),payload=p};e.schemaVersion=3;MigrateEquipmentImplicits(e);MigrateSchema4(e);MigrateSchema5(e);MigrateSchema6(e);MigrateSchema7(e);return ValidateEnvelope(e,out error);
+            foreach(var x in old.currencies)p.currencies.Add(x);foreach(var x in old.relics)if(x!=null)p.relics.Add(CloneRelic(x));else return Fail("Legacy relic is malformed.",out error);for(int i=0;i<RelicInventory.ActiveSlotCount;i++){int index=old.activeRelicIndices!=null&&i<old.activeRelicIndices.Length?old.activeRelicIndices[i]:-1;if(index < -1 || index >= p.relics.Count)return Fail("Legacy active relic slot is invalid.",out error);p.activeRelicIds.Add(index>=0?p.relics[index].id:string.Empty);}e=new SaveEnvelope{runId=id,runSeed=Seed(id),savedAtUtc=DateTime.UtcNow.ToString("O",CultureInfo.InvariantCulture),payload=p};e.schemaVersion=3;MigrateEquipmentImplicits(e);MigrateSchema4(e);MigrateSchema5(e);MigrateSchema6(e);MigrateSchema7(e);MigrateSchema8(e);return ValidateEnvelope(e,out error);
         }catch(Exception ex){return Fail(ex.Message,out error);}
     }
     static bool ApplyEnvelope(SaveEnvelope e,out string error)
     {
         error=null;if(!ValidateEnvelope(e,out error))return false;var gm=GameManager.Instance;var inv=Inventory.Instance;var eq=EquipmentManager.Instance;var cur=CurrencyInventory.Instance;var rel=RelicInventory.Instance;var player=UnityEngine.Object.FindAnyObjectByType<PlayerController>();var prog=gm!=null?gm.GetComponent<PlayerProgression>():null;var identity=gm!=null?gm.GetComponent<PlayerIdentityState>():null;var skill=player!=null?player.GetComponent<PlayerSkillController>():null;var hp=player!=null?player.GetComponent<HealthComponent>():null;var mana=player!=null?player.GetComponent<ManaComponent>():null;
         if(gm==null||inv==null||eq==null||cur==null||rel==null||prog==null||identity==null||player==null||skill==null||hp==null||mana==null)return Fail("Gameplay authorities are unavailable for restore.",out error);var p=e.payload;if(!identity.Restore(p.baseClassId,p.subclassChoiceUnlocked,p.selectedSubclassId))return Fail("Identity rejected restore.",out error);eq.ResetForNewRun();inv.ResetForNewRun();cur.ResetForNewGame();rel.ResetForNewGame();var relics=new List<RelicData>();foreach(var x in p.relics)relics.Add(CloneRelic(x));var ri=new Dictionary<string,int>();for(int i=0;i<relics.Count;i++)ri[relics[i].id]=i;var active=new int[RelicInventory.ActiveSlotCount];for(int i=0;i<active.Length;i++)active[i]=string.IsNullOrEmpty(p.activeRelicIds[i])?-1:ri[p.activeRelicIds[i]];rel.Restore(relics,p.relicCycle,active);
-        var gear=new Dictionary<string,Gear>();foreach(var x in p.gearItems)gear.Add(x.id,x.Create());foreach(string id in p.inventoryGearIds)inv.Add(gear[id]);foreach(var x in p.equippedGear)eq.Equip(gear[x.gearId]);var ranks=new int[PassiveTreeDefinition.NodeCount];foreach(var x in p.passiveRanks)ranks[x.nodeId]=x.rank;if(!prog.RestoreProgression(p.playerLevel,p.experience,p.availablePassivePoints,ranks))return Fail("Progression rejected restore.",out error);if(!skill.RestoreSelection(p.hasSelectedSkill,p.selectedSkill))return Fail("Skill rejected restore.",out error);cur.Restore(p.currencies);if(!cur.RestoreFragments(p.normalToMagicFragments,p.magicToRareFragments))return Fail("Fragment restore failed.",out error);cur.CancelArmed();runId=e.runId;runSeed=e.runSeed;encounterStartLife=p.encounterStartLife;encounterStartMana=p.encounterStartMana;hasEncounterCheckpoint=true;if(!gm.RestoreRunState(p.combatLevel,p.completedNormalEncounters,p.bossEncounter))return Fail("Combat restore failed.",out error);player.GetComponent<StatusController>()?.ClearStatuses();if(!hp.RestoreCheckpointLife(Mathf.Min(p.encounterStartLife,hp.MaxLife))||!mana.RestoreCheckpointMana(Mathf.Min(p.encounterStartMana,mana.MaxMana)))return Fail("Resource checkpoint restore failed.",out error);Time.timeScale=1;return true;
+        var gear=new Dictionary<string,Gear>();foreach(var x in p.gearItems)gear.Add(x.id,x.Create());foreach(string id in p.inventoryGearIds)inv.Add(gear[id]);foreach(var x in p.equippedGear)eq.Equip(gear[x.gearId]);var ranks=new int[PassiveTreeDefinition.NodeCount];foreach(var x in p.passiveRanks){int id=!string.IsNullOrEmpty(x.stableNodeId)?PassiveTreeDefinition.NodeId(x.stableNodeId):x.nodeId;if(id>=0)ranks[id]=x.rank;}if(!prog.RestoreProgression(p.playerLevel,p.experience,p.availablePassivePoints,ranks))return Fail("Progression rejected restore.",out error);if(!skill.RestoreSelection(p.hasSelectedSkill,p.selectedSkill))return Fail("Skill rejected restore.",out error);cur.Restore(p.currencies);if(!cur.RestoreFragments(p.normalToMagicFragments,p.magicToRareFragments))return Fail("Fragment restore failed.",out error);cur.CancelArmed();runId=e.runId;runSeed=e.runSeed;encounterStartLife=p.encounterStartLife;encounterStartMana=p.encounterStartMana;hasEncounterCheckpoint=true;if(!gm.RestoreRunState(p.combatLevel,p.completedNormalEncounters,p.bossEncounter))return Fail("Combat restore failed.",out error);player.GetComponent<StatusController>()?.ClearStatuses();if(!hp.RestoreCheckpointLife(Mathf.Min(p.encounterStartLife,hp.MaxLife))||!mana.RestoreCheckpointMana(Mathf.Min(p.encounterStartMana,mana.MaxMana)))return Fail("Resource checkpoint restore failed.",out error);Time.timeScale=1;return true;
     }
     static bool WriteEnvelope(SaveEnvelope e,bool freshBackup,out string error)
     {
@@ -302,13 +326,19 @@ public static class GamePersistence
         if(Gear.IsWeaponBaseStat(stat))return type==LootManager.GearType.Weapons;
         var pools=GearStatLists.BuildDefaultStatPools();return pools.TryGetValue(type,out var values)&&values.Contains(stat);
     }
-    static bool ValidPassiveTopology(HashSet<int> allocated)
+    static bool ValidPassiveTopology(HashSet<int> allocated,string classId)
     {
-        if(allocated.Count==0)return true;var reached=new HashSet<int>();var queue=new Queue<int>();foreach(int id in allocated)if(PassiveTreeDefinition.IsRootConnected(id)){reached.Add(id);queue.Enqueue(id);}
+        if(allocated.Count==0)return true;var reached=new HashSet<int>();var queue=new Queue<int>();foreach(int id in allocated)if(PassiveTreeDefinition.IsRootConnected(id,classId)){reached.Add(id);queue.Enqueue(id);}
         while(queue.Count>0){int current=queue.Dequeue();foreach(int adjacent in PassiveTreeDefinition.AdjacentNodeIds(current))if(allocated.Contains(adjacent)&&reached.Add(adjacent))queue.Enqueue(adjacent);}return reached.Count==allocated.Count;
     }
     static double RequirementAt(int level){const double x=300d,y=619d;return level<100?Math.Max(1d,Math.Round(x*Math.Pow(y/x,(level-10)/6d))):0d;}
-    public static void ResetStaticStateForTests(){loadRequested=confirmedNewGameRequested=restoring=dirty=hasEncounterCheckpoint=pendingSchemaMigration=false;runId=null;runSeed=0;encounterStartLife=encounterStartMana=dirtySince=0;LastError=null;LastLoadSource=SaveLoadSource.None;}
+    static int ValidateSlot(int slot){if(slot<1||slot>CharacterSlotCount)throw new ArgumentOutOfRangeException(nameof(slot));return slot;}
+    static void EnsureLegacySlotMigration()
+    {
+        if(File.Exists(SlotPath(1))||File.Exists(SlotBackupPath(1)))return;string source=File.Exists(LegacyPrimaryPath)?LegacyPrimaryPath:File.Exists(LegacyBackupPath)?LegacyBackupPath:null;if(source==null)return;
+        if(!TryReadFile(source,out var envelope,out _))return;int previous=activeSlot;try{activeSlot=1;if(WriteEnvelope(envelope,true,out _))Debug.Log("GamePersistence: migrated legacy single save to character Slot 1.");}catch(Exception ex){Debug.LogWarning("GamePersistence: legacy slot migration deferred: "+ex.Message);}finally{activeSlot=previous;}
+    }
+    public static void ResetStaticStateForTests(){loadRequested=confirmedNewGameRequested=restoring=dirty=hasEncounterCheckpoint=pendingSchemaMigration=false;runId=null;runSeed=0;activeSlot=1;encounterStartLife=encounterStartMana=dirtySince=0;LastError=null;LastLoadSource=SaveLoadSource.None;}
 }
 public sealed class GamePersistenceHost:MonoBehaviour
 {

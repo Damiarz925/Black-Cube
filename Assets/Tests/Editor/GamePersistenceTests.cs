@@ -208,7 +208,7 @@ public sealed class GamePersistenceTests
     }
     [Test] public void RichSnapshotJsonRoundTripPreservesAuthoritativeFields()
     {
-        var e=Valid();e.payload.passiveRanks.Add(new PassiveRankData(0,1));e.payload.availablePassivePoints=1;e.payload.hasSelectedSkill=true;e.payload.selectedSkill=PlayerSkillId.Fireball;
+        var e=Valid();int first=PassiveTreeDefinition.AdjacentNodeIds(PassiveTreeDefinition.StartNodeId(PlayerClassIds.Warrior))[0];e.payload.passiveRanks.Add(new PassiveRankData(first,1));e.payload.availablePassivePoints=2;e.payload.hasSelectedSkill=true;e.payload.selectedSkill=PlayerSkillId.Fireball;
         var gear=Gear("gear-rich",StatTypes.FireDmg);gear.rarity=LootManager.GearRarity.Rare;gear.itemLevel=37;gear.baseDamage=42.5f;gear.baseDamageMin=35f;gear.baseDamageMax=50f;gear.baseAttackSpeed=1.35f;gear.baseCritChance=.07f;e.payload.gearItems.Add(gear);e.payload.equippedGear.Add(new EquippedGearReference{slot=LootManager.GearType.Rings,gearId=gear.id});
         e.payload.currencies.Add(new CurrencyStackData(CraftingCurrencyType.AddRareModifier,8));e.payload.currencies.Add(new CurrencyStackData(CraftingCurrencyType.AncientReroll,3));
         var relic=new RelicData{id="relic-3",cycle=3,rarity=LootManager.GearRarity.Magic,craftableThisCycle=true};relic.modifiers.Add(new RelicModifier(RelicModifierType.MoreDamage,7.25f,true));e.payload.relicCycle=3;e.payload.relics.Add(relic);e.payload.activeRelicIds[2]=relic.id;
@@ -268,6 +268,6 @@ public sealed class GamePersistenceTests
     }
 
     void AssertInvalid(SaveEnvelope e,string contains){Assert.That(GamePersistence.ValidateEnvelope(e,out var error),Is.False);Assert.That(error,Does.Contain(contains).IgnoreCase);}
-    static SaveEnvelope Valid(){var e=new SaveEnvelope{runId="run-1",runSeed=123,savedAtUtc="2026-01-01T00:00:00Z",payload=new GameStatePayload{combatLevel=8,completedNormalEncounters=4,playerLevel=3,experience=1,availablePassivePoints=2,encounterStartLife=62,encounterStartMana=17}};for(int i=0;i<RelicInventory.ActiveSlotCount;i++)e.payload.activeRelicIds.Add(string.Empty);return e;}
+    static SaveEnvelope Valid(){var e=new SaveEnvelope{runId="run-1",runSeed=123,savedAtUtc="2026-01-01T00:00:00Z",payload=new GameStatePayload{combatLevel=8,completedNormalEncounters=4,playerLevel=3,experience=1,availablePassivePoints=3,encounterStartLife=62,encounterStartMana=17}};for(int i=0;i<RelicInventory.ActiveSlotCount;i++)e.payload.activeRelicIds.Add(string.Empty);return e;}
     static GearSnapshotData Gear(string id,StatTypes stat=StatTypes.GenericDmg)=>new(){id=id,type=LootManager.GearType.Rings,rarity=LootManager.GearRarity.Normal,originRarity=LootManager.GearRarity.Normal,currentCraftingPotential=6,maximumCraftingPotential=6,itemLevel=2,element=Element.Phys,mods=new System.Collections.Generic.List<RolledMod>{new(stat,1,5,true)}};
 }

@@ -90,7 +90,7 @@ public sealed class Step15WorldProgressionTests
         {
             var envelope=new SaveEnvelope{runId="step15",runSeed=15,savedAtUtc="2026-09-18T00:00:00Z",
                 payload=new GameStatePayload{combatLevel=359,completedNormalEncounters=8,playerLevel=1,experience=0,
-                    availablePassivePoints=0,encounterStartLife=100,encounterStartMana=100}};
+                    availablePassivePoints=1,encounterStartLife=100,encounterStartMana=100}};
             for(int i=0;i<RelicInventory.ActiveSlotCount;i++)envelope.payload.activeRelicIds.Add(string.Empty);
             File.WriteAllText(path,JsonUtility.ToJson(envelope));
             Assert.That(GamePersistence.TryReadFile(path,out var restored,out var error),Is.True,error);

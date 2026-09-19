@@ -46,7 +46,7 @@ public sealed class Step16ClassWeaponFoundationTests
             for(int i=0;i<RelicInventory.ActiveSlotCount;i++)envelope.payload.activeRelicIds.Add(string.Empty);
             envelope.payload.gearItems.Add(new GearSnapshotData{id="weapon",type=LootManager.GearType.Weapons,rarity=LootManager.GearRarity.Normal,originRarity=LootManager.GearRarity.Normal,currentCraftingPotential=6,maximumCraftingPotential=6,itemLevel=1,element=Element.Phys,baseDamage=22,baseDamageMin=18,baseDamageMax=27,baseAttackSpeed=.45f,baseCritChance=.05f,legacyAffixRules=true,mods=new(){new RolledMod(StatTypes.GenericDmg,5,7,true)}});envelope.payload.inventoryGearIds.Add("weapon");
             File.WriteAllText(GamePersistence.PrimaryPath,JsonUtility.ToJson(envelope));Assert.That(GamePersistence.TryReadFile(GamePersistence.PrimaryPath,out var migrated,out var error),Is.True,error);
-            Assert.That(migrated.schemaVersion,Is.EqualTo(8));Assert.That(migrated.payload.baseClassId,Is.EqualTo(PlayerClassIds.Warrior));Assert.That(migrated.payload.gearItems[0].weaponTypeId,Is.EqualTo(WeaponTypeIds.Sword));Assert.That(migrated.payload.gearItems[0].baseDamageMin,Is.EqualTo(18));
+            Assert.That(migrated.schemaVersion,Is.EqualTo(9));Assert.That(migrated.payload.availablePassivePoints,Is.EqualTo(1));Assert.That(migrated.payload.baseClassId,Is.EqualTo(PlayerClassIds.Warrior));Assert.That(migrated.payload.gearItems[0].weaponTypeId,Is.EqualTo(WeaponTypeIds.Sword));Assert.That(migrated.payload.gearItems[0].baseDamageMin,Is.EqualTo(18));
         }
         finally{GamePersistence.SaveDirectoryOverride=null;if(Directory.Exists(directory))Directory.Delete(directory,true);}
     }

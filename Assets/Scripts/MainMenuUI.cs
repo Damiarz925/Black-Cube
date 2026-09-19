@@ -23,8 +23,14 @@ public class MainMenuUI : MonoBehaviour
     private TMP_Text classSelectionLabel;
     private Button beginSelectedClassButton;
     private string selectedClassId;
+    private GameObject slotSelectionPanel;
+    private readonly Button[] slotButtons=new Button[GamePersistence.CharacterSlotCount];
+    private int selectedSlot=1;
+    private bool selectingForLoad;
     public bool NewGameConfirmationVisible => newGameConfirmation != null && newGameConfirmation.activeSelf;
     public bool ClassSelectionVisible => classSelectionPanel != null && classSelectionPanel.activeSelf;
+    public bool SlotSelectionVisible=>slotSelectionPanel!=null&&slotSelectionPanel.activeSelf;
+    public int VisibleSlotCount=>slotButtons.Length;
 
     private void Awake()
     {
@@ -49,6 +55,7 @@ public class MainMenuUI : MonoBehaviour
         EnsureOptionsMenu();
         EnsureNewGameConfirmation();
         EnsureClassSelection();
+        EnsureSlotSelection();
 
         if (root != null)
             foreach (var button in root.GetComponentsInChildren<Button>(true))
@@ -69,13 +76,7 @@ public class MainMenuUI : MonoBehaviour
 
     public void OnNewGameClicked()
     {
-        if (GamePersistence.HasSave)
-        {
-            newGameConfirmation.SetActive(true);
-            newGameConfirmation.transform.SetAsLastSibling();
-            return;
-        }
-        OpenClassSelection();
+        OpenSlotSelection(false);
     }
 
     public void ConfirmNewGame()
@@ -97,7 +98,7 @@ public class MainMenuUI : MonoBehaviour
     {
         if(!GameLaunchSelection.SelectNewGameClass(selectedClassId))return;
         if(classSelectionPanel!=null)classSelectionPanel.SetActive(false);
-        GamePersistence.RequestConfirmedNewGame();
+        GamePersistence.RequestConfirmedNewGame(selectedSlot);
         SceneManager.LoadScene(GameSceneNames.Gameplay);
     }
 
@@ -106,13 +107,21 @@ public class MainMenuUI : MonoBehaviour
         GamePersistence.RequestNewGame();
         if (newGameConfirmation != null) newGameConfirmation.SetActive(false);
         if (classSelectionPanel != null) classSelectionPanel.SetActive(false);
+        if(slotSelectionPanel!=null)slotSelectionPanel.SetActive(false);
         selectedClassId=null;GameLaunchSelection.Clear();
     }
 
     public void OnLoadGameClicked()
     {
-        if (!GamePersistence.RequestLoad()) { Debug.LogWarning("MainMenuUI: no saved game exists."); return; }
-        SceneManager.LoadScene(GameSceneNames.Gameplay);
+        OpenSlotSelection(true);
+    }
+
+    public void SelectSlot(int slot)
+    {
+        selectedSlot=slot;var summary=GamePersistence.GetSlotSummary(slot);
+        if(selectingForLoad){if(!summary.occupied)return;if(!GamePersistence.RequestLoad(slot))return;SceneManager.LoadScene(GameSceneNames.Gameplay);return;}
+        if(summary.occupied){newGameConfirmation.SetActive(true);newGameConfirmation.transform.SetAsLastSibling();return;}
+        OpenClassSelection();
     }
 
     private void EnsureOptionsMenu()
@@ -195,8 +204,29 @@ public class MainMenuUI : MonoBehaviour
         classSelectionPanel.SetActive(false);
     }
 
+    private void EnsureSlotSelection()
+    {
+        if(root==null||newGameButton==null||slotSelectionPanel!=null)return;
+        slotSelectionPanel=new GameObject("Character Slot Selection",typeof(RectTransform),typeof(CanvasRenderer),typeof(Image));slotSelectionPanel.transform.SetParent(root.transform,false);
+        var rect=(RectTransform)slotSelectionPanel.transform;rect.anchorMin=rect.anchorMax=rect.pivot=Vector2.one*.5f;rect.sizeDelta=new Vector2(1040,760);slotSelectionPanel.GetComponent<Image>().color=new Color(.025f,.03f,.04f,.99f);
+        CreateLabel(slotSelectionPanel.transform,"CHARACTER SLOTS",new Vector2(0,320),new Vector2(920,60),34);
+        for(int i=0;i<slotButtons.Length;i++){int slot=i+1;var b=CloneMenuButton(newGameButton,slotSelectionPanel.transform,"Character Slot "+slot,"SLOT "+slot);((RectTransform)b.transform).anchoredPosition=new Vector2(0,225-i*92);((RectTransform)b.transform).sizeDelta=new Vector2(850,72);b.onClick.AddListener(()=>SelectSlot(slot));slotButtons[i]=b;}
+        var cancel=CloneMenuButton(newGameButton,slotSelectionPanel.transform,"Cancel Slot Selection","CANCEL");((RectTransform)cancel.transform).anchoredPosition=new Vector2(0,-325);((RectTransform)cancel.transform).sizeDelta=new Vector2(280,65);cancel.onClick.AddListener(CancelNewGame);slotSelectionPanel.SetActive(false);
+    }
+
+    private void OpenSlotSelection(bool load)
+    {
+        selectingForLoad=load;RefreshSlots();if(slotSelectionPanel!=null){slotSelectionPanel.SetActive(true);slotSelectionPanel.transform.SetAsLastSibling();}
+    }
+
+    private void RefreshSlots()
+    {
+        for(int i=0;i<slotButtons.Length;i++){var summary=GamePersistence.GetSlotSummary(i+1);var text=slotButtons[i].GetComponentInChildren<TMP_Text>(true);string cls=summary.occupied&&PlayerClassCatalog.TryGet(summary.baseClassId,out var definition)?definition.DisplayName.ToUpperInvariant():"EMPTY";string sub=string.IsNullOrEmpty(summary.selectedSubclassId)?"":$" / {summary.selectedSubclassId}";text.text=summary.occupied?$"SLOT {i+1}  /  {cls}{sub}  /  LEVEL {summary.playerLevel}  /  COMBAT {summary.combatLevel}\n<size=12>LAST PLAYED {summary.lastPlayedUtc}</size>":$"SLOT {i+1}  /  EMPTY";slotButtons[i].interactable=!selectingForLoad||summary.occupied;}
+    }
+
     private void OpenClassSelection()
     {
+        if(slotSelectionPanel!=null)slotSelectionPanel.SetActive(false);
         selectedClassId=null;if(beginSelectedClassButton!=null)beginSelectedClassButton.interactable=false;
         if(classSelectionLabel!=null)classSelectionLabel.text="SELECT A CLASS";
         if(classSelectionPanel!=null){classSelectionPanel.SetActive(true);classSelectionPanel.transform.SetAsLastSibling();}
