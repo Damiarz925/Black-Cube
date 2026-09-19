@@ -1,4 +1,4 @@
-// Developer map: Session XP and the 290-node radial/bridge/ring/keystone passive tree on GameManager.
+// Developer map: Session XP and the 366-node six-sector Passive Tree V2 on GameManager.
 // Allocations replace stat modifiers by this component as source; encounter restart retains them.
 using System;
 using System.Collections.Generic;
@@ -13,7 +13,7 @@ public sealed class PlayerProgression : MonoBehaviour
     [SerializeField, Min(1)] float bossXpMultiplier = 5f;
     [SerializeField] int level = 1;
     [SerializeField] double experience;
-    [SerializeField] int availablePoints;
+    [SerializeField] int availablePoints = 1;
     [SerializeField] int[] ranks = new int[PassiveTreeDefinition.NodeCount];
 
     const double ReqAtLevel10Xp = 300d;
@@ -24,6 +24,8 @@ public sealed class PlayerProgression : MonoBehaviour
 
     StatsComponent boundStats;
     PassiveKeystoneState boundKeystones;
+    PlayerController boundPlayer;
+    PlayerIdentityState identity;
     public event Action Changed;
     public int Level => level;
     public int AvailablePoints => availablePoints;
@@ -52,25 +54,18 @@ public sealed class PlayerProgression : MonoBehaviour
     public bool HasKeystone(PassiveKeystone keystone)
     {
         if (keystone == PassiveKeystone.None) return false;
-        for (int i = 0; i < PassiveTreeDefinition.OriginalBranchCount; i++)
-        {
-            var branch = (PassiveBranch)i;
-            if (PassiveTreeDefinition.KeystoneFor(branch) == keystone)
-                return IsAllocated(PassiveTreeDefinition.KeystoneNodeId(branch));
-        }
-        for (int i = 0; i < PassiveTreeDefinition.OuterKeystoneNodeCount; i++)
-        {
-            var branch = PassiveTreeDefinition.OuterKeystoneBranch(i);
-            if (PassiveTreeDefinition.OuterKeystoneFor(branch) == keystone)
-                return IsAllocated(PassiveTreeDefinition.OuterKeystoneNodeId(branch));
-        }
+        foreach(var node in PassiveTreeDefinition.Nodes)
+            if(node.Keystone==keystone&&IsAllocated(node.Id))return true;
         return false;
     }
+    public string ActiveClassId=>(identity??=GetComponent<PlayerIdentityState>())?.BaseClassId??PlayerClassIds.Warrior;
+    public int ActiveStartNodeId=>PassiveTreeDefinition.StartNodeId(ActiveClassId);
     public bool CanSpend(int node)
     {
-        if (node < 0 || node >= PassiveTreeDefinition.NodeCount || availablePoints < PassiveTreeDefinition.PointCost || IsAllocated(node))
+        if (node < 0 || node >= PassiveTreeDefinition.NodeCount || PassiveTreeDefinition.IsClassStart(node)
+            || availablePoints < PassiveTreeDefinition.PointCost || IsAllocated(node))
             return false;
-        if (PassiveTreeDefinition.IsRootConnected(node)) return true;
+        if (PassiveTreeDefinition.IsRootConnected(node,ActiveClassId)) return true;
         foreach (int adjacent in PassiveTreeDefinition.AdjacentNodeIds(node))
             if (IsAllocated(adjacent)) return true;
         return false;
@@ -95,7 +90,7 @@ public sealed class PlayerProgression : MonoBehaviour
         var queue = new Queue<int>();
         for (int id = 0; id < PassiveTreeDefinition.NodeCount; id++)
         {
-            if (id != node && IsAllocated(id) && PassiveTreeDefinition.IsRootConnected(id))
+            if (id != node && IsAllocated(id) && PassiveTreeDefinition.IsRootConnected(id,ActiveClassId))
             {
                 reachable[id] = true;
                 queue.Enqueue(id);
@@ -128,11 +123,16 @@ public sealed class PlayerProgression : MonoBehaviour
         return true;
     }
 
+    public void RefundAll()
+    {
+        int refunded=0;for(int i=0;i<ranks.Length;i++)if(ranks[i]!=0){ranks[i]=0;refunded++;}
+        availablePoints+=refunded;BindStats();ApplySkills();Changed?.Invoke();GamePersistence.MarkDirty();
+    }
+
     public int AllocatedCount(PassiveBranch branch)
     {
         int count = 0;
-        int first = PassiveTreeDefinition.NodeId(branch, 0);
-        for (int position = 0; position < PassiveTreeDefinition.NodesInBranch(branch); position++) count += Rank(first + position);
+        foreach(var node in PassiveTreeDefinition.Nodes)if(node.Branch==branch)count+=Rank(node.Id);
         return count;
     }
 
@@ -140,9 +140,7 @@ public sealed class PlayerProgression : MonoBehaviour
     public float GetBonus(PassiveBranch branch)
     {
         float total = 0f;
-        int first = PassiveTreeDefinition.NodeId(branch, 0);
-        for (int position = 0; position < PassiveTreeDefinition.NodesInBranch(branch); position++)
-            if (IsAllocated(first + position)) total += PassiveTreeDefinition.Node(first + position).Magnitude;
+        foreach(var node in PassiveTreeDefinition.Nodes)if(node.Branch==branch&&IsAllocated(node.Id))total+=node.Magnitude;
         return total;
     }
 
@@ -176,7 +174,7 @@ public sealed class PlayerProgression : MonoBehaviour
     {
         level = 1;
         experience = 0;
-        availablePoints = 0;
+        availablePoints = 1;
         ranks = new int[PassiveTreeDefinition.NodeCount];
         BindStats();
         ApplySkills();
@@ -196,7 +194,7 @@ public sealed class PlayerProgression : MonoBehaviour
             if (restoredRanks[i] is not (0 or 1)) return false;
             allocated += restoredRanks[i];
         }
-        if (allocated + restoredAvailablePoints > restoredLevel - 1) return false;
+        if (allocated + restoredAvailablePoints != restoredLevel) return false;
         level = restoredLevel;
         experience = restoredExperience;
         availablePoints = restoredAvailablePoints;
@@ -212,11 +210,12 @@ public sealed class PlayerProgression : MonoBehaviour
     void BindStats()
     {
         if (boundStats != null) return;
-        var player = FindFirstObjectByType<PlayerController>();
-        if (player == null) return;
-        boundStats = player.GetComponent<StatsComponent>();
-        boundKeystones = player.GetComponent<PassiveKeystoneState>();
-        if (boundKeystones == null) boundKeystones = player.gameObject.AddComponent<PassiveKeystoneState>();
+        boundPlayer = FindFirstObjectByType<PlayerController>();
+        if (boundPlayer == null) return;
+        boundStats = boundPlayer.GetComponent<StatsComponent>();
+        boundKeystones = boundPlayer.GetComponent<PassiveKeystoneState>();
+        if (boundKeystones == null) boundKeystones = boundPlayer.gameObject.AddComponent<PassiveKeystoneState>();
+        boundPlayer.AttackChanged-=OnWeaponChanged;boundPlayer.AttackChanged+=OnWeaponChanged;
         ApplySkills();
     }
 
@@ -229,26 +228,13 @@ public sealed class PlayerProgression : MonoBehaviour
             boundStats.RemoveModifiersFromSource(this);
             float levelLife=LevelLifeBonus(level);
             if(levelLife>0f)boundStats.AddModifier(new StatModifier(StatTypes.Life,StatOp.Flat,levelLife,this));
-            AddPercent(StatTypes.ArmourPercent, PassiveBranch.Defense);
-            AddPercent(StatTypes.LifePercent, PassiveBranch.Life);
-            AddPercent(StatTypes.ManaPercent, PassiveBranch.Mana);
-            AddPercent(StatTypes.MagicDmg, PassiveBranch.Magic);
-            AddPercent(StatTypes.LightDmg, PassiveBranch.Lightning);
-            AddPercent(StatTypes.FireDmg, PassiveBranch.Fire);
-            AddPercent(StatTypes.VoidDmg, PassiveBranch.Poison);
-            AddPercent(StatTypes.ProjectileDmg, PassiveBranch.Projectile);
-            AddPercent(StatTypes.PhysDmg, PassiveBranch.Physical);
-            AddPercent(StatTypes.ColdDmg, PassiveBranch.Cold);
-            AddFlat(StatTypes.ProjectileAmount, PassiveBranch.IncreasedProjectileAmount);
-            AddPercent(StatTypes.AttackSpeed, PassiveBranch.AttackSpeed);
-            AddPercent(StatTypes.BleedChance, PassiveBranch.BleedChance);
-            AddPercent(StatTypes.PoisonChance, PassiveBranch.PoisonChance);
-            AddPercent(StatTypes.ChillChance, PassiveBranch.ChillChance);
-            AddPercent(StatTypes.IgniteChance, PassiveBranch.IgniteChance);
-            AddPercent(StatTypes.ShockChance, PassiveBranch.ShockChance);
-            AddPercent(StatTypes.ChanceToHitTwice, PassiveBranch.ChanceToHitTwice);
-            AddFlat(StatTypes.LifeRegeneration, PassiveBranch.LifeRegeneration);
-            AddFlat(StatTypes.ManaRegeneration, PassiveBranch.ManaRegeneration);
+            string equipped=boundPlayer?.EquippedWeapon?.WeaponTypeId;
+            foreach(var node in PassiveTreeDefinition.Nodes)
+            {
+                if(!IsAllocated(node.Id))continue;
+                if(!string.IsNullOrEmpty(node.WeaponTypeRestriction)&&node.WeaponTypeRestriction!=equipped)continue;
+                foreach(var effect in node.Effects)boundStats.AddModifier(new StatModifier(effect.Stat,StatOp.Flat,effect.Amount,this));
+            }
             boundKeystones?.Apply(this);
         }
         finally { boundStats.EndUpdate(); }
@@ -256,11 +242,15 @@ public sealed class PlayerProgression : MonoBehaviour
 
     public void ReleaseSceneReferences()
     {
+        if(boundPlayer!=null)boundPlayer.AttackChanged-=OnWeaponChanged;
         boundKeystones?.Apply(null);
         if (boundStats != null) boundStats.RemoveModifiersFromSource(this);
         boundStats = null;
         boundKeystones = null;
+        boundPlayer = null;
     }
+
+    void OnWeaponChanged(){if(boundStats==null)return;ApplySkills();Changed?.Invoke();}
 
     void AddPercent(StatTypes stat, PassiveBranch branch)
     {
@@ -285,24 +275,8 @@ public sealed class PlayerProgression : MonoBehaviour
 
         int[] legacy = ranks;
         ranks = new int[PassiveTreeDefinition.NodeCount];
-        if (legacy == null) return;
-        if (legacy.Length != 6)
-        {
-            int preserved = Mathf.Min(legacy.Length, PassiveTreeDefinition.NodeCount);
-            for (int i = 0; i < preserved; i++) ranks[i] = legacy[i] != 0 ? 1 : 0;
-            return;
-        }
-        MigrateLegacyBranch(PassiveBranch.Life, legacy[0] + legacy[3]);
-        // The retired broad-Damage branch was explicitly replaced by Poison.
-        MigrateLegacyBranch(PassiveBranch.Poison, legacy[1] + legacy[4]);
-        MigrateLegacyBranch(PassiveBranch.Mana, legacy[2] + legacy[5]);
-    }
-
-    void MigrateLegacyBranch(PassiveBranch branch, int spentPoints)
-    {
-        int count = Mathf.Clamp(spentPoints, 0, PassiveTreeDefinition.NodesInBranch(branch));
-        int first = PassiveTreeDefinition.NodeId(branch, 0);
-        for (int i = 0; i < count; i++) ranks[first + i] = 1;
+        // V1 node identities are intentionally not mapped to V2. Persistence
+        // refunds them from player level during schema migration.
     }
 
     void OnDestroy()

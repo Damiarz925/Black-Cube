@@ -45,12 +45,12 @@ public sealed class EnemyScalingTests
                 .Invoke(health,null);
             typeof(PlayerProgression).GetField("boundStats",BindingFlags.Instance|BindingFlags.NonPublic)
                 .SetValue(progression,stats);
-            Assert.That(progression.RestoreProgression(1,0,0,new int[PassiveTreeDefinition.NodeCount]),Is.True);
+            Assert.That(progression.RestoreProgression(1,0,1,new int[PassiveTreeDefinition.NodeCount]),Is.True);
             Assert.That(health.MaxLife,Is.EqualTo(1000f).Within(.01f));
-            Assert.That(progression.RestoreProgression(75,0,74,new int[PassiveTreeDefinition.NodeCount]),Is.True);
+            Assert.That(progression.RestoreProgression(75,0,75,new int[PassiveTreeDefinition.NodeCount]),Is.True);
             Assert.That(health.MaxLife,Is.EqualTo(1000f*Math.Pow(1.012,49)
                 *Math.Pow(1.025,25)).Within(.1f));
-            Assert.That(progression.RestoreProgression(100,0,99,new int[PassiveTreeDefinition.NodeCount]),Is.True);
+            Assert.That(progression.RestoreProgression(100,0,100,new int[PassiveTreeDefinition.NodeCount]),Is.True);
             Assert.That(health.MaxLife,Is.EqualTo(1000f*Math.Pow(1.012,49)
                 *Math.Pow(1.025,50)).Within(.1f));
             progression.ResetProgression();

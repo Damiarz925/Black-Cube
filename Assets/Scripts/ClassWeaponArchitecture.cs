@@ -31,12 +31,12 @@ public sealed class PlayerClassDefinition
 public static class PlayerClassCatalog
 {
     static readonly PlayerClassDefinition[] all={
-        new(PlayerClassIds.Warrior,"Warrior",WeaponTypeIds.Sword,"passive-start.warrior"),
-        new(PlayerClassIds.Mage,"Mage",WeaponTypeIds.Staff,"passive-start.mage"),
-        new(PlayerClassIds.Ranger,"Ranger",WeaponTypeIds.Bow,"passive-start.ranger"),
-        new(PlayerClassIds.Barbarian,"Barbarian",WeaponTypeIds.TwoHandedAxe,"passive-start.barbarian"),
-        new(PlayerClassIds.Priest,"Priest",WeaponTypeIds.Sceptre,"passive-start.priest"),
-        new(PlayerClassIds.Thief,"Thief",WeaponTypeIds.Dagger,"passive-start.thief")};
+        new(PlayerClassIds.Warrior,"Warrior",WeaponTypeIds.Sword,"tree.v2.warrior.start"),
+        new(PlayerClassIds.Mage,"Mage",WeaponTypeIds.Staff,"tree.v2.mage.start"),
+        new(PlayerClassIds.Ranger,"Ranger",WeaponTypeIds.Bow,"tree.v2.ranger.start"),
+        new(PlayerClassIds.Barbarian,"Barbarian",WeaponTypeIds.TwoHandedAxe,"tree.v2.barbarian.start"),
+        new(PlayerClassIds.Priest,"Priest",WeaponTypeIds.Sceptre,"tree.v2.priest.start"),
+        new(PlayerClassIds.Thief,"Thief",WeaponTypeIds.Dagger,"tree.v2.thief.start")};
     public static IReadOnlyList<PlayerClassDefinition> All=>all;
     public static bool TryGet(string id,out PlayerClassDefinition value){foreach(var x in all)if(x.Id==id){value=x;return true;}value=null;return false;}
     public static bool IsValid(string id)=>TryGet(id,out _);
@@ -47,11 +47,11 @@ public sealed class WeaponTypeDefinition
     public readonly string Id,DisplayName,ProjectileMetadataHook,ArtHook,AudioHook;
     public readonly string[] AffixTags;
     public readonly float BaseDamageMin,BaseDamageMax,AttacksPerSecond,BaseCritChance;
-    public readonly bool IsRanged,RequiresAccuracyResolution;
+    public readonly bool IsRanged,RequiresAccuracyResolution,SupportsPrecision,SupportsRage;
     public int SkillSlotCount=>2;
     public IReadOnlyList<PlayerSkillId> SkillIds=>WeaponSkillBindings.For(Id);
     public WeaponTypeDefinition(string id,string name,float min,float max,float speed,bool ranged)
-    {Id=id;DisplayName=name;BaseDamageMin=min;BaseDamageMax=max;AttacksPerSecond=speed;BaseCritChance=.05f;IsRanged=ranged;RequiresAccuracyResolution=false;ProjectileMetadataHook=ranged?"projectile."+id:string.Empty;AffixTags=new[]{id,ranged?"weapon.ranged":"weapon.melee"};ArtHook="art."+id;AudioHook="audio."+id;}
+    {Id=id;DisplayName=name;BaseDamageMin=min;BaseDamageMax=max;AttacksPerSecond=speed;BaseCritChance=.05f;IsRanged=ranged;RequiresAccuracyResolution=false;SupportsPrecision=id==WeaponTypeIds.Bow;SupportsRage=id==WeaponTypeIds.TwoHandedAxe;ProjectileMetadataHook=ranged?"projectile."+id:string.Empty;AffixTags=new[]{id,ranged?"weapon.ranged":"weapon.melee"};ArtHook="art."+id;AudioHook="audio."+id;}
 }
 
 public static class WeaponTypeCatalog
@@ -131,6 +131,10 @@ public sealed class PassiveExtensionMetadata
     public string SpecializationGroupId;
     public bool MutuallyExclusive;
     public bool IsTravelNode;
+    // Empty in production for Step 17; future subclass items populate these.
+    public string TransformationIdentity;
+    public PassiveEffect[] TransformedEffects=Array.Empty<PassiveEffect>();
+    public bool SupportsTransformation=true;
 }
 
 public static class WeaponSkillBindings

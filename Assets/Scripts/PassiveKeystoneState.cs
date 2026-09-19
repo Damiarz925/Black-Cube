@@ -20,10 +20,7 @@ public sealed class PassiveKeystoneState : MonoBehaviour
         get
         {
             float factor = 1f;
-            if (Has(PassiveKeystone.LivingFortress)) factor *= 1.5f;
             if (Has(PassiveKeystone.ManaShield)) factor *= .75f;
-            if (Has(PassiveKeystone.IronBastion)) factor *= .7f;
-            if (Has(PassiveKeystone.UndyingFlesh)) factor *= .75f;
             return factor;
         }
     }
@@ -33,50 +30,30 @@ public sealed class PassiveKeystoneState : MonoBehaviour
         get
         {
             float factor = 1f;
-            if (Has(PassiveKeystone.LivingFortress)) factor *= .5f;
-            if (Has(PassiveKeystone.IronBastion)) factor *= 1.75f;
             return factor;
         }
     }
 
-    public float MaximumManaMultiplier => Has(PassiveKeystone.EndlessCurrent) ? .75f : 1f;
-    public float AttackSpeedMultiplier => (Has(PassiveKeystone.BruteForce) ? .75f : 1f)
-        * (Has(PassiveKeystone.Frenzy) ? 1.5f : 1f);
-    public float ManaCostMultiplier => Has(PassiveKeystone.ArcaneOverload) ? 2f : 1f;
+    public float MaximumManaMultiplier => 1f;
+    public float AttackSpeedMultiplier => Has(PassiveKeystone.BruteForce) ? .75f : 1f;
+    public float ManaCostMultiplier => 1f;
     public bool TransmutesHitsToPoison => Has(PassiveKeystone.VenomousTransmutation);
     // Deep Freeze is the finalized +10 percentage-point slow-cap specialization.
-    public float DeepFreezeMaximumEffectIncrease => Has(PassiveKeystone.DeepFreeze) ? .10f : 0f;
-    public float ChillEffectMultiplier => Has(PassiveKeystone.DeepFreeze) ? .75f : 1f;
-    public float ShockStackRequirementMultiplier => Has(PassiveKeystone.Overcharged) ? .5f : 1f;
-    public float ShockTriggeredHitMultiplier => Has(PassiveKeystone.Overcharged) ? .65f : 1f;
-    public float LifeRegenerationMultiplier => Has(PassiveKeystone.UndyingFlesh) ? 2f : 1f;
-    public float ManaRegenerationMultiplier => Has(PassiveKeystone.EndlessCurrent) ? 2f : 1f;
-    public int ProjectileAmountBonus => Has(PassiveKeystone.BulletHell) ? 2 : 0;
+    public float DeepFreezeMaximumEffectIncrease => 0f;
+    public float ChillEffectMultiplier => 1f;
+    public float ShockStackRequirementMultiplier => 1f;
+    public float ShockTriggeredHitMultiplier => 1f;
+    public float LifeRegenerationMultiplier => 1f;
+    public float ManaRegenerationMultiplier => 1f;
+    public int ProjectileAmountBonus => 0;
 
-    public float ChanceMultiplier(StatTypes stat) => stat switch
-    {
-        StatTypes.BleedChance => Has(PassiveKeystone.OpenWounds) ? 2f : 1f,
-        StatTypes.IgniteChance => Has(PassiveKeystone.Wildfire) ? 2f : 1f,
-        StatTypes.ChillChance => Has(PassiveKeystone.DeepFreeze) ? 2f : 1f,
-        StatTypes.ShockChance => Has(PassiveKeystone.Overcharged) ? 2f : 1f,
-        StatTypes.PoisonChance => Has(PassiveKeystone.ToxicSaturation) ? 2f : 1f,
-        StatTypes.ChanceToHitTwice => Has(PassiveKeystone.EchoingStrikes) ? 2f : 1f,
-        _ => 1f
-    };
+    public float ChanceMultiplier(StatTypes stat) => 1f;
 
-    public float AilmentDamageMultiplier(StatusEffects.AilmentKind ailment) => ailment switch
-    {
-        StatusEffects.AilmentKind.Bleed => Has(PassiveKeystone.OpenWounds) ? .65f : 1f,
-        StatusEffects.AilmentKind.Ignite => Has(PassiveKeystone.Wildfire) ? .7f : 1f,
-        StatusEffects.AilmentKind.Poison => Has(PassiveKeystone.ToxicSaturation) ? .6f : 1f,
-        _ => 1f
-    };
+    public float AilmentDamageMultiplier(StatusEffects.AilmentKind ailment) => 1f;
 
     public int EffectiveAilmentStackCap(StatusEffects effect)
     {
         if (effect == null || effect.MaxStacks <= 0) return effect != null ? effect.MaxStacks : 0;
-        if (effect.Ailment == StatusEffects.AilmentKind.Bleed && Has(PassiveKeystone.OpenWounds)) return effect.MaxStacks * 2;
-        if (effect.Ailment == StatusEffects.AilmentKind.Ignite && Has(PassiveKeystone.Wildfire)) return effect.MaxStacks + 1;
         return effect.MaxStacks;
     }
 
@@ -85,7 +62,6 @@ public sealed class PassiveKeystoneState : MonoBehaviour
         var result = Copy(source);
         Element? exclusive = null;
         if (Has(PassiveKeystone.BruteForce)) exclusive = Element.Phys;
-        else if (Has(PassiveKeystone.AbsoluteZero)) exclusive = Element.Cold;
         else if (Has(PassiveKeystone.InfernalConversion)) exclusive = Element.Fire;
         else if (Has(PassiveKeystone.LivingCurrent)) exclusive = Element.Light;
 
@@ -106,13 +82,6 @@ public sealed class PassiveKeystoneState : MonoBehaviour
         float factor = 1f;
         if (Has(PassiveKeystone.BruteForce)) factor *= 2f;
         else if (exclusive.HasValue) factor *= 1.25f;
-        if (Has(PassiveKeystone.ArcaneOverload) && (source.Scopes & DamageScope.Magic) != 0) factor *= 1.4f;
-        factor *= Has(PassiveKeystone.BallisticBarrage)
-            ? (source.Scopes & DamageScope.Projectile) != 0 ? 1.5f : .5f
-            : 1f;
-        if (Has(PassiveKeystone.Frenzy)) factor *= .7f;
-        if (Has(PassiveKeystone.EchoingStrikes)) factor *= .75f;
-        if (Has(PassiveKeystone.BulletHell) && (source.Scopes & DamageScope.Projectile) != 0) factor *= .65f;
         if (!Mathf.Approximately(factor, 1f))
             for (int i = 0; i < result.Hits.Count; i++)
             {
@@ -127,7 +96,8 @@ public sealed class PassiveKeystoneState : MonoBehaviour
     {
         var result = new DamageContext(1)
         {
-            IsCrit = source.IsCrit, CritMultiplier = source.CritMultiplier, Scopes = source.Scopes
+            IsCrit = source.IsCrit, CritMultiplier = source.CritMultiplier, Scopes = source.Scopes,
+            IsPrecision=source.IsPrecision,PrecisionMultiplier=source.PrecisionMultiplier,WeaponMechanicsApplied=source.WeaponMechanicsApplied
         };
         float total = 0f;
         if (source.Hits != null) foreach (var hit in source.Hits) total += Mathf.Max(0f, hit.Amount);
@@ -152,6 +122,7 @@ public sealed class PassiveKeystoneState : MonoBehaviour
             IsCrit = source.IsCrit,
             CritMultiplier = source.CritMultiplier,
             Scopes = source.Scopes
+            ,IsPrecision=source.IsPrecision,PrecisionMultiplier=source.PrecisionMultiplier,WeaponMechanicsApplied=source.WeaponMechanicsApplied
         };
         if (source.Hits != null)
             foreach (var hit in source.Hits) result.AddDamage(hit.Element, hit.Amount);

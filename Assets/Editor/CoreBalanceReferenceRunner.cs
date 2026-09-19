@@ -199,7 +199,7 @@ namespace BlackCube
             finally{stats.EndUpdate();}
             int[] ranks=BuildLegalRanks(playerLevel,archetype,controller.EquippedWeaponElement);
             foreach(int rank in ranks)passives+=rank;
-            if(!progression.RestoreProgression(playerLevel,0d,playerLevel-1-passives,ranks))
+            if(!progression.RestoreProgression(playerLevel,0d,playerLevel-passives,ranks))
                 throw new InvalidOperationException("Reference passives rejected by progression authority.");
             player.GetComponent<HealthComponent>().RestoreFullLife();
             InvokeAwake(player.GetComponent<ManaComponent>());

@@ -1,398 +1,185 @@
-// Canonical data-only layout and undirected adjacency graph for the radial passive tree.
-// Existing node ids 0-229 remain stable; statless outer travel-ring ids are 230-269.
+// Step 17 authoritative Passive Tree V2 data. Compact templates generate stable,
+// designer-readable nodes and explicit Cartesian layout data.
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 public enum PassiveBranch
 {
-    Defense, Life, Mana, Magic, Lightning, Fire, Poison, Projectile, Physical, Cold,
-    IncreasedProjectileAmount, AttackSpeed, BleedChance, PoisonChance, ChillChance,
-    IgniteChance, ShockChance, ChanceToHitTwice, LifeRegeneration, ManaRegeneration, EmptyTravel
+    Defense,Life,Mana,Magic,Lightning,Fire,Poison,Projectile,Physical,Cold,
+    IncreasedProjectileAmount,AttackSpeed,BleedChance,PoisonChance,ChillChance,
+    IgniteChance,ShockChance,ChanceToHitTwice,LifeRegeneration,ManaRegeneration,
+    CriticalChance,CriticalMultiplier,LifeOnHit,ManaOnHit,LifeOnKill,ManaOnKill,
+    Strength,Dexterity,Intelligence,CastSpeed,ProjectileSpeed,PrecisionChance,
+    PrecisionDamage,RageGeneration,RageEffect,RageRetention,EmptyTravel
 }
-
-public enum PassiveNodeSize { Small, Medium, Large }
-
+public enum PassiveNodeSize{Small,Medium,Large}
+public enum PassiveNodeKind{ClassStart,Travel,Small,Notable,Keystone}
+public enum PassiveRegion
+{
+    Warrior,Ranger,Thief,Mage,Priest,Barbarian,
+    WarriorRanger,RangerThief,ThiefMage,MagePriest,PriestBarbarian,BarbarianWarrior,Center
+}
 public enum PassiveKeystone
 {
-    None, IronBastion, LivingFortress, ManaShield, ArcaneOverload, LivingCurrent,
-    InfernalConversion, VenomousTransmutation, BallisticBarrage, BruteForce, AbsoluteZero,
-    OpenWounds, Wildfire, DeepFreeze, Overcharged, ToxicSaturation, UndyingFlesh,
-    EndlessCurrent, Frenzy, BulletHell, EchoingStrikes
+    None,BruteForce,InfernalConversion,VenomousTransmutation,ManaShield,LivingCurrent,RageFinisher,
+    // Retired V1 identities remain source-compatible but are absent from V2 data.
+    IronBastion,LivingFortress,ArcaneOverload,AbsoluteZero,BallisticBarrage,OpenWounds,Wildfire,
+    DeepFreeze,Overcharged,ToxicSaturation,UndyingFlesh,EndlessCurrent,Frenzy,BulletHell,EchoingStrikes
 }
 
+[Serializable] public readonly struct PassiveEffect
+{
+    public readonly StatTypes Stat;public readonly float Amount;
+    public PassiveEffect(StatTypes stat,float amount){Stat=stat;Amount=amount;}
+}
 public readonly struct PassiveNodeDefinition
 {
-    public readonly int Id;
-    public readonly PassiveBranch Branch;
-    public readonly int Position;
-    public readonly PassiveNodeSize Size;
-    public readonly float Magnitude;
-    public readonly int PrerequisiteId;
-    public readonly PassiveKeystone Keystone;
-    public readonly PassiveExtensionMetadata ExtensionMetadata;
-
-    public PassiveNodeDefinition(int id, PassiveBranch branch, int position,
-        PassiveNodeSize size, float magnitude, int prerequisiteId, PassiveKeystone keystone = PassiveKeystone.None,
-        PassiveExtensionMetadata extensionMetadata = null)
-    {
-        Id = id; Branch = branch; Position = position; Size = size;
-        Magnitude = magnitude; PrerequisiteId = prerequisiteId;
-        Keystone = keystone;
-        ExtensionMetadata=extensionMetadata;
-    }
+    public readonly int Id,Position,PrerequisiteId;public readonly string StableId,DisplayName,Description,WeaponTypeRestriction;
+    public readonly PassiveBranch Branch;public readonly PassiveNodeSize Size;public readonly PassiveNodeKind Kind;
+    public readonly PassiveRegion Region;public readonly Vector2 LayoutPosition;public readonly float Magnitude;
+    public readonly PassiveKeystone Keystone;public readonly PassiveEffect[] Effects;public readonly PassiveExtensionMetadata ExtensionMetadata;
+    public PassiveNodeDefinition(int id,string stable,string name,PassiveBranch branch,int position,PassiveNodeSize size,
+        PassiveNodeKind kind,PassiveRegion region,Vector2 layout,int prerequisite,PassiveEffect[] effects,string weapon=null,
+        PassiveKeystone keystone=PassiveKeystone.None,PassiveExtensionMetadata metadata=null,string description=null)
+    {Id=id;StableId=stable;DisplayName=name;Branch=branch;Position=position;Size=size;Kind=kind;Region=region;LayoutPosition=layout;
+        PrerequisiteId=prerequisite;Effects=effects??Array.Empty<PassiveEffect>();WeaponTypeRestriction=weapon??string.Empty;
+        Keystone=keystone;ExtensionMetadata=metadata??new PassiveExtensionMetadata();Description=description??string.Empty;
+        Magnitude=Effects.Length>0?Effects[0].Amount:0f;}
 }
-
-public readonly struct PassiveTreeEdge
-{
-    // A == -1 represents the always-allocated player root.
-    public readonly int A;
-    public readonly int B;
-    public PassiveTreeEdge(int a, int b) { A = a; B = b; }
-}
+public readonly struct PassiveTreeEdge{public readonly int A,B;public PassiveTreeEdge(int a,int b){A=a;B=b;}}
 
 public static class PassiveTreeDefinition
 {
-    public const int OriginalBranchCount = 10;
-    public const int BridgeBranchCount = 10;
-    public const int BranchCount = 21;
-    public const int OriginalNodesPerBranch = 12;
-    public const int NodesPerBranch = OriginalNodesPerBranch;
-    public const int BridgeNodesPerBranch = 11;
-    public const int RingNodesPerGap = 4;
-    public const int RingNodeCount = OriginalBranchCount * RingNodesPerGap;
-    public const int OriginalNodeCount = OriginalBranchCount * OriginalNodesPerBranch;
-    public const int ExistingNodeCount = OriginalNodeCount + BridgeBranchCount * BridgeNodesPerBranch;
-    public const int InnerKeystoneNodeCount = OriginalBranchCount;
-    public const int OuterKeystoneNodeCount = BridgeBranchCount;
-    public const int KeystoneNodeCount = InnerKeystoneNodeCount + OuterKeystoneNodeCount;
-    public const int KeystoneStartId = ExistingNodeCount + RingNodeCount;
-    public const int NodeCount = KeystoneStartId + KeystoneNodeCount;
-    public const float BranchAngleDegrees = 36f;
-    public const int PointCost = 1;
+    public const int ClassSectorCount=6,NodesPerSector=44,BridgeRegionCount=6,BridgeNodesPerRegion=10,CenterNodeCount=42;
+    public const int NodeCount=ClassSectorCount*NodesPerSector+BridgeRegionCount*BridgeNodesPerRegion+CenterNodeCount;
+    public const int PointCost=1;public const float WeaponSpecificEfficiencyMultiplier=1.60f;
+    // Compatibility values for atlas/tests that predate the V2 topology.
+    public const int OriginalBranchCount=10,BridgeBranchCount=10,BranchCount=37,OriginalNodesPerBranch=NodesPerSector,NodesPerBranch=NodesPerSector;
+    public const int RingNodesPerGap=0,RingNodeCount=0,OriginalNodeCount=ClassSectorCount*NodesPerSector,ExistingNodeCount=NodeCount;
+    public const int InnerKeystoneNodeCount=6,OuterKeystoneNodeCount=0,KeystoneNodeCount=6,KeystoneStartId=0;
+    public const float BranchAngleDegrees=60f;
 
-    static readonly PassiveNodeDefinition[] nodes = BuildNodes();
-    static readonly PassiveTreeEdge[] edges = BuildEdges();
-    static readonly int[][] adjacency = BuildAdjacency();
-    public static IReadOnlyList<PassiveNodeDefinition> Nodes => nodes;
-    public static IReadOnlyList<PassiveTreeEdge> Edges => edges;
+    static readonly List<PassiveNodeDefinition> buildingNodes=new(NodeCount);static readonly List<PassiveTreeEdge> buildingEdges=new(NodeCount+80);
+    static readonly Dictionary<string,int> stableIds=new(StringComparer.Ordinal);static readonly int[] starts=new int[6],travelEnds=new int[6];
+    static readonly string[] classes={PlayerClassIds.Warrior,PlayerClassIds.Ranger,PlayerClassIds.Thief,PlayerClassIds.Mage,PlayerClassIds.Priest,PlayerClassIds.Barbarian};
+    static readonly string[] slugs={"warrior","ranger","thief","mage","priest","barbarian"};static readonly float[] angles={90,30,-30,-90,-150,150};
+    static readonly string[] weapons={WeaponTypeIds.Sword,WeaponTypeIds.Bow,WeaponTypeIds.Dagger,WeaponTypeIds.Staff,WeaponTypeIds.Sceptre,WeaponTypeIds.TwoHandedAxe};
+    static readonly PassiveNodeDefinition[] nodes;static readonly PassiveTreeEdge[] edges;static readonly int[][] adjacency;
+    static PassiveTreeDefinition(){for(int i=0;i<6;i++)BuildSector(i);for(int i=0;i<6;i++)BuildBridge(i);BuildCenter();nodes=buildingNodes.ToArray();edges=buildingEdges.ToArray();adjacency=BuildAdjacency();if(nodes.Length!=NodeCount)throw new InvalidOperationException("Passive Tree V2 node count mismatch.");}
+    public static IReadOnlyList<PassiveNodeDefinition> Nodes=>nodes;public static IReadOnlyList<PassiveTreeEdge> Edges=>edges;
+    public static PassiveNodeDefinition Node(int id)=>id>=0&&id<NodeCount?nodes[id]:throw new ArgumentOutOfRangeException(nameof(id));
+    public static bool TryNode(string stable,out PassiveNodeDefinition node){if(stable!=null&&stableIds.TryGetValue(stable,out int id)){node=nodes[id];return true;}node=default;return false;}
+    public static int NodeId(string stable)=>stable!=null&&stableIds.TryGetValue(stable,out int id)?id:-1;
+    public static int StartNodeId(string classId){for(int i=0;i<classes.Length;i++)if(classes[i]==classId)return starts[i];return -1;}
+    public static bool IsClassStart(int id)=>id>=0&&id<NodeCount&&nodes[id].Kind==PassiveNodeKind.ClassStart;
+    public static bool IsKeystone(int id)=>id>=0&&id<NodeCount&&nodes[id].Kind==PassiveNodeKind.Keystone;
+    public static bool IsRootConnected(int id,string classId){int start=StartNodeId(classId);if(start<0||id<0||id>=NodeCount)return false;foreach(int x in adjacency[start])if(x==id)return true;return false;}
+    public static bool IsRootConnected(int id)=>IsRootConnected(id,PlayerClassIds.Warrior);public static IReadOnlyList<int> AdjacentNodeIds(int id)=>adjacency[id];
+    public static bool IsOriginalBranch(PassiveBranch branch)=>false;public static bool IsBridgeBranch(PassiveBranch branch)=>false;
+    public static bool IsRingBranch(PassiveBranch branch)=>branch==PassiveBranch.EmptyTravel;
+    public static int NodesInBranch(PassiveBranch branch){int c=0;foreach(var n in nodes)if(n.Branch==branch)c++;return c;}
+    public static int NodeId(PassiveBranch branch,int position){int c=0;foreach(var n in nodes)if(n.Branch==branch&&c++==position)return n.Id;throw new ArgumentOutOfRangeException(nameof(position));}
+    public static int TerminalNodeId(PassiveBranch branch)=>NodeId(branch,NodesInBranch(branch)-1);
+    public static PassiveKeystone KeystoneFor(PassiveBranch branch){foreach(var n in nodes)if(n.Branch==branch&&n.Keystone!=PassiveKeystone.None)return n.Keystone;return PassiveKeystone.None;}
+    public static int KeystoneNodeId(PassiveBranch branch){foreach(var n in nodes)if(n.Branch==branch&&n.Keystone!=PassiveKeystone.None)return n.Id;return -1;}
+#if UNITY_EDITOR
+    public static int FindIndexForTest(PassiveKeystone keystone){foreach(var n in nodes)if(n.Keystone==keystone)return n.Id;return -1;}
+#endif
+    public static PassiveBranch OuterKeystoneBranch(int index)=>throw new ArgumentOutOfRangeException(nameof(index));public static PassiveKeystone OuterKeystoneFor(PassiveBranch branch)=>PassiveKeystone.None;public static int OuterKeystoneNodeId(PassiveBranch branch)=>-1;
+    [Obsolete("Passive Tree V2 has explicit bridge regions.")] public static PassiveBranch BridgeAtClockwiseGap(int gap)=>PassiveBranch.EmptyTravel;
+    [Obsolete("Passive Tree V2 has explicit bridge regions.")] public static void BridgeEndpoints(PassiveBranch branch,out PassiveBranch left,out PassiveBranch right){left=right=PassiveBranch.EmptyTravel;}
+    public static string KeystoneName(PassiveKeystone k)=>k switch{PassiveKeystone.BruteForce=>"Titanic Blows",PassiveKeystone.InfernalConversion=>"Infernal Conversion",PassiveKeystone.VenomousTransmutation=>"Venomous Transmutation",PassiveKeystone.ManaShield=>"Mana Shield",PassiveKeystone.LivingCurrent=>"Living Current",PassiveKeystone.RageFinisher=>"Rage Finisher",_=>string.Empty};
+    public static string KeystoneEffect(PassiveKeystone k)=>k switch{PassiveKeystone.BruteForce=>"Large physical hits gain power while attack cadence is slower.",PassiveKeystone.InfernalConversion=>"50% of non-Fire hit damage converts to Fire; deal no non-Fire damage.",PassiveKeystone.VenomousTransmutation=>"Hits deal no direct damage; their hit basis becomes Poison damage.",PassiveKeystone.ManaShield=>"50% of damage is taken from Mana before Life; 25% less maximum Life.",PassiveKeystone.LivingCurrent=>"50% of non-Lightning hit damage converts to Lightning; deal no non-Lightning damage.",PassiveKeystone.RageFinisher=>"At 100 Rage, arm the next attack for 100% more damage and consume all Rage.",_=>string.Empty};
+    public static string DisplayName(PassiveBranch b)=>b switch{PassiveBranch.Poison=>"Void Damage",PassiveBranch.IncreasedProjectileAmount=>"Additional Projectiles",PassiveBranch.ChanceToHitTwice=>"Hit Twice",PassiveBranch.CriticalChance=>"Critical Chance",PassiveBranch.CriticalMultiplier=>"Critical Multiplier",PassiveBranch.PrecisionChance=>"Projectile Precision",PassiveBranch.PrecisionDamage=>"Precision Damage",_=>b.ToString()};
+    public static string GameplayMeaning(PassiveBranch b)=>DisplayName(b);public static bool UsesPercentDisplay(PassiveBranch b)=>b is not(PassiveBranch.LifeRegeneration or PassiveBranch.ManaRegeneration or PassiveBranch.LifeOnHit or PassiveBranch.ManaOnHit or PassiveBranch.LifeOnKill or PassiveBranch.ManaOnKill or PassiveBranch.IncreasedProjectileAmount or PassiveBranch.EmptyTravel);
 
-    public static PassiveNodeDefinition Node(int id)
+    static void BuildSector(int sector)
     {
-        if (id < 0 || id >= nodes.Length) throw new ArgumentOutOfRangeException(nameof(id));
-        return nodes[id];
-    }
-
-    public static bool IsOriginalBranch(PassiveBranch branch) => (int)branch < OriginalBranchCount;
-    public static bool IsBridgeBranch(PassiveBranch branch) =>
-        (int)branch >= OriginalBranchCount && (int)branch < OriginalBranchCount + BridgeBranchCount;
-    public static bool IsRingBranch(PassiveBranch branch) => branch == PassiveBranch.EmptyTravel;
-    public static int NodesInBranch(PassiveBranch branch) => IsOriginalBranch(branch) ? OriginalNodesPerBranch
-        : IsBridgeBranch(branch) ? BridgeNodesPerBranch : IsRingBranch(branch) ? RingNodeCount
-        : throw new ArgumentOutOfRangeException(nameof(branch));
-
-    // Original spoke ids intentionally retain their historic slots despite the new visual order.
-    static int StableSpokeSlot(PassiveBranch branch) => branch switch
-    {
-        PassiveBranch.Poison => 0, PassiveBranch.Life => 1, PassiveBranch.Defense => 2,
-        PassiveBranch.Mana => 3, PassiveBranch.Magic => 4, PassiveBranch.Projectile => 5,
-        PassiveBranch.Cold => 6, PassiveBranch.Fire => 7, PassiveBranch.Lightning => 8,
-        PassiveBranch.Physical => 9,
-        _ => throw new ArgumentException($"{branch} is not an original branch.", nameof(branch))
-    };
-
-    public static int NodeId(PassiveBranch branch, int position)
-    {
-        int count = NodesInBranch(branch);
-        if (position < 0 || position >= count) throw new ArgumentOutOfRangeException(nameof(position));
-        if (IsOriginalBranch(branch)) return StableSpokeSlot(branch) * OriginalNodesPerBranch + position;
-        if (IsBridgeBranch(branch))
-            return OriginalNodeCount + ((int)branch - OriginalBranchCount) * BridgeNodesPerBranch + position;
-        return ExistingNodeCount + position;
-    }
-
-    public static int TerminalNodeId(PassiveBranch branch) => NodeId(branch, NodesInBranch(branch) - 1);
-    public static int KeystoneNodeId(PassiveBranch branch) => KeystoneStartId + (int)branch;
-    public static int OuterKeystoneNodeId(PassiveBranch branch)
-    {
-        for (int i = 0; i < OuterKeystoneNodeCount; i++)
-            if (OuterKeystoneBranch(i) == branch) return KeystoneStartId + InnerKeystoneNodeCount + i;
-        throw new ArgumentException($"{branch} has no outer keystone.", nameof(branch));
-    }
-    public static bool IsKeystone(int id) => id >= KeystoneStartId && id < NodeCount;
-    public static bool IsRootConnected(int id) => id >= 0 && id < OriginalNodeCount && Node(id).Position == 0;
-    public static IReadOnlyList<int> AdjacentNodeIds(int id) => adjacency[id];
-
-    public static PassiveKeystone KeystoneFor(PassiveBranch branch) => branch switch
-    {
-        PassiveBranch.Defense => PassiveKeystone.IronBastion,
-        PassiveBranch.Life => PassiveKeystone.LivingFortress,
-        PassiveBranch.Mana => PassiveKeystone.ManaShield,
-        PassiveBranch.Magic => PassiveKeystone.ArcaneOverload,
-        PassiveBranch.Lightning => PassiveKeystone.LivingCurrent,
-        PassiveBranch.Fire => PassiveKeystone.InfernalConversion,
-        PassiveBranch.Poison => PassiveKeystone.VenomousTransmutation,
-        PassiveBranch.Projectile => PassiveKeystone.BallisticBarrage,
-        PassiveBranch.Physical => PassiveKeystone.BruteForce,
-        PassiveBranch.Cold => PassiveKeystone.AbsoluteZero,
-        _ => PassiveKeystone.None
-    };
-
-    public static PassiveBranch OuterKeystoneBranch(int index) => index switch
-    {
-        0 => PassiveBranch.BleedChance, 1 => PassiveBranch.IgniteChance,
-        2 => PassiveBranch.ChillChance, 3 => PassiveBranch.ShockChance,
-        4 => PassiveBranch.PoisonChance, 5 => PassiveBranch.LifeRegeneration,
-        6 => PassiveBranch.ManaRegeneration, 7 => PassiveBranch.AttackSpeed,
-        8 => PassiveBranch.IncreasedProjectileAmount, 9 => PassiveBranch.ChanceToHitTwice,
-        _ => throw new ArgumentOutOfRangeException(nameof(index))
-    };
-
-    public static PassiveKeystone OuterKeystoneFor(PassiveBranch branch) => branch switch
-    {
-        PassiveBranch.BleedChance => PassiveKeystone.OpenWounds,
-        PassiveBranch.IgniteChance => PassiveKeystone.Wildfire,
-        PassiveBranch.ChillChance => PassiveKeystone.DeepFreeze,
-        PassiveBranch.ShockChance => PassiveKeystone.Overcharged,
-        PassiveBranch.PoisonChance => PassiveKeystone.ToxicSaturation,
-        PassiveBranch.LifeRegeneration => PassiveKeystone.UndyingFlesh,
-        PassiveBranch.ManaRegeneration => PassiveKeystone.EndlessCurrent,
-        PassiveBranch.AttackSpeed => PassiveKeystone.Frenzy,
-        PassiveBranch.IncreasedProjectileAmount => PassiveKeystone.BulletHell,
-        PassiveBranch.ChanceToHitTwice => PassiveKeystone.EchoingStrikes,
-        _ => PassiveKeystone.None
-    };
-
-    public static string KeystoneName(PassiveKeystone keystone) => keystone switch
-    {
-        PassiveKeystone.IronBastion => "Iron Bastion", PassiveKeystone.LivingFortress => "Living Fortress",
-        PassiveKeystone.ManaShield => "Mana Shield", PassiveKeystone.ArcaneOverload => "Arcane Overload",
-        PassiveKeystone.LivingCurrent => "Living Current", PassiveKeystone.InfernalConversion => "Infernal Conversion",
-        PassiveKeystone.VenomousTransmutation => "Venomous Transmutation",
-        PassiveKeystone.BallisticBarrage => "Ballistic Barrage", PassiveKeystone.BruteForce => "Brute Force",
-        PassiveKeystone.AbsoluteZero => "Absolute Zero",
-        PassiveKeystone.OpenWounds => "Open Wounds", PassiveKeystone.Wildfire => "Wildfire",
-        PassiveKeystone.DeepFreeze => "Deep Freeze", PassiveKeystone.Overcharged => "Overcharged",
-        PassiveKeystone.ToxicSaturation => "Toxic Saturation", PassiveKeystone.UndyingFlesh => "Undying Flesh",
-        PassiveKeystone.EndlessCurrent => "Endless Current", PassiveKeystone.Frenzy => "Frenzy",
-        PassiveKeystone.BulletHell => "Bullet Hell", PassiveKeystone.EchoingStrikes => "Echoing Strikes",
-        _ => string.Empty
-    };
-
-    public static string KeystoneEffect(PassiveKeystone keystone) => keystone switch
-    {
-        PassiveKeystone.BruteForce => "Deal Double Damage\n25% LESS Attack Speed\nCan only deal Physical Damage",
-        PassiveKeystone.AbsoluteZero => "50% of non-Cold Damage converted to Cold\n25% MORE Damage\nCan deal no non-Cold Damage",
-        PassiveKeystone.InfernalConversion => "50% of non-Fire Damage converted to Fire\n25% MORE Damage\nCan deal no non-Fire Damage",
-        PassiveKeystone.LivingCurrent => "50% of non-Lightning Damage converted to Lightning\n25% MORE Damage\nCan deal no non-Lightning Damage",
-        PassiveKeystone.LivingFortress => "50% MORE Maximum Life\n50% LESS Defense",
-        PassiveKeystone.ManaShield => "50% of Damage Taken is taken from Mana before Life\n25% LESS Maximum Life",
-        PassiveKeystone.BallisticBarrage => "50% MORE Projectile Damage\n50% LESS Non-Projectile Damage\nProjectile behavior is a placeholder",
-        PassiveKeystone.ArcaneOverload => "40% MORE Magic Damage\nMana Costs are doubled",
-        PassiveKeystone.IronBastion => "75% MORE Defense\n30% LESS Maximum Life",
-        PassiveKeystone.VenomousTransmutation => "Hits deal no direct damage\n100% of Hit Damage is instead added to Poison Damage",
-        PassiveKeystone.OpenWounds => "Bleed Chance is doubled\nBleeds deal 35% LESS Damage\nBleeds can stack twice as many times",
-        PassiveKeystone.Wildfire => "Ignite Chance is doubled\nIgnite Damage is 30% LESS\nIgnites can stack one additional time",
-        PassiveKeystone.DeepFreeze => "Chill Chance is doubled\nChill Effectiveness is 25% LESS\nMaximum Chill Slow is increased by 10 percentage points (40% base cap)",
-        PassiveKeystone.Overcharged => "Shock Chance is doubled\nShock requires 50% fewer stacks\nShock-triggered hits deal 35% LESS Damage",
-        PassiveKeystone.ToxicSaturation => "Poison Chance is doubled\nPoison Damage is 40% LESS",
-        PassiveKeystone.UndyingFlesh => "Life Regeneration is doubled\n25% LESS Maximum Life",
-        PassiveKeystone.EndlessCurrent => "Mana Regeneration is doubled\n25% LESS Maximum Mana",
-        PassiveKeystone.Frenzy => "50% MORE Attack Speed\n30% LESS Hit Damage",
-        PassiveKeystone.BulletHell => "+2 Projectiles\nProjectiles deal 35% LESS Damage\nProjectile spawning is a placeholder",
-        PassiveKeystone.EchoingStrikes => "Chance to Hit Twice is doubled\nHits deal 25% LESS Damage",
-        _ => string.Empty
-    };
-
-    public static PassiveBranch BridgeAtClockwiseGap(int gap) => gap switch
-    {
-        0 => PassiveBranch.LifeRegeneration, 1 => PassiveBranch.ChanceToHitTwice,
-        2 => PassiveBranch.ManaRegeneration, 3 => PassiveBranch.ShockChance,
-        4 => PassiveBranch.IgniteChance, 5 => PassiveBranch.PoisonChance,
-        6 => PassiveBranch.IncreasedProjectileAmount, 7 => PassiveBranch.AttackSpeed,
-        8 => PassiveBranch.BleedChance, 9 => PassiveBranch.ChillChance,
-        _ => throw new ArgumentOutOfRangeException(nameof(gap))
-    };
-
-    public static void BridgeEndpoints(PassiveBranch branch, out PassiveBranch left, out PassiveBranch right)
-    {
-        switch (branch)
+        Vector2 d=Direction(angles[sector]),t=new(-d.y,d.x);var region=(PassiveRegion)sector;string slug=slugs[sector];
+        int start=Add($"tree.v2.{slug}.start",Title(slug)+" Start",PassiveBranch.EmptyTravel,PassiveNodeKind.ClassStart,region,d*2520,-1,Array.Empty<PassiveEffect>(),description:"Class anchor; costs no passive point.");starts[sector]=start;int previous=start;
+        for(int i=0;i<7;i++){var effects=TravelEffects(sector,i);var branch=BranchFor(effects[0].Stat);int id=Add($"tree.v2.{slug}.travel.{i+1:00}","Attribute Travel",branch,PassiveNodeKind.Travel,region,d*(2300-i*245),previous,effects);Edge(previous,id);previous=id;}travelEnds[sector]=previous;
+        for(int cluster=0;cluster<9;cluster++)
         {
-            case PassiveBranch.LifeRegeneration: left = PassiveBranch.Defense; right = PassiveBranch.Life; return;
-            case PassiveBranch.ChanceToHitTwice: left = PassiveBranch.Life; right = PassiveBranch.Mana; return;
-            case PassiveBranch.ManaRegeneration: left = PassiveBranch.Mana; right = PassiveBranch.Magic; return;
-            case PassiveBranch.ShockChance: left = PassiveBranch.Magic; right = PassiveBranch.Lightning; return;
-            case PassiveBranch.IgniteChance: left = PassiveBranch.Lightning; right = PassiveBranch.Fire; return;
-            case PassiveBranch.PoisonChance: left = PassiveBranch.Fire; right = PassiveBranch.Poison; return;
-            case PassiveBranch.IncreasedProjectileAmount: left = PassiveBranch.Poison; right = PassiveBranch.Projectile; return;
-            case PassiveBranch.AttackSpeed: left = PassiveBranch.Projectile; right = PassiveBranch.Physical; return;
-            case PassiveBranch.BleedChance: left = PassiveBranch.Physical; right = PassiveBranch.Cold; return;
-            case PassiveBranch.ChillChance: left = PassiveBranch.Cold; right = PassiveBranch.Defense; return;
-            default: throw new ArgumentException($"{branch} is not a bridge branch.", nameof(branch));
-        }
-    }
-
-    public static string DisplayName(PassiveBranch branch) => branch switch
-    {
-        PassiveBranch.IncreasedProjectileAmount => "Increased Projectile Amount",
-        PassiveBranch.AttackSpeed => "Attack Speed", PassiveBranch.BleedChance => "Bleed Chance",
-        PassiveBranch.Poison => "Void Damage",
-        PassiveBranch.PoisonChance => "Poison Chance", PassiveBranch.ChillChance => "Chill Chance",
-        PassiveBranch.IgniteChance => "Ignite Chance", PassiveBranch.ShockChance => "Shock Chance",
-        PassiveBranch.ChanceToHitTwice => "Chance to Hit Twice",
-        PassiveBranch.LifeRegeneration => "Life Regeneration",
-        PassiveBranch.ManaRegeneration => "Mana Regeneration",
-        PassiveBranch.EmptyTravel => "Outer Ring Travel", _ => branch.ToString()
-    };
-
-    public static string GameplayMeaning(PassiveBranch branch) => branch switch
-    {
-        PassiveBranch.Defense => "armour", PassiveBranch.Life => "maximum HP",
-        PassiveBranch.Mana => "maximum mana", PassiveBranch.Magic => "Magic-tagged damage",
-        PassiveBranch.Lightning => "Lightning damage", PassiveBranch.Fire => "Fire damage",
-        PassiveBranch.Poison => "Void damage", PassiveBranch.Projectile => "projectile skill damage",
-        PassiveBranch.Physical => "Physical damage", PassiveBranch.Cold => "Cold damage",
-        PassiveBranch.IncreasedProjectileAmount => "additional projectile amount",
-        PassiveBranch.AttackSpeed => "attack speed", PassiveBranch.BleedChance => "Bleed chance",
-        PassiveBranch.PoisonChance => "Poison chance", PassiveBranch.ChillChance => "Chill chance",
-        PassiveBranch.IgniteChance => "Ignite chance", PassiveBranch.ShockChance => "Shock chance",
-        PassiveBranch.ChanceToHitTwice => "chance to hit twice",
-        PassiveBranch.LifeRegeneration => "life regenerated per second",
-        PassiveBranch.ManaRegeneration => "mana regenerated per second",
-        PassiveBranch.EmptyTravel => "no stat bonus", _ => "bonus"
-    };
-
-    public static bool UsesPercentDisplay(PassiveBranch branch) =>
-        branch != PassiveBranch.IncreasedProjectileAmount && branch != PassiveBranch.LifeRegeneration
-        && branch != PassiveBranch.ManaRegeneration && branch != PassiveBranch.EmptyTravel;
-
-    static PassiveNodeSize NodeSize(int position, int firstLarge, int terminal) =>
-        position < firstLarge ? PassiveNodeSize.Small : position == firstLarge || position == terminal
-            ? PassiveNodeSize.Large : PassiveNodeSize.Medium;
-
-    static PassiveNodeDefinition[] BuildNodes()
-    {
-        var result = new PassiveNodeDefinition[NodeCount];
-        for (int i = 0; i < OriginalBranchCount; i++)
-        {
-            var branch = (PassiveBranch)i;
-            for (int position = 0; position < OriginalNodesPerBranch; position++)
+            int attach=start+1+cluster%7;bool weaponCluster=cluster is>=4 and<=7;string weapon=weaponCluster?weapons[sector]:string.Empty;var branch=SectorBranch(sector,cluster);
+            float side=(cluster%2==0?1:-1)*(260+90*(cluster/2));Vector2 origin=buildingNodes[attach].LayoutPosition+t*side+d*(cluster%3*35);int last=attach;
+            for(int step=0;step<4;step++)
             {
-                var size = NodeSize(position, 5, OriginalNodesPerBranch - 1);
-                float magnitude = size == PassiveNodeSize.Small ? 5f : size == PassiveNodeSize.Medium ? 10f : 25f;
-                int id = NodeId(branch, position);
-                result[id] = new PassiveNodeDefinition(id, branch, position, size, magnitude,
-                    position == 0 ? -1 : NodeId(branch, position - 1));
+                bool notable=step==3,keystone=notable&&cluster==8;var stone=keystone?SectorKeystone(sector):PassiveKeystone.None;var kind=keystone?PassiveNodeKind.Keystone:notable?PassiveNodeKind.Notable:PassiveNodeKind.Small;
+                float amount=SmallValue(branch)*(notable?2:1)*(weaponCluster?WeaponSpecificEfficiencyMultiplier:1);string district=weaponCluster?WeaponSlug(weapon):slug;string stable=$"tree.v2.{district}.{slug}.cluster.{cluster+1:00}.{step+1:00}";
+                var effects=keystone?Array.Empty<PassiveEffect>():ClusterEffects(branch,amount,sector,cluster,weaponCluster,notable);
+                int id=Add(stable,keystone?KeystoneName(stone):notable?DisplayName(branch)+" Mastery":(weaponCluster?WeaponName(weapon)+" ":string.Empty)+DisplayName(branch),branch,kind,region,origin+d*(step*92),last,effects,weapon,stone,TransformMetadata(stable,sector,weaponCluster),keystone?KeystoneEffect(stone):null);Edge(last,id);last=id;
             }
         }
-
-        for (int i = OriginalBranchCount; i < OriginalBranchCount + BridgeBranchCount; i++)
-        {
-            var branch = (PassiveBranch)i;
-            int first = NodeId(branch, 0);
-            BridgeEndpoints(branch, out var left, out var right);
-            for (int position = 0; position < BridgeNodesPerBranch; position++)
-            {
-                var size = NodeSize(position, 4, BridgeNodesPerBranch - 1);
-                float magnitude = branch switch
-                {
-                    PassiveBranch.IncreasedProjectileAmount => size == PassiveNodeSize.Small ? .25f : size == PassiveNodeSize.Medium ? .5f : 1f,
-                    PassiveBranch.ChanceToHitTwice => size == PassiveNodeSize.Small ? 2f : size == PassiveNodeSize.Medium ? 5f : 10f,
-                    PassiveBranch.LifeRegeneration or PassiveBranch.ManaRegeneration => size == PassiveNodeSize.Small ? 1f : size == PassiveNodeSize.Medium ? 3f : 10f,
-                    _ => size == PassiveNodeSize.Small ? 5f : size == PassiveNodeSize.Medium ? 10f : 25f
-                };
-                int id = first + position;
-                int prerequisite = position switch
-                {
-                    0 => TerminalNodeId(left), 1 => id - 1, 2 => TerminalNodeId(right),
-                    3 => id - 1, 4 => first + 1, _ => id - 1
-                };
-                result[id] = new PassiveNodeDefinition(id, branch, position, size, magnitude, prerequisite);
-            }
-        }
-
-        for (int position = 0; position < RingNodeCount; position++)
-        {
-            int id = NodeId(PassiveBranch.EmptyTravel, position);
-            int prerequisite = position % RingNodesPerGap == 0
-                ? TerminalNodeId(BridgeAtClockwiseGap(position / RingNodesPerGap)) : id - 1;
-            result[id] = new PassiveNodeDefinition(id, PassiveBranch.EmptyTravel, position,
-                PassiveNodeSize.Small, 0f, prerequisite);
-        }
-        for (int i = 0; i < OriginalBranchCount; i++)
-        {
-            var branch = (PassiveBranch)i;
-            int id = KeystoneNodeId(branch);
-            result[id] = new PassiveNodeDefinition(id, branch, OriginalNodesPerBranch,
-                PassiveNodeSize.Large, 0f, TerminalNodeId(branch), KeystoneFor(branch));
-        }
-        for (int i = 0; i < OuterKeystoneNodeCount; i++)
-        {
-            var branch = OuterKeystoneBranch(i);
-            int id = KeystoneStartId + InnerKeystoneNodeCount + i;
-            result[id] = new PassiveNodeDefinition(id, branch, BridgeNodesPerBranch,
-                PassiveNodeSize.Large, 0f, TerminalNodeId(branch), OuterKeystoneFor(branch));
-        }
-        return result;
     }
-
-    static PassiveTreeEdge[] BuildEdges()
+    static void BuildBridge(int bridge)
     {
-        var result = new List<PassiveTreeEdge>(310);
-        for (int i = 0; i < OriginalBranchCount; i++)
-        {
-            var branch = (PassiveBranch)i;
-            result.Add(new PassiveTreeEdge(-1, NodeId(branch, 0)));
-            for (int p = 1; p < OriginalNodesPerBranch; p++)
-                result.Add(new PassiveTreeEdge(NodeId(branch, p - 1), NodeId(branch, p)));
-        }
-        for (int i = OriginalBranchCount; i < OriginalBranchCount + BridgeBranchCount; i++)
-        {
-            var branch = (PassiveBranch)i;
-            int first = NodeId(branch, 0);
-            BridgeEndpoints(branch, out var left, out var right);
-            result.Add(new PassiveTreeEdge(TerminalNodeId(left), first));
-            result.Add(new PassiveTreeEdge(first, first + 1));
-            result.Add(new PassiveTreeEdge(TerminalNodeId(right), first + 2));
-            result.Add(new PassiveTreeEdge(first + 2, first + 3));
-            result.Add(new PassiveTreeEdge(first + 1, first + 4));
-            result.Add(new PassiveTreeEdge(first + 3, first + 4));
-            for (int p = 5; p < BridgeNodesPerBranch; p++)
-                result.Add(new PassiveTreeEdge(first + p - 1, first + p));
-        }
-        for (int gap = 0; gap < OriginalBranchCount; gap++)
-        {
-            int first = NodeId(PassiveBranch.EmptyTravel, gap * RingNodesPerGap);
-            result.Add(new PassiveTreeEdge(TerminalNodeId(BridgeAtClockwiseGap(gap)), first));
-            for (int p = 1; p < RingNodesPerGap; p++)
-                result.Add(new PassiveTreeEdge(first + p - 1, first + p));
-            result.Add(new PassiveTreeEdge(first + RingNodesPerGap - 1,
-                TerminalNodeId(BridgeAtClockwiseGap((gap + 1) % OriginalBranchCount))));
-        }
-        for (int i = 0; i < OriginalBranchCount; i++)
-        {
-            var branch = (PassiveBranch)i;
-            result.Add(new PassiveTreeEdge(TerminalNodeId(branch), KeystoneNodeId(branch)));
-        }
-        for (int i = 0; i < OuterKeystoneNodeCount; i++)
-        {
-            var branch = OuterKeystoneBranch(i);
-            result.Add(new PassiveTreeEdge(TerminalNodeId(branch), OuterKeystoneNodeId(branch)));
-        }
-        return result.ToArray();
+        int next=(bridge+1)%6,previous=travelEnds[bridge];Vector2 from=buildingNodes[previous].LayoutPosition,to=buildingNodes[travelEnds[next]].LayoutPosition;var region=(PassiveRegion)(6+bridge);
+        for(int i=0;i<10;i++){float f=(i+1f)/11;Vector2 p=Vector2.Lerp(from,to,f)*(1+.08f*Mathf.Sin(f*Mathf.PI));var branch=BridgeBranch(bridge,i);int id=Add($"tree.v2.bridge.{region.ToString().ToLowerInvariant()}.{i+1:00}",DisplayName(branch),branch,i==9?PassiveNodeKind.Notable:PassiveNodeKind.Small,region,p,previous,new[]{EffectFor(branch,SmallValue(branch)*(i==9?2:1))});Edge(previous,id);previous=id;}Edge(previous,travelEnds[next]);
     }
-
-    static int[][] BuildAdjacency()
+    static void BuildCenter()
     {
-        var lists = new List<int>[NodeCount];
-        for (int i = 0; i < lists.Length; i++) lists[i] = new List<int>(3);
-        foreach (var edge in edges)
-        {
-            if (edge.A < 0) continue;
-            lists[edge.A].Add(edge.B);
-            lists[edge.B].Add(edge.A);
-        }
-        var result = new int[NodeCount][];
-        for (int i = 0; i < result.Length; i++) result[i] = lists[i].ToArray();
-        return result;
+        int[] inner=new int[6];for(int s=0;s<6;s++){Vector2 d=Direction(angles[s]);int previous=travelEnds[s];for(int i=0;i<5;i++){var branch=i%2==0?PassiveBranch.EmptyTravel:SectorBranch(s,i);int id=Add($"tree.v2.center.{slugs[s]}.{i+1:00}",branch==PassiveBranch.EmptyTravel?"Confluence Travel":DisplayName(branch),branch,i==4?PassiveNodeKind.Notable:PassiveNodeKind.Travel,PassiveRegion.Center,d*(760-i*120),previous,branch==PassiveBranch.EmptyTravel?Array.Empty<PassiveEffect>():new[]{EffectFor(branch,SmallValue(branch))});Edge(previous,id);previous=id;}inner[s]=previous;}
+        int[] ring=new int[12];for(int i=0;i<12;i++){var branch=i%3==0?PassiveBranch.CastSpeed:i%3==1?PassiveBranch.Life:PassiveBranch.Mana;ring[i]=Add($"tree.v2.center.ring.{i+1:00}","Central "+DisplayName(branch),branch,i%2==0?PassiveNodeKind.Small:PassiveNodeKind.Travel,PassiveRegion.Center,Direction(90-i*30)*190,-1,new[]{EffectFor(branch,SmallValue(branch))});if(i>0)Edge(ring[i-1],ring[i]);}Edge(ring[11],ring[0]);for(int i=0;i<6;i++)Edge(inner[i],ring[i*2]);
     }
+    static int Add(string stable,string name,PassiveBranch branch,PassiveNodeKind kind,PassiveRegion region,Vector2 position,int prerequisite,PassiveEffect[] effects,string weapon=null,PassiveKeystone keystone=PassiveKeystone.None,PassiveExtensionMetadata metadata=null,string description=null)
+    {int id=buildingNodes.Count;if(stableIds.ContainsKey(stable))throw new InvalidOperationException("Duplicate passive ID: "+stable);stableIds.Add(stable,id);var size=kind==PassiveNodeKind.Notable?PassiveNodeSize.Medium:kind is PassiveNodeKind.Keystone or PassiveNodeKind.ClassStart?PassiveNodeSize.Large:PassiveNodeSize.Small;buildingNodes.Add(new(id,stable,name,branch,id,size,kind,region,position,prerequisite,effects,weapon,keystone,metadata,description));return id;}
+    static void Edge(int a,int b){buildingEdges.Add(new(a,b));}static Vector2 Direction(float a){float r=a*Mathf.Deg2Rad;return new(Mathf.Cos(r),Mathf.Sin(r));}static string Title(string s)=>char.ToUpperInvariant(s[0])+s.Substring(1);static string WeaponSlug(string s)=>s.Replace("weapon.",string.Empty);static string WeaponName(string id)=>WeaponTypeCatalog.TryGet(id,out var x)?x.DisplayName:"Weapon";
+    static PassiveExtensionMetadata TransformMetadata(string stable,int sector,bool specialized)=>new(){StableSectionId=stable.Substring(0,stable.LastIndexOf('.')),ClassStartIds=new[]{classes[sector]},SpecializationGroupId=specialized?"weapon":"generic",Affinities=Array.Empty<PassiveAffinity>()};
+    static PassiveEffect[] TravelEffects(int s,int i)
+    {
+        StatTypes a=s switch{0 or 5=>StatTypes.Strength,1 or 2=>StatTypes.Dexterity,_=>StatTypes.Intelligence};
+        StatTypes b=s switch{0=>StatTypes.Dexterity,2=>StatTypes.Intelligence,4=>StatTypes.Strength,_=>a};
+        var effects=new List<PassiveEffect>(4);
+        if(i%3==2&&a!=b){effects.Add(new PassiveEffect(a,3));effects.Add(new PassiveEffect(b,3));}
+        else effects.Add(new PassiveEffect(a,5));
+
+        // Every sector offers modest nearby access to broadly useful mechanics.
+        // These are intentionally secondary to the attribute travel and much
+        // weaker than each region's themed clusters.
+        switch(i)
+        {
+            case 0:effects.Add(new PassiveEffect(StatTypes.LifePercent,2));break;
+            case 1:effects.Add(new PassiveEffect(StatTypes.ManaPercent,2));break;
+            case 2:effects.Add(new PassiveEffect(StatTypes.CritChance,2));break;
+            case 3:effects.Add(new PassiveEffect(StatTypes.AttackSpeed,2));break;
+            case 4:effects.Add(new PassiveEffect(StatTypes.LifeOnHit,1));effects.Add(new PassiveEffect(StatTypes.ManaOnHit,1));break;
+            case 5:effects.Add(new PassiveEffect(StatTypes.ArmourPercent,2));break;
+            case 6:effects.Add(new PassiveEffect(StatTypes.ChanceToHitTwice,1));break;
+        }
+        return effects.ToArray();
+    }
+    static PassiveBranch SectorBranch(int s,int c)=>s switch{
+        0=>new[]{PassiveBranch.Life,PassiveBranch.Defense,PassiveBranch.ChanceToHitTwice,PassiveBranch.Physical,PassiveBranch.AttackSpeed,PassiveBranch.CriticalChance,PassiveBranch.LifeOnHit,PassiveBranch.BleedChance,PassiveBranch.Physical}[c],
+        1=>new[]{PassiveBranch.Projectile,PassiveBranch.AttackSpeed,PassiveBranch.CriticalChance,PassiveBranch.Lightning,PassiveBranch.PrecisionChance,PassiveBranch.PrecisionDamage,PassiveBranch.ProjectileSpeed,PassiveBranch.IncreasedProjectileAmount,PassiveBranch.ShockChance}[c],
+        2=>new[]{PassiveBranch.CriticalChance,PassiveBranch.CriticalMultiplier,PassiveBranch.PoisonChance,PassiveBranch.Poison,PassiveBranch.AttackSpeed,PassiveBranch.PoisonChance,PassiveBranch.Poison,PassiveBranch.ManaOnHit,PassiveBranch.PoisonChance}[c],
+        3=>new[]{PassiveBranch.Mana,PassiveBranch.ManaRegeneration,PassiveBranch.Fire,PassiveBranch.Cold,PassiveBranch.CastSpeed,PassiveBranch.Mana,PassiveBranch.ManaRegeneration,PassiveBranch.CriticalChance,PassiveBranch.Fire}[c],
+        4=>new[]{PassiveBranch.LifeRegeneration,PassiveBranch.ManaRegeneration,PassiveBranch.Defense,PassiveBranch.Cold,PassiveBranch.LifeOnHit,PassiveBranch.ManaOnHit,PassiveBranch.Cold,PassiveBranch.ChillChance,PassiveBranch.Mana}[c],
+        _=>new[]{PassiveBranch.Life,PassiveBranch.LifeRegeneration,PassiveBranch.Physical,PassiveBranch.BleedChance,PassiveBranch.RageGeneration,PassiveBranch.RageEffect,PassiveBranch.RageRetention,PassiveBranch.LifeOnHit,PassiveBranch.RageEffect}[c]};
+    static PassiveBranch BridgeBranch(int b,int i)=>b switch{0=>i%3==0?PassiveBranch.ChanceToHitTwice:i%3==1?PassiveBranch.AttackSpeed:PassiveBranch.CriticalChance,1=>i%2==0?PassiveBranch.CriticalChance:PassiveBranch.PrecisionChance,2=>i%2==0?PassiveBranch.Poison:PassiveBranch.ManaOnHit,3=>i%2==0?PassiveBranch.ManaRegeneration:PassiveBranch.ChillChance,4=>i%2==0?PassiveBranch.LifeRegeneration:PassiveBranch.LifeOnHit,_=>i%2==0?PassiveBranch.Physical:PassiveBranch.BleedChance};
+    static PassiveKeystone SectorKeystone(int s)=>s switch{0=>PassiveKeystone.BruteForce,1=>PassiveKeystone.LivingCurrent,2=>PassiveKeystone.VenomousTransmutation,3=>PassiveKeystone.InfernalConversion,4=>PassiveKeystone.ManaShield,_=>PassiveKeystone.RageFinisher};
+    static float SmallValue(PassiveBranch b)=>b switch{PassiveBranch.LifeRegeneration or PassiveBranch.ManaRegeneration or PassiveBranch.LifeOnHit or PassiveBranch.ManaOnHit or PassiveBranch.LifeOnKill or PassiveBranch.ManaOnKill=>2,PassiveBranch.IncreasedProjectileAmount=>1,PassiveBranch.ChanceToHitTwice=>3,PassiveBranch.CriticalMultiplier=>8,PassiveBranch.CriticalChance=>6,PassiveBranch.PrecisionChance=>5,PassiveBranch.PrecisionDamage=>10,PassiveBranch.RageGeneration or PassiveBranch.RageEffect or PassiveBranch.RageRetention=>8,_=>5};
+    static PassiveEffect EffectFor(PassiveBranch b,float v)=>new(StatFor(b),v);
+    static StatTypes StatFor(PassiveBranch b)=>b switch{PassiveBranch.Defense=>StatTypes.ArmourPercent,PassiveBranch.Life=>StatTypes.LifePercent,PassiveBranch.Mana=>StatTypes.ManaPercent,PassiveBranch.Magic=>StatTypes.MagicDmg,PassiveBranch.Lightning=>StatTypes.LightDmg,PassiveBranch.Fire=>StatTypes.FireDmg,PassiveBranch.Poison=>StatTypes.VoidDmg,PassiveBranch.Projectile=>StatTypes.ProjectileDmg,PassiveBranch.Physical=>StatTypes.PhysDmg,PassiveBranch.Cold=>StatTypes.ColdDmg,PassiveBranch.IncreasedProjectileAmount=>StatTypes.ProjectileAmount,PassiveBranch.AttackSpeed=>StatTypes.AttackSpeed,PassiveBranch.BleedChance=>StatTypes.BleedChance,PassiveBranch.PoisonChance=>StatTypes.PoisonChance,PassiveBranch.ChillChance=>StatTypes.ChillChance,PassiveBranch.IgniteChance=>StatTypes.IgniteChance,PassiveBranch.ShockChance=>StatTypes.ShockChance,PassiveBranch.ChanceToHitTwice=>StatTypes.ChanceToHitTwice,PassiveBranch.LifeRegeneration=>StatTypes.LifeRegeneration,PassiveBranch.ManaRegeneration=>StatTypes.ManaRegeneration,PassiveBranch.CriticalChance=>StatTypes.CritChance,PassiveBranch.CriticalMultiplier=>StatTypes.CritMult,PassiveBranch.LifeOnHit=>StatTypes.LifeOnHit,PassiveBranch.ManaOnHit=>StatTypes.ManaOnHit,PassiveBranch.LifeOnKill=>StatTypes.LifeOnKill,PassiveBranch.ManaOnKill=>StatTypes.ManaOnKill,PassiveBranch.Strength=>StatTypes.Strength,PassiveBranch.Dexterity=>StatTypes.Dexterity,PassiveBranch.Intelligence=>StatTypes.Intelligence,PassiveBranch.CastSpeed=>StatTypes.CastSpeed,PassiveBranch.ProjectileSpeed=>StatTypes.ProjectileSpeed,PassiveBranch.PrecisionChance=>StatTypes.ProjectilePrecisionChance,PassiveBranch.PrecisionDamage=>StatTypes.ProjectilePrecisionMultiplier,PassiveBranch.RageGeneration=>StatTypes.RageGeneration,PassiveBranch.RageEffect=>StatTypes.RageEffect,PassiveBranch.RageRetention=>StatTypes.RageDecayReduction,_=>StatTypes.GenericDmg};
+    static PassiveEffect[] ClusterEffects(PassiveBranch branch,float amount,int sector,int cluster,bool weapon,bool notable)
+    {
+        var effects=new List<PassiveEffect>{EffectFor(branch,amount)};
+        if(weapon&&sector==5&&cluster==4)effects.Add(new PassiveEffect(StatTypes.PhysDmg,amount*.5f));
+        if(weapon&&sector==5&&cluster==6)effects.Add(new PassiveEffect(StatTypes.BleedChance,amount*.5f));
+        if(weapon&&sector==3&&cluster==4)effects.Add(new PassiveEffect(StatTypes.MagicDmg,amount*.5f));
+        if(weapon&&sector==3&&cluster==5)effects.Add(new PassiveEffect(StatTypes.ManaOnHit,Mathf.Max(1,amount*.15f)));
+        if(weapon&&sector==3&&cluster==7)effects.Add(new PassiveEffect(StatTypes.MagicDmg,amount*.5f));
+        if(weapon&&sector==1&&cluster==4)effects.Add(new PassiveEffect(StatTypes.CritChance,amount*.5f));
+        if(weapon&&sector==1&&cluster==5)effects.Add(new PassiveEffect(StatTypes.ProjectileDmg,amount*.5f));
+        if(weapon&&sector==1&&cluster==6)effects.Add(new PassiveEffect(StatTypes.AttackSpeed,amount*.5f));
+        if(notable&&TryCompanion(branch,out var companion))effects.Add(new PassiveEffect(companion,Mathf.Max(1,SmallValue(branch)*.75f)));
+        return effects.ToArray();
+    }
+    static bool TryCompanion(PassiveBranch branch,out StatTypes stat)
+    {
+        stat=branch switch{PassiveBranch.Life=>StatTypes.LifeRegeneration,PassiveBranch.Mana=>StatTypes.ManaRegeneration,PassiveBranch.Defense=>StatTypes.LifePercent,PassiveBranch.Physical=>StatTypes.BleedChance,PassiveBranch.Fire=>StatTypes.IgniteChance,PassiveBranch.Cold=>StatTypes.ChillChance,PassiveBranch.Lightning=>StatTypes.ShockChance,PassiveBranch.CriticalChance=>StatTypes.CritMult,PassiveBranch.CriticalMultiplier=>StatTypes.CritChance,PassiveBranch.AttackSpeed=>StatTypes.ChanceToHitTwice,PassiveBranch.Projectile=>StatTypes.ProjectileSpeed,PassiveBranch.PrecisionChance=>StatTypes.ProjectilePrecisionMultiplier,PassiveBranch.PrecisionDamage=>StatTypes.ProjectilePrecisionChance,PassiveBranch.RageGeneration=>StatTypes.RageEffect,PassiveBranch.RageEffect=>StatTypes.RageDecayReduction,_=>(StatTypes)(-1)};
+        return (int)stat>=0;
+    }
+    static PassiveBranch BranchFor(StatTypes s)=>s switch{StatTypes.Strength=>PassiveBranch.Strength,StatTypes.Dexterity=>PassiveBranch.Dexterity,StatTypes.Intelligence=>PassiveBranch.Intelligence,_=>PassiveBranch.EmptyTravel};
+    static int[][] BuildAdjacency(){var x=new List<int>[NodeCount];for(int i=0;i<NodeCount;i++)x[i]=new();foreach(var e in edges){x[e.A].Add(e.B);x[e.B].Add(e.A);}var r=new int[NodeCount][];for(int i=0;i<NodeCount;i++)r[i]=x[i].ToArray();return r;}
 }

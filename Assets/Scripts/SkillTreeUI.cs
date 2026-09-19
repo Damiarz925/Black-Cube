@@ -19,6 +19,9 @@ public sealed class SkillTreeUI : MonoBehaviour
     TMP_Text points;
     TMP_Text xp;
     TMP_Text details;
+    Button refundAll;
+    TMP_Text refundAllLabel;
+    bool refundAllConfirmation;
     ScrollRect scroll;
     readonly Button[] nodes = new Button[PassiveTreeDefinition.NodeCount];
     readonly List<PassiveConnectionView> connections = new();
@@ -64,6 +67,8 @@ public sealed class SkillTreeUI : MonoBehaviour
         var close = Button(panel.transform, "Close", new Vector2(.82f, .905f), new Vector2(.97f, .97f), out var closeText);
         closeText.text = "RETURN TO BATTLE";
         close.onClick.AddListener(Close);
+        refundAll=Button(panel.transform,"Refund All",new Vector2(.66f,.905f),new Vector2(.81f,.97f),out refundAllLabel);
+        refundAllLabel.text="REFUND ALL";refundAll.onClick.AddListener(ConfirmRefundAll);
 
         var viewport = Box(panel.transform, "Tree Viewport", new Vector2(.025f, .145f), new Vector2(.975f, .825f), new Color(.045f, .052f, .062f, 1f));
         viewport.AddComponent<RectMask2D>();
@@ -97,22 +102,13 @@ public sealed class SkillTreeUI : MonoBehaviour
 
     void BuildTree(Transform content)
     {
-        var origin = Box(content, "Central Starting Point", Vector2.one * .5f, Vector2.one * .5f, new Color(.08f, .1f, .13f, 1f));
-        var originRect = (RectTransform)origin.transform;
-        originRect.sizeDelta = new Vector2(128f, 128f);
-        originRect.anchoredPosition = Vector2.zero;
-        var originImage = origin.GetComponent<Image>();
-        originImage.sprite = PassiveTreeIconAtlas.GetStart();
-        originImage.preserveAspect = true;
-        originImage.color = Color.white;
-
         var positions = new Vector2[PassiveTreeDefinition.NodeCount];
         foreach (PassiveNodeDefinition node in PassiveTreeDefinition.Nodes)
             positions[node.Id] = CalculateNodePosition(node);
 
         foreach (PassiveTreeEdge edge in PassiveTreeDefinition.Edges)
         {
-            Vector2 from = edge.A < 0 ? Vector2.zero : positions[edge.A];
+            Vector2 from = positions[edge.A];
             Image image = Line(content, from, positions[edge.B], out Outline outline);
             connections.Add(new PassiveConnectionView { A = edge.A, B = edge.B, Image = image, Outline = outline });
         }
@@ -125,87 +121,26 @@ public sealed class SkillTreeUI : MonoBehaviour
             nodes[node.Id].onClick.AddListener(() => SelectAndSpend(nodeId));
             nodes[node.Id].gameObject.AddComponent<PassiveNodeView>().Initialize(this, nodeId);
 
-            if (!PassiveTreeDefinition.IsKeystone(node.Id) && !PassiveTreeDefinition.IsRingBranch(node.Branch)
-                && node.Position == PassiveTreeDefinition.NodesInBranch(node.Branch) - 1)
-            {
-                Vector2 direction = position.normalized;
-                var label = Text(content, node.Branch + " Branch", Vector2.one * .5f, Vector2.one * .5f, 20);
-                label.rectTransform.sizeDelta = new Vector2(340f, 72f);
-                Vector2 tangent = new Vector2(-direction.y, direction.x);
-                label.rectTransform.anchoredPosition = PassiveTreeDefinition.IsBridgeBranch(node.Branch)
-                    ? position - direction * 120f + tangent * 215f
-                    : position + direction * 150f + tangent * 230f;
-                label.alignment = TextAlignmentOptions.Center;
-                label.text = PassiveTreeDefinition.DisplayName(node.Branch).ToUpperInvariant();
-                label.color = BranchColor(node.Branch);
-                branchLabels[node.Branch] = label;
-            }
+            if(node.Kind==PassiveNodeKind.ClassStart){var label=Text(content,node.DisplayName+" Label",Vector2.one*.5f,Vector2.one*.5f,20);label.rectTransform.sizeDelta=new Vector2(300,60);label.rectTransform.anchoredPosition=position+position.normalized*110;label.alignment=TextAlignmentOptions.Center;label.text=node.DisplayName.ToUpperInvariant();label.color=BranchColor(node.Branch);}
         }
     }
 
     public static Vector2 CalculateNodePosition(PassiveNodeDefinition node)
     {
-        if (PassiveTreeDefinition.IsKeystone(node.Id))
-            return PassiveTreeDefinition.IsOriginalBranch(node.Branch)
-                ? OriginalDirection(node.Branch) * 1825f
-                : BridgeDirection(node.Branch) * 2825f;
-        if (PassiveTreeDefinition.IsOriginalBranch(node.Branch))
-            return OriginalDirection(node.Branch) * (190f + node.Position * 125f);
-
-        if (PassiveTreeDefinition.IsRingBranch(node.Branch))
-        {
-            int gap = node.Position / PassiveTreeDefinition.RingNodesPerGap;
-            int offset = node.Position % PassiveTreeDefinition.RingNodesPerGap;
-            Vector2 from = BridgeDirection(PassiveTreeDefinition.BridgeAtClockwiseGap(gap));
-            Vector2 to = BridgeDirection(PassiveTreeDefinition.BridgeAtClockwiseGap((gap + 1) % PassiveTreeDefinition.OriginalBranchCount));
-            // Four travel nodes divide the arc between neighboring terminal larges.
-            // None occupies the radial keystone lane: the ring exits each terminal
-            // sideways while its keystone remains the lone outward leaf.
-            float fraction = (offset + 1f) / (PassiveTreeDefinition.RingNodesPerGap + 1f);
-            float angle = Vector2.SignedAngle(from, to) * fraction;
-            return (Quaternion.Euler(0f, 0f, angle) * from) * 2700f;
-        }
-
-        PassiveTreeDefinition.BridgeEndpoints(node.Branch, out PassiveBranch left, out PassiveBranch right);
-        Vector2 leftTerminal = OriginalDirection(left) * (190f + (PassiveTreeDefinition.OriginalNodesPerBranch - 1) * 125f);
-        Vector2 rightTerminal = OriginalDirection(right) * (190f + (PassiveTreeDefinition.OriginalNodesPerBranch - 1) * 125f);
-        Vector2 outward = (OriginalDirection(left) + OriginalDirection(right)).normalized;
-        Vector2 merge = outward * 1850f;
-        return node.Position switch
-        {
-            0 => Vector2.Lerp(leftTerminal, merge, 1f / 3f),
-            1 => Vector2.Lerp(leftTerminal, merge, 2f / 3f),
-            2 => Vector2.Lerp(rightTerminal, merge, 1f / 3f),
-            3 => Vector2.Lerp(rightTerminal, merge, 2f / 3f),
-            4 => merge,
-            _ => outward * (1850f + (node.Position - 4) * 125f)
-        };
-    }
-
-    static Vector2 BridgeDirection(PassiveBranch branch)
-    {
-        PassiveTreeDefinition.BridgeEndpoints(branch, out var left, out var right);
-        return (OriginalDirection(left) + OriginalDirection(right)).normalized;
-    }
-
-    static Vector2 OriginalDirection(PassiveBranch branch)
-    {
-        float angle = (90f - (int)branch * PassiveTreeDefinition.BranchAngleDegrees) * Mathf.Deg2Rad;
-        return new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
+        return node.LayoutPosition;
     }
 
     Button CreateNodeButton(Transform parent, PassiveNodeDefinition node, Vector2 position)
     {
         float size = PassiveTreeDefinition.IsKeystone(node.Id) ? 156f
             : node.Size switch { PassiveNodeSize.Small => 58f, PassiveNodeSize.Medium => 78f, _ => 108f };
-        string objectName = PassiveTreeDefinition.IsKeystone(node.Id)
-            ? PassiveTreeDefinition.KeystoneName(node.Keystone) : $"{node.Branch} {node.Position + 1:00}";
+        string objectName = node.DisplayName;
         var go = Box(parent, objectName, Vector2.one * .5f, Vector2.one * .5f, Color.white);
         var rect = (RectTransform)go.transform;
         rect.sizeDelta = Vector2.one * size;
         rect.anchoredPosition = position;
         var image = go.GetComponent<Image>();
-        image.sprite = PassiveTreeDefinition.IsKeystone(node.Id)
+        image.sprite = node.Kind==PassiveNodeKind.ClassStart?PassiveTreeIconAtlas.GetStart():PassiveTreeDefinition.IsKeystone(node.Id)
             ? PassiveTreeIconAtlas.GetKeystone(node.Keystone, PassiveNodeVisualState.Inactive)
             : PassiveTreeIconAtlas.Get(node.Branch, node.Size, PassiveNodeVisualState.Inactive);
         image.preserveAspect = true;
@@ -215,7 +150,7 @@ public sealed class SkillTreeUI : MonoBehaviour
 
         var amount = Text(go.transform, "Magnitude", new Vector2(.05f, -.3f), new Vector2(.95f, .12f), node.Size == PassiveNodeSize.Small ? 10 : 12);
         amount.alignment = TextAlignmentOptions.Center;
-        amount.text = PassiveTreeDefinition.IsRingBranch(node.Branch) || PassiveTreeDefinition.IsKeystone(node.Id)
+        amount.text = node.Effects.Length==0 || PassiveTreeDefinition.IsKeystone(node.Id)
             ? string.Empty : MagnitudeText(node.Branch, node.Magnitude);
         amount.color = new Color(.98f, .88f, .65f);
         return button;
@@ -254,8 +189,8 @@ public sealed class SkillTreeUI : MonoBehaviour
 
         foreach (PassiveConnectionView connection in connections)
         {
-            bool allocated = (connection.A < 0 || progression.IsAllocated(connection.A))
-                && progression.IsAllocated(connection.B);
+            bool allocated = (PassiveTreeDefinition.IsClassStart(connection.A)?connection.A==progression.ActiveStartNodeId:progression.IsAllocated(connection.A))
+                && (PassiveTreeDefinition.IsClassStart(connection.B)?connection.B==progression.ActiveStartNodeId:progression.IsAllocated(connection.B));
             connection.Image.color = allocated ? ConnectionAllocated : ConnectionInactive;
             connection.Outline.enabled = allocated;
         }
@@ -292,7 +227,8 @@ public sealed class SkillTreeUI : MonoBehaviour
         selectedNode = nodeId;
         PassiveNodeDefinition node = PassiveTreeDefinition.Node(nodeId);
         string state;
-        if (progression.IsAllocated(nodeId)) state = progression.CanRefund(nodeId)
+        if(node.Kind==PassiveNodeKind.ClassStart)state=node.Id==progression.ActiveStartNodeId?"ACTIVE CLASS ORIGIN — COSTS NO POINTS":"INACTIVE CLASS LANDMARK";
+        else if (progression.IsAllocated(nodeId)) state = progression.CanRefund(nodeId)
             ? "ALLOCATED — RIGHT-CLICK TO REFUND"
             : "ALLOCATED — REFUND WOULD DISCONNECT ANOTHER NODE";
         else if (!HasAllocatedConnection(nodeId)) state = "LOCKED — REQUIRES AN ADJACENT NODE";
@@ -303,7 +239,7 @@ public sealed class SkillTreeUI : MonoBehaviour
             details.text = $"<b>{PassiveTreeDefinition.KeystoneName(node.Keystone).ToUpperInvariant()} / KEYSTONE</b>\n{PassiveTreeDefinition.KeystoneEffect(node.Keystone)}\n<size=13>{state}</size>";
             return;
         }
-        string bonus = PassiveTreeDefinition.IsRingBranch(node.Branch)
+        string bonus = node.Effects.Length==0
             ? "NO STAT BONUS"
             : $"{MagnitudeText(node.Branch, node.Magnitude)} {PassiveTreeDefinition.GameplayMeaning(node.Branch)}";
         details.text = $"<b>{PassiveTreeDefinition.DisplayName(node.Branch).ToUpperInvariant()} / {node.Size.ToString().ToUpperInvariant()} NODE</b>     {bonus}\n<size=13>{state}     /     BRANCH TOTAL: {TotalText(node.Branch, progression.GetBonus(node.Branch))}</size>";
@@ -311,7 +247,7 @@ public sealed class SkillTreeUI : MonoBehaviour
 
     bool HasAllocatedConnection(int nodeId)
     {
-        if (PassiveTreeDefinition.IsRootConnected(nodeId)) return true;
+        if (PassiveTreeDefinition.IsRootConnected(nodeId,progression.ActiveClassId)) return true;
         foreach (int adjacent in PassiveTreeDefinition.AdjacentNodeIds(nodeId))
             if (progression.IsAllocated(adjacent)) return true;
         return false;
@@ -352,6 +288,13 @@ public sealed class SkillTreeUI : MonoBehaviour
         ShowDetails(nodeId);
     }
 
+    void ConfirmRefundAll()
+    {
+        if(progression==null)return;
+        if(!refundAllConfirmation){refundAllConfirmation=true;refundAllLabel.text="CONFIRM REFUND ALL";return;}
+        progression.RefundAll();refundAllConfirmation=false;refundAllLabel.text="REFUND ALL";selectedNode=-1;Refresh();
+    }
+
     public void Toggle()
     {
         if (panel == null || hud.player == null || hud.player.CurrentLife <= 0f) return;
@@ -369,7 +312,7 @@ public sealed class SkillTreeUI : MonoBehaviour
         Refresh();
     }
 
-    public void Close() { IsOpen = false; if (panel != null) panel.SetActive(false); }
+    public void Close() { IsOpen = false;refundAllConfirmation=false;if(refundAllLabel!=null)refundAllLabel.text="REFUND ALL";if (panel != null) panel.SetActive(false); }
 
     public void AdjustZoom(PointerEventData eventData)
     {
@@ -667,6 +610,7 @@ static class PassiveTreeIconAtlas
         PassiveKeystone.Frenzy => "Frenzy",
         PassiveKeystone.BulletHell => "BulletHell",
         PassiveKeystone.EchoingStrikes => "EchoingStrikes",
+        PassiveKeystone.RageFinisher => "BruteForce",
         _ => string.Empty
     };
 
@@ -706,12 +650,22 @@ static class PassiveTreeIconAtlas
 
     static Sprite BuildFromIndividualSheet(PassiveBranch branch, Texture2D sheet, int sizeIndex, PassiveNodeVisualState state)
     {
-        int branchIndex = (int)branch;
+        int branchIndex = AtlasIndex(branch);
         int cropSize = TierCropSizes[branchIndex, sizeIndex];
         Color[] pixels = CropPadded(sheet, TierCenterX[branchIndex, sizeIndex], TierCenterY[branchIndex, sizeIndex], cropSize);
         TintState(pixels, state);
         return Create(pixels, cropSize, null);
     }
+
+    static int AtlasIndex(PassiveBranch branch)=>(int)branch<21?(int)branch:branch switch
+    {
+        PassiveBranch.CriticalChance or PassiveBranch.CriticalMultiplier=>7,
+        PassiveBranch.LifeOnHit or PassiveBranch.LifeOnKill=>1,
+        PassiveBranch.ManaOnHit or PassiveBranch.ManaOnKill=>2,
+        PassiveBranch.Strength=>8,PassiveBranch.Dexterity=>11,PassiveBranch.Intelligence=>3,
+        PassiveBranch.CastSpeed=>3,PassiveBranch.ProjectileSpeed or PassiveBranch.PrecisionChance or PassiveBranch.PrecisionDamage=>7,
+        PassiveBranch.RageGeneration or PassiveBranch.RageEffect or PassiveBranch.RageRetention=>8,_=>20
+    };
 
     static Color[] CropPadded(Texture2D source, float centerX, float topCenterY, int size)
     {
