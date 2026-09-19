@@ -15,6 +15,7 @@ public sealed class PlayerProgression : MonoBehaviour
     [SerializeField] double experience;
     [SerializeField] int availablePoints = 1;
     [SerializeField] int[] ranks = new int[PassiveTreeDefinition.NodeCount];
+    [SerializeField] List<int> transformedNodeIds = new();
 
     const double ReqAtLevel10Xp = 300d;
     const double ReqAtLevel16Xp = 619d;
@@ -51,6 +52,25 @@ public sealed class PlayerProgression : MonoBehaviour
     public int Rank(int node) => ranks != null && node >= 0 && node < ranks.Length && ranks[node] != 0 ? 1 : 0;
     public int[] CopyRanks() => ranks != null ? (int[])ranks.Clone() : new int[PassiveTreeDefinition.NodeCount];
     public bool IsAllocated(int node) => Rank(node) > 0;
+    public bool IsTransformed(int node)=>transformedNodeIds!=null&&transformedNodeIds.Contains(node);
+    public int TransformedCount=>transformedNodeIds?.Count??0;
+    public string[] CopyTransformedStableIds(){var result=new List<string>();if(transformedNodeIds!=null)foreach(int id in transformedNodeIds)if(id>=0&&id<PassiveTreeDefinition.NodeCount)result.Add(PassiveTreeDefinition.Node(id).StableId);return result.ToArray();}
+    public bool CanTransform(int node)
+    {
+        if(!IsAllocated(node)||IsTransformed(node)||TransformedCount>=SubclassTransformationProfile.MaximumTransformedNodes)return false;
+        var definition=PassiveTreeDefinition.Node(node);if(definition.Kind is PassiveNodeKind.ClassStart or PassiveNodeKind.Keystone||definition.ExtensionMetadata?.SupportsTransformation==false)return false;
+        if((identity??=GetComponent<PlayerIdentityState>())==null||!identity.HasSubclassSigil||string.IsNullOrEmpty(identity.SelectedSubclassId))return false;
+        if(TransformedCount==0)return true;foreach(int adjacent in PassiveTreeDefinition.AdjacentNodeIds(node))if(IsTransformed(adjacent))return true;return false;
+    }
+    public bool TryTransform(int node){if(!CanTransform(node))return false;transformedNodeIds.Add(node);ApplySkills();Changed?.Invoke();GamePersistence.MarkDirty();return true;}
+    public bool TryRemoveTransformation(int node){if(!IsTransformed(node))return false;transformedNodeIds.Remove(node);if(!ValidTransformedConnectivity())transformedNodeIds.Add(node);else{ApplySkills();Changed?.Invoke();GamePersistence.MarkDirty();return true;}return false;}
+    public void ClearTransformations(){if(transformedNodeIds==null||transformedNodeIds.Count==0)return;transformedNodeIds.Clear();ApplySkills();Changed?.Invoke();GamePersistence.MarkDirty();}
+    public bool RestoreTransformations(IEnumerable<string> stableIds)
+    {
+        var restored=new List<int>();if(stableIds!=null)foreach(string stable in stableIds){int id=PassiveTreeDefinition.NodeId(stable);if(id<0||!IsAllocated(id)||PassiveTreeDefinition.IsClassStart(id)||PassiveTreeDefinition.IsKeystone(id)||restored.Contains(id)||restored.Count>=SubclassTransformationProfile.MaximumTransformedNodes)return false;restored.Add(id);}
+        transformedNodeIds=restored;if(!ValidTransformedConnectivity())return false;ApplySkills();Changed?.Invoke();return true;
+    }
+    bool ValidTransformedConnectivity(){if(TransformedCount<=1)return true;var reached=new HashSet<int>();var q=new Queue<int>();q.Enqueue(transformedNodeIds[0]);reached.Add(transformedNodeIds[0]);while(q.Count>0)foreach(int adjacent in PassiveTreeDefinition.AdjacentNodeIds(q.Dequeue()))if(IsTransformed(adjacent)&&reached.Add(adjacent))q.Enqueue(adjacent);return reached.Count==TransformedCount;}
     public bool HasKeystone(PassiveKeystone keystone)
     {
         if (keystone == PassiveKeystone.None) return false;
@@ -114,6 +134,7 @@ public sealed class PlayerProgression : MonoBehaviour
     public bool TryRefund(int node)
     {
         if (!CanRefund(node)) return false;
+        if(IsTransformed(node))transformedNodeIds.Remove(node);
         ranks[node] = 0;
         availablePoints += PassiveTreeDefinition.PointCost;
         BindStats();
@@ -125,6 +146,7 @@ public sealed class PlayerProgression : MonoBehaviour
 
     public void RefundAll()
     {
+        transformedNodeIds?.Clear();
         int refunded=0;for(int i=0;i<ranks.Length;i++)if(ranks[i]!=0){ranks[i]=0;refunded++;}
         availablePoints+=refunded;BindStats();ApplySkills();Changed?.Invoke();GamePersistence.MarkDirty();
     }
@@ -176,6 +198,7 @@ public sealed class PlayerProgression : MonoBehaviour
         experience = 0;
         availablePoints = 1;
         ranks = new int[PassiveTreeDefinition.NodeCount];
+        transformedNodeIds = new List<int>();
         BindStats();
         ApplySkills();
         Changed?.Invoke();
@@ -199,6 +222,7 @@ public sealed class PlayerProgression : MonoBehaviour
         experience = restoredExperience;
         availablePoints = restoredAvailablePoints;
         ranks = (int[])restoredRanks.Clone();
+        transformedNodeIds = new List<int>();
         BindStats();
         ApplySkills();
         Changed?.Invoke();
@@ -216,6 +240,7 @@ public sealed class PlayerProgression : MonoBehaviour
         boundKeystones = boundPlayer.GetComponent<PassiveKeystoneState>();
         if (boundKeystones == null) boundKeystones = boundPlayer.gameObject.AddComponent<PassiveKeystoneState>();
         boundPlayer.AttackChanged-=OnWeaponChanged;boundPlayer.AttackChanged+=OnWeaponChanged;
+        identity??=GetComponent<PlayerIdentityState>();if(identity!=null){identity.Changed-=OnIdentityChanged;identity.Changed+=OnIdentityChanged;}
         ApplySkills();
     }
 
@@ -233,16 +258,36 @@ public sealed class PlayerProgression : MonoBehaviour
             {
                 if(!IsAllocated(node.Id))continue;
                 if(!string.IsNullOrEmpty(node.WeaponTypeRestriction)&&node.WeaponTypeRestriction!=equipped)continue;
-                foreach(var effect in node.Effects)boundStats.AddModifier(new StatModifier(effect.Stat,StatOp.Flat,effect.Amount,this));
+                var effects=IsTransformed(node.Id)&&identity!=null?SubclassTransformationProfile.Effects(identity.SelectedSubclassId,node):node.Effects;
+                foreach(var effect in effects)boundStats.AddModifier(new StatModifier(effect.Stat,StatOp.Flat,effect.Amount,this));
             }
+            ApplySubclassCoreModifiers();
             boundKeystones?.Apply(this);
         }
         finally { boundStats.EndUpdate(); }
     }
 
+    void ApplySubclassCoreModifiers()
+    {
+        string subclass=(identity??=GetComponent<PlayerIdentityState>())?.SelectedSubclassId;
+        void Add(StatTypes stat,float amount)=>boundStats.AddModifier(new StatModifier(stat,StatOp.Flat,amount,this));
+        switch(subclass)
+        {
+            case SubclassIds.WarriorBleed:Add(StatTypes.BleedChance,20);Add(StatTypes.BleedDmg,40);break;
+            case SubclassIds.WarriorMultihit:Add(StatTypes.AttackSpeed,10);Add(StatTypes.ChanceToHitTwice,10);break;
+            case SubclassIds.BarbarianBigHit:Add(StatTypes.AttackSpeed,-25);Add(StatTypes.PhysMult,60);break;
+            case SubclassIds.RangerPoison:Add(StatTypes.PoisonChance,20);Add(StatTypes.PoisonDmg,40);Add(StatTypes.PoisonDuration,25);Add(StatTypes.PoisonSpeed,25);break;
+            case SubclassIds.RangerProjectile:Add(StatTypes.ProjectileAmount,1);Add(StatTypes.ProjectileSpeed,20);Add(StatTypes.ProjectilePrecisionChance,15);break;
+            case SubclassIds.MageCooldown:Add(StatTypes.CooldownReduction,20);break;
+            case SubclassIds.MageStorm:Add(StatTypes.ShockEffect,50);break;
+            case SubclassIds.ThiefAssassin:Add(StatTypes.CritChance,10);Add(StatTypes.CritMult,50);break;
+        }
+    }
+
     public void ReleaseSceneReferences()
     {
         if(boundPlayer!=null)boundPlayer.AttackChanged-=OnWeaponChanged;
+        if(identity!=null)identity.Changed-=OnIdentityChanged;
         boundKeystones?.Apply(null);
         if (boundStats != null) boundStats.RemoveModifiersFromSource(this);
         boundStats = null;
@@ -251,6 +296,7 @@ public sealed class PlayerProgression : MonoBehaviour
     }
 
     void OnWeaponChanged(){if(boundStats==null)return;ApplySkills();Changed?.Invoke();}
+    void OnIdentityChanged(){if(boundStats==null)return;ApplySkills();Changed?.Invoke();}
 
     void AddPercent(StatTypes stat, PassiveBranch branch)
     {

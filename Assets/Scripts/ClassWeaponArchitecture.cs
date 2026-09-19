@@ -78,11 +78,39 @@ public sealed class SubclassDefinition
     {Id=id;ParentClassId=parent;DisplayName=name;Description=name+" developer fixture";PassiveSectionId=passiveSection;PresentationHook="presentation."+id;UnlockMilestoneId=PlayerIdentityState.StoryCompletionMilestoneId;GrantedSystemHooks=hooks??Array.Empty<string>();}
 }
 
+public static class SubclassIds
+{
+    public const string WarriorBleed="subclass.warrior.bleed",WarriorMultihit="subclass.warrior.multihit";
+    public const string BarbarianBigHit="subclass.barbarian.big_hit",BarbarianFire="subclass.barbarian.fire";
+    public const string RangerPoison="subclass.ranger.poison",RangerProjectile="subclass.ranger.projectile";
+    public const string MageCooldown="subclass.mage.cooldown",MageStorm="subclass.mage.storm";
+    public const string PriestDark="subclass.priest.dark",PriestLight="subclass.priest.light";
+    public const string ThiefAssassin="subclass.thief.assassin",ThiefAilmentCrit="subclass.thief.ailment_crit";
+}
+
+public enum SubclassProjectileMode{Volley,Focused}
+
 public static class SubclassCatalog
 {
-    // Step 16 has no approved production subclass identities. Tests may register temporary definitions.
+    static readonly SubclassDefinition[] production={
+        New(SubclassIds.WarriorBleed,PlayerClassIds.Warrior,"Bleed Warrior","bleed","subclass.warrior.bleed.rupture"),
+        New(SubclassIds.WarriorMultihit,PlayerClassIds.Warrior,"Momentum Warrior","multihit","subclass.warrior.multihit.combo"),
+        New(SubclassIds.BarbarianBigHit,PlayerClassIds.Barbarian,"Titan Barbarian","big-hit","subclass.barbarian.big_hit.full_life"),
+        New(SubclassIds.BarbarianFire,PlayerClassIds.Barbarian,"Fire Barbarian","fire","subclass.barbarian.fire.eruption"),
+        New(SubclassIds.RangerPoison,PlayerClassIds.Ranger,"Venom Ranger","poison","subclass.ranger.poison.all_damage"),
+        New(SubclassIds.RangerProjectile,PlayerClassIds.Ranger,"Projectile Ranger","projectile","subclass.ranger.projectile.focused"),
+        New(SubclassIds.MageCooldown,PlayerClassIds.Mage,"Chrono Mage","cooldown","subclass.mage.cooldown.ignore"),
+        New(SubclassIds.MageStorm,PlayerClassIds.Mage,"Storm Mage","storm","subclass.mage.storm.multi_shock"),
+        New(SubclassIds.PriestDark,PlayerClassIds.Priest,"Dark Priest","dark","subclass.priest.dark.heal_to_harm"),
+        New(SubclassIds.PriestLight,PlayerClassIds.Priest,"Light Priest","light","subclass.priest.light.auras"),
+        New(SubclassIds.ThiefAssassin,PlayerClassIds.Thief,"Assassin","assassin","subclass.thief.assassin.first_strike"),
+        New(SubclassIds.ThiefAilmentCrit,PlayerClassIds.Thief,"Ailment Assassin","ailment-crit","subclass.thief.ailment_crit.critical_ailment")};
     static readonly Dictionary<string,SubclassDefinition> developerFixtures=new();
-    public static bool TryGet(string id,out SubclassDefinition value)=>developerFixtures.TryGetValue(id,out value);
+    public static IReadOnlyList<SubclassDefinition> All=>production;
+    public static bool TryGet(string id,out SubclassDefinition value)
+    {if(developerFixtures.TryGetValue(id,out value))return true;foreach(var x in production)if(x.Id==id){value=x;return true;}value=null;return false;}
+    public static IReadOnlyList<SubclassDefinition> ForClass(string classId){var result=new List<SubclassDefinition>(2);foreach(var x in production)if(x.ParentClassId==classId)result.Add(x);return result;}
+    static SubclassDefinition New(string id,string parent,string name,string section,params string[] hooks)=>new(id,parent,name,"tree.transform."+section,hooks);
 #if UNITY_EDITOR
     public static bool RegisterDeveloperFixture(SubclassDefinition value)
     {if(value==null||string.IsNullOrWhiteSpace(value.Id)||!PlayerClassCatalog.IsValid(value.ParentClassId))return false;developerFixtures[value.Id]=value;return true;}
@@ -105,19 +133,23 @@ public sealed class PlayerIdentityState:MonoBehaviour
     public string BaseClassId{get;private set;}=PlayerClassIds.Warrior;
     public string SelectedSubclassId{get;private set;}=string.Empty;
     public bool SubclassChoiceUnlocked{get;private set;}
+    public bool HasSubclassSigil=>SubclassChoiceUnlocked;
+    public SubclassProjectileMode ProjectileMode{get;private set;}
+    public event Action Changed;
     public PlayerClassDefinition ClassDefinition=>PlayerClassCatalog.TryGet(BaseClassId,out var x)?x:null;
 
     public bool BeginNewGame(string classId)
-    {if(!PlayerClassCatalog.IsValid(classId))return false;BaseClassId=classId;SelectedSubclassId=string.Empty;SubclassChoiceUnlocked=false;GamePersistence.MarkDirty();return true;}
+    {if(!PlayerClassCatalog.IsValid(classId))return false;BaseClassId=classId;SelectedSubclassId=string.Empty;SubclassChoiceUnlocked=false;ProjectileMode=default;Changed?.Invoke();GamePersistence.MarkDirty();return true;}
     public bool CompleteMilestone(string milestoneId)
-    {if(milestoneId!=StoryCompletionMilestoneId)return false;SubclassChoiceUnlocked=true;GamePersistence.MarkDirty();return true;}
+    {if(milestoneId!=StoryCompletionMilestoneId)return false;SubclassChoiceUnlocked=true;Changed?.Invoke();GamePersistence.MarkDirty();return true;}
     public bool SelectSubclass(string id)
-    {if(!SubclassChoiceUnlocked||!SubclassCatalog.TryGet(id,out var value)||value.ParentClassId!=BaseClassId)return false;SelectedSubclassId=id;GamePersistence.MarkDirty();return true;}
-    public bool Restore(string classId,bool unlocked,string subclassId)
+    {if(!SubclassChoiceUnlocked||!SubclassCatalog.TryGet(id,out var value)||value.ParentClassId!=BaseClassId)return false;if(SelectedSubclassId!=id)GetComponent<PlayerProgression>()?.ClearTransformations();SelectedSubclassId=id;Changed?.Invoke();GamePersistence.MarkDirty();return true;}
+    public bool SetProjectileMode(SubclassProjectileMode mode){if(SelectedSubclassId!=SubclassIds.RangerProjectile)return false;ProjectileMode=mode;Changed?.Invoke();GamePersistence.MarkDirty();return true;}
+    public bool Restore(string classId,bool unlocked,string subclassId,SubclassProjectileMode mode=default)
     {
         if(!PlayerClassCatalog.IsValid(classId))return false;
         if(!string.IsNullOrEmpty(subclassId)&&(!unlocked||!SubclassCatalog.TryGet(subclassId,out var sub)||sub.ParentClassId!=classId))return false;
-        BaseClassId=classId;SubclassChoiceUnlocked=unlocked;SelectedSubclassId=subclassId??string.Empty;return true;
+        BaseClassId=classId;SubclassChoiceUnlocked=unlocked;SelectedSubclassId=subclassId??string.Empty;ProjectileMode=mode;Changed?.Invoke();return true;
     }
 }
 
@@ -139,9 +171,15 @@ public sealed class PassiveExtensionMetadata
 
 public static class WeaponSkillBindings
 {
-    // Empty in production until final skill ownership is approved. Editor fixtures prove the two-slot pipeline.
+    static readonly Dictionary<string,PlayerSkillId[]> production=new(){
+        [WeaponTypeIds.Sword]=new[]{PlayerSkillId.SwordRapidFlurry,PlayerSkillId.SwordArmourStrike},
+        [WeaponTypeIds.TwoHandedAxe]=new[]{PlayerSkillId.AxeRageStrike,PlayerSkillId.AxeHemorrhage},
+        [WeaponTypeIds.Bow]=new[]{PlayerSkillId.BowVenomShot,PlayerSkillId.BowDoubleVolley},
+        [WeaponTypeIds.Staff]=new[]{PlayerSkillId.StaffFireball,PlayerSkillId.StaffShockBarrage},
+        [WeaponTypeIds.Sceptre]=new[]{PlayerSkillId.SceptreRestorativeStrike,PlayerSkillId.SceptreFrostJudgment},
+        [WeaponTypeIds.Dagger]=new[]{PlayerSkillId.DaggerBackstab,PlayerSkillId.DaggerQuickStrike}};
     static readonly Dictionary<string,PlayerSkillId[]> developerFixtures=new();
-    public static IReadOnlyList<PlayerSkillId> For(string weaponTypeId)=>!string.IsNullOrEmpty(weaponTypeId)&&developerFixtures.TryGetValue(weaponTypeId,out var ids)?ids:Array.Empty<PlayerSkillId>();
+    public static IReadOnlyList<PlayerSkillId> For(string weaponTypeId)=>!string.IsNullOrEmpty(weaponTypeId)&&developerFixtures.TryGetValue(weaponTypeId,out var fixture)?fixture:!string.IsNullOrEmpty(weaponTypeId)&&production.TryGetValue(weaponTypeId,out var ids)?ids:Array.Empty<PlayerSkillId>();
 #if UNITY_EDITOR
     public static bool RegisterDeveloperFixture(string weaponTypeId,PlayerSkillId first,PlayerSkillId second)
     {if(!WeaponTypeCatalog.IsValid(weaponTypeId)||first==second)return false;developerFixtures[weaponTypeId]=new[]{first,second};return true;}

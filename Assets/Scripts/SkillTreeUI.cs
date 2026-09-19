@@ -21,6 +21,7 @@ public sealed class SkillTreeUI : MonoBehaviour
     TMP_Text details;
     Button refundAll;
     TMP_Text refundAllLabel;
+    Button transformModeButton;TMP_Text transformModeLabel;bool transformMode;
     bool refundAllConfirmation;
     ScrollRect scroll;
     readonly Button[] nodes = new Button[PassiveTreeDefinition.NodeCount];
@@ -69,6 +70,8 @@ public sealed class SkillTreeUI : MonoBehaviour
         close.onClick.AddListener(Close);
         refundAll=Button(panel.transform,"Refund All",new Vector2(.66f,.905f),new Vector2(.81f,.97f),out refundAllLabel);
         refundAllLabel.text="REFUND ALL";refundAll.onClick.AddListener(ConfirmRefundAll);
+        transformModeButton=Button(panel.transform,"Subclass Transform",new Vector2(.49f,.905f),new Vector2(.65f,.97f),out transformModeLabel);transformModeLabel.text="SUBCLASS SIGIL";transformModeButton.onClick.AddListener(()=>{transformMode=!transformMode;Refresh();});
+        if(GetComponent<SubclassMenuUI>()==null)gameObject.AddComponent<SubclassMenuUI>();
 
         var viewport = Box(panel.transform, "Tree Viewport", new Vector2(.025f, .145f), new Vector2(.975f, .825f), new Color(.045f, .052f, .062f, 1f));
         viewport.AddComponent<RectMask2D>();
@@ -177,6 +180,7 @@ public sealed class SkillTreeUI : MonoBehaviour
         string value = progression.AtCap ? "MAX LEVEL" : $"{progression.Experience:0} / {progression.RequiredXp:0} XP";
         xp.text = $"LEVEL {progression.Level}   /   {value}";
         points.text = $"{progression.AvailablePoints} POINTS AVAILABLE     /     LEVEL {progression.Level}     /     {value}";
+        var identity=GameManager.Instance?.GetComponent<PlayerIdentityState>();if(transformModeButton!=null){bool enabled=identity!=null&&identity.HasSubclassSigil&&!string.IsNullOrEmpty(identity.SelectedSubclassId);transformModeButton.interactable=enabled;if(!enabled)transformMode=false;transformModeLabel.text=transformMode?$"TRANSFORMING  {progression.TransformedCount}/{SubclassTransformationProfile.MaximumTransformedNodes}":"SUBCLASS SIGIL";}
         if (!IsOpen) return;
 
         foreach (PassiveNodeDefinition node in PassiveTreeDefinition.Nodes)
@@ -218,7 +222,7 @@ public sealed class SkillTreeUI : MonoBehaviour
         nodes[nodeId].image.sprite = PassiveTreeDefinition.IsKeystone(node.Id)
             ? PassiveTreeIconAtlas.GetKeystone(node.Keystone, state)
             : PassiveTreeIconAtlas.Get(node.Branch, node.Size, state);
-        nodes[nodeId].image.color = Color.white;
+        nodes[nodeId].image.color = progression.IsTransformed(nodeId)?new Color(.75f,.35f,1f):transformMode&&progression.CanTransform(nodeId)?new Color(.55f,1f,.75f):Color.white;
     }
 
     public void ShowDetails(int nodeId)
@@ -275,7 +279,7 @@ public sealed class SkillTreeUI : MonoBehaviour
     void SelectAndSpend(int nodeId)
     {
         selectedNode = nodeId;
-        if (progression != null) progression.TrySpend(nodeId);
+        if (progression != null){if(transformMode){if(progression.IsTransformed(nodeId))progression.TryRemoveTransformation(nodeId);else progression.TryTransform(nodeId);}else progression.TrySpend(nodeId);}
         Refresh();
         ShowDetails(nodeId);
     }
@@ -312,7 +316,7 @@ public sealed class SkillTreeUI : MonoBehaviour
         Refresh();
     }
 
-    public void Close() { IsOpen = false;refundAllConfirmation=false;if(refundAllLabel!=null)refundAllLabel.text="REFUND ALL";if (panel != null) panel.SetActive(false); }
+    public void Close() { IsOpen = false;transformMode=false;refundAllConfirmation=false;if(refundAllLabel!=null)refundAllLabel.text="REFUND ALL";if (panel != null) panel.SetActive(false); }
 
     public void AdjustZoom(PointerEventData eventData)
     {

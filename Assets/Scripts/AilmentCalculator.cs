@@ -5,6 +5,8 @@ using UnityEngine;
 //This class is used to calculate ailment damage so that it can be dealt to a target
 public static class AilmentCalculator
 {
+    public const float MinimumPoisonTickInterval=.10f;
+    public static float PoisonTickInterval(float baseInterval,float poisonSpeed)=>Mathf.Max(MinimumPoisonTickInterval,Mathf.Max(MinimumPoisonTickInterval,baseInterval)/(1+Mathf.Max(0,poisonSpeed)));
     //ComputeAilmentFromHit does exactly that, computes the ailment based on the hit that applies it
     public static void ComputeAilmentFromHit(
         StatusEffects effect,
@@ -24,7 +26,7 @@ public static class AilmentCalculator
 
         float sourceHitDamage = (effect.Ailment == StatusEffects.AilmentKind.Poison
                 ? GetPoisonVoidScaledSource(ctx, attacker)
-                : GetSourceHitDamage(effect, ctx))
+                : GetSourceHitDamage(effect, ctx,attacker))
                                 * CombatCalculator.ScopedDamageMultiplier(ctx.Scopes, attacker);
         if (sourceHitDamage <= 0f)      //If it's 0, return.
             return;
@@ -189,5 +191,10 @@ public static class AilmentCalculator
         }
 
         return total;   //After calculating the total amount of dmg to apply to the hit based on the dmg types of the context, return that total
+    }
+    public static float GetSourceHitDamage(StatusEffects effect,DamageContext ctx,StatsComponent attacker)
+    {
+        float normal=GetSourceHitDamage(effect,ctx);if(normal>0||attacker==null||attacker.GetComponent<SubclassCombatState>()?.Has(SubclassIds.PriestDark)!=true||ctx.Hits==null)return normal;
+        float value=0;foreach(var hit in ctx.Hits)if(hit.Element==Element.Void)value+=hit.Amount;return value;
     }
 }

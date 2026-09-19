@@ -370,6 +370,7 @@ public class PlayerController : MonoBehaviour
         float weaponAS = equippedWeapon.GetEffectiveAttackSpeed();  //Grabs the weapon's base attack speed (base speed * local weapon attack speed modifier)
         float incASGlobal = stats.GetStat(StatTypes.AttackSpeed) + DerivedStatCalculator.AttackSpeedIncreased(stats); //Gets the player's global attack speed modifier
 
+        var subclass=GetComponent<SubclassCombatState>();if(subclass?.Has(SubclassIds.PriestLight)==true)incASGlobal+=subclass.AuraSecondary(0,.10f);
         return weaponAS * (1f + incASGlobal) * KeystoneAttackSpeedMultiplier() * RelicAttackSpeedMultiplier();
     }
 

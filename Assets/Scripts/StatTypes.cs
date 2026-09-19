@@ -178,5 +178,11 @@ public enum StatTypes
     ProjectilePrecisionMultiplier = 122,
     RageGeneration = 123,
     RageEffect = 124,
-    RageDecayReduction = 125
+    RageDecayReduction = 125,
+
+    // Step 18 production stats. CastSpeed (120) remains deprecated and is never
+    // reinterpreted so existing serialized data keeps its original meaning.
+    CooldownReduction = 126,
+    AuraEffect = 127,
+    PoisonSpeed = 128
 }

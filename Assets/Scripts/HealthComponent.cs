@@ -62,10 +62,11 @@ public class HealthComponent : MonoBehaviour
 
         // Life regeneration is stored and consumed as flat life per second.
         float regenerationRate = healingStats.GetStat(StatTypes.LifeRegeneration);
+        if(isEnemy&&UnityEngine.Object.FindAnyObjectByType<SubclassCombatState>()?.Has(SubclassIds.PriestLight)==true)regenerationRate*=.5f;
         var keystones = GetComponent<PassiveKeystoneState>();
         if (keystones != null) regenerationRate *= keystones.LifeRegenerationMultiplier;
         if (regenerationRate > 0f)
-            RestoreLife(regenerationRate * Time.deltaTime);
+            RestoreLife(regenerationRate * Time.deltaTime,HealingSource.Regeneration);
     }
     private void SyncMaximum()
     {
@@ -98,10 +99,16 @@ public class HealthComponent : MonoBehaviour
         }
     }
 
-    public void RestoreLife(float amount)
+    public void RestoreLife(float amount,HealingSource source=HealingSource.Generic)
     {
         if (isDead || amount <= 0f || float.IsNaN(amount))
             return;
+
+        if(source!=HealingSource.Regeneration&&GetComponent<PlayerController>()!=null)
+        {
+            var identity=GameManager.Instance!=null?GameManager.Instance.GetComponent<PlayerIdentityState>():null;
+            if(identity?.SelectedSubclassId==SubclassIds.PriestDark){BattleManager.Instance?.ApplyTriggerlessVoidDamage(amount);return;}
+        }
 
         CurrentLife = Mathf.Min(MaxLife, CurrentLife + amount);
         Changed?.Invoke();

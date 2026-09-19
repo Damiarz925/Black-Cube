@@ -24,7 +24,7 @@ public partial class StatusController
                 : $"Chill / {Magnitude:P1} attack-speed slow\nExpires in {MinTurns}-{MaxTurns} global turns.";
     }
     public void ClearStatuses()
-    { StatusDictionary.Clear(); IndependentDictionary.Clear(); StopAllCoroutines(); }
+    { StatusDictionary.Clear(); IndependentDictionary.Clear(); ClearStep18TransientState(); StopAllCoroutines(); }
     public void RemoveStatus(StatusEffects effect)
     { StatusDictionary.Remove(effect); IndependentDictionary.Remove(effect); }
     public List<Summary> GetStatusSummaries()

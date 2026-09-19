@@ -6,6 +6,20 @@ using UnityEngine;
 //StatusController is used to manage all of the statuses on the GameObject that the controller is on. Contains code for managing stacks and applying Status Damage/Effects
 public partial class StatusController : MonoBehaviour
 {
+    bool frozen;
+    float frozenChillStrength;
+    readonly List<float> shockInstances=new();
+    readonly List<int> shockDurations=new();
+    public bool IsFrozen=>frozen;
+    public float FrozenChillStrength=>frozenChillStrength;
+    public float CombinedShockEffect
+    {
+        get{float product=1f;foreach(float value in shockInstances)product*=1f+Mathf.Max(0,value);return Mathf.Max(0,product-1f);}
+    }
+    public bool ApplyFreeze(float chillStrength){if(chillStrength<=0)return false;frozen=true;frozenChillStrength=Mathf.Clamp01(chillStrength);return true;}
+    public bool ConsumeFrozenAttackSkip(){if(!frozen)return false;frozen=false;frozenChillStrength=0;return true;}
+    public bool TryConsumeFreeze(out float chillStrength){chillStrength=frozenChillStrength;if(!frozen)return false;frozen=false;frozenChillStrength=0;return true;}
+    public void AddShockInstance(float strength,int duration=1,int maximum=1){strength=Mathf.Max(0,strength);if(strength<=0)return;maximum=Mathf.Max(1,maximum);if(shockInstances.Count>=maximum){shockInstances.RemoveAt(0);shockDurations.RemoveAt(0);}shockInstances.Add(strength);shockDurations.Add(Mathf.Max(1,duration));}
     private PlayerController playerCont;
     private EnemyAI enemyCont;
     private StatsComponent stats;
@@ -261,6 +275,7 @@ public partial class StatusController : MonoBehaviour
     {
         var health = GetComponent<HealthComponent>();
         if (health != null && health.CurrentLife <= 0) { ClearStatuses(); return; }
+        for(int i=shockDurations.Count-1;i>=0;i--)if(--shockDurations[i]<=0){shockDurations.RemoveAt(i);shockInstances.RemoveAt(i);}
         if (StatusDictionary.Count == 0 && IndependentDictionary.Count == 0)    //If both dictionaries are empty, return
             return;
 
@@ -354,6 +369,17 @@ public partial class StatusController : MonoBehaviour
         }
     }
 
+    public float ConsumeRemainingAilmentDamage(StatusEffects.AilmentKind ailment)
+    {
+        float total=0;var remove=new List<StatusEffects>();
+        foreach(var pair in IndependentDictionary)if(pair.Key!=null&&pair.Key.Ailment==ailment)
+        {foreach(var instance in pair.Value)total+=RemainingMitigatedDamage(instance);remove.Add(pair.Key);}
+        foreach(var key in remove)IndependentDictionary.Remove(key);
+        return total;
+    }
+
+    public void ClearStep18TransientState(){frozen=false;frozenChillStrength=0;shockInstances.Clear();shockDurations.Clear();}
+
     private void TickInstance(StatusInstance instance, List<PendingEffect> pendingEffects)
     {
         StatusEffects effect = instance.effect; //effect is the instance's effect type
@@ -362,6 +388,15 @@ public partial class StatusController : MonoBehaviour
         int effectiveInterval = instance.effectiveInterval; //effectiveinterval is the instance's interval
 
         instance.remainingDurationTurns--;
+        if(!Mathf.Approximately(instance.TickRateMultiplier,1f))
+        {
+            float baseTicksPerTurn=effectiveInterval>0?1f/effectiveInterval:1-effectiveInterval;
+            instance.TickProgress+=baseTicksPerTurn*instance.TickRateMultiplier;
+            int acceleratedTicks=Mathf.FloorToInt(instance.TickProgress);instance.TickProgress-=acceleratedTicks;
+            for(int i=0;i<acceleratedTicks&&instance.remainingTicks>0&&instance.stacks>0;i++)ApplyTick(instance,pendingEffects);
+            if(instance.remainingDurationTurns<=0)instance.remainingTicks=0;
+            return;
+        }
         if (effectiveInterval > 0)  //if the interval is greater than 0, decrement the turns until next tick
         {
             instance.turnsUntilNextTick--;

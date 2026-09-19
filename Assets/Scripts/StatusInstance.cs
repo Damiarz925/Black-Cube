@@ -20,6 +20,10 @@ public class StatusInstance
     public int effectiveInterval;
     public int turnsUntilNextTick;
     public int threshold = 5;
+    public bool CriticalAilment{get;private set;}
+    public float AilmentCritMultiplier{get;private set;}=1f;
+    public float TickRateMultiplier{get;private set;}=1f;
+    public float TickProgress;
 
     //This is the constructor for the StatusInstance
     public StatusInstance(
@@ -33,11 +37,23 @@ public class StatusInstance
         this.effect = effect;   //Set fields to all passed in arguments
         this.damagePerTick = damagePerTick;
         this.stacks = stacks;
-        this.remainingTicks = totalTicks;
+        TickRateMultiplier=effect!=null&&effect.Ailment==StatusEffects.AilmentKind.Poison&&sourceStats!=null
+            ?1f+Mathf.Max(0f,sourceStats.GetStat(StatTypes.PoisonSpeed)):1f;
+        this.remainingTicks = Mathf.Max(1,Mathf.CeilToInt(totalTicks*TickRateMultiplier));
         this.sourceStats = sourceStats;
         this.effectiveInterval = effectiveInterval;
         this.turnsUntilNextTick = effectiveInterval > 0 ? effectiveInterval : 1;
         this.remainingDurationTurns = totalTicks * Mathf.Max(1,effectiveInterval);
+        if(sourceStats!=null&&effect!=null&&effect.Ailment is StatusEffects.AilmentKind.Poison or StatusEffects.AilmentKind.Bleed or StatusEffects.AilmentKind.Ignite
+            &&sourceStats.GetComponent<SubclassCombatState>()?.Has(SubclassIds.ThiefAilmentCrit)==true)
+        {
+            float critMultiplier=CombatCalculator.BaseCriticalMultiplier+Mathf.Max(0,sourceStats.GetStat(StatTypes.CritMult));
+            this.damagePerTick*=SubclassBalanceProfile.AilmentExtraMore(critMultiplier);
+            var player=sourceStats.GetComponent<PlayerController>();
+            float criticalChance=player!=null?player.GetFinalCritChance():Mathf.Clamp01(sourceStats.GetStat(StatTypes.CritChance));
+            CriticalAilment=Random.value<criticalChance;
+            if(CriticalAilment){AilmentCritMultiplier=SubclassBalanceProfile.CriticalAilmentMultiplier(critMultiplier);this.damagePerTick*=AilmentCritMultiplier;}
+        }
     }
 
     //Returns the damage per tick multiplied by the number of stacks for the effective damage of a particular tick

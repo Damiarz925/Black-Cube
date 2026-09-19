@@ -155,6 +155,9 @@ public class StatsComponent : MonoBehaviour
             case StatTypes.RageGeneration:
             case StatTypes.RageEffect:
             case StatTypes.RageDecayReduction:
+            case StatTypes.CooldownReduction:
+            case StatTypes.AuraEffect:
+            case StatTypes.PoisonSpeed:
 
             // Penetration
             case StatTypes.PhysPenetration:

@@ -30,6 +30,7 @@ public class BattleManager : MonoBehaviour
     private HealthComponent playerHealth;
     private DamageReceiver playerDamageReceiver;
     private RageState playerRage;
+    private SubclassCombatState subclassState;
     private float currentAttackEventMultiplier=1f;
 
     private Animator playerAnimator;
@@ -98,6 +99,7 @@ public class BattleManager : MonoBehaviour
         playerHealth = player.GetComponent<HealthComponent>();
         playerDamageReceiver = GetOrAddDamageReceiver(player);
         playerRage=player.GetComponent<RageState>()??player.AddComponent<RageState>();
+        subclassState=player.GetComponent<SubclassCombatState>()??player.AddComponent<SubclassCombatState>();
         playerAnimator = player.GetComponent<Animator>();
         playerSprite = player.GetComponent<PaperSpriteActor>();
         EnsureAilmentDefinitions();
@@ -201,7 +203,9 @@ public class BattleManager : MonoBehaviour
         playerGauge = 0f;
         globalTurnCounter = 0;
         CurrentEnemyChanged?.Invoke(enemyAI);
+        subclassState?.ResetForEnemy();
         GamePersistence.RecordEncounterStart(playerHealth, GetPlayerMana());
+        if(subclassState?.Has(SubclassIds.ThiefAssassin)==true)ResolvePlayerTurn();
     }
 
     private void OnDestroy()
@@ -309,7 +313,7 @@ public class BattleManager : MonoBehaviour
                 skillController.Mana.Restore(manaSpent);
                 ResolveBasicPlayerAttack(originalTarget, originalStatuses);resolved=true;
             }
-            else resolved=true;
+            else {resolved=true;skillController.NotifyQueuedSkillResolved(queued);}
         }
         else {ResolveBasicPlayerAttack(originalTarget, originalStatuses);resolved=true;}}
         finally{playerRage?.CompleteAttackEvent(resolved);currentAttackEventMultiplier=1f;}
@@ -333,6 +337,7 @@ public class BattleManager : MonoBehaviour
         if (currentEnemy == null || enemyHealth == null || enemyHealth.CurrentLife <= 0f) return;       //if enemy, or their health is null or less than or equal to 0, return
         if (playerHealth == null || playerStatusCont == null || playerHealth.CurrentLife <= 0f) return;     //if player health is null or less than or equal to 0, return
 
+        if(enemyStatusCont!=null&&enemyStatusCont.ConsumeFrozenAttackSkip())return;
         var originalAttacker = enemyHealth;
         var originalTarget = playerHealth;
         globalTurnCounter++;        //increment global turn counter
@@ -343,6 +348,7 @@ public class BattleManager : MonoBehaviour
         if (enemyHealth != originalAttacker || originalAttacker.CurrentLife <= 0f) return;
 
         ResolveEnemyLogicalHit(originalAttacker, originalTarget);
+        subclassState?.EnemySuccessfulAttack();
 
         // Exactly one independent bonus hit. It neither recurses nor transfers to
         // a replacement/dead player or a replacement/dead enemy attacker.
@@ -471,6 +477,8 @@ public class BattleManager : MonoBehaviour
         if (skill.projectile)
         {
             int projectileCount = GetPlayerProjectileCount(skill);
+            if(skill.effect==WeaponSkillEffect.DoubleProjectiles)projectileCount*=2;
+            float focusedMultiplier=1f;if(subclassState!=null)projectileCount=subclassState.FinalProjectileCount(projectileCount,out focusedMultiplier);
             for (int i = 0; i < projectileCount; i++)
             {
                 float offset = (i - (projectileCount - 1) * .5f) * .18f;
@@ -478,6 +486,7 @@ public class BattleManager : MonoBehaviour
                 // cost has been paid and cannot drift while the projectile flies.
                 DamageContext snapshot = ApplyPrecision(ApplyWeaponMechanics(playerController.BuildAttackContext(
                     skill.conversionElement, skill.nonMatchingConversion, skill.DamageScopes)),CanPrecision(skill));
+                if(!Mathf.Approximately(focusedMultiplier,1f))snapshot=TransformContext(snapshot,focusedMultiplier,Element.Phys,0);
                 bool hitTwice = Random.value < Mathf.Clamp01(AdjustedChance(playerStats, StatTypes.ChanceToHitTwice));
                 DamageContext? bonusSnapshot = hitTwice ? ApplyPrecision(ApplyWeaponMechanics(playerController.BuildAttackContext(
                     skill.conversionElement, skill.nonMatchingConversion, skill.DamageScopes)),CanPrecision(skill)) : null;
@@ -491,6 +500,12 @@ public class BattleManager : MonoBehaviour
             ResolvePlayerSkill(skill, target, statuses);
         }
         return true;
+    }
+
+    public bool TryCastImmediatePlayerSkill(PlayerSkillDefinition skill)
+    {
+        if(skill==null||skill.castMode!=PlayerSkillCastMode.ImmediateCooldown||!CanCastPlayerSkill)return false;
+        return TryCastPlayerSkill(skill);
     }
 
     private void ResolvePlayerProjectile(PlayerSkillDefinition skill, HealthComponent target,
@@ -516,7 +531,11 @@ public class BattleManager : MonoBehaviour
     private void ResolvePlayerSkill(PlayerSkillDefinition skill, HealthComponent target, StatusController statuses)
     {
         if (!IsSameLivingEnemy(target)) return;
-        int baseHits = Mathf.Max(1, skill.baseHitCount);
+        int baseHits = skill.effect==WeaponSkillEffect.RapidFlurry
+            ?WeaponMechanicProfile.RapidFlurryHits(playerStats.GetStat(StatTypes.AttackSpeed))
+            :skill.effect==WeaponSkillEffect.ShockBarrage
+                ?Mathf.Clamp(1+Mathf.FloorToInt((statuses?.CombinedShockEffect??0f)/.20f),1,Mathf.Max(1,skill.maximumCount))
+                :Mathf.Max(1, skill.baseHitCount);
         int hits = baseHits;
         if (skill.additionalHitsFromShockChance)
         {
@@ -544,6 +563,7 @@ public class BattleManager : MonoBehaviour
             ? playerController.BuildAttackContext()
             : playerController.BuildAttackContext(skill.conversionElement, skill.nonMatchingConversion, skill.DamageScopes));
         normal=ApplyWeaponMechanics(normal);
+        normal=ApplySubclassOutgoing(normal,target);
         var keystones = player != null ? player.GetComponent<PassiveKeystoneState>() : null;
         if (shockTriggered && keystones != null && !Mathf.Approximately(keystones.ShockTriggeredHitMultiplier, 1f))
             normal = TransformContext(normal, keystones.ShockTriggeredHitMultiplier, Element.Phys, 0f);
@@ -551,9 +571,14 @@ public class BattleManager : MonoBehaviour
         PlayerSkillController skillController = player != null ? player.GetComponent<PlayerSkillController>() : null;
         int skillLevel = skill != null && skillController != null ? skillController.EffectiveSkillLevel(skill) : 1;
         float skillLevelFactor = PlayerSkillController.SkillDamageLevelFactor(skillLevel);
+        float skillMultiplier=skill!=null&&skill.effect==WeaponSkillEffect.ArmourStrike
+            ?WeaponMechanicProfile.ArmourStrikeMultiplier(playerStats.GetStat(StatTypes.FlatArmour)*(1f+playerStats.GetStat(StatTypes.ArmourPercent)))
+            :skill?.hitDamageMultiplier??1f;
         DamageContext direct = poisonTransmutation
             ? new DamageContext(1) { Scopes = normal.Scopes, IsCrit = normal.IsCrit, CritMultiplier = normal.CritMultiplier,IsPrecision=normal.IsPrecision,PrecisionMultiplier=normal.PrecisionMultiplier }
-            : skill == null ? normal : TransformContext(normal, skill.hitDamageMultiplier * skillLevelFactor, skill.conversionElement, 0f);
+            : skill == null ? normal : TransformContext(normal, skillMultiplier * skillLevelFactor, skill.conversionElement, 0f);
+        direct.EventTags|=skill==null?CombatEventTags.NormalAttack:CombatEventTags.WeaponSkill;
+        if(skill?.projectile==true)direct.EventTags|=CombatEventTags.Projectile;
 
         DamageContext specialized = default;
         if (skill != null && skill.specializedAilment != StatusEffects.AilmentKind.None)
@@ -563,7 +588,9 @@ public class BattleManager : MonoBehaviour
             else if (skill.id == PlayerSkillId.Immolate)
                 specialized = TransformContext(normal, skill.ailmentBasisMultiplier * skillLevelFactor, skill.conversionElement, 0f);
             else
-                specialized = TransformContext(direct, skill.ailmentBasisMultiplier, skill.conversionElement, 0f);
+                specialized = skill.effect is WeaponSkillEffect.EmpoweredBleed or WeaponSkillEffect.VirtualPoison
+                    ?TransformContext(normal,skill.ailmentBasisMultiplier*skillLevelFactor,skill.conversionElement,0f)
+                    :TransformContext(direct, skill.ailmentBasisMultiplier, skill.conversionElement, 0f);
         }
 
         float rawTotal = SumDamage(direct);
@@ -578,9 +605,16 @@ public class BattleManager : MonoBehaviour
         if (damageTaken > 0f && enemyDamageReceiver != null)
         {
             enemyDamageReceiver.TakeDamage(damageTaken, direct);
-            playerRage?.GainFromDamageDealt(damageTaken,target.MaxLife);
-            playerHealth.RestoreLife(playerStats.GetStat(StatTypes.LifeOnHit));
+            playerRage?.GainFromDamageDealt(damageTaken,target.MaxLife,skill?.effect==WeaponSkillEffect.RageStrike?1.5f:1f);
+            playerHealth.RestoreLife(playerStats.GetStat(StatTypes.LifeOnHit),HealingSource.LifeOnHit);
             GetPlayerMana()?.Restore(playerStats.GetStat(StatTypes.ManaOnHit));
+            if(skill?.effect==WeaponSkillEffect.HealFromDamage)playerHealth.RestoreLife(damageTaken*skill.secondaryMultiplier,HealingSource.WeaponSkill);
+            if(subclassState?.Has(SubclassIds.PriestLight)==true)playerHealth.RestoreLife(damageTaken*.10f,HealingSource.SubclassDamage);
+            subclassState?.RecordTypedDamage(direct,damageTaken,target.MaxLife);subclassState?.PlayerHit();
+            if(subclassState?.Has(SubclassIds.BarbarianFire)==true&&Random.value<SubclassBalanceProfile.EruptionChance&&IsSameLivingEnemy(target))
+            {
+                var eruption=new DamageContext(1){EventTags=CombatEventTags.TriggeredDamage|CombatEventTags.SubclassProc|CombatEventTags.Eruption};eruption.AddDamage(Element.Fire,rawTotal*SubclassBalanceProfile.EruptionMagnitude);float eruptionDamage=CombatCalculator.CalculateFinalDamage(eruption,playerStats,enemyStats);if(eruptionDamage>0)enemyDamageReceiver.TakeDamage(eruptionDamage,eruption);if(IsSameLivingEnemy(target))ApplyConfiguredStatus(igniteEffect,StatTypes.IgniteChance,eruption,playerStats,statuses);
+            }
         }
 
         if (IsSameLivingEnemy(target))
@@ -588,9 +622,38 @@ public class BattleManager : MonoBehaviour
             DamageContext poisonTransmutationBasis = poisonTransmutation
                 ? TransformContext(PassiveKeystoneState.AsPoisonBasis(normal), skillLevelFactor, Element.Phys, 0f)
                 : specialized;
-            ApplyOnHitEffects(direct, playerStats, statuses, skill,
+            bool appliedBleed=ApplyOnHitEffects(direct, playerStats, statuses, skill,
                 poisonTransmutationBasis, poisonTransmutation);
+            if(skill?.effect==WeaponSkillEffect.FrostJudgment)
+            {
+                if(statuses.TryConsumeFreeze(out float frozenStrength))
+                {
+                    var shatter=TransformContext(normal,WeaponMechanicProfile.ShatterMultiplier(frozenStrength),Element.Cold,1f);
+                    float burst=CombatCalculator.CalculateFinalDamage(shatter,playerStats,enemyStats);
+                    if(burst>0&&enemyDamageReceiver!=null)enemyDamageReceiver.TakeDamage(burst,shatter);
+                }
+                else if(statuses.CurrentChillSlow>0&&Random.value<Mathf.Clamp01(statuses.CurrentChillSlow))statuses.ApplyFreeze(statuses.CurrentChillSlow);
+            }
+            if(appliedBleed&&subclassState?.Has(SubclassIds.WarriorBleed)==true&&Random.value<SubclassBalanceProfile.RuptureChance)
+            {float rupture=statuses.ConsumeRemainingAilmentDamage(StatusEffects.AilmentKind.Bleed);if(rupture>0)enemyDamageReceiver?.TakeDamage(rupture,Element.Phys);}
+            if(subclassState?.Has(SubclassIds.ThiefAssassin)==true&&target.CurrentLife>0&&target.CurrentLife<=target.MaxLife*.10f)
+            {if(!target.IsBoss)target.LoseLife(target.CurrentLife);}
         }
+    }
+
+    DamageContext ApplySubclassOutgoing(DamageContext source,HealthComponent target)
+    {
+        if(subclassState==null||source.Hits==null)return source;var result=source;
+        if(subclassState.Has(SubclassIds.BarbarianFire))
+        {float physical=0;foreach(var hit in source.Hits)if(hit.Element==Element.Phys)physical+=hit.Amount;if(physical>0){result=TransformContext(source,1,Element.Phys,0);result.AddDamage(Element.Fire,physical*SubclassBalanceProfile.AddedFireFromPhysical);}}
+        if(subclassState.Has(SubclassIds.PriestLight)){var clean=new DamageContext(result.Hits.Count){IsCrit=result.IsCrit,CritMultiplier=result.CritMultiplier,Scopes=result.Scopes,IsPrecision=result.IsPrecision,PrecisionMultiplier=result.PrecisionMultiplier,WeaponMechanicsApplied=result.WeaponMechanicsApplied};foreach(var hit in result.Hits)if(hit.Element!=Element.Void)clean.AddDamage(hit.Element,hit.Amount);result=clean;}
+        if(subclassState.Has(SubclassIds.PriestDark)){int corruption=FindFirstObjectByType<ZoneManager>()?.CorruptionPercentage??0;float more=1+corruption*.002f;var dark=new DamageContext(result.Hits.Count){IsCrit=result.IsCrit,CritMultiplier=result.CritMultiplier,Scopes=result.Scopes,IsPrecision=result.IsPrecision,PrecisionMultiplier=result.PrecisionMultiplier,WeaponMechanicsApplied=result.WeaponMechanicsApplied,EventTags=result.EventTags};foreach(var hit in result.Hits)dark.AddDamage(hit.Element,hit.Element==Element.Void?hit.Amount*more:hit.Amount);result=dark;}
+        bool full=target!=null&&target.CurrentLife>=target.MaxLife-.001f;bool injured=playerHealth!=null&&playerHealth.CurrentLife<=playerHealth.MaxLife*.5f;bool bossLow=target!=null&&target.IsBoss&&target.CurrentLife<=target.MaxLife*.10f;float multiplier=subclassState.BeforePlayerHitMultiplier(full,injured,bossLow);return Mathf.Approximately(multiplier,1)?result:TransformContext(result,multiplier,Element.Phys,0);
+    }
+
+    public void ApplyTriggerlessVoidDamage(float amount)
+    {
+        if(amount<=0||enemyHealth==null||enemyHealth.CurrentLife<=0||enemyDamageReceiver==null)return;var context=new DamageContext(1){EventTags=CombatEventTags.TriggerlessDamage|CombatEventTags.HealConvertedDamage|CombatEventTags.NoSecondaryTriggers};context.AddDamage(Element.Void,amount);float final=CombatCalculator.CalculateFinalDamage(context,playerStats,enemyStats);if(final>0)enemyDamageReceiver.TakeDamage(final,context);
     }
 
     private bool IsSameLivingEnemy(HealthComponent target)
@@ -618,7 +681,7 @@ public class BattleManager : MonoBehaviour
             IsCrit = source.IsCrit,
             CritMultiplier = source.CritMultiplier,
             Scopes = source.Scopes
-            ,IsPrecision=source.IsPrecision,PrecisionMultiplier=source.PrecisionMultiplier,WeaponMechanicsApplied=source.WeaponMechanicsApplied
+            ,IsPrecision=source.IsPrecision,PrecisionMultiplier=source.PrecisionMultiplier,WeaponMechanicsApplied=source.WeaponMechanicsApplied,EventTags=source.EventTags
         };
         if (source.Hits == null || multiplier <= 0f) return result;
         conversion = Mathf.Clamp01(conversion);
@@ -719,11 +782,11 @@ public class BattleManager : MonoBehaviour
         }
     }
 
-    private void ApplyOnHitEffects(DamageContext ctx, StatsComponent attackerStats,
+    private bool ApplyOnHitEffects(DamageContext ctx, StatsComponent attackerStats,
         StatusController targetStatusCont, PlayerSkillDefinition skill = null, DamageContext specialized = default,
         bool poisonTransmutation = false)
     {
-        if (attackerStats == null || targetStatusCont == null) return;
+        if (attackerStats == null || targetStatusCont == null) return false;
 
         DamageContext poisonBasis = poisonTransmutation ? specialized
             : skill != null && skill.specializedAilment == StatusEffects.AilmentKind.Poison
@@ -737,7 +800,7 @@ public class BattleManager : MonoBehaviour
         ApplyConfiguredStatus(poisonEffect, StatTypes.PoisonChance, poisonBasis, attackerStats, targetStatusCont,
             poisonTransmutation ? 1 : skill!=null&&skill.specializedAilment==StatusEffects.AilmentKind.Poison
                 ?specializedGuarantee:0, poisonTransmutation ? 1f : -1f, poisonTransmutation);
-        ApplyConfiguredStatus(bleedEffect, StatTypes.BleedChance, bleedBasis, attackerStats, targetStatusCont,
+        int bleedApplications=ApplyConfiguredStatus(bleedEffect, StatTypes.BleedChance, bleedBasis, attackerStats, targetStatusCont,
             skill!=null&&skill.specializedAilment==StatusEffects.AilmentKind.Bleed?specializedGuarantee:0);
         ApplyConfiguredStatus(igniteEffect, StatTypes.IgniteChance, igniteBasis, attackerStats, targetStatusCont,
             skill!=null&&skill.specializedAilment==StatusEffects.AilmentKind.Ignite?specializedGuarantee:0,
@@ -746,13 +809,16 @@ public class BattleManager : MonoBehaviour
         ApplyChillFromHit(ctx, attackerStats, targetStatusCont,
             skill != null ? skill.guaranteedAdditionalChill : 0);
         ApplyShockFromHit(ctx, attackerStats, targetStatusCont);
+        return bleedApplications>0;
     }
 
     private void ApplyShockFromHit(DamageContext context, StatsComponent attacker, StatusController target)
     {
         if (shockEffect == null || attacker == null || target == null) return;
         StatsComponent defender = target.GetComponent<StatsComponent>();
-        float lightningDealt = CombatCalculator.CalculateFinalElementDamage(context, Element.Light, attacker, defender);
+        var subclassState=attacker.GetComponent<SubclassCombatState>();
+        float lightningDealt = subclassState!=null&&(subclassState.Has(SubclassIds.MageStorm)||subclassState.Has(SubclassIds.PriestDark))
+            ?CombatCalculator.CalculateFinalDamage(context,attacker,defender):CombatCalculator.CalculateFinalElementDamage(context, Element.Light, attacker, defender);
         if (lightningDealt <= 0f) return;
 
         float chance = AdjustForApplicationResistance(shockEffect,
@@ -766,8 +832,10 @@ public class BattleManager : MonoBehaviour
         if(attacker.GetComponent<PlayerController>()!=null&&RelicInventory.Instance!=null)
             threshold=Mathf.Max(3,threshold-RelicInventory.Instance.ShockThresholdReduction);
         int duration = Mathf.Max(1, 5 + Mathf.RoundToInt(attacker.GetRawStat(StatTypes.ShockDuration)));
-        float coefficient = Mathf.Min(1f, .5f * (1f + attacker.GetStat(StatTypes.ShockEffect))
+        float auraShock=subclassState?.Has(SubclassIds.PriestLight)==true?subclassState.AuraSecondary(3,.20f):0f;
+        float coefficient = Mathf.Min(1f, .5f * (1f + attacker.GetStat(StatTypes.ShockEffect)+auraShock)
             * (keystones != null ? keystones.ShockTriggeredHitMultiplier : 1f));
+        target.AddShockInstance(coefficient,duration,subclassState!=null?subclassState.MaximumShockInstances:1);
         int triggers = target.AddShockStacks(shockEffect, stacks, duration, coefficient, threshold);
         if (triggers <= 0) return;
 
@@ -786,7 +854,7 @@ public class BattleManager : MonoBehaviour
         StatsComponent defender = target.GetComponent<StatsComponent>();
         HealthComponent targetHealth = target.GetComponent<HealthComponent>();
         if (targetHealth == null || targetHealth.MaxLife <= 0f) return;
-        float coldDealt = CombatCalculator.CalculateFinalElementDamage(context, Element.Cold, attacker, defender);
+        var subclass=attacker.GetComponent<SubclassCombatState>();float coldDealt = subclass?.Has(SubclassIds.PriestDark)==true?CombatCalculator.CalculateFinalDamage(context,attacker,defender):CombatCalculator.CalculateFinalElementDamage(context, Element.Cold, attacker, defender);
         if (coldDealt <= 0f) return;
 
         float chance = AdjustForApplicationResistance(chillEffect,
@@ -800,8 +868,9 @@ public class BattleManager : MonoBehaviour
         float effectiveness = keystones != null ? keystones.ChillEffectMultiplier : 1f;
         float cap = .3f + (keystones != null ? keystones.DeepFreezeMaximumEffectIncrease : 0f)
             + (attacker.GetComponent<PlayerController>()!=null?RelicInventory.Instance?.MaximumChillSlowIncrease??0f:0f);
+        float auraChill=subclass?.Has(SubclassIds.PriestLight)==true?subclass.AuraSecondary(2,.20f):0f;
         float slow = CalculateChillSlow(coldDealt, targetHealth.MaxLife,
-            attacker.GetStat(StatTypes.ChillEffect), effectiveness, cap) * resistanceFactor;
+            attacker.GetStat(StatTypes.ChillEffect)+auraChill, effectiveness, cap) * resistanceFactor;
         int duration = Mathf.Max(1, Mathf.RoundToInt((4f
             + attacker.GetRawStat(StatTypes.ChillDuration)) * resistanceFactor));
         target.ApplyChill(chillEffect, Mathf.Min(cap, slow), duration,cap);
@@ -816,12 +885,12 @@ public class BattleManager : MonoBehaviour
             * Mathf.Max(0f, effectivenessMultiplier), 0f, Mathf.Max(0f, maximumSlow));
     }
 
-    private static void ApplyConfiguredStatus(StatusEffects effect, StatTypes chance, DamageContext ctx,
+    private static int ApplyConfiguredStatus(StatusEffects effect, StatTypes chance, DamageContext ctx,
         StatsComponent attacker, StatusController target, int guaranteedApplications = 0,
         float magnitudeOverride = -1f, bool guaranteedOnly = false)
     {
         if (effect == null || ctx.Hits == null || ctx.Hits.Count == 0
-            || AilmentCalculator.GetSourceHitDamage(effect, ctx) <= 0f) return;
+            || AilmentCalculator.GetSourceHitDamage(effect, ctx,attacker) <= 0f) return 0;
         float adjustedChance = AdjustedChance(attacker, chance);
         StatsComponent defender = target != null ? target.GetComponent<StatsComponent>() : null;
         adjustedChance = AdjustForApplicationResistance(effect, adjustedChance, attacker, defender);
@@ -829,6 +898,7 @@ public class BattleManager : MonoBehaviour
             + (guaranteedOnly ? 0 : RollOverflowApplications(adjustedChance));
         if (applications > 0)
             target.ApplyAilmentFromHit(effect, ctx, attacker, applications, magnitudeOverride);
+        return applications;
     }
 
     public static int RollOverflowApplications(float chance)

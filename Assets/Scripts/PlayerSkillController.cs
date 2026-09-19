@@ -27,7 +27,7 @@ public sealed class PlayerSkillController : MonoBehaviour
         if (catalog == null) catalog = Resources.Load<PlayerSkillCatalog>("PlayerSkills");
         if (catalog != null && catalog.skills != null && catalog.skills.Count > 0)
             skills = catalog.skills;
-        if (skills == null || skills.Count == 0) skills = PlayerSkillDefinition.CreateDefaults();
+        if (skills == null || skills.Count == 0 || !ContainsProductionSkills(skills)) skills = PlayerSkillDefinition.CreateProductionDefaults();
         player=GetComponent<PlayerController>();
         if(player!=null)player.AttackChanged+=RefreshWeaponSkills;
         RefreshWeaponSkills();
@@ -145,10 +145,11 @@ public sealed class PlayerSkillController : MonoBehaviour
     {
         if(index<0||index>=weaponSkills.Count||BattleManager.Instance==null)return false;
         PlayerSkillDefinition skill=weaponSkills[index];float cost=ManaCost(skill);
+        if(skill.castMode==PlayerSkillCastMode.ImmediateCooldown)return TryCastImmediate(index);
         if(skill.castMode!=PlayerSkillCastMode.QueuedAttackReplacement)return false;
         if(!BattleManager.Instance.CanCastPlayerSkill||!Mana.CanSpend(cost))return false;
         if(QueuedSkill==skill)return true;
-        QueuedSkill=skill;QueueChanged?.Invoke();return true;
+        QueuedSkill=skill;GetComponent<SubclassCombatState>()?.ResetQueuedRepeats();QueueChanged?.Invoke();return true;
     }
 
     // Compatibility entry point retained for existing UI/tests; skills no longer cast instantly.
@@ -167,6 +168,13 @@ public sealed class PlayerSkillController : MonoBehaviour
         return true;
     }
 
+    public void NotifyQueuedSkillResolved(PlayerSkillDefinition skill)
+    {
+        if(skill==null||skill.castMode!=PlayerSkillCastMode.QueuedAttackReplacement)return;
+        var subclass=GetComponent<SubclassCombatState>();
+        if(subclass!=null&&subclass.TryQueueRepeat()){QueuedSkill=skill;QueueChanged?.Invoke();}
+    }
+
     public void ClearQueuedSkill()
     {
         if (QueuedSkill == null) return;
@@ -177,25 +185,36 @@ public sealed class PlayerSkillController : MonoBehaviour
     public const float MinimumAutoCooldown=.20f;
     public float EffectiveCooldown(PlayerSkillDefinition skill)
     {
-        if(skill==null)return 0f;float speed=skill.scalesWithCastSpeed?Mathf.Max(0f,GetComponent<StatsComponent>().GetStat(StatTypes.CastSpeed)):0f;
+        if(skill==null)return 0f;float speed=skill.scalesWithCooldownReduction?Mathf.Max(0f,GetComponent<StatsComponent>().GetStat(StatTypes.CooldownReduction)):skill.scalesWithCastSpeed?Mathf.Max(0f,GetComponent<StatsComponent>().GetStat(StatTypes.CastSpeed)):0f;
         return Mathf.Max(MinimumAutoCooldown,Mathf.Max(.01f,skill.baseCooldown)/(1f+speed));
     }
     public float CooldownRemaining(int slot)=>slot>=0&&slot<autoCooldownRemaining.Length?autoCooldownRemaining[slot]:0f;
     public bool AutoSkillReady(int slot)=>slot>=0&&slot<weaponSkills.Count&&weaponSkills[slot].castMode==PlayerSkillCastMode.AutoCooldown&&autoCooldownRemaining[slot]<=0f;
+    public bool ImmediateSkillReady(int slot)=>slot>=0&&slot<weaponSkills.Count&&weaponSkills[slot].castMode==PlayerSkillCastMode.ImmediateCooldown&&autoCooldownRemaining[slot]<=0f;
+    public bool TryCastImmediate(int slot)
+    {
+        if(!ImmediateSkillReady(slot)||BattleManager.Instance==null||!BattleManager.Instance.CanCastPlayerSkill)return false;
+        var skill=weaponSkills[slot];float cost=ManaCost(skill);if(!Mana.TrySpend(cost))return false;
+        if(!BattleManager.Instance.TryCastImmediatePlayerSkill(skill)){Mana.Restore(cost);return false;}
+        var subclass=GetComponent<SubclassCombatState>();autoCooldownRemaining[slot]=subclass!=null&&subclass.RollCooldownBypass()?0f:EffectiveCooldown(skill);CooldownsChanged?.Invoke();return true;
+    }
     public void TickAutoCooldowns(float deltaTime)=>TickAutoCooldowns(deltaTime,skill=>BattleManager.Instance!=null&&BattleManager.Instance.CanCastPlayerSkill&&BattleManager.Instance.TryCastPlayerSkill(skill));
     public void TickAutoCooldowns(float deltaTime,System.Func<PlayerSkillDefinition,bool> tryCast)
     {
         if(deltaTime<=0f||weaponSkills.Count==0||tryCast==null)return;bool changed=false;
         for(int i=0;i<weaponSkills.Count&&i<2;i++)
         {
-            var skill=weaponSkills[i];if(skill==null||skill.castMode!=PlayerSkillCastMode.AutoCooldown)continue;
+            var skill=weaponSkills[i];if(skill==null||skill.castMode==PlayerSkillCastMode.QueuedAttackReplacement)continue;
             if(autoCooldownRemaining[i]>0f){autoCooldownRemaining[i]=Mathf.Max(0f,autoCooldownRemaining[i]-deltaTime);changed=true;}
+            if(skill.castMode==PlayerSkillCastMode.ImmediateCooldown)continue;
             if(autoCooldownRemaining[i]>0f)continue;
             float cost=ManaCost(skill);if(!Mana.TrySpend(cost))continue;
-            if(tryCast(skill)){autoCooldownRemaining[i]=EffectiveCooldown(skill);changed=true;}else Mana.Restore(cost);
+            if(tryCast(skill)){var subclass=GetComponent<SubclassCombatState>();autoCooldownRemaining[i]=subclass!=null&&subclass.RollCooldownBypass()?0f:EffectiveCooldown(skill);changed=true;}else Mana.Restore(cost);
         }
         if(changed)CooldownsChanged?.Invoke();
     }
+    static bool ContainsProductionSkills(List<PlayerSkillDefinition> source)
+    {foreach(var skill in source)if(skill!=null&&skill.id==PlayerSkillId.SwordRapidFlurry)return true;return false;}
 #if UNITY_EDITOR
     public void ConfigureDeveloperAutoSkills(PlayerSkillDefinition first,PlayerSkillDefinition second)
     {

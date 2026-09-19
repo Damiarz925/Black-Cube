@@ -10,6 +10,7 @@ public enum DamageScope
     Projectile = 1 << 1,
     Minion = 1 << 2
 }
+[System.Flags] public enum CombatEventTags{None=0,NormalAttack=1<<0,WeaponSkill=1<<1,Projectile=1<<2,Ailment=1<<3,TriggeredDamage=1<<4,TriggerlessDamage=1<<5,HealConvertedDamage=1<<6,SubclassProc=1<<7,Eruption=1<<8,Shatter=1<<9,Rupture=1<<10,NoSecondaryTriggers=1<<11}
 
 [System.Serializable]
 public struct ElementalHit
@@ -34,6 +35,7 @@ public struct DamageContext
     public bool IsPrecision;
     public float PrecisionMultiplier;
     public bool WeaponMechanicsApplied;
+    public CombatEventTags EventTags;
 
     public DamageContext(int initialCapacity = 4)   //Pass in the initial capacity of the hit list, or it defaults to 4. (DamageContext constructor)
     {
@@ -44,6 +46,7 @@ public struct DamageContext
         IsPrecision=false;
         PrecisionMultiplier=1f;
         WeaponMechanicsApplied=false;
+        EventTags=CombatEventTags.None;
     }
 
     //AddDamage function is used to actually add the damage amount for each hit to the hit list. (Called for each element type, pass in element and damage amount)
