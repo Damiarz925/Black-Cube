@@ -629,13 +629,14 @@ public class BattleManager : MonoBehaviour
                 if(statuses.TryConsumeFreeze(out float frozenStrength))
                 {
                     var shatter=TransformContext(normal,WeaponMechanicProfile.ShatterMultiplier(frozenStrength),Element.Cold,1f);
+                    shatter.EventTags=CombatEventTags.TriggeredDamage|CombatEventTags.Shatter|CombatEventTags.NoSecondaryTriggers;
                     float burst=CombatCalculator.CalculateFinalDamage(shatter,playerStats,enemyStats);
                     if(burst>0&&enemyDamageReceiver!=null)enemyDamageReceiver.TakeDamage(burst,shatter);
                 }
                 else if(statuses.CurrentChillSlow>0&&Random.value<Mathf.Clamp01(statuses.CurrentChillSlow))statuses.ApplyFreeze(statuses.CurrentChillSlow);
             }
             if(appliedBleed&&subclassState?.Has(SubclassIds.WarriorBleed)==true&&Random.value<SubclassBalanceProfile.RuptureChance)
-            {float rupture=statuses.ConsumeRemainingAilmentDamage(StatusEffects.AilmentKind.Bleed);if(rupture>0)enemyDamageReceiver?.TakeDamage(rupture,Element.Phys);}
+            {float rupture=statuses.ConsumeRemainingAilmentDamage(StatusEffects.AilmentKind.Bleed);if(rupture>0){var ruptureEvent=new DamageContext(1){EventTags=CombatEventTags.TriggeredDamage|CombatEventTags.Rupture|CombatEventTags.NoSecondaryTriggers};ruptureEvent.AddDamage(Element.Phys,rupture);enemyDamageReceiver?.TakeDamage(rupture,ruptureEvent);}}
             if(subclassState?.Has(SubclassIds.ThiefAssassin)==true&&target.CurrentLife>0&&target.CurrentLife<=target.MaxLife*.10f)
             {if(!target.IsBoss)target.LoseLife(target.CurrentLife);}
         }

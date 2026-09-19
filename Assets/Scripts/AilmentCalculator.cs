@@ -114,6 +114,12 @@ public static class AilmentCalculator
 
         //Set the tick count to the largest number between 1 and baseTicks + extraTicks
         tickCount = Mathf.Max(1, baseTicks + extraTicks);
+        if(effect.Ailment==StatusEffects.AilmentKind.Ignite)
+        {
+            var light=attacker.GetComponent<SubclassCombatState>();
+            if(light?.Has(SubclassIds.PriestLight)==true)
+                tickCount=Mathf.Max(1,Mathf.CeilToInt(tickCount*(1f+light.AuraSecondary(1,.25f))));
+        }
 
         // Preserve the configured base-duration coefficient. Extra duration adds
         // equally strong ticks; it must not dilute or multiply individual ticks.
