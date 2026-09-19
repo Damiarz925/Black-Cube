@@ -222,3 +222,11 @@ Boss-special data is deliberately plain serializable architecture, not a product
 - `PlayerSkillController.cs` / `PlayerSkillMenuUI.cs`: equipped-weapon pair resolution, two controls, one replaceable queue, and queue clearing on weapon change.
 - `GamePersistence.cs`: schema-8 capture/validate/apply and schema-7 class/weapon migration.
 - `PassiveTreeDefinition.cs` / `AffixDefinitions.cs`: optional extension metadata and optional stable weapon-type restrictions; existing content is unchanged.
+# Step 18 map
+
+- `PlayerSkillDefinition` / `PlayerSkillController`: 12 skill definitions, three cast modes, CDR clocks.
+- `SubclassSystems`: stable effect catalog, passive themes, transformation and balance profiles.
+- `SubclassCombatState`: encounter counters, projectile mode math, aura contribution.
+- `PlayerProgression`: transformation allocation/replacement/refund authority.
+- `SubclassMenuUI`: unlock/selection confirmation, aura and Frozen indicators.
+- `BattleManager`: production skill resolution, Freeze/Shatter, modular subclass combat hooks.

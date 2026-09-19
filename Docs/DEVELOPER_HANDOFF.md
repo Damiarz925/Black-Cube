@@ -197,3 +197,6 @@ Read [PASSIVE_TREE_V2.md](PASSIVE_TREE_V2.md) and [WEAPON_MECHANICS.md](WEAPON_M
 Character saves now live in `slot-01.json` through `slot-06.json`, each with `.bak`/`.tmp`. Always select the active slot before capture/load. Do not serialize Staff cooldown progress, Rage, an armed Finisher, queued skills, projectiles, or other combat transients. Legacy single-file migration retains its source and seeds Slot 1 once.
 
 The fresh Step 17 evidence is under `Logs/Step17*`, `Logs/MenuLoadPlayChecks.txt`, `Logs/Step16-class-weapon-play-check.txt`, and `ReviewCaptures/PassiveTreeV2*`. The full EditMode suite passed 305/305 before the final documentation/build pass. No BalanceLab or broad tuning simulation belongs in this step.
+# Step 18 handoff note
+
+The production skill/subclass pass uses schema 10 and keeps all tuning centralized in `WeaponMechanicProfile`, `SubclassBalanceProfile`, and data definitions. Do not revive Cast Speed as gameplay or reuse ID 120. Do not persist encounter-scoped `SubclassCombatState`. The future stolen-subclass-bonus design must grant stable `SubclassEffectDefinition` IDs and must not fake a selected subclass.

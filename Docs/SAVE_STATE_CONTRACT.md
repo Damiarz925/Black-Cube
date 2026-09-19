@@ -204,3 +204,6 @@ Future tutorial flags, unlocks, and achievements need stable IDs and explicit pr
 | Mid-combat Save/Load | Restore a clean start of the current encounter | Persists run/encounter identity and encounter-start resources; recreates the encounter deterministically with no live-frame transients. |
 
 All five approved decisions are implemented; none remains unresolved.
+# Schema 10
+
+Schema 9 migrates directly to schema 10 without reinterpretation. Schema 10 persists selected/unlocked subclass state, stable transformed node IDs, and the Ranger Volley/Focused setting. Freeze, combo, aura contribution, enemy-acted state, Shock/Poison instances, queued skills, and partial cooldowns remain transient under clean-encounter restore.

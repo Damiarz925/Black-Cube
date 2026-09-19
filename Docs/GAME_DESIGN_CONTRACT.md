@@ -275,3 +275,12 @@ Combat levels above 360 use the final authored table as a safe endless fallback 
 The shared Passive Tree V2 has 366 nodes, six permanent class starts, broad generic access with thematic density, a 1.60 weapon-specialization premium, rare keystones, and 100 earned points at level 100. Respecs are free and graph-safe. Staff AutoCooldown/Cast Speed, Bow Precision/projectile latency, Axe Rage/Rage Finisher, and local Weapon DPS are implemented first passes, not final tuning.
 
 Six character slots are character-owned save containers; class, progression, inventory, relics, and passives do not cross slots. Ordinary preferences remain global. Schema 9 grants migrated characters a one-time full Passive Tree V2 refund without changing non-passive progression.
+# Step 18 locked contracts
+
+- Every weapon binds exactly two production skills; Staff uses AutoCooldown and Dagger Quick Strike uses ImmediateCooldown.
+- Cooldown Reduction (ID 126) replaces production Cast Speed; Cast Speed ID 120 remains deprecated, never reinterpreted.
+- Freeze skips one enemy attack and stores Chill strength for Shatter.
+- Each base class owns exactly two subclasses, but subclasses do not restrict weapon choice.
+- The Subclass Sigil unlocks at `story.main.complete`; subclass respec is free outside combat and clears transformations only.
+- Transformations replace up to 10 connected allocated non-start/non-Keystone nodes.
+- All Step 18 numbers are first-pass placeholders.

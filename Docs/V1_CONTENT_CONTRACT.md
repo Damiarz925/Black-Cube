@@ -136,3 +136,6 @@ All locked systems pass focused and full regression; every required biome/scene/
 V1 uses one shared 366-node Passive Tree V2 with six permanent class starts and a 100-point level-100 budget. Weapon districts are stronger but never class-locked. Staff AutoCooldown/Cast Speed, Bow Precision and real projectile travel, and Axe Rage/Rage Finisher are first-pass production mechanics; their final tuning and the twelve final skill identities remain later content work.
 
 The local profile exposes six independent character slots. Class is character-owned and permanent; ordinary options/filter preferences remain global. Average Weapon DPS is local average hit × local APS with Crit/global combat modifiers excluded. Full-character DPS remains explicitly deferred.
+# Step 18 additions
+
+V1 now contracts 12 production weapon skills and 12 production subclass identities. Their stable IDs and placeholder behavior are listed in `PRODUCTION_SKILLS.md` and `SUBCLASSES.md`. Future subclass-bonus stealing items, final names, final tuning, final audiovisual assets, uniques, biomes, and challenge bosses remain out of scope.

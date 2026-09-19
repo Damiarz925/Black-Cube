@@ -21,3 +21,6 @@ With the Rage Finisher keystone and 100 Rage, the player may manually arm the ne
 ## Weapon DPS
 
 Tooltip Average Weapon DPS is strictly the item's final local average damage multiplied by final local attacks per second. Local base-stat affixes are included. Crit, global player damage, Precision, Hit Twice, ailments, skills, and rotations are excluded and remain separately displayed. A true full-character DPS/rotation metric is explicitly future work after the final skill roster exists.
+# Step 18 production skills
+
+All six weapon profiles now bind two production skills. See `PRODUCTION_SKILLS.md` for values and cast modes. Cooldown skills use stat ID 126 and the centralized 0.20-second floor. ImmediateCooldown resolves outside the attack gauge and cannot be activated while unavailable.

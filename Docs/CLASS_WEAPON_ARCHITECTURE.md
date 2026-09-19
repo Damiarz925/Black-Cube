@@ -38,3 +38,6 @@ Each base class exposes exactly two stable subclass-slot references. `SubclassDe
 Schema 8 adds base class ID, story/subclass state, and stable weapon type per weapon. Schema 9 adds the one-time Passive Tree V2 refund and six per-character file slots. Schema-7 migration defaults historical classes to Warrior and historical weapons to Sword, preserving item state exactly before sequential V8/V9 migration.
 
 Bow Precision and target-snapshotted projectile latency are real; Accuracy was not reintroduced. Staff supports data-driven AutoCooldown skills and Axe supports Rage. Final weapon skill assignments, weapon drop weighting, all twelve subclass identities/effects, subclass respec, and class art/audio remain future content work.
+# Step 18 production binding
+
+`WeaponSkillBindings` now provides two production IDs for every weapon. `SubclassCatalog` provides two production entries per class. `SubclassEffectCatalog` is deliberately source-agnostic: effects can later be granted by subclass, transformed passive, unique, or item affix without branching unrelated combat code on selected subclass.

@@ -51,7 +51,7 @@ Weapon-specific efficiency multiplier: 1.60
   - `tree.v2.two_handed_axe.barbarian.cluster.07`: Two-Handed Axe RageRetention, Two-Handed Axe RageRetention, Two-Handed Axe RageRetention, RageRetention Mastery
   - `tree.v2.two_handed_axe.barbarian.cluster.08`: Two-Handed Axe LifeOnHit, Two-Handed Axe LifeOnHit, Two-Handed Axe LifeOnHit, LifeOnHit Mastery
 - Staff: 16 nodes; centroid (0, -1554)
-  - `tree.v2.staff.mage.cluster.05`: Staff CastSpeed, Staff CastSpeed, Staff CastSpeed, CastSpeed Mastery
+  - `tree.v2.staff.mage.cluster.05`: Staff Cooldown Reduction, Staff Cooldown Reduction, Staff Cooldown Reduction, Cooldown Reduction Mastery
   - `tree.v2.staff.mage.cluster.06`: Staff Mana, Staff Mana, Staff Mana, Mana Mastery
   - `tree.v2.staff.mage.cluster.07`: Staff ManaRegeneration, Staff ManaRegeneration, Staff ManaRegeneration, ManaRegeneration Mastery
   - `tree.v2.staff.mage.cluster.08`: Staff Critical Chance, Staff Critical Chance, Staff Critical Chance, Critical Chance Mastery
@@ -238,10 +238,10 @@ Weapon-specific efficiency multiplier: 1.60
 - `tree.v2.mage.mage.cluster.04.02` — Mage / Small / Cold / (-350, -1657)
 - `tree.v2.mage.mage.cluster.04.03` — Mage / Small / Cold / (-350, -1749)
 - `tree.v2.mage.mage.cluster.04.04` — Mage / Notable / Cold Mastery / (-350, -1841)
-- `tree.v2.staff.mage.cluster.05.01` — Mage / Small / Staff CastSpeed / (440, -1355)
-- `tree.v2.staff.mage.cluster.05.02` — Mage / Small / Staff CastSpeed / (440, -1447)
-- `tree.v2.staff.mage.cluster.05.03` — Mage / Small / Staff CastSpeed / (440, -1539)
-- `tree.v2.staff.mage.cluster.05.04` — Mage / Notable / CastSpeed Mastery / (440, -1631)
+- `tree.v2.staff.mage.cluster.05.01` — Mage / Small / Staff Cooldown Reduction / (440, -1355)
+- `tree.v2.staff.mage.cluster.05.02` — Mage / Small / Staff Cooldown Reduction / (440, -1447)
+- `tree.v2.staff.mage.cluster.05.03` — Mage / Small / Staff Cooldown Reduction / (440, -1539)
+- `tree.v2.staff.mage.cluster.05.04` — Mage / Notable / Cooldown Reduction Mastery / (440, -1631)
 - `tree.v2.staff.mage.cluster.06.01` — Mage / Small / Staff Mana / (-440, -1145)
 - `tree.v2.staff.mage.cluster.06.02` — Mage / Small / Staff Mana / (-440, -1237)
 - `tree.v2.staff.mage.cluster.06.03` — Mage / Small / Staff Mana / (-440, -1329)
@@ -436,16 +436,16 @@ Weapon-specific efficiency multiplier: 1.60
 - `tree.v2.center.barbarian.03` — Center / Travel / Confluence Travel / (-450, 260)
 - `tree.v2.center.barbarian.04` — Center / Travel / BleedChance / (-346, 200)
 - `tree.v2.center.barbarian.05` — Center / Notable / Confluence Travel / (-242, 140)
-- `tree.v2.center.ring.01` — Center / Small / Central CastSpeed / (0, 190)
+- `tree.v2.center.ring.01` — Center / Small / Central Cooldown Reduction / (0, 190)
 - `tree.v2.center.ring.02` — Center / Travel / Central Life / (95, 165)
 - `tree.v2.center.ring.03` — Center / Small / Central Mana / (165, 95)
-- `tree.v2.center.ring.04` — Center / Travel / Central CastSpeed / (190, 0)
+- `tree.v2.center.ring.04` — Center / Travel / Central Cooldown Reduction / (190, 0)
 - `tree.v2.center.ring.05` — Center / Small / Central Life / (165, -95)
 - `tree.v2.center.ring.06` — Center / Travel / Central Mana / (95, -165)
-- `tree.v2.center.ring.07` — Center / Small / Central CastSpeed / (0, -190)
+- `tree.v2.center.ring.07` — Center / Small / Central Cooldown Reduction / (0, -190)
 - `tree.v2.center.ring.08` — Center / Travel / Central Life / (-95, -165)
 - `tree.v2.center.ring.09` — Center / Small / Central Mana / (-165, -95)
-- `tree.v2.center.ring.10` — Center / Travel / Central CastSpeed / (-190, 0)
+- `tree.v2.center.ring.10` — Center / Travel / Central Cooldown Reduction / (-190, 0)
 - `tree.v2.center.ring.11` — Center / Small / Central Life / (-165, 95)
 - `tree.v2.center.ring.12` — Center / Travel / Central Mana / (-95, 165)
 

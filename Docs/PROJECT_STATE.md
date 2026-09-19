@@ -220,3 +220,6 @@ Passive Tree V2 ships with 366 nodes, six class starts, six bridge regions, a sh
 Cast Speed/Staff AutoCooldown, Bow Precision and projectile latency/barrages, Axe Rage and Rage Finisher, and local Average Weapon DPS are production systems. Final Staff skills and all other final weapon-skill assignments remain unapproved. See [WEAPON_MECHANICS.md](WEAPON_MECHANICS.md).
 
 Persistence is schema 9 with six independent character slots, per-slot primary/backup/temp files, summaries and explicit selected-slot load/save. Legacy `current-save.json` migrates non-destructively to Slot 1 once. Schema 8 clears V1 passive allocations and grants the character's full level-owned V2 point total. Global preferences remain outside character files.
+# Step 18 production gameplay systems
+
+Step 18 promotes the weapon-skill and subclass foundations to production data: 12 stable weapon skills, 12 class-specific/weapon-agnostic subclasses, Cooldown Reduction, Freeze/Shatter, modular combat-event tags, Light Priest auras, and connected passive transformations. Save schema is 10. Passive Tree V2 remains 366 nodes. See `PRODUCTION_SKILLS.md` and `SUBCLASSES.md`. Values are first-pass placeholders, not final balance.
