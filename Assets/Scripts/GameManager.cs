@@ -237,6 +237,9 @@ public class GameManager : MonoBehaviour
 
         if (wasBoss)                                                                                //if the enemy was a boss, call on zone cleared and return from function
         {
+            BossDefinition defeatedBoss=WorldContentCatalog.Reference.Boss(BattleManager.Instance?.CurrentEncounter?.bossId);
+            if(defeatedBoss?.futureStoryFlags?.Contains(PlayerIdentityState.StoryCompletionMilestoneId)==true)
+                GetComponent<PlayerIdentityState>()?.CompleteMilestone(PlayerIdentityState.StoryCompletionMilestoneId);
             OnZoneCleared();
             return;
         }
