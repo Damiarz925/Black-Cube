@@ -171,9 +171,13 @@ public class Gear : MonoBehaviour
         LocalFlatDamage = LocalFlatDamageMax = LocalIncDamage = LocalBaseCrit = LocalIncCrit = LocalIncAttackSpeed = 0f;
         globalRolledMods.Clear();
         ApplyMods(copy);
-        if (!hasDamageBase) { BaseDamage = fallbackDamage; BaseDamageMin = fallbackMin; BaseDamageMax = fallbackMax; }
-        if (!hasSpeedBase) BaseAttackSpeed = fallbackSpeed;
-        if (!hasCritBase) BaseCritChance = fallbackCrit;
+        // Weapon type profiles may intentionally override the generic intrinsic
+        // roll. Preserve those resolved base fields across explicit-affix rebuilds.
+        if (fallbackDamage > 0f || fallbackMin > 0f || fallbackMax > 0f)
+        { BaseDamage = fallbackDamage; BaseDamageMin = fallbackMin; BaseDamageMax = fallbackMax; }
+        else if (!hasDamageBase) BaseDamage = BaseDamageMin = BaseDamageMax = 0f;
+        if (fallbackSpeed > 0f) BaseAttackSpeed = fallbackSpeed; else if (!hasSpeedBase) BaseAttackSpeed=0f;
+        if (fallbackCrit > 0f) BaseCritChance = fallbackCrit; else if (!hasCritBase) BaseCritChance=0f;
         modNumber = CraftingModCount;
     }
 

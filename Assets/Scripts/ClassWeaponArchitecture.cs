@@ -50,20 +50,20 @@ public sealed class WeaponTypeDefinition
     public readonly bool IsRanged,RequiresAccuracyResolution,SupportsPrecision,SupportsRage;
     public int SkillSlotCount=>2;
     public IReadOnlyList<PlayerSkillId> SkillIds=>WeaponSkillBindings.For(Id);
-    public WeaponTypeDefinition(string id,string name,float min,float max,float speed,bool ranged)
-    {Id=id;DisplayName=name;BaseDamageMin=min;BaseDamageMax=max;AttacksPerSecond=speed;BaseCritChance=.05f;IsRanged=ranged;RequiresAccuracyResolution=false;SupportsPrecision=id==WeaponTypeIds.Bow;SupportsRage=id==WeaponTypeIds.TwoHandedAxe;ProjectileMetadataHook=ranged?"projectile."+id:string.Empty;AffixTags=new[]{id,ranged?"weapon.ranged":"weapon.melee"};ArtHook="art."+id;AudioHook="audio."+id;}
+    public WeaponTypeDefinition(string id,string name,float min,float max,float speed,float crit,bool ranged)
+    {Id=id;DisplayName=name;BaseDamageMin=min;BaseDamageMax=max;AttacksPerSecond=speed;BaseCritChance=crit;IsRanged=ranged;RequiresAccuracyResolution=false;SupportsPrecision=id==WeaponTypeIds.Bow;SupportsRage=id==WeaponTypeIds.TwoHandedAxe;ProjectileMetadataHook=ranged?"projectile."+id:string.Empty;AffixTags=new[]{id,ranged?"weapon.ranged":"weapon.melee"};ArtHook="art."+id;AudioHook="audio."+id;}
 }
 
 public static class WeaponTypeCatalog
 {
     public const string HistoricalDefaultId=WeaponTypeIds.Sword;
     static readonly WeaponTypeDefinition[] all={
-        new(WeaponTypeIds.Sword,"Sword",18,27,.45f,false),
-        new(WeaponTypeIds.TwoHandedAxe,"Two-Handed Axe",26,38,.30f,false),
-        new(WeaponTypeIds.Staff,"Staff",18,28,.40f,false),
-        new(WeaponTypeIds.Bow,"Bow",17,25,.50f,true),
-        new(WeaponTypeIds.Dagger,"Dagger",14,20,.60f,false),
-        new(WeaponTypeIds.Sceptre,"Sceptre",19,28,.42f,false)};
+        new(WeaponTypeIds.Sword,"Sword",18,27,.45f,.05f,false),
+        new(WeaponTypeIds.TwoHandedAxe,"Two-Handed Axe",26,38,.30f,.04f,false),
+        new(WeaponTypeIds.Staff,"Staff",18,28,.40f,.06f,false),
+        new(WeaponTypeIds.Bow,"Bow",17,25,.50f,.05f,true),
+        new(WeaponTypeIds.Dagger,"Dagger",14,20,.60f,.08f,false),
+        new(WeaponTypeIds.Sceptre,"Sceptre",19,28,.42f,.05f,false)};
     public static IReadOnlyList<WeaponTypeDefinition> All=>all;
     public static bool TryGet(string id,out WeaponTypeDefinition value){foreach(var x in all)if(x.Id==id){value=x;return true;}value=null;return false;}
     public static bool IsValid(string id)=>TryGet(id,out _);

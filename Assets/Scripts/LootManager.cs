@@ -83,13 +83,14 @@ public class LootManager : MonoBehaviour
             _ => 3
         };
 
-        var element = RollItemElement();
+        var type = RollItemType();
+        var element = RollItemElement(type==GearType.Weapons);
 
         int zoneLevel = zoneManager != null ? zoneManager.zoneLevel : 1;
         int itemLevel = zoneLevel + enemyRarityMod;     //Calculate item level as the level of the zone + the enemy rarity modifier
 
-        var type = RollItemType();          //assign variable type by rolling an item type
         var rarity = RollItemRarity(itemLevel);
+        string weaponTypeId=type==GearType.Weapons?RollWeaponTypeId():null;
 
         Debug.Log($"[Loot] Rolled type={type}, rarity={rarity}, zoneLevel={zoneLevel}, enemyRarity={enemyRarity}");
 
@@ -98,10 +99,7 @@ public class LootManager : MonoBehaviour
         if (gear == null)
             gear = obj.AddComponent<Gear>();
 
-        // Existing random loot retains Sword as its compatibility profile until
-        // weapon-type drop weighting is approved; all six types are supported by Gear.
-        gear.Initialize(type, rarity, itemLevel, element,
-            type==GearType.Weapons?WeaponTypeCatalog.HistoricalDefaultId:null);
+        gear.Initialize(type,rarity,itemLevel,element,weaponTypeId);
 
         Debug.Log($"[Loot] After Initialize: gear.ItemType={gear.ItemType}, gear.ItemRarity={gear.ItemRarity}, ilvl={gear.ItemLevel}, modCount={gear.ModCount}");
 
@@ -124,6 +122,7 @@ public class LootManager : MonoBehaviour
         Debug.Log($"[Loot] Rolled mods count = {(mods == null ? -1 : mods.Count)}");
 
         gear.ApplyMods(mods);   //call apply mods on the gear item, passing in the list of mods to apply
+        if(type==GearType.Weapons)ApplyNaturalWeaponProfile(gear);
 
         return gear;        //return the gear item
     }
@@ -150,6 +149,21 @@ public class LootManager : MonoBehaviour
     {
         if(zoneManager==null)zoneManager=FindFirstObjectByType<ZoneManager>();
         return RollItemRarity(zoneManager!=null?zoneManager.zoneLevel:1);
+    }
+
+    public static string RollWeaponTypeId()
+    {
+        var all=WeaponTypeCatalog.All;return all[Random.Range(0,all.Count)].Id;
+    }
+
+    public static void ApplyNaturalWeaponProfile(Gear gear)
+    {
+        if(gear==null||gear.ItemType!=GearType.Weapons||!WeaponTypeCatalog.TryGet(gear.WeaponTypeId,out var profile))return;
+        float damageScale=gear.ItemLevel<=1?1f:Mathf.Max(.01f,gear.BaseDamage/40f);
+        float speedScale=gear.ItemLevel<=1?1f:Mathf.Max(.01f,gear.BaseAttackSpeed/.60f);
+        float critScale=gear.ItemLevel<=1?1f:Mathf.Max(.01f,gear.BaseCritChance/.05f);
+        gear.BaseDamageMin=profile.BaseDamageMin*damageScale;gear.BaseDamageMax=profile.BaseDamageMax*damageScale;
+        gear.BaseDamage=(gear.BaseDamageMin+gear.BaseDamageMax)*.5f;gear.BaseAttackSpeed=profile.AttacksPerSecond*speedScale;gear.BaseCritChance=profile.BaseCritChance*critScale;
     }
 
     // Player drops have their own level-dependent rates; enemy-equipped rarity is

@@ -27,7 +27,18 @@ public static class ItemIconCatalog
         return new Selection(Themes[themeIndex], fiftyLevelBand%3+1, fiftyLevelBand>=3);
     }
 
-    public static Sprite Get(Gear gear) => gear == null || gear.IsScrap ? null : Get(gear.ItemType, gear.ItemLevel);
+    public static Sprite Get(Gear gear)
+    {
+        if(gear==null||gear.IsScrap)return null;
+        if(gear.ItemType==LootManager.GearType.Weapons)
+        {
+            Sprite weapon=Load("UI/ItemIcons/weapons/"+WeaponFileName(gear.WeaponTypeId));
+            if(weapon!=null)return weapon;
+            Debug.LogWarning("ItemIconCatalog: falling back to generic weapon icon for "+gear.WeaponTypeId);
+            return Get(gear.ItemType,gear.ItemLevel);
+        }
+        return Get(gear.ItemType,gear.ItemLevel);
+    }
 
     public static Sprite Get(LootManager.GearType type, int itemLevel)
     {
@@ -80,5 +91,10 @@ public static class ItemIconCatalog
         LootManager.GearType.Rings => "ring",
         LootManager.GearType.Belts => "belt",
         _ => "sword"
+    };
+    private static string WeaponFileName(string stableId)=>stableId switch
+    {
+        WeaponTypeIds.TwoHandedAxe=>"two_handed_axe",WeaponTypeIds.Bow=>"bow",WeaponTypeIds.Staff=>"staff",
+        WeaponTypeIds.Dagger=>"dagger",WeaponTypeIds.Sceptre=>"sceptre",_=>"sword"
     };
 }
