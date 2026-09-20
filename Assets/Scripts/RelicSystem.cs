@@ -307,7 +307,7 @@ public sealed class RebirthConfirmationUI:MonoBehaviour
     public void Build()
     {
         if(openButton!=null)return;
-        openButton=Button(transform,"REBIRTH",new Vector2(.015f,.015f),new Vector2(.13f,.075f),Open,out openLabel);
+        openButton=Button(transform,"REBIRTH",new Vector2(.015f,.015f),new Vector2(.13f,.075f),Open,out openLabel);BottomActionBarLayout.Attach(openButton,10,190);
         confirmation=new GameObject("Rebirth confirmation",typeof(RectTransform),typeof(Image));confirmation.transform.SetParent(transform,false);var rect=(RectTransform)confirmation.transform;rect.anchorMin=new Vector2(.3f,.3f);rect.anchorMax=new Vector2(.7f,.7f);rect.offsetMin=rect.offsetMax=Vector2.zero;confirmation.GetComponent<Image>().color=new Color(.03f,.025f,.04f,.98f);
         var message=Label(confirmation.transform,"REBIRTH?\nReset all run progress and ordinary items. Relics remain permanent.",15);Place(message.rectTransform,.06f,.42f,.94f,.94f);
         Button(confirmation.transform,"CONFIRM",new Vector2(.08f,.08f),new Vector2(.47f,.34f),Confirm,out _);

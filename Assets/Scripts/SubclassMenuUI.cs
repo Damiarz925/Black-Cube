@@ -10,7 +10,7 @@ public sealed class SubclassMenuUI:MonoBehaviour
     void Start()
     {
         hud=GetComponent<PaperBattleHUD>();var canvas=GetComponentInParent<Canvas>();if(canvas==null)return;
-        open=Button(canvas.transform,"Subclass",new Vector2(.03f,.012f),new Vector2(.21f,.09f),out openLabel);open.onClick.AddListener(Toggle);
+        open=Button(canvas.transform,"Subclass",new Vector2(.03f,.012f),new Vector2(.21f,.09f),out openLabel);open.onClick.AddListener(Toggle);BottomActionBarLayout.Attach(open,20,190);
         panel=Box(canvas.transform,"Subclass Selection",new Vector2(.22f,.22f),new Vector2(.78f,.78f),new Color(.03f,.035f,.05f,.99f));var sorting=panel.AddComponent<Canvas>();sorting.overrideSorting=true;sorting.sortingOrder=120;panel.AddComponent<GraphicRaycaster>();
         title=Text(panel.transform,"Title",new Vector2(.08f,.77f),new Vector2(.92f,.94f),28);title.alignment=TextAlignmentOptions.Center;
         description=Text(panel.transform,"Description",new Vector2(.1f,.36f),new Vector2(.9f,.7f),17);description.alignment=TextAlignmentOptions.Center;

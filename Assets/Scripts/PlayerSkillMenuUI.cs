@@ -22,8 +22,8 @@ public sealed class PlayerSkillMenuUI:MonoBehaviour
     void Build()
     {
         Transform canvas=hud.GetComponentInParent<Canvas>().transform;
-        for(int i=0;i<2;i++){int index=i;buttons[i]=Button(canvas,"Weapon Skill "+(i+1),new Vector2(.29f+i*.22f,.012f),new Vector2(.49f+i*.22f,.09f),out labels[i]);buttons[i].onClick.AddListener(()=>{controller.TryQueueWeaponSkill(index);Refresh();});}
-        rageFinisherButton=Button(canvas,"Rage Finisher",new Vector2(.72f,.012f),new Vector2(.94f,.09f),out rageFinisherLabel);rageFinisherButton.onClick.AddListener(()=>{rage?.TryArmFinisher();Refresh();});
+        for(int i=0;i<2;i++){int index=i;buttons[i]=Button(canvas,"Weapon Skill "+(i+1),new Vector2(.29f+i*.22f,.012f),new Vector2(.49f+i*.22f,.09f),out labels[i]);buttons[i].onClick.AddListener(()=>{controller.TryQueueWeaponSkill(index);Refresh();});BottomActionBarLayout.Attach(buttons[i],30+i*10,255);}
+        rageFinisherButton=Button(canvas,"Rage Finisher",new Vector2(.72f,.012f),new Vector2(.94f,.09f),out rageFinisherLabel);rageFinisherButton.onClick.AddListener(()=>{rage?.TryArmFinisher();Refresh();});BottomActionBarLayout.Attach(rageFinisherButton,50,240);
         panel=Box(canvas,"Weapon Skill Information",new Vector2(.23f,.3f),new Vector2(.77f,.7f),Panel);var c=panel.AddComponent<Canvas>();c.overrideSorting=true;c.sortingOrder=110;panel.AddComponent<GraphicRaycaster>();
         var title=Text(panel.transform,"Title",new Vector2(.06f,.68f),new Vector2(.94f,.9f),30);title.text="WEAPON SKILLS";title.alignment=TextAlignmentOptions.Center;
         var body=Text(panel.transform,"Body",new Vector2(.08f,.25f),new Vector2(.92f,.67f),18);body.text="Each weapon type supplies exactly two active-skill slots. Final V1 assignments are intentionally TBD; developer fixtures can exercise this pipeline without creating production mappings.";body.alignment=TextAlignmentOptions.Center;
