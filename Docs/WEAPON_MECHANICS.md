@@ -28,3 +28,7 @@ All six weapon profiles now bind two production skills. See `PRODUCTION_SKILLS.m
 ## Step 18.5 natural weapon drops
 
 Natural weapon loot selects Sword, Two-Handed Axe, Bow, Staff, Dagger, and Sceptre at equal 1/6 weight. Level-one profiles are 18–27/.45/5%, 26–38/.30/4%, 17–25/.50/5%, 18–28/.40/6%, 14–20/.60/8%, and 19–28/.42/5% respectively. Generic intrinsic tiers continue to scale these identities above level one. Stable type-to-icon mapping is authoritative; a missing icon warns rather than silently displaying a different weapon.
+
+## Step 18.6 attribute identity
+
+Weapon damage scaling belongs to weapon type, not class: Sword uses Strength/Dexterity at 0.25% each; Axe Strength, Bow Dexterity, and Staff Intelligence use 0.50%; Dagger uses Dexterity/Intelligence and Sceptre Strength/Intelligence at 0.25% each. The bonus joins the root additive increased bucket and is excluded from Average Weapon DPS.

@@ -226,4 +226,8 @@ Step 18 promotes the weapon-skill and subclass foundations to production data: 1
 
 ## Step 18.5 current state
 
-The bottom action row is owned by one responsive horizontal layout with autosizing/ellipsis and an overlap validator covering 1280×720 through 3440×1440. Ailment eligibility is centralized and defaults to Physical Bleed, Fire Ignite, Lightning Shock, Cold Chill, and Physical/Void Poison with explicit modular overrides. Enemy loot guarantees gear and scales bounded extra gear/currency budgets from level, enemy rarity, and normalized actual equipped-build score under deterministic encounter-derived RNG. Natural weapons select all six types uniformly, use the locked level-one profiles, and have temporary mapped icons. Save schema remains 10. See `AILMENT_ELIGIBILITY.md` and `LOOT_SYSTEM.md`.
+The bottom action row is owned by one responsive horizontal layout with autosizing/ellipsis and an overlap validator covering 1280×720 through 3440×1440. Ailment eligibility is centralized and defaults to Physical Bleed, Fire Ignite, Lightning Shock, Cold Chill, and Physical/Void Poison with explicit modular overrides. Enemy loot guarantees gear and scales bounded extra gear/currency budgets from level, enemy rarity, and normalized actual equipped-build score. Natural weapons select all six types uniformly, use the locked level-one profiles, and have temporary mapped icons. Save schema remains 10. See `AILMENT_ELIGIBILITY.md` and `LOOT_SYSTEM.md`.
+
+## Step 18.6 current state
+
+Reward generation no longer uses the deterministic encounter seed. Each claimed enemy death owns a fresh cryptographic loot stream while deterministic world/enemy-equipment generation remains unchanged. Weapon-type attribute scaling and capped player-level growth now join the root hit's additive increased bucket exactly once. Save schema remains 10. See `PLAYER_DAMAGE_SCALING.md`.

@@ -291,3 +291,9 @@ Six character slots are character-owned save containers; class, progression, inv
 - Every enemy grants one gear item. Further gear and currency quantity uses the centralized bounded LootPower formula documented in [LOOT_SYSTEM.md](LOOT_SYSTEM.md); these coefficients are first-pass placeholders.
 - Enemy rarity is distinct from item rarity. Ancient currency is naturally obtainable only after combat level 60 and remains substantially rarer than ordinary currency. Empowerment Catalyst remains challenge-only.
 - All six natural weapon types have equal selection weight and preserve distinct level-one damage, speed, and critical profiles. Starters remain separately weaker.
+
+## Step 18.6 loot and player-damage contract
+
+- World/enemy selection and enemy-owned builds may be deterministic, but every claimed enemy death rolls its entire reward event from fresh production entropy. Stage, encounter, enemy, run, and save identity never seed future loot.
+- Equipped weapon type determines attribute coefficients independently of class. Sword uses Strength/Dexterity; Axe Strength; Bow Dexterity; Staff Intelligence; Dagger Dexterity/Intelligence; Sceptre Strength/Intelligence.
+- Root weapon/skill hits gain 0.25% additive increased damage per player level above one, capped by the level-100 player cap. Attribute and level contributions do not change local item DPS or reapply to downstream derived damage.
