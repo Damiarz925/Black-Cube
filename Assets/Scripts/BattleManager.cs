@@ -32,6 +32,7 @@ public class BattleManager : MonoBehaviour
     private RageState playerRage;
     private SubclassCombatState subclassState;
     private float currentAttackEventMultiplier=1f;
+    private BossSpecialEffectRuntime specialEffects;
 
     private Animator playerAnimator;
     private Animator enemyAnimator;
@@ -41,6 +42,7 @@ public class BattleManager : MonoBehaviour
     private EnemyAI enemyAI;
     public EnemyAI CurrentEnemyAI => enemyAI;
     public EncounterDefinition CurrentEncounter { get; private set; }
+    ChallengeEncounterDefinition pendingChallenge;
     public event System.Action<EnemyAI> CurrentEnemyChanged;
     private StatusController enemyStatusCont;
     private StatsComponent enemyStats;
@@ -139,7 +141,8 @@ public class BattleManager : MonoBehaviour
         int stage = spawnBoss ? WorldProgression.BossStage : GameManager.Instance?.EncounterStage ?? 1;
         WorldContentDatabase content = zoneManager != null ? zoneManager.WorldContent : WorldContentCatalog.Reference;
         WorldPosition world = WorldProgression.Resolve(zoneLevel, stage, content,GamePersistence.CurrentRunSeed);
-        CurrentEncounter = world.Encounter;
+        ChallengeEncounterDefinition challenge=pendingChallenge;pendingChallenge=null;
+        CurrentEncounter = challenge!=null?new EncounterDefinition{stableId=challenge.stableContentId,kind=EncounterKind.Boss,stage=WorldProgression.BossStage,bossId=challenge.bossId,futureRewardHooks=new(){challenge.rewardResourceId}}:world.Encounter;
         GameObject prefab;
         if (spawnBoss)
         {
@@ -210,6 +213,26 @@ public class BattleManager : MonoBehaviour
         subclassState?.ResetForEnemy();
         GamePersistence.RecordEncounterStart(playerHealth, GetPlayerMana());
         if(subclassState?.Has(SubclassIds.ThiefAssassin)==true)ResolvePlayerTurn();
+    }
+
+    public bool TrySpawnChallenge(ChallengeEncounterDefinition challenge)
+    {
+        if(challenge==null||WorldContentCatalog.Reference?.Boss(challenge.bossId)==null)return false;
+        pendingChallenge=challenge;SpawnNextEnemy(true);
+        return currentEnemy!=null&&CurrentEncounter!=null&&CurrentEncounter.stableId==challenge.stableContentId;
+    }
+
+    public void RestoreWorldEncounter()
+    {
+        pendingChallenge=null;int level=GameManager.Instance?.CurrentCombatLevel??1;int completed=GameManager.Instance?.NormalKills??0;bool boss=GameManager.Instance?.BossActive??false;
+        GamePersistence.GenerateDeterministicEncounter(level,completed,boss,()=>SpawnNextEnemy(boss));
+    }
+
+    public void ReturnFromChallengeDefeat()
+    {
+        player?.GetComponent<PlayerSkillController>()?.ClearQueuedSkill();player?.GetComponent<StatusController>()?.ClearStatuses();
+        if(playerSpawnPoint!=null&&player!=null){player.transform.position=playerSpawnPoint.position;player.transform.rotation=playerSpawnPoint.rotation;}
+        playerHealth?.ReviveToFullLife();GetPlayerMana()?.RestoreFull();RestoreWorldEncounter();
     }
 
     private void OnDestroy()
@@ -307,7 +330,7 @@ public class BattleManager : MonoBehaviour
         if (enemyHealth != originalTarget || originalTarget.CurrentLife <= 0f) return;
 
         var skillController = player != null ? player.GetComponent<PlayerSkillController>() : null;
-        currentAttackEventMultiplier=playerRage!=null?playerRage.BeginAttackEventMultiplier():1f;bool resolved=false;
+        specialEffects??=player!=null?player.GetComponent<BossSpecialEffectRuntime>()??player.AddComponent<BossSpecialEffectRuntime>():null;specialEffects?.BeginAttackEvent();currentAttackEventMultiplier=playerRage!=null?playerRage.BeginAttackEventMultiplier():1f;bool resolved=false;
         try{if (skillController != null && skillController.TryConsumeQueuedForAttack(out var queued, out float manaSpent))
         {
             // Resolve against the enemy that exists at the scheduled attack event,
@@ -341,7 +364,7 @@ public class BattleManager : MonoBehaviour
         if (currentEnemy == null || enemyHealth == null || enemyHealth.CurrentLife <= 0f) return;       //if enemy, or their health is null or less than or equal to 0, return
         if (playerHealth == null || playerStatusCont == null || playerHealth.CurrentLife <= 0f) return;     //if player health is null or less than or equal to 0, return
 
-        if(enemyStatusCont!=null&&enemyStatusCont.ConsumeFrozenAttackSkip())return;
+        if(enemyStatusCont!=null&&enemyStatusCont.ConsumeFrozenAttackSkip()){specialEffects?.OnFreezeConsumed(playerHealth,GetPlayerMana());return;}
         var originalAttacker = enemyHealth;
         var originalTarget = playerHealth;
         globalTurnCounter++;        //increment global turn counter
@@ -394,6 +417,7 @@ public class BattleManager : MonoBehaviour
             // impact once this particular enemy is actually applying its hit.
             if (enemySprite != null) enemySprite.Strike();
             playerDamageReceiver.TakeDamage(damageTaken, ctx);     //call lose life in player script, passing in damage taken
+            if(damageTaken>0)specialEffects?.NotifyPlayerTookDirectHit();
             playerRage?.GainFromDamageTaken(damageTaken,playerHealth.MaxLife);
 
             if (damageTaken > 0f && originalAttacker != null && enemyStats != null)
@@ -589,6 +613,8 @@ public class BattleManager : MonoBehaviour
             : skill == null ? normal : TransformContext(normal, skillMultiplier * skillLevelFactor, skill.conversionElement, 0f);
         direct.EventTags|=skill==null?CombatEventTags.NormalAttack:CombatEventTags.WeaponSkill;
         if(skill?.projectile==true)direct.EventTags|=CombatEventTags.Projectile;
+        specialEffects??=player!=null?player.GetComponent<BossSpecialEffectRuntime>()??player.AddComponent<BossSpecialEffectRuntime>():null;
+        direct=specialEffects!=null?specialEffects.BeforeHit(direct,statuses,target):direct;
 
         DamageContext specialized = default;
         if (skill != null && skill.specializedAilment != StatusEffects.AilmentKind.None)
@@ -621,6 +647,7 @@ public class BattleManager : MonoBehaviour
             if(skill?.effect==WeaponSkillEffect.HealFromDamage)playerHealth.RestoreLife(damageTaken*skill.secondaryMultiplier,HealingSource.WeaponSkill);
             if(subclassState?.Has(SubclassIds.PriestLight)==true)playerHealth.RestoreLife(damageTaken*.10f,HealingSource.SubclassDamage);
             subclassState?.RecordTypedDamage(direct,damageTaken,target.MaxLife);subclassState?.PlayerHit();
+            specialEffects?.AfterHit(direct,rawTotal,statuses,target,enemyDamageReceiver,playerStats,enemyStats);
             if(subclassState?.Has(SubclassIds.BarbarianFire)==true&&Random.value<SubclassBalanceProfile.EruptionChance&&IsSameLivingEnemy(target))
             {
                 var eruption=new DamageContext(1){EventTags=CombatEventTags.TriggeredDamage|CombatEventTags.SubclassProc|CombatEventTags.Eruption};eruption.AddDamage(Element.Fire,rawTotal*SubclassBalanceProfile.EruptionMagnitude);float eruptionDamage=CombatCalculator.CalculateFinalDamage(eruption,playerStats,enemyStats);if(eruptionDamage>0)enemyDamageReceiver.TakeDamage(eruptionDamage,eruption);if(IsSameLivingEnemy(target))ApplyConfiguredStatus(igniteEffect,StatTypes.IgniteChance,eruption,playerStats,statuses);
@@ -638,7 +665,8 @@ public class BattleManager : MonoBehaviour
             {
                 if(statuses.TryConsumeFreeze(out float frozenStrength))
                 {
-                    var shatter=TransformContext(normal,WeaponMechanicProfile.ShatterMultiplier(frozenStrength),Element.Cold,1f);
+                    float fracture=BossSpecialEffectRuntime.PlayerHas("fracture")?1.5f:1f;
+                    var shatter=TransformContext(normal,WeaponMechanicProfile.ShatterMultiplier(frozenStrength)*fracture,Element.Cold,1f);
                     shatter.EventTags=CombatEventTags.TriggeredDamage|CombatEventTags.Shatter|CombatEventTags.NoSecondaryTriggers;
                     float burst=CombatCalculator.CalculateFinalDamage(shatter,playerStats,enemyStats);
                     if(burst>0&&enemyDamageReceiver!=null)enemyDamageReceiver.TakeDamage(burst,shatter);
@@ -809,9 +837,11 @@ public class BattleManager : MonoBehaviour
             ? specialized : ctx;
         int specializedGuarantee=skill!=null?Mathf.Max(0,skill.guaranteedAilmentApplications):0;
 
-        ApplyConfiguredStatus(poisonEffect, StatTypes.PoisonChance, poisonBasis, attackerStats, targetStatusCont,
+        int poisonApplications=ApplyConfiguredStatus(poisonEffect, StatTypes.PoisonChance, poisonBasis, attackerStats, targetStatusCont,
             poisonTransmutation ? 1 : skill!=null&&skill.specializedAilment==StatusEffects.AilmentKind.Poison
                 ?specializedGuarantee:0, poisonTransmutation ? 1f : -1f, poisonTransmutation);
+        if(poisonApplications>0&&attackerStats.GetComponent<PlayerController>()!=null&&BossSpecialEffectRuntime.PlayerHas("toxic-echo")&&Random.value<.15f)
+        {poisonBasis.EventTags|=CombatEventTags.TriggeredDamage|CombatEventTags.ToxicEcho|CombatEventTags.NoSecondaryTriggers;targetStatusCont.ApplyAilmentFromHit(poisonEffect,poisonBasis,attackerStats,1,.05f);}
         int bleedApplications=ApplyConfiguredStatus(bleedEffect, StatTypes.BleedChance, bleedBasis, attackerStats, targetStatusCont,
             skill!=null&&skill.specializedAilment==StatusEffects.AilmentKind.Bleed?specializedGuarantee:0);
         ApplyConfiguredStatus(igniteEffect, StatTypes.IgniteChance, igniteBasis, attackerStats, targetStatusCont,

@@ -100,6 +100,16 @@ public static class CodexModCatalog
                 text.AppendLine($"    T{tier.tierIndex}  |  ilvl {tier.minItemLevel}  |  {range}");
             }
         }
+        text.AppendLine();text.AppendLine("<color=#D88BFF><b>BOSS-SPECIAL / APEX AFFIXES</b></color>");
+        text.AppendLine("<color=#8B9299>Special affixes cannot be ordinarily rerolled, removed, or Empowered. Infusion replaces one same-side ordinary explicit and costs 1 matching Essence plus 3 Potential.</color>");
+        var world=WorldContentCatalog.Reference;if(world?.challengeSpecialAffixPools!=null)foreach(var pool in world.challengeSpecialAffixPools)
+        {
+            var challenge=world.Challenge(pool.associatedContentId);bool heading=false;
+            foreach(var mod in pool.modifiers)if(mod!=null&&mod.Allows(slot)&&(filter==CodexSideFilter.All||filter==CodexSideFilter.Prefixes&&mod.side==AffixSide.Prefix||filter==CodexSideFilter.Suffixes&&mod.side==AffixSide.Suffix))
+            {if(!heading){text.AppendLine($"\n<b>{challenge?.displayName??pool.poolName}</b>  <color=#8B9299>{pool.stableId}</color>");heading=true;}text.AppendLine($"  <color=#D88BFF>{mod.displayName}</color> — {mod.side} — {mod.description}  <color=#8B9299>{string.Join(", ",mod.allowedItemTypes)}</color>");}
+        }
+        text.AppendLine("\n<color=#73D8EE><b>EMPOWERED</b></color> — eligible ordinary scalable T1 explicit; default value range is 125% of the authored T1 endpoint. Progression caps: 120/1, 160/2, 210/3, 260/4, 310/5, 360/6.");
+        text.AppendLine("<color=#9FC8BC><b>IMPLICIT REFORGE</b></color> — ilvl 100 Rare/Legendary only; rerolls only the permanent implicit and preserves rarity, explicits, special/Empowered state, and Crafting Potential.");
         return text.ToString().TrimEnd();
     }
 }

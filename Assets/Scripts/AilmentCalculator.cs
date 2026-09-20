@@ -81,6 +81,12 @@ public static class AilmentCalculator
                 moreFactor *= 1f + attacker.GetStat(StatTypes.IgniteMult);
                 break;
         }
+        if(attacker.GetComponent<PlayerController>()!=null)
+        {
+            if(effect.Ailment==StatusEffects.AilmentKind.Poison&&BossSpecialEffectRuntime.PlayerHas("corrosive-void"))
+            {bool hasVoid=false;foreach(var hit in ctx.Hits)if((hit.Element==Element.Void||hit.Element==Element.Poison)&&hit.Amount>0){hasVoid=true;break;}if(hasVoid)moreFactor*=1.30f;}
+            if(effect.Ailment==StatusEffects.AilmentKind.Ignite&&BossSpecialEffectRuntime.PlayerHas("rapid-burn"))moreFactor*=1.25f;
+        }
 
         // Each more stat compounds its own rolls. Multiply DOT and matching ailment
         // factors only: hit increased/more scaling is already in the source hit.
@@ -114,6 +120,7 @@ public static class AilmentCalculator
 
         //Set the tick count to the largest number between 1 and baseTicks + extraTicks
         tickCount = Mathf.Max(1, baseTicks + extraTicks);
+        if(effect.Ailment==StatusEffects.AilmentKind.Ignite&&attacker.GetComponent<PlayerController>()!=null&&BossSpecialEffectRuntime.PlayerHas("rapid-burn"))tickCount=Mathf.Max(1,Mathf.RoundToInt(tickCount*.9f));
         if(effect.Ailment==StatusEffects.AilmentKind.Ignite)
         {
             var light=attacker.GetComponent<SubclassCombatState>();

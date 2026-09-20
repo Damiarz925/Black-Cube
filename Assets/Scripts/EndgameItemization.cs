@@ -44,6 +44,22 @@ public static class EmpowermentProgressionProfile
 
 public static class EmpowermentCrafting
 {
+    public static bool IsEligible(Gear gear,RolledMod mod,int combatLevel)
+    {
+        if(gear==null||mod==null||!gear.rolledMods.Contains(mod)||gear.EmpoweredModifierCount>=EmpowermentProgressionProfile.MaximumEmpoweredModifiers(combatLevel)
+            ||mod.lockedOriginal||mod.isEmpowered||mod.isBossSpecial||Gear.IsWeaponBaseStat(mod.statType)||mod.tierIndex!=1)return false;
+        var definition=ModManager.Instance?.Database?.GetDefinition(mod.statType);return IsEmpowerable(definition,mod.statType)
+            &&ModManager.ApplicableTiers(definition,gear.ItemType,gear.WeaponTypeId).Exists(x=>x.tierIndex==1);
+    }
+    public static bool TryApply(Gear gear,RolledMod target,int combatLevel,float valueRoll=-1f,float highRoll=-1f)
+    {
+        if(!IsEligible(gear,target,combatLevel))return false;var definition=ModManager.Instance.Database.GetDefinition(target.statType);
+        var tier=ModManager.ApplicableTiers(definition,gear.ItemType,gear.WeaponTypeId).Find(x=>x.tierIndex==1);if(tier==null)return false;
+        EmpoweredRange(definition,tier,out float min,out float max,out float minHigh,out float maxHigh);
+        target.value=Round(Mathf.Lerp(min,max,valueRoll<0?UnityEngine.Random.value:Mathf.Clamp01(valueRoll)));
+        if(tier.pairedDamage){target.hasSecondaryValue=true;target.secondaryValue=Mathf.Max(target.value,Round(Mathf.Lerp(minHigh,maxHigh,highRoll<0?UnityEngine.Random.value:Mathf.Clamp01(highRoll))));}
+        target.isEmpowered=true;gear.RebuildMods();return true;
+    }
     public static bool TryApply(Gear gear,int combatLevel,float candidateRoll=-1f,float valueRoll=-1f,float highRoll=-1f)
     {
         if(gear==null||gear.EmpoweredModifierCount>=EmpowermentProgressionProfile.MaximumEmpoweredModifiers(combatLevel))return false;
@@ -98,6 +114,8 @@ public static class EmpowermentCrafting
 public sealed class SpecialAffixDefinition
 {
     public string stableId;
+    public string displayName;
+    public string effectId;
     public AffixSide side;
     public LootManager.GearType[] allowedItemTypes;
     public StatTypes statType;
@@ -106,6 +124,7 @@ public sealed class SpecialAffixDefinition
     public float minimumHigh,maximumHigh;
     public int minimumItemLevel=100,minimumCombatLevel=100,weight=1;
     public string description;
+    public float effectValue,effectValue2,duration;
 
     public bool Allows(LootManager.GearType type)
     {
@@ -122,6 +141,14 @@ public sealed class SpecialAffixPoolDefinition
     public string poolName;
     public string associatedContentId;
     public List<SpecialAffixDefinition> modifiers=new();
+}
+
+public static class BossSpecialCatalog
+{
+    public static SpecialAffixDefinition Find(string poolId,string modifierId)
+        =>WorldContentCatalog.Reference?.ChallengeSpecialPool(poolId)?.modifiers?.Find(x=>x!=null&&x.stableId==modifierId);
+    public static string SourceName(string poolId)
+    {var pool=WorldContentCatalog.Reference?.ChallengeSpecialPool(poolId);if(pool==null)return poolId??string.Empty;var challenge=WorldContentCatalog.Reference?.Challenge(pool.associatedContentId);return challenge?.displayName??pool.poolName;}
 }
 
 public static class BossSpecialCrafting
@@ -159,6 +186,28 @@ public static class BossSpecialCrafting
         if(!gear.TrySpendCraftingPotential(CraftingPotentialProfile.BossSpecialReplacementCost))return false;
         gear.RebuildMods();
         return true;
+    }
+
+    public static bool TryReplace(Gear gear,RolledMod target,SpecialAffixPoolDefinition pool,int combatLevel,
+        ILootRandomSource random=null)
+    {
+        random??=LootRandomSourceFactory.CreateProduction();
+        if(gear==null||target==null||!gear.rolledMods.Contains(target)||!IsReplaceable(target)||target.isBossSpecial
+            ||pool==null||gear.ItemRarity!=LootManager.GearRarity.Legendary||gear.CurrentCraftingPotential<CraftingPotentialProfile.BossSpecialReplacementCost)return false;
+        var candidates=new List<SpecialAffixDefinition>();var existing=new HashSet<string>();
+        var existingStats=new HashSet<StatTypes>();
+        foreach(var mod in gear.rolledMods)if(mod?.isBossSpecial==true&&!string.IsNullOrWhiteSpace(mod.specialModifierId))existing.Add(mod.specialModifierId);
+        foreach(var mod in gear.rolledMods)if(mod!=null&&!ReferenceEquals(mod,target)&&!Gear.IsWeaponBaseStat(mod.statType))existingStats.Add(mod.statType);
+        AffixSide side=AffixPolicy.Side(target);
+        foreach(var definition in pool.modifiers)if(definition!=null&&definition.side==side&&definition.Allows(gear.ItemType)
+            &&gear.ItemLevel>=definition.minimumItemLevel&&combatLevel>=definition.minimumCombatLevel&&definition.weight>0
+            &&definition.minimum<=definition.maximum&&!existing.Contains(definition.stableId)&&!existingStats.Contains(definition.statType))candidates.Add(definition);
+        if(candidates.Count==0)return false;var chosen=ChooseWeighted(candidates,random.Value());
+        var special=new RolledMod(chosen.statType,1,random.Range(chosen.minimum,chosen.maximum),false)
+            {isBossSpecial=true,specialPoolId=pool.stableId,specialModifierId=chosen.stableId,specialAffixSide=chosen.side};
+        if(chosen.pairedDamage){special.hasSecondaryValue=true;special.secondaryValue=Mathf.Max(special.value,random.Range(chosen.minimumHigh,chosen.maximumHigh));}
+        int index=gear.rolledMods.IndexOf(target);if(index<0||!gear.TrySpendCraftingPotential(CraftingPotentialProfile.BossSpecialReplacementCost))return false;
+        gear.rolledMods[index]=special;gear.RebuildMods();return true;
     }
 
     static bool IsReplaceable(RolledMod mod)=>mod!=null&&!mod.lockedOriginal&&!mod.isEmpowered

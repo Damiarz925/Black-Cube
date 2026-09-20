@@ -56,7 +56,7 @@ public static class EnemyActionPlanner
 
 public static class ProductionWorldContent
 {
-    static readonly string[] BiomeIds={"ashen-march","cinder-wastes","frostbound-reaches","tempest-heights","voidfen","black-citadel"};
+    public static readonly string[] BiomeIds={"ashen-march","cinder-wastes","frostbound-reaches","tempest-heights","voidfen","black-citadel"};
     static readonly string[] BiomeNames={"Ashen March","Cinder Wastes","Frostbound Reaches","Tempest Heights","Voidfen","Black Citadel"};
     static readonly Element[] Elements={Element.Phys,Element.Fire,Element.Cold,Element.Light,Element.Void,Element.Void};
     static readonly string[][] Enemies={
@@ -131,7 +131,71 @@ public static class ProductionWorldContent
         }db.biomes.Add(definition);
     }
     static void BuildChallenges(WorldContentDatabase db)
-    {for(int b=0;b<6;b++){string content=$"challenge.{BiomeIds[b]}.apex";string bossId=$"boss.challenge.{BiomeIds[b]}.apex";string pool=$"special-affix-pool.{BiomeIds[b]}.apex";db.bosses.Add(new BossDefinition{stableId=bossId,displayName=ChallengeNames[b],codexEntryId=$"codex.{bossId}",presentationId="presentation.paper-boss.fallback",biomeIndex=b,locationIndex=-1,phaseProfileId=$"phase.boss.{BiomeIds[b]}.10.{Slug(Bosses[b][9])}",skillLoadoutId=$"loadout.{BiomeIds[b]}.elite",challengeBoss=true,futureRewardHooks=new(){$"reward.{content}"}});var c=new ChallengeEncounterDefinition{stableContentId=content,displayName=ChallengeNames[b],minimumCombatLevel=100+b*40,entryResourceId=$"resource.challenge-key.{BiomeIds[b]}",entryResourceAmount=1,bossId=bossId,rewardResourceId=$"resource.challenge-essence.{BiomeIds[b]}",rewardResourceAmount=1,specialAffixPoolId=pool,lootSourceId=$"loot-source.{content}",repeatable=true,unlockRequirementIds=new(){b==0?PlayerIdentityState.StoryCompletionMilestoneId:$"progress.biome.{b+1}.reached"}};db.challengeEncounters.Add(c);db.challengeRewardProfiles.Add(new ChallengeRewardProfile{stableId=$"reward-profile.{content}",associatedContentId=content,entryResourceId=c.entryResourceId,rewardResourceId=c.rewardResourceId,specialAffixPoolId=pool,entryAmount=1,rewardAmount=1,repeatable=true});db.challengeSpecialAffixPools.Add(new SpecialAffixPoolDefinition{stableId=pool,poolName=ChallengeNames[b]+" Affixes",associatedContentId=content,modifiers=new(){new SpecialAffixDefinition{stableId=$"{pool}.power",side=AffixSide.Prefix,allowedItemTypes=new[]{LootManager.GearType.Weapons},statType=b==0?StatTypes.PhysDmg:StatMappings.GetIncDamageStat(Elements[b]),minimum=.18f,maximum=.28f,minimumItemLevel=100,minimumCombatLevel=c.minimumCombatLevel,weight=2,description="Challenge-aligned offensive power."},new SpecialAffixDefinition{stableId=$"{pool}.ward",side=AffixSide.Suffix,allowedItemTypes=new[]{LootManager.GearType.BodyArmours,LootManager.GearType.Helmets},statType=b==5?StatTypes.AllRes:StatMappings.GetResistanceStat(Elements[b]),minimum=.08f,maximum=.14f,minimumItemLevel=100,minimumCombatLevel=c.minimumCombatLevel,weight=1,description="Challenge-aligned defense."}}});}}
+    {
+        for(int b=0;b<6;b++)
+        {
+            string content=$"challenge.{BiomeIds[b]}.apex",bossId=$"boss.challenge.{BiomeIds[b]}.apex",pool=$"special-affix-pool.{BiomeIds[b]}.apex";
+            db.bosses.Add(new BossDefinition{stableId=bossId,displayName=ChallengeNames[b],codexEntryId=$"codex.{bossId}",presentationId="presentation.paper-boss.fallback",biomeIndex=b,locationIndex=-1,phaseProfileId=$"phase.boss.{BiomeIds[b]}.10.{Slug(Bosses[b][9])}",skillLoadoutId=$"loadout.{BiomeIds[b]}.elite",challengeBoss=true,futureRewardHooks=new(){$"reward.{content}"}});
+            var c=new ChallengeEncounterDefinition{stableContentId=content,displayName=ChallengeNames[b],minimumCombatLevel=100+b*40,entryResourceId=EndgameResourceIds.ChallengeKey(BiomeIds[b]),entryResourceAmount=1,bossId=bossId,rewardResourceId=EndgameResourceIds.ChallengeEssence(BiomeIds[b]),rewardResourceAmount=1,specialAffixPoolId=pool,lootSourceId=$"loot-source.{content}",repeatable=true,unlockRequirementIds=new(){b==0?PlayerIdentityState.StoryCompletionMilestoneId:$"progress.biome.{b+1}.reached"}};
+            db.challengeEncounters.Add(c);db.challengeRewardProfiles.Add(new ChallengeRewardProfile{stableId=$"reward-profile.{content}",associatedContentId=content,entryResourceId=c.entryResourceId,rewardResourceId=c.rewardResourceId,specialAffixPoolId=pool,entryAmount=1,rewardAmount=1,repeatable=true});
+            db.challengeSpecialAffixPools.Add(BuildSpecialPool(b,pool,content,c.minimumCombatLevel));
+        }
+    }
+    static readonly LootManager.GearType[] Weapons={LootManager.GearType.Weapons};
+    static readonly LootManager.GearType[] Offensive={LootManager.GearType.Weapons,LootManager.GearType.Amulets,LootManager.GearType.Rings};
+    static readonly LootManager.GearType[] Defensive={LootManager.GearType.Helmets,LootManager.GearType.BodyArmours,LootManager.GearType.Gloves,LootManager.GearType.Boots,LootManager.GearType.Belts,LootManager.GearType.Amulets,LootManager.GearType.Rings};
+    static SpecialAffixDefinition S(string pool,string slug,string name,AffixSide side,LootManager.GearType[] types,StatTypes stat,float value,string effect,string description,int level,float second=0,float duration=0)
+        =>new(){stableId=$"{pool}.{slug}",displayName=name,effectId=$"effect.special.{effect}",side=side,allowedItemTypes=types,statType=stat,minimum=value,maximum=value,minimumItemLevel=100,minimumCombatLevel=level,weight=1,description=description,effectValue=value,effectValue2=second,duration=duration};
+    static SpecialAffixPoolDefinition BuildSpecialPool(int b,string pool,string content,int level)
+    {
+        var p=new SpecialAffixPoolDefinition{stableId=pool,poolName=ChallengeNames[b]+" Affixes",associatedContentId=content};
+        switch(b)
+        {
+            case 0:
+                p.modifiers.Add(S(pool,"ravaging","Ravaging",AffixSide.Prefix,Weapons,StatTypes.PhysDmg,.35f,"ravaging","+35% Physical Damage and +25% Bleed Damage.",level,.25f));
+                p.modifiers.Add(S(pool,"overwhelming-blow","Overwhelming Blow",AffixSide.Prefix,Weapons,StatTypes.PhysDmg,0,"overwhelming-blow","After 1.5s without an attack, the next attack deals 40% more hit damage.",level,.40f,1.5f));
+                p.modifiers.Add(S(pool,"deep-wounds","Deep Wounds",AffixSide.Prefix,Offensive,StatTypes.BleedChance,.20f,"deep-wounds","+20 percentage points Bleed Chance; qualifying large hits create 25% stronger Bleeds.",level,.25f,.05f));
+                p.modifiers.Add(S(pool,"reprisal","Reprisal",AffixSide.Suffix,Defensive,StatTypes.ArmourPercent,0,"reprisal","After taking a direct hit, the next attack within 4s deals 30% more Physical hit damage.",level,.30f,4));
+                p.modifiers.Add(S(pool,"blood-return","Blood Return",AffixSide.Suffix,Defensive,StatTypes.LifeOnHit,0,"blood-return","Hits against Bleeding enemies restore 2% missing Life, once per attack event with a 1s cooldown.",level,.02f,1));
+                p.modifiers.Add(S(pool,"partial-rupture","Partial Rupture",AffixSide.Suffix,Defensive,StatTypes.BleedMult,0,"partial-rupture","Hits against Bleeding enemies have 8% chance to deal 25% remaining Bleed damage without consuming it.",level,.08f,.25f));break;
+            case 1:
+                p.modifiers.Add(S(pool,"cinder-power","Cinder Power",AffixSide.Prefix,Offensive,StatTypes.FireDmg,.35f,"cinder-power","+35% Fire Damage and +25% Ignite Damage.",level,.25f));
+                p.modifiers.Add(S(pool,"eruption","Eruption",AffixSide.Prefix,Offensive,StatTypes.FireDmg,0,"eruption","12% chance on hit for a non-recursive Fire hit at 35% pre-defense magnitude.",level,.12f,.35f));
+                p.modifiers.Add(S(pool,"rapid-burn","Rapid Burn",AffixSide.Prefix,Offensive,StatTypes.IgniteTickRate,.25f,"rapid-burn","Ignites deal damage 25% faster with 10% less duration.",level,-.10f));
+                p.modifiers.Add(S(pool,"scorching-penetration","Scorching Penetration",AffixSide.Suffix,Defensive,StatTypes.FirePenetration,.15f,"scorching-penetration","+15% Fire Penetration and +20% Ignite Duration.",level,.20f));
+                p.modifiers.Add(S(pool,"kindled-momentum","Kindled Momentum",AffixSide.Suffix,Defensive,StatTypes.FireDmg,0,"kindled-momentum","Applying Ignite grants 12% Fire Damage for 4s, up to three independently expiring stacks.",level,.12f,4));
+                p.modifiers.Add(S(pool,"first-spark","First Spark",AffixSide.Suffix,Defensive,StatTypes.IgniteChance,0,"first-spark","First Fire hit against a non-Ignited enemy gains 50 points Ignite Chance and 30% Ignite magnitude.",level,.50f,.30f));break;
+            case 2:
+                p.modifiers.Add(S(pool,"deep-winter","Deep Winter",AffixSide.Prefix,Offensive,StatTypes.ColdDmg,.35f,"deep-winter","+35% Cold Damage and +25% Chill Effectiveness.",level,.25f));
+                p.modifiers.Add(S(pool,"freezing-edge","Freezing Edge",AffixSide.Prefix,Offensive,StatTypes.ChillChance,0,"freezing-edge","Cold hits against sufficiently Chilled enemies have 10% chance to Freeze.",level,.10f,.20f));
+                p.modifiers.Add(S(pool,"fracture","Fracture",AffixSide.Prefix,Offensive,StatTypes.ColdMult,0,"fracture","Shatter damage deals 50% more.",level,.50f));
+                p.modifiers.Add(S(pool,"frozen-recovery","Frozen Recovery",AffixSide.Suffix,Defensive,StatTypes.ManaOnHit,0,"frozen-recovery","When Freeze skips an enemy attack, restore 3% maximum Mana and 2% maximum Life.",level,.03f,.02f));
+                p.modifiers.Add(S(pool,"chilled-defense","Chilled Defense",AffixSide.Suffix,Defensive,StatTypes.ArmourPercent,0,"chilled-defense","While the enemy is Chilled, gain 12% Armour and 8% elemental resistances.",level,.12f,.08f));
+                p.modifiers.Add(S(pool,"cryostasis","Cryostasis",AffixSide.Suffix,Defensive,StatTypes.ChillDuration,.30f,"cryostasis","+30% Chill Duration and +15% Chill Effectiveness.",level,.15f));break;
+            case 3:
+                p.modifiers.Add(S(pool,"overcharge","Overcharge",AffixSide.Prefix,Offensive,StatTypes.LightDmg,.35f,"overcharge","+35% Lightning Damage and +25% Shock Effectiveness.",level,.25f));
+                p.modifiers.Add(S(pool,"static-echo","Static Echo",AffixSide.Prefix,Offensive,StatTypes.LightDmg,0,"static-echo","Every fifth eligible hit against a Shocked enemy triggers a non-recursive Lightning hit at 50% magnitude.",level,5,.50f));
+                p.modifiers.Add(S(pool,"shocked-repetition","Shocked Repetition",AffixSide.Prefix,Offensive,StatTypes.ChanceToHitTwice,.12f,"shocked-repetition","+12 percentage points Hit Twice Chance against Shocked enemies.",level));
+                p.modifiers.Add(S(pool,"conductive-criticals","Conductive Criticals",AffixSide.Suffix,Defensive,StatTypes.CritChance,.20f,"conductive-criticals","Against Shocked enemies gain 20% Crit Chance and 25% Crit Multiplier.",level,.25f));
+                p.modifiers.Add(S(pool,"lingering-charge","Lingering Charge",AffixSide.Suffix,Defensive,StatTypes.ShockDuration,.30f,"lingering-charge","+30% Shock Duration and +15% Shock Effectiveness.",level,.15f));
+                p.modifiers.Add(S(pool,"arc-momentum","Arc Momentum",AffixSide.Suffix,Defensive,StatTypes.AttackSpeed,0,"arc-momentum","Hits against Shocked enemies grant 2% Attack Speed for 3s, up to five stacks.",level,.02f,3));break;
+            case 4:
+                p.modifiers.Add(S(pool,"abyssal-venom","Abyssal Venom",AffixSide.Prefix,Offensive,StatTypes.VoidDmg,.35f,"abyssal-venom","+35% Void Damage and +30% Poison Damage.",level,.30f));
+                p.modifiers.Add(S(pool,"corrosive-void","Corrosive Void",AffixSide.Prefix,Offensive,StatTypes.PoisonMult,0,"corrosive-void","Poisons with a legal Void basis deal 30% more damage.",level,.30f));
+                p.modifiers.Add(S(pool,"toxic-echo","Toxic Echo",AffixSide.Prefix,Offensive,StatTypes.PoisonChance,0,"toxic-echo","Applied Poisons have 15% chance to echo at 50% magnitude without recursion.",level,.15f,.50f));
+                p.modifiers.Add(S(pool,"void-exposure","Void Exposure",AffixSide.Suffix,Defensive,StatTypes.VoidPenetration,.15f,"void-exposure","+15% Void Penetration against Poisoned enemies.",level));
+                p.modifiers.Add(S(pool,"accelerated-decay","Accelerated Decay",AffixSide.Suffix,Defensive,StatTypes.PoisonSpeed,.25f,"accelerated-decay","+25% Poison Speed and +15% Poison Duration.",level,.15f));
+                p.modifiers.Add(S(pool,"corrupted-sustenance","Corrupted Sustenance",AffixSide.Suffix,Defensive,StatTypes.ManaOnHit,0,"corrupted-sustenance","Once per attack event, hitting a Poisoned enemy restores 2% maximum Mana and 1% maximum Life.",level,.02f,.01f));break;
+            default:
+                p.modifiers.Add(S(pool,"confluence","Confluence",AffixSide.Prefix,Offensive,StatTypes.GenericMult,0,"confluence","Gain 8% more damage per distinct direct-damage type dealt in the last 4s, up to five.",level,.08f,4));
+                p.modifiers.Add(S(pool,"afflicted-dominion","Afflicted Dominion",AffixSide.Prefix,Offensive,StatTypes.GenericMult,0,"afflicted-dominion","Gain 8% more damage per distinct ailment on the enemy, up to five.",level,.08f,5));
+                p.modifiers.Add(S(pool,"prismatic-core","Prismatic Core",AffixSide.Prefix,Weapons,StatTypes.GenericDmg,0,"prismatic-core","Gain 8% of weapon Physical damage as each elemental and Void type without recursion.",level,.08f,4));
+                p.modifiers.Add(S(pool,"corruption-mastery","Corruption Mastery",AffixSide.Suffix,Defensive,StatTypes.GenericMult,0,"corruption-mastery","Gain 0.10% more damage per percentage point of current corruption.",level,.001f));
+                p.modifiers.Add(S(pool,"balanced-assault","Balanced Assault",AffixSide.Suffix,Defensive,StatTypes.CritChance,0,"balanced-assault","Attacks containing at least three damage types gain 20% Crit Chance and Multiplier.",level,.20f,3));
+                p.modifiers.Add(S(pool,"omniailment-resonance","Omniailment Resonance",AffixSide.Suffix,Defensive,StatTypes.AttackSpeed,0,"omniailment-resonance","Per distinct enemy ailment gain 5% Attack Speed and Cooldown Reduction, up to five.",level,.05f,5));break;
+        }
+        return p;
+    }
     static StatTypes Resistance(Element element)=>element switch{Element.Fire=>StatTypes.FireRes,Element.Cold=>StatTypes.ColdRes,Element.Light=>StatTypes.LightRes,Element.Void=>StatTypes.VoidRes,_=>StatTypes.FlatArmour};
     static string Slug(string value)=>value.ToLowerInvariant().Replace("'","").Replace(" ","-");
 }

@@ -611,7 +611,8 @@ public static class EquipmentCrafting
     {
         var result = new List<RolledMod>();
         foreach (var mod in gear.rolledMods) if (mod != null && !Gear.IsWeaponBaseStat(mod.statType)
-            && !mod.lockedOriginal && !mod.isEmpowered) result.Add(mod);
+            && !mod.lockedOriginal && !mod.isEmpowered && !mod.isBossSpecial) result.Add(mod);
         return result;
     }
+    public static IReadOnlyList<RolledMod> RemovableForTests(Gear gear)=>Removable(gear);
 }

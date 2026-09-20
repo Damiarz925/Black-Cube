@@ -160,6 +160,16 @@ public partial class StatusController : MonoBehaviour
             return Mathf.Clamp(strongest, 0f, .6f);
         }
     }
+    public bool HasAilment(StatusEffects.AilmentKind kind)
+    {
+        foreach(var pair in StatusDictionary)if(pair.Key!=null&&pair.Key.Ailment==kind&&pair.Value.remainingTicks>0&&pair.Value.stacks>0)return true;
+        foreach(var pair in IndependentDictionary)if(pair.Key!=null&&pair.Key.Ailment==kind)foreach(var instance in pair.Value)if(instance!=null&&instance.remainingTicks>0&&instance.stacks>0)return true;
+        return false;
+    }
+    public int DistinctAilmentCount()
+    {int count=0;foreach(StatusEffects.AilmentKind kind in new[]{StatusEffects.AilmentKind.Poison,StatusEffects.AilmentKind.Bleed,StatusEffects.AilmentKind.Ignite})if(HasAilment(kind))count++;if(CurrentChillSlow>0)count++;if(CombinedShockEffect>0)count++;return count;}
+    public float RemainingAilmentDamage(StatusEffects.AilmentKind kind)
+    {float total=0;foreach(var pair in IndependentDictionary)if(pair.Key!=null&&pair.Key.Ailment==kind)foreach(var instance in pair.Value)if(instance!=null)total+=RemainingMitigatedDamage(instance);foreach(var pair in StatusDictionary)if(pair.Key!=null&&pair.Key.Ailment==kind&&pair.Value!=null)total+=RemainingMitigatedDamage(pair.Value);return total;}
 
     private void StackAndRefresh(StatusEffects effect, int stacksPerHit, float damagePerTick, int tickCount, StatsComponent sourceStats, int effectiveInterval)
     {

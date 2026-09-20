@@ -56,11 +56,12 @@ public static class ItemTooltipFormatter
 
     static void AppendMod(StringBuilder s,Gear item,RolledMod mod,bool implicitLine)
     {
+        SpecialAffixDefinition special=mod.isBossSpecial?BossSpecialCatalog.Find(mod.specialPoolId,mod.specialModifierId):null;
         bool percent=StatsComponent.IsPercentStat(mod.statType);
         bool paired=item.IsLocalAffix(mod.statType) && (mod.statType is StatTypes.FlatPhys
             or StatTypes.FlatFire or StatTypes.FlatCold or StatTypes.FlatLight or StatTypes.FlatVoid);
         string unit=percent?"%":"";
-        string rolled=paired?$"Adds {mod.value:0.##}–{mod.HighValue:0.##} {ItemTooltipUI.ElementName(item.BaseElement)} Damage"
+        string rolled=special!=null?$"{special.displayName}: {special.description}":paired?$"Adds {mod.value:0.##}–{mod.HighValue:0.##} {ItemTooltipUI.ElementName(item.BaseElement)} Damage"
             :$"{StatDisplayFormatting.ToFriendlyName(mod.statType)}: {mod.value:+0.##;-0.##;0}{unit}";
         string range=TierRange(item,mod,percent);
         string color=implicitLine?"#9FC8BC":mod.isEmpowered?"#73D8EE":mod.isBossSpecial?"#D88BFF":"#E4C979";
@@ -68,7 +69,7 @@ public static class ItemTooltipFormatter
         // shipped font does not contain the Unicode lock emoji.
         string prefix=implicitLine?"   ":"";
         string local=item.IsLocalAffix(mod.statType)?"  <color=#85898F>LOCAL</color>":"";
-        string rank=mod.isEmpowered?"EMPOWERED":mod.isBossSpecial?"BOSS-SPECIAL":$"T{mod.tierIndex}";
+        string rank=mod.isEmpowered?"EMPOWERED":mod.isBossSpecial?$"APEX — {BossSpecialCatalog.SourceName(mod.specialPoolId)}":$"T{mod.tierIndex}";
         s.AppendLine($"<color={color}>{prefix}<b>{rolled}</b></color>  <color=#85898F>{range} {rank}</color>{local}");
     }
 
