@@ -210,3 +210,5 @@ Fresh Step 18.5 evidence: focused EditMode 20/20, complete EditMode 339/339, ite
 ## Step 18.6 handoff
 
 Never wrap player death rewards in `GenerateDeterministicEncounter` or seed them from run/world state. Create one production loot source after `TryClaimEnemyDeath`, then pass that same advancing source through every item and currency roll. Enemy equipment remains an encounter/build concern. Keep weapon-attribute and player-level bonuses in the root additive bucket in `PlayerController`; derived events consume snapshots without reapplying them. Local weapon DPS remains an item-only metric. See `LOOT_SYSTEM.md` and `PLAYER_DAMAGE_SCALING.md`.
+
+Fresh Step 18.6 evidence: focused EditMode 31/31, complete EditMode 370/370, all four required validators, both real-scene smoke runners, Windows x64 build, and ten-second standalone startup all passed. Evidence is in `Logs/Step18_6*`, `Logs/Step17RealSceneSmoke.txt`, and `ReviewCaptures/PassiveTreeV2LayoutReport.md`. The build is `Builds/Step18_6Windows/BlackCube.exe`. BalanceLab was not run.

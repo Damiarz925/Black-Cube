@@ -231,3 +231,5 @@ The bottom action row is owned by one responsive horizontal layout with autosizi
 ## Step 18.6 current state
 
 Reward generation no longer uses the deterministic encounter seed. Each claimed enemy death owns a fresh cryptographic loot stream while deterministic world/enemy-equipment generation remains unchanged. Weapon-type attribute scaling and capped player-level growth now join the root hit's additive increased bucket exactly once. Save schema remains 10. See `PLAYER_DAMAGE_SCALING.md`.
+
+Fresh Step 18.6 evidence: focused EditMode 31/31 and complete EditMode 370/370 passed; itemization, passive-tree, world-content, and reference validation passed; repeated-stage loot, LootPower, six-weapon attribute, level-damage, ailment, Dagger Quick Strike, Bow travel, Staff auto-cast, and Axe Rage real-scene checks passed. The Windows x64 build succeeded with zero errors at `Builds/Step18_6Windows/BlackCube.exe`, and the hidden standalone player remained alive and responsive through the ten-second startup smoke. BalanceLab was not run.

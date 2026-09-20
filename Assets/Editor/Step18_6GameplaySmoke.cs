@@ -68,6 +68,7 @@ public static class Step18_6GameplaySmoke
 
         var progression=UnityEngine.Object.FindAnyObjectByType<PlayerProgression>();
         int oldLevel=progression!=null?progression.Level:1;
+        SetLevel(progression,1);float starterHit=player.BasicAttackDamage;
         Gear testWeapon=CreateWeapon(player,WeaponTypeIds.Sword,Element.Phys,100);
         SetLevel(progression,10);float at10=player.BasicAttackDamage;
         SetLevel(progression,20);float at20=player.BasicAttackDamage;
@@ -90,10 +91,17 @@ public static class Step18_6GameplaySmoke
 
         SetLevel(progression,1);float level1=player.BasicAttackDamage;
         SetLevel(progression,10);float level10=player.BasicAttackDamage;
+        stats.SetBaseStat(StatTypes.Strength,10);stats.SetBaseStat(StatTypes.Dexterity,10);float allocatedHit=player.BasicAttackDamage;
+        var naturalValues=Enumerable.Range(1,250).Select(i=>(i%89)/100f).ToArray();naturalValues[0]=.05f;naturalValues[1]=.05f;naturalValues[2]=.50f;naturalValues[3]=.05f;
+        Gear naturalWeapon=loot.GenerateLoot(EnemyAI.EnemyRarity.Normal,new SequenceLootRandomSource(18601,naturalValues));
+        Require(naturalWeapon!=null&&naturalWeapon.ItemType==LootManager.GearType.Weapons,"Early natural-weapon fixture did not generate a weapon.");player.EquipWeapon(naturalWeapon);float naturalHit=player.BasicAttackDamage;
         var skill=Skill(PlayerSkillId.SwordRapidFlurry);
-        Write($"EARLY SANITY: L1 signature-style hit={level1:0.##}; L10 same-gear hit={level10:0.##}; current attribute bonus={player.WeaponAttributeDamageBonus*100f:0.##}%; Rapid Flurry representative aggregate basis={level10*skill.hitDamageMultiplier*skill.secondaryMultiplier:0.##}.");
+        Write($"EARLY SANITY: scene starter L1 hit={starterHit:0.##}; controlled L1 hit={level1:0.##}; controlled L10 hit={level10:0.##}; L10 with +10 Strength/+10 Dexterity hit={allocatedHit:0.##}; natural level-{naturalWeapon.ItemLevel} {WeaponTypeCatalog.Get(naturalWeapon.WeaponTypeId).DisplayName} hit={naturalHit:0.##}; attribute bonus={player.WeaponAttributeDamageBonus*100f:0.##}%; Rapid Flurry controlled aggregate basis={level10*skill.hitDamageMultiplier*skill.secondaryMultiplier:0.##}.");
         Write("Manual progression/game-feel review remains required; this smoke does not claim balance is solved.");
-        SetLevel(progression,oldLevel);UnityEngine.Object.Destroy(testWeapon.gameObject);
+        var dagger=CreateWeapon(player,WeaponTypeIds.Dagger,Element.Phys,100);player.GetComponent<ManaComponent>()?.Restore(1000);
+        Require(player.GetComponent<PlayerSkillController>().TryQueueWeaponSkill(1),"Dagger Quick Strike did not execute through the live immediate-cooldown path.");
+        Write("PASS live weapon mechanic: Dagger Quick Strike executed immediately without using the queued-next-attack path.");
+        SetLevel(progression,oldLevel);UnityEngine.Object.Destroy(testWeapon.gameObject);UnityEngine.Object.Destroy(naturalWeapon.gameObject);UnityEngine.Object.Destroy(dagger.gameObject);
     }
 
     static EnemyDropResult PowerRoll(EnemyAI enemy,int level,EnemyAI.EnemyRarity rarity,float quality)
@@ -112,8 +120,7 @@ public static class Step18_6GameplaySmoke
     }
     static PlayerSkillDefinition Skill(PlayerSkillId id)
     {
-        var catalog=Resources.Load<PlayerSkillCatalog>("PlayerSkills");
-        var skill=catalog?.skills?.FirstOrDefault(x=>x!=null&&x.id==id);
+        var skill=PlayerSkillDefinition.CreateProductionDefaults().FirstOrDefault(x=>x!=null&&x.id==id);
         return skill??throw new InvalidOperationException("Missing production skill: "+id);
     }
     static void SetLevel(PlayerProgression progression,int level){if(progression!=null)typeof(PlayerProgression).GetField("level",BindingFlags.Instance|BindingFlags.NonPublic).SetValue(progression,level);}
