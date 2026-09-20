@@ -17,3 +17,7 @@ Natural weapon drops choose all six stable weapon types at equal 1/6 weight. The
 Enemy/world selection and enemy-owned equipment may remain deterministic. Death rewards do not: each successfully claimed enemy death creates a `ProductionLootRandomSource` backed by `System.Security.Cryptography.RandomNumberGenerator`. That single fresh event stream is injected through quantity rounding, currency selection/stacks, gear slot/type, element, rarity, weapon type, implicit/explicit families, tiers, and numeric ranges. Multiple items continue the same advancing event stream and never restart from stage identity.
 
 `SequenceLootRandomSource` and the factory test seam provide exact deterministic tests without making production drops reproducible. No loot seed or future RNG state is saved. Existing inventory items persist normally; future post-load kills create new entropy-backed events. `HealthComponent.TryClaimEnemyDeath` remains the per-instance duplicate-reward guard.
+
+## Step 20 endgame rewards
+
+Challenge-key rolls join the same fresh per-death production stream and use rarity/stage-boss/LootPower-aware first-pass chances. Stage-10 bosses from level 120 roll the 5%→30% Catalyst curve. Challenge victory rewards are explicit, not ordinary currency-table picks: one matching Essence and one Catalyst are guaranteed, with 25%/20% bonus-stack chances. Reforger rules are challenge-only. Boss infusion and implicit reforge also receive injected fresh production sources. None is seeded from world, stage, encounter, run, save, or item creation identity.

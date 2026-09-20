@@ -207,3 +207,9 @@ All five approved decisions are implemented; none remains unresolved.
 # Schema 10
 
 Schema 9 migrates directly to schema 10 without reinterpretation. Schema 10 persists selected/unlocked subclass state, stable transformed node IDs, and the Ranger Volley/Focused setting. Freeze, combo, aura contribution, enemy-acted state, Shock/Poison instances, queued skills, and partial cooldowns remain transient under clean-encounter restore.
+
+# Schema 11
+
+Schema 10 migrates sequentially to schema 11 with empty `endgameResources` and `challengeFirstClears`; no historical challenge completion is inferred. Schema 11 persists all six challenge-key quantities, all six challenge-Essence quantities, `currency.implicit-reforger`, valid first-clear flags, and the established Catalyst stack. These are isolated by the existing six character-slot files and survive Rebirth. New Game clears them. APEX/Empowered modifier provenance and rerolled implicits remain part of the existing gear snapshot and therefore survive save/load and Rebirth with their item.
+
+Active challenge encounter, partial boss health, proc counters, temporary buffs, and partial cooldowns are not saved. Load returns to the clean saved world encounter boundary.

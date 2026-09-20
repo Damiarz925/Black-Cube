@@ -144,6 +144,8 @@ public static class BaselineVerificationRunner
         => BuildWindowsAt("Builds/Step18_6Windows/BlackCube.exe", "Logs/Step18_6WindowsBuild.txt");
     public static void BuildStep19Windows()
         => BuildWindowsAt("Builds/Step19Windows/BlackCube.exe", "Logs/Step19WindowsBuild.txt");
+    public static void BuildStep20Windows()
+        => BuildWindowsAt("Builds/Step20Windows/BlackCube.exe", "Logs/Step20WindowsBuild.txt");
 
     static void BuildWindowsAt(string executable, string reportPath)
     {

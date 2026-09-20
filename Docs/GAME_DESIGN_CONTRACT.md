@@ -301,3 +301,11 @@ Six character slots are character-owned save containers; class, progression, inv
 - World/enemy selection and enemy-owned builds may be deterministic, but every claimed enemy death rolls its entire reward event from fresh production entropy. Stage, encounter, enemy, run, and save identity never seed future loot.
 - Equipped weapon type determines attribute coefficients independently of class. Sword uses Strength/Dexterity; Axe Strength; Bow Dexterity; Staff Intelligence; Dagger Dexterity/Intelligence; Sceptre Strength/Intelligence.
 - Root weapon/skill hits gain 0.25% additive increased damage per player level above one, capped by the level-100 player cap. Attribute and level contributions do not change local item DPS or reapply to downstream derived damage.
+
+## Step 20 endgame itemization contract
+
+- Item level remains capped at 100. Post-100 progression improves selected T1 explicits, replaces ordinary explicits with compatible APEX affixes, and rarely repairs permanent implicits; it never introduces ilvl 101+.
+- Challenge resources are character-slot owned and survive Rebirth. A key is spent only after a challenge encounter exists; failure never refunds it. Victory grants explicit Essence/Catalyst rewards outside ordinary currency selection.
+- Boss Infusion requires Legendary gear, a selected ordinary non-Empowered explicit, one matching Essence, and 3 Potential. It preserves side/capacity. APEX modifiers cannot enter ordinary crafting or Empowerment.
+- Implicit Reforge requires ilvl100 Rare/Legendary gear, costs one rare Reforger and zero Potential, and changes only the permanent implicit.
+- All values are FIRST-PASS PLACEHOLDER VALUES. Reward/craft RNG uses fresh entropy, never deterministic world/stage seeds.

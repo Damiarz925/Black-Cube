@@ -240,3 +240,9 @@ Boss-special data is deliberately plain serializable architecture, not a product
 - `PlayerDamageScaling.cs`: weapon-type attribute coefficients and capped additive player-level damage formula.
 - `BottomActionBarLayout` / `HUDRectOverlapValidator`: responsive Rebirth/Subclass/skill/utility row and geometry verification.
 - `LootManager` / `ItemIconCatalog`: uniform stable weapon selection, natural weapon profile resolution, and stable weapon icon mapping.
+- `EndgameResourceLedger.cs`: character-slot key/Essence/Reforger stacks and challenge first-clear flags.
+- `ChallengeRuntimeService.cs`: unlock validation, post-creation key spend, explicit challenge rewards, and world-return boundary.
+- `EndgameCraftingService.cs` / `EndgameItemization.cs`: acquisition curves, selected-mod Empowerment/infusion, implicit-only reforge, APEX definitions, and fresh crafting RNG injection.
+- `BossSpecialEffectRuntime.cs`: equipment-driven mechanical effect dispatch and per-attack/target recursion guards.
+- `EndgamePanelsUI.cs`: production Challenge launcher, resource display, and unified three-tab endgame crafting UI.
+- `EndgameItemizationValidation.cs`: resource, challenge, pool, affix, compatibility, and threshold contract validation.

@@ -1,0 +1,49 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using UnityEditor;
+using UnityEditor.SceneManagement;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+
+[InitializeOnLoad]
+public static class Step20EndgamePlayCheck
+{
+    const string Active="BlackCube.Step20.Smoke.Active",State="BlackCube.Step20.Smoke.State",HadPrefs="BlackCube.Step20.Smoke.HadPrefs",PrefsValue="BlackCube.Step20.Smoke.Prefs";
+    const string Report="Logs/Step20-endgame-play-check.txt";static double readyAt;static string SaveDirectory=>Path.GetFullPath("Temp/Step20EndgamePlayCheckSave");
+    static Step20EndgamePlayCheck(){EditorApplication.update-=Tick;EditorApplication.update+=Tick;if(SessionState.GetBool(Active,false))GamePersistence.SaveDirectoryOverride=SaveDirectory;}
+    public static void Run()
+    {
+        Directory.CreateDirectory("Logs");File.WriteAllText(Report,"Step 20 endgame real-scene smoke\n");if(Directory.Exists(SaveDirectory))Directory.Delete(SaveDirectory,true);Directory.CreateDirectory(SaveDirectory);GamePersistence.SaveDirectoryOverride=SaveDirectory;GamePersistence.ResetStaticStateForTests();
+        bool had=PlayerPrefs.HasKey(GamePersistence.SaveKey);SessionState.SetBool(HadPrefs,had);SessionState.SetString(PrefsValue,had?PlayerPrefs.GetString(GamePersistence.SaveKey):string.Empty);PlayerPrefs.DeleteKey(GamePersistence.SaveKey);PlayerPrefs.Save();GamePersistence.RequestNewGame();SessionState.SetBool(Active,true);SessionState.SetInt(State,0);EditorSceneManager.OpenScene("Assets/Scenes/Main Menu.unity");EditorApplication.isPlaying=true;
+    }
+    static void Tick()
+    {
+        if(!SessionState.GetBool(Active,false))return;if(!EditorApplication.isPlaying){if(SessionState.GetInt(State,0)>=2){int exit=SessionState.GetInt(State,0)==2?0:1;Cleanup();EditorApplication.Exit(exit);}return;}if(EditorApplication.timeSinceStartup<readyAt)return;readyAt=EditorApplication.timeSinceStartup+.5;
+        try{RunState();}catch(Exception ex){Write("FAIL "+ex);SessionState.SetInt(State,3);EditorApplication.isPlaying=false;}
+    }
+    static void RunState()
+    {
+        int state=SessionState.GetInt(State,0);if(state==0&&SceneManager.GetActiveScene().name==GameSceneNames.MainMenu)
+        {var start=UnityEngine.Object.FindObjectsByType<Button>(FindObjectsInactive.Include,FindObjectsSortMode.None).Single(x=>x.name=="Start Game Button");start.onClick.Invoke();var menu=UnityEngine.Object.FindAnyObjectByType<MainMenuUI>();Require(menu!=null&&menu.SelectClass(PlayerClassIds.Warrior),"Class selection failed.");menu.StartSelectedClass();SessionState.SetInt(State,1);readyAt=EditorApplication.timeSinceStartup+1;return;}
+        if(state!=1||SceneManager.GetActiveScene().name!=GameSceneNames.Gameplay||GameManager.Instance==null||BattleManager.Instance==null)return;
+        GameManager.Instance.StartZone(300);var identity=GameManager.Instance.GetComponent<PlayerIdentityState>();Require(identity.CompleteMilestone(PlayerIdentityState.StoryCompletionMilestoneId),"Story completion fixture failed.");var challenge=WorldContentCatalog.Reference.challengeEncounters[0];var ledger=EndgameResourceLedger.Instance;Require(ledger.Add(challenge.entryResourceId),"Could not grant legitimate challenge-key test hook.");
+        var launcher=UnityEngine.Object.FindAnyObjectByType<ChallengeLauncherUI>();Require(launcher!=null,"Challenge launcher missing.");launcher.Open();Require(launcher.IsOpen,"Challenge launcher did not open.");launcher.Close();Require(ChallengeRuntimeService.Instance.TryLaunch(challenge),"Challenge launch failed.");Require(ledger.Count(challenge.entryResourceId)==0,"Challenge key was not consumed exactly once.");Require(BattleManager.Instance.CurrentEncounter?.stableId==challenge.stableContentId,"Challenge encounter was not created.");
+        var boss=WorldContentCatalog.Reference.Boss(challenge.bossId);Require(ChallengeRuntimeService.Instance.Complete(boss,new SequenceLootRandomSource(20,.99f,.99f,.99f)),"Challenge completion failed.");Require(ledger.Count(challenge.rewardResourceId)==1,"Matching Essence was not granted.");Require(CurrencyInventory.Instance.Count(CraftingCurrencyType.EmpowermentCatalyst)==1,"Guaranteed Catalyst was not granted.");Write("PASS launcher -> key spend -> challenge -> Essence/Catalyst -> world return.");
+        Gear gear=CreateNaturalLegendary();string id=gear.PersistentId;Inventory.Instance.Add(gear);var prefixes=gear.rolledMods.Where(x=>x!=null&&!x.lockedOriginal&&!x.isEmpowered&&!x.isBossSpecial&&!Gear.IsWeaponBaseStat(x.statType)&&AffixPolicy.Side(x)==AffixSide.Prefix).ToList();RolledMod target=prefixes.FirstOrDefault(x=>x.statType==StatTypes.PhysDmg)??prefixes[0];if(target.statType!=StatTypes.PhysDmg){var phys=ModManager.Instance.Database.GetDefinition(StatTypes.PhysDmg);var tier=ModManager.ApplicableTiers(phys,gear.ItemType,gear.WeaponTypeId).First(x=>x.tierIndex==1);target.statType=StatTypes.PhysDmg;target.tierIndex=1;target.value=tier.minValue;target.hasSecondaryValue=false;gear.RebuildMods();}int potential=gear.CurrentCraftingPotential;Require(EndgameCraftingService.TryBossInfuse(gear,target,challenge,300,new SequenceLootRandomSource(20,0,.4f)),"Boss infusion failed: essence="+ledger.Count(challenge.rewardResourceId)+" potential="+gear.CurrentCraftingPotential+" target="+target.statType);Require(gear.CurrentCraftingPotential==potential-3&&gear.rolledMods.Count(x=>x.isBossSpecial)==1,"Boss infusion mutation/cost invalid.");Write("PASS selected-mod boss infusion spent 1 Essence and 3 Potential.");
+        RolledMod empower=gear.rolledMods.FirstOrDefault(x=>x!=null&&!x.lockedOriginal&&!x.isBossSpecial&&EmpowermentCrafting.IsEmpowerable(ModManager.Instance.Database.GetDefinition(x.statType),x.statType));Require(empower!=null,"No empowerable explicit fixture.");var t1=ModManager.ApplicableTiers(ModManager.Instance.Database.GetDefinition(empower.statType),gear.ItemType,gear.WeaponTypeId).First(x=>x.tierIndex==1);empower.tierIndex=1;empower.value=t1.minValue;empower.hasSecondaryValue=t1.pairedDamage;empower.secondaryValue=t1.pairedDamage?t1.minHighValue:empower.value;gear.RebuildMods();Require(EndgameCraftingService.TryEmpower(gear,empower,300,new SequenceLootRandomSource(20,.5f,.5f)),"Empowerment failed.");Require(empower.isEmpowered&&CurrencyInventory.Instance.Count(CraftingCurrencyType.EmpowermentCatalyst)==0,"Empowerment did not consume exactly one Catalyst.");Write("PASS production Empowerment gate, value and Catalyst spend.");
+        ledger.Add(EndgameResourceIds.ImplicitReforger);var before=gear.rolledMods.Where(x=>x!=null&&!x.lockedOriginal).Select(Signature).ToArray();StatTypes oldImplicit=gear.ImplicitMod.statType;potential=gear.CurrentCraftingPotential;Require(EndgameCraftingService.TryReforgeImplicit(gear,new SequenceLootRandomSource(20,.13f,.47f,.81f,.29f,.61f)),"Implicit reforge failed.");Require(gear.ImplicitMod.statType!=oldImplicit&&gear.CurrentCraftingPotential==potential&&before.SequenceEqual(gear.rolledMods.Where(x=>x!=null&&!x.lockedOriginal).Select(Signature)),"Implicit reforge changed explicit/Potential state.");Write("PASS ilvl100 implicit-only reforge and same-family exclusion.");
+        Require(ledger.Add(challenge.entryResourceId,2),"Persistent key fixture failed.");
+        var legality=new List<string>();ItemizationValidator.ValidateRolledMods(gear.ItemType,gear.ItemRarity,gear.ItemLevel,gear.rolledMods,ModManager.Instance.Database,legality,true);
+        if(legality.Count>0){foreach(string problem in legality)Write("CRAFTED ITEM INVALID: "+problem);foreach(var mod in gear.rolledMods)Write($"  {Signature(mod)} implicit={mod.lockedOriginal} side={AffixPolicy.Side(mod)}");}
+        Require(legality.Count==0,"Crafted fixture failed itemization validation.");Require(GamePersistence.TrySave(),GamePersistence.LastError);ledger.ResetForNewGame();CurrencyInventory.Instance.ResetForNewGame();Require(GamePersistence.Load(),GamePersistence.LastError);Require(EndgameResourceLedger.Instance.Count(challenge.entryResourceId)==2&&Inventory.Instance.Items.Any(x=>x.PersistentId==id&&x.rolledMods.Any(m=>m.isBossSpecial)&&x.rolledMods.Any(m=>m.isEmpowered)),"Save/load did not preserve endgame item/resource state.");Write("PASS schema-11 save/load preserved crafted endgame item and resource ledger.");
+        Write("PASS Step 20 real-scene smoke.");SessionState.SetInt(State,2);EditorApplication.isPlaying=false;
+    }
+    static Gear CreateNaturalLegendary()
+    {var go=new GameObject("Step20 Legendary");var gear=go.AddComponent<Gear>();gear.Initialize(LootManager.GearType.Weapons,LootManager.GearRarity.Legendary,100,Element.Phys,WeaponTypeIds.Sword);List<RolledMod> mods=null;for(int i=0;i<8&&mods==null;i++)mods=ModManager.Instance.RollEquipmentModsForItem(gear.ItemType,gear.ItemRarity,100,gear.BaseElement,gear.WeaponTypeId,new SequenceLootRandomSource(20+i,.03f,.17f,.31f,.49f,.67f,.83f));Require(mods!=null,"Natural Legendary fixture roll failed.");gear.ApplyMods(mods);gear.RestoreCraftingState(LootManager.GearRarity.Legendary,14,14);return gear;}
+    static string Signature(RolledMod m)=>$"{m.statType}:{m.tierIndex}:{m.value:R}:{m.secondaryValue:R}:{m.isEmpowered}:{m.isBossSpecial}:{m.specialModifierId}";
+    static void Require(bool value,string message){if(!value)throw new InvalidOperationException(message);}static void Write(string text){File.AppendAllText(Report,text+Environment.NewLine);Debug.Log(text);}
+    static void Cleanup(){if(SessionState.GetBool(HadPrefs,false))PlayerPrefs.SetString(GamePersistence.SaveKey,SessionState.GetString(PrefsValue,string.Empty));else PlayerPrefs.DeleteKey(GamePersistence.SaveKey);PlayerPrefs.Save();GamePersistence.RequestNewGame();GamePersistence.SaveDirectoryOverride=null;if(Directory.Exists(SaveDirectory))Directory.Delete(SaveDirectory,true);SessionState.SetBool(Active,false);}
+}

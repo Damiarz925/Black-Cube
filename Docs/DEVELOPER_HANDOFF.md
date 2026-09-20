@@ -212,3 +212,11 @@ Fresh Step 18.5 evidence: focused EditMode 20/20, complete EditMode 339/339, ite
 Never wrap player death rewards in `GenerateDeterministicEncounter` or seed them from run/world state. Create one production loot source after `TryClaimEnemyDeath`, then pass that same advancing source through every item and currency roll. Enemy equipment remains an encounter/build concern. Keep weapon-attribute and player-level bonuses in the root additive bucket in `PlayerController`; derived events consume snapshots without reapplying them. Local weapon DPS remains an item-only metric. See `LOOT_SYSTEM.md` and `PLAYER_DAMAGE_SCALING.md`.
 
 Fresh Step 18.6 evidence: focused EditMode 31/31, complete EditMode 370/370, all four required validators, both real-scene smoke runners, Windows x64 build, and ten-second standalone startup all passed. Evidence is in `Logs/Step18_6*`, `Logs/Step17RealSceneSmoke.txt`, and `ReviewCaptures/PassiveTreeV2LayoutReport.md`. The build is `Builds/Step18_6Windows/BlackCube.exe`. BalanceLab was not run.
+
+## Step 20 handoff
+
+Treat `EndgameResourceLedger` as the only owner of challenge keys, Essences, Reforgers, and first-clears; Catalyst retains its established `CurrencyInventory` identity. Both authorities are captured into the character-slot schema and explicitly survive Rebirth. Challenge state and partial encounter state remain transient. Never spend a key before `BattleManager.TrySpawnChallenge` succeeds, and never award Essence on failure.
+
+Craft operations must use `EndgameCraftingService` so resource checks, mutation, exact costs, notifications, saving, and entropy injection remain centralized. New APEX effects require a stable `effect.special.*` ID and source tags/guards in `BossSpecialEffectRuntime`; never dispatch on item display name. See the three Step 20 design documents for the full first-pass contract.
+
+Fresh Step 20 evidence: focused EditMode 19/19, complete EditMode 396/396, all five authoritative validators, the real-scene endgame smoke, retained loot/weapon/ailment/class/Rebirth regression smokes, the Windows x64 build, and its ten-second hidden startup smoke passed. Reports are under `Logs/Step20*` plus the refreshed Step 16/18 gameplay reports; the build is `Builds/Step20Windows/BlackCube.exe`. BalanceLab was not run.

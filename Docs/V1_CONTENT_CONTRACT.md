@@ -143,3 +143,7 @@ The local profile exposes six independent character slots. Class is character-ow
 # Step 18 additions
 
 V1 now contracts 12 production weapon skills and 12 production subclass identities. Their stable IDs and placeholder behavior are listed in `PRODUCTION_SKILLS.md` and `SUBCLASSES.md`. Future subclass-bonus stealing items, final names, final tuning, final audiovisual assets, uniques, biomes, and challenge bosses remain out of scope.
+
+# Step 20 additions
+
+V1 contracts six playable challenge encounters, 12 character-owned key/Essence identities, one Catalyst, one Implicit Reforger, and six pools totaling 36 APEX affixes. The launcher and unified endgame crafting panel are production UI, while their styling and all numerical values remain first-pass placeholders. Item level stays capped at 100.
