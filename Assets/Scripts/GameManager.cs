@@ -216,23 +216,22 @@ public class GameManager : MonoBehaviour
 
         EnsureSceneReferences();
 
-        int encounterCompleted=wasBoss?enemiesKilledInZone:Mathf.Max(0,enemiesKilledInZone-1);
-        EnemyDropResult drops=null;
-        GamePersistence.GenerateDeterministicLoot(enemyAI!=null?enemyAI.EnemyLevel:currentZoneLevel,encounterCompleted,wasBoss,()=>
+        ILootRandomSource lootRandom=LootRandomSourceFactory.CreateProduction();
+        EnemyDropResult drops=EnemyLootProfile.Roll(enemyAI,wasBoss,lootRandom);
+        if(lootManager==null)Debug.LogWarning("GameManager: LootManager is null; no loot generated.");
+        else
         {
-            drops=EnemyLootProfile.Roll(enemyAI,wasBoss,()=>UnityEngine.Random.value);
-            if(lootManager==null){Debug.LogWarning("GameManager: LootManager is null; no loot generated.");return;}
             for(int i=0;i<drops.gearCount;i++)
             {
-                Gear loot=lootManager.GenerateLoot(rarity);
+                Gear loot=lootManager.GenerateLoot(rarity,lootRandom);
                 if(loot!=null&&Inventory.Instance!=null)Inventory.Instance.Pickup(loot);
                 else if(loot!=null)Debug.LogWarning("GameManager: Inventory.Instance is null; generated loot not added.");
                 else Debug.LogWarning("GameManager: Generated loot is null; nothing added to inventory.");
             }
-        });
+        }
         Transform pickupTarget=FindAnyObjectByType<PlayerController>()?.transform;
         if(drops!=null)foreach(var stack in drops.currencyStacks)CurrencyWorldPickup.Spawn(stack.currency,stack.amount,enemyHealth.transform.position,pickupTarget);
-        if(drops!=null)Debug.Log($"[Loot] {drops.power}; GearDrops: {drops.gearCount}; CurrencyStacks: {drops.currencyStacks.Count}");
+        if(drops!=null)Debug.Log($"[Loot] event={lootRandom.EventId} source={lootRandom.SourceName}; {drops.power}; GearDrops: {drops.gearCount}; CurrencyStacks: {drops.currencyStacks.Count}");
 
         Debug.Log($"GameManager: Enemy killed. Boss={wasBoss}, zoneKills={enemiesKilledInZone}/{enemiesToKillBeforeBoss}");
 

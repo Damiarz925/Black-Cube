@@ -95,8 +95,6 @@ public static class GamePersistence
     public static void RecordEncounterStart(HealthComponent health,ManaComponent mana){if(restoring||health==null||mana==null)return;encounterStartLife=health.CurrentLife;encounterStartMana=mana.CurrentMana;hasEncounterCheckpoint=true;MarkDirty();}
     public static int EncounterSeed(int level,int completed,bool boss){unchecked{int h=runSeed;h=h*397^level;h=h*397^completed;return h*397^(boss?1:0);}}
     public static void GenerateDeterministicEncounter(int level,int completed,bool boss,Action action){if(action==null)return;var old=UnityEngine.Random.state;UnityEngine.Random.InitState(EncounterSeed(level,completed,boss));try{action();}finally{UnityEngine.Random.state=old;}}
-    public static void GenerateDeterministicLoot(int level,int completed,bool boss,Action action)
-    {if(action==null)return;var old=UnityEngine.Random.state;UnityEngine.Random.InitState(EncounterSeed(level,completed,boss)^unchecked((int)0x5EED10AD));try{action();}finally{UnityEngine.Random.state=old;}}
     public static void MarkDirty(){if(restoring)return;if(!dirty)dirtySince=Time.realtimeSinceStartup;dirty=true;}
     public static bool FlushPendingAutosave(bool force=false){if(restoring||!dirty)return true;if(!force&&Time.realtimeSinceStartup-dirtySince<AutosaveDebounceSeconds)return false;return TrySave();}
     public static void Save()=>TrySave(); public static bool TrySave()=>TrySaveInternal(false); public static bool CommitConfirmedNewGame()=>TrySaveInternal(true);

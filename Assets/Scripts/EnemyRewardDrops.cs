@@ -56,13 +56,15 @@ public static class CurrencyLootTable
         new("currency.ancient.remove",CraftingCurrencyType.AncientRemoveModifier,.7f,CurrencyQualityTier.Ancient,60,360,2,1,1,true)};
     public static IReadOnlyList<CurrencyLootEntry> Entries=>entries;
     public static float QualityBias(EnemyAI.EnemyRarity rarity,bool boss)=>boss?2f:rarity switch{EnemyAI.EnemyRarity.Magic=>1.1f,EnemyAI.EnemyRarity.Rare=>1.3f,EnemyAI.EnemyRarity.Legendary=>1.6f,_=>1f};
-    public static CurrencyLootEntry Choose(int level,EnemyAI.EnemyRarity rarity,bool boss,bool rebirthAccess,Func<float> next)
+    public static CurrencyLootEntry Choose(int level,EnemyAI.EnemyRarity rarity,bool boss,bool rebirthAccess,ILootRandomSource random)
     {
         float bias=QualityBias(rarity,boss),total=0;var eligible=new List<(CurrencyLootEntry,float)>();
         foreach(var entry in entries){if(!entry.EnabledInOrdinaryLoot||level<entry.MinimumCombatLevel||level>entry.MaximumCombatLevel||(int)rarity<entry.MinimumEnemyRarity||(entry.RequiresRebirthAccess&&!rebirthAccess))continue;float weight=entry.BaseWeight*Mathf.Pow(bias,(int)entry.QualityTier);eligible.Add((entry,weight));total+=weight;}
-        if(total<=0||eligible.Count==0)return null;float roll=Mathf.Clamp01(next())*total;
+        if(total<=0||eligible.Count==0)return null;float roll=random.Value()*total;
         foreach(var pair in eligible){if(roll<pair.Item2)return pair.Item1;roll-=pair.Item2;}return eligible[eligible.Count-1].Item1;
     }
+    public static CurrencyLootEntry Choose(int level,EnemyAI.EnemyRarity rarity,bool boss,bool rebirthAccess,Func<float> next)
+        =>Choose(level,rarity,boss,rebirthAccess,new DelegateLootRandomSource(next));
 }
 
 public static class EnemyLootProfile
@@ -81,15 +83,17 @@ public static class EnemyLootProfile
         float actual=enemy!=null?EnemyBuildOptimizer.CanonicalGearScore(enemy.LastBuildEvaluation):ExpectedGearScore(level,rarity,slots);float expected=ExpectedGearScore(level,rarity,slots);float quality=Mathf.Clamp(actual/Mathf.Max(.001f,expected),.60f,3f);
         return new EnemyLootPowerSnapshot(LevelFactor(level),RarityMultiplier(rarity,boss),actual,expected,quality);
     }
-    public static int StochasticRound(float budget,int cap,Func<float> next)=>Mathf.Clamp(Mathf.FloorToInt(budget)+(next()<budget-Mathf.Floor(budget)?1:0),0,cap);
-    public static EnemyDropResult Roll(EnemyAI enemy,bool boss,Func<float> next)
+    public static int StochasticRound(float budget,int cap,ILootRandomSource random)=>Mathf.Clamp(Mathf.FloorToInt(budget)+(random.Value()<budget-Mathf.Floor(budget)?1:0),0,cap);
+    public static int StochasticRound(float budget,int cap,Func<float> next)=>StochasticRound(budget,cap,new DelegateLootRandomSource(next));
+    public static EnemyDropResult Roll(EnemyAI enemy,bool boss,ILootRandomSource random)
     {
-        next??=()=>UnityEngine.Random.value;var snapshot=Evaluate(enemy,boss);var result=new EnemyDropResult{equipment=true,power=snapshot};
-        result.gearCount=1+StochasticRound(snapshot.ExtraGearBudget,MaximumExtraGear,next);
-        int currencyRolls=StochasticRound(snapshot.CurrencyRollBudget,MaximumCurrencyRolls,next);int level=enemy!=null?enemy.EnemyLevel:1;var rarity=enemy!=null?enemy.CurrentRarity:EnemyAI.EnemyRarity.Normal;bool access=level>=RebirthManager.RequiredZone;
-        var aggregate=new Dictionary<CraftingCurrencyType,int>();for(int i=0;i<currencyRolls;i++){var entry=CurrencyLootTable.Choose(level,rarity,boss,access,next);if(entry==null)continue;int span=Mathf.Max(1,entry.StackMaximum-entry.StackMinimum+1);int amount=entry.StackMinimum+Mathf.Clamp(Mathf.FloorToInt(next()*span),0,span-1);aggregate[entry.Currency]=(aggregate.TryGetValue(entry.Currency,out int old)?old:0)+amount;}
+        random??=LootRandomSourceFactory.CreateProduction();var snapshot=Evaluate(enemy,boss);var result=new EnemyDropResult{equipment=true,power=snapshot};
+        result.gearCount=1+StochasticRound(snapshot.ExtraGearBudget,MaximumExtraGear,random);
+        int currencyRolls=StochasticRound(snapshot.CurrencyRollBudget,MaximumCurrencyRolls,random);int level=enemy!=null?enemy.EnemyLevel:1;var rarity=enemy!=null?enemy.CurrentRarity:EnemyAI.EnemyRarity.Normal;bool access=level>=RebirthManager.RequiredZone;
+        var aggregate=new Dictionary<CraftingCurrencyType,int>();for(int i=0;i<currencyRolls;i++){var entry=CurrencyLootTable.Choose(level,rarity,boss,access,random);if(entry==null)continue;int amount=random.Range(entry.StackMinimum,entry.StackMaximum+1);aggregate[entry.Currency]=(aggregate.TryGetValue(entry.Currency,out int old)?old:0)+amount;}
         foreach(var pair in aggregate){result.currencyStacks.Add(new CurrencyDropStack(pair.Key,pair.Value));for(int i=0;i<pair.Value;i++)result.currencies.Add(pair.Key);}return result;
     }
+    public static EnemyDropResult Roll(EnemyAI enemy,bool boss,Func<float> next)=>Roll(enemy,boss,new DelegateLootRandomSource(next));
 }
 
 [Serializable]

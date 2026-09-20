@@ -67,8 +67,9 @@ public class LootManager : MonoBehaviour
         initialized = true;
     }
 
-    public Gear GenerateLoot(EnemyAI.EnemyRarity enemyRarity)
+    public Gear GenerateLoot(EnemyAI.EnemyRarity enemyRarity,ILootRandomSource random=null)
     {
+        random??=LootRandomSourceFactory.CreateProduction();
         InitializeLootTables();
 
         if (zoneManager == null)
@@ -83,14 +84,14 @@ public class LootManager : MonoBehaviour
             _ => 3
         };
 
-        var type = RollItemType();
-        var element = RollItemElement(type==GearType.Weapons);
+        var type = RollItemType(random);
+        var element = RollItemElement(type==GearType.Weapons,random);
 
         int zoneLevel = zoneManager != null ? zoneManager.zoneLevel : 1;
         int itemLevel = zoneLevel + enemyRarityMod;     //Calculate item level as the level of the zone + the enemy rarity modifier
 
-        var rarity = RollItemRarity(itemLevel);
-        string weaponTypeId=type==GearType.Weapons?RollWeaponTypeId():null;
+        var rarity = RollItemRarity(itemLevel,random);
+        string weaponTypeId=type==GearType.Weapons?RollWeaponTypeId(random):null;
 
         Debug.Log($"[Loot] Rolled type={type}, rarity={rarity}, zoneLevel={zoneLevel}, enemyRarity={enemyRarity}");
 
@@ -109,7 +110,7 @@ public class LootManager : MonoBehaviour
             // Exclusive groups can dead-end a full 3P/3S construction. Retry
             // construction without changing the rolled rarity or drop rate.
             for (int attempt = 0; attempt < 64 && mods == null; attempt++)
-                mods = ModManager.Instance.RollEquipmentModsForItem(type, rarity, itemLevel, element,gear.WeaponTypeId);
+                mods = ModManager.Instance.RollEquipmentModsForItem(type, rarity, itemLevel, element,gear.WeaponTypeId,random);
         }
 
         if (mods == null)
@@ -127,14 +128,15 @@ public class LootManager : MonoBehaviour
         return gear;        //return the gear item
     }
 
-    public GearType RollItemType()
+    public GearType RollItemType()=>RollItemType(UnityLootRandomSource.Instance);
+    public GearType RollItemType(ILootRandomSource random)
     {
         InitializeLootTables();
 
         if (totalTypeWeight <= 0)
             return GearType.Helmets;
 
-        int roll = Random.Range(0, totalTypeWeight);        //Rolls a number between 0 and the total item type weight
+        int roll = random.Range(0, totalTypeWeight);        //Rolls a number between 0 and the total item type weight
         foreach (var pair in TypeDictionary)        //For each pair in the type dictionary
         {
             GearType type = pair.Key;       //set type to the gear type of the current gear item
@@ -151,9 +153,10 @@ public class LootManager : MonoBehaviour
         return RollItemRarity(zoneManager!=null?zoneManager.zoneLevel:1);
     }
 
-    public static string RollWeaponTypeId()
+    public static string RollWeaponTypeId()=>RollWeaponTypeId(UnityLootRandomSource.Instance);
+    public static string RollWeaponTypeId(ILootRandomSource random)
     {
-        var all=WeaponTypeCatalog.All;return all[Random.Range(0,all.Count)].Id;
+        var all=WeaponTypeCatalog.All;return all[random.Range(0,all.Count)].Id;
     }
 
     public static void ApplyNaturalWeaponProfile(Gear gear)
@@ -183,20 +186,22 @@ public class LootManager : MonoBehaviour
         return Vector4.Lerp(start,end,t);
     }
 
-    public GearRarity RollItemRarity(int itemLevel)
+    public GearRarity RollItemRarity(int itemLevel)=>RollItemRarity(itemLevel,UnityLootRandomSource.Instance);
+    public GearRarity RollItemRarity(int itemLevel,ILootRandomSource random)
     {
         Vector4 rates=RarityRatesForLevel(itemLevel);
-        float roll=Random.value*100f;
+        float roll=random.Value()*100f;
         if(roll<rates.x)return GearRarity.Normal;
         if(roll<rates.x+rates.y)return GearRarity.Magic;
         if(roll<rates.x+rates.y+rates.z)return GearRarity.Rare;
         return GearRarity.Legendary;
     }
 
-    public Element RollItemElement(bool forWeapon = false)
+    public Element RollItemElement(bool forWeapon = false)=>RollItemElement(forWeapon,UnityLootRandomSource.Instance);
+    public Element RollItemElement(bool forWeapon,ILootRandomSource random)
     {
-        if (!forWeapon) return (Element)Random.Range(0, (int)Element.Count);
-        int roll = Random.Range(0, 5); // Phys, Fire, Cold, Lightning, Void; legacy Poison is skipped.
+        if (!forWeapon) return (Element)random.Range(0, (int)Element.Count);
+        int roll = random.Range(0, 5); // Phys, Fire, Cold, Lightning, Void; legacy Poison is skipped.
         return roll < (int)Element.Poison ? (Element)roll : Element.Void;
     }
 }

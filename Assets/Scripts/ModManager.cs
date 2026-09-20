@@ -128,20 +128,21 @@ public class ModManager : MonoBehaviour
     /// <summary>Natural equipment: one independent implicit and a full, balanced explicit set.</summary>
     public List<RolledMod> RollEquipmentModsForItem(LootManager.GearType itemType,
         LootManager.GearRarity rarity, int itemLevel, Element weaponElement,
-        string weaponTypeId = WeaponTypeCatalog.HistoricalDefaultId)
+        string weaponTypeId = WeaponTypeCatalog.HistoricalDefaultId,ILootRandomSource random=null)
     {
+        random??=UnityLootRandomSource.Instance;
         var mods = new List<RolledMod>();
         var baseStats = new HashSet<StatTypes>();
         var baseGroups = new HashSet<string>();
         if (itemType == LootManager.GearType.Weapons)
         {
-            AddGuaranteedWeaponBaseStat(StatTypes.WeaponBaseDmg, rarity, itemLevel, mods, baseStats, baseGroups);
-            AddGuaranteedWeaponBaseStat(StatTypes.WeaponBaseAttackSpeed, rarity, itemLevel, mods, baseStats, baseGroups);
-            AddGuaranteedWeaponBaseStat(StatTypes.WeaponBaseCrit, rarity, itemLevel, mods, baseStats, baseGroups);
+            AddGuaranteedWeaponBaseStat(StatTypes.WeaponBaseDmg, rarity, itemLevel, mods, baseStats, baseGroups,random);
+            AddGuaranteedWeaponBaseStat(StatTypes.WeaponBaseAttackSpeed, rarity, itemLevel, mods, baseStats, baseGroups,random);
+            AddGuaranteedWeaponBaseStat(StatTypes.WeaponBaseCrit, rarity, itemLevel, mods, baseStats, baseGroups,random);
             if (mods.Count != 3) return null;
         }
         var implicitMod = RollSingleMod(itemType, rarity, itemLevel, baseStats, baseGroups,
-            weaponElement, false, mods, ignoreCapacity: true, weaponTypeId: weaponTypeId);
+            weaponElement, false, mods, ignoreCapacity: true, weaponTypeId: weaponTypeId,random:random);
         if (implicitMod == null) return null;
         implicitMod.lockedOriginal = true;
         mods.Add(implicitMod);
@@ -155,7 +156,7 @@ public class ModManager : MonoBehaviour
         {
             AffixSide side = index % 2 == 0 ? AffixSide.Prefix : AffixSide.Suffix;
             RolledMod mod = RollSingleMod(itemType, rarity, itemLevel, usedStats, usedGroups,
-                weaponElement, false, mods, requiredSide: side, weaponTypeId: weaponTypeId);
+                weaponElement, false, mods, requiredSide: side, weaponTypeId: weaponTypeId,random:random);
             if (mod == null) return null;
             mods.Add(mod);
             usedStats.Add(mod.statType);
@@ -217,9 +218,10 @@ public class ModManager : MonoBehaviour
         int itemLevel,
         List<RolledMod> mods,
         HashSet<StatTypes> usedStats,
-        HashSet<string> usedGroups)
+        HashSet<string> usedGroups,
+        ILootRandomSource random=null)
     {
-        RolledMod mod = RollTierAndValue(stat, LootManager.GearType.Weapons, itemLevel);
+        RolledMod mod = RollTierAndValue(stat, LootManager.GearType.Weapons, itemLevel,null,random);
         if (mod == null) return;
 
         mods.Add(mod);  //adds the mod, ensures its specific mod type and mod group can't roll again
@@ -243,7 +245,7 @@ public class ModManager : MonoBehaviour
         bool forEnemy,
         IReadOnlyList<RolledMod> existing,
         RolledMod excluded = null, AffixSide? requiredSide = null,
-        bool ignoreCapacity = false, string weaponTypeId = null)
+        bool ignoreCapacity = false, string weaponTypeId = null,ILootRandomSource random=null)
     {
 #if UNITY_EDITOR
         List<StatTypes> pool = useIsolatedPools
@@ -291,8 +293,9 @@ public class ModManager : MonoBehaviour
         if (candidates.Count == 0)  //If candidates is 0, return
             return null;
 
-        StatTypes chosenStat = WeightedRandomPick(candidates);  //Call weightedrandompick to choose a random mod from candidates
-        return RollTierAndValue(chosenStat, itemType, itemLevel, weaponTypeId);
+        random??=UnityLootRandomSource.Instance;
+        StatTypes chosenStat = WeightedRandomPick(candidates,random);  //Call weightedrandompick to choose a random mod from candidates
+        return RollTierAndValue(chosenStat, itemType, itemLevel, weaponTypeId,random);
     }
 
     /// <summary>Stats that remain valid player affixes but cannot benefit enemies without player-only systems.</summary>
@@ -401,19 +404,20 @@ public class ModManager : MonoBehaviour
             ? direct : def.tiers ?? new List<AffixTier>();
     }
 
-    private RolledMod RollTierAndValue(StatTypes stat, LootManager.GearType slot, int itemLevel,string weaponTypeId=null)
+    private RolledMod RollTierAndValue(StatTypes stat, LootManager.GearType slot, int itemLevel,string weaponTypeId=null,ILootRandomSource random=null)
     {
+        random??=UnityLootRandomSource.Instance;
         AffixDefinitions def = modDatabase.GetDefinition(stat);     //grab definition of the passed in stat
         var available = ApplicableTiers(def,slot,slot==LootManager.GearType.Weapons&&WeaponTypeCatalog.IsValid(weaponTypeId)?weaponTypeId:WeaponTypeCatalog.HistoricalDefaultId).Where(t => t.minItemLevel <= itemLevel).ToList();
         if (available.Count == 0) return null;  //if there are no available tiers, return
 
         AffixTier chosenTier = AffixTierWeightPolicy.Choose(available,
-            tier => tier.tierIndex, tier => tier.weight, itemLevel, Random.value);
-        float roll = Random.Range(chosenTier.minValue, chosenTier.maxValue);            //choose a roll by rolling a random range between the tier's min and max values
+            tier => tier.tierIndex, tier => tier.weight, itemLevel, random.Value());
+        float roll = random.Range(chosenTier.minValue, chosenTier.maxValue);            //choose a roll by rolling a random range between the tier's min and max values
 
         if(chosenTier.pairedDamage)
             return new RolledMod(stat,chosenTier.tierIndex,roll,
-                Random.Range(chosenTier.minHighValue,chosenTier.maxHighValue),false);
+                random.Range(chosenTier.minHighValue,chosenTier.maxHighValue),false);
 
         // This intrinsic tier stores an average base value. Resolve a natural
         // 80%-120% weapon range while preserving that exact expected average.
@@ -436,12 +440,12 @@ public class ModManager : MonoBehaviour
     }
 
     //Function used to do a random weighted pick
-    private StatTypes WeightedRandomPick(List<(StatTypes stat, int weight)> options)
+    private StatTypes WeightedRandomPick(List<(StatTypes stat, int weight)> options,ILootRandomSource random)
     {
         int total = 0;
         foreach (var o in options) total += o.weight;
 
-        int roll = Random.Range(0, total);
+        int roll = random.Range(0, total);
         int accum = 0;
 
         foreach (var o in options)
