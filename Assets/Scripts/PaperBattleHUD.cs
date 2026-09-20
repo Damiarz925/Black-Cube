@@ -29,6 +29,8 @@ public class PaperBattleHUD : MonoBehaviour
     PlayerDisplayNameProvider displayNameProvider;
     BattleManager battleManager;
     PauseMenuUI pauseMenu;
+    ChallengeLauncherUI challengeLauncher;
+    EndgameItemizationUI endgameItemization;
     HealthComponent boundPlayer;
     EnemyAI boundEnemy;
     HealthComponent enemyHealth;
@@ -50,6 +52,8 @@ public class PaperBattleHUD : MonoBehaviour
         if(GetComponent<SkillTreeUI>()==null)gameObject.AddComponent<SkillTreeUI>();
         if(GetComponent<PlayerSkillMenuUI>()==null)gameObject.AddComponent<PlayerSkillMenuUI>();
         var rebirth=GetComponent<RebirthConfirmationUI>();if(rebirth==null)rebirth=gameObject.AddComponent<RebirthConfirmationUI>();rebirth.Build();
+        challengeLauncher=GetComponent<ChallengeLauncherUI>();if(challengeLauncher==null)challengeLauncher=gameObject.AddComponent<ChallengeLauncherUI>();challengeLauncher.Build();
+        endgameItemization=GetComponent<EndgameItemizationUI>();if(endgameItemization==null)endgameItemization=gameObject.AddComponent<EndgameItemizationUI>();endgameItemization.Build();
         enemyInspection=GetComponent<EnemyInspectionPanelUI>();if(enemyInspection==null)enemyInspection=gameObject.AddComponent<EnemyInspectionPanelUI>();enemyInspection.Initialize(this);
         InventoryEquipmentPanelUI.SeparateStats(statsPanel);
         BuildTopHUD();
@@ -232,7 +236,7 @@ public class PaperBattleHUD : MonoBehaviour
 
     void SetActive(TopHUDButtonKind kind,bool value){if(buttonStates.TryGetValue(kind,out HUDSpriteState state))state.SetPersistentActive(value);}
     bool CanOpenPanel()=>player==null||player.CurrentLife>0f;
-    public void CloseGameplayPanels(){if(inventoryPanel!=null)inventoryPanel.SetActive(false);if(statsPanel!=null)statsPanel.SetActive(false);enemyInspection?.Close();GetComponent<SkillTreeUI>()?.Close();GetComponent<PlayerSkillMenuUI>()?.Close();}
+    public void CloseGameplayPanels(){if(inventoryPanel!=null)inventoryPanel.SetActive(false);if(statsPanel!=null)statsPanel.SetActive(false);enemyInspection?.Close();GetComponent<SkillTreeUI>()?.Close();GetComponent<PlayerSkillMenuUI>()?.Close();challengeLauncher?.Close();endgameItemization?.Close();}
     bool CanOpenGameplayPanel()=>CanOpenPanel()&&(pauseMenu==null||!pauseMenu.IsOpen);
     void RefreshAll(){RefreshPlayerIdentity();RefreshPlayerResources();RefreshEnemyIdentity();RefreshEnemyResources();RefreshMenuStates();RefreshRunText();}
 

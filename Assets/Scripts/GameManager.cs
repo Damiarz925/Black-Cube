@@ -46,6 +46,8 @@ public class GameManager : MonoBehaviour
         if (GetComponent<RelicInventory>() == null) gameObject.AddComponent<RelicInventory>();
         if (GetComponent<RebirthManager>() == null) gameObject.AddComponent<RebirthManager>();
         if (GetComponent<PlayerIdentityState>() == null) gameObject.AddComponent<PlayerIdentityState>();
+        if (GetComponent<EndgameResourceLedger>() == null) gameObject.AddComponent<EndgameResourceLedger>();
+        if (GetComponent<ChallengeRuntimeService>() == null) gameObject.AddComponent<ChallengeRuntimeService>();
         if (GetComponent<GamePersistenceHost>() == null) gameObject.AddComponent<GamePersistenceHost>();
         DontDestroyOnLoad(gameObject);
         SceneManager.sceneLoaded += OnSceneLoaded;
@@ -112,6 +114,7 @@ public class GameManager : MonoBehaviour
         Inventory.Instance?.ResetForNewRun();
         CurrencyInventory.Instance?.ResetForNewGame();
         RelicInventory.Instance?.ResetForNewGame();
+        EndgameResourceLedger.Instance?.ResetForNewGame();
     }
 
     private bool StartFreshGame(bool commit)
@@ -218,6 +221,9 @@ public class GameManager : MonoBehaviour
 
         ILootRandomSource lootRandom=LootRandomSourceFactory.CreateProduction();
         EnemyDropResult drops=EnemyLootProfile.Roll(enemyAI,wasBoss,lootRandom);
+        EndgameDropProfile.TryAwardChallengeKey(currentZoneLevel,rarity,wasBoss,drops.power.LootPower,WorldContentCatalog.Reference,lootRandom);
+        if(wasBoss&&ChallengeRuntimeService.Instance?.IsActive!=true&&lootRandom.Value()<EndgameDropProfile.CatalystChance(currentZoneLevel))
+            CurrencyInventory.Instance?.Add(CraftingCurrencyType.EmpowermentCatalyst);
         if(lootManager==null)Debug.LogWarning("GameManager: LootManager is null; no loot generated.");
         else
         {
@@ -238,6 +244,11 @@ public class GameManager : MonoBehaviour
         if (wasBoss)                                                                                //if the enemy was a boss, call on zone cleared and return from function
         {
             BossDefinition defeatedBoss=WorldContentCatalog.Reference.Boss(BattleManager.Instance?.CurrentEncounter?.bossId);
+            if(ChallengeRuntimeService.Instance?.IsActive==true)
+            {
+                ChallengeRuntimeService.Instance.Complete(defeatedBoss,lootRandom);
+                return;
+            }
             if(defeatedBoss?.futureStoryFlags?.Contains(PlayerIdentityState.StoryCompletionMilestoneId)==true)
                 GetComponent<PlayerIdentityState>()?.CompleteMilestone(PlayerIdentityState.StoryCompletionMilestoneId);
             OnZoneCleared();
@@ -299,6 +310,10 @@ public class GameManager : MonoBehaviour
     {
         Debug.Log($"GameManager: Restarting current zone {currentZoneLevel} after death.");
 
+        if(ChallengeRuntimeService.Instance?.IsActive==true)
+        {
+            ChallengeRuntimeService.Instance.Abandon(false);playerDeathHandled=false;deathMenuUI?.Hide();BattleManager.Instance?.ReturnFromChallengeDefeat();return;
+        }
         enemiesKilledInZone = 0;
         bossSpawned = false;
         playerDeathHandled = false;

@@ -221,7 +221,9 @@ public sealed class RebirthManager : MonoBehaviour
         if(!ConfirmationPending||!Eligible)return false;ConfirmationPending=false;
         EquipmentManager.Instance?.ResetForRebirth();
         Inventory.Instance?.ResetForRebirth();
+        int catalysts=CurrencyInventory.Instance?.Count(CraftingCurrencyType.EmpowermentCatalyst)??0;
         CurrencyInventory.Instance?.Restore(Array.Empty<CurrencyStackData>());
+        if(catalysts>0)CurrencyInventory.Instance?.Add(CraftingCurrencyType.EmpowermentCatalyst,catalysts);
         var relics=RelicInventory.Instance;if(relics==null)relics=gameObject.AddComponent<RelicInventory>();
         int reachedZone=GameManager.Instance!=null?GameManager.Instance.CurrentCombatLevel:RequiredZone;
         relics.BeginNewCycle(reachedZone);
