@@ -52,7 +52,7 @@ using UnityEngine;
     {
         var go=new GameObject(name);var gear=go.AddComponent<Gear>();gear.Initialize(type,rarity,Mathf.Max(1,itemLevel),element,weaponTypeId);gear.RestorePersistentId(id);gear.RestoreLegacyAffixRules(legacyAffixRules);gear.RestoreCraftingState(originRarity,currentCraftingPotential,maximumCraftingPotential);
         var copies=new List<RolledMod>();if(mods!=null)foreach(var m in mods)if(m!=null)copies.Add(Clone(m));gear.ApplyMods(copies);gear.SetRarity(rarity);
-        if(!copies.Exists(m=>m.statType==StatTypes.WeaponBaseDmg)){gear.BaseDamage=baseDamage;gear.BaseDamageMin=baseDamageMin;gear.BaseDamageMax=baseDamageMax;}if(!copies.Exists(m=>m.statType==StatTypes.WeaponBaseAttackSpeed))gear.BaseAttackSpeed=baseAttackSpeed;if(!copies.Exists(m=>m.statType==StatTypes.WeaponBaseCrit))gear.BaseCritChance=baseCritChance;return gear;
+        if(type==LootManager.GearType.Weapons){gear.BaseDamage=baseDamage;gear.BaseDamageMin=baseDamageMin;gear.BaseDamageMax=baseDamageMax;gear.BaseAttackSpeed=baseAttackSpeed;gear.BaseCritChance=baseCritChance;}return gear;
     }
     static RolledMod Clone(RolledMod m)=>new(m.statType,m.tierIndex,m.value,m.HighValue,m.lockedOriginal)
         {hasSecondaryValue=m.hasSecondaryValue,isEmpowered=m.isEmpowered,isBossSpecial=m.isBossSpecial,specialPoolId=m.specialPoolId,specialModifierId=m.specialModifierId,specialAffixSide=m.specialAffixSide};
@@ -95,6 +95,8 @@ public static class GamePersistence
     public static void RecordEncounterStart(HealthComponent health,ManaComponent mana){if(restoring||health==null||mana==null)return;encounterStartLife=health.CurrentLife;encounterStartMana=mana.CurrentMana;hasEncounterCheckpoint=true;MarkDirty();}
     public static int EncounterSeed(int level,int completed,bool boss){unchecked{int h=runSeed;h=h*397^level;h=h*397^completed;return h*397^(boss?1:0);}}
     public static void GenerateDeterministicEncounter(int level,int completed,bool boss,Action action){if(action==null)return;var old=UnityEngine.Random.state;UnityEngine.Random.InitState(EncounterSeed(level,completed,boss));try{action();}finally{UnityEngine.Random.state=old;}}
+    public static void GenerateDeterministicLoot(int level,int completed,bool boss,Action action)
+    {if(action==null)return;var old=UnityEngine.Random.state;UnityEngine.Random.InitState(EncounterSeed(level,completed,boss)^unchecked((int)0x5EED10AD));try{action();}finally{UnityEngine.Random.state=old;}}
     public static void MarkDirty(){if(restoring)return;if(!dirty)dirtySince=Time.realtimeSinceStartup;dirty=true;}
     public static bool FlushPendingAutosave(bool force=false){if(restoring||!dirty)return true;if(!force&&Time.realtimeSinceStartup-dirtySince<AutosaveDebounceSeconds)return false;return TrySave();}
     public static void Save()=>TrySave(); public static bool TrySave()=>TrySaveInternal(false); public static bool CommitConfirmedNewGame()=>TrySaveInternal(true);

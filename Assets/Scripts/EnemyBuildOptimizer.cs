@@ -6,6 +6,7 @@ using UnityEngine;
 
 public static class EnemyBuildOptimizer
 {
+    public static float CanonicalGearScore(Evaluation evaluation)=>Mathf.Exp(evaluation.Score);
     // Search tuning. The global fill plus per-archetype reservations never exceeds BeamWidth.
     public const int BeamWidth = 40;
     public const int ArchetypeQuota = 4;
@@ -415,9 +416,7 @@ public static class EnemyBuildOptimizer
                 magnitude = .1f; baseTicks = 2; baseInterval = 4; maxStacks = 100;
                 float voidFactor = (1f + stats.Get(StatTypes.VoidDmg)
                     + AttributeElementDamage(stats, Element.Void)) * (1f + stats.Get(StatTypes.VoidMult));
-                source = hits[(int)Element.Void];
-                source += (hits[(int)Element.Phys] + hits[(int)Element.Fire]
-                    + hits[(int)Element.Cold] + hits[(int)Element.Light]) * voidFactor;
+                source = hits[(int)Element.Void] + hits[(int)Element.Phys] * voidFactor;
                 break;
             case StatusEffects.AilmentKind.Ignite:
                 chanceStat = StatTypes.IgniteChance; increasedStat = StatTypes.IgniteDmg;

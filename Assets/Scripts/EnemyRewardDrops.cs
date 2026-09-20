@@ -15,7 +15,81 @@ public sealed class CurrencyDropRule
 public sealed class EnemyDropResult
 {
     public bool equipment;
+    public int gearCount;
     public readonly List<CraftingCurrencyType> currencies=new();
+    public readonly List<CurrencyDropStack> currencyStacks=new();
+    public EnemyLootPowerSnapshot power;
+}
+
+[Serializable] public struct CurrencyDropStack{public CraftingCurrencyType currency;public int amount;public CurrencyDropStack(CraftingCurrencyType value,int count){currency=value;amount=count;}}
+
+public readonly struct EnemyLootPowerSnapshot
+{
+    public readonly float LevelLootFactor,RarityMultiplier,ActualGearScore,ExpectedGearScore,GearQualityFactor,LootPower,ExtraGearBudget,CurrencyRollBudget;
+    public EnemyLootPowerSnapshot(float level,float rarity,float actual,float expected,float quality)
+    {LevelLootFactor=level;RarityMultiplier=rarity;ActualGearScore=actual;ExpectedGearScore=expected;GearQualityFactor=quality;LootPower=level*rarity*quality;ExtraGearBudget=Mathf.Max(0,LootPower-.75f)*.60f;CurrencyRollBudget=.18f*LootPower;}
+    public override string ToString()=>$"LevelLootFactor: {LevelLootFactor:0.00} / RarityMultiplier: {RarityMultiplier:0.00} / GearQualityFactor: {GearQualityFactor:0.00} / LootPower: {LootPower:0.00}";
+}
+
+public enum CurrencyQualityTier{Common=0,Uncommon=1,Rare=2,Ancient=3}
+[Serializable] public sealed class CurrencyLootEntry
+{
+    public readonly string StableCurrencyId;public readonly CraftingCurrencyType Currency;public readonly float BaseWeight;public readonly int MinimumCombatLevel,MaximumCombatLevel,MinimumEnemyRarity,StackMinimum,StackMaximum;public readonly CurrencyQualityTier QualityTier;public readonly bool RequiresRebirthAccess,EnabledInOrdinaryLoot;
+    public CurrencyLootEntry(string id,CraftingCurrencyType currency,float weight,CurrencyQualityTier quality,int minLevel=1,int maxLevel=360,int minRarity=0,int minStack=1,int maxStack=1,bool rebirth=false,bool enabled=true)
+    {StableCurrencyId=id;Currency=currency;BaseWeight=weight;QualityTier=quality;MinimumCombatLevel=minLevel;MaximumCombatLevel=maxLevel;MinimumEnemyRarity=minRarity;StackMinimum=minStack;StackMaximum=maxStack;RequiresRebirthAccess=rebirth;EnabledInOrdinaryLoot=enabled;}
+}
+
+public static class CurrencyLootTable
+{
+    static readonly CurrencyLootEntry[] entries={
+        new("currency.normal_to_magic",CraftingCurrencyType.NormalToMagic,28,CurrencyQualityTier.Common),
+        new("currency.reroll_magic",CraftingCurrencyType.RerollMagic,24,CurrencyQualityTier.Common),
+        new("currency.magic_to_rare",CraftingCurrencyType.MagicToRare,17,CurrencyQualityTier.Uncommon,10),
+        new("currency.reroll_rare",CraftingCurrencyType.RerollRareModifier,13,CurrencyQualityTier.Uncommon,20),
+        new("currency.add_rare",CraftingCurrencyType.AddRareModifier,8,CurrencyQualityTier.Rare,30),
+        new("currency.remove_rare",CraftingCurrencyType.RemoveRareModifier,6,CurrencyQualityTier.Rare,35),
+        new("currency.ancient.normal_to_magic",CraftingCurrencyType.AncientNormalToMagic,2.5f,CurrencyQualityTier.Ancient,60,360,1,1,1,true),
+        new("currency.ancient.magic_to_rare",CraftingCurrencyType.AncientMagicToRare,2,CurrencyQualityTier.Ancient,60,360,1,1,1,true),
+        new("currency.ancient.rare_to_legendary",CraftingCurrencyType.AncientRareToLegendary,1.2f,CurrencyQualityTier.Ancient,60,360,2,1,1,true),
+        new("currency.ancient.reroll",CraftingCurrencyType.AncientReroll,1.5f,CurrencyQualityTier.Ancient,60,360,1,1,1,true),
+        new("currency.ancient.add",CraftingCurrencyType.AncientAddModifier,.8f,CurrencyQualityTier.Ancient,60,360,2,1,1,true),
+        new("currency.ancient.remove",CraftingCurrencyType.AncientRemoveModifier,.7f,CurrencyQualityTier.Ancient,60,360,2,1,1,true)};
+    public static IReadOnlyList<CurrencyLootEntry> Entries=>entries;
+    public static float QualityBias(EnemyAI.EnemyRarity rarity,bool boss)=>boss?2f:rarity switch{EnemyAI.EnemyRarity.Magic=>1.1f,EnemyAI.EnemyRarity.Rare=>1.3f,EnemyAI.EnemyRarity.Legendary=>1.6f,_=>1f};
+    public static CurrencyLootEntry Choose(int level,EnemyAI.EnemyRarity rarity,bool boss,bool rebirthAccess,Func<float> next)
+    {
+        float bias=QualityBias(rarity,boss),total=0;var eligible=new List<(CurrencyLootEntry,float)>();
+        foreach(var entry in entries){if(!entry.EnabledInOrdinaryLoot||level<entry.MinimumCombatLevel||level>entry.MaximumCombatLevel||(int)rarity<entry.MinimumEnemyRarity||(entry.RequiresRebirthAccess&&!rebirthAccess))continue;float weight=entry.BaseWeight*Mathf.Pow(bias,(int)entry.QualityTier);eligible.Add((entry,weight));total+=weight;}
+        if(total<=0||eligible.Count==0)return null;float roll=Mathf.Clamp01(next())*total;
+        foreach(var pair in eligible){if(roll<pair.Item2)return pair.Item1;roll-=pair.Item2;}return eligible[eligible.Count-1].Item1;
+    }
+}
+
+public static class EnemyLootProfile
+{
+    public const int MaximumExtraGear=12,MaximumCurrencyRolls=8;
+    public static float LevelFactor(int level)=>Mathf.Lerp(.75f,2f,Mathf.Pow(Mathf.Clamp01((Mathf.Max(1,level)-1)/359f),.75f));
+    public static float RarityMultiplier(EnemyAI.EnemyRarity rarity,bool boss)=>boss?5f:rarity switch{EnemyAI.EnemyRarity.Magic=>1.6f,EnemyAI.EnemyRarity.Rare=>2.6f,EnemyAI.EnemyRarity.Legendary=>4f,_=>1f};
+    public static float ExpectedGearScore(int level,EnemyAI.EnemyRarity rarity,int equippedSlots)
+    {
+        // Formula baseline mirrors the enemy model's capped gear-level and growing slot count without sampling.
+        float gearLevel=EnemyAI.EffectiveEnemyGearItemLevel(level);return 30f*Mathf.Pow(1f+gearLevel*.075f,.75f)*Mathf.Pow(Mathf.Max(1,equippedSlots),.25f)*Mathf.Pow(RarityMultiplier(rarity,false),.15f);
+    }
+    public static EnemyLootPowerSnapshot Evaluate(EnemyAI enemy,bool boss)
+    {
+        int level=enemy!=null?enemy.EnemyLevel:1;var rarity=enemy!=null?enemy.CurrentRarity:EnemyAI.EnemyRarity.Normal;int slots=enemy?.EquippedItems?.Count??1;
+        float actual=enemy!=null?EnemyBuildOptimizer.CanonicalGearScore(enemy.LastBuildEvaluation):ExpectedGearScore(level,rarity,slots);float expected=ExpectedGearScore(level,rarity,slots);float quality=Mathf.Clamp(actual/Mathf.Max(.001f,expected),.60f,3f);
+        return new EnemyLootPowerSnapshot(LevelFactor(level),RarityMultiplier(rarity,boss),actual,expected,quality);
+    }
+    public static int StochasticRound(float budget,int cap,Func<float> next)=>Mathf.Clamp(Mathf.FloorToInt(budget)+(next()<budget-Mathf.Floor(budget)?1:0),0,cap);
+    public static EnemyDropResult Roll(EnemyAI enemy,bool boss,Func<float> next)
+    {
+        next??=()=>UnityEngine.Random.value;var snapshot=Evaluate(enemy,boss);var result=new EnemyDropResult{equipment=true,power=snapshot};
+        result.gearCount=1+StochasticRound(snapshot.ExtraGearBudget,MaximumExtraGear,next);
+        int currencyRolls=StochasticRound(snapshot.CurrencyRollBudget,MaximumCurrencyRolls,next);int level=enemy!=null?enemy.EnemyLevel:1;var rarity=enemy!=null?enemy.CurrentRarity:EnemyAI.EnemyRarity.Normal;bool access=level>=RebirthManager.RequiredZone;
+        var aggregate=new Dictionary<CraftingCurrencyType,int>();for(int i=0;i<currencyRolls;i++){var entry=CurrencyLootTable.Choose(level,rarity,boss,access,next);if(entry==null)continue;int span=Mathf.Max(1,entry.StackMaximum-entry.StackMinimum+1);int amount=entry.StackMinimum+Mathf.Clamp(Mathf.FloorToInt(next()*span),0,span-1);aggregate[entry.Currency]=(aggregate.TryGetValue(entry.Currency,out int old)?old:0)+amount;}
+        foreach(var pair in aggregate){result.currencyStacks.Add(new CurrencyDropStack(pair.Key,pair.Value));for(int i=0;i<pair.Value;i++)result.currencies.Add(pair.Key);}return result;
+    }
 }
 
 [Serializable]
@@ -63,8 +137,8 @@ public sealed class EnemyDropTable
 
 public sealed class CurrencyRewardClaim
 {
-    readonly CraftingCurrencyType type;bool claimed;
-    public CurrencyRewardClaim(CraftingCurrencyType value)=>type=value;
+    readonly CraftingCurrencyType type;readonly int amount;bool claimed;
+    public CurrencyRewardClaim(CraftingCurrencyType value,int count=1){type=value;amount=Mathf.Max(1,count);}
     public bool TryClaim()
     {
         if(claimed)return false;claimed=true;return true;
@@ -72,7 +146,7 @@ public sealed class CurrencyRewardClaim
     public bool TryAward()
     {
         if(CurrencyInventory.Instance==null||!TryClaim())return false;
-        CurrencyInventory.Instance.Add(type);
+        CurrencyInventory.Instance.Add(type,amount);
         GamePersistence.Save();
         return true;
     }
@@ -82,12 +156,13 @@ public sealed class CurrencyWorldPickup:MonoBehaviour
 {
     CurrencyRewardClaim claim;Transform target;Vector3 start;float age;float displayScale=.58f;
     const float ReadDelay=.35f,FlyDuration=.55f;
-    public static CurrencyWorldPickup Spawn(CraftingCurrencyType type,Vector3 position,Transform player)
+    public static CurrencyWorldPickup Spawn(CraftingCurrencyType type,Vector3 position,Transform player)=>Spawn(type,1,position,player);
+    public static CurrencyWorldPickup Spawn(CraftingCurrencyType type,int amount,Vector3 position,Transform player)
     {
         var go=new GameObject("Dropped "+CurrencyPresentation.Name(type),typeof(SpriteRenderer),typeof(CurrencyWorldPickup));
         go.transform.position=position+new Vector3(UnityEngine.Random.Range(-.28f,.28f),.25f+UnityEngine.Random.Range(0f,.18f),0);
         var renderer=go.GetComponent<SpriteRenderer>();renderer.sprite=InventoryArtCatalog.Currency(type);renderer.sortingOrder=80;
-        var pickup=go.GetComponent<CurrencyWorldPickup>();pickup.claim=new CurrencyRewardClaim(type);pickup.target=player;pickup.start=go.transform.position;
+        var pickup=go.GetComponent<CurrencyWorldPickup>();pickup.claim=new CurrencyRewardClaim(type,amount);pickup.target=player;pickup.start=go.transform.position;
         float largestDimension = renderer.sprite != null
             ? Mathf.Max(renderer.sprite.bounds.size.x, renderer.sprite.bounds.size.y)
             : 0f;

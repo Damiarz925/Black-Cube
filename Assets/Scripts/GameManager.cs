@@ -216,29 +216,23 @@ public class GameManager : MonoBehaviour
 
         EnsureSceneReferences();
 
-        EnemyDropResult drops=(enemyAI!=null?enemyAI.DropTable:new EnemyDropTable()).Roll(isBoss:wasBoss);
+        int encounterCompleted=wasBoss?enemiesKilledInZone:Mathf.Max(0,enemiesKilledInZone-1);
+        EnemyDropResult drops=null;
+        GamePersistence.GenerateDeterministicLoot(enemyAI!=null?enemyAI.EnemyLevel:currentZoneLevel,encounterCompleted,wasBoss,()=>
+        {
+            drops=EnemyLootProfile.Roll(enemyAI,wasBoss,()=>UnityEngine.Random.value);
+            if(lootManager==null){Debug.LogWarning("GameManager: LootManager is null; no loot generated.");return;}
+            for(int i=0;i<drops.gearCount;i++)
+            {
+                Gear loot=lootManager.GenerateLoot(rarity);
+                if(loot!=null&&Inventory.Instance!=null)Inventory.Instance.Pickup(loot);
+                else if(loot!=null)Debug.LogWarning("GameManager: Inventory.Instance is null; generated loot not added.");
+                else Debug.LogWarning("GameManager: Generated loot is null; nothing added to inventory.");
+            }
+        });
         Transform pickupTarget=FindAnyObjectByType<PlayerController>()?.transform;
-        foreach(var currency in drops.currencies)CurrencyWorldPickup.Spawn(currency,enemyHealth.transform.position,pickupTarget);
-
-        Gear loot = drops.equipment && lootManager != null ? lootManager.GenerateLoot(rarity) : null; //equipment is an independent 50% roll
-        if (drops.equipment && lootManager == null)
-        {
-            Debug.LogWarning("GameManager: LootManager is null; no loot generated.");
-        }
-
-        if (loot != null && Inventory.Instance != null)                                             //if the inventory isn't null, add the loot generated to the inventory
-        {
-            Inventory.Instance.Pickup(loot);
-            Debug.Log($"GameManager: Loot generated and added. EnemyRarity={rarity}, LootName={(loot != null ? loot.name : "null")}");
-        }
-        else if (drops.equipment && loot == null)
-        {
-            Debug.LogWarning("GameManager: Generated loot is null; nothing added to inventory.");
-        }
-        else
-        {
-            Debug.LogWarning("GameManager: Inventory.Instance is null; generated loot not added.");
-        }
+        if(drops!=null)foreach(var stack in drops.currencyStacks)CurrencyWorldPickup.Spawn(stack.currency,stack.amount,enemyHealth.transform.position,pickupTarget);
+        if(drops!=null)Debug.Log($"[Loot] {drops.power}; GearDrops: {drops.gearCount}; CurrencyStacks: {drops.currencyStacks.Count}");
 
         Debug.Log($"GameManager: Enemy killed. Boss={wasBoss}, zoneKills={enemiesKilledInZone}/{enemiesToKillBeforeBoss}");
 
