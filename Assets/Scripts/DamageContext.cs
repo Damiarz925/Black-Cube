@@ -10,7 +10,7 @@ public enum DamageScope
     Projectile = 1 << 1,
     Minion = 1 << 2
 }
-[System.Flags] public enum CombatEventTags{None=0,NormalAttack=1<<0,WeaponSkill=1<<1,Projectile=1<<2,Ailment=1<<3,TriggeredDamage=1<<4,TriggerlessDamage=1<<5,HealConvertedDamage=1<<6,SubclassProc=1<<7,Eruption=1<<8,Shatter=1<<9,Rupture=1<<10,NoSecondaryTriggers=1<<11}
+[System.Flags] public enum CombatEventTags{None=0,NormalAttack=1<<0,WeaponSkill=1<<1,Projectile=1<<2,Ailment=1<<3,TriggeredDamage=1<<4,TriggerlessDamage=1<<5,HealConvertedDamage=1<<6,SubclassProc=1<<7,Eruption=1<<8,Shatter=1<<9,Rupture=1<<10,NoSecondaryTriggers=1<<11,FullAilmentBasis=1<<12}
 
 [System.Serializable]
 public struct ElementalHit

@@ -792,6 +792,7 @@ public class BattleManager : MonoBehaviour
         DamageContext poisonBasis = poisonTransmutation ? specialized
             : skill != null && skill.specializedAilment == StatusEffects.AilmentKind.Poison
             ? specialized : ctx;
+        if(skill?.effect==WeaponSkillEffect.VirtualPoison)poisonBasis.EventTags|=CombatEventTags.FullAilmentBasis;
         DamageContext bleedBasis = skill != null && skill.specializedAilment == StatusEffects.AilmentKind.Bleed
             ? specialized : ctx;
         DamageContext igniteBasis = skill != null && skill.specializedAilment == StatusEffects.AilmentKind.Ignite
@@ -818,8 +819,8 @@ public class BattleManager : MonoBehaviour
         if (shockEffect == null || attacker == null || target == null) return;
         StatsComponent defender = target.GetComponent<StatsComponent>();
         var subclassState=attacker.GetComponent<SubclassCombatState>();
-        float lightningDealt = subclassState!=null&&(subclassState.Has(SubclassIds.MageStorm)||subclassState.Has(SubclassIds.PriestDark))
-            ?CombatCalculator.CalculateFinalDamage(context,attacker,defender):CombatCalculator.CalculateFinalElementDamage(context, Element.Light, attacker, defender);
+        DamageContext eligible=AilmentEligibilityResolver.Filter(shockEffect,context,attacker);
+        float lightningDealt=CombatCalculator.CalculateFinalDamage(eligible,attacker,defender);
         if (lightningDealt <= 0f) return;
 
         float chance = AdjustForApplicationResistance(shockEffect,
@@ -855,7 +856,9 @@ public class BattleManager : MonoBehaviour
         StatsComponent defender = target.GetComponent<StatsComponent>();
         HealthComponent targetHealth = target.GetComponent<HealthComponent>();
         if (targetHealth == null || targetHealth.MaxLife <= 0f) return;
-        var subclass=attacker.GetComponent<SubclassCombatState>();float coldDealt = subclass?.Has(SubclassIds.PriestDark)==true?CombatCalculator.CalculateFinalDamage(context,attacker,defender):CombatCalculator.CalculateFinalElementDamage(context, Element.Cold, attacker, defender);
+        var subclass=attacker.GetComponent<SubclassCombatState>();
+        DamageContext eligible=AilmentEligibilityResolver.Filter(chillEffect,context,attacker);
+        float coldDealt=CombatCalculator.CalculateFinalDamage(eligible,attacker,defender);
         if (coldDealt <= 0f) return;
 
         float chance = AdjustForApplicationResistance(chillEffect,

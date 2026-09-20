@@ -25,7 +25,7 @@ public static class AilmentCalculator
             return;
 
         float sourceHitDamage = (effect.Ailment == StatusEffects.AilmentKind.Poison
-                ? GetPoisonVoidScaledSource(ctx, attacker)
+                ? GetPoisonVoidScaledSource(effect,ctx,attacker)
                 : GetSourceHitDamage(effect, ctx,attacker))
                                 * CombatCalculator.ScopedDamageMultiplier(ctx.Scopes, attacker);
         if (sourceHitDamage <= 0f)      //If it's 0, return.
@@ -153,17 +153,19 @@ public static class AilmentCalculator
     /// Void increased/more scaling here; a Void source already received those
     /// modifiers while its hit was built, so it is not scaled a second time.
     /// </summary>
-    public static float GetPoisonVoidScaledSource(DamageContext ctx, StatsComponent attacker)
+    public static float GetPoisonVoidScaledSource(StatusEffects effect,DamageContext ctx, StatsComponent attacker)
     {
         if (ctx.Hits == null || attacker == null) return 0f;
+        ElementMask eligible=AilmentEligibilityResolver.ResolveMask(effect,ctx,attacker);
         float voidFactor = (1f + attacker.GetStat(StatTypes.VoidDmg)
                 + DerivedStatCalculator.ElementIncreasedDamage(attacker, Element.Void))
             * (1f + attacker.GetStat(StatTypes.VoidMult));
         float total = 0f;
         foreach (ElementalHit hit in ctx.Hits)
         {
-            if (hit.Amount <= 0f || hit.Element == Element.Poison) continue;
-            total += hit.Element == Element.Void ? hit.Amount : hit.Amount * voidFactor;
+            Element element=hit.Element==Element.Poison?Element.Void:hit.Element;
+            if (hit.Amount <= 0f || (eligible&(ElementMask)(1<<(int)element))==0) continue;
+            total += element == Element.Void ? hit.Amount : hit.Amount * voidFactor;
         }
         return total;
     }
@@ -174,33 +176,10 @@ public static class AilmentCalculator
         if (effect == null || ctx.Hits == null || ctx.Hits.Count == 0)  //If effect is null or context has no hits, return
             return 0f;
 
-        float total = 0f;
-
-        // One eligibility rule shared by chance rolls and ailment strength calculation.
-        ElementMask eligible = effect._StatusType switch
-        {
-            StatusEffects.StatusType.Chill => ElementMask.Cold,
-            StatusEffects.StatusType.Shock => ElementMask.Light,
-            _ => effect.Ailment switch
-            {
-                StatusEffects.AilmentKind.Poison => ElementMask.Phys | ElementMask.Fire | ElementMask.Cold
-                    | ElementMask.Light | ElementMask.Void,
-                StatusEffects.AilmentKind.Bleed => ElementMask.Phys,
-                StatusEffects.AilmentKind.Ignite => ElementMask.Fire,
-                _ => effect.Elements
-            }
-        };
-        foreach (var hit in ctx.Hits)
-        {
-            if (hit.Amount > 0f && (eligible & (ElementMask)(1 << (int)hit.Element)) != 0)
-                total += hit.Amount;
-        }
-
-        return total;   //After calculating the total amount of dmg to apply to the hit based on the dmg types of the context, return that total
+        return AilmentEligibilityResolver.EligibleRawDamage(effect,ctx,null);
     }
     public static float GetSourceHitDamage(StatusEffects effect,DamageContext ctx,StatsComponent attacker)
     {
-        float normal=GetSourceHitDamage(effect,ctx);if(normal>0||attacker==null||attacker.GetComponent<SubclassCombatState>()?.Has(SubclassIds.PriestDark)!=true||ctx.Hits==null)return normal;
-        float value=0;foreach(var hit in ctx.Hits)if(hit.Element==Element.Void)value+=hit.Amount;return value;
+        return AilmentEligibilityResolver.EligibleRawDamage(effect,ctx,attacker);
     }
 }
