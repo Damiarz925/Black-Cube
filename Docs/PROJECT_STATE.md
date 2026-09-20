@@ -205,7 +205,7 @@ The post-100 foundation keeps item level capped at 100. Empowerment unlocks per-
 
 ## Step 15 current state
 
-`WorldContentArchitecture` supplies the authoritative formula, stable-ID serializable definitions, deterministic weighted encounter resolution, final-position post-360 fallback, and a ScriptableObject authoring seam. `ZoneManager` exposes derived biome/location/corruption labels and presentation; `BattleManager` selects the resolved archetype/boss definition before using the migrated prefab reference. Challenge encounter data is structurally separate and has no launcher or production content.
+`WorldContentArchitecture` and `ProductionWorldContent` supply the V1 production mechanical catalog: six biomes, 60 locations, 48 non-boss archetypes, 60 main bosses, six challenge bosses, reusable skills/loadouts, phases, corruption/location profiles, deterministic weighted resolution, and the post-360 fallback. `BattleManager` configures the spawned paper actor with resolved production identity and mechanics. Challenge content is structurally separate and has functional entry/reward services, but its final launcher/UI and final presentation art remain outstanding. See `V1_WORLD_CONTENT.md`.
 
 The reference catalog resolves all levels 1–360 and stages 1–10, but deliberately reuses the six forest corruption sprites, `enemy.goblin`, and `boss.hobgoblin` across placeholder locations.
 

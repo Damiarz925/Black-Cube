@@ -12,10 +12,12 @@ public static class WorldContentValidationRunner
         var errors = WorldContentValidation.Validate(WorldContentCatalog.Reference);
         Directory.CreateDirectory("Logs");
         using var writer = new StreamWriter(ReportPath, false);
-        writer.WriteLine("Step 15 world-content validation");
-        writer.WriteLine("biomes=6 locations-per-biome=10 corruption-tiers=6 mapped-levels=360");
-        writer.WriteLine("reference-normal=enemy.goblin reference-boss=boss.hobgoblin");
-        writer.WriteLine("placeholder-biomes=6 production-complete=false");
+        var content=WorldContentCatalog.Reference;
+        writer.WriteLine("Step 19 production world-content validation");
+        writer.WriteLine("biomes=6 locations=60 corruption-tiers=6 mapped-levels=360 mapped-stages=3600");
+        writer.WriteLine($"normal-enemies={content.enemyArchetypes.Count} main-bosses={content.bosses.FindAll(x=>!x.challengeBoss).Count} challenge-bosses={content.bosses.FindAll(x=>x.challengeBoss).Count}");
+        writer.WriteLine($"enemy-skills={content.enemySkills.Count} loadouts={content.enemySkillLoadouts.Count} phase-profiles={content.bossPhaseProfiles.Count} special-affix-pools={content.challengeSpecialAffixPools.Count}");
+        writer.WriteLine("mechanical-content=production presentation=paper-prefab-fallback-until-final-art");
         foreach (string error in errors) writer.WriteLine("FAIL " + error);
         writer.WriteLine($"RESULT: {(errors.Count == 0 ? "PASS" : "FAIL")} ({errors.Count} errors)");
         if (errors.Count > 0) throw new InvalidOperationException(string.Join("\n", errors));

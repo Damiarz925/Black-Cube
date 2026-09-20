@@ -29,6 +29,18 @@ public static class WorldContentValidation
 
         foreach (var enemy in database.enemyArchetypes ?? new()) if (enemy != null) Id(enemy.stableId, "Enemy archetype");
         foreach (var boss in database.bosses ?? new()) if (boss != null) Id(boss.stableId, "Boss");
+        foreach(var skill in database.enemySkills??new()){if(skill==null){errors.Add("Enemy skill is null.");continue;}Id(skill.stableId,"Enemy skill");if(skill.hitCount<1||skill.cadence<1||skill.damageMultiplier<=0f)errors.Add($"{skill.stableId} has invalid combat values.");}
+        foreach(var loadout in database.enemySkillLoadouts??new()){if(loadout==null){errors.Add("Enemy skill loadout is null.");continue;}Id(loadout.stableId,"Enemy skill loadout");if(loadout.skillIds==null||loadout.skillIds.Count==0||loadout.skillIds.Any(x=>database.EnemySkill(x)==null))errors.Add($"{loadout.stableId} has invalid skill references.");}
+        foreach(var profile in database.enemyBuildPreferences??new()){if(profile==null){errors.Add("Enemy build preference is null.");continue;}Id(profile.stableId,"Enemy build preference");if(profile.preferredStats==null||profile.preferredStats.Count==0)errors.Add($"{profile.stableId} has no preferred stats.");}
+        foreach(var profile in database.locationMechanicProfiles??new()){if(profile==null){errors.Add("Location mechanic is null.");continue;}Id(profile.stableId,"Location mechanic");}
+        foreach(var profile in database.corruptionMechanicProfiles??new()){if(profile==null){errors.Add("Corruption mechanic is null.");continue;}Id(profile.stableId,"Corruption mechanic");}
+        foreach(var profile in database.bossPhaseProfiles??new()){if(profile==null){errors.Add("Boss phase profile is null.");continue;}Id(profile.stableId,"Boss phase profile");if(profile.phases==null||profile.phases.Count<2||profile.phases.Any(x=>x==null||database.SkillLoadout(x.skillLoadoutId)==null))errors.Add($"{profile.stableId} has invalid phases.");}
+        if((database.enemyArchetypes?.Count??0)!=48)errors.Add("Exactly 48 production non-boss enemy archetypes are required.");
+        if((database.enemyArchetypes?.Count(x=>x!=null&&x.rank==EnemyContentRank.Elite)??0)!=12)errors.Add("Exactly 12 elite enemy archetypes are required.");
+        if((database.bosses?.Count(x=>x!=null&&!x.challengeBoss)??0)!=60)errors.Add("Exactly 60 main boss definitions are required.");
+        if((database.bosses?.Count(x=>x!=null&&x.challengeBoss)??0)!=6)errors.Add("Exactly six challenge boss definitions are required.");
+        foreach(var enemy in database.enemyArchetypes??new())if(enemy!=null&&(database.SkillLoadout(enemy.skillLoadoutId)==null||database.BuildPreference(enemy.buildPreferenceId)==null))errors.Add($"{enemy.stableId} has invalid production mechanics.");
+        foreach(var boss in database.bosses??new())if(boss!=null&&(database.SkillLoadout(boss.skillLoadoutId)==null||database.BossPhase(boss.phaseProfileId)==null))errors.Add($"{boss.stableId} has invalid skills or phase profile.");
         foreach (var table in database.encounterTables ?? new())
         {
             if (table == null) { errors.Add("Encounter table is null."); continue; }
@@ -60,6 +72,7 @@ public static class WorldContentValidation
                 Id(location.stableId, "Location");
                 if (database.EncounterTable(location.encounterTableId) == null)
                     errors.Add($"{location.stableId} has an invalid encounter table reference.");
+                if(database.LocationMechanic(location.mechanicProfileId)==null)errors.Add($"{location.stableId} has an invalid mechanic profile.");
                 if (location.corruptionPresentations == null || location.corruptionPresentations.Count != RequiredCorruption.Length)
                     errors.Add($"{location.stableId} must map all six corruption presentations.");
                 else foreach (var tier in database.corruptionTiers)
@@ -77,19 +90,31 @@ public static class WorldContentValidation
                 || string.IsNullOrWhiteSpace(challenge.rewardResourceId)
                 || string.IsNullOrWhiteSpace(challenge.specialAffixPoolId))
                 errors.Add($"{challenge.stableContentId} has incomplete entry/reward data.");
+            if(!challenge.repeatable||string.IsNullOrWhiteSpace(challenge.lootSourceId)||challenge.rewardResourceAmount<1
+                ||database.ChallengeSpecialPool(challenge.specialAffixPoolId)==null
+                ||database.challengeRewardProfiles.Count(x=>x!=null&&x.associatedContentId==challenge.stableContentId)!=1)
+                errors.Add($"{challenge.stableContentId} has invalid repeatable challenge content.");
         }
+
+        if((database.challengeEncounters?.Count??0)!=6)errors.Add("Exactly six challenge encounters are required.");
+        if((database.challengeSpecialAffixPools?.Count??0)!=6)errors.Add("Exactly six challenge special-affix pools are required.");
 
         for (int level = 1; level <= WorldProgression.MaximumAuthoredCombatLevel; level++)
         {
-            WorldPosition normal = WorldProgression.Resolve(level, 1, database);
-            WorldPosition boss = WorldProgression.Resolve(level, WorldProgression.BossStage, database);
-            if (normal.Biome == null || normal.Location == null || normal.Corruption == null
-                || normal.Encounter?.kind != EncounterKind.Normal
-                || database.Enemy(normal.Encounter.enemyArchetypeId) == null)
-                errors.Add($"Combat level {level} does not resolve to a valid normal encounter.");
-            if (boss.Encounter?.kind != EncounterKind.Boss || database.Boss(boss.Encounter.bossId) == null)
-                errors.Add($"Combat level {level} stage 10 does not resolve to a valid boss.");
+            for(int stage=1;stage<=WorldProgression.BossStage;stage++)
+            {
+                WorldPosition position=WorldProgression.Resolve(level,stage,database);
+                if(position.Biome==null||position.Location==null||position.Corruption==null||position.Encounter==null)
+                    errors.Add($"Combat level {level} stage {stage} does not resolve structurally.");
+                else if(stage<WorldProgression.BossStage&&(position.Encounter.kind!=EncounterKind.Normal||database.Enemy(position.Encounter.enemyArchetypeId)==null))
+                    errors.Add($"Combat level {level} stage {stage} does not resolve to a valid normal enemy.");
+                else if(stage==WorldProgression.BossStage&&(position.Encounter.kind!=EncounterKind.Boss||database.Boss(position.Encounter.bossId)==null))
+                    errors.Add($"Combat level {level} stage 10 does not resolve to a valid boss.");
+            }
         }
+        var story=WorldProgression.Resolve(100,WorldProgression.BossStage,database);
+        if(database.Boss(story.Encounter?.bossId)?.futureStoryFlags?.Contains(PlayerIdentityState.StoryCompletionMilestoneId)!=true)
+            errors.Add("Combat level 100 boss must own story.main.complete.");
         return errors;
     }
 }

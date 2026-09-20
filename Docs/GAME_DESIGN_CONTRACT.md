@@ -1,5 +1,9 @@
 # Black-Cube game design contract
 
+## Step 19 production world contract
+
+V1 world progression is six biomes × ten locations × six corruption tiers, with nine normal stages and one boss stage per combat level. The mechanical catalog contains 48 non-boss enemies, 60 main bosses, six repeatable challenge bosses, deterministic skill cadence, reusable boss phases, and central location/corruption profiles. The level-100 Burning Crown boss owns `story.main.complete` and unlocks subclass choice on defeat. Final presentation assets and final numerical balance are not claimed by this content pass.
+
 ## 1. Document authority and change policy
 
 > **This document defines intended game behavior.** Current code does not override it. Unresolved items must not be guessed. Design changes require explicit user approval; Codex may propose changes but must not silently rewrite this contract. When implementation differs, report the difference in the discrepancy register and update [PROJECT_STATE.md](PROJECT_STATE.md) with code reality.

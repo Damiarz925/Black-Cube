@@ -138,7 +138,7 @@ public class BattleManager : MonoBehaviour
         int zoneLevel = zoneManager != null ? zoneManager.zoneLevel : GameManager.Instance?.CurrentCombatLevel ?? 1;
         int stage = spawnBoss ? WorldProgression.BossStage : GameManager.Instance?.EncounterStage ?? 1;
         WorldContentDatabase content = zoneManager != null ? zoneManager.WorldContent : WorldContentCatalog.Reference;
-        WorldPosition world = WorldProgression.Resolve(zoneLevel, stage, content);
+        WorldPosition world = WorldProgression.Resolve(zoneLevel, stage, content,GamePersistence.CurrentRunSeed);
         CurrentEncounter = world.Encounter;
         GameObject prefab;
         if (spawnBoss)

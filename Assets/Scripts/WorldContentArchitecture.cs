@@ -206,7 +206,7 @@ public static class WorldProgression
     public const int NormalStagesPerLevel = 9;
     public const int BossStage = 10;
 
-    public static WorldPosition Resolve(int combatLevel, int stage = 1, WorldContentDatabase database = null)
+    public static WorldPosition Resolve(int combatLevel, int stage = 1, WorldContentDatabase database = null, int worldSeed = 0)
     {
         database ??= WorldContentCatalog.Reference;
         int requested = Mathf.Max(1, combatLevel);
@@ -222,17 +222,17 @@ public static class WorldProgression
         CorruptionTierDefinition corruption = database != null && corruptionIndex < database.corruptionTiers.Count
             ? database.corruptionTiers[corruptionIndex] : null;
         EncounterTableDefinition table = database?.EncounterTable(location?.encounterTableId);
-        EncounterDefinition encounter = ResolveEncounter(table, safeStage, requested, database);
+        EncounterDefinition encounter = ResolveEncounter(table, safeStage, requested, database, worldSeed);
         return new WorldPosition(requested, contentLevel, biomeIndex, locationIndex, corruptionIndex,
             safeStage, requested > MaximumAuthoredCombatLevel, biome, location, corruption, encounter);
     }
 
     static EncounterDefinition ResolveEncounter(EncounterTableDefinition table, int stage, int combatLevel,
-        WorldContentDatabase database)
+        WorldContentDatabase database, int worldSeed)
     {
         if (table == null) return null;
         bool boss = stage == BossStage;
-        string enemyId = boss ? null : ChooseNormalEnemy(table, combatLevel, stage, database);
+        string enemyId = boss ? null : ChooseNormalEnemy(table, combatLevel, stage, database, worldSeed);
         return new EncounterDefinition
         {
             stableId = $"{table.stableId}.stage-{stage:00}", encounterTableId = table.stableId,
@@ -244,13 +244,13 @@ public static class WorldProgression
     }
 
     static string ChooseNormalEnemy(EncounterTableDefinition table, int combatLevel, int stage,
-        WorldContentDatabase database)
+        WorldContentDatabase database, int worldSeed)
     {
         int total = 0;
         foreach (var entry in table.normalEnemyPool)
             if (entry != null && entry.weight > 0 && database?.Enemy(entry.enemyArchetypeId) != null) total += entry.weight;
         if (total <= 0) return null;
-        uint state = unchecked((uint)(combatLevel * 486187739 + stage * 16777619 + StableHash(table.stableId)));
+        uint state = unchecked((uint)(combatLevel * 486187739 + stage * 16777619 + StableHash(table.stableId) + worldSeed * 397));
         state ^= state >> 16; state *= 0x7feb352dU; state ^= state >> 15; state *= 0x846ca68bU; state ^= state >> 16;
         int roll = (int)(state % (uint)total);
         foreach (var entry in table.normalEnemyPool)

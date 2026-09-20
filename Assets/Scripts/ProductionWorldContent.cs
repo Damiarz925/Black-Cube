@@ -104,8 +104,10 @@ public static class ProductionWorldContent
             db.enemySkills.Add(new EnemySkillDefinition{stableId=$"{root}.pressure",displayName="Escalating Assault",kind=EnemySkillKind.MultiHit,element=Elements[b],damageMultiplier=.68f,hitCount=2,cadence=2,telegraphId="telegraph.double"});
             db.enemySkills.Add(new EnemySkillDefinition{stableId=$"{root}.ailment",displayName="Biotic Infliction",kind=ail[b],element=Elements[b],damageMultiplier=.9f,hitCount=1,cadence=3,telegraphId="telegraph.ailment"});
             db.enemySkills.Add(new EnemySkillDefinition{stableId=$"{root}.elite",displayName="Elite Breaker",kind=EnemySkillKind.Strike,element=Elements[b],damageMultiplier=1.45f,hitCount=1,cadence=4,telegraphId="telegraph.long"});
+            if(b==2)db.enemySkills.Add(new EnemySkillDefinition{stableId=$"{root}.recover",displayName="Rime Renewal",kind=EnemySkillKind.Recover,element=Element.Cold,damageMultiplier=.75f,hitCount=1,cadence=4,telegraphId="telegraph.recovery"});
             db.enemySkillLoadouts.Add(new EnemySkillLoadoutDefinition{stableId=$"loadout.{BiomeIds[b]}.ordinary",skillIds=new(){ $"{root}.strike",$"{root}.pressure",$"{root}.ailment"}});
-            db.enemySkillLoadouts.Add(new EnemySkillLoadoutDefinition{stableId=$"loadout.{BiomeIds[b]}.elite",skillIds=new(){ $"{root}.strike",$"{root}.ailment",$"{root}.elite",$"{root}.pressure"}});
+            var eliteSkills=new List<string>{ $"{root}.strike",$"{root}.ailment",$"{root}.elite",$"{root}.pressure"};if(b==2)eliteSkills.Insert(2,$"{root}.recover");
+            db.enemySkillLoadouts.Add(new EnemySkillLoadoutDefinition{stableId=$"loadout.{BiomeIds[b]}.elite",skillIds=eliteSkills});
             db.enemyBuildPreferences.Add(new EnemyBuildPreferenceDefinition{stableId=$"build.{BiomeIds[b]}",preferredElement=Elements[b],preferredStats=PreferredStats(b)});
         }
     }

@@ -15,8 +15,8 @@ public sealed class Step15WorldProgressionTests
         WorldPosition world = WorldProgression.Resolve(1, 1, content);
         Assert.That(world.BiomeIndex, Is.Zero); Assert.That(world.LocationIndex, Is.Zero);
         Assert.That(world.CorruptionIndex, Is.Zero); Assert.That(world.Corruption.percentage, Is.Zero);
-        Assert.That(world.Biome.stableId, Is.EqualTo("biome-01"));
-        Assert.That(world.Location.stableId, Is.EqualTo("location.biome-01.01"));
+        Assert.That(world.Biome.stableId, Is.EqualTo("biome.ashen-march"));
+        Assert.That(world.Location.stableId, Is.EqualTo("location.ashen-march.01"));
     }
 
     [TestCase(10,0,9)] [TestCase(11,1,0)] [TestCase(20,1,9)] [TestCase(21,2,0)]
@@ -67,12 +67,9 @@ public sealed class Step15WorldProgressionTests
 
     [Test] public void ChallengeDefinitionsRemainOutsideMainProgressionTables()
     {
-        var challenge=new ChallengeEncounterDefinition{stableContentId="challenge.developer-fixture",displayName="Developer Fixture",
-            minimumCombatLevel=120,entryResourceId="resource.entry.fixture",entryResourceAmount=1,bossId="boss.hobgoblin",
-            rewardResourceId="resource.reward.fixture",specialAffixPoolId="special.fixture",repeatable=true};
-        Assert.That(content.challengeEncounters,Is.Empty);
-        Assert.That(challenge.stableContentId,Does.StartWith("challenge."));
-        Assert.That(WorldProgression.Resolve(120,10,content).Encounter.stableId,Does.Not.Contain(challenge.stableContentId));
+        Assert.That(content.challengeEncounters,Has.Count.EqualTo(6));
+        foreach(var challenge in content.challengeEncounters)
+            Assert.That(WorldProgression.Resolve(challenge.minimumCombatLevel,10,content).Encounter.stableId,Does.Not.Contain(challenge.stableContentId));
     }
 
     [Test] public void PostThreeSixtyUsesDocumentedFinalContentFallback()
@@ -102,10 +99,9 @@ public sealed class Step15WorldProgressionTests
         finally{if(File.Exists(path))File.Delete(path);}
     }
 
-    [Test] public void WeightedReferencePoolIsStableAndUsesTheMigratedGoblinAndHobgoblin()
+    [Test] public void WeightedProductionPoolsAreStableAndUseValidBiomeContent()
     {
-        for(int level=1;level<=360;level+=17)
-            Assert.That(WorldProgression.Resolve(level,1,content).Encounter.enemyArchetypeId,Is.EqualTo("enemy.goblin"));
-        Assert.That(WorldProgression.Resolve(1,10,content).Encounter.bossId,Is.EqualTo("boss.hobgoblin"));
+        for(int level=1;level<=360;level+=17){var a=WorldProgression.Resolve(level,1,content);var b=WorldProgression.Resolve(level,1,content);Assert.That(a.Encounter.enemyArchetypeId,Is.EqualTo(b.Encounter.enemyArchetypeId));Assert.That(content.Enemy(a.Encounter.enemyArchetypeId),Is.Not.Null);}
+        Assert.That(content.Boss(WorldProgression.Resolve(1,10,content).Encounter.bossId),Is.Not.Null);
     }
 }

@@ -175,6 +175,8 @@ public class EnemyAI : MonoBehaviour
         activeAuthoredSkill=EnemyActionPlanner.Select(contentDatabase,loadout,cadenceTurn);
         CurrentAuthoredHitCount=Mathf.Max(1,activeAuthoredSkill?.hitCount??1);
         if(corruption>=80&&(turn+1)%(corruption==100?3:4)==0)CurrentAuthoredHitCount++;
+        if(activeAuthoredSkill?.kind==EnemySkillKind.Recover&&health!=null)
+            health.RestoreLife(health.MaxLife*.025f*(corruptionProfile?.recoveryMultiplier??1f));
         return activeAuthoredSkill;
     }
 

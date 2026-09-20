@@ -15,7 +15,7 @@ public class ZoneManager : MonoBehaviour
     private bool HasForestCycle => forestBackgrounds != null && forestBackgrounds.Length == 6;
     public WorldContentDatabase WorldContent => worldContent != null ? worldContent : WorldContentCatalog.Reference;
     public WorldPosition CurrentWorldPosition => WorldProgression.Resolve(zoneLevel,
-        GameManager.Instance != null ? GameManager.Instance.EncounterStage : 1, WorldContent);
+        GameManager.Instance != null ? GameManager.Instance.EncounterStage : 1, WorldContent,GamePersistence.CurrentRunSeed);
     // Compatibility alias for existing corruption-themed UI. The arithmetic now lives only in WorldProgression.
     public static int ForestBackgroundIndex(int level) => WorldProgression.Resolve(level).CorruptionIndex;
     public string LocationLabel

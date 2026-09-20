@@ -188,7 +188,7 @@ Remaining approved work includes actual challenge encounters and acquisition, pr
 
 Use [WORLD_CONTENT_ARCHITECTURE.md](WORLD_CONTENT_ARCHITECTURE.md) before authoring Step 16 content. Add definitions and stable references; do not add biome/location arithmetic to managers or UI. A biome must cover its exact 60-level range and own ten base locations, every location must map all six corruption tiers and a valid encounter table, and every table must resolve normal and boss references.
 
-Run **Black Cube → Validation → Validate World Content** after content edits. Challenge encounters remain outside `WorldProgression` and require a future launcher; do not squeeze them into the 9+1 cadence. Levels above 360 intentionally reuse level-360 content while retaining the actual combat level for scaling and persistence.
+Run **Black Cube → Validation → Validate World Content** after content edits. Challenge encounters remain outside `WorldProgression`; do not squeeze them into the 9+1 cadence. Levels above 360 intentionally reuse level-360 content while retaining actual combat level for scaling and persistence. Step 19 production content lives in `ProductionWorldContent.cs`; use **Black Cube → Content → V1 World Inspector** for exact resolution, skills, phases, corruption, and challenge contracts. Mechanical identities are production, while `presentation.paper-enemy.fallback` and `presentation.paper-boss.fallback` mark art still awaiting replacement. Challenge resource stacks expose capture/restore data, but final save-owner integration belongs with the future challenge launcher rather than a Step 19 schema change.
 
 ## Step 17 handoff
 

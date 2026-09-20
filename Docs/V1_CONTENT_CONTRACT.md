@@ -1,5 +1,9 @@
 # Black-Cube v1 content contract
 
+## Step 19 world-content status
+
+The V1 mechanical world catalog is implemented: 48 non-boss enemies, 60 main bosses, six challenge bosses, 60 location profiles, six corruption profiles, reusable enemy skills/loadouts, boss phases, challenge resources/rewards, and exhaustive 3,600-stage resolution. Presentation uses explicit paper-combat fallbacks until final art/audio/animation is authored. See `V1_WORLD_CONTENT.md`, `ENEMY_ARCHETYPES.md`, `ENEMY_SKILLS.md`, `BOSSES.md`, and `CHALLENGE_BOSSES.md`.
+
 This is the V1 scope ledger through Step 15. Status distinguishes implemented architecture, placeholder references, and production-complete content.
 
 ## 1. V1 Product Definition
