@@ -13,6 +13,7 @@ public sealed class CorruptionTierDefinition
     [Range(0, 100)] public int percentage;
     public string displayName;
     public string presentationHookId;
+    public string mechanicProfileId;
 }
 
 [Serializable]
@@ -34,6 +35,7 @@ public sealed class LocationDefinition
     public string optionalEnvironmentSetId;
     public string enemySpawnPresentationId;
     public string encounterTableId;
+    public string mechanicProfileId;
     public List<CorruptionPresentationDefinition> corruptionPresentations = new();
 
     public CorruptionPresentationDefinition Presentation(string tierId) =>
@@ -58,6 +60,13 @@ public sealed class EnemyArchetypeDefinition
     public string displayName;
     public GameObject prefab;
     public string codexEntryId;
+    public EnemyContentRank rank;
+    public Element primaryElement;
+    public string skillLoadoutId;
+    public string buildPreferenceId;
+    public float damageMultiplier = 1f;
+    public float attackSpeedMultiplier = 1f;
+    public float lifeMultiplier = 1f;
     public List<string> futureSkillIds = new();
     public List<string> futureContentHooks = new();
 }
@@ -70,6 +79,11 @@ public sealed class BossDefinition
     public GameObject prefab;
     public string codexEntryId;
     public string presentationId;
+    public int biomeIndex;
+    public int locationIndex;
+    public string phaseProfileId;
+    public string skillLoadoutId;
+    public bool challengeBoss;
     public List<string> futureMechanicIds = new();
     public List<string> futureSkillIds = new();
     public List<string> futureRewardHooks = new();
@@ -118,6 +132,8 @@ public sealed class ChallengeEncounterDefinition
     public string bossId;
     public string rewardResourceId;
     public string specialAffixPoolId;
+    public int rewardResourceAmount = 1;
+    public string lootSourceId;
     public bool repeatable = true;
     public List<string> unlockRequirementIds = new();
 }
@@ -131,6 +147,14 @@ public sealed class WorldContentDatabase : ScriptableObject
     public List<BossDefinition> bosses = new();
     public List<EncounterTableDefinition> encounterTables = new();
     public List<ChallengeEncounterDefinition> challengeEncounters = new();
+    public List<EnemySkillDefinition> enemySkills = new();
+    public List<EnemySkillLoadoutDefinition> enemySkillLoadouts = new();
+    public List<EnemyBuildPreferenceDefinition> enemyBuildPreferences = new();
+    public List<LocationMechanicProfile> locationMechanicProfiles = new();
+    public List<CorruptionMechanicProfile> corruptionMechanicProfiles = new();
+    public List<BossPhaseProfile> bossPhaseProfiles = new();
+    public List<ChallengeRewardProfile> challengeRewardProfiles = new();
+    public List<SpecialAffixPoolDefinition> challengeSpecialAffixPools = new();
 
     public BiomeDefinition Biome(string id) => biomes?.Find(x => x != null && x.stableId == id);
     public CorruptionTierDefinition Corruption(string id) => corruptionTiers?.Find(x => x != null && x.stableId == id);
@@ -138,6 +162,14 @@ public sealed class WorldContentDatabase : ScriptableObject
     public BossDefinition Boss(string id) => bosses?.Find(x => x != null && x.stableId == id);
     public EncounterTableDefinition EncounterTable(string id) => encounterTables?.Find(x => x != null && x.stableId == id);
     public ChallengeEncounterDefinition Challenge(string id) => challengeEncounters?.Find(x => x != null && x.stableContentId == id);
+    public EnemySkillDefinition EnemySkill(string id) => enemySkills?.Find(x => x != null && x.stableId == id);
+    public EnemySkillLoadoutDefinition SkillLoadout(string id) => enemySkillLoadouts?.Find(x => x != null && x.stableId == id);
+    public EnemyBuildPreferenceDefinition BuildPreference(string id) => enemyBuildPreferences?.Find(x => x != null && x.stableId == id);
+    public LocationMechanicProfile LocationMechanic(string id) => locationMechanicProfiles?.Find(x => x != null && x.stableId == id);
+    public CorruptionMechanicProfile CorruptionMechanic(string id) => corruptionMechanicProfiles?.Find(x => x != null && x.stableId == id);
+    public BossPhaseProfile BossPhase(string id) => bossPhaseProfiles?.Find(x => x != null && x.stableId == id);
+    public ChallengeRewardProfile ChallengeReward(string id) => challengeRewardProfiles?.Find(x => x != null && x.stableId == id);
+    public SpecialAffixPoolDefinition ChallengeSpecialPool(string id) => challengeSpecialAffixPools?.Find(x => x != null && x.stableId == id);
 }
 
 public readonly struct WorldPosition
@@ -243,63 +275,6 @@ public static class WorldContentCatalog
 
     static WorldContentDatabase BuildReference()
     {
-        var database = ScriptableObject.CreateInstance<WorldContentDatabase>();
-        database.name = "Reference World Content (Runtime Placeholder)";
-        database.hideFlags = HideFlags.HideAndDontSave;
-        int[] corruption = { 0, 20, 40, 60, 80, 100 };
-        foreach (int percentage in corruption) database.corruptionTiers.Add(new CorruptionTierDefinition
-        {
-            stableId = $"corruption-{percentage:000}", percentage = percentage,
-            displayName = $"{percentage}% Corruption", presentationHookId = $"corruption.presentation.{percentage:000}"
-        });
-        database.enemyArchetypes.Add(new EnemyArchetypeDefinition
-        {
-            stableId = "enemy.goblin", displayName = "Goblin", codexEntryId = "codex.enemy.goblin"
-        });
-        database.bosses.Add(new BossDefinition
-        {
-            stableId = "boss.hobgoblin", displayName = "Hobgoblin",
-            codexEntryId = "codex.boss.hobgoblin", presentationId = "presentation.boss.hobgoblin"
-        });
-        for (int biomeIndex = 0; biomeIndex < WorldProgression.BiomeCount; biomeIndex++)
-        {
-            string biomeId = $"biome-{biomeIndex + 1:00}";
-            string encounterId = $"encounter.{biomeId}.placeholder";
-            var biome = new BiomeDefinition
-            {
-                stableId = biomeId,
-                displayName = biomeIndex == 0 ? "Forest" : $"Biome {biomeIndex + 1} Placeholder",
-                firstCombatLevel = biomeIndex * WorldProgression.LevelsPerBiome + 1,
-                lastCombatLevel = (biomeIndex + 1) * WorldProgression.LevelsPerBiome,
-                placeholder = true
-            };
-            for (int locationIndex = 0; locationIndex < WorldProgression.LocationsPerBiome; locationIndex++)
-            {
-                var location = new LocationDefinition
-                {
-                    stableId = $"location.{biomeId}.{locationIndex + 1:00}",
-                    displayName = $"Location {locationIndex + 1}",
-                    baseBackgroundAddress = "reference.paper-forest",
-                    optionalEnvironmentSetId = "environment.paper-forest.placeholder",
-                    enemySpawnPresentationId = "spawn.paper-enemy",
-                    encounterTableId = encounterId
-                };
-                foreach (var tier in database.corruptionTiers) location.corruptionPresentations.Add(new CorruptionPresentationDefinition
-                {
-                    corruptionTierId = tier.stableId,
-                    environmentSetId = $"environment.paper-forest.{tier.percentage:000}.placeholder"
-                });
-                biome.locations.Add(location);
-            }
-            database.biomes.Add(biome);
-            database.encounterTables.Add(new EncounterTableDefinition
-            {
-                stableId = encounterId,
-                normalEnemyPool = new List<WeightedEnemyArchetype>
-                    { new() { enemyArchetypeId = "enemy.goblin", weight = 1 } },
-                bossId = "boss.hobgoblin"
-            });
-        }
-        return database;
+        return ProductionWorldContent.Build();
     }
 }

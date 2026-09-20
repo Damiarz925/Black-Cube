@@ -110,6 +110,11 @@ public static class StatMappings
         }
     }
 
+    // Content-authoring helper: physical defensive identity maps to Armour while
+    // elemental identities map to their corresponding resistance channels.
+    public static StatTypes GetResistanceStat(Element element) => element == Element.Phys
+        ? StatTypes.FlatArmour : GetResistStat(element);
+
     /// <summary>
     /// Elemental penetration stat (used when applying damage to enemies).
     /// </summary>
