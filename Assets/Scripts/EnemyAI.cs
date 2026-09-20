@@ -28,6 +28,18 @@ public class EnemyAI : MonoBehaviour
     private bool loggedMissingStatsSpeedWarning = false;
 
     private int enemyLevel;
+    private WorldContentDatabase contentDatabase;
+    private EnemyArchetypeDefinition contentArchetype;
+    private BossDefinition contentBoss;
+    private CorruptionMechanicProfile corruptionProfile;
+    private LocationMechanicProfile locationProfile;
+    private int authoredTurnCount;
+    private EnemySkillDefinition activeAuthoredSkill;
+    private float activeBossPhaseDamageMultiplier=1f;
+    public int CurrentAuthoredHitCount { get; private set; } = 1;
+    public string ContentId => contentBoss?.stableId ?? contentArchetype?.stableId ?? string.Empty;
+    public string ContentDisplayName => contentBoss?.displayName ?? contentArchetype?.displayName ?? name;
+    public EnemySkillDefinition ActiveAuthoredSkill => activeAuthoredSkill;
     public int EnemyLevel => enemyLevel;
     public float IntrinsicDamageFactor
     {
@@ -93,6 +105,16 @@ public class EnemyAI : MonoBehaviour
         damageReceiver = GetComponent<DamageReceiver>();
     }
 
+    public void ConfigureWorldContent(WorldContentDatabase database, EnemyArchetypeDefinition archetype,
+        BossDefinition boss, CorruptionTierDefinition corruption, LocationDefinition location)
+    {
+        contentDatabase=database;contentArchetype=archetype;contentBoss=boss;
+        corruptionProfile=database?.CorruptionMechanic(corruption?.mechanicProfileId);
+        locationProfile=database?.LocationMechanic(location?.mechanicProfileId);
+        authoredTurnCount=0;activeAuthoredSkill=null;
+        activeBossPhaseDamageMultiplier=1f;CurrentAuthoredHitCount=1;
+    }
+
     public void InitializeEnemy(int zoneLevel)      //initialize the enemy using the zone level
     {
         if (_initialized) return;       //if the enemy is already initialized (_initialized is true), return
@@ -111,9 +133,49 @@ public class EnemyAI : MonoBehaviour
             statSetup.SetupForZone(enemyLevel, health != null && health.IsBoss);
 
         GenerateGearForEnemy(enemyLevel);       //call generate gear for enemy using the enemy's level
+        ApplyWorldContentProfile();
         health?.RestoreFullLife();               //enter combat full after Life and LifePercent gear modifiers are applied
 
         Debug.Log($"EnemyAI: Initialized enemy '{name}' level={enemyLevel}, rarity={CurrentRarity}, weaponElement={WeaponMainElement}", this);
+    }
+
+    void ApplyWorldContentProfile()
+    {
+        if(stats==null)return;
+        float damage=contentArchetype?.damageMultiplier??1f;
+        float speed=(contentArchetype?.attackSpeedMultiplier??1f)*(corruptionProfile?.speedMultiplier??1f)*(locationProfile?.enemySpeedMultiplier??1f);
+        float life=contentArchetype?.lifeMultiplier??1f;
+        if(damage>1f)stats.AddModifier(new StatModifier(StatTypes.GenericDmg,StatOp.Additive,damage-1f,this));
+        if(speed>1f)stats.AddModifier(new StatModifier(StatTypes.AttackSpeed,StatOp.Additive,speed-1f,this));
+        if(life>1f)stats.AddModifier(new StatModifier(StatTypes.LifePercent,StatOp.Additive,life-1f,this));
+        string loadout=contentBoss?.skillLoadoutId??contentArchetype?.skillLoadoutId;
+        var ailment=EnemyActionPlanner.Select(contentDatabase,loadout,2);
+        if(ailment!=null)ApplyAilmentIdentity(ailment.kind);
+    }
+
+    void ApplyAilmentIdentity(EnemySkillKind kind)
+    {
+        StatTypes? stat=kind switch{EnemySkillKind.ApplyBleed=>StatTypes.BleedChance,EnemySkillKind.ApplyIgnite=>StatTypes.IgniteChance,EnemySkillKind.ApplyChill=>StatTypes.ChillChance,EnemySkillKind.ApplyShock=>StatTypes.ShockChance,EnemySkillKind.ApplyPoison=>StatTypes.PoisonChance,_=>null};
+        if(stat.HasValue)stats.AddModifier(new StatModifier(stat.Value,StatOp.Additive,.2f,this));
+    }
+
+    public EnemySkillDefinition BeginAuthoredTurn()
+    {
+        string loadout=contentBoss?.skillLoadoutId??contentArchetype?.skillLoadoutId;
+        activeBossPhaseDamageMultiplier=1f;
+        if(contentBoss!=null&&contentDatabase!=null&&health!=null)
+        {
+            var profile=contentDatabase.BossPhase(contentBoss.phaseProfileId);
+            if(profile?.phases!=null)foreach(var phase in profile.phases)
+                if(health.MaxLife>0f&&health.CurrentLife/health.MaxLife<=phase.beginsAtLifeFraction&&!string.IsNullOrWhiteSpace(phase.skillLoadoutId)){loadout=phase.skillLoadoutId;activeBossPhaseDamageMultiplier=phase.damageMultiplier;}
+        }
+        int turn=authoredTurnCount++;
+        int corruption=corruptionProfile?.percentage??0;
+        int cadenceTurn=turn+(corruption>=40?turn/3:0)+(corruption==100?1:0);
+        activeAuthoredSkill=EnemyActionPlanner.Select(contentDatabase,loadout,cadenceTurn);
+        CurrentAuthoredHitCount=Mathf.Max(1,activeAuthoredSkill?.hitCount??1);
+        if(corruption>=80&&(turn+1)%(corruption==100?3:4)==0)CurrentAuthoredHitCount++;
+        return activeAuthoredSkill;
     }
 
 #if UNITY_EDITOR
@@ -396,8 +458,12 @@ public class EnemyAI : MonoBehaviour
         AddScaledElementalDamage(ctx, weaponElement, weaponBaseDamage, logStats);     //call addscaledelemental damage to add the scaled ele damage (the base element damage scaled by local mods matching that element on the item)
         AddGlobalFlatElements(ctx, weaponElement);      //call addgloablflatelements to add any flat elemental damage that does not match the weapon's base element
         // Scale the completed pre-crit attack package once. Ailment magnitude derives from this source hit.
+        float authored=activeAuthoredSkill?.damageMultiplier??1f;
+        authored*=corruptionProfile?.damageMultiplier??1f;
+        authored*=locationProfile?.enemyDamageMultiplier??1f;
+        authored*=activeBossPhaseDamageMultiplier;
         EnemyScalingMath.ScaleOutgoing(ctx, IntrinsicDamageFactor
-            * (health != null && health.IsBoss ? BossRoleDamageMultiplier : 1f));
+            * (health != null && health.IsBoss ? BossRoleDamageMultiplier : 1f) * authored);
 
         return ctx;
     }

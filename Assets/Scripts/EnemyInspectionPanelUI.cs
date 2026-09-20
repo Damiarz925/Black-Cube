@@ -115,12 +115,14 @@ public sealed class EnemyInspectionPanelUI : MonoBehaviour
 
         HealthComponent health = boundEnemy.GetComponent<HealthComponent>();
         PaperSpriteActor actor = boundEnemy.GetComponent<PaperSpriteActor>();
-        string enemyName = actor != null ? actor.DisplayName : boundEnemy.name;
+        string enemyName = !string.IsNullOrWhiteSpace(boundEnemy.ContentId)
+            ? boundEnemy.ContentDisplayName : actor != null ? actor.DisplayName : boundEnemy.name;
         string boss = health != null && health.IsBoss ? "BOSS  /  " : "";
         string life = health != null
             ? $"  /  {Mathf.CeilToInt(health.CurrentLife)} / {Mathf.CeilToInt(health.MaxLife)} HP"
             : "";
-        identityText.text = $"{boss}{boundEnemy.CurrentRarity.ToString().ToUpperInvariant()} {enemyName.ToUpperInvariant()}  /  LV {boundEnemy.EnemyLevel}{life}";
+        string skill=boundEnemy.ActiveAuthoredSkill!=null?$"  /  {boundEnemy.ActiveAuthoredSkill.displayName.ToUpperInvariant()}":string.Empty;
+        identityText.text = $"{boss}{boundEnemy.CurrentRarity.ToString().ToUpperInvariant()} {enemyName.ToUpperInvariant()}  /  LV {boundEnemy.EnemyLevel}{life}{skill}";
     }
 
     private void CreateCloseButton(Button template)

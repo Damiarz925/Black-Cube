@@ -195,6 +195,10 @@ public class BattleManager : MonoBehaviour
                   $"bossPrefab={(bossEnemyPrefab ? bossEnemyPrefab.name : "null")}");
 
         enemyHealth.SetEnemyRole(spawnBoss);
+        enemyAI.ConfigureWorldContent(content,
+            spawnBoss ? null : content?.Enemy(CurrentEncounter?.enemyArchetypeId),
+            spawnBoss ? content?.Boss(CurrentEncounter?.bossId) : null,
+            world.Corruption, world.Location);
         enemyAI.InitializeEnemy(zoneLevel);     //call initialize enemy, passing in the zone level
 
         enemyGauge = 0f;        //set player and enemy gauges to 0, and global turn counter to 0.
@@ -347,7 +351,13 @@ public class BattleManager : MonoBehaviour
         TickStatusController(enemyStatusCont,true); // Enemy's afflicted-actor turn.
         if (enemyHealth != originalAttacker || originalAttacker.CurrentLife <= 0f) return;
 
-        ResolveEnemyLogicalHit(originalAttacker, originalTarget);
+        EnemySkillDefinition authoredSkill=enemyAI.BeginAuthoredTurn();
+        int authoredHits=enemyAI.CurrentAuthoredHitCount;
+        for(int authoredHit=0;authoredHit<authoredHits;authoredHit++)
+        {
+            if(!IsSameLivingEnemyAttacker(originalAttacker)||!IsSameLivingPlayer(originalTarget))break;
+            ResolveEnemyLogicalHit(originalAttacker, originalTarget);
+        }
         subclassState?.EnemySuccessfulAttack();
 
         // Exactly one independent bonus hit. It neither recurses nor transfers to
