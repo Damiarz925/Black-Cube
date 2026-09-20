@@ -118,7 +118,16 @@ public class PlayerStatsPanelUI : MonoBehaviour
                 weapon.Set($"Weapon Base {ItemTooltipUI.ElementName(player.EquippedWeaponElement)}",
                     $"{low:0.##}-{high:0.##} (Average {(low+high)*.5f:0.##})");
                 _spawned.Add(weapon.gameObject);
+                AddInspectionRow("Weapon Type",WeaponTypeCatalog.Get(player.EquippedWeapon.WeaponTypeId).DisplayName);
+                AddInspectionRow("Damage Scaling",WeaponAttributeScalingProfile.ScalingAttributes(player.EquippedWeapon.WeaponTypeId));
+                AddInspectionRow("Attribute Damage Bonus",(player.WeaponAttributeDamageBonus*100f).ToString("0.##")+"%");
+                AddInspectionRow("Local Weapon DPS",player.EquippedWeapon.GetAverageWeaponDps().ToString("0.##"));
             }
+            AddInspectionRow("Player Level",player.CurrentPlayerLevel.ToString());
+            AddInspectionRow("Level Damage Bonus",(player.LevelDamageBonus*100f).ToString("0.##")+"%");
+            AddInspectionRow("Strength",DerivedStatCalculator.Strength(playerStats).ToString("0.##"));
+            AddInspectionRow("Dexterity",DerivedStatCalculator.Dexterity(playerStats).ToString("0.##"));
+            AddInspectionRow("Intelligence",DerivedStatCalculator.Intelligence(playerStats).ToString("0.##"));
             if (StatDisplayFormatting.ShouldDisplay(playerStats, StatTypes.UnarmedDamage))
             {
                 var unarmed = Instantiate(rowPrefab, contentRoot);
@@ -215,6 +224,8 @@ public class PlayerStatsPanelUI : MonoBehaviour
 
     private StatHeaderUI AddHeader(string title)
     { var h = Instantiate(headerPrefab, contentRoot); h.SetText(title); _spawned.Add(h.gameObject); return h; }
+    private void AddInspectionRow(string label,string value)
+    {var row=Instantiate(rowPrefab,contentRoot);row.Set(label,value);_spawned.Add(row.gameObject);}
     private void AddStat(StatTypes type)
     {
         var row = Instantiate(rowPrefab, contentRoot);

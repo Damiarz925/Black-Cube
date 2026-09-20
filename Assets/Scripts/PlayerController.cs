@@ -22,6 +22,17 @@ public class PlayerController : MonoBehaviour
     public Element EquippedWeaponElement => equippedWeapon != null ? equippedWeapon.BaseElement : Element.Phys;
     public event System.Action AttackChanged;
     public Gear EquippedWeapon => equippedWeapon;
+    public int CurrentPlayerLevel
+    {
+        get
+        {
+            var progression=GetComponent<PlayerProgression>();
+            if(progression==null&&GameManager.Instance!=null)progression=GameManager.Instance.GetComponent<PlayerProgression>();
+            return PlayerLevelDamageProfile.CappedLevel(progression?.Level??1);
+        }
+    }
+    public float WeaponAttributeDamageBonus=>WeaponAttributeScalingProfile.IncreasedDamage(equippedWeapon?.WeaponTypeId,stats);
+    public float LevelDamageBonus=>PlayerLevelDamageProfile.IncreasedDamage(CurrentPlayerLevel);
     public float BasicAttackDamage
     {
         get
@@ -287,7 +298,10 @@ public class PlayerController : MonoBehaviour
             + DerivedStatCalculator.ElementIncreasedDamage(stats, element);  // e.g. 0.40 for +40% phys
         float incGeneric = stats.GetStat(StatTypes.GenericDmg)
             + DerivedStatCalculator.GlobalIncreasedDamage(stats, GetComponent<ManaComponent>()); // snapshots current mana while the hit is built
-        float incTotal = incElement + incGeneric;                                // e.g. 1.20 → +120% increased
+        // Weapon identity and player level join the ordinary additive increased
+        // bucket at the root hit. Derived effects consume this scaled snapshot
+        // and therefore must not apply either contribution again.
+        float incTotal = incElement + incGeneric + WeaponAttributeDamageBonus + LevelDamageBonus;
 
         //Grabs all of the more damage increases for your main stat
         float moreElement = stats.GetStat(StatMappings.GetMoreDamageStat(element)); // e.g. 0.30 for +30% more phys
