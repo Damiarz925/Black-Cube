@@ -284,3 +284,10 @@ Six character slots are character-owned save containers; class, progression, inv
 - The Subclass Sigil unlocks at `story.main.complete`; subclass respec is free outside combat and clears transformations only.
 - Transformations replace up to 10 connected allocated non-start/non-Keystone nodes.
 - All Step 18 numbers are first-pass placeholders.
+
+## Step 18.5 gameplay cleanup contract
+
+- Ailment chance cannot bypass typed eligibility. Default bases are Physical Bleed, Fire Ignite, Lightning Shock, Cold Chill, and Physical/Void Poison. Only documented skill/subclass effects expand them.
+- Every enemy grants one gear item. Further gear and currency quantity uses the centralized bounded LootPower formula documented in [LOOT_SYSTEM.md](LOOT_SYSTEM.md); these coefficients are first-pass placeholders.
+- Enemy rarity is distinct from item rarity. Ancient currency is naturally obtainable only after combat level 60 and remains substantially rarer than ordinary currency. Empowerment Catalyst remains challenge-only.
+- All six natural weapon types have equal selection weight and preserve distinct level-one damage, speed, and critical profiles. Starters remain separately weaker.

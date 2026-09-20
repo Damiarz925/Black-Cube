@@ -223,3 +223,7 @@ Persistence is schema 9 with six independent character slots, per-slot primary/b
 # Step 18 production gameplay systems
 
 Step 18 promotes the weapon-skill and subclass foundations to production data: 12 stable weapon skills, 12 class-specific/weapon-agnostic subclasses, Cooldown Reduction, Freeze/Shatter, modular combat-event tags, Light Priest auras, and connected passive transformations. Save schema is 10. Passive Tree V2 remains 366 nodes. See `PRODUCTION_SKILLS.md` and `SUBCLASSES.md`. Values are first-pass placeholders, not final balance.
+
+## Step 18.5 current state
+
+The bottom action row is owned by one responsive horizontal layout with autosizing/ellipsis and an overlap validator covering 1280×720 through 3440×1440. Ailment eligibility is centralized and defaults to Physical Bleed, Fire Ignite, Lightning Shock, Cold Chill, and Physical/Void Poison with explicit modular overrides. Enemy loot guarantees gear and scales bounded extra gear/currency budgets from level, enemy rarity, and normalized actual equipped-build score under deterministic encounter-derived RNG. Natural weapons select all six types uniformly, use the locked level-one profiles, and have temporary mapped icons. Save schema remains 10. See `AILMENT_ELIGIBILITY.md` and `LOOT_SYSTEM.md`.

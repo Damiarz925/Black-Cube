@@ -200,3 +200,9 @@ The fresh Step 17 evidence is under `Logs/Step17*`, `Logs/MenuLoadPlayChecks.txt
 # Step 18 handoff note
 
 The production skill/subclass pass uses schema 10 and keeps all tuning centralized in `WeaponMechanicProfile`, `SubclassBalanceProfile`, and data definitions. Do not revive Cast Speed as gameplay or reuse ID 120. Do not persist encounter-scoped `SubclassCombatState`. The future stolen-subclass-bonus design must grant stable `SubclassEffectDefinition` IDs and must not fake a selected subclass.
+
+## Step 18.5 handoff
+
+Do not infer ailment eligibility from chance or duplicate element checks in combat call sites; use `AilmentEligibilityResolver` and stable effect IDs for modular exceptions. Keep reward tuning in `EnemyLootProfile`/`CurrencyLootTable`, preserve deterministic loot seeding and caps, and do not add Empowerment Catalyst to ordinary drops. New bottom-row actions must register with `BottomActionBarLayout` and pass the overlap validator. The six generated weapon images are temporary placeholders, not final art approval. No BalanceLab run belongs to this cleanup step.
+
+Fresh Step 18.5 evidence: focused EditMode 20/20, complete EditMode 339/339, itemization/passive-tree/world/reference validators PASS, real-scene Ranger/Bow/Staff/Axe smoke PASS, and Windows x64 build/startup PASS. The reviewed 1920x1080 HUD capture is `ReviewCaptures/top-hud-final.png`; the automated layout matrix also covers 1280x720, 1600x900, 2560x1440, and 3440x1440.

@@ -23,3 +23,4 @@ Freeze stores the applying Chill strength and skips exactly the enemy's next att
 
 Secondary damage uses `CombatEventTags`. Heal-to-Harm carries `TriggerlessDamage`, `HealConvertedDamage`, and `NoSecondaryTriggers`; Eruption, Shatter, and Rupture have distinct identities so recursive proc chains can be rejected centrally.
 
+Step 18.5 centralizes ailment bases in `AilmentEligibilityResolver`. Venom Shot alone marks its zero-direct-damage virtual basis as full-element eligible. Backstab uses ordinary Physical/Void Poison and Physical Bleed rules; Staff Fireball, Staff Shock Lightning, and Frost Judgment qualify through authored damage types. See `AILMENT_ELIGIBILITY.md`.

@@ -230,3 +230,8 @@ Boss-special data is deliberately plain serializable architecture, not a product
 - `PlayerProgression`: transformation allocation/replacement/refund authority.
 - `SubclassMenuUI`: unlock/selection confirmation, aura and Frozen indicators.
 - `BattleManager`: production skill resolution, Freeze/Shatter, modular subclass combat hooks.
+- `AilmentEligibilityResolver`: default element masks, mixed-hit filtering, and modular Venom Ranger, Storm Mage, and Dark Priest exceptions.
+- `EnemyLootProfile` / `CurrencyLootTable`: reward-power normalization, caps, progression gates, and weighted currency selection.
+- `GameManager.OnEnemyKilled`: encounter-derived deterministic loot RNG and materialization of gear/pickup stacks.
+- `BottomActionBarLayout` / `HUDRectOverlapValidator`: responsive Rebirth/Subclass/skill/utility row and geometry verification.
+- `LootManager` / `ItemIconCatalog`: uniform stable weapon selection, natural weapon profile resolution, and stable weapon icon mapping.

@@ -24,3 +24,7 @@ Tooltip Average Weapon DPS is strictly the item's final local average damage mul
 # Step 18 production skills
 
 All six weapon profiles now bind two production skills. See `PRODUCTION_SKILLS.md` for values and cast modes. Cooldown skills use stat ID 126 and the centralized 0.20-second floor. ImmediateCooldown resolves outside the attack gauge and cannot be activated while unavailable.
+
+## Step 18.5 natural weapon drops
+
+Natural weapon loot selects Sword, Two-Handed Axe, Bow, Staff, Dagger, and Sceptre at equal 1/6 weight. Level-one profiles are 18–27/.45/5%, 26–38/.30/4%, 17–25/.50/5%, 18–28/.40/6%, 14–20/.60/8%, and 19–28/.42/5% respectively. Generic intrinsic tiers continue to scale these identities above level one. Stable type-to-icon mapping is authoritative; a missing icon warns rather than silently displaying a different weapon.
