@@ -1,5 +1,6 @@
 using System.Reflection;
 using NUnit.Framework;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.TestTools;
 using UnityEngine.UI;
@@ -179,8 +180,10 @@ public sealed class PauseMenuTests
         StatsComponent stats = player.AddComponent<StatsComponent>(); stats.SetBaseStat(StatTypes.Mana, 100f);
         ManaComponent mana = player.AddComponent<ManaComponent>(); typeof(ManaComponent).GetMethod("Awake", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(mana, null);
         HealthComponent health = player.AddComponent<HealthComponent>(); typeof(HealthComponent).GetMethod("Awake", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(health, null);
-        GameObject hudObject = new("Paper Battle HUD", typeof(RectTransform), typeof(Image)); hudObject.transform.SetParent(canvas.transform, false); hudObject.SetActive(false);
-        hud = hudObject.AddComponent<PaperBattleHUD>(); hud.player = health; hud.inventoryPanel = inventory; hud.statsPanel = statsPanel;
+        GameObject hudPrefab=AssetDatabase.LoadAssetAtPath<GameObject>(GameplayHUDAuthoringBuilder.PrefabPath);
+        GameObject hudObject=Object.Instantiate(hudPrefab);hudObject.name="Paper Battle HUD";hudObject.transform.SetParent(canvas.transform,false);hudObject.SetActive(false);
+        hud=hudObject.GetComponent<PaperBattleHUD>();hud.player=health;hud.inventoryPanel=inventory;hud.statsPanel=statsPanel;
+        PauseMenuUI pause=hud.GetComponent<PauseMenuUI>()??hud.gameObject.AddComponent<PauseMenuUI>();pause.BuildAuthoring(hud);
         typeof(PaperBattleHUD).GetMethod("Awake", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(hud, null);
         hudObject.SetActive(true);
         typeof(PaperBattleHUD).GetMethod("OnEnable", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(hud, null);

@@ -106,7 +106,7 @@ public static class PlaceholderIcon
 }
 
 /// <summary>Marks an interactive overlay whose visuals come from InventoryLayout.png.</summary>
-public sealed class InventoryArtworkHotspot:MonoBehaviour{}
+public sealed partial class InventoryArtworkHotspot:MonoBehaviour{}
 
 /// <summary>Pixel-measured rectangles from InventoryLayout.png (960x1052, top-left source origin).</summary>
 public static class InventoryArtLayout
@@ -144,7 +144,7 @@ public static class BakedInventoryButton
     public static void SetEngaged(Button button,bool value){button?.GetComponent<BakedInventoryButtonFeedback>()?.SetEngaged(value);}
 }
 
-public sealed class BakedInventoryButtonFeedback:MonoBehaviour,IPointerEnterHandler,IPointerExitHandler,IPointerDownHandler,IPointerUpHandler,ISelectHandler,IDeselectHandler
+public sealed partial class BakedInventoryButtonFeedback:MonoBehaviour,IPointerEnterHandler,IPointerExitHandler,IPointerDownHandler,IPointerUpHandler,ISelectHandler,IDeselectHandler
 {
     bool hover,pressed,selected,engaged;Image image;
     void Awake(){image=GetComponent<Image>();Refresh();}

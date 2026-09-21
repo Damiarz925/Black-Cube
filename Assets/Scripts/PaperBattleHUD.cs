@@ -57,7 +57,7 @@ public class PaperBattleHUD : MonoBehaviour
         endgameItemization=GetComponent<EndgameItemizationUI>();if(endgameItemization==null)endgameItemization=gameObject.AddComponent<EndgameItemizationUI>();endgameItemization.Build();
         enemyInspection=GetComponent<EnemyInspectionPanelUI>();if(enemyInspection==null)enemyInspection=gameObject.AddComponent<EnemyInspectionPanelUI>();enemyInspection.Initialize(this);
         InventoryEquipmentPanelUI.SeparateStats(statsPanel);
-        pauseMenu=GetComponent<PauseMenuUI>();if(pauseMenu==null)pauseMenu=gameObject.AddComponent<PauseMenuUI>();pauseMenu.Initialize(this);
+        pauseMenu=GetComponent<PauseMenuUI>();if(pauseMenu==null)Debug.LogError("PaperBattleHUD is missing its authored PauseMenuUI.",this);else pauseMenu.Initialize(this);
         var corruptionTheme=GetComponent<CorruptionUITheme>();if(corruptionTheme==null)corruptionTheme=gameObject.AddComponent<CorruptionUITheme>();corruptionTheme.Initialize(this,enemyInspection);
     }
 

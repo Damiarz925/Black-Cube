@@ -11,6 +11,7 @@ public sealed class PauseMenuUI : MonoBehaviour
     static readonly Color Panel = new(.025f, .03f, .04f, .985f);
     static readonly Color ButtonColor = new(.105f, .13f, .16f, 1f);
 
+    [SerializeField] PauseMenuView authoredView;
     PaperBattleHUD hud;
     GameObject root;
     GameObject menuPanel;
@@ -42,7 +43,9 @@ public sealed class PauseMenuUI : MonoBehaviour
         saveAction = GamePersistence.TrySave;
         loadSceneAction = scene => SceneManager.LoadScene(scene);
         quitAction = () => Application.Quit();
-        Build();
+        if(authoredView==null)authoredView=GetComponent<PauseMenuView>();
+        if(authoredView==null||authoredView.authoredRoot==null){Debug.LogError("PauseMenuUI requires an authored PauseMenuView. Run the Pause/Menu authoring builder.",this);return;}
+        BindAuthoredView();WireButtons();
     }
 
     public void ConfigureActions(Func<bool> save, Action<string> loadScene, Action quit)
@@ -136,8 +139,19 @@ public sealed class PauseMenuUI : MonoBehaviour
         return saved;
     }
 
-    void Build()
+    void BindAuthoredView()
     {
+        root=authoredView.authoredRoot;menuPanel=authoredView.menuPanel;optionsPanel=authoredView.optionsPanel;codex=authoredView.codex;pausePassiveTreeLabel=authoredView.pausePassiveTreeLabel;
+        ResumeButton=authoredView.resumeButton;OptionsButton=authoredView.optionsButton;CodexButton=authoredView.codexButton;SaveAndMainMenuButton=authoredView.saveAndMainMenuButton;SaveAndQuitButton=authoredView.saveAndQuitButton;OptionsBackButton=authoredView.optionsBackButton;PausePassiveTreeButton=authoredView.pausePassiveTreeButton;
+        codex?.Initialize(root.transform,ReturnFromCodex);RefreshOptions();root.SetActive(false);
+    }
+    void WireButtons(){Wire(ResumeButton,Resume);Wire(OptionsButton,OpenOptions);Wire(CodexButton,OpenCodex);Wire(SaveAndMainMenuButton,SaveAndMainMenu);Wire(SaveAndQuitButton,SaveAndQuit);Wire(OptionsBackButton,ReturnFromOptions);Wire(PausePassiveTreeButton,TogglePausePassiveTree);}
+    static void Wire(Button button,Action action){if(button==null)return;button.onClick.RemoveAllListeners();button.onClick.AddListener(()=>action());}
+
+#if UNITY_EDITOR
+    public void BuildAuthoring(PaperBattleHUD owner)
+    {
+        hud=owner;
         Canvas canvas = GetComponentInParent<Canvas>();
         if (canvas == null) { Debug.LogError("PauseMenuUI requires a parent Canvas.", this); return; }
 
@@ -168,7 +182,9 @@ public sealed class PauseMenuUI : MonoBehaviour
         optionsPanel.SetActive(false);
         root.SetActive(false);
         RefreshOptions();
+        authoredView=gameObject.GetComponent<PauseMenuView>()??gameObject.AddComponent<PauseMenuView>();authoredView.authoredRoot=root;authoredView.menuPanel=menuPanel;authoredView.optionsPanel=optionsPanel;authoredView.codex=codex;authoredView.pausePassiveTreeLabel=pausePassiveTreeLabel;authoredView.resumeButton=ResumeButton;authoredView.optionsButton=OptionsButton;authoredView.codexButton=CodexButton;authoredView.saveAndMainMenuButton=SaveAndMainMenuButton;authoredView.saveAndQuitButton=SaveAndQuitButton;authoredView.optionsBackButton=OptionsBackButton;authoredView.pausePassiveTreeButton=PausePassiveTreeButton;
     }
+#endif
 
     void TogglePausePassiveTree()
     {
@@ -232,8 +248,7 @@ public sealed class PauseMenuUI : MonoBehaviour
         if (IsOpen) Time.timeScale = 1f;
         if (root != null)
         {
-            GameObject ownedRoot = root;
-            root = null;
+            GameObject ownedRoot = root; root = null;
             if (Application.isPlaying) Destroy(ownedRoot); else DestroyImmediate(ownedRoot);
         }
     }

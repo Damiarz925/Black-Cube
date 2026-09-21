@@ -188,7 +188,7 @@ public sealed class CurrencyInventory : MonoBehaviour
     }
 }
 
-public sealed class CurrencyInventoryPanel : MonoBehaviour
+public sealed partial class CurrencyInventoryPanel : MonoBehaviour
 {
     InventoryUI owner;
     InventoryEquipmentPanelUI layout;
@@ -347,7 +347,7 @@ public sealed class CurrencyInventoryPanel : MonoBehaviour
     static string RelicText(RelicData relic)=>ItemTooltipFormatter.DescribeRelic(relic);
 }
 
-public sealed class CurrencySlotUI : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler, ISubmitHandler
+public sealed partial class CurrencySlotUI : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler, ISubmitHandler
 {
     [SerializeField] CraftingCurrencyType type; InventoryUI inventoryUI; [SerializeField] TMP_Text label; [SerializeField] Outline outline; [SerializeField] Image selectionOverlay;
     public CraftingCurrencyType Type=>type;

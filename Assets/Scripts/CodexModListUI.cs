@@ -116,9 +116,11 @@ public static class CodexModCatalog
 
 public sealed class CodexModListUI : MonoBehaviour
 {
-    GameObject codexPage, listPage;
-    TMP_Text listText, selectedType;
-    ScrollRect scroll;
+    [SerializeField] GameObject codexPage, listPage;
+    [SerializeField] TMP_Text listText, selectedType;
+    [SerializeField] ScrollRect scroll;
+    [SerializeField] Button openListButton, backToPauseButton, backToCodexButton;
+    [SerializeField] List<Button> slotButtons=new(), filterButtons=new();
     ModDatabase database;
     LootManager.GearType slot = LootManager.GearType.Weapons;
     CodexSideFilter filter;
@@ -132,10 +134,12 @@ public sealed class CodexModListUI : MonoBehaviour
     public void Initialize(Transform pauseRoot, Action returnToPause)
     {
         database = ModManager.Instance?.Database;
+        if(codexPage!=null){Wire(returnToPause);return;}
+#if UNITY_EDITOR
         codexPage = Page(pauseRoot, "Codex Page");
         Title(codexPage.transform, "CODEX", .87f, 34);
-        Button(codexPage.transform, "MOD LIST", new Vector2(.3f,.45f), new Vector2(.7f,.57f), OpenModList);
-        Button(codexPage.transform, "BACK TO PAUSE", new Vector2(.3f,.15f), new Vector2(.7f,.27f), returnToPause);
+        openListButton=Button(codexPage.transform, "MOD LIST", new Vector2(.3f,.45f), new Vector2(.7f,.57f), null);
+        backToPauseButton=Button(codexPage.transform, "BACK TO PAUSE", new Vector2(.3f,.15f), new Vector2(.7f,.27f), null);
 
         listPage = Page(pauseRoot, "Mod List Page");
         Title(listPage.transform, "MOD LIST", .93f, 31);
@@ -148,22 +152,34 @@ public sealed class CodexModListUI : MonoBehaviour
         {
             int index=i; int row=i/4, column=i%4;
             float x0=.04f+column*.235f, y0=.765f-row*.065f;
-            Button(listPage.transform, ItemSlotUI.DisplayType(slots[i]).ToUpperInvariant(),
-                new Vector2(x0,y0), new Vector2(x0+.218f,y0+.055f), () => SelectType(slots[index]));
+            slotButtons.Add(Button(listPage.transform, ItemSlotUI.DisplayType(slots[i]).ToUpperInvariant(),
+                new Vector2(x0,y0), new Vector2(x0+.218f,y0+.055f), null));
         }
         var filters=new[]{CodexSideFilter.All,CodexSideFilter.Prefixes,CodexSideFilter.Suffixes};
         for(int i=0;i<filters.Length;i++)
         {
             int index=i;
-            Button(listPage.transform, filters[i].ToString().ToUpperInvariant(),
+            filterButtons.Add(Button(listPage.transform, filters[i].ToString().ToUpperInvariant(),
                 new Vector2(.22f+i*.19f,.595f),new Vector2(.39f+i*.19f,.64f),
-                () => SelectFilter(filters[index]));
+                null));
         }
         BuildScroll(listPage.transform);
-        Button(listPage.transform,"BACK TO CODEX",new Vector2(.34f,.018f),new Vector2(.66f,.072f),ReturnToCodex);
+        backToCodexButton=Button(listPage.transform,"BACK TO CODEX",new Vector2(.34f,.018f),new Vector2(.66f,.072f),null);
         codexPage.SetActive(false);
         listPage.SetActive(false);
+#else
+        Debug.LogError("CodexModListUI requires an authored Codex/Mod List view.",this);
+#endif
+        Wire(returnToPause);
     }
+    void Wire(Action returnToPause)
+    {
+        WireButton(openListButton,OpenModList);WireButton(backToPauseButton,returnToPause);WireButton(backToCodexButton,ReturnToCodex);
+        var slots=new[]{LootManager.GearType.Weapons,LootManager.GearType.Helmets,LootManager.GearType.BodyArmours,LootManager.GearType.Gloves,LootManager.GearType.Boots,LootManager.GearType.Amulets,LootManager.GearType.Rings,LootManager.GearType.Belts};
+        for(int i=0;i<slotButtons.Count&&i<slots.Length;i++){LootManager.GearType value=slots[i];WireButton(slotButtons[i],()=>SelectType(value));}
+        var filters=new[]{CodexSideFilter.All,CodexSideFilter.Prefixes,CodexSideFilter.Suffixes};for(int i=0;i<filterButtons.Count&&i<filters.Length;i++){CodexSideFilter value=filters[i];WireButton(filterButtons[i],()=>SelectFilter(value));}
+    }
+    static void WireButton(Button button,Action action){if(button==null||action==null)return;button.onClick.RemoveAllListeners();button.onClick.AddListener(()=>action());}
 
     public void OpenCodex()
     {
@@ -215,7 +231,7 @@ public sealed class CodexModListUI : MonoBehaviour
         go.transform.SetParent(parent,false);var rect=(RectTransform)go.transform;
         rect.anchorMin=min;rect.anchorMax=max;rect.offsetMin=rect.offsetMax=Vector2.zero;
         var image=go.GetComponent<Image>();image.color=new Color(.105f,.13f,.16f,1f);
-        var button=go.GetComponent<Button>();button.targetGraphic=image;button.onClick.AddListener(()=>action());
+        var button=go.GetComponent<Button>();button.targetGraphic=image;if(action!=null)button.onClick.AddListener(()=>action());
         var label=Title(go.transform,value,.08f,15);var labelRect=label.rectTransform;
         labelRect.anchorMin=new Vector2(.02f,.08f);labelRect.anchorMax=new Vector2(.98f,.92f);
         CorruptionUIButtonSkin.Ensure(button);

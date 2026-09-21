@@ -465,7 +465,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 178029403245725176}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -631,7 +631,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 197259711329251452}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &221368132331903195
@@ -864,7 +864,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 234558600301771902}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &247138220261682916
@@ -1433,7 +1433,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 333215999373918369}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &337028042757573228
@@ -1591,7 +1591,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 337028042757573228}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &338457389229142528
@@ -1785,7 +1785,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 345395412784675879}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -2633,7 +2633,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 426837850803648606}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -2858,7 +2858,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 444379835250626229}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -3108,7 +3108,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 510786070914332749}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 054bf4f4aae42094d9a423b00b740e10, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InventoryArtworkHotspot
 --- !u!1 &544696944422404493
@@ -3165,7 +3165,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 544696944422404493}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -3468,7 +3468,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 553165748446220701}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &556287149889877311
@@ -3525,7 +3525,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 556287149889877311}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -3691,7 +3691,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 569554912364015178}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &584524950687865532
@@ -3849,7 +3849,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 584524950687865532}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &638006831693853225
@@ -4007,7 +4007,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 638006831693853225}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &638356119619574015
@@ -4174,7 +4174,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 638356119619574015}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 3a2849a9dba8a714dbe010fe72862e70, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurrencySlotUI
   type: 4
@@ -4254,7 +4254,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 647608822773036397}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -4825,7 +4825,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 663624760559027070}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &669958720802542061
@@ -4882,7 +4882,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 669958720802542061}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -5358,7 +5358,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 760474078146198779}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -5661,7 +5661,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 768010712827420303}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &769759931753209202
@@ -5718,7 +5718,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 769759931753209202}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -5783,7 +5783,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 785045656455972085}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -5848,7 +5848,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 796601907752074497}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -6050,7 +6050,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 864203666670729247}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -6252,7 +6252,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 929286007153608770}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -6454,7 +6454,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 999442922892175888}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -6597,7 +6597,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1018388260570410373}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &1037376506615961309
@@ -6755,7 +6755,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1037376506615961309}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &1040847948167364345
@@ -6853,7 +6853,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1067543370509300945}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -7385,7 +7385,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1088899052695711647}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &1101255315112260058
@@ -7817,7 +7817,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1109647709859056356}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &1110822723617990896
@@ -8324,7 +8324,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1136110244264094579}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &1139957489007573721
@@ -8518,7 +8518,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1142986731424496155}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -8583,7 +8583,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1150629935076748329}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -8726,7 +8726,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1151819920023103467}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &1160101694773661717
@@ -8928,7 +8928,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1179161837866182939}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &1201938704576687154
@@ -9412,7 +9412,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1280005015569965593}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &1325346662428127405
@@ -9547,7 +9547,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1325346662428127405}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &1339134663044513475
@@ -9979,7 +9979,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1355630299660942368}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &1378047728503305661
@@ -10310,7 +10310,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1395120366478898463}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -10613,7 +10613,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1438939565153681804}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &1461777389359832277
@@ -10992,7 +10992,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1471189481487891896}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 3a2849a9dba8a714dbe010fe72862e70, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurrencySlotUI
   type: 12
@@ -11209,7 +11209,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1520908647736418442}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -11512,7 +11512,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1615041261126666444}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &1648521134201383512
@@ -11670,7 +11670,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1648521134201383512}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &1670594607575767724
@@ -11727,7 +11727,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1670594607575767724}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -11929,7 +11929,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1696928484127342351}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -12232,7 +12232,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1733390615083355410}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &1757759147773436149
@@ -12289,7 +12289,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1757759147773436149}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -12491,7 +12491,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1794742692513041948}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -12990,7 +12990,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1857028217613961381}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -13293,7 +13293,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1938050011595240026}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &1945300928350777187
@@ -13350,7 +13350,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1945300928350777187}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -13415,7 +13415,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1948054011963812471}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -14025,7 +14025,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1982578049092705192}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &2030016816516676170
@@ -14386,7 +14386,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 2068179597869672761}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &2104482788033841447
@@ -14681,7 +14681,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 2109069896792800336}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &2137966744707510802
@@ -14937,7 +14937,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 2172145388773705566}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &2174191513070265968
@@ -15095,7 +15095,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 2174191513070265968}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &2180438621181803787
@@ -15273,7 +15273,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 2193591106250572836}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -15576,7 +15576,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 2270561882233057209}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &2288264079187717341
@@ -15845,7 +15845,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 2299136858354271199}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -16422,7 +16422,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 2387156519776109295}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &2418423249504467457
@@ -16694,7 +16694,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 2452261096486027219}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &2456820928182756505
@@ -16852,7 +16852,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 2456820928182756505}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &2457203646273683157
@@ -17395,7 +17395,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 2542369962469164182}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -17460,7 +17460,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 2562463429914299000}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -17525,7 +17525,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 2592858789678026700}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -17700,7 +17700,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 2595855018369494403}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 3a2849a9dba8a714dbe010fe72862e70, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurrencySlotUI
   type: 11
@@ -18038,7 +18038,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 2619860604929090183}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -18103,7 +18103,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 2639199988380867370}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -18269,7 +18269,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 2661180422056208368}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &2662976223511727686
@@ -18326,7 +18326,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 2662976223511727686}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -18492,7 +18492,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 2671981826858688871}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &2681792669293786892
@@ -18549,7 +18549,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 2681792669293786892}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -18715,7 +18715,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 2690754476271921892}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &2712474437458842420
@@ -19069,7 +19069,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 2748427039578179672}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -19483,7 +19483,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 2835725715976561844}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -19932,7 +19932,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 2877505921933809715}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 3a2849a9dba8a714dbe010fe72862e70, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurrencySlotUI
   type: 0
@@ -20423,7 +20423,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 2899881076472128458}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -20762,7 +20762,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 2971883009569098889}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -20827,7 +20827,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 2996467085519702373}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -21036,7 +21036,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3024165899038064126}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &3026075590403193439
@@ -21093,7 +21093,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3026075590403193439}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -21158,7 +21158,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3045771561193138189}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -21301,7 +21301,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3091994829933456127}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &3120185074704983935
@@ -21870,7 +21870,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3168530805155055083}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &3172191098372909770
@@ -22019,7 +22019,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3172191098372909770}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: a7a2c22bd33bf504bb75de6c3551ed81, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ActiveRelicSlotUI
   slot: 2
@@ -22219,7 +22219,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3262365221514502463}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -22385,7 +22385,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3267054621066714165}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &3279445574518712474
@@ -22697,7 +22697,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3292840681080865703}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &3302081663576488408
@@ -22754,7 +22754,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3302081663576488408}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -22819,7 +22819,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3307999267525700173}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -23021,7 +23021,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3347716916663115755}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -23086,7 +23086,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3348857061000168998}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -23724,7 +23724,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3414964134171468000}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &3417032020834087090
@@ -23882,7 +23882,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3417032020834087090}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &3485497423980860027
@@ -23939,7 +23939,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3485497423980860027}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -24004,7 +24004,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3489370633488019460}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -24206,7 +24206,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3527589296128660019}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -24271,7 +24271,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3530183656859021027}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -24420,7 +24420,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3596703410906052836}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -24560,7 +24560,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3611734267889822409}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -24863,7 +24863,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3651258370110568985}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &3655483913259657001
@@ -25057,7 +25057,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3668207259707149292}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -25122,7 +25122,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3713316290498605182}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -25253,7 +25253,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3740274203490042709}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -25318,7 +25318,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3741804941973660023}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -25484,7 +25484,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3775999935091073001}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &3786123570224220890
@@ -25651,7 +25651,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3786123570224220890}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 3a2849a9dba8a714dbe010fe72862e70, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurrencySlotUI
   type: 10
@@ -25731,7 +25731,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3786790941770231143}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -26034,7 +26034,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3815022825150533642}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &3816223609242973586
@@ -26192,7 +26192,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3816223609242973586}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &3821212273990755666
@@ -26249,7 +26249,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3821212273990755666}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -26314,7 +26314,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3839259328669942247}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -26480,7 +26480,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3846372854457408439}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &3850978140265165513
@@ -26537,7 +26537,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3850978140265165513}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -26602,7 +26602,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3857269499145117304}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -26768,7 +26768,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3900232881886415463}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &3900364564951187774
@@ -26926,7 +26926,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3900364564951187774}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &3905626336752685174
@@ -27342,7 +27342,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3969191596733515590}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &3973695908443811527
@@ -27399,7 +27399,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3973695908443811527}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -27928,7 +27928,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 4005893415184273369}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &4030802210207420670
@@ -28223,7 +28223,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 4040763318697117872}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &4047748664564878112
@@ -28465,7 +28465,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 4051514816386044137}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 054bf4f4aae42094d9a423b00b740e10, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InventoryArtworkHotspot
 --- !u!1 &4053737735063696816
@@ -28783,7 +28783,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 4070784359297885671}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &4084926245758266448
@@ -29072,7 +29072,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 4106168900586675028}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &4107964185373693998
@@ -29239,7 +29239,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 4107964185373693998}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 3a2849a9dba8a714dbe010fe72862e70, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurrencySlotUI
   type: 9
@@ -29420,7 +29420,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 4126098963468202197}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &4139346649269586531
@@ -29751,7 +29751,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 4185560291959429663}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -29917,7 +29917,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 4190046656443023478}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &4206176184440520599
@@ -29974,7 +29974,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 4206176184440520599}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -30251,7 +30251,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 4229386175918814807}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -30554,7 +30554,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 4233725441155783618}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &4239058864298720826
@@ -31061,7 +31061,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 4262271302449396927}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &4292606952089693555
@@ -31356,7 +31356,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 4320299753678030434}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &4322906584135988289
@@ -31461,7 +31461,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 4322906584135988289}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 054bf4f4aae42094d9a423b00b740e10, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InventoryArtworkHotspot
 --- !u!1 &4339211072219662105
@@ -31756,7 +31756,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 4362750958153315375}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &4366136579836201520
@@ -31813,7 +31813,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 4366136579836201520}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -32111,7 +32111,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 4415983532720651894}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -32277,7 +32277,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 4418608088646034977}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &4419747839218819399
@@ -32709,7 +32709,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 4436564674819399569}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &4441111943222389372
@@ -32912,7 +32912,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 4441111943222389372}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 2abee4965f6fc1d46ba8ea2f3c8a30b0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurrencyInventoryPanel
   ordinaryRoot: {fileID: 2656880369247826446}
@@ -33676,7 +33676,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 4531202286128682522}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &4531552734863539610
@@ -33886,7 +33886,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 4560998137323359025}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &4579008054368656415
@@ -34181,7 +34181,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 4587867447357823204}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &4607097940755050769
@@ -34330,7 +34330,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 4607097940755050769}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: a7a2c22bd33bf504bb75de6c3551ed81, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ActiveRelicSlotUI
   slot: 0
@@ -34526,7 +34526,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 4621881538752974080}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -34591,7 +34591,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 4651644360891817441}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -34793,7 +34793,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 4667319350755231884}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -34858,7 +34858,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 4669366190708636152}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -35001,7 +35001,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 4703889867447851700}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &4707690377393075660
@@ -35159,7 +35159,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 4707690377393075660}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &4720667883269838494
@@ -35728,7 +35728,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 4769982430804822355}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &4778507259099622410
@@ -35863,7 +35863,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 4778507259099622410}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &4822611068391341884
@@ -36135,7 +36135,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 4866993177118743249}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &4908529347671133302
@@ -36192,7 +36192,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 4908529347671133302}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -36656,7 +36656,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 4981938680448207924}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -36721,7 +36721,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 4982273566107647376}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -37178,7 +37178,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 5023462540454443288}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &5023818999488904812
@@ -37646,7 +37646,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 5119675916432346600}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -37759,7 +37759,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 5123282130463471708}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 054bf4f4aae42094d9a423b00b740e10, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InventoryArtworkHotspot
 --- !u!1 &5133221867167308308
@@ -38129,7 +38129,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 5180303656963338768}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &5181543981559545452
@@ -38287,7 +38287,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 5181543981559545452}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &5197875653087655946
@@ -38436,7 +38436,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 5197875653087655946}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: a7a2c22bd33bf504bb75de6c3551ed81, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ActiveRelicSlotUI
   slot: 1
@@ -38632,7 +38632,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 5245057267063726535}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -39010,7 +39010,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 5276161742925405726}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &5286721732916975509
@@ -39204,7 +39204,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 5291496001864985102}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -39269,7 +39269,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 5297611479055477033}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -39745,7 +39745,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 5374368665831541319}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -40048,7 +40048,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 5427650854275623840}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &5452787247425865643
@@ -40343,7 +40343,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 5497223252675622526}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &5504687843456082590
@@ -40537,7 +40537,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 5513980033657206987}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -40840,7 +40840,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 5573990136668155215}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &5608788785045818876
@@ -40889,7 +40889,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 5608788785045818876}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: dfedd9f7778988448bd963621c37a79b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RelicEquipmentUI
   slots:
@@ -41849,7 +41849,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 5744216868407366491}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -42443,7 +42443,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 5801484873392504839}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &5832058906702371991
@@ -42500,7 +42500,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 5832058906702371991}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -42643,7 +42643,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 5837904644392625718}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &5840613421436063350
@@ -42801,7 +42801,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 5840613421436063350}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &5860249132890236156
@@ -42959,7 +42959,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 5860249132890236156}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &5865407708027015690
@@ -43117,7 +43117,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 5865407708027015690}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &5915552449339828208
@@ -43174,7 +43174,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 5915552449339828208}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -43810,7 +43810,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 5948304255723159687}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -44104,7 +44104,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 5991674405098890598}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: a7a2c22bd33bf504bb75de6c3551ed81, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ActiveRelicSlotUI
   slot: 3
@@ -44401,7 +44401,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 6010212466074560007}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &6019145872780021861
@@ -44869,7 +44869,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 6091379022166036929}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -44934,7 +44934,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 6097987615331801041}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -45211,7 +45211,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 6165884354543847980}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -45413,7 +45413,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 6219818743181485304}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -45716,7 +45716,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 6229177656575217838}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &6252033499755447132
@@ -45874,7 +45874,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 6252033499755447132}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &6265244833897520429
@@ -46032,7 +46032,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 6265244833897520429}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &6277497219828019490
@@ -46089,7 +46089,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 6277497219828019490}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -46283,7 +46283,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 6297022008982319059}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 054bf4f4aae42094d9a423b00b740e10, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InventoryArtworkHotspot
 --- !u!114 &2083118927040114269
@@ -46295,7 +46295,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 6297022008982319059}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 46bab37bfc5d3d54885cd8e9c3213c87, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BakedInventoryButtonFeedback
 --- !u!1 &6306361963050076097
@@ -46453,7 +46453,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 6306361963050076097}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &6319392740027999245
@@ -46885,7 +46885,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 6384751752278592724}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &6404154459193605977
@@ -47043,7 +47043,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 6404154459193605977}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &6440241306587350576
@@ -47100,7 +47100,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 6440241306587350576}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -47625,7 +47625,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 6477644612246313159}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 054bf4f4aae42094d9a423b00b740e10, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InventoryArtworkHotspot
 --- !u!1 &6486764803350555702
@@ -47783,7 +47783,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 6486764803350555702}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &6498689741213660083
@@ -48160,7 +48160,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 6531653015913050164}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -48303,7 +48303,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 6569216456101999437}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &6569897699777859898
@@ -48604,7 +48604,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 6579681356086429471}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -48770,7 +48770,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 6605207863514557575}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &6640270515810712349
@@ -48928,7 +48928,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 6640270515810712349}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &6657370183243774736
@@ -49200,7 +49200,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 6667871465058304869}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &6682954126286679989
@@ -49394,7 +49394,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 6711862554105491995}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -49697,7 +49697,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 6735893787522751895}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &6753660406314962903
@@ -49992,7 +49992,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 6757519056717005824}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &6765875800618271054
@@ -50150,7 +50150,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 6765875800618271054}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &6781864531317984803
@@ -50520,7 +50520,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 6848721415920149757}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &6859414237869839255
@@ -50678,7 +50678,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 6859414237869839255}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &6874217170013901813
@@ -51084,7 +51084,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 6960894729409004446}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -51149,7 +51149,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 6967346511757228014}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -51262,7 +51262,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 6971699276796214412}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 054bf4f4aae42094d9a423b00b740e10, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InventoryArtworkHotspot
 --- !u!1 &7024069414804569852
@@ -51319,7 +51319,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 7024069414804569852}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -51384,7 +51384,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 7032520157293257133}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -51824,7 +51824,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 7061729441750312279}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &7072608895351381863
@@ -51959,7 +51959,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 7072608895351381863}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &7089481151295339544
@@ -52117,7 +52117,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 7089481151295339544}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &7096399131438991524
@@ -52275,7 +52275,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 7096399131438991524}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &7119527170480016424
@@ -52469,7 +52469,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 7120885034925390921}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -52644,7 +52644,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 7153762461565287913}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 3a2849a9dba8a714dbe010fe72862e70, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurrencySlotUI
   type: 6
@@ -52804,7 +52804,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 7168893269331555921}
   m_Enabled: 0
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!114 &4356606725066589156
@@ -52816,7 +52816,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 7168893269331555921}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 054bf4f4aae42094d9a423b00b740e10, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InventoryArtworkHotspot
 --- !u!114 &7627120418170998065
@@ -52828,7 +52828,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 7168893269331555921}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 46bab37bfc5d3d54885cd8e9c3213c87, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BakedInventoryButtonFeedback
 --- !u!1 &7193500985676783405
@@ -52885,7 +52885,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 7193500985676783405}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -53439,7 +53439,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 7288967766903205272}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &7298031033538267149
@@ -53809,7 +53809,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 7341267943162632591}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &7349188323930294545
@@ -53866,7 +53866,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 7349188323930294545}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -53931,7 +53931,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 7355626028152941343}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -54290,7 +54290,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 7422601102384636839}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -54456,7 +54456,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 7427353426512636300}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &7449568506306665705
@@ -54623,7 +54623,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 7449568506306665705}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 3a2849a9dba8a714dbe010fe72862e70, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurrencySlotUI
   type: 3
@@ -54703,7 +54703,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 7456199454955377466}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -54768,7 +54768,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 7475236810475474388}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -55080,7 +55080,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 7499830390437898034}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 3a2849a9dba8a714dbe010fe72862e70, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurrencySlotUI
   type: 5
@@ -55314,7 +55314,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 7539258012798283579}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -55480,7 +55480,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 7542061379120421728}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &7577249389247141213
@@ -55537,7 +55537,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 7577249389247141213}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -56114,7 +56114,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 7628681554639234249}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &7683609853317880477
@@ -56507,7 +56507,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 7693093779665077196}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &7699707683766067852
@@ -56564,7 +56564,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 7699707683766067852}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -56730,7 +56730,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 7704486186102069013}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &7715879320256427550
@@ -56787,7 +56787,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 7715879320256427550}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -56852,7 +56852,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 7736186377307640729}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -57155,7 +57155,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 7767954754527424506}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &7778778846631944713
@@ -57349,7 +57349,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 7786906423835745098}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -57414,7 +57414,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 7787967420237263389}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -57580,7 +57580,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 7802975681284936779}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &7825975572950695592
@@ -57852,7 +57852,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 7829644203552800910}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &7847839958344649607
@@ -57909,7 +57909,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 7847839958344649607}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -58189,7 +58189,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 7854876449908675953}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &7855751073571643014
@@ -58347,7 +58347,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 7855751073571643014}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &7862591350695948721
@@ -58779,7 +58779,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 7877258618984627310}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &7909086540385454098
@@ -58973,7 +58973,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 7923679404672520687}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -59139,7 +59139,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 7925456511589083920}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &7929536013941920028
@@ -59244,7 +59244,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 7929536013941920028}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 054bf4f4aae42094d9a423b00b740e10, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InventoryArtworkHotspot
 --- !u!1 &7943756885771127775
@@ -59845,7 +59845,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 8004259810943740247}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 054bf4f4aae42094d9a423b00b740e10, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InventoryArtworkHotspot
 --- !u!114 &7999871156791973785
@@ -59857,7 +59857,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 8004259810943740247}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 46bab37bfc5d3d54885cd8e9c3213c87, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BakedInventoryButtonFeedback
 --- !u!1 &8022729843225455704
@@ -59914,7 +59914,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 8022729843225455704}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -59979,7 +59979,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 8055743716133328519}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -60145,7 +60145,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 8091548111420993387}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &8114095971914043917
@@ -60303,7 +60303,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 8114095971914043917}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &8119199397195641020
@@ -60360,7 +60360,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 8119199397195641020}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -60526,7 +60526,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 8168316225045237126}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &8171683630614742647
@@ -60821,7 +60821,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 8173605406590794768}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &8186470654113672657
@@ -61125,7 +61125,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 8190050207543755636}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 3a2849a9dba8a714dbe010fe72862e70, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurrencySlotUI
   type: 8
@@ -61306,7 +61306,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 8213665758539910029}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &8219810978645283329
@@ -61578,7 +61578,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 8221290473208822629}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &8245537498417620500
@@ -61635,7 +61635,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 8245537498417620500}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -61700,7 +61700,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 8255081193464707948}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -62176,7 +62176,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 8328015824740372317}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -62241,7 +62241,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 8358352150604247207}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -62443,7 +62443,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 8361124145252880944}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -62508,7 +62508,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 8361823067837067348}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -62710,7 +62710,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 8403210843323380029}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -62853,7 +62853,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 8435942241223650273}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &8440572160586118863
@@ -63371,7 +63371,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 8478187924303391360}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &8484966049312240481
@@ -63675,7 +63675,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 8485823558640728155}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 3a2849a9dba8a714dbe010fe72862e70, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurrencySlotUI
   type: 7
@@ -63755,7 +63755,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 8547423063587686175}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -64028,7 +64028,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 8599183787685812599}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 054bf4f4aae42094d9a423b00b740e10, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InventoryArtworkHotspot
 --- !u!1 &8613857628596292184
@@ -64085,7 +64085,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 8613857628596292184}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -64260,7 +64260,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 8627804926381359458}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 3a2849a9dba8a714dbe010fe72862e70, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurrencySlotUI
   type: 2
@@ -64340,7 +64340,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 8636368117125454997}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -64718,7 +64718,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 8724368737863789462}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &8750231018281370927
@@ -64775,7 +64775,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 8750231018281370927}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -64840,7 +64840,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 8754032929929738005}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -65394,7 +65394,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 8839785448873724962}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &8853401937186317810
@@ -65588,7 +65588,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 8854654490979978687}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -65731,7 +65731,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 8856901566886573843}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &8872188005564439521
@@ -66026,7 +66026,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 8923152686623541085}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &8941816128584662164
@@ -66423,7 +66423,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 9006496927170406629}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -66488,7 +66488,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 9018388163781305335}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}
@@ -66654,7 +66654,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 9072973008705258786}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &9079091009961220818
@@ -66949,7 +66949,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 9085792644159382715}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 5babf4fcefde2984faf267f25ee63c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionUIButtonSkin
 --- !u!1 &9090783168373530883
@@ -67664,7 +67664,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 9163892458256722434}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 3a2849a9dba8a714dbe010fe72862e70, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurrencySlotUI
   type: 1
@@ -67744,7 +67744,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 9166812984246413788}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: fbcbeb20fe7d5f041a3c75743f29ebe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CorruptionButtonFrame
   m_Material: {fileID: 0}

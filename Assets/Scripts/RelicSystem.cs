@@ -238,7 +238,7 @@ public sealed class RebirthManager : MonoBehaviour
 }
 
 /// <summary>Authored four-slot relic strip for the player equipment/stats screen.</summary>
-public sealed class RelicEquipmentUI : MonoBehaviour
+public sealed partial class RelicEquipmentUI : MonoBehaviour
 {
     [SerializeField] List<ActiveRelicSlotUI> slots=new();
 #if UNITY_EDITOR
@@ -262,7 +262,7 @@ public sealed class RelicEquipmentUI : MonoBehaviour
     void Refresh(){foreach(var slot in slots)slot.Refresh();}
 }
 
-public sealed class ActiveRelicSlotUI:MonoBehaviour,IPointerClickHandler,IPointerEnterHandler,IPointerExitHandler
+public sealed partial class ActiveRelicSlotUI:MonoBehaviour,IPointerClickHandler,IPointerEnterHandler,IPointerExitHandler
 {
     [SerializeField] int slot;[SerializeField] TMP_Text label;
     public void Initialize(int index,TMP_Text target){slot=index;label=target;Refresh();}

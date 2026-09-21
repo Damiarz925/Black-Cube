@@ -7,6 +7,7 @@ using TMPro;
 
 public class MainMenuUI : MonoBehaviour
 {
+    [SerializeField] private MainMenuView authoredView;
     [Header("Root")]
     [SerializeField] private GameObject root;
 
@@ -34,6 +35,9 @@ public class MainMenuUI : MonoBehaviour
 
     private void Awake()
     {
+        if(authoredView==null)authoredView=GetComponent<MainMenuView>();
+        if(authoredView==null){Debug.LogError("MainMenuUI requires an authored MainMenuView. Run the Main Menu authoring builder.",this);return;}
+        BindAuthoredView();
         if (achievementsButton != null)
             achievementsButton.onClick.AddListener(OnAchievementsClicked);
         else
@@ -52,10 +56,7 @@ public class MainMenuUI : MonoBehaviour
         else
             Debug.LogWarning("MainMenuUI: loadGameButton not assigned.");
 
-        EnsureOptionsMenu();
-        EnsureNewGameConfirmation();
-        EnsureClassSelection();
-        EnsureSlotSelection();
+        WireAuthoredControls();
 
         if (root != null)
             foreach (var button in root.GetComponentsInChildren<Button>(true))
@@ -78,6 +79,31 @@ public class MainMenuUI : MonoBehaviour
     {
         OpenSlotSelection(false);
     }
+
+    void BindAuthoredView()
+    {
+        root=authoredView.authoredRoot;achievementsButton=authoredView.achievementsButton;newGameButton=authoredView.newGameButton;loadGameButton=authoredView.loadGameButton;optionsButton=authoredView.optionsButton;optionsPanel=authoredView.optionsPanel;pausePassiveTreeLabel=authoredView.pausePassiveTreeLabel;newGameConfirmation=authoredView.overwriteConfirmation;classSelectionPanel=authoredView.classSelectionPanel;classSelectionLabel=authoredView.classSelectionLabel;beginSelectedClassButton=authoredView.beginSelectedClassButton;slotSelectionPanel=authoredView.slotSelectionPanel;
+        for(int i=0;i<slotButtons.Length&&i<authoredView.slotButtons.Count;i++)slotButtons[i]=authoredView.slotButtons[i];
+    }
+    void WireAuthoredControls()
+    {
+        Wire(optionsButton,OpenOptions);Wire(authoredView.pausePassiveTreeButton,TogglePausePassiveTree);Wire(authoredView.optionsBackButton,CloseOptions);Wire(authoredView.confirmOverwriteButton,ConfirmNewGame);Wire(authoredView.cancelOverwriteButton,CancelNewGame);Wire(beginSelectedClassButton,StartSelectedClass);Wire(authoredView.cancelClassButton,CancelNewGame);Wire(authoredView.cancelSlotsButton,CancelNewGame);
+        for(int i=0;i<authoredView.classButtons.Count&&i<PlayerClassCatalog.All.Count;i++){string id=PlayerClassCatalog.All[i].Id;Wire(authoredView.classButtons[i],()=>SelectClass(id));}
+        for(int i=0;i<slotButtons.Length;i++){int slot=i+1;Wire(slotButtons[i],()=>SelectSlot(slot));}
+    }
+    static void Wire(Button button,UnityEngine.Events.UnityAction action){if(button==null)return;button.onClick.RemoveAllListeners();button.onClick.AddListener(action);}
+
+#if UNITY_EDITOR
+    public void BuildAuthoring()
+    {
+        EnsureOptionsMenu();EnsureNewGameConfirmation();EnsureClassSelection();EnsureSlotSelection();
+        authoredView=GetComponent<MainMenuView>()??gameObject.AddComponent<MainMenuView>();authoredView.authoredRoot=root;authoredView.achievementsButton=achievementsButton;authoredView.newGameButton=newGameButton;authoredView.loadGameButton=loadGameButton;authoredView.optionsButton=optionsButton;authoredView.optionsPanel=optionsPanel;authoredView.pausePassiveTreeLabel=pausePassiveTreeLabel;authoredView.overwriteConfirmation=newGameConfirmation;authoredView.classSelectionPanel=classSelectionPanel;authoredView.classSelectionLabel=classSelectionLabel;authoredView.beginSelectedClassButton=beginSelectedClassButton;authoredView.slotSelectionPanel=slotSelectionPanel;
+        authoredView.pausePassiveTreeButton=FindButton("Pause Passive Tree Toggle");authoredView.optionsBackButton=FindButton("Options Back Button");authoredView.confirmOverwriteButton=FindButton("Confirm Start New Game");authoredView.cancelOverwriteButton=FindButton("Cancel New Game");authoredView.cancelClassButton=FindButton("Cancel Class Selection");authoredView.cancelSlotsButton=FindButton("Cancel Slot Selection");
+        authoredView.classButtons.Clear();foreach(var definition in PlayerClassCatalog.All)authoredView.classButtons.Add(FindButton("Choose "+definition.DisplayName));authoredView.slotButtons.Clear();for(int i=0;i<slotButtons.Length;i++)authoredView.slotButtons.Add(slotButtons[i]);
+        UnityEditor.EditorUtility.SetDirty(authoredView);UnityEditor.EditorUtility.SetDirty(this);
+    }
+    Button FindButton(string objectName){foreach(Button button in root.GetComponentsInChildren<Button>(true))if(button.name==objectName)return button;return null;}
+#endif
 
     public void ConfirmNewGame()
     {

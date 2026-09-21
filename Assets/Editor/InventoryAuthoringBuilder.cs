@@ -18,28 +18,27 @@ public static class InventoryAuthoringBuilder
             InventoryUI inventory = root.GetComponentInChildren<InventoryUI>(true);
             if (inventory == null) throw new InvalidOperationException("Production PaperBattle prefab has no InventoryUI.");
             InventoryView existing = inventory.GetComponent<InventoryView>();
+            InventoryEquipmentPanelUI equipment = inventory.GetComponent<InventoryEquipmentPanelUI>();
+            CurrencyInventoryPanel currency = inventory.GetComponent<CurrencyInventoryPanel>();
+            InventoryFilterUI filter = inventory.GetComponent<InventoryFilterUI>();
+            InventoryModHighlightUI modFilter = inventory.GetComponent<InventoryModHighlightUI>();
             if (existing != null && existing.itemGridRoot != null)
             {
                 Selection.activeObject = AssetDatabase.LoadAssetAtPath<GameObject>(PrefabPath);
                 Debug.Log("INVENTORY AUTHORING: Existing authored layout preserved.");
-                return;
             }
-
-            inventory.BuildAuthoringView();
-            InventoryEquipmentPanelUI equipment = inventory.GetComponent<InventoryEquipmentPanelUI>();
-            if (equipment == null) equipment = inventory.gameObject.AddComponent<InventoryEquipmentPanelUI>();
-            equipment.BuildAuthoring(Find<RectTransform>(inventory.transform, "Compact inventory grid"));
-
-            CurrencyInventoryPanel currency = inventory.GetComponent<CurrencyInventoryPanel>();
-            if (currency == null) currency = inventory.gameObject.AddComponent<CurrencyInventoryPanel>();
-            currency.BuildAuthoring(inventory, Find<RectTransform>(inventory.transform, "Compact inventory grid"));
-
-            InventoryFilterUI filter = inventory.GetComponent<InventoryFilterUI>();
-            if (filter == null) filter = inventory.gameObject.AddComponent<InventoryFilterUI>();
-            filter.BuildAuthoring();
-            InventoryModHighlightUI modFilter = inventory.GetComponent<InventoryModHighlightUI>();
-            if (modFilter == null) modFilter = inventory.gameObject.AddComponent<InventoryModHighlightUI>();
-            modFilter.BuildAuthoring();
+            else
+            {
+                inventory.BuildAuthoringView();
+                if (equipment == null) equipment = inventory.gameObject.AddComponent<InventoryEquipmentPanelUI>();
+                equipment.BuildAuthoring(Find<RectTransform>(inventory.transform, "Compact inventory grid"));
+                if (currency == null) currency = inventory.gameObject.AddComponent<CurrencyInventoryPanel>();
+                currency.BuildAuthoring(inventory, Find<RectTransform>(inventory.transform, "Compact inventory grid"));
+                if (filter == null) filter = inventory.gameObject.AddComponent<InventoryFilterUI>();
+                filter.BuildAuthoring();
+                if (modFilter == null) modFilter = inventory.gameObject.AddComponent<InventoryModHighlightUI>();
+                modFilter.BuildAuthoring();
+            }
 
             InventoryView view = inventory.GetComponent<InventoryView>();
             view.authoredRoot = inventory.transform as RectTransform;

@@ -142,7 +142,7 @@ public sealed class CorruptionUITheme : MonoBehaviour
     }
 }
 
-public sealed class CorruptionUIButtonSkin : MonoBehaviour,
+public sealed partial class CorruptionUIButtonSkin : MonoBehaviour,
     IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler
 {
     private Button button;
@@ -287,7 +287,7 @@ public sealed class CorruptionUIButtonSkin : MonoBehaviour,
 }
 
 [RequireComponent(typeof(CanvasRenderer))]
-public sealed class CorruptionButtonFrame : MaskableGraphic
+public sealed partial class CorruptionButtonFrame : MaskableGraphic
 {
     private bool highlighted;
     private static readonly Color Outer = new Color(.38f, .40f, .43f, 1f);
