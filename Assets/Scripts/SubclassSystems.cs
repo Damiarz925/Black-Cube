@@ -48,3 +48,23 @@ public static class SubclassBalanceProfile
     [Obsolete("Use the explicit extra-scaling or critical-ailment formula.")]
     public static float AilmentCritMore(float critMultiplier)=>CriticalAilmentMultiplier(critMultiplier);
 }
+
+/// <summary>Authoritative static stat package granted by selecting a subclass.</summary>
+public static class SubclassStatPackage
+{
+    public static void Apply(string subclassId,Action<StatTypes,float> add)
+    {
+        if(add==null)return;
+        switch(subclassId)
+        {
+            case SubclassIds.WarriorBleed:add(StatTypes.BleedChance,20);add(StatTypes.BleedDmg,40);break;
+            case SubclassIds.WarriorMultihit:add(StatTypes.AttackSpeed,10);add(StatTypes.ChanceToHitTwice,10);break;
+            case SubclassIds.BarbarianBigHit:add(StatTypes.AttackSpeed,-25);add(StatTypes.PhysMult,60);break;
+            case SubclassIds.RangerPoison:add(StatTypes.PoisonChance,20);add(StatTypes.PoisonDmg,40);add(StatTypes.PoisonDuration,25);add(StatTypes.PoisonSpeed,25);break;
+            case SubclassIds.RangerProjectile:add(StatTypes.ProjectileAmount,1);add(StatTypes.ProjectileSpeed,20);add(StatTypes.ProjectilePrecisionChance,15);break;
+            case SubclassIds.MageCooldown:add(StatTypes.CooldownReduction,20);break;
+            case SubclassIds.MageStorm:add(StatTypes.ShockEffect,50);break;
+            case SubclassIds.ThiefAssassin:add(StatTypes.CritChance,10);add(StatTypes.CritMult,50);break;
+        }
+    }
+}

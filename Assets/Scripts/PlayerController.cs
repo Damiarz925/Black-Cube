@@ -6,6 +6,7 @@ using UnityEngine;
 // GetStat returns fractions for percent buckets; stored global rolls use points.
 public class PlayerController : MonoBehaviour
 {
+    int isolatedBuildLevel;
     [SerializeField] Animator animator; //Field for the player's animator component
     [SerializeField] float baseDamage;  //Field for the player's base damage (>= 0)
     [SerializeField] float baseHealth;  //Field for the player's base health (>= 0)
@@ -26,11 +27,15 @@ public class PlayerController : MonoBehaviour
     {
         get
         {
+            if(isolatedBuildLevel>0)return PlayerLevelDamageProfile.CappedLevel(isolatedBuildLevel);
             var progression=GetComponent<PlayerProgression>();
             if(progression==null&&GameManager.Instance!=null)progression=GameManager.Instance.GetComponent<PlayerProgression>();
             return PlayerLevelDamageProfile.CappedLevel(progression?.Level??1);
         }
     }
+#if UNITY_EDITOR
+    public void ConfigureIsolatedBuildLevel(int level){isolatedBuildLevel=PlayerLevelDamageProfile.CappedLevel(level);ignoreRelicsForIsolatedBaseline=true;stats??=GetComponent<StatsComponent>();health??=GetComponent<HealthComponent>();damageReceiver??=GetComponent<DamageReceiver>();}
+#endif
     public float WeaponAttributeDamageBonus=>WeaponAttributeScalingProfile.IncreasedDamage(equippedWeapon?.WeaponTypeId,stats);
     public float LevelDamageBonus=>PlayerLevelDamageProfile.IncreasedDamage(CurrentPlayerLevel);
     public float BasicAttackDamage

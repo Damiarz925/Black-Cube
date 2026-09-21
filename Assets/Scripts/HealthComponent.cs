@@ -39,6 +39,16 @@ public class HealthComponent : MonoBehaviour
         }
     }
 
+    public static float CalculateMaximumLife(StatsComponent stats,PassiveKeystoneState keystones=null)
+    {
+        if(stats==null)return 0f;
+        float value=Mathf.Max(0f,(stats.GetStat(StatTypes.Life)+DerivedStatCalculator.AddedLife(stats))*(1f+stats.GetStat(StatTypes.LifePercent)+DerivedStatCalculator.StrengthIncreased(stats)));
+        return value*(keystones!=null?keystones.MaximumLifeMultiplier:1f);
+    }
+#if UNITY_EDITOR
+    public void ConfigureIsolatedStats(StatsComponent stats){maxLifeStats=healingStats=stats;CurrentLife=MaxLife;}
+#endif
+
     private void Awake()
     {
         healingStats = GetComponent<StatsComponent>();

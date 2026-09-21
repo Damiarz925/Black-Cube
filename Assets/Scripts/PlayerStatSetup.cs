@@ -11,7 +11,12 @@ public class PlayerStatSetup : MonoBehaviour
     private void Awake()
     {
         stats = GetComponent<StatsComponent>();
+        ApplyBaseline(stats);
+    }
 
+    public static void ApplyBaseline(StatsComponent stats)
+    {
+        if(stats==null)return;
         stats.SetBaseStat(StatTypes.Life, 1000f);
         stats.SetBaseStat(StatTypes.Mana, 100f);
         // Common skills can be recast after depletion without requiring a

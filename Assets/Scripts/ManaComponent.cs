@@ -20,6 +20,15 @@ public sealed class ManaComponent : MonoBehaviour
             return value * (keystones != null ? keystones.MaximumManaMultiplier : 1f);
         }
     }
+    public static float CalculateMaximumMana(StatsComponent stats,PassiveKeystoneState keystones=null)
+    {
+        if(stats==null)return 0f;
+        float value=Mathf.Max(0f,(stats.GetStat(StatTypes.Mana)+DerivedStatCalculator.AddedMana(stats))*(1f+stats.GetStat(StatTypes.ManaPercent)+DerivedStatCalculator.IntelligenceIncreased(stats)));
+        return value*(keystones!=null?keystones.MaximumManaMultiplier:1f);
+    }
+#if UNITY_EDITOR
+    public void ConfigureIsolatedStats(StatsComponent value){stats=value;CurrentMana=MaxMana;}
+#endif
     public event System.Action ManaChanged;
 
     private void Awake()

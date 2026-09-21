@@ -237,18 +237,7 @@ public sealed class PlayerProgression : MonoBehaviour
     void ApplySubclassCoreModifiers()
     {
         string subclass=(identity??=GetComponent<PlayerIdentityState>())?.SelectedSubclassId;
-        void Add(StatTypes stat,float amount)=>boundStats.AddModifier(new StatModifier(stat,StatOp.Flat,amount,this));
-        switch(subclass)
-        {
-            case SubclassIds.WarriorBleed:Add(StatTypes.BleedChance,20);Add(StatTypes.BleedDmg,40);break;
-            case SubclassIds.WarriorMultihit:Add(StatTypes.AttackSpeed,10);Add(StatTypes.ChanceToHitTwice,10);break;
-            case SubclassIds.BarbarianBigHit:Add(StatTypes.AttackSpeed,-25);Add(StatTypes.PhysMult,60);break;
-            case SubclassIds.RangerPoison:Add(StatTypes.PoisonChance,20);Add(StatTypes.PoisonDmg,40);Add(StatTypes.PoisonDuration,25);Add(StatTypes.PoisonSpeed,25);break;
-            case SubclassIds.RangerProjectile:Add(StatTypes.ProjectileAmount,1);Add(StatTypes.ProjectileSpeed,20);Add(StatTypes.ProjectilePrecisionChance,15);break;
-            case SubclassIds.MageCooldown:Add(StatTypes.CooldownReduction,20);break;
-            case SubclassIds.MageStorm:Add(StatTypes.ShockEffect,50);break;
-            case SubclassIds.ThiefAssassin:Add(StatTypes.CritChance,10);Add(StatTypes.CritMult,50);break;
-        }
+        SubclassStatPackage.Apply(subclass,(stat,amount)=>boundStats.AddModifier(new StatModifier(stat,StatOp.Flat,amount,this)));
     }
 
     public void ReleaseSceneReferences()
