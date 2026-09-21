@@ -496,18 +496,21 @@ public static class CurrencyPresentation
     };
 }
 
-public sealed class CurrencyTooltipUI : MonoBehaviour
+public sealed partial class CurrencyTooltipUI : MonoBehaviour
 {
-    static CurrencyTooltipUI instance; TMP_Text label;CraftingCurrencyType type;RectTransform anchor;
+    static CurrencyTooltipUI instance; [SerializeField] TMP_Text label;CraftingCurrencyType type;RectTransform anchor;
     public static void Show(CraftingCurrencyType type,RectTransform anchor)
     {
         if(anchor==null)return;Canvas canvas=anchor.GetComponentInParent<Canvas>();if(canvas==null)return;
-        if(instance==null){var go=new GameObject("Currency tooltip",typeof(RectTransform),typeof(Image),typeof(CurrencyTooltipUI));go.transform.SetParent(canvas.rootCanvas.transform,false);instance=go.GetComponent<CurrencyTooltipUI>();go.GetComponent<Image>().color=new Color(.025f,.028f,.035f,.98f);var text=new GameObject("Label",typeof(RectTransform),typeof(TextMeshProUGUI));text.transform.SetParent(go.transform,false);var tr=(RectTransform)text.transform;tr.anchorMin=Vector2.zero;tr.anchorMax=Vector2.one;tr.offsetMin=new Vector2(10,8);tr.offsetMax=new Vector2(-10,-8);instance.label=text.GetComponent<TextMeshProUGUI>();instance.label.fontSize=12;instance.label.textWrappingMode=TextWrappingModes.Normal;instance.label.raycastTarget=false;}
+        if(instance==null){CurrencyTooltipUI prefab=Resources.Load<CurrencyTooltipUI>("UI/Tooltips/CurrencyTooltip");if(prefab==null){Debug.LogError("CurrencyTooltip prefab is missing from Resources/UI/Tooltips.");return;}instance=Instantiate(prefab,canvas.rootCanvas.transform);}
         instance.type=type;instance.anchor=anchor;instance.gameObject.SetActive(true);instance.Refresh();
     }
     public static void Hide(){if(instance!=null)instance.gameObject.SetActive(false);}
     public static void RefreshVisible(){if(instance!=null&&instance.gameObject.activeSelf)instance.Refresh();}
     void OnDestroy(){if(instance==this)instance=null;}
+#if UNITY_EDITOR
+    public static CurrencyTooltipUI BuildAuthoring(Transform parent){var go=new GameObject("Currency tooltip",typeof(RectTransform),typeof(Image),typeof(CurrencyTooltipUI));go.transform.SetParent(parent,false);var tip=go.GetComponent<CurrencyTooltipUI>();go.GetComponent<Image>().color=new Color(.025f,.028f,.035f,.98f);var text=new GameObject("Label",typeof(RectTransform),typeof(TextMeshProUGUI));text.transform.SetParent(go.transform,false);var tr=(RectTransform)text.transform;tr.anchorMin=Vector2.zero;tr.anchorMax=Vector2.one;tr.offsetMin=new Vector2(10,8);tr.offsetMax=new Vector2(-10,-8);tip.label=text.GetComponent<TextMeshProUGUI>();tip.label.fontSize=12;tip.label.textWrappingMode=TextWrappingModes.Normal;tip.label.raycastTarget=false;go.SetActive(false);return tip;}
+#endif
     void Refresh()
     {
         int best=-1;foreach(var slot in FindObjectsByType<CurrencySlotUI>(FindObjectsInactive.Include,FindObjectsSortMode.None))if(slot.Type==type&&slot.transform.GetSiblingIndex()>=best){best=slot.transform.GetSiblingIndex();anchor=(RectTransform)slot.transform;}

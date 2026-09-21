@@ -9,6 +9,7 @@ using UnityEngine.UI;
 /// <summary>Reusable status badges for both combatants. Rebinds when enemies are replaced.</summary>
 public class StatusHUD : MonoBehaviour
 {
+    [SerializeField] StatusHUDView authoredView;
     class Strip
     {
         public RectTransform Root;
@@ -23,28 +24,13 @@ public class StatusHUD : MonoBehaviour
     void Start()
     {
         hud=GetComponent<PaperBattleHUD>();
-        var canvas=hud.GetComponentInParent<Canvas>().transform;
-        playerStrip=CreateStrip(canvas,"WANDERER EFFECTS");
-        enemyStrip=CreateStrip(canvas,"ENEMY EFFECTS");
-        PositionStrips();
-        var tip=Box(canvas,"Status details",new Color(.025f,.028f,.035f,1));tooltip=tip.GetComponent<RectTransform>();
-        tooltip.anchorMin=tooltip.anchorMax=new Vector2(.5f,.77f);tooltip.pivot=new Vector2(.5f,1);tooltip.sizeDelta=new Vector2(380,148);
-        tooltipText=Text(tip.transform,"",13);tooltipText.alignment=TextAlignmentOptions.TopLeft;
-        var tr=tooltipText.rectTransform;tr.offsetMin=new Vector2(14,10);tr.offsetMax=new Vector2(-14,-10);
-        tip.GetComponent<Image>().raycastTarget=false;tip.SetActive(false);
-    }
-    Strip CreateStrip(Transform canvas,string title)
-    {
-        var root=Box(canvas,title,new Color(.025f,.028f,.035f,.98f));root.GetComponent<Image>().raycastTarget=false;
-        root.transform.SetSiblingIndex(hud.transform.GetSiblingIndex()+1);
-        var r=root.GetComponent<RectTransform>();r.anchorMin=r.anchorMax=new Vector2(0,1);r.pivot=new Vector2(0,1);
-        var label=Text(root.transform,title,10);label.color=new Color(.8f,.82f,.85f);label.rectTransform.anchorMin=new Vector2(0,.75f);
-        return new Strip{Root=r};
+        if(authoredView==null)authoredView=GetComponentInChildren<StatusHUDView>(true);
+        if(authoredView==null||authoredView.playerStrip==null||authoredView.enemyStrip==null||authoredView.tooltip==null||authoredView.tooltipText==null||authoredView.badgePrefab==null){Debug.LogError("StatusHUD requires an authored StatusHUDView and badge prefab.",this);enabled=false;return;}
+        playerStrip=new Strip{Root=authoredView.playerStrip};enemyStrip=new Strip{Root=authoredView.enemyStrip};tooltip=authoredView.tooltip;tooltipText=authoredView.tooltipText;tooltip.gameObject.SetActive(false);
     }
     void Update()
     {
         if(hud==null)return;
-        PositionStrips();
         Refresh(playerStrip,hud.player!=null?hud.player.GetComponent<StatusController>():null);
         var enemy=BattleManager.Instance!=null?BattleManager.Instance.CurrentEnemyAI:null;
         Refresh(enemyStrip,enemy!=null?enemy.GetComponent<StatusController>():null);
@@ -54,12 +40,6 @@ public class StatusHUD : MonoBehaviour
         if (panels || hud.statsPanel.activeSelf) { HideTooltip(); return; }
         if(hovered!=null && hovered.gameObject.activeInHierarchy) tooltipText.text=hovered.Summary.Tooltip;
         else HideTooltip();
-    }
-    void PositionStrips()
-    {
-        if(hud==null)return;
-        hud.PositionBelowArtwork(playerStrip?.Root,650,3,300,50);
-        hud.PositionBelowArtwork(enemyStrip?.Root,960,3,300,50);
     }
     void Refresh(Strip strip,StatusController target)
     {
@@ -77,16 +57,11 @@ public class StatusHUD : MonoBehaviour
             active.Add(summary.Effect);
             if(!strip.Badges.TryGetValue(summary.Effect,out var badge))
             {
-                var go=Box(strip.Root,summary.DisplayName,new Color(.035f,.04f,.05f,.98f));
-                badge=go.AddComponent<StatusBadge>();badge.Owner=this;
-                badge.Label=Text(go.transform,"",13);badge.Label.alignment=TextAlignmentOptions.Center;badge.Label.rectTransform.anchorMin=new Vector2(.48f,0);
-                var icon=new GameObject("Status icon",typeof(RectTransform),typeof(StatusGlyph));icon.transform.SetParent(go.transform,false);
-                var ir=icon.GetComponent<RectTransform>();ir.anchorMin=new Vector2(.1f,.2f);ir.anchorMax=new Vector2(.45f,.8f);ir.offsetMin=ir.offsetMax=Vector2.zero;
-                badge.Glyph=icon.GetComponent<StatusGlyph>();badge.Glyph.raycastTarget=false;
+                badge=Instantiate(authoredView.badgePrefab,strip.Root);badge.name=summary.DisplayName;badge.Owner=this;
                 strip.Badges.Add(summary.Effect,badge);
             }
             badge.gameObject.SetActive(true);badge.Summary=summary;
-            var rect=(RectTransform)badge.transform;rect.anchorMin=rect.anchorMax=new Vector2(0,0);rect.pivot=Vector2.zero;rect.anchoredPosition=new Vector2(i*59,0);rect.sizeDelta=new Vector2(55,35);
+            badge.transform.SetSiblingIndex(i);
             badge.Label.text=summary.Effect.Ailment is StatusEffects.AilmentKind.Bleed or StatusEffects.AilmentKind.Ignite
                 ? $"{summary.Count}/{summary.MaximumStackCount}" : summary.Count.ToString();
             badge.Label.color=Tint(summary);
@@ -100,12 +75,4 @@ public class StatusHUD : MonoBehaviour
     {hovered=badge;tooltipText.text=badge.Summary.Tooltip;tooltip.gameObject.SetActive(true);tooltip.SetAsLastSibling();}
     public void HideTooltip(){hovered=null;if(tooltip!=null)tooltip.gameObject.SetActive(false);}
     void OnDisable(){HideTooltip();}
-    static GameObject Box(Transform parent,string name,Color color)
-    {var go=new GameObject(name,typeof(RectTransform),typeof(Image));go.transform.SetParent(parent,false);go.GetComponent<Image>().color=color;return go;}
-    static TMP_Text Text(Transform parent,string value,int size)
-    {
-        var go=new GameObject("Label",typeof(RectTransform),typeof(TextMeshProUGUI));go.transform.SetParent(parent,false);
-        var t=go.GetComponent<TextMeshProUGUI>();t.text=value;t.fontSize=size;t.raycastTarget=false;
-        t.rectTransform.anchorMin=Vector2.zero;t.rectTransform.anchorMax=Vector2.one;t.rectTransform.offsetMin=t.rectTransform.offsetMax=Vector2.zero;return t;
-    }
 }

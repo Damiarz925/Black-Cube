@@ -68,7 +68,7 @@ public sealed class SkillTreeUI : MonoBehaviour
         points = authoredView.points; xp = authoredView.progression; details = authoredView.details; refundAll = authoredView.refundAllButton; refundAllLabel = authoredView.refundAllLabel; scroll = authoredView.scroll;
         authoredView.closeButton.onClick.RemoveListener(Close); authoredView.closeButton.onClick.AddListener(Close);
         refundAll.onClick.RemoveListener(ConfirmRefundAll); refundAll.onClick.AddListener(ConfirmRefundAll);
-        if(GetComponent<SubclassMenuUI>()==null)gameObject.AddComponent<SubclassMenuUI>();
+        if(GetComponent<SubclassMenuUI>()==null)Debug.LogError("SkillTreeUI is missing its authored SubclassMenuUI.",this);
         PassiveTreeViewportInput viewportInput = scroll != null ? scroll.GetComponent<PassiveTreeViewportInput>() : null; if (viewportInput != null) viewportInput.Initialize(this);
         BindAuthoredTree();
         panel.SetActive(false);

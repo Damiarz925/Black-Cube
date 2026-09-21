@@ -159,10 +159,10 @@ public class ItemTooltipUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
     Gear item;
     bool equipped;
     bool validatePlayerEquipment;
-    TMP_Text heading, body, actionLabel;
-    Image implicitLockIcon;
-    Button scrapButton;
-    ScrollRect scroll;
+    [SerializeField] TMP_Text heading, body, actionLabel;
+    [SerializeField] Image implicitLockIcon;
+    [SerializeField] Button scrapButton;
+    [SerializeField] ScrollRect scroll;
     PointerEventData pointer;
     public Button ScrapButton => scrapButton;
     public string BodyText => body.text;
@@ -235,6 +235,11 @@ public class ItemTooltipUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
         tip.actionLabel=Label(action.transform,13);Place(tip.actionLabel.rectTransform,0,0,1,1,4);tip.actionLabel.alignment=TextAlignmentOptions.Center;
         tip.scrapButton.onClick.AddListener(tip.Dismantle);
         go.SetActive(false);return tip;
+    }
+    public static ItemTooltipUI CreateFromPrefab(Transform canvas,ItemTooltipUI prefab)
+    {
+        if(canvas==null||prefab==null){Debug.LogError("Item tooltip prefab is not authored/assigned.");return null;}
+        ItemTooltipUI tip=Instantiate(prefab,canvas);tip.name=prefab.name;tip.gameObject.SetActive(false);tip.scrapButton.onClick.RemoveAllListeners();tip.scrapButton.onClick.AddListener(tip.Dismantle);return tip;
     }
     public void Show(ItemSlotUI slot)
     {
@@ -338,37 +343,9 @@ public class ItemTooltipUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
     {r.anchorMin=new Vector2(x0,y0);r.anchorMax=new Vector2(x1,y1);r.offsetMin=new Vector2(pad,pad);r.offsetMax=new Vector2(-pad,-pad);}
 }
 
-/// <summary>Code-drawn UI padlock; no font fallback or additional item artwork.</summary>
+/// <summary>Editor-authored tooltip padlock asset. Missing art stays visible as a validation warning.</summary>
 public static class TooltipLockIcon
 {
     static Sprite sprite;
-    public static Sprite IconSprite
-    {
-        get
-        {
-            // Unity's destroyed-object null differs from C# reference null.
-            if (sprite == null) sprite = Build();
-            return sprite;
-        }
-    }
-    static Sprite Build()
-    {
-        const int size=24;
-        var texture=new Texture2D(size,size,TextureFormat.RGBA32,false)
-            {name="Permanent implicit padlock",filterMode=FilterMode.Bilinear,wrapMode=TextureWrapMode.Clamp};
-        var pixels=new Color32[size*size];
-        for(int y=0;y<size;y++)for(int x=0;x<size;x++)
-        {
-            bool body=x>=3&&x<=20&&y>=3&&y<=13;
-            bool shackle=y>=12&&y<=20&&x>=6&&x<=17
-                && (x<=8||x>=15||y>=18);
-            if(!body&&!shackle)continue;
-            bool rim=x<=4||x>=19||y<=4||y>=19;
-            bool keyhole=body&&x>=11&&x<=12&&y>=7&&y<=10;
-            pixels[y*size+x]=keyhole?new Color32(28,45,48,255)
-                :rim?new Color32(45,74,75,255):new Color32(159,200,188,255);
-        }
-        texture.SetPixels32(pixels);texture.Apply(false,true);
-        return Sprite.Create(texture,new Rect(0,0,size,size),new Vector2(.5f,.5f),100f);
-    }
+    public static Sprite IconSprite => sprite!=null?sprite:(sprite=Resources.Load<Sprite>("UI/TooltipLock"));
 }

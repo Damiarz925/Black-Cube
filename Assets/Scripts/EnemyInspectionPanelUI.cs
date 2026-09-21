@@ -7,6 +7,7 @@ using UnityEngine.UI;
 
 public sealed class EnemyInspectionPanelUI : MonoBehaviour
 {
+    [SerializeField] EnemyInspectionView authoredView;
     private PaperBattleHUD hud;
     private GameObject panel;
     private PlayerStatsPanelUI statsView;
@@ -23,6 +24,15 @@ public sealed class EnemyInspectionPanelUI : MonoBehaviour
             return;
 
         hud = owner;
+        if(authoredView==null)authoredView=GetComponent<EnemyInspectionView>();
+        if(authoredView==null||authoredView.panel==null){Debug.LogError("EnemyInspectionPanelUI requires an authored EnemyInspectionView.",this);return;}
+        panel=authoredView.panel;statsView=authoredView.statsView;equipmentView=authoredView.equipmentView;identityText=authoredView.identityText;if(authoredView.closeButton!=null){authoredView.closeButton.onClick.RemoveAllListeners();authoredView.closeButton.onClick.AddListener(Close);}panel.SetActive(false);BindCurrentEnemy(force:true);
+    }
+
+#if UNITY_EDITOR
+    public void BuildAuthoring(PaperBattleHUD owner)
+    {
+        if(panel!=null||owner==null||owner.statsPanel==null)return;hud=owner;
         panel = Instantiate(owner.statsPanel, owner.statsPanel.transform.parent);
         panel.name = "Enemy Inspection";
         panel.SetActive(false);
@@ -42,12 +52,13 @@ public sealed class EnemyInspectionPanelUI : MonoBehaviour
             .FirstOrDefault(button => button.gameObject.name == "Close");
         if (oldClose != null)
         {
-            CreateCloseButton(oldClose);
+            Button close=CreateCloseButton(oldClose);
             oldClose.gameObject.SetActive(false);
+            authoredView=GetComponent<EnemyInspectionView>()??gameObject.AddComponent<EnemyInspectionView>();authoredView.closeButton=close;
         }
-
-        BindCurrentEnemy(force: true);
+        authoredView=GetComponent<EnemyInspectionView>()??gameObject.AddComponent<EnemyInspectionView>();authoredView.panel=panel;authoredView.statsView=statsView;authoredView.equipmentView=equipmentView;authoredView.identityText=identityText;panel.SetActive(false);
     }
+#endif
 
     private void Update()
     {
@@ -125,7 +136,7 @@ public sealed class EnemyInspectionPanelUI : MonoBehaviour
         identityText.text = $"{boss}{boundEnemy.CurrentRarity.ToString().ToUpperInvariant()} {enemyName.ToUpperInvariant()}  /  LV {boundEnemy.EnemyLevel}{life}{skill}";
     }
 
-    private void CreateCloseButton(Button template)
+    private Button CreateCloseButton(Button template)
     {
         var closeObject = new GameObject("Enemy Close", typeof(RectTransform), typeof(Image), typeof(Button));
         closeObject.transform.SetParent(template.transform.parent, false);
@@ -164,6 +175,7 @@ public sealed class EnemyInspectionPanelUI : MonoBehaviour
         label.color = sourceLabel != null ? sourceLabel.color : Color.white;
         label.alignment = TextAlignmentOptions.Center;
         label.raycastTarget = false;
+        return close;
     }
 
     private void OnDestroy()

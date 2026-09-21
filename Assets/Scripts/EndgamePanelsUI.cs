@@ -15,18 +15,25 @@ static class EndgameUIFactory
     {var go=new GameObject(value,typeof(RectTransform),typeof(Image),typeof(Button));go.transform.SetParent(parent,false);var r=(RectTransform)go.transform;r.anchorMin=min;r.anchorMax=max;r.offsetMin=new Vector2(4,4);r.offsetMax=new Vector2(-4,-4);go.GetComponent<Image>().color=new Color(.16f,.20f,.24f,.98f);var b=go.GetComponent<Button>();b.onClick.AddListener(action);var t=Text(go.transform,value,Vector2.zero,Vector2.one,12);t.alignment=TextAlignmentOptions.Center;CorruptionUIButtonSkin.Ensure(b);return b;}
 }
 
-public sealed class ChallengeLauncherUI:MonoBehaviour
+public sealed partial class ChallengeLauncherUI:MonoBehaviour
 {
-    GameObject root;TMP_Text body;Button open;readonly List<Button> entries=new();
+    [SerializeField] ChallengeView authoredView;GameObject root;TMP_Text body;Button open,closeButton;readonly List<Button> entries=new();bool bound;
     public bool IsOpen=>root!=null&&root.activeSelf;
     public void Build()
+    {
+        if(bound)return;if(authoredView==null)authoredView=GetComponent<ChallengeView>();if(authoredView==null){Debug.LogError("ChallengeLauncherUI requires an authored ChallengeView.",this);return;}root=authoredView.panel;body=authoredView.body;open=authoredView.openButton;closeButton=authoredView.closeButton;entries.Clear();entries.AddRange(authoredView.entries);Wire(open,Open);Wire(closeButton,Close);for(int i=0;i<entries.Count;i++){int index=i;Wire(entries[i],()=>Enter(index));}bound=true;
+    }
+    static void Wire(Button button,UnityEngine.Events.UnityAction action){if(button==null)return;button.onClick.RemoveAllListeners();button.onClick.AddListener(action);}
+#if UNITY_EDITOR
+    public void BuildAuthoring()
     {
         if(root!=null)return;open=EndgameUIFactory.Button(transform,"CHALLENGES",new Vector2(.135f,.015f),new Vector2(.255f,.075f),Open);BottomActionBarLayout.Attach(open,11,190);
         Canvas canvas=GetComponentInParent<Canvas>();root=EndgameUIFactory.Panel(canvas.rootCanvas.transform,"Challenge Launcher");EndgameUIFactory.Text(root.transform,"CHALLENGE BOSSES",new Vector2(.05f,.89f),new Vector2(.95f,.98f),28).alignment=TextAlignmentOptions.Center;
         body=EndgameUIFactory.Text(root.transform,string.Empty,new Vector2(.05f,.18f),new Vector2(.95f,.87f),13);
         for(int i=0;i<6;i++){int index=i;float x=.05f+i*.15f;entries.Add(EndgameUIFactory.Button(root.transform,$"ENTER {i+1}",new Vector2(x,.09f),new Vector2(x+.14f,.16f),()=>Enter(index)));}
-        EndgameUIFactory.Button(root.transform,"CLOSE",new Vector2(.40f,.01f),new Vector2(.60f,.075f),Close);root.SetActive(false);
+        closeButton=EndgameUIFactory.Button(root.transform,"CLOSE",new Vector2(.40f,.01f),new Vector2(.60f,.075f),Close);root.SetActive(false);authoredView=GetComponent<ChallengeView>()??gameObject.AddComponent<ChallengeView>();authoredView.panel=root;authoredView.body=body;authoredView.openButton=open;authoredView.closeButton=closeButton;authoredView.entries.Clear();authoredView.entries.AddRange(entries);
     }
+#endif
     void Update(){Build();var identity=GameManager.Instance?.GetComponent<PlayerIdentityState>();if(open!=null)open.interactable=identity!=null&&identity.SubclassChoiceUnlocked;if(IsOpen)Refresh();}
     public void Open(){Build();Refresh();root.SetActive(true);root.transform.SetAsLastSibling();Time.timeScale=0;}
     public void Close(){if(root!=null)root.SetActive(false);if(ChallengeRuntimeService.Instance?.IsActive!=true)Time.timeScale=1;}
@@ -43,20 +50,27 @@ public sealed class ChallengeLauncherUI:MonoBehaviour
     }
 }
 
-public sealed class EndgameItemizationUI:MonoBehaviour
+public sealed partial class EndgameItemizationUI:MonoBehaviour
 {
     enum Mode{Empowerment,Infusion,Implicit}
-    GameObject root;TMP_Text body;Button open,apply;Mode mode;int itemIndex,modIndex,poolIndex;Gear selected;RolledMod target;
+    [SerializeField] EndgameCraftingView authoredView;GameObject root;TMP_Text body;Button open,apply;Mode mode;int itemIndex,modIndex,poolIndex;Gear selected;RolledMod target;bool bound;
     public bool IsOpen=>root!=null&&root.activeSelf;
     public void Build()
     {
+        if(bound)return;if(authoredView==null)authoredView=GetComponent<EndgameCraftingView>();if(authoredView==null){Debug.LogError("EndgameItemizationUI requires an authored EndgameCraftingView.",this);return;}root=authoredView.panel;body=authoredView.body;open=authoredView.openButton;apply=authoredView.applyButton;Wire(open,Open);Wire(apply,Apply);Wire(authoredView.nextItemButton,()=>{itemIndex++;modIndex=0;Refresh();});Wire(authoredView.nextModButton,()=>{modIndex++;Refresh();});Wire(authoredView.nextPoolButton,()=>{poolIndex++;Refresh();});Wire(authoredView.closeButton,Close);for(int i=0;i<authoredView.modeButtons.Count&&i<3;i++){Mode value=(Mode)i;Wire(authoredView.modeButtons[i],()=>SetMode(value));}bound=true;
+    }
+    static void Wire(Button button,UnityEngine.Events.UnityAction action){if(button==null)return;button.onClick.RemoveAllListeners();button.onClick.AddListener(action);}
+#if UNITY_EDITOR
+    public void BuildAuthoring()
+    {
         if(root!=null)return;open=EndgameUIFactory.Button(transform,"ENDGAME CRAFTING",new Vector2(.26f,.015f),new Vector2(.405f,.075f),Open);BottomActionBarLayout.Attach(open,12,230);
         Canvas canvas=GetComponentInParent<Canvas>();root=EndgameUIFactory.Panel(canvas.rootCanvas.transform,"Endgame Crafting");EndgameUIFactory.Text(root.transform,"ENDGAME ITEMIZATION",new Vector2(.05f,.89f),new Vector2(.95f,.98f),28).alignment=TextAlignmentOptions.Center;
-        EndgameUIFactory.Button(root.transform,"EMPOWERMENT",new Vector2(.05f,.81f),new Vector2(.31f,.88f),()=>SetMode(Mode.Empowerment));EndgameUIFactory.Button(root.transform,"BOSS INFUSION",new Vector2(.37f,.81f),new Vector2(.63f,.88f),()=>SetMode(Mode.Infusion));EndgameUIFactory.Button(root.transform,"IMPLICIT REFORGE",new Vector2(.69f,.81f),new Vector2(.95f,.88f),()=>SetMode(Mode.Implicit));
+        var empowerment=EndgameUIFactory.Button(root.transform,"EMPOWERMENT",new Vector2(.05f,.81f),new Vector2(.31f,.88f),()=>SetMode(Mode.Empowerment));var infusion=EndgameUIFactory.Button(root.transform,"BOSS INFUSION",new Vector2(.37f,.81f),new Vector2(.63f,.88f),()=>SetMode(Mode.Infusion));var implicitButton=EndgameUIFactory.Button(root.transform,"IMPLICIT REFORGE",new Vector2(.69f,.81f),new Vector2(.95f,.88f),()=>SetMode(Mode.Implicit));
         body=EndgameUIFactory.Text(root.transform,string.Empty,new Vector2(.06f,.22f),new Vector2(.94f,.79f),14);
-        EndgameUIFactory.Button(root.transform,"NEXT ITEM",new Vector2(.06f,.12f),new Vector2(.25f,.20f),()=>{itemIndex++;modIndex=0;Refresh();});EndgameUIFactory.Button(root.transform,"NEXT MOD",new Vector2(.27f,.12f),new Vector2(.46f,.20f),()=>{modIndex++;Refresh();});EndgameUIFactory.Button(root.transform,"NEXT POOL",new Vector2(.48f,.12f),new Vector2(.67f,.20f),()=>{poolIndex++;Refresh();});apply=EndgameUIFactory.Button(root.transform,"CONFIRM",new Vector2(.69f,.12f),new Vector2(.94f,.20f),Apply);
-        EndgameUIFactory.Button(root.transform,"CLOSE",new Vector2(.40f,.02f),new Vector2(.60f,.09f),Close);root.SetActive(false);
+        var nextItem=EndgameUIFactory.Button(root.transform,"NEXT ITEM",new Vector2(.06f,.12f),new Vector2(.25f,.20f),()=>{itemIndex++;modIndex=0;Refresh();});var nextMod=EndgameUIFactory.Button(root.transform,"NEXT MOD",new Vector2(.27f,.12f),new Vector2(.46f,.20f),()=>{modIndex++;Refresh();});var nextPool=EndgameUIFactory.Button(root.transform,"NEXT POOL",new Vector2(.48f,.12f),new Vector2(.67f,.20f),()=>{poolIndex++;Refresh();});apply=EndgameUIFactory.Button(root.transform,"CONFIRM",new Vector2(.69f,.12f),new Vector2(.94f,.20f),Apply);
+        var close=EndgameUIFactory.Button(root.transform,"CLOSE",new Vector2(.40f,.02f),new Vector2(.60f,.09f),Close);root.SetActive(false);authoredView=GetComponent<EndgameCraftingView>()??gameObject.AddComponent<EndgameCraftingView>();authoredView.panel=root;authoredView.body=body;authoredView.openButton=open;authoredView.applyButton=apply;authoredView.nextItemButton=nextItem;authoredView.nextModButton=nextMod;authoredView.nextPoolButton=nextPool;authoredView.closeButton=close;authoredView.modeButtons.Clear();authoredView.modeButtons.Add(empowerment);authoredView.modeButtons.Add(infusion);authoredView.modeButtons.Add(implicitButton);
     }
+#endif
     void Update(){Build();if(IsOpen)Refresh();}
     public void Open(){Build();root.SetActive(true);root.transform.SetAsLastSibling();Time.timeScale=0;Refresh();}
     public void Close(){if(root!=null)root.SetActive(false);Time.timeScale=1;}

@@ -32900,7 +32900,7 @@ MonoBehaviour:
   relicToggle: {fileID: 6983966713203610456}
   background: {fileID: 1688198830464393486}
   itemSlotPrefab: {fileID: 6777678081017321325, guid: b63aef29f40f8c24d807be85717bea9f, type: 3}
-  itemTooltipPrefab: {fileID: 0}
+  itemTooltipPrefab: {fileID: 6520445850817723581, guid: 5f05ea1aaad13a346b78df260822196d, type: 3}
   relicTooltipPrefab: {fileID: 0}
   currencyTooltipPrefab: {fileID: 0}
 --- !u!114 &419109992823008722

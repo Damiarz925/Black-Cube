@@ -287,13 +287,13 @@ public sealed partial class ActiveRelicSlotUI:MonoBehaviour,IPointerClickHandler
     static int IndexOf(RelicInventory inventory,RelicData relic){for(int i=0;i<inventory.Relics.Count;i++)if(ReferenceEquals(inventory.Relics[i],relic))return i;return -1;}
 }
 
-public sealed class RelicTooltipUI:MonoBehaviour
+public sealed partial class RelicTooltipUI:MonoBehaviour
 {
-    static RelicTooltipUI instance;RelicData relic;RectTransform anchor;TMP_Text label;
+    static RelicTooltipUI instance;RelicData relic;RectTransform anchor;[SerializeField] TMP_Text label;
     public static void Show(RelicData value,RectTransform source)
     {
         if(value==null||source==null)return;Canvas canvas=source.GetComponentInParent<Canvas>();if(canvas==null)return;
-        if(instance==null){var go=new GameObject("Relic tooltip",typeof(RectTransform),typeof(Image),typeof(RelicTooltipUI));go.transform.SetParent(canvas.rootCanvas.transform,false);go.GetComponent<Image>().color=new Color(.025f,.02f,.035f,.99f);instance=go.GetComponent<RelicTooltipUI>();var text=new GameObject("Label",typeof(RectTransform),typeof(TextMeshProUGUI));text.transform.SetParent(go.transform,false);var tr=(RectTransform)text.transform;tr.anchorMin=Vector2.zero;tr.anchorMax=Vector2.one;tr.offsetMin=new Vector2(12,10);tr.offsetMax=new Vector2(-12,-10);instance.label=text.GetComponent<TextMeshProUGUI>();instance.label.fontSize=12;instance.label.textWrappingMode=TextWrappingModes.Normal;instance.label.raycastTarget=false;}
+        if(instance==null){RelicTooltipUI prefab=Resources.Load<RelicTooltipUI>("UI/Tooltips/RelicTooltip");if(prefab==null){Debug.LogError("RelicTooltip prefab is missing from Resources/UI/Tooltips.");return;}instance=Instantiate(prefab,canvas.rootCanvas.transform);}
         instance.relic=value;instance.anchor=source;instance.gameObject.SetActive(true);instance.Refresh();var r=(RectTransform)instance.transform;r.anchorMin=r.anchorMax=new Vector2(.5f,.5f);r.pivot=new Vector2(0,0);var corners=new Vector3[4];source.GetWorldCorners(corners);r.position=corners[2];instance.transform.SetAsLastSibling();
     }
     public static void Hide(){if(instance!=null)instance.gameObject.SetActive(false);}
@@ -301,22 +301,32 @@ public sealed class RelicTooltipUI:MonoBehaviour
     void OnEnable(){if(RelicInventory.Instance!=null)RelicInventory.Instance.Changed+=Refresh;}
     void OnDisable(){if(RelicInventory.Instance!=null)RelicInventory.Instance.Changed-=Refresh;}
     void OnDestroy(){if(instance==this)instance=null;}
+#if UNITY_EDITOR
+    public static RelicTooltipUI BuildAuthoring(Transform parent){var go=new GameObject("Relic tooltip",typeof(RectTransform),typeof(Image),typeof(RelicTooltipUI));go.transform.SetParent(parent,false);go.GetComponent<Image>().color=new Color(.025f,.02f,.035f,.99f);var tip=go.GetComponent<RelicTooltipUI>();var text=new GameObject("Label",typeof(RectTransform),typeof(TextMeshProUGUI));text.transform.SetParent(go.transform,false);var tr=(RectTransform)text.transform;tr.anchorMin=Vector2.zero;tr.anchorMax=Vector2.one;tr.offsetMin=new Vector2(12,10);tr.offsetMax=new Vector2(-12,-10);tip.label=text.GetComponent<TextMeshProUGUI>();tip.label.fontSize=12;tip.label.textWrappingMode=TextWrappingModes.Normal;tip.label.raycastTarget=false;go.SetActive(false);return tip;}
+#endif
     void Refresh(){if(relic==null||!ContainsRelic(relic)){Hide();return;}var inventorySlot=anchor!=null?anchor.GetComponent<RelicSlotUI>():null;var activeSlot=anchor!=null?anchor.GetComponent<ActiveRelicSlotUI>():null;if((inventorySlot!=null&&!ReferenceEquals(inventorySlot.Item,relic))||(activeSlot!=null&&!ReferenceEquals(activeSlot.Item,relic))){Hide();return;}if(anchor==null||!anchor.gameObject.activeInHierarchy){Hide();return;}label.text=ItemTooltipFormatter.DescribeRelic(relic);float height=Mathf.Clamp(label.GetPreferredValues(label.text,296,0).y+24,90,360);((RectTransform)transform).sizeDelta=new Vector2(320,height);LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)transform);}
     static bool ContainsRelic(RelicData target){if(RelicInventory.Instance==null)return false;foreach(var item in RelicInventory.Instance.Relics)if(ReferenceEquals(item,target))return true;return false;}
 }
 
-public sealed class RebirthConfirmationUI:MonoBehaviour
+public sealed partial class RebirthConfirmationUI:MonoBehaviour
 {
-    Button openButton;GameObject confirmation;TMP_Text openLabel;
+    [SerializeField] RebirthView authoredView;Button openButton;GameObject confirmation;TMP_Text openLabel;bool bound;
     public void Build()
+    {
+        if(bound)return;if(authoredView==null)authoredView=GetComponent<RebirthView>();if(authoredView==null){Debug.LogError("RebirthConfirmationUI requires an authored RebirthView.",this);return;}openButton=authoredView.openButton;confirmation=authoredView.confirmationPanel;openLabel=authoredView.openLabel;Wire(openButton,Open);Wire(authoredView.confirmButton,Confirm);Wire(authoredView.cancelButton,Cancel);bound=true;
+    }
+    static void Wire(Button button,UnityEngine.Events.UnityAction action){if(button==null)return;button.onClick.RemoveAllListeners();button.onClick.AddListener(action);}
+#if UNITY_EDITOR
+    public void BuildAuthoring()
     {
         if(openButton!=null)return;
         openButton=Button(transform,"REBIRTH",new Vector2(.015f,.015f),new Vector2(.13f,.075f),Open,out openLabel);BottomActionBarLayout.Attach(openButton,10,190);
         confirmation=new GameObject("Rebirth confirmation",typeof(RectTransform),typeof(Image));confirmation.transform.SetParent(transform,false);var rect=(RectTransform)confirmation.transform;rect.anchorMin=new Vector2(.3f,.3f);rect.anchorMax=new Vector2(.7f,.7f);rect.offsetMin=rect.offsetMax=Vector2.zero;confirmation.GetComponent<Image>().color=new Color(.03f,.025f,.04f,.98f);
         var message=Label(confirmation.transform,"REBIRTH?\nReset all run progress and ordinary items. Relics remain permanent.",15);Place(message.rectTransform,.06f,.42f,.94f,.94f);
-        Button(confirmation.transform,"CONFIRM",new Vector2(.08f,.08f),new Vector2(.47f,.34f),Confirm,out _);
-        Button(confirmation.transform,"CANCEL",new Vector2(.53f,.08f),new Vector2(.92f,.34f),Cancel,out _);confirmation.SetActive(false);
+        var confirm=Button(confirmation.transform,"CONFIRM",new Vector2(.08f,.08f),new Vector2(.47f,.34f),Confirm,out _);
+        var cancel=Button(confirmation.transform,"CANCEL",new Vector2(.53f,.08f),new Vector2(.92f,.34f),Cancel,out _);confirmation.SetActive(false);authoredView=GetComponent<RebirthView>()??gameObject.AddComponent<RebirthView>();authoredView.confirmationPanel=confirmation;authoredView.openButton=openButton;authoredView.confirmButton=confirm;authoredView.cancelButton=cancel;authoredView.openLabel=openLabel;authoredView.message=message;
     }
+#endif
     void Update(){Build();bool eligible=RebirthManager.Instance!=null&&RebirthManager.Instance.Eligible;openButton.gameObject.SetActive(true);openButton.interactable=eligible;if(openLabel!=null)openLabel.text=eligible?"REBIRTH / ZONE 60+":"REBIRTH LOCKED / REACH ZONE 60";}
     void Open(){if(RebirthManager.Instance!=null&&RebirthManager.Instance.RequestRebirth())confirmation.SetActive(true);}
     void Confirm(){if(RebirthManager.Instance!=null&&RebirthManager.Instance.ConfirmRebirth())confirmation.SetActive(false);}

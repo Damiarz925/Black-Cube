@@ -39,13 +39,15 @@ public class InventoryUI : MonoBehaviour
 
     public void ShowTooltip(ItemSlotUI slot)
     {
-        if (Tooltip == null) Tooltip = ItemTooltipUI.Create(GetComponentInParent<Canvas>().rootCanvas.transform);
+        if (Tooltip == null) Tooltip = ItemTooltipUI.CreateFromPrefab(GetComponentInParent<Canvas>().rootCanvas.transform,authoredView!=null?authoredView.itemTooltipPrefab:null);
+        if(Tooltip==null)return;
         Tooltip.Show(slot);
     }
     public void ShowTooltip(Gear gear, RectTransform anchor, bool equipped, UnityEngine.EventSystems.PointerEventData data,
         bool validatePlayerEquipment = true)
     {
-        if (Tooltip == null) Tooltip = ItemTooltipUI.Create(GetComponentInParent<Canvas>().rootCanvas.transform);
+        if (Tooltip == null) Tooltip = ItemTooltipUI.CreateFromPrefab(GetComponentInParent<Canvas>().rootCanvas.transform,authoredView!=null?authoredView.itemTooltipPrefab:null);
+        if(Tooltip==null)return;
         Tooltip.Show(gear, anchor, equipped, data, validatePlayerEquipment);
     }
 

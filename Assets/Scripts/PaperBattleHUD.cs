@@ -49,15 +49,15 @@ public class PaperBattleHUD : MonoBehaviour
     void Awake()
     {
         BindAuthoredHUD();
-        if(GetComponent<StatusHUD>()==null)gameObject.AddComponent<StatusHUD>();
-        if(GetComponent<SkillTreeUI>()==null)Debug.LogError("PaperBattleHUD is missing its authored SkillTreeUI controller.",this);
-        if(GetComponent<PlayerSkillMenuUI>()==null)gameObject.AddComponent<PlayerSkillMenuUI>();
-        var rebirth=GetComponent<RebirthConfirmationUI>();if(rebirth==null)rebirth=gameObject.AddComponent<RebirthConfirmationUI>();rebirth.Build();
-        challengeLauncher=GetComponent<ChallengeLauncherUI>();if(challengeLauncher==null)challengeLauncher=gameObject.AddComponent<ChallengeLauncherUI>();challengeLauncher.Build();
-        endgameItemization=GetComponent<EndgameItemizationUI>();if(endgameItemization==null)endgameItemization=gameObject.AddComponent<EndgameItemizationUI>();endgameItemization.Build();
-        enemyInspection=GetComponent<EnemyInspectionPanelUI>();if(enemyInspection==null)enemyInspection=gameObject.AddComponent<EnemyInspectionPanelUI>();enemyInspection.Initialize(this);
+        if(GetComponent<StatusHUD>()==null)Debug.LogWarning("PaperBattleHUD is missing its authored StatusHUD controller.",this);
+        if(GetComponent<SkillTreeUI>()==null)Debug.LogWarning("PaperBattleHUD is missing its authored SkillTreeUI controller.",this);
+        if(GetComponent<PlayerSkillMenuUI>()==null)Debug.LogWarning("PaperBattleHUD is missing its authored PlayerSkillMenuUI.",this);
+        var rebirth=GetComponent<RebirthConfirmationUI>();if(rebirth==null)Debug.LogWarning("PaperBattleHUD is missing its authored RebirthConfirmationUI.",this);else rebirth.Build();
+        challengeLauncher=GetComponent<ChallengeLauncherUI>();if(challengeLauncher==null)Debug.LogWarning("PaperBattleHUD is missing its authored ChallengeLauncherUI.",this);else challengeLauncher.Build();
+        endgameItemization=GetComponent<EndgameItemizationUI>();if(endgameItemization==null)Debug.LogWarning("PaperBattleHUD is missing its authored EndgameItemizationUI.",this);else endgameItemization.Build();
+        enemyInspection=GetComponent<EnemyInspectionPanelUI>();if(enemyInspection==null)Debug.LogWarning("PaperBattleHUD is missing its authored EnemyInspectionPanelUI.",this);else enemyInspection.Initialize(this);
         InventoryEquipmentPanelUI.SeparateStats(statsPanel);
-        pauseMenu=GetComponent<PauseMenuUI>();if(pauseMenu==null)Debug.LogError("PaperBattleHUD is missing its authored PauseMenuUI.",this);else pauseMenu.Initialize(this);
+        pauseMenu=GetComponent<PauseMenuUI>();if(pauseMenu==null)Debug.LogWarning("PaperBattleHUD is missing its authored PauseMenuUI.",this);else pauseMenu.Initialize(this);
         var corruptionTheme=GetComponent<CorruptionUITheme>();if(corruptionTheme==null)corruptionTheme=gameObject.AddComponent<CorruptionUITheme>();corruptionTheme.Initialize(this,enemyInspection);
     }
 

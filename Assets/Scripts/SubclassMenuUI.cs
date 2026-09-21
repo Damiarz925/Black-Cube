@@ -5,9 +5,17 @@ using UnityEngine.UI;
 
 public sealed class SubclassMenuUI:MonoBehaviour
 {
+    [SerializeField] SubclassView authoredView;
     PaperBattleHUD hud;GameObject panel;Button open,mode;TMP_Text openLabel,title,description,modeLabel,aura,frozen;readonly Button[] choices=new Button[2];readonly TMP_Text[] choiceLabels=new TMP_Text[2];
     string pending;
     void Start()
+    {
+        hud=GetComponent<PaperBattleHUD>();var canvas=GetComponentInParent<Canvas>();if(canvas==null)return;
+        if(authoredView==null)authoredView=GetComponent<SubclassView>();if(authoredView==null){Debug.LogError("SubclassMenuUI requires an authored SubclassView.",this);return;}BindAuthored();Refresh();
+    }
+    void BindAuthored(){panel=authoredView.panel;open=authoredView.openButton;mode=authoredView.projectileModeButton;openLabel=authoredView.openLabel;title=authoredView.title;description=authoredView.description;modeLabel=authoredView.projectileModeLabel;aura=authoredView.auraLabel;frozen=authoredView.frozenLabel;for(int i=0;i<2;i++){choices[i]=i<authoredView.choiceButtons.Count?authoredView.choiceButtons[i]:null;choiceLabels[i]=i<authoredView.choiceLabels.Count?authoredView.choiceLabels[i]:null;int slot=i;if(choices[i]!=null){choices[i].onClick.RemoveAllListeners();choices[i].onClick.AddListener(()=>Choose(slot));}}if(open!=null){open.onClick.RemoveAllListeners();open.onClick.AddListener(Toggle);}if(mode!=null){mode.onClick.RemoveAllListeners();mode.onClick.AddListener(ToggleProjectileMode);}panel?.SetActive(false);}
+#if UNITY_EDITOR
+    public void BuildAuthoring()
     {
         hud=GetComponent<PaperBattleHUD>();var canvas=GetComponentInParent<Canvas>();if(canvas==null)return;
         open=Button(canvas.transform,"Subclass",new Vector2(.03f,.012f),new Vector2(.21f,.09f),out openLabel);open.onClick.AddListener(Toggle);BottomActionBarLayout.Attach(open,20,190);
@@ -18,7 +26,9 @@ public sealed class SubclassMenuUI:MonoBehaviour
         for(int i=0;i<2;i++){int slot=i;choices[i]=Button(panel.transform,"Choice "+i,new Vector2(.08f+i*.46f,.08f),new Vector2(.46f+i*.46f,.23f),out choiceLabels[i]);choices[i].onClick.AddListener(()=>Choose(slot));}
         aura=Text(canvas.transform,"Light Priest Auras",new Vector2(.74f,.1f),new Vector2(.98f,.22f),13);aura.alignment=TextAlignmentOptions.TopRight;panel.SetActive(false);Refresh();
         frozen=Text(canvas.transform,"Frozen Status",new Vector2(.42f,.78f),new Vector2(.58f,.83f),18);frozen.alignment=TextAlignmentOptions.Center;frozen.color=new Color(.4f,.85f,1f);Refresh();
+        authoredView=GetComponent<SubclassView>()??gameObject.AddComponent<SubclassView>();authoredView.panel=panel;authoredView.openButton=open;authoredView.projectileModeButton=mode;authoredView.openLabel=openLabel;authoredView.title=title;authoredView.description=description;authoredView.projectileModeLabel=modeLabel;authoredView.auraLabel=aura;authoredView.frozenLabel=frozen;authoredView.choiceButtons.Clear();authoredView.choiceLabels.Clear();authoredView.choiceButtons.AddRange(choices);authoredView.choiceLabels.AddRange(choiceLabels);
     }
+#endif
     void Update()=>Refresh();
     PlayerIdentityState Identity=>GameManager.Instance!=null?GameManager.Instance.GetComponent<PlayerIdentityState>():null;
     void Toggle(){if(Identity?.SubclassChoiceUnlocked!=true)return;panel.SetActive(!panel.activeSelf);pending=null;Refresh();}
