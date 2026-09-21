@@ -13,7 +13,10 @@ public sealed class UIAuthoringWindow : EditorWindow
         "Assets/Prefabs/UI/GameplayHUD.prefab", "Assets/Prefabs/UI/InventoryPanel.prefab", "Assets/Prefabs/UI/PassiveTreePanel.prefab",
         "Assets/Prefabs/UI/PauseMenu.prefab", "Assets/Prefabs/UI/StatsPanel.prefab", "Assets/Prefabs/UI/SkillSelectionPanel.prefab",
         "Assets/Prefabs/UI/SubclassPanel.prefab", "Assets/Prefabs/UI/ChallengePanel.prefab", "Assets/Prefabs/UI/EndgameCraftingPanel.prefab",
-        "Assets/Prefabs/UI/ItemTooltip.prefab", "Assets/Prefabs/UI/RebirthPanel.prefab", "Assets/Prefabs/UI/ModListPanel.prefab"
+        "Assets/Prefabs/UI/ItemTooltip.prefab", "Assets/Prefabs/UI/RebirthPanel.prefab", "Assets/Prefabs/UI/ModListPanel.prefab",
+        "Assets/Prefabs/UI/MainMenu.prefab", "Assets/Prefabs/UI/CharacterSlots.prefab", "Assets/Prefabs/UI/EnemyInspectionPanel.prefab",
+        "Assets/Prefabs/UI/StatusHUD.prefab", "Assets/Prefabs/UI/StatusBadge.prefab",
+        "Assets/Resources/UI/Tooltips/CurrencyTooltip.prefab", "Assets/Resources/UI/Tooltips/RelicTooltip.prefab"
     };
     Tab tab; Vector2 scroll;
 
@@ -33,7 +36,7 @@ public sealed class UIAuthoringWindow : EditorWindow
             case Tab.Menus: DrawPaths("MENUS", "Assets/Scenes/Main Menu.unity", "Assets/Prefabs/UI/PauseMenu.prefab", "Assets/Prefabs/UI/SkillSelectionPanel.prefab", "Assets/Prefabs/UI/SubclassPanel.prefab", "Assets/Prefabs/UI/RebirthPanel.prefab", "Assets/Prefabs/UI/ModListPanel.prefab"); break;
             case Tab.Crafting: DrawScreen("ENDGAME CRAFTING", "Assets/Prefabs/UI/EndgameCraftingPanel.prefab"); break;
             case Tab.Challenges: DrawScreen("CHALLENGES", "Assets/Prefabs/UI/ChallengePanel.prefab"); break;
-            case Tab.Tooltips: DrawScreen("TOOLTIPS", "Assets/Prefabs/UI/ItemTooltip.prefab"); break;
+            case Tab.Tooltips: DrawPaths("TOOLTIPS", "Assets/Prefabs/UI/ItemTooltip.prefab", "Assets/Resources/UI/Tooltips/CurrencyTooltip.prefab", "Assets/Resources/UI/Tooltips/RelicTooltip.prefab"); DrawSelectedTransform(); DrawPrefabActions(); break;
             case Tab.VisualLibraries: DrawLibraries(); break;
             case Tab.Validation: DrawValidation(); break;
         }
@@ -76,7 +79,7 @@ public sealed class UIAuthoringWindow : EditorWindow
     {
         DrawPaths("PASSIVE TREE VIEW", "Assets/Prefabs/UI/PassiveTreePanel.prefab");
         PassiveTreeDatabaseSO database = AssetDatabase.LoadAssetAtPath<PassiveTreeDatabaseSO>(PassiveTreeAuthoringMigration.DatabasePath);
-        if (database == null) { EditorGUILayout.HelpBox("Passive database has not been generated.", MessageType.Warning); if (GUILayout.Button("MIGRATE CURRENT V3 DATA")) PassiveTreeAuthoringMigration.GenerateCurrentV3Assets(); return; }
+        if (database == null) { EditorGUILayout.HelpBox("The authoritative Passive Tree database is missing. Restore the checked-in asset; do not regenerate over authored data.", MessageType.Error); return; }
         EditorGUILayout.LabelField("Class Branch Assets", EditorStyles.boldLabel); foreach (var branch in database.ClassBranches) ObjectRow(branch);
         EditorGUILayout.LabelField("Weapon Branch Assets", EditorStyles.boldLabel); foreach (var branch in database.WeaponBranches) ObjectRow(branch);
         EditorGUILayout.BeginHorizontal();

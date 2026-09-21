@@ -220,3 +220,6 @@ Treat `EndgameResourceLedger` as the only owner of challenge keys, Essences, Ref
 Craft operations must use `EndgameCraftingService` so resource checks, mutation, exact costs, notifications, saving, and entropy injection remain centralized. New APEX effects require a stable `effect.special.*` ID and source tags/guards in `BossSpecialEffectRuntime`; never dispatch on item display name. See the three Step 20 design documents for the full first-pass contract.
 
 Fresh Step 20 evidence: focused EditMode 19/19, complete EditMode 396/396, all five authoritative validators, the real-scene endgame smoke, retained loot/weapon/ailment/class/Rebirth regression smokes, the Windows x64 build, and its ten-second hidden startup smoke passed. Reports are under `Logs/Step20*` plus the refreshed Step 16/18 gameplay reports; the build is `Builds/Step20Windows/BlackCube.exe`. BalanceLab was not run.
+# Editor authoring ownership
+
+Routine UI layout/art and Passive Tree content are editor-authored. Start with `Docs/UI_AUTHORING_GUIDE.md`, `Docs/PASSIVE_TREE_AUTHORING_GUIDE.md`, and `Docs/UI_BINDING_MAP.md`. The central tool is **Black-Cube → UI Authoring**; its validator and generated report verify serialized views, stable IDs, branch data, icons, and prefabs. Permanent UI transforms belong to scenes/prefabs and must not be reset by runtime controllers.

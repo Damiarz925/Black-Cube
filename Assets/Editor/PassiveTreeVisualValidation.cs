@@ -18,7 +18,8 @@ public static class PassiveTreeV3Validation
    var route=PassiveTreeDefinition.RouteNodes(null,w).Select(PassiveTreeDefinition.Node).ToArray();if(route.Count(x=>x.Kind==PassiveNodeKind.WeaponSpine)!=5||route.Count(x=>x.Kind==PassiveNodeKind.Choice)!=30)errors.Add(w+" route structure invalid.");if(route.Any(x=>x.IsSubclassChoice||x.WeaponTypeRestriction!=w))errors.Add(w+" restriction/subclass metadata invalid.");
   }
   if(PassiveTreeDefinition.Edges.Count!=PassiveTreeDefinition.NodeCount-6)errors.Add("V3 route edge count invalid.");
-  for(int a=0;a<PassiveTreeDefinition.NodeCount;a++)for(int b=a+1;b<PassiveTreeDefinition.NodeCount;b++)if(Vector2.Distance(PassiveTreeDefinition.Node(a).LayoutPosition,PassiveTreeDefinition.Node(b).LayoutPosition)<58f){errors.Add($"Node overlap: {PassiveTreeDefinition.Node(a).StableId} / {PassiveTreeDefinition.Node(b).StableId}");return errors;}
+  // Presentation coordinates are authored by PassiveTreePanel.prefab. LayoutPosition is retained
+  // only as legacy/default-layout metadata and must not be treated as production geometry.
   return errors;
  }
  [MenuItem("Black Cube/Validation/Passive Tree V3 Structure")]

@@ -59,6 +59,12 @@ Inventory capacity rows and long statistics/mod lists are data-dependent. Their 
 - Existing popup: `Assets/Prefabs/Other Prefabs/Damage Popup Text.prefab`
 - Missing at baseline: dedicated HUD, passive-tree, pause, subclass, skill, challenge, crafting, tooltip, and consolidated inventory presentation prefabs; serialized view/binding components; passive branch ScriptableObjects; passive icon/style libraries; and central UI authoring tooling.
 
+## Implemented handoff state
+
+The HUD, passive tree, inventory, skills, subclass, rebirth, challenge, endgame crafting, stats, enemy inspection, pause/options, main menu/slots, codex/mod list, and item/currency/relic tooltips now have authored prefab/scene structure and serialized View bindings. Passive data lives in twelve branch SOs. `Black-Cube → UI Authoring` exposes the workflow and validation. Details are in `UI_BINDING_MAP.md`, `UI_AUTHORING_GUIDE.md`, `PASSIVE_TREE_AUTHORING_GUIDE.md`, and `UI_RUNTIME_PLACEMENT_EXCEPTIONS.md`.
+
+The initial audit rows above are retained as the before-state record. A few variable/transient child presentations remain intentional exceptions; no production controller may use them as a fallback for a missing permanent screen.
+
 ## Migration rule
 
 The migration will preserve all gameplay values and logical stable IDs. Runtime controllers retain behavior only. Layout is serialized in scene/prefab RectTransforms, passive effects are serialized in branch assets, visual state appearance is serialized in style/library assets, and every remaining runtime-instantiation exception must point at an authored prefab.

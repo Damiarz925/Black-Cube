@@ -10,6 +10,17 @@ public static class UIAuthoringValidation
     public const string ReportPath = "ReviewCaptures/UIAuthoringReport.md";
     static readonly string[] RequiredClassIds = { PlayerClassIds.Warrior, PlayerClassIds.Barbarian, PlayerClassIds.Ranger, PlayerClassIds.Thief, PlayerClassIds.Mage, PlayerClassIds.Priest };
     static readonly string[] RequiredWeaponIds = { WeaponTypeIds.Sword, WeaponTypeIds.TwoHandedAxe, WeaponTypeIds.Bow, WeaponTypeIds.Staff, WeaponTypeIds.Dagger, WeaponTypeIds.Sceptre };
+    static readonly string[] RequiredUiAssets =
+    {
+        "Assets/Prefabs/UI/GameplayHUD.prefab", "Assets/Prefabs/UI/InventoryPanel.prefab", "Assets/Prefabs/UI/PassiveTreePanel.prefab",
+        "Assets/Prefabs/UI/PauseMenu.prefab", "Assets/Prefabs/UI/MainMenu.prefab", "Assets/Prefabs/UI/CharacterSlots.prefab",
+        "Assets/Prefabs/UI/SkillSelectionPanel.prefab", "Assets/Prefabs/UI/SubclassPanel.prefab", "Assets/Prefabs/UI/RebirthPanel.prefab",
+        "Assets/Prefabs/UI/ChallengePanel.prefab", "Assets/Prefabs/UI/EndgameCraftingPanel.prefab", "Assets/Prefabs/UI/StatsPanel.prefab",
+        "Assets/Prefabs/UI/EnemyInspectionPanel.prefab", "Assets/Prefabs/UI/ModListPanel.prefab", "Assets/Prefabs/UI/ItemTooltip.prefab",
+        "Assets/Prefabs/UI/StatusHUD.prefab", "Assets/Prefabs/UI/StatusBadge.prefab",
+        "Assets/Resources/UI/Tooltips/CurrencyTooltip.prefab", "Assets/Resources/UI/Tooltips/RelicTooltip.prefab",
+        "Assets/GameData/UI/Libraries/SO_UIVisualLibrary.asset", "Assets/GameData/UI/Libraries/SO_DefaultButtonVisualStyle.asset"
+    };
 
     public static string[] ValidatePassiveBranch(PassiveBranchDataSO branch)
     {
@@ -57,6 +68,7 @@ public static class UIAuthoringValidation
         var globalIds = new HashSet<string>(StringComparer.Ordinal);
         foreach (var branch in database.ClassBranches.Cast<PassiveBranchDataSO>().Concat(database.WeaponBranches)) foreach (var node in branch.AllAuthoredNodes())
             if (node != null && !string.IsNullOrEmpty(node.StableId) && !globalIds.Add(node.StableId)) errors.Add("Duplicate global passive data ID: " + node.StableId);
+        foreach (string path in RequiredUiAssets) if (AssetDatabase.LoadMainAssetAtPath(path) == null) errors.Add("Missing required UI authoring asset: " + path);
         ValidatePrefabBindings(errors);
         return errors.Distinct().ToArray();
     }
@@ -69,6 +81,7 @@ public static class UIAuthoringValidation
             // IDs identify controls within one authored screen. Reusable prefab assets and their
             // production instances intentionally carry the same IDs, so uniqueness is scoped to
             // each prefab rather than the entire AssetDatabase.
+            foreach (Component component in prefab.GetComponentsInChildren<Component>(true)) if (component == null) errors.Add(path + ": contains a missing MonoBehaviour script.");
             var ids = new Dictionary<string, string>(StringComparer.Ordinal);
             foreach (UIAuthoringElement item in prefab.GetComponentsInChildren<UIAuthoringElement>(true)) AddId(item.StableUiId, path, errors, ids);
             foreach (PassiveNodeBinding item in prefab.GetComponentsInChildren<PassiveNodeBinding>(true)) { AddId(item.StableUiId, path, errors, ids); if (string.IsNullOrWhiteSpace(item.LogicalSlotId)) errors.Add(path + ": passive node binding has no logical slot ID."); }
@@ -109,9 +122,9 @@ public static class UIAuthoringValidation
     public static void GenerateReport()
     {
         string[] errors = ValidateAll(); Directory.CreateDirectory(Path.GetDirectoryName(ReportPath));
-        var lines = new List<string> { "# Black-Cube UI Authoring Report", "", "Generated: " + DateTime.UtcNow.ToString("O"), "", "## Production scenes", "", "- `Assets/Scenes/SampleScene.unity`", "- `Assets/Scenes/Main Menu.unity`", "", "## Authoring assets", "", "- Passive database: `" + PassiveTreeAuthoringMigration.DatabasePath + "`", "- Passive icon library: `" + PassiveTreeAuthoringMigration.IconLibraryPath + "`", "- Passive effect catalog: `" + PassiveTreeAuthoringMigration.EffectCatalogPath + "`", "- Class branches: `" + PassiveTreeAuthoringMigration.ClassFolder + "`", "- Weapon branches: `" + PassiveTreeAuthoringMigration.WeaponFolder + "`", "", "## Major authored prefabs", "" };
+        var lines = new List<string> { "# Black-Cube UI Authoring Report", "", "Generated: " + DateTime.UtcNow.ToString("O"), "", "## Production scenes", "", "- `Assets/Scenes/SampleScene.unity`", "- `Assets/Scenes/Main Menu.unity`", "", "## Authoring assets", "", "- Passive database: `" + PassiveTreeAuthoringMigration.DatabasePath + "`", "- Passive icon library: `" + PassiveTreeAuthoringMigration.IconLibraryPath + "`", "- Passive effect catalog: `" + PassiveTreeAuthoringMigration.EffectCatalogPath + "`", "- Class branches: `" + PassiveTreeAuthoringMigration.ClassFolder + "`", "- Weapon branches: `" + PassiveTreeAuthoringMigration.WeaponFolder + "`", "- Global visual library: `Assets/GameData/UI/Libraries/SO_UIVisualLibrary.asset`", "- Button visual style: `Assets/GameData/UI/Libraries/SO_DefaultButtonVisualStyle.asset`", "", "## Major authored prefabs", "" };
         foreach (string guid in AssetDatabase.FindAssets("t:Prefab", new[] { "Assets/Prefabs/UI" })) lines.Add("- `" + AssetDatabase.GUIDToAssetPath(guid) + "`");
-        lines.AddRange(new[] { "", "## Runtime placement exceptions", "", "- Connection-line RectTransforms derive from assigned node/junction RectTransforms in edit mode and play mode.", "- Pointer-following tooltips/crafting cursor may change temporary screen position.", "- Variable inventory/stat/mod/relic rows may instantiate authored row prefabs.", "- Floating combat text, projectiles, enemies, and world drops are transient prefab instances.", "", "## Validation", "", errors.Length == 0 ? "PASS" : "FAIL", "" });
+        lines.AddRange(new[] { "", "## View/controller bindings", "", "- GameplayHUDView → PaperBattleHUD", "- StatusHUDView → StatusHUD", "- InventoryView → InventoryUI", "- PassiveTreeView → SkillTreeUI", "- SkillSelectionView → PlayerSkillMenuUI", "- SubclassView → SubclassMenuUI", "- ChallengeView → ChallengeLauncherUI", "- EndgameCraftingView → EndgameItemizationUI", "- RebirthView → RebirthConfirmationUI", "- EnemyInspectionView → EnemyInspectionPanelUI", "- PauseMenuView → PauseMenuUI", "", "## Runtime placement exceptions", "", "- Passive connection-line RectTransforms derive from assigned node/junction RectTransforms in edit mode and play mode.", "- Pointer-following authored tooltip instances and the crafting cursor change temporary screen position.", "- Variable inventory, stat, mod, relic, and active-status entries instantiate authored row/slot presentation as data requires.", "- Floating combat text, projectiles, enemies, and world drops are transient prefab instances.", "", "## Validation", "", errors.Length == 0 ? "PASS" : "FAIL", "" });
         if (errors.Length > 0) foreach (string error in errors) lines.Add("- " + error);
         File.WriteAllLines(ReportPath, lines); AssetDatabase.Refresh(); Debug.Log("UI AUTHORING REPORT: " + Path.GetFullPath(ReportPath));
     }
