@@ -12,9 +12,10 @@ public sealed class InventoryModHighlightUI : MonoBehaviour
     private const string SkipModeWarningKey = "BlackCube.ModFilter.SkipModeWarning";
     private readonly Dictionary<ModFilterCategory, Button> simpleButtons = new();
     private readonly Dictionary<StatTypes, Button> advancedButtons = new();
-    private GameObject panel, simpleRoot, advancedRoot, confirmation;
-    private Button openButton, simpleModeButton, advancedModeButton, warningCheckbox;
-    private TMP_Text requiredLabel, summaryLabel, warningText, warningCheckboxLabel;
+    [SerializeField] private GameObject panel, simpleRoot, advancedRoot, confirmation;
+    [SerializeField] private Button openButton, simpleModeButton, advancedModeButton, warningCheckbox, requiredDownButton, requiredUpButton, clearButton, cancelModeButton, confirmModeButton;
+    [SerializeField] private TMP_Text requiredLabel, summaryLabel, warningText, warningCheckboxLabel;
+    [SerializeField] private List<Button> simpleButtonViews = new(), advancedButtonViews = new();
     private ModFilterMode pendingMode;
     private bool doNotShowAgain;
 
@@ -22,33 +23,49 @@ public sealed class InventoryModHighlightUI : MonoBehaviour
 
     private void Start()
     {
-        openButton = Button(transform, "MOD HIGHLIGHT", new Vector2(.77f,.86f), new Vector2(.925f,.905f), TogglePanel, 10);
+        if(panel==null){Debug.LogError("InventoryModHighlightUI requires an authored mod-filter panel.",this);return;}
+        RebuildMaps();WireControls();
+        if (Filter != null) Filter.Changed += Refresh;
+        Refresh();panel.SetActive(false);
+    }
+
+#if UNITY_EDITOR
+    public void BuildAuthoring()
+    {
+        if(panel!=null)return;
+        openButton = Button(transform, "MOD HIGHLIGHT", new Vector2(.77f,.86f), new Vector2(.925f,.905f), null, 10);
         BakedInventoryButton.Configure(openButton,InventoryArtLayout.HighlightButton);
 
         panel = Box(transform, "Mod highlight filter", new Color(.035f,.048f,.06f,1f));
         Place((RectTransform)panel.transform, new Vector2(.025f,.10f), new Vector2(.975f,.82f));
         Label(panel.transform, "MOD HIGHLIGHT / EXISTING INVENTORY", new Vector2(.025f,.935f), new Vector2(.975f,.99f), 16);
 
-        simpleModeButton = Button(panel.transform, "SIMPLE", new Vector2(.025f,.865f), new Vector2(.495f,.93f), () => RequestMode(ModFilterMode.Simple), 12);
-        advancedModeButton = Button(panel.transform, "ADVANCED", new Vector2(.505f,.865f), new Vector2(.975f,.93f), () => RequestMode(ModFilterMode.Advanced), 12);
+        simpleModeButton = Button(panel.transform, "SIMPLE", new Vector2(.025f,.865f), new Vector2(.495f,.93f), null, 12);
+        advancedModeButton = Button(panel.transform, "ADVANCED", new Vector2(.505f,.865f), new Vector2(.975f,.93f), null, 12);
 
-        Button(panel.transform, "−", new Vector2(.025f,.785f), new Vector2(.15f,.855f), () => Filter?.SetRequiredMatches((Filter?.RequiredMatches ?? 1)-1), 18);
+        requiredDownButton=Button(panel.transform, "−", new Vector2(.025f,.785f), new Vector2(.15f,.855f), null, 18);
         requiredLabel = Label(panel.transform, "", new Vector2(.16f,.785f), new Vector2(.84f,.855f), 12);
-        Button(panel.transform, "+", new Vector2(.85f,.785f), new Vector2(.975f,.855f), () => Filter?.SetRequiredMatches((Filter?.RequiredMatches ?? 1)+1), 18);
+        requiredUpButton=Button(panel.transform, "+", new Vector2(.85f,.785f), new Vector2(.975f,.855f), null, 18);
 
         simpleRoot = Box(panel.transform, "Simple categories", Color.clear);
         Place((RectTransform)simpleRoot.transform, new Vector2(.02f,.10f), new Vector2(.98f,.77f));
         BuildSimpleButtons();
         advancedRoot = BuildAdvancedList();
 
-        Button(panel.transform, "CLEAR CURRENT MODE", new Vector2(.025f,.015f), new Vector2(.48f,.085f), () => Filter?.ClearCurrentMode(), 11);
+        clearButton=Button(panel.transform, "CLEAR CURRENT MODE", new Vector2(.025f,.015f), new Vector2(.48f,.085f), null, 11);
         summaryLabel = Label(panel.transform, "", new Vector2(.49f,.015f), new Vector2(.975f,.085f), 10);
 
         BuildConfirmation();
-        if (Filter != null) Filter.Changed += Refresh;
-        Refresh();
         panel.SetActive(false);
     }
+#endif
+    void RebuildMaps(){simpleButtons.Clear();advancedButtons.Clear();var simple=InventoryModFilter.SimpleCategories;for(int i=0;i<simple.Length&&i<simpleButtonViews.Count;i++)simpleButtons[simple[i].Category]=simpleButtonViews[i];var stats=InventoryModFilter.SelectableStats;for(int i=0;i<stats.Count&&i<advancedButtonViews.Count;i++)advancedButtons[stats[i]]=advancedButtonViews[i];}
+    void WireControls()
+    {
+        Wire(openButton,TogglePanel);Wire(simpleModeButton,()=>RequestMode(ModFilterMode.Simple));Wire(advancedModeButton,()=>RequestMode(ModFilterMode.Advanced));Wire(requiredDownButton,()=>Filter?.SetRequiredMatches((Filter?.RequiredMatches??1)-1));Wire(requiredUpButton,()=>Filter?.SetRequiredMatches((Filter?.RequiredMatches??1)+1));Wire(clearButton,()=>Filter?.ClearCurrentMode());Wire(warningCheckbox,ToggleWarningPreference);Wire(cancelModeButton,CancelModeChange);Wire(confirmModeButton,ConfirmModeChange);
+        foreach(var pair in simpleButtons){ModFilterCategory key=pair.Key;Wire(pair.Value,()=>Filter?.Toggle(key));}foreach(var pair in advancedButtons){StatTypes key=pair.Key;Wire(pair.Value,()=>Filter?.Toggle(key));}
+    }
+    static void Wire(Button button,UnityEngine.Events.UnityAction action){if(button==null)return;button.onClick.RemoveAllListeners();button.onClick.AddListener(action);}
 
     private void BuildSimpleButtons()
     {
@@ -66,9 +83,10 @@ public sealed class InventoryModHighlightUI : MonoBehaviour
             float y1 = 1f - gap - row * (height + gap);
             var entry = entries[i];
             Button button = Button(simpleRoot.transform, entry.Label,
-                new Vector2(x0, y1-height), new Vector2(x0+width, y1), () => Filter?.Toggle(entry.Category), 10);
+                new Vector2(x0, y1-height), new Vector2(x0+width, y1), null, 10);
             button.GetComponentInChildren<TMP_Text>().enableAutoSizing = true;
             simpleButtons[entry.Category] = button;
+            simpleButtonViews.Add(button);
         }
     }
 
@@ -103,8 +121,9 @@ public sealed class InventoryModHighlightUI : MonoBehaviour
                 header.color = new Color(.85f,.68f,.35f);
                 lastGroup = group;
             }
-            Button button = ListButton(content, StatDisplayFormatting.ToFriendlyName(stat), () => Filter?.Toggle(stat));
+            Button button = ListButton(content, StatDisplayFormatting.ToFriendlyName(stat), null);
             advancedButtons[stat] = button;
+            advancedButtonViews.Add(button);
         }
         viewport.SetActive(false);
         return viewport;
@@ -120,10 +139,10 @@ public sealed class InventoryModHighlightUI : MonoBehaviour
         outline.effectColor = new Color(1f,.5f,.12f,.9f); outline.effectDistance = new Vector2(2,-2);
         warningText = Label(dialog.transform, "", new Vector2(.06f,.52f), new Vector2(.94f,.92f), 15);
         warningText.textWrappingMode = TextWrappingModes.Normal;
-        warningCheckbox = Button(dialog.transform, "", new Vector2(.08f,.36f), new Vector2(.92f,.51f), ToggleWarningPreference, 12);
+        warningCheckbox = Button(dialog.transform, "", new Vector2(.08f,.36f), new Vector2(.92f,.51f), null, 12);
         warningCheckboxLabel = warningCheckbox.GetComponentInChildren<TMP_Text>();
-        Button(dialog.transform, "NO", new Vector2(.08f,.10f), new Vector2(.46f,.29f), CancelModeChange, 14);
-        Button(dialog.transform, "YES", new Vector2(.54f,.10f), new Vector2(.92f,.29f), ConfirmModeChange, 14);
+        cancelModeButton=Button(dialog.transform, "NO", new Vector2(.08f,.10f), new Vector2(.46f,.29f), null, 14);
+        confirmModeButton=Button(dialog.transform, "YES", new Vector2(.54f,.10f), new Vector2(.92f,.29f), null, 14);
         confirmation.SetActive(false);
     }
 
@@ -255,7 +274,7 @@ public sealed class InventoryModHighlightUI : MonoBehaviour
         UnityEngine.Events.UnityAction action, int size)
     {
         GameObject go=Box(parent,label,new Color(.14f,.19f,.22f)); Place((RectTransform)go.transform,min,max);
-        Button button=go.AddComponent<Button>(); button.targetGraphic=go.GetComponent<Image>(); button.onClick.AddListener(action);
+        Button button=go.AddComponent<Button>(); button.targetGraphic=go.GetComponent<Image>(); if(action!=null)button.onClick.AddListener(action);
         Label(go.transform,label,Vector2.zero,Vector2.one,size);
         CorruptionUIButtonSkin.Ensure(button);
         return button;
@@ -265,7 +284,7 @@ public sealed class InventoryModHighlightUI : MonoBehaviour
     {
         GameObject go=Box(parent,label,new Color(.14f,.19f,.22f));
         var element=go.AddComponent<LayoutElement>(); element.preferredHeight=34;
-        Button button=go.AddComponent<Button>(); button.targetGraphic=go.GetComponent<Image>(); button.onClick.AddListener(action);
+        Button button=go.AddComponent<Button>(); button.targetGraphic=go.GetComponent<Image>(); if(action!=null)button.onClick.AddListener(action);
         TMP_Text text=Label(go.transform,label,new Vector2(.025f,0),new Vector2(.975f,1),11);
         text.alignment=TextAlignmentOptions.MidlineLeft;
         CorruptionUIButtonSkin.Ensure(button);

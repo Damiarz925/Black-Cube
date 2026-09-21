@@ -67,7 +67,7 @@ public sealed class RelicFoundationTests
         var canvas=Track(new GameObject("canvas",typeof(RectTransform),typeof(Canvas))).GetComponent<Canvas>();
         canvas.renderMode=RenderMode.ScreenSpaceOverlay;
         var panel=Track(new GameObject("inventory panel",typeof(RectTransform),typeof(CurrencyInventoryPanel))).GetComponent<CurrencyInventoryPanel>();
-        panel.transform.SetParent(canvas.transform,false);panel.Initialize(null,null);panel.ShowRelics();
+        panel.transform.SetParent(canvas.transform,false);panel.BuildAuthoring(null,null);panel.Initialize(null,null);panel.ShowRelics();
         var slots=panel.GetComponentsInChildren<RelicSlotUI>(true);
         Assert.That(slots.Length,Is.EqualTo(2));
         foreach(var slot in slots)
@@ -91,7 +91,7 @@ public sealed class RelicFoundationTests
         var currencies=Track(new GameObject("currencies",typeof(CurrencyInventory))).GetComponent<CurrencyInventory>();SetInstance(typeof(CurrencyInventory),currencies);
         var canvas=Track(new GameObject("canvas",typeof(RectTransform),typeof(Canvas))).GetComponent<Canvas>();canvas.renderMode=RenderMode.ScreenSpaceOverlay;
         var panel=Track(new GameObject("inventory panel",typeof(RectTransform),typeof(CurrencyInventoryPanel))).GetComponent<CurrencyInventoryPanel>();
-        panel.transform.SetParent(canvas.transform,false);panel.Initialize(null,null);
+        panel.transform.SetParent(canvas.transform,false);panel.BuildAuthoring(null,null);panel.Initialize(null,null);
         Assert.That(panel.GearTab,Is.Not.Null);Assert.That(panel.RelicTab,Is.Not.Null);
         panel.ShowRelics();Assert.That(panel.IsShowingRelics,Is.True);
         panel.ShowEquipment();Assert.That(panel.IsShowingRelics,Is.False);

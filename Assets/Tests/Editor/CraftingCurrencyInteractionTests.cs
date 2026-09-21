@@ -71,7 +71,7 @@ public class CraftingCurrencyInteractionTests
     public void PanelDisable_ClearsHeldCurrencyState()
     {
         CurrencyInventory inventory=Currency(1);inventory.Arm(CraftingCurrencyType.NormalToMagic);
-        var panel=Track(new GameObject("currency panel",typeof(RectTransform),typeof(CurrencyInventoryPanel))).GetComponent<CurrencyInventoryPanel>();panel.Initialize(null,null);Invoke(panel,"OnDisable");
+        var panel=Track(new GameObject("currency panel",typeof(RectTransform),typeof(CurrencyInventoryPanel))).GetComponent<CurrencyInventoryPanel>();panel.BuildAuthoring(null,null);panel.Initialize(null,null);Invoke(panel,"OnDisable");
         Assert.That(inventory.ArmedCurrency,Is.Null);
     }
 

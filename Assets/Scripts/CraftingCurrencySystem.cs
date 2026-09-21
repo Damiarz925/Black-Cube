@@ -192,8 +192,8 @@ public sealed class CurrencyInventoryPanel : MonoBehaviour
 {
     InventoryUI owner;
     InventoryEquipmentPanelUI layout;
-    RectTransform ordinaryRoot, ancientRoot, relicRoot;
-    Button gearButton, relicButton;
+    [SerializeField] RectTransform ordinaryRoot, ancientRoot, relicRoot;
+    [SerializeField] Button gearButton, relicButton;
     CraftingCurrencyCursorUI cursor;
     readonly Dictionary<CraftingCurrencyType, CurrencySlotUI> currencyEntries = new();
     readonly Dictionary<CraftingCurrencyType, TMP_Text> fragmentLabels = new();
@@ -206,11 +206,27 @@ public sealed class CurrencyInventoryPanel : MonoBehaviour
         layout = GetComponent<InventoryEquipmentPanelUI>();
         Canvas canvas=GetComponentInParent<Canvas>(true);
         if(canvas!=null)cursor=CraftingCurrencyCursorUI.Ensure(canvas.rootCanvas);
-        if (ordinaryRoot != null) return;
+        InventoryView view=GetComponent<InventoryView>();
+        if(view!=null)
+        {
+            ordinaryRoot=view.ordinaryCurrencyRoot;ancientRoot=view.ancientCurrencyRoot;relicRoot=view.relicRoot;
+            gearButton=view.gearToggle;relicButton=view.relicToggle;
+            foreach(var slot in view.currencySlots)if(slot!=null){slot.BindOwner(owner);currencyEntries[slot.Type]=slot;}
+            CraftingCurrencyType[] fragmentTypes={CraftingCurrencyType.NormalToMagic,CraftingCurrencyType.MagicToRare};
+            for(int i=0;i<view.fragmentLabels.Count&&i<fragmentTypes.Length;i++)if(view.fragmentLabels[i]!=null)fragmentLabels[fragmentTypes[i]]=view.fragmentLabels[i];
+        }
+        if (ordinaryRoot == null) { Debug.LogError("CurrencyInventoryPanel requires authored currency roots.", this); return; }
+        WireTabs();
+    }
+#if UNITY_EDITOR
+    public void BuildAuthoring(InventoryUI inventoryUI, Transform equipment)
+    {
+        owner=inventoryUI;layout=GetComponent<InventoryEquipmentPanelUI>();
+        if(ordinaryRoot!=null)return;
         ordinaryRoot = MakeRoot("Ordinary currency");
         ancientRoot = MakeRoot("Ancient relic currency");
-        gearButton = MakeButton(transform, "GEAR", ShowEquipment);
-        relicButton = MakeButton(transform, "RELICS", ShowRelics);
+        gearButton = MakeButton(transform, "GEAR", null);
+        relicButton = MakeButton(transform, "RELICS", null);
         InventoryArtLayout.Apply((RectTransform)gearButton.transform,InventoryArtLayout.P(59,498,139,523));
         InventoryArtLayout.Apply((RectTransform)relicButton.transform,InventoryArtLayout.P(148,498,250,523));
         var relics = new GameObject("Relic inventory", typeof(RectTransform), typeof(VerticalLayoutGroup), typeof(ContentSizeFitter));
@@ -218,8 +234,12 @@ public sealed class CurrencyInventoryPanel : MonoBehaviour
         InventoryArtLayout.Apply(relicRoot,InventoryArtLayout.InventoryBounds);
         var relicLayout = relics.GetComponent<VerticalLayoutGroup>(); relicLayout.spacing = 8; relicLayout.childControlWidth = true; relicLayout.childForceExpandWidth = true; relicLayout.childForceExpandHeight = false;
         relics.GetComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+        EnsureCurrencyViews(true);
+        WireTabs();
         ShowEquipment();
     }
+#endif
+    void WireTabs(){if(gearButton!=null){gearButton.onClick.RemoveListener(ShowEquipment);gearButton.onClick.AddListener(ShowEquipment);}if(relicButton!=null){relicButton.onClick.RemoveListener(ShowRelics);relicButton.onClick.AddListener(ShowRelics);}}
     void OnEnable() { if (CurrencyInventory.Instance != null) CurrencyInventory.Instance.Changed += RefreshCurrencies; if(RelicInventory.Instance!=null)RelicInventory.Instance.Changed+=RefreshRelics; Refresh(); }
     void OnDisable() { CurrencyTooltipUI.Hide(); RelicTooltipUI.Hide(); if (CurrencyInventory.Instance != null) { CurrencyInventory.Instance.Changed -= RefreshCurrencies; CurrencyInventory.Instance.CancelArmed(); } cursor?.RefreshPresentation(); if(RelicInventory.Instance!=null)RelicInventory.Instance.Changed-=RefreshRelics; }
     public bool IsShowingRelics => relicRoot!=null&&relicRoot.gameObject.activeSelf;
@@ -248,6 +268,15 @@ public sealed class CurrencyInventoryPanel : MonoBehaviour
     void RefreshCurrencies()
     {
         if(ordinaryRoot==null || CurrencyInventory.Instance==null) return;
+        EnsureCurrencyViews(false);
+        foreach(var slot in currencyEntries.Values)if(slot!=null)slot.RefreshPresentation();
+        RefreshFragmentLabel(CraftingCurrencyType.NormalToMagic,InventoryArtLayout.P(67,792,174,816));
+        RefreshFragmentLabel(CraftingCurrencyType.MagicToRare,InventoryArtLayout.P(355,792,462,816));
+        CurrencyTooltipUI.RefreshVisible();
+    }
+    void EnsureCurrencyViews(bool createMissing)
+    {
+        if(ordinaryRoot==null||ancientRoot==null)return;
         CraftingCurrencyType[] ordered={CraftingCurrencyType.NormalToMagic,CraftingCurrencyType.RerollMagic,CraftingCurrencyType.MagicToRare,CraftingCurrencyType.RerollRareModifier,CraftingCurrencyType.AddRareModifier,CraftingCurrencyType.RemoveRareModifier,CraftingCurrencyType.AncientNormalToMagic,CraftingCurrencyType.AncientMagicToRare,CraftingCurrencyType.AncientRareToLegendary,CraftingCurrencyType.AncientReroll,CraftingCurrencyType.AncientAddModifier,CraftingCurrencyType.AncientRemoveModifier,CraftingCurrencyType.EmpowermentCatalyst};
         for(int index=0;index<ordered.Length;index++)
         {
@@ -255,7 +284,8 @@ public sealed class CurrencyInventoryPanel : MonoBehaviour
             Rect slotRect=catalyst?InventoryArtLayout.P(270,498,455,526):(ancient?InventoryArtLayout.AncientCurrencySlots:InventoryArtLayout.OrdinaryCurrencySlots)[rowIndex];
             Rect countRect=catalyst?InventoryArtLayout.P(400,501,450,523):(ancient?InventoryArtLayout.AncientCountBoxes:InventoryArtLayout.OrdinaryCountBoxes)[rowIndex];
             Rect localCountRect=InventoryArtLayout.Relative(countRect,slotRect);
-            if(currencyEntries.TryGetValue(type,out var existing)&&existing!=null){InventoryArtLayout.Apply((RectTransform)existing.transform,slotRect);if(ancient||catalyst){var art=existing.GetComponent<Image>();art.sprite=InventoryArtCatalog.Currency(type);art.enabled=art.sprite!=null;}var existingLabel=existing.GetComponentInChildren<TMP_Text>(true);if(existingLabel!=null)InventoryArtLayout.Apply(existingLabel.rectTransform,localCountRect);existing.RefreshPresentation();continue;}
+            if(currencyEntries.TryGetValue(type,out var existing)&&existing!=null)continue;
+            if(!createMissing){Debug.LogError("Missing authored currency slot: "+type,this);continue;}
             var go = new GameObject(type.ToString(), typeof(RectTransform), typeof(Image), typeof(RectMask2D), typeof(Outline), typeof(Button), typeof(CurrencySlotUI));
             go.transform.SetParent(ancient?ancientRoot:ordinaryRoot,false);InventoryArtLayout.Apply((RectTransform)go.transform,slotRect);
             var image=go.GetComponent<Image>();image.sprite=ancient||catalyst?InventoryArtCatalog.Currency(type):null;image.preserveAspect=true;image.color=ancient||catalyst?Color.white:new Color(1,1,1,.001f);image.enabled=!ancient&&!catalyst||image.sprite!=null;
@@ -265,14 +295,14 @@ public sealed class CurrencyInventoryPanel : MonoBehaviour
             var outline=go.GetComponent<Outline>();outline.effectColor=new Color(1f,.78f,.25f);outline.effectDistance=new Vector2(2,-2);
             var slot=go.GetComponent<CurrencySlotUI>();slot.Initialize(type, owner, label, outline);currencyEntries[type]=slot;
         }
-        RefreshFragmentLabel(CraftingCurrencyType.NormalToMagic,InventoryArtLayout.P(67,792,174,816));
-        RefreshFragmentLabel(CraftingCurrencyType.MagicToRare,InventoryArtLayout.P(355,792,462,816));
-        CurrencyTooltipUI.RefreshVisible();
+        RefreshFragmentLabel(CraftingCurrencyType.NormalToMagic,InventoryArtLayout.P(67,792,174,816),createMissing);
+        RefreshFragmentLabel(CraftingCurrencyType.MagicToRare,InventoryArtLayout.P(355,792,462,816),createMissing);
     }
-    void RefreshFragmentLabel(CraftingCurrencyType type,Rect bounds)
+    void RefreshFragmentLabel(CraftingCurrencyType type,Rect bounds,bool createMissing=false)
     {
         if(!fragmentLabels.TryGetValue(type,out var label)||label==null)
         {
+            if(!createMissing){Debug.LogError("Missing authored currency fragment label: "+type,this);return;}
             var go=new GameObject(type+" fragments",typeof(RectTransform),typeof(TextMeshProUGUI));
             go.transform.SetParent(ordinaryRoot,false);
             label=go.GetComponent<TextMeshProUGUI>();label.fontSize=10;label.alignment=TextAlignmentOptions.Center;
@@ -280,7 +310,7 @@ public sealed class CurrencyInventoryPanel : MonoBehaviour
             fragmentLabels[type]=label;
         }
         InventoryArtLayout.Apply(label.rectTransform,bounds);
-        label.text=$"Fragments {CurrencyInventory.Instance.FragmentCount(type)}/10";
+        label.text=$"Fragments {(CurrencyInventory.Instance!=null?CurrencyInventory.Instance.FragmentCount(type):0)}/10";
     }
     void RefreshRelics()
     {
@@ -306,7 +336,7 @@ public sealed class CurrencyInventoryPanel : MonoBehaviour
     static Button MakeButton(Transform parent,string textValue,UnityEngine.Events.UnityAction action)
     {
         var go=new GameObject(textValue,typeof(RectTransform),typeof(Image),typeof(Button));go.transform.SetParent(parent,false);
-        var image=go.GetComponent<Image>();image.color=new Color(.15f,.15f,.18f);var button=go.GetComponent<Button>();button.onClick.AddListener(action);
+        var image=go.GetComponent<Image>();image.color=new Color(.15f,.15f,.18f);var button=go.GetComponent<Button>();if(action!=null)button.onClick.AddListener(action);
         var labelGo=new GameObject("Label",typeof(RectTransform),typeof(TextMeshProUGUI));labelGo.transform.SetParent(go.transform,false);
         var r=(RectTransform)labelGo.transform;r.anchorMin=Vector2.zero;r.anchorMax=Vector2.one;r.offsetMin=r.offsetMax=Vector2.zero;
         var label=labelGo.GetComponent<TextMeshProUGUI>();label.text=textValue;label.fontSize=12;label.alignment=TextAlignmentOptions.Center;label.raycastTarget=false;return button;
@@ -319,12 +349,13 @@ public sealed class CurrencyInventoryPanel : MonoBehaviour
 
 public sealed class CurrencySlotUI : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler, ISubmitHandler
 {
-    CraftingCurrencyType type; InventoryUI inventoryUI; TMP_Text label; Outline outline; Image selectionOverlay;
+    [SerializeField] CraftingCurrencyType type; InventoryUI inventoryUI; [SerializeField] TMP_Text label; [SerializeField] Outline outline; [SerializeField] Image selectionOverlay;
     public CraftingCurrencyType Type=>type;
     public string DisplayText=>label!=null?label.text:string.Empty;
     public Image SelectionOverlay=>selectionOverlay;
     public bool IsSelected=>selectionOverlay!=null&&selectionOverlay.gameObject.activeSelf;
     public void Initialize(CraftingCurrencyType value,InventoryUI owner,TMP_Text target,Outline border){type=value;inventoryUI=owner;label=target;outline=border;EnsureSelectionOverlay();RefreshPresentation();}
+    public void BindOwner(InventoryUI owner){inventoryUI=owner;if(selectionOverlay==null)Debug.LogError("Currency slot is missing its authored selection overlay.",this);}
     void EnsureSelectionOverlay()
     {
         if(selectionOverlay!=null)return;

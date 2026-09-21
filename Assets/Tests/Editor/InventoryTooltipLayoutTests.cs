@@ -187,7 +187,7 @@ public class InventoryTooltipLayoutTests
         var slot=go.GetComponent<CurrencySlotUI>();slot.Initialize(CraftingCurrencyType.NormalToMagic,null,labelObject.GetComponent<TextMeshProUGUI>(),go.GetComponent<Outline>());
         Assert.That(slot.DisplayText,Is.EqualTo("1"));Assert.That(slot.DisplayText,Does.Not.Contain("x"));Assert.That(rect.anchorMin.x,Is.GreaterThan(.5f));Assert.That(rect.anchorMax.x,Is.LessThanOrEqualTo(1f));Assert.That(rect.anchorMax.y,Is.LessThan(.3f));
         currency.Add(CraftingCurrencyType.AncientReroll);slot.Initialize(CraftingCurrencyType.AncientReroll,null,labelObject.GetComponent<TextMeshProUGUI>(),go.GetComponent<Outline>());Assert.That(slot.DisplayText,Is.EqualTo("1"));
-        var panelObject=Track(new GameObject("currency panel",typeof(RectTransform),typeof(CurrencyInventoryPanel)));panelObject.GetComponent<CurrencyInventoryPanel>().Initialize(null,null);
+        var panelObject=Track(new GameObject("currency panel",typeof(RectTransform),typeof(CurrencyInventoryPanel)));panelObject.GetComponent<CurrencyInventoryPanel>().BuildAuthoring(null,null);panelObject.GetComponent<CurrencyInventoryPanel>().Initialize(null,null);
         var fragmentLabel=panelObject.transform.Find("Ordinary currency/NormalToMagic fragments")?.GetComponent<TMP_Text>();
         Assert.That(fragmentLabel,Is.Not.Null);
         Assert.That(fragmentLabel.text,Is.EqualTo("Fragments 0/10"));

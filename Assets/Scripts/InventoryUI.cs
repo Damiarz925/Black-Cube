@@ -18,6 +18,7 @@ public class InventoryUI : MonoBehaviour
     public static readonly Vector2 GridCellSize = new Vector2(59, 59);
     public static readonly Vector2 GridSpacing = new Vector2(17, 9);
     [Header("UI References")]
+    [SerializeField] private InventoryView authoredView;
     [SerializeField] private Transform contentParent;
     [SerializeField] private GameObject itemSlotPrefab;
 
@@ -50,13 +51,18 @@ public class InventoryUI : MonoBehaviour
 
     private void Awake()
     {
-        ConfigureGrid();
-        if (GetComponent<InventoryFilterUI>() == null) gameObject.AddComponent<InventoryFilterUI>();
-        if (GetComponent<InventoryModHighlightUI>() == null) gameObject.AddComponent<InventoryModHighlightUI>();
+        if (authoredView == null) authoredView = GetComponent<InventoryView>();
+        if (authoredView == null)
+        {
+            Debug.LogError("InventoryUI requires an authored InventoryView. Run Black-Cube/UI Authoring/Build Inventory.", this);
+            return;
+        }
+        contentParent = authoredView.itemGridRoot;
+        if (authoredView.itemSlotPrefab != null) itemSlotPrefab = authoredView.itemSlotPrefab.gameObject;
         InventoryEquipmentPanelUI.Ensure(this, contentParent);
         currencyPanel = GetComponent<CurrencyInventoryPanel>();
-        if (currencyPanel == null) currencyPanel = gameObject.AddComponent<CurrencyInventoryPanel>();
-        currencyPanel.Initialize(this, contentParent);
+        if (currencyPanel != null) currencyPanel.Initialize(this, contentParent);
+        else Debug.LogError("InventoryView is missing its authored CurrencyInventoryPanel binding.", this);
         iconLookup = new Dictionary<LootManager.GearType, Sprite>();
 
         foreach (var entry in gearIcons)
@@ -65,6 +71,18 @@ public class InventoryUI : MonoBehaviour
             iconLookup[entry.gearType] = entry.icon;
         }
     }
+
+#if UNITY_EDITOR
+    public void BuildAuthoringView()
+    {
+        ConfigureGrid();
+        authoredView = GetComponent<InventoryView>();
+        if (authoredView == null) authoredView = gameObject.AddComponent<InventoryView>();
+        authoredView.authoredRoot = (RectTransform)transform;
+        authoredView.itemGridRoot = contentParent as RectTransform;
+        authoredView.itemSlotPrefab = itemSlotPrefab != null ? itemSlotPrefab.GetComponent<ItemSlotUI>() : null;
+    }
+#endif
 
     private void ConfigureGrid()
     {
@@ -80,7 +98,12 @@ public class InventoryUI : MonoBehaviour
         go.GetComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
         contentParent = rect;
         if (scroll != null) { scroll.content = rect; scroll.horizontal = false; scroll.scrollSensitivity = 35; scroll.onValueChanged.AddListener(_ => Tooltip?.Hide()); }
-        old.gameObject.SetActive(false); Destroy(old.gameObject);
+        old.gameObject.SetActive(false);
+#if UNITY_EDITOR
+        if (!Application.isPlaying) DestroyImmediate(old.gameObject); else Destroy(old.gameObject);
+#else
+        Destroy(old.gameObject);
+#endif
         ConfigureGridMetrics();
     }
 

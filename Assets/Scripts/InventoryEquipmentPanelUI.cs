@@ -8,19 +8,34 @@ public sealed class InventoryEquipmentPanelUI : MonoBehaviour
     static readonly Color Ink = new Color(.027f, .03f, .037f, .98f);
     static readonly Color Muted = new Color(.48f, .5f, .54f);
     static readonly Color Red = new Color(.78f, .12f, .16f);
-    EquipmentStatsUI equipmentView;
-    GameObject equipmentRoot;
-    GameObject relicHost;
-    GameObject itemScroll;
+    [SerializeField] EquipmentStatsUI equipmentView;
+    [SerializeField] GameObject equipmentRoot;
+    [SerializeField] GameObject relicHost;
+    [SerializeField] GameObject itemScroll;
 
     public static InventoryEquipmentPanelUI Ensure(InventoryUI owner, Transform itemContent)
     {
         if (owner == null) return null;
         var layout = owner.GetComponent<InventoryEquipmentPanelUI>();
-        if (layout == null) layout = owner.gameObject.AddComponent<InventoryEquipmentPanelUI>();
-        layout.Build(itemContent);
+        if (layout == null) { Debug.LogError("InventoryUI is missing its authored InventoryEquipmentPanelUI.", owner); return null; }
+        layout.Bind(itemContent);
         return layout;
     }
+
+    public void Bind(Transform itemContent)
+    {
+        if (equipmentView == null && equipmentRoot != null) equipmentView = equipmentRoot.GetComponent<EquipmentStatsUI>();
+        if (itemScroll == null && itemContent != null)
+        {
+            ScrollRect scroll = itemContent.GetComponentInParent<ScrollRect>();
+            if (scroll != null) itemScroll = scroll.gameObject;
+        }
+        if (equipmentView == null) Debug.LogError("Inventory equipment layout is not authored. Run the Inventory authoring builder.", this);
+    }
+
+#if UNITY_EDITOR
+    public void BuildAuthoring(Transform itemContent) => Build(itemContent);
+#endif
 
     public void Build(Transform itemContent)
     {
@@ -40,7 +55,14 @@ public sealed class InventoryEquipmentPanelUI : MonoBehaviour
         foreach(var button in GetComponentsInChildren<Button>(true))if(button.name=="X")BakedInventoryButton.Configure(button,InventoryArtLayout.CloseButton);
 
         Transform oldEquipment = transform.Find("Equipped gear layout");
-        if (oldEquipment != null) Destroy(oldEquipment.gameObject);
+        if (oldEquipment != null)
+        {
+#if UNITY_EDITOR
+            if (!Application.isPlaying) DestroyImmediate(oldEquipment.gameObject); else Destroy(oldEquipment.gameObject);
+#else
+            Destroy(oldEquipment.gameObject);
+#endif
+        }
         equipmentRoot = new GameObject("Equipped gear layout", typeof(RectTransform), typeof(EquipmentStatsUI));
         equipmentRoot.transform.SetParent(transform, false);
         Place((RectTransform)equipmentRoot.transform, 0, 0, 1, 1);
@@ -55,7 +77,9 @@ public sealed class InventoryEquipmentPanelUI : MonoBehaviour
         relicHost = new GameObject("Equipped relic layout", typeof(RectTransform), typeof(RelicEquipmentUI));
         relicHost.transform.SetParent(transform, false);
         Place((RectTransform)relicHost.transform, 0, 0, 1, 1);
+        #if UNITY_EDITOR
         relicHost.GetComponent<RelicEquipmentUI>().Build();
+        #endif
 
         if (itemContent != null)
         {

@@ -237,10 +237,11 @@ public sealed class RebirthManager : MonoBehaviour
     }
 }
 
-/// <summary>Runtime-built four-slot relic strip for the player equipment/stats screen.</summary>
+/// <summary>Authored four-slot relic strip for the player equipment/stats screen.</summary>
 public sealed class RelicEquipmentUI : MonoBehaviour
 {
-    readonly List<ActiveRelicSlotUI> slots=new();
+    [SerializeField] List<ActiveRelicSlotUI> slots=new();
+#if UNITY_EDITOR
     public void Build()
     {
         if(slots.Count>0)return;
@@ -255,14 +256,15 @@ public sealed class RelicEquipmentUI : MonoBehaviour
             var slot=go.GetComponent<ActiveRelicSlotUI>();slot.Initialize(i,label);go.GetComponent<Button>().onClick.AddListener(slot.Activate);slots.Add(slot);
         }
     }
-    void OnEnable(){Build();if(RelicInventory.Instance!=null)RelicInventory.Instance.Changed+=Refresh;Refresh();}
+#endif
+    void OnEnable(){if(slots.Count==0)slots.AddRange(GetComponentsInChildren<ActiveRelicSlotUI>(true));if(slots.Count==0)Debug.LogError("RelicEquipmentUI requires authored active relic slots.",this);if(RelicInventory.Instance!=null)RelicInventory.Instance.Changed+=Refresh;Refresh();}
     void OnDisable(){if(RelicInventory.Instance!=null)RelicInventory.Instance.Changed-=Refresh;}
     void Refresh(){foreach(var slot in slots)slot.Refresh();}
 }
 
 public sealed class ActiveRelicSlotUI:MonoBehaviour,IPointerClickHandler,IPointerEnterHandler,IPointerExitHandler
 {
-    int slot;TMP_Text label;
+    [SerializeField] int slot;[SerializeField] TMP_Text label;
     public void Initialize(int index,TMP_Text target){slot=index;label=target;Refresh();}
     public RelicData Item=>RelicInventory.Instance?.Active(slot);
     public string DisplayText=>label!=null?label.text:string.Empty;
