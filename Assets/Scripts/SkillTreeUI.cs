@@ -25,6 +25,7 @@ public sealed class SkillTreeUI : MonoBehaviour
     ScrollRect scroll;
     readonly Button[] nodes = new Button[PassiveTreeDefinition.NodeCount];
     readonly List<PassiveConnectionView> connections = new();
+    readonly Dictionary<string, PassiveJunctionView> junctions = new();
     readonly Dictionary<PassiveBranch, TMP_Text> branchLabels = new();
     PlayerProgression progression;
     int selectedNode = -1;
@@ -36,13 +37,24 @@ public sealed class SkillTreeUI : MonoBehaviour
 
     public GameObject Panel => panel;
     public Button NodeButton(int index) => index >= 0 && index < nodes.Length ? nodes[index] : null;
+    public int JunctionCount => junctions.Count;
 
     sealed class PassiveConnectionView
     {
         public int A;
         public int B;
+        public int VisibilityNodeId;
+        public bool IsJunctionStem;
         public Image Image;
         public Outline Outline;
+    }
+
+    sealed class PassiveJunctionView
+    {
+        public int SpineNodeId;
+        public int VisibilityNodeId;
+        public Image Image;
+        public PassiveConnectionView Stem;
     }
 
     void Start()
@@ -111,9 +123,35 @@ public sealed class SkillTreeUI : MonoBehaviour
 
         foreach (PassiveTreeEdge edge in PassiveTreeDefinition.Edges)
         {
-            Vector2 from = positions[edge.A];
-            Image image = Line(content, from, positions[edge.B], out Outline outline);
-            connections.Add(new PassiveConnectionView { A = edge.A, B = edge.B, Image = image, Outline = outline });
+            PassiveNodeDefinition a = PassiveTreeDefinition.Node(edge.A);
+            PassiveNodeDefinition b = PassiveTreeDefinition.Node(edge.B);
+            if (!a.IsChoice && !b.IsChoice)
+            {
+                Image direct = Line(content, positions[edge.A], positions[edge.B], out Outline directOutline);
+                connections.Add(new PassiveConnectionView { A = edge.A, B = edge.B, VisibilityNodeId = edge.B, Image = direct, Outline = directOutline });
+                continue;
+            }
+
+            PassiveNodeDefinition choice = a.IsChoice ? a : b;
+            PassiveNodeDefinition spine = a.IsChoice ? b : a;
+            string groupId = choice.ChoiceGroupId;
+            Vector2 junctionPosition = CalculateJunctionPosition(choice, positions[spine.Id]);
+            if (!junctions.TryGetValue(groupId, out PassiveJunctionView junction))
+            {
+                Image stem = Line(content, positions[spine.Id], junctionPosition, out Outline stemOutline);
+                var stemView = new PassiveConnectionView { A = spine.Id, B = -1, VisibilityNodeId = choice.Id, IsJunctionStem = true, Image = stem, Outline = stemOutline };
+                connections.Add(stemView);
+                junction = new PassiveJunctionView { SpineNodeId = spine.Id, VisibilityNodeId = choice.Id, Image = CreateJunction(content, groupId, junctionPosition), Stem = stemView };
+                junctions.Add(groupId, junction);
+            }
+            else if (PassiveTreeDefinition.Node(junction.VisibilityNodeId).IsSubclassChoice && !choice.IsSubclassChoice)
+            {
+                junction.VisibilityNodeId = choice.Id;
+                junction.Stem.VisibilityNodeId = choice.Id;
+            }
+
+            Image fan = Line(content, junctionPosition, positions[choice.Id], out Outline fanOutline);
+            connections.Add(new PassiveConnectionView { A = spine.Id, B = choice.Id, VisibilityNodeId = choice.Id, Image = fan, Outline = fanOutline });
         }
 
         foreach (PassiveNodeDefinition node in PassiveTreeDefinition.Nodes)
@@ -148,6 +186,14 @@ public sealed class SkillTreeUI : MonoBehaviour
             'b'=>spine+tangent*(sign*330),
             _=>spine+tangent*(sign*260)-outward*80
         };
+    }
+
+    public static Vector2 CalculateJunctionPosition(PassiveNodeDefinition choice, Vector2 spinePosition)
+    {
+        Vector2 outward = spinePosition.normalized;
+        Vector2 tangent = new(-outward.y, outward.x);
+        int sign = choice.StableId.Contains(".right.") ? 1 : -1;
+        return spinePosition + tangent * (sign * 145f);
     }
 
     Button CreateNodeButton(Transform parent, PassiveNodeDefinition node, Vector2 position)
@@ -209,10 +255,18 @@ public sealed class SkillTreeUI : MonoBehaviour
 
         foreach (PassiveConnectionView connection in connections)
         {
-            bool visible=nodes[connection.A].gameObject.activeSelf&&nodes[connection.B].gameObject.activeSelf;connection.Image.gameObject.SetActive(visible);if(!visible)continue;
-            bool allocated = progression.IsAllocated(connection.A)&&progression.IsAllocated(connection.B);
+            bool visible=nodes[connection.A].gameObject.activeSelf&&nodes[connection.VisibilityNodeId].gameObject.activeSelf;connection.Image.gameObject.SetActive(visible);if(!visible)continue;
+            bool allocated = progression.IsAllocated(connection.A)&&(connection.IsJunctionStem||progression.IsAllocated(connection.B));
             connection.Image.color = allocated ? ConnectionAllocated : ConnectionInactive;
             connection.Outline.enabled = allocated;
+        }
+
+
+        foreach (PassiveJunctionView junction in junctions.Values)
+        {
+            bool visible = nodes[junction.VisibilityNodeId].gameObject.activeSelf;
+            junction.Image.gameObject.SetActive(visible);
+            if (visible) junction.Image.color = progression.IsAllocated(junction.SpineNodeId) ? ConnectionAllocated : new Color(1f, .38f, .08f, 1f);
         }
 
         foreach (var pair in branchLabels)
@@ -458,6 +512,40 @@ public sealed class SkillTreeUI : MonoBehaviour
         outline.enabled = false;
         go.transform.SetAsFirstSibling();
         return image;
+    }
+
+    static Image CreateJunction(Transform parent, string groupId, Vector2 position)
+    {
+        var go = Box(parent, "Branch Junction " + groupId, Vector2.one * .5f, Vector2.one * .5f, new Color(1f, .38f, .08f, 1f));
+        var rect = (RectTransform)go.transform;
+        rect.sizeDelta = Vector2.one * 26f;
+        rect.anchoredPosition = position;
+        var image = go.GetComponent<Image>();
+        image.sprite = JunctionSprite();
+        image.preserveAspect = true;
+        image.raycastTarget = false;
+        return image;
+    }
+
+    static Sprite junctionSprite;
+    static Sprite JunctionSprite()
+    {
+        if (junctionSprite != null) return junctionSprite;
+        const int size = 32;
+        var texture = new Texture2D(size, size, TextureFormat.RGBA32, false) { name = "Passive Branch Junction", hideFlags = HideFlags.DontSave };
+        var pixels = new Color[size * size];
+        Vector2 center = Vector2.one * ((size - 1) * .5f);
+        for (int y = 0; y < size; y++)
+        for (int x = 0; x < size; x++)
+        {
+            float distance = Vector2.Distance(new Vector2(x, y), center);
+            pixels[y * size + x] = distance <= 14f && distance >= 9f ? Color.white : Color.clear;
+        }
+        texture.SetPixels(pixels);
+        texture.Apply(false, true);
+        junctionSprite = Sprite.Create(texture, new Rect(0, 0, size, size), Vector2.one * .5f, size);
+        junctionSprite.name = "Passive Branch Junction";
+        return junctionSprite;
     }
 }
 

@@ -8,6 +8,8 @@ The radial order is Warrior 90°, Ranger 30°, Thief -30°, Mage -90°, Priest -
 
 The native class renders a fourth, purple subclass sibling in every side group. It remains locked until the story entitlement and subclass selection exist, then derives its effect only from the selected subclass. Other class routes hide this slot and render the symmetric three-choice template. Changing subclass refunds allocated fourth-choice nodes and leaves generic allocations intact.
 
+The branch rendering follows the approved three-choice and four-choice visual references: each spine tier connects left and right to a small, non-allocatable circular junction, then fans from that junction to equal-sized sibling choices. Three-choice groups place one choice on the branch centerline and two choices inward/outward along the route; native four-choice groups use two centered choices plus the inward/outward pair. The same junction-and-fan grammar continues through weapon routes.
+
 At creation only native Tier 1 is available. Completing all ten native spine nodes unlocks Tier 1 of every other class. Native-spine refunds are blocked while off-class allocations depend on that unlock.
 
 ## Weapon routes
