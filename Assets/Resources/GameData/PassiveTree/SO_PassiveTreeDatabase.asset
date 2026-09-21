@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 127bf14e9d0ef8d45a3cf32b8da2a4ee, type: 3}
+  m_Name: SO_PassiveTreeDatabase
+  m_EditorClassIdentifier: Assembly-CSharp::PassiveTreeDatabaseSO
+  classBranches:
+  - {fileID: 11400000, guid: f3fc9c7fda90c3d4d8c3397bca38d9aa, type: 2}
+  - {fileID: 11400000, guid: 503af480cfc8d5449b96429d2054de70, type: 2}
+  - {fileID: 11400000, guid: 516e4cd9b0892424cabeefe7a40a6b85, type: 2}
+  - {fileID: 11400000, guid: dd82044a101eb4c4b869b55f608046c5, type: 2}
+  - {fileID: 11400000, guid: b1cbc3ef961f675469ec552c2cdaad55, type: 2}
+  - {fileID: 11400000, guid: 73d98f3b39802e84f910f58a73353949, type: 2}
+  weaponBranches:
+  - {fileID: 11400000, guid: 2319e68c89394f34eb8d7b1749871fca, type: 2}
+  - {fileID: 11400000, guid: eeb363953b79e7440b4859edfb113081, type: 2}
+  - {fileID: 11400000, guid: 05b46399fce0da242824b13c3fbf08ed, type: 2}
+  - {fileID: 11400000, guid: c2def63d0fad151489b067f1efa4fa12, type: 2}
+  - {fileID: 11400000, guid: c4ec6d2f6a28e7d49a3a9e0caa544c66, type: 2}
+  - {fileID: 11400000, guid: 381040d0c7796ba41a8bcc79c4427bd5, type: 2}
+  iconLibrary: {fileID: 11400000, guid: 9c95c3ecead221d42b8ad5ea0835c5a5, type: 2}
+  effectCatalog: {fileID: 11400000, guid: da2915f27ffecc34da3d307e3e85a945, type: 2}

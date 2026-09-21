@@ -1,0 +1,851 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d29b1df66ebd188438176e8b8578ce14, type: 3}
+  m_Name: SO_Sword_Branch
+  m_EditorClassIdentifier: Assembly-CSharp::PassiveWeaponBranchSO
+  visualStyle:
+    spineNormal: {fileID: 0}
+    spineHover: {fileID: 0}
+    spineAllocated: {fileID: 0}
+    spineUnavailable: {fileID: 0}
+    choiceNormal: {fileID: 0}
+    choiceHover: {fileID: 0}
+    choiceAllocated: {fileID: 0}
+    choiceUnavailable: {fileID: 0}
+    subclassLocked: {fileID: 0}
+    subclassAvailable: {fileID: 0}
+    subclassHover: {fileID: 0}
+    subclassAllocated: {fileID: 0}
+    junction: {fileID: 0}
+    connectionMaterial: {fileID: 0}
+    classAccent: {r: 0.95, g: 0.45, b: 0.1, a: 1}
+    weaponAccent: {r: 0.95, g: 0.65, b: 0.16, a: 1}
+    subclassAccent: {r: 0.78, g: 0.42, b: 1, a: 1}
+    branchBackground: {fileID: 0}
+  weaponId: weapon.sword
+  owningClassId: class.warrior
+  tiers:
+  - tier: 1
+    spine:
+      stableId: tree.v3.weapon.sword.t01.spine
+      logicalSlotId: tree.v3.weapon.sword.t01.spine
+      displayName: Sword Tier 1
+      description: Weapon specialization mainline node.
+      branch: 8
+      size: 1
+      kind: 8
+      keystone: 0
+      effects:
+      - kind: 0
+        stat: 14
+        mechanicId: 
+        value: 14.400001
+      iconMode: 0
+      iconOverride: {fileID: 0}
+    right:
+      a:
+        stableId: tree.v3.weapon.sword.t01.right.a
+        logicalSlotId: tree.v3.weapon.sword.t01.right.a
+        displayName: Sword Life On Hit
+        description: 
+        branch: 22
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 74
+          mechanicId: 
+          value: 5.7599998
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      b:
+        stableId: tree.v3.weapon.sword.t01.right.b
+        logicalSlotId: tree.v3.weapon.sword.t01.right.b
+        displayName: Sword Hit Twice
+        description: 
+        branch: 17
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 83
+          mechanicId: 
+          value: 8.639999
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      c:
+        stableId: tree.v3.weapon.sword.t01.right.c
+        logicalSlotId: tree.v3.weapon.sword.t01.right.c
+        displayName: Sword Defense
+        description: 
+        branch: 0
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 52
+          mechanicId: 
+          value: 14.400001
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      subclassA:
+        stableId: 
+        logicalSlotId: 
+        displayName: 
+        description: 
+        branch: 0
+        size: 0
+        kind: 6
+        keystone: 0
+        effects: []
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      subclassB:
+        stableId: 
+        logicalSlotId: 
+        displayName: 
+        description: 
+        branch: 0
+        size: 0
+        kind: 6
+        keystone: 0
+        effects: []
+        iconMode: 0
+        iconOverride: {fileID: 0}
+    left:
+      a:
+        stableId: tree.v3.weapon.sword.t01.left.a
+        logicalSlotId: tree.v3.weapon.sword.t01.left.a
+        displayName: Sword Physical
+        description: 
+        branch: 8
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 14
+          mechanicId: 
+          value: 14.400001
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      b:
+        stableId: tree.v3.weapon.sword.t01.left.b
+        logicalSlotId: tree.v3.weapon.sword.t01.left.b
+        displayName: Sword Attack Speed
+        description: 
+        branch: 11
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 81
+          mechanicId: 
+          value: 14.400001
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      c:
+        stableId: tree.v3.weapon.sword.t01.left.c
+        logicalSlotId: tree.v3.weapon.sword.t01.left.c
+        displayName: Sword Critical Chance
+        description: 
+        branch: 20
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 11
+          mechanicId: 
+          value: 14.400001
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      subclassA:
+        stableId: 
+        logicalSlotId: 
+        displayName: 
+        description: 
+        branch: 0
+        size: 0
+        kind: 6
+        keystone: 0
+        effects: []
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      subclassB:
+        stableId: 
+        logicalSlotId: 
+        displayName: 
+        description: 
+        branch: 0
+        size: 0
+        kind: 6
+        keystone: 0
+        effects: []
+        iconMode: 0
+        iconOverride: {fileID: 0}
+  - tier: 2
+    spine:
+      stableId: tree.v3.weapon.sword.t02.spine
+      logicalSlotId: tree.v3.weapon.sword.t02.spine
+      displayName: Sword Tier 2
+      description: Weapon specialization mainline node.
+      branch: 12
+      size: 1
+      kind: 8
+      keystone: 0
+      effects:
+      - kind: 0
+        stat: 34
+        mechanicId: 
+        value: 14.72
+      iconMode: 0
+      iconOverride: {fileID: 0}
+    right:
+      a:
+        stableId: tree.v3.weapon.sword.t02.right.a
+        logicalSlotId: tree.v3.weapon.sword.t02.right.a
+        displayName: Sword Life
+        description: 
+        branch: 1
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 70
+          mechanicId: 
+          value: 14.72
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      b:
+        stableId: tree.v3.weapon.sword.t02.right.b
+        logicalSlotId: tree.v3.weapon.sword.t02.right.b
+        displayName: Sword Mana On Hit
+        description: 
+        branch: 23
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 75
+          mechanicId: 
+          value: 5.888
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      c:
+        stableId: tree.v3.weapon.sword.t02.right.c
+        logicalSlotId: tree.v3.weapon.sword.t02.right.c
+        displayName: Sword Cooldown Reduction
+        description: 
+        branch: 29
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 126
+          mechanicId: 
+          value: 14.72
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      subclassA:
+        stableId: 
+        logicalSlotId: 
+        displayName: 
+        description: 
+        branch: 0
+        size: 0
+        kind: 6
+        keystone: 0
+        effects: []
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      subclassB:
+        stableId: 
+        logicalSlotId: 
+        displayName: 
+        description: 
+        branch: 0
+        size: 0
+        kind: 6
+        keystone: 0
+        effects: []
+        iconMode: 0
+        iconOverride: {fileID: 0}
+    left:
+      a:
+        stableId: tree.v3.weapon.sword.t02.left.a
+        logicalSlotId: tree.v3.weapon.sword.t02.left.a
+        displayName: Sword Critical Multiplier
+        description: 
+        branch: 21
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 12
+          mechanicId: 
+          value: 23.552
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      b:
+        stableId: tree.v3.weapon.sword.t02.left.b
+        logicalSlotId: tree.v3.weapon.sword.t02.left.b
+        displayName: Sword Bleed Chance
+        description: 
+        branch: 12
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 34
+          mechanicId: 
+          value: 14.72
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      c:
+        stableId: tree.v3.weapon.sword.t02.left.c
+        logicalSlotId: tree.v3.weapon.sword.t02.left.c
+        displayName: Sword Hit Twice
+        description: 
+        branch: 17
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 83
+          mechanicId: 
+          value: 8.832
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      subclassA:
+        stableId: 
+        logicalSlotId: 
+        displayName: 
+        description: 
+        branch: 0
+        size: 0
+        kind: 6
+        keystone: 0
+        effects: []
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      subclassB:
+        stableId: 
+        logicalSlotId: 
+        displayName: 
+        description: 
+        branch: 0
+        size: 0
+        kind: 6
+        keystone: 0
+        effects: []
+        iconMode: 0
+        iconOverride: {fileID: 0}
+  - tier: 3
+    spine:
+      stableId: tree.v3.weapon.sword.t03.spine
+      logicalSlotId: tree.v3.weapon.sword.t03.spine
+      displayName: Sword Tier 3
+      description: Weapon specialization mainline node.
+      branch: 20
+      size: 1
+      kind: 8
+      keystone: 0
+      effects:
+      - kind: 0
+        stat: 11
+        mechanicId: 
+        value: 15.04
+      iconMode: 0
+      iconOverride: {fileID: 0}
+    right:
+      a:
+        stableId: tree.v3.weapon.sword.t03.right.a
+        logicalSlotId: tree.v3.weapon.sword.t03.right.a
+        displayName: Sword Life On Hit
+        description: 
+        branch: 22
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 74
+          mechanicId: 
+          value: 6.0160003
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      b:
+        stableId: tree.v3.weapon.sword.t03.right.b
+        logicalSlotId: tree.v3.weapon.sword.t03.right.b
+        displayName: Sword Hit Twice
+        description: 
+        branch: 17
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 83
+          mechanicId: 
+          value: 9.024
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      c:
+        stableId: tree.v3.weapon.sword.t03.right.c
+        logicalSlotId: tree.v3.weapon.sword.t03.right.c
+        displayName: Sword Defense
+        description: 
+        branch: 0
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 52
+          mechanicId: 
+          value: 15.04
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      subclassA:
+        stableId: 
+        logicalSlotId: 
+        displayName: 
+        description: 
+        branch: 0
+        size: 0
+        kind: 6
+        keystone: 0
+        effects: []
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      subclassB:
+        stableId: 
+        logicalSlotId: 
+        displayName: 
+        description: 
+        branch: 0
+        size: 0
+        kind: 6
+        keystone: 0
+        effects: []
+        iconMode: 0
+        iconOverride: {fileID: 0}
+    left:
+      a:
+        stableId: tree.v3.weapon.sword.t03.left.a
+        logicalSlotId: tree.v3.weapon.sword.t03.left.a
+        displayName: Sword Physical
+        description: 
+        branch: 8
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 14
+          mechanicId: 
+          value: 15.04
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      b:
+        stableId: tree.v3.weapon.sword.t03.left.b
+        logicalSlotId: tree.v3.weapon.sword.t03.left.b
+        displayName: Sword Attack Speed
+        description: 
+        branch: 11
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 81
+          mechanicId: 
+          value: 15.04
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      c:
+        stableId: tree.v3.weapon.sword.t03.left.c
+        logicalSlotId: tree.v3.weapon.sword.t03.left.c
+        displayName: Sword Critical Chance
+        description: 
+        branch: 20
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 11
+          mechanicId: 
+          value: 15.04
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      subclassA:
+        stableId: 
+        logicalSlotId: 
+        displayName: 
+        description: 
+        branch: 0
+        size: 0
+        kind: 6
+        keystone: 0
+        effects: []
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      subclassB:
+        stableId: 
+        logicalSlotId: 
+        displayName: 
+        description: 
+        branch: 0
+        size: 0
+        kind: 6
+        keystone: 0
+        effects: []
+        iconMode: 0
+        iconOverride: {fileID: 0}
+  - tier: 4
+    spine:
+      stableId: tree.v3.weapon.sword.t04.spine
+      logicalSlotId: tree.v3.weapon.sword.t04.spine
+      displayName: Sword Tier 4
+      description: Weapon specialization mainline node.
+      branch: 21
+      size: 1
+      kind: 8
+      keystone: 0
+      effects:
+      - kind: 0
+        stat: 12
+        mechanicId: 
+        value: 24.576
+      iconMode: 0
+      iconOverride: {fileID: 0}
+    right:
+      a:
+        stableId: tree.v3.weapon.sword.t04.right.a
+        logicalSlotId: tree.v3.weapon.sword.t04.right.a
+        displayName: Sword Life
+        description: 
+        branch: 1
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 70
+          mechanicId: 
+          value: 15.36
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      b:
+        stableId: tree.v3.weapon.sword.t04.right.b
+        logicalSlotId: tree.v3.weapon.sword.t04.right.b
+        displayName: Sword Mana On Hit
+        description: 
+        branch: 23
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 75
+          mechanicId: 
+          value: 6.144
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      c:
+        stableId: tree.v3.weapon.sword.t04.right.c
+        logicalSlotId: tree.v3.weapon.sword.t04.right.c
+        displayName: Sword Cooldown Reduction
+        description: 
+        branch: 29
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 126
+          mechanicId: 
+          value: 15.36
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      subclassA:
+        stableId: 
+        logicalSlotId: 
+        displayName: 
+        description: 
+        branch: 0
+        size: 0
+        kind: 6
+        keystone: 0
+        effects: []
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      subclassB:
+        stableId: 
+        logicalSlotId: 
+        displayName: 
+        description: 
+        branch: 0
+        size: 0
+        kind: 6
+        keystone: 0
+        effects: []
+        iconMode: 0
+        iconOverride: {fileID: 0}
+    left:
+      a:
+        stableId: tree.v3.weapon.sword.t04.left.a
+        logicalSlotId: tree.v3.weapon.sword.t04.left.a
+        displayName: Sword Critical Multiplier
+        description: 
+        branch: 21
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 12
+          mechanicId: 
+          value: 24.576
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      b:
+        stableId: tree.v3.weapon.sword.t04.left.b
+        logicalSlotId: tree.v3.weapon.sword.t04.left.b
+        displayName: Sword Bleed Chance
+        description: 
+        branch: 12
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 34
+          mechanicId: 
+          value: 15.36
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      c:
+        stableId: tree.v3.weapon.sword.t04.left.c
+        logicalSlotId: tree.v3.weapon.sword.t04.left.c
+        displayName: Sword Hit Twice
+        description: 
+        branch: 17
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 83
+          mechanicId: 
+          value: 9.216
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      subclassA:
+        stableId: 
+        logicalSlotId: 
+        displayName: 
+        description: 
+        branch: 0
+        size: 0
+        kind: 6
+        keystone: 0
+        effects: []
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      subclassB:
+        stableId: 
+        logicalSlotId: 
+        displayName: 
+        description: 
+        branch: 0
+        size: 0
+        kind: 6
+        keystone: 0
+        effects: []
+        iconMode: 0
+        iconOverride: {fileID: 0}
+  - tier: 5
+    spine:
+      stableId: tree.v3.weapon.sword.t05.spine
+      logicalSlotId: tree.v3.weapon.sword.t05.spine
+      displayName: Sword Tier 5
+      description: Weapon specialization mainline node.
+      branch: 11
+      size: 1
+      kind: 8
+      keystone: 0
+      effects:
+      - kind: 0
+        stat: 81
+        mechanicId: 
+        value: 15.68
+      iconMode: 0
+      iconOverride: {fileID: 0}
+    right:
+      a:
+        stableId: tree.v3.weapon.sword.t05.right.a
+        logicalSlotId: tree.v3.weapon.sword.t05.right.a
+        displayName: Sword Life On Hit
+        description: 
+        branch: 22
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 74
+          mechanicId: 
+          value: 6.272
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      b:
+        stableId: tree.v3.weapon.sword.t05.right.b
+        logicalSlotId: tree.v3.weapon.sword.t05.right.b
+        displayName: Sword Hit Twice
+        description: 
+        branch: 17
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 83
+          mechanicId: 
+          value: 9.408
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      c:
+        stableId: tree.v3.weapon.sword.t05.right.c
+        logicalSlotId: tree.v3.weapon.sword.t05.right.c
+        displayName: Sword Defense
+        description: 
+        branch: 0
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 52
+          mechanicId: 
+          value: 15.68
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      subclassA:
+        stableId: 
+        logicalSlotId: 
+        displayName: 
+        description: 
+        branch: 0
+        size: 0
+        kind: 6
+        keystone: 0
+        effects: []
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      subclassB:
+        stableId: 
+        logicalSlotId: 
+        displayName: 
+        description: 
+        branch: 0
+        size: 0
+        kind: 6
+        keystone: 0
+        effects: []
+        iconMode: 0
+        iconOverride: {fileID: 0}
+    left:
+      a:
+        stableId: tree.v3.weapon.sword.t05.left.a
+        logicalSlotId: tree.v3.weapon.sword.t05.left.a
+        displayName: Sword Physical
+        description: 
+        branch: 8
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 14
+          mechanicId: 
+          value: 15.68
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      b:
+        stableId: tree.v3.weapon.sword.t05.left.b
+        logicalSlotId: tree.v3.weapon.sword.t05.left.b
+        displayName: Sword Attack Speed
+        description: 
+        branch: 11
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 81
+          mechanicId: 
+          value: 15.68
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      c:
+        stableId: tree.v3.weapon.sword.t05.left.c
+        logicalSlotId: tree.v3.weapon.sword.t05.left.c
+        displayName: Sword Critical Chance
+        description: 
+        branch: 20
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 11
+          mechanicId: 
+          value: 15.68
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      subclassA:
+        stableId: 
+        logicalSlotId: 
+        displayName: 
+        description: 
+        branch: 0
+        size: 0
+        kind: 6
+        keystone: 0
+        effects: []
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      subclassB:
+        stableId: 
+        logicalSlotId: 
+        displayName: 
+        description: 
+        branch: 0
+        size: 0
+        kind: 6
+        keystone: 0
+        effects: []
+        iconMode: 0
+        iconOverride: {fileID: 0}

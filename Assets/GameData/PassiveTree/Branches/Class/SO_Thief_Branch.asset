@@ -1,0 +1,1840 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 345e8e0c4e602db4682dd17f77769029, type: 3}
+  m_Name: SO_Thief_Branch
+  m_EditorClassIdentifier: Assembly-CSharp::PassiveClassBranchSO
+  visualStyle:
+    spineNormal: {fileID: 0}
+    spineHover: {fileID: 0}
+    spineAllocated: {fileID: 0}
+    spineUnavailable: {fileID: 0}
+    choiceNormal: {fileID: 0}
+    choiceHover: {fileID: 0}
+    choiceAllocated: {fileID: 0}
+    choiceUnavailable: {fileID: 0}
+    subclassLocked: {fileID: 0}
+    subclassAvailable: {fileID: 0}
+    subclassHover: {fileID: 0}
+    subclassAllocated: {fileID: 0}
+    junction: {fileID: 0}
+    connectionMaterial: {fileID: 0}
+    classAccent: {r: 0.95, g: 0.45, b: 0.1, a: 1}
+    weaponAccent: {r: 0.95, g: 0.65, b: 0.16, a: 1}
+    subclassAccent: {r: 0.78, g: 0.42, b: 1, a: 1}
+    branchBackground: {fileID: 0}
+  classId: class.thief
+  signatureWeaponId: weapon.dagger
+  subclassAId: subclass.thief.assassin
+  subclassBId: subclass.thief.ailment_crit
+  tiers:
+  - tier: 1
+    spine:
+      stableId: tree.v3.class.thief.t01.spine
+      logicalSlotId: tree.v3.class.thief.t01.spine
+      displayName: Thief Tier 1
+      description: Broad class-route mainline node.
+      branch: 27
+      size: 1
+      kind: 5
+      keystone: 0
+      effects:
+      - kind: 0
+        stat: 94
+        mechanicId: 
+        value: 5
+      - kind: 0
+        stat: 93
+        mechanicId: 
+        value: 4
+      iconMode: 0
+      iconOverride: {fileID: 0}
+    right:
+      a:
+        stableId: tree.v3.class.thief.t01.right.a
+        logicalSlotId: tree.v3.class.thief.t01.right.a
+        displayName: Mana On Hit
+        description: 
+        branch: 23
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 75
+          mechanicId: 
+          value: 3.6
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      b:
+        stableId: tree.v3.class.thief.t01.right.b
+        logicalSlotId: tree.v3.class.thief.t01.right.b
+        displayName: Cooldown Reduction
+        description: 
+        branch: 29
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 126
+          mechanicId: 
+          value: 9
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      c:
+        stableId: tree.v3.class.thief.t01.right.c
+        logicalSlotId: tree.v3.class.thief.t01.right.c
+        displayName: Hit Twice
+        description: 
+        branch: 17
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 83
+          mechanicId: 
+          value: 5.3999996
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      subclassA:
+        stableId: tree.v3.class.thief.t01.right.subclass.variant.thief-assassin
+        logicalSlotId: tree.v3.class.thief.t01.right.subclass
+        displayName: Assassin
+        description: Selected-subclass option on the native class route.
+        branch: 3
+        size: 0
+        kind: 7
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 12
+          mechanicId: 
+          value: 14.4
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      subclassB:
+        stableId: tree.v3.class.thief.t01.right.subclass.variant.thief-ailment_crit
+        logicalSlotId: tree.v3.class.thief.t01.right.subclass
+        displayName: Ailment Assassin
+        description: Selected-subclass option on the native class route.
+        branch: 3
+        size: 0
+        kind: 7
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 32
+          mechanicId: 
+          value: 9
+        iconMode: 0
+        iconOverride: {fileID: 0}
+    left:
+      a:
+        stableId: tree.v3.class.thief.t01.left.a
+        logicalSlotId: tree.v3.class.thief.t01.left.a
+        displayName: Critical Chance
+        description: 
+        branch: 20
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 11
+          mechanicId: 
+          value: 9
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      b:
+        stableId: tree.v3.class.thief.t01.left.b
+        logicalSlotId: tree.v3.class.thief.t01.left.b
+        displayName: Critical Multiplier
+        description: 
+        branch: 21
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 12
+          mechanicId: 
+          value: 14.4
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      c:
+        stableId: tree.v3.class.thief.t01.left.c
+        logicalSlotId: tree.v3.class.thief.t01.left.c
+        displayName: Attack Speed
+        description: 
+        branch: 11
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 81
+          mechanicId: 
+          value: 9
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      subclassA:
+        stableId: tree.v3.class.thief.t01.left.subclass.variant.thief-assassin
+        logicalSlotId: tree.v3.class.thief.t01.left.subclass
+        displayName: Assassin
+        description: Selected-subclass option on the native class route.
+        branch: 3
+        size: 0
+        kind: 7
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 12
+          mechanicId: 
+          value: 14.4
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      subclassB:
+        stableId: tree.v3.class.thief.t01.left.subclass.variant.thief-ailment_crit
+        logicalSlotId: tree.v3.class.thief.t01.left.subclass
+        displayName: Ailment Assassin
+        description: Selected-subclass option on the native class route.
+        branch: 3
+        size: 0
+        kind: 7
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 32
+          mechanicId: 
+          value: 9
+        iconMode: 0
+        iconOverride: {fileID: 0}
+  - tier: 2
+    spine:
+      stableId: tree.v3.class.thief.t02.spine
+      logicalSlotId: tree.v3.class.thief.t02.spine
+      displayName: Thief Tier 2
+      description: Broad class-route mainline node.
+      branch: 20
+      size: 1
+      kind: 5
+      keystone: 0
+      effects:
+      - kind: 0
+        stat: 11
+        mechanicId: 
+        value: 5.125
+      iconMode: 0
+      iconOverride: {fileID: 0}
+    right:
+      a:
+        stableId: tree.v3.class.thief.t02.right.a
+        logicalSlotId: tree.v3.class.thief.t02.right.a
+        displayName: Defense
+        description: 
+        branch: 0
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 52
+          mechanicId: 
+          value: 9.2
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      b:
+        stableId: tree.v3.class.thief.t02.right.b
+        logicalSlotId: tree.v3.class.thief.t02.right.b
+        displayName: Mana Regeneration
+        description: 
+        branch: 19
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 73
+          mechanicId: 
+          value: 3.6799998
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      c:
+        stableId: tree.v3.class.thief.t02.right.c
+        logicalSlotId: tree.v3.class.thief.t02.right.c
+        displayName: Mana On Kill
+        description: 
+        branch: 25
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 77
+          mechanicId: 
+          value: 3.6799998
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      subclassA:
+        stableId: tree.v3.class.thief.t02.right.subclass.variant.thief-assassin
+        logicalSlotId: tree.v3.class.thief.t02.right.subclass
+        displayName: Assassin
+        description: Selected-subclass option on the native class route.
+        branch: 3
+        size: 0
+        kind: 7
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 81
+          mechanicId: 
+          value: 9.2
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      subclassB:
+        stableId: tree.v3.class.thief.t02.right.subclass.variant.thief-ailment_crit
+        logicalSlotId: tree.v3.class.thief.t02.right.subclass
+        displayName: Ailment Assassin
+        description: Selected-subclass option on the native class route.
+        branch: 3
+        size: 0
+        kind: 7
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 34
+          mechanicId: 
+          value: 9.2
+        iconMode: 0
+        iconOverride: {fileID: 0}
+    left:
+      a:
+        stableId: tree.v3.class.thief.t02.left.a
+        logicalSlotId: tree.v3.class.thief.t02.left.a
+        displayName: Poison Chance
+        description: 
+        branch: 13
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 32
+          mechanicId: 
+          value: 9.2
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      b:
+        stableId: tree.v3.class.thief.t02.left.b
+        logicalSlotId: tree.v3.class.thief.t02.left.b
+        displayName: Void Damage
+        description: 
+        branch: 6
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 115
+          mechanicId: 
+          value: 9.2
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      c:
+        stableId: tree.v3.class.thief.t02.left.c
+        logicalSlotId: tree.v3.class.thief.t02.left.c
+        displayName: Life On Hit
+        description: 
+        branch: 22
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 74
+          mechanicId: 
+          value: 3.6799998
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      subclassA:
+        stableId: tree.v3.class.thief.t02.left.subclass.variant.thief-assassin
+        logicalSlotId: tree.v3.class.thief.t02.left.subclass
+        displayName: Assassin
+        description: Selected-subclass option on the native class route.
+        branch: 3
+        size: 0
+        kind: 7
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 81
+          mechanicId: 
+          value: 9.2
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      subclassB:
+        stableId: tree.v3.class.thief.t02.left.subclass.variant.thief-ailment_crit
+        logicalSlotId: tree.v3.class.thief.t02.left.subclass
+        displayName: Ailment Assassin
+        description: Selected-subclass option on the native class route.
+        branch: 3
+        size: 0
+        kind: 7
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 34
+          mechanicId: 
+          value: 9.2
+        iconMode: 0
+        iconOverride: {fileID: 0}
+  - tier: 3
+    spine:
+      stableId: tree.v3.class.thief.t03.spine
+      logicalSlotId: tree.v3.class.thief.t03.spine
+      displayName: Thief Tier 3
+      description: Broad class-route mainline node.
+      branch: 21
+      size: 1
+      kind: 5
+      keystone: 0
+      effects:
+      - kind: 0
+        stat: 12
+        mechanicId: 
+        value: 8.4
+      iconMode: 0
+      iconOverride: {fileID: 0}
+    right:
+      a:
+        stableId: tree.v3.class.thief.t03.right.a
+        logicalSlotId: tree.v3.class.thief.t03.right.a
+        displayName: Mana On Hit
+        description: 
+        branch: 23
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 75
+          mechanicId: 
+          value: 3.76
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      b:
+        stableId: tree.v3.class.thief.t03.right.b
+        logicalSlotId: tree.v3.class.thief.t03.right.b
+        displayName: Cooldown Reduction
+        description: 
+        branch: 29
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 126
+          mechanicId: 
+          value: 9.4
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      c:
+        stableId: tree.v3.class.thief.t03.right.c
+        logicalSlotId: tree.v3.class.thief.t03.right.c
+        displayName: Hit Twice
+        description: 
+        branch: 17
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 83
+          mechanicId: 
+          value: 5.64
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      subclassA:
+        stableId: tree.v3.class.thief.t03.right.subclass.variant.thief-assassin
+        logicalSlotId: tree.v3.class.thief.t03.right.subclass
+        displayName: Assassin
+        description: Selected-subclass option on the native class route.
+        branch: 3
+        size: 0
+        kind: 7
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 11
+          mechanicId: 
+          value: 9.4
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      subclassB:
+        stableId: tree.v3.class.thief.t03.right.subclass.variant.thief-ailment_crit
+        logicalSlotId: tree.v3.class.thief.t03.right.subclass
+        displayName: Ailment Assassin
+        description: Selected-subclass option on the native class route.
+        branch: 3
+        size: 0
+        kind: 7
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 12
+          mechanicId: 
+          value: 15.04
+        iconMode: 0
+        iconOverride: {fileID: 0}
+    left:
+      a:
+        stableId: tree.v3.class.thief.t03.left.a
+        logicalSlotId: tree.v3.class.thief.t03.left.a
+        displayName: Critical Chance
+        description: 
+        branch: 20
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 11
+          mechanicId: 
+          value: 9.4
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      b:
+        stableId: tree.v3.class.thief.t03.left.b
+        logicalSlotId: tree.v3.class.thief.t03.left.b
+        displayName: Critical Multiplier
+        description: 
+        branch: 21
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 12
+          mechanicId: 
+          value: 15.04
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      c:
+        stableId: tree.v3.class.thief.t03.left.c
+        logicalSlotId: tree.v3.class.thief.t03.left.c
+        displayName: Attack Speed
+        description: 
+        branch: 11
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 81
+          mechanicId: 
+          value: 9.4
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      subclassA:
+        stableId: tree.v3.class.thief.t03.left.subclass.variant.thief-assassin
+        logicalSlotId: tree.v3.class.thief.t03.left.subclass
+        displayName: Assassin
+        description: Selected-subclass option on the native class route.
+        branch: 3
+        size: 0
+        kind: 7
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 11
+          mechanicId: 
+          value: 9.4
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      subclassB:
+        stableId: tree.v3.class.thief.t03.left.subclass.variant.thief-ailment_crit
+        logicalSlotId: tree.v3.class.thief.t03.left.subclass
+        displayName: Ailment Assassin
+        description: Selected-subclass option on the native class route.
+        branch: 3
+        size: 0
+        kind: 7
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 12
+          mechanicId: 
+          value: 15.04
+        iconMode: 0
+        iconOverride: {fileID: 0}
+  - tier: 4
+    spine:
+      stableId: tree.v3.class.thief.t04.spine
+      logicalSlotId: tree.v3.class.thief.t04.spine
+      displayName: Thief Tier 4
+      description: Broad class-route mainline node.
+      branch: 11
+      size: 1
+      kind: 5
+      keystone: 0
+      effects:
+      - kind: 0
+        stat: 81
+        mechanicId: 
+        value: 5.375
+      iconMode: 0
+      iconOverride: {fileID: 0}
+    right:
+      a:
+        stableId: tree.v3.class.thief.t04.right.a
+        logicalSlotId: tree.v3.class.thief.t04.right.a
+        displayName: Defense
+        description: 
+        branch: 0
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 52
+          mechanicId: 
+          value: 9.599999
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      b:
+        stableId: tree.v3.class.thief.t04.right.b
+        logicalSlotId: tree.v3.class.thief.t04.right.b
+        displayName: Mana Regeneration
+        description: 
+        branch: 19
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 73
+          mechanicId: 
+          value: 3.84
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      c:
+        stableId: tree.v3.class.thief.t04.right.c
+        logicalSlotId: tree.v3.class.thief.t04.right.c
+        displayName: Mana On Kill
+        description: 
+        branch: 25
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 77
+          mechanicId: 
+          value: 3.84
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      subclassA:
+        stableId: tree.v3.class.thief.t04.right.subclass.variant.thief-assassin
+        logicalSlotId: tree.v3.class.thief.t04.right.subclass
+        displayName: Assassin
+        description: Selected-subclass option on the native class route.
+        branch: 3
+        size: 0
+        kind: 7
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 12
+          mechanicId: 
+          value: 15.36
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      subclassB:
+        stableId: tree.v3.class.thief.t04.right.subclass.variant.thief-ailment_crit
+        logicalSlotId: tree.v3.class.thief.t04.right.subclass
+        displayName: Ailment Assassin
+        description: Selected-subclass option on the native class route.
+        branch: 3
+        size: 0
+        kind: 7
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 32
+          mechanicId: 
+          value: 9.599999
+        iconMode: 0
+        iconOverride: {fileID: 0}
+    left:
+      a:
+        stableId: tree.v3.class.thief.t04.left.a
+        logicalSlotId: tree.v3.class.thief.t04.left.a
+        displayName: Poison Chance
+        description: 
+        branch: 13
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 32
+          mechanicId: 
+          value: 9.599999
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      b:
+        stableId: tree.v3.class.thief.t04.left.b
+        logicalSlotId: tree.v3.class.thief.t04.left.b
+        displayName: Void Damage
+        description: 
+        branch: 6
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 115
+          mechanicId: 
+          value: 9.599999
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      c:
+        stableId: tree.v3.class.thief.t04.left.c
+        logicalSlotId: tree.v3.class.thief.t04.left.c
+        displayName: Life On Hit
+        description: 
+        branch: 22
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 74
+          mechanicId: 
+          value: 3.84
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      subclassA:
+        stableId: tree.v3.class.thief.t04.left.subclass.variant.thief-assassin
+        logicalSlotId: tree.v3.class.thief.t04.left.subclass
+        displayName: Assassin
+        description: Selected-subclass option on the native class route.
+        branch: 3
+        size: 0
+        kind: 7
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 12
+          mechanicId: 
+          value: 15.36
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      subclassB:
+        stableId: tree.v3.class.thief.t04.left.subclass.variant.thief-ailment_crit
+        logicalSlotId: tree.v3.class.thief.t04.left.subclass
+        displayName: Ailment Assassin
+        description: Selected-subclass option on the native class route.
+        branch: 3
+        size: 0
+        kind: 7
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 32
+          mechanicId: 
+          value: 9.599999
+        iconMode: 0
+        iconOverride: {fileID: 0}
+  - tier: 5
+    spine:
+      stableId: tree.v3.class.thief.t05.spine
+      logicalSlotId: tree.v3.class.thief.t05.spine
+      displayName: Thief Tier 5
+      description: Broad class-route mainline node.
+      branch: 29
+      size: 1
+      kind: 5
+      keystone: 0
+      effects:
+      - kind: 0
+        stat: 126
+        mechanicId: 
+        value: 5.5
+      iconMode: 0
+      iconOverride: {fileID: 0}
+    right:
+      a:
+        stableId: tree.v3.class.thief.t05.right.a
+        logicalSlotId: tree.v3.class.thief.t05.right.a
+        displayName: Mana On Hit
+        description: 
+        branch: 23
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 75
+          mechanicId: 
+          value: 3.9199998
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      b:
+        stableId: tree.v3.class.thief.t05.right.b
+        logicalSlotId: tree.v3.class.thief.t05.right.b
+        displayName: Cooldown Reduction
+        description: 
+        branch: 29
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 126
+          mechanicId: 
+          value: 9.8
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      c:
+        stableId: tree.v3.class.thief.t05.right.c
+        logicalSlotId: tree.v3.class.thief.t05.right.c
+        displayName: Hit Twice
+        description: 
+        branch: 17
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 83
+          mechanicId: 
+          value: 5.8799996
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      subclassA:
+        stableId: tree.v3.class.thief.t05.right.subclass.variant.thief-assassin
+        logicalSlotId: tree.v3.class.thief.t05.right.subclass
+        displayName: Assassin
+        description: Selected-subclass option on the native class route.
+        branch: 3
+        size: 0
+        kind: 7
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 81
+          mechanicId: 
+          value: 9.8
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      subclassB:
+        stableId: tree.v3.class.thief.t05.right.subclass.variant.thief-ailment_crit
+        logicalSlotId: tree.v3.class.thief.t05.right.subclass
+        displayName: Ailment Assassin
+        description: Selected-subclass option on the native class route.
+        branch: 3
+        size: 0
+        kind: 7
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 34
+          mechanicId: 
+          value: 9.8
+        iconMode: 0
+        iconOverride: {fileID: 0}
+    left:
+      a:
+        stableId: tree.v3.class.thief.t05.left.a
+        logicalSlotId: tree.v3.class.thief.t05.left.a
+        displayName: Critical Chance
+        description: 
+        branch: 20
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 11
+          mechanicId: 
+          value: 9.8
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      b:
+        stableId: tree.v3.class.thief.t05.left.b
+        logicalSlotId: tree.v3.class.thief.t05.left.b
+        displayName: Critical Multiplier
+        description: 
+        branch: 21
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 12
+          mechanicId: 
+          value: 15.679999
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      c:
+        stableId: tree.v3.class.thief.t05.left.c
+        logicalSlotId: tree.v3.class.thief.t05.left.c
+        displayName: Attack Speed
+        description: 
+        branch: 11
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 81
+          mechanicId: 
+          value: 9.8
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      subclassA:
+        stableId: tree.v3.class.thief.t05.left.subclass.variant.thief-assassin
+        logicalSlotId: tree.v3.class.thief.t05.left.subclass
+        displayName: Assassin
+        description: Selected-subclass option on the native class route.
+        branch: 3
+        size: 0
+        kind: 7
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 81
+          mechanicId: 
+          value: 9.8
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      subclassB:
+        stableId: tree.v3.class.thief.t05.left.subclass.variant.thief-ailment_crit
+        logicalSlotId: tree.v3.class.thief.t05.left.subclass
+        displayName: Ailment Assassin
+        description: Selected-subclass option on the native class route.
+        branch: 3
+        size: 0
+        kind: 7
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 34
+          mechanicId: 
+          value: 9.8
+        iconMode: 0
+        iconOverride: {fileID: 0}
+  - tier: 6
+    spine:
+      stableId: tree.v3.class.thief.t06.spine
+      logicalSlotId: tree.v3.class.thief.t06.spine
+      displayName: Thief Tier 6
+      description: Broad class-route mainline node.
+      branch: 13
+      size: 1
+      kind: 5
+      keystone: 0
+      effects:
+      - kind: 0
+        stat: 32
+        mechanicId: 
+        value: 5.625
+      - kind: 0
+        stat: 26
+        mechanicId: 
+        value: 5
+      iconMode: 0
+      iconOverride: {fileID: 0}
+    right:
+      a:
+        stableId: tree.v3.class.thief.t06.right.a
+        logicalSlotId: tree.v3.class.thief.t06.right.a
+        displayName: Defense
+        description: 
+        branch: 0
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 52
+          mechanicId: 
+          value: 10
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      b:
+        stableId: tree.v3.class.thief.t06.right.b
+        logicalSlotId: tree.v3.class.thief.t06.right.b
+        displayName: Mana Regeneration
+        description: 
+        branch: 19
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 73
+          mechanicId: 
+          value: 4
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      c:
+        stableId: tree.v3.class.thief.t06.right.c
+        logicalSlotId: tree.v3.class.thief.t06.right.c
+        displayName: Mana On Kill
+        description: 
+        branch: 25
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 77
+          mechanicId: 
+          value: 4
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      subclassA:
+        stableId: tree.v3.class.thief.t06.right.subclass.variant.thief-assassin
+        logicalSlotId: tree.v3.class.thief.t06.right.subclass
+        displayName: Assassin
+        description: Selected-subclass option on the native class route.
+        branch: 3
+        size: 0
+        kind: 7
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 11
+          mechanicId: 
+          value: 10
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      subclassB:
+        stableId: tree.v3.class.thief.t06.right.subclass.variant.thief-ailment_crit
+        logicalSlotId: tree.v3.class.thief.t06.right.subclass
+        displayName: Ailment Assassin
+        description: Selected-subclass option on the native class route.
+        branch: 3
+        size: 0
+        kind: 7
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 12
+          mechanicId: 
+          value: 16
+        iconMode: 0
+        iconOverride: {fileID: 0}
+    left:
+      a:
+        stableId: tree.v3.class.thief.t06.left.a
+        logicalSlotId: tree.v3.class.thief.t06.left.a
+        displayName: Poison Chance
+        description: 
+        branch: 13
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 32
+          mechanicId: 
+          value: 10
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      b:
+        stableId: tree.v3.class.thief.t06.left.b
+        logicalSlotId: tree.v3.class.thief.t06.left.b
+        displayName: Void Damage
+        description: 
+        branch: 6
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 115
+          mechanicId: 
+          value: 10
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      c:
+        stableId: tree.v3.class.thief.t06.left.c
+        logicalSlotId: tree.v3.class.thief.t06.left.c
+        displayName: Life On Hit
+        description: 
+        branch: 22
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 74
+          mechanicId: 
+          value: 4
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      subclassA:
+        stableId: tree.v3.class.thief.t06.left.subclass.variant.thief-assassin
+        logicalSlotId: tree.v3.class.thief.t06.left.subclass
+        displayName: Assassin
+        description: Selected-subclass option on the native class route.
+        branch: 3
+        size: 0
+        kind: 7
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 11
+          mechanicId: 
+          value: 10
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      subclassB:
+        stableId: tree.v3.class.thief.t06.left.subclass.variant.thief-ailment_crit
+        logicalSlotId: tree.v3.class.thief.t06.left.subclass
+        displayName: Ailment Assassin
+        description: Selected-subclass option on the native class route.
+        branch: 3
+        size: 0
+        kind: 7
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 12
+          mechanicId: 
+          value: 16
+        iconMode: 0
+        iconOverride: {fileID: 0}
+  - tier: 7
+    spine:
+      stableId: tree.v3.class.thief.t07.spine
+      logicalSlotId: tree.v3.class.thief.t07.spine
+      displayName: Thief Tier 7
+      description: Broad class-route mainline node.
+      branch: 6
+      size: 1
+      kind: 5
+      keystone: 0
+      effects:
+      - kind: 0
+        stat: 115
+        mechanicId: 
+        value: 5.75
+      - kind: 0
+        stat: 128
+        mechanicId: 
+        value: 5
+      iconMode: 0
+      iconOverride: {fileID: 0}
+    right:
+      a:
+        stableId: tree.v3.class.thief.t07.right.a
+        logicalSlotId: tree.v3.class.thief.t07.right.a
+        displayName: Mana On Hit
+        description: 
+        branch: 23
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 75
+          mechanicId: 
+          value: 4.08
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      b:
+        stableId: tree.v3.class.thief.t07.right.b
+        logicalSlotId: tree.v3.class.thief.t07.right.b
+        displayName: Cooldown Reduction
+        description: 
+        branch: 29
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 126
+          mechanicId: 
+          value: 10.2
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      c:
+        stableId: tree.v3.class.thief.t07.right.c
+        logicalSlotId: tree.v3.class.thief.t07.right.c
+        displayName: Hit Twice
+        description: 
+        branch: 17
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 83
+          mechanicId: 
+          value: 6.12
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      subclassA:
+        stableId: tree.v3.class.thief.t07.right.subclass.variant.thief-assassin
+        logicalSlotId: tree.v3.class.thief.t07.right.subclass
+        displayName: Assassin
+        description: Selected-subclass option on the native class route.
+        branch: 3
+        size: 0
+        kind: 7
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 12
+          mechanicId: 
+          value: 16.32
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      subclassB:
+        stableId: tree.v3.class.thief.t07.right.subclass.variant.thief-ailment_crit
+        logicalSlotId: tree.v3.class.thief.t07.right.subclass
+        displayName: Ailment Assassin
+        description: Selected-subclass option on the native class route.
+        branch: 3
+        size: 0
+        kind: 7
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 32
+          mechanicId: 
+          value: 10.2
+        iconMode: 0
+        iconOverride: {fileID: 0}
+    left:
+      a:
+        stableId: tree.v3.class.thief.t07.left.a
+        logicalSlotId: tree.v3.class.thief.t07.left.a
+        displayName: Critical Chance
+        description: 
+        branch: 20
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 11
+          mechanicId: 
+          value: 10.2
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      b:
+        stableId: tree.v3.class.thief.t07.left.b
+        logicalSlotId: tree.v3.class.thief.t07.left.b
+        displayName: Critical Multiplier
+        description: 
+        branch: 21
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 12
+          mechanicId: 
+          value: 16.32
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      c:
+        stableId: tree.v3.class.thief.t07.left.c
+        logicalSlotId: tree.v3.class.thief.t07.left.c
+        displayName: Attack Speed
+        description: 
+        branch: 11
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 81
+          mechanicId: 
+          value: 10.2
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      subclassA:
+        stableId: tree.v3.class.thief.t07.left.subclass.variant.thief-assassin
+        logicalSlotId: tree.v3.class.thief.t07.left.subclass
+        displayName: Assassin
+        description: Selected-subclass option on the native class route.
+        branch: 3
+        size: 0
+        kind: 7
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 12
+          mechanicId: 
+          value: 16.32
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      subclassB:
+        stableId: tree.v3.class.thief.t07.left.subclass.variant.thief-ailment_crit
+        logicalSlotId: tree.v3.class.thief.t07.left.subclass
+        displayName: Ailment Assassin
+        description: Selected-subclass option on the native class route.
+        branch: 3
+        size: 0
+        kind: 7
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 32
+          mechanicId: 
+          value: 10.2
+        iconMode: 0
+        iconOverride: {fileID: 0}
+  - tier: 8
+    spine:
+      stableId: tree.v3.class.thief.t08.spine
+      logicalSlotId: tree.v3.class.thief.t08.spine
+      displayName: Thief Tier 8
+      description: Broad class-route mainline node.
+      branch: 17
+      size: 1
+      kind: 5
+      keystone: 0
+      effects:
+      - kind: 0
+        stat: 83
+        mechanicId: 
+        value: 3.525
+      iconMode: 0
+      iconOverride: {fileID: 0}
+    right:
+      a:
+        stableId: tree.v3.class.thief.t08.right.a
+        logicalSlotId: tree.v3.class.thief.t08.right.a
+        displayName: Defense
+        description: 
+        branch: 0
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 52
+          mechanicId: 
+          value: 10.4
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      b:
+        stableId: tree.v3.class.thief.t08.right.b
+        logicalSlotId: tree.v3.class.thief.t08.right.b
+        displayName: Mana Regeneration
+        description: 
+        branch: 19
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 73
+          mechanicId: 
+          value: 4.16
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      c:
+        stableId: tree.v3.class.thief.t08.right.c
+        logicalSlotId: tree.v3.class.thief.t08.right.c
+        displayName: Mana On Kill
+        description: 
+        branch: 25
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 77
+          mechanicId: 
+          value: 4.16
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      subclassA:
+        stableId: tree.v3.class.thief.t08.right.subclass.variant.thief-assassin
+        logicalSlotId: tree.v3.class.thief.t08.right.subclass
+        displayName: Assassin
+        description: Selected-subclass option on the native class route.
+        branch: 3
+        size: 0
+        kind: 7
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 81
+          mechanicId: 
+          value: 10.4
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      subclassB:
+        stableId: tree.v3.class.thief.t08.right.subclass.variant.thief-ailment_crit
+        logicalSlotId: tree.v3.class.thief.t08.right.subclass
+        displayName: Ailment Assassin
+        description: Selected-subclass option on the native class route.
+        branch: 3
+        size: 0
+        kind: 7
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 34
+          mechanicId: 
+          value: 10.4
+        iconMode: 0
+        iconOverride: {fileID: 0}
+    left:
+      a:
+        stableId: tree.v3.class.thief.t08.left.a
+        logicalSlotId: tree.v3.class.thief.t08.left.a
+        displayName: Poison Chance
+        description: 
+        branch: 13
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 32
+          mechanicId: 
+          value: 10.4
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      b:
+        stableId: tree.v3.class.thief.t08.left.b
+        logicalSlotId: tree.v3.class.thief.t08.left.b
+        displayName: Void Damage
+        description: 
+        branch: 6
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 115
+          mechanicId: 
+          value: 10.4
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      c:
+        stableId: tree.v3.class.thief.t08.left.c
+        logicalSlotId: tree.v3.class.thief.t08.left.c
+        displayName: Life On Hit
+        description: 
+        branch: 22
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 74
+          mechanicId: 
+          value: 4.16
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      subclassA:
+        stableId: tree.v3.class.thief.t08.left.subclass.variant.thief-assassin
+        logicalSlotId: tree.v3.class.thief.t08.left.subclass
+        displayName: Assassin
+        description: Selected-subclass option on the native class route.
+        branch: 3
+        size: 0
+        kind: 7
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 81
+          mechanicId: 
+          value: 10.4
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      subclassB:
+        stableId: tree.v3.class.thief.t08.left.subclass.variant.thief-ailment_crit
+        logicalSlotId: tree.v3.class.thief.t08.left.subclass
+        displayName: Ailment Assassin
+        description: Selected-subclass option on the native class route.
+        branch: 3
+        size: 0
+        kind: 7
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 34
+          mechanicId: 
+          value: 10.4
+        iconMode: 0
+        iconOverride: {fileID: 0}
+  - tier: 9
+    spine:
+      stableId: tree.v3.class.thief.t09.spine
+      logicalSlotId: tree.v3.class.thief.t09.spine
+      displayName: Thief Tier 9
+      description: Broad class-route mainline node.
+      branch: 22
+      size: 1
+      kind: 5
+      keystone: 0
+      effects:
+      - kind: 0
+        stat: 74
+        mechanicId: 
+        value: 2.4
+      iconMode: 0
+      iconOverride: {fileID: 0}
+    right:
+      a:
+        stableId: tree.v3.class.thief.t09.right.a
+        logicalSlotId: tree.v3.class.thief.t09.right.a
+        displayName: Mana On Hit
+        description: 
+        branch: 23
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 75
+          mechanicId: 
+          value: 4.24
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      b:
+        stableId: tree.v3.class.thief.t09.right.b
+        logicalSlotId: tree.v3.class.thief.t09.right.b
+        displayName: Cooldown Reduction
+        description: 
+        branch: 29
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 126
+          mechanicId: 
+          value: 10.599999
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      c:
+        stableId: tree.v3.class.thief.t09.right.c
+        logicalSlotId: tree.v3.class.thief.t09.right.c
+        displayName: Hit Twice
+        description: 
+        branch: 17
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 83
+          mechanicId: 
+          value: 6.3599997
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      subclassA:
+        stableId: tree.v3.class.thief.t09.right.subclass.variant.thief-assassin
+        logicalSlotId: tree.v3.class.thief.t09.right.subclass
+        displayName: Assassin
+        description: Selected-subclass option on the native class route.
+        branch: 3
+        size: 0
+        kind: 7
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 11
+          mechanicId: 
+          value: 10.599999
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      subclassB:
+        stableId: tree.v3.class.thief.t09.right.subclass.variant.thief-ailment_crit
+        logicalSlotId: tree.v3.class.thief.t09.right.subclass
+        displayName: Ailment Assassin
+        description: Selected-subclass option on the native class route.
+        branch: 3
+        size: 0
+        kind: 7
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 12
+          mechanicId: 
+          value: 16.96
+        iconMode: 0
+        iconOverride: {fileID: 0}
+    left:
+      a:
+        stableId: tree.v3.class.thief.t09.left.a
+        logicalSlotId: tree.v3.class.thief.t09.left.a
+        displayName: Critical Chance
+        description: 
+        branch: 20
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 11
+          mechanicId: 
+          value: 10.599999
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      b:
+        stableId: tree.v3.class.thief.t09.left.b
+        logicalSlotId: tree.v3.class.thief.t09.left.b
+        displayName: Critical Multiplier
+        description: 
+        branch: 21
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 12
+          mechanicId: 
+          value: 16.96
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      c:
+        stableId: tree.v3.class.thief.t09.left.c
+        logicalSlotId: tree.v3.class.thief.t09.left.c
+        displayName: Attack Speed
+        description: 
+        branch: 11
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 81
+          mechanicId: 
+          value: 10.599999
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      subclassA:
+        stableId: tree.v3.class.thief.t09.left.subclass.variant.thief-assassin
+        logicalSlotId: tree.v3.class.thief.t09.left.subclass
+        displayName: Assassin
+        description: Selected-subclass option on the native class route.
+        branch: 3
+        size: 0
+        kind: 7
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 11
+          mechanicId: 
+          value: 10.599999
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      subclassB:
+        stableId: tree.v3.class.thief.t09.left.subclass.variant.thief-ailment_crit
+        logicalSlotId: tree.v3.class.thief.t09.left.subclass
+        displayName: Ailment Assassin
+        description: Selected-subclass option on the native class route.
+        branch: 3
+        size: 0
+        kind: 7
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 12
+          mechanicId: 
+          value: 16.96
+        iconMode: 0
+        iconOverride: {fileID: 0}
+  - tier: 10
+    spine:
+      stableId: tree.v3.class.thief.t10.spine
+      logicalSlotId: tree.v3.class.thief.t10.spine
+      displayName: Thief Tier 10
+      description: Broad class-route mainline node.
+      branch: 21
+      size: 1
+      kind: 5
+      keystone: 0
+      effects:
+      - kind: 0
+        stat: 12
+        mechanicId: 
+        value: 9.8
+      iconMode: 0
+      iconOverride: {fileID: 0}
+    right:
+      a:
+        stableId: tree.v3.class.thief.t10.right.a
+        logicalSlotId: tree.v3.class.thief.t10.right.a
+        displayName: Defense
+        description: 
+        branch: 0
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 52
+          mechanicId: 
+          value: 10.8
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      b:
+        stableId: tree.v3.class.thief.t10.right.b
+        logicalSlotId: tree.v3.class.thief.t10.right.b
+        displayName: Mana Regeneration
+        description: 
+        branch: 19
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 73
+          mechanicId: 
+          value: 4.3199997
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      c:
+        stableId: tree.v3.class.thief.t10.right.c
+        logicalSlotId: tree.v3.class.thief.t10.right.c
+        displayName: Mana On Kill
+        description: 
+        branch: 25
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 77
+          mechanicId: 
+          value: 4.3199997
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      subclassA:
+        stableId: tree.v3.class.thief.t10.right.subclass.variant.thief-assassin
+        logicalSlotId: tree.v3.class.thief.t10.right.subclass
+        displayName: Assassin
+        description: Selected-subclass option on the native class route.
+        branch: 3
+        size: 0
+        kind: 7
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 12
+          mechanicId: 
+          value: 17.279999
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      subclassB:
+        stableId: tree.v3.class.thief.t10.right.subclass.variant.thief-ailment_crit
+        logicalSlotId: tree.v3.class.thief.t10.right.subclass
+        displayName: Ailment Assassin
+        description: Selected-subclass option on the native class route.
+        branch: 3
+        size: 0
+        kind: 7
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 32
+          mechanicId: 
+          value: 10.8
+        iconMode: 0
+        iconOverride: {fileID: 0}
+    left:
+      a:
+        stableId: tree.v3.class.thief.t10.left.a
+        logicalSlotId: tree.v3.class.thief.t10.left.a
+        displayName: Poison Chance
+        description: 
+        branch: 13
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 32
+          mechanicId: 
+          value: 10.8
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      b:
+        stableId: tree.v3.class.thief.t10.left.b
+        logicalSlotId: tree.v3.class.thief.t10.left.b
+        displayName: Void Damage
+        description: 
+        branch: 6
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 115
+          mechanicId: 
+          value: 10.8
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      c:
+        stableId: tree.v3.class.thief.t10.left.c
+        logicalSlotId: tree.v3.class.thief.t10.left.c
+        displayName: Life On Hit
+        description: 
+        branch: 22
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 74
+          mechanicId: 
+          value: 4.3199997
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      subclassA:
+        stableId: tree.v3.class.thief.t10.left.subclass.variant.thief-assassin
+        logicalSlotId: tree.v3.class.thief.t10.left.subclass
+        displayName: Assassin
+        description: Selected-subclass option on the native class route.
+        branch: 3
+        size: 0
+        kind: 7
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 12
+          mechanicId: 
+          value: 17.279999
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      subclassB:
+        stableId: tree.v3.class.thief.t10.left.subclass.variant.thief-ailment_crit
+        logicalSlotId: tree.v3.class.thief.t10.left.subclass
+        displayName: Ailment Assassin
+        description: Selected-subclass option on the native class route.
+        branch: 3
+        size: 0
+        kind: 7
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 32
+          mechanicId: 
+          value: 10.8
+        iconMode: 0
+        iconOverride: {fileID: 0}

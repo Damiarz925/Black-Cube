@@ -14,6 +14,7 @@ public sealed class SkillTreeUI : MonoBehaviour
     static readonly Color ConnectionInactive = new Color(.32f, .29f, .25f, 1f);
     static readonly Color ConnectionAllocated = new Color(.12f, .48f, .9f, 1f);
 
+    [SerializeField] PassiveTreeView authoredView;
     PaperBattleHUD hud;
     GameObject panel;
     TMP_Text points;
@@ -24,6 +25,7 @@ public sealed class SkillTreeUI : MonoBehaviour
     bool refundAllConfirmation;
     ScrollRect scroll;
     readonly Button[] nodes = new Button[PassiveTreeDefinition.NodeCount];
+    readonly PassiveNodeBinding[] nodeBindings = new PassiveNodeBinding[PassiveTreeDefinition.NodeCount];
     readonly List<PassiveConnectionView> connections = new();
     readonly Dictionary<string, PassiveJunctionView> junctions = new();
     readonly Dictionary<PassiveBranch, TMP_Text> branchLabels = new();
@@ -60,110 +62,61 @@ public sealed class SkillTreeUI : MonoBehaviour
     void Start()
     {
         hud = GetComponent<PaperBattleHUD>();
-        Canvas parentCanvas = GetComponentInParent<Canvas>();
-        if (parentCanvas == null) { Debug.LogError("SkillTreeUI requires a parent Canvas.", this); return; }
-
-        xp = Text(parentCanvas.transform, "Progression", Vector2.zero, Vector2.zero, 12);
-        xp.color = new Color(.95f, .8f, .45f);
-        hud?.PositionBelowArtwork(xp.rectTransform,18,28,430,22);
-
-        panel = Box(parentCanvas.transform, "Passive Skill Tree", Vector2.zero, Vector2.one, new Color(.025f, .03f, .04f, 1f));
-        var canvas = panel.AddComponent<Canvas>();
-        canvas.overrideSorting = true;
-        canvas.sortingOrder = 100;
-        panel.AddComponent<GraphicRaycaster>();
-
-        var title = Text(panel.transform, "Title", new Vector2(.035f, .9f), new Vector2(.65f, .98f), 30);
-        title.text = "WANDERER  /  PASSIVE SKILL TREE";
-        points = Text(panel.transform, "Available points", new Vector2(.035f, .83f), new Vector2(.78f, .91f), 17);
-        var close = Button(panel.transform, "Close", new Vector2(.82f, .905f), new Vector2(.97f, .97f), out var closeText);
-        closeText.text = "RETURN TO BATTLE";
-        close.onClick.AddListener(Close);
-        refundAll=Button(panel.transform,"Refund All",new Vector2(.66f,.905f),new Vector2(.81f,.97f),out refundAllLabel);
-        refundAllLabel.text="REFUND ALL";refundAll.onClick.AddListener(ConfirmRefundAll);
+        if (authoredView == null) authoredView = GetComponentInChildren<PassiveTreeView>(true);
+        if (authoredView == null) { Debug.LogError("SkillTreeUI requires an authored PassiveTreeView. Run Black-Cube/UI Authoring/Install Authored UI In Production Prefabs.", this); enabled = false; return; }
+        panel = authoredView.panel != null ? authoredView.panel : authoredView.gameObject;
+        points = authoredView.points; xp = authoredView.progression; details = authoredView.details; refundAll = authoredView.refundAllButton; refundAllLabel = authoredView.refundAllLabel; scroll = authoredView.scroll;
+        authoredView.closeButton.onClick.RemoveListener(Close); authoredView.closeButton.onClick.AddListener(Close);
+        refundAll.onClick.RemoveListener(ConfirmRefundAll); refundAll.onClick.AddListener(ConfirmRefundAll);
         if(GetComponent<SubclassMenuUI>()==null)gameObject.AddComponent<SubclassMenuUI>();
-
-        var viewport = Box(panel.transform, "Tree Viewport", new Vector2(.025f, .145f), new Vector2(.975f, .825f), new Color(.045f, .052f, .062f, 1f));
-        viewport.AddComponent<RectMask2D>();
-        scroll = viewport.AddComponent<ScrollRect>();
-        scroll.horizontal = true;
-        scroll.vertical = true;
-        scroll.inertia = true;
-        scroll.decelerationRate = .08f;
-        scroll.movementType = ScrollRect.MovementType.Clamped;
-        // Wheel input is reserved for zoom; pointer dragging remains ScrollRect pan.
-        scroll.scrollSensitivity = 0f;
-        viewport.AddComponent<PassiveTreeViewportInput>().Initialize(this);
-
-        var content = new GameObject("Radial Tree Content", typeof(RectTransform));
-        content.transform.SetParent(viewport.transform, false);
-        var contentRect = (RectTransform)content.transform;
-        contentRect.anchorMin = contentRect.anchorMax = contentRect.pivot = Vector2.one * .5f;
-        contentRect.sizeDelta = new Vector2(10000f, 10000f);
-        scroll.viewport = (RectTransform)viewport.transform;
-        scroll.content = contentRect;
-
-        BuildTree(content.transform);
-        details = Text(panel.transform, "Node Details", new Vector2(.035f, .025f), new Vector2(.965f, .13f), 15);
-        details.alignment = TextAlignmentOptions.MidlineLeft;
-        details.text = "Hover or select a node for details. Click to allocate, right-click to refund. Drag or use the mouse wheel to explore.";
-
+        PassiveTreeViewportInput viewportInput = scroll != null ? scroll.GetComponent<PassiveTreeViewportInput>() : null; if (viewportInput != null) viewportInput.Initialize(this);
+        BindAuthoredTree();
         panel.SetActive(false);
         IsOpen = false;
         Bind();
     }
 
-    void BuildTree(Transform content)
+    public void SetAuthoredView(PassiveTreeView view) => authoredView = view;
+
+    void BindAuthoredTree()
     {
-        var hub=Box(content,"Central Hub",Vector2.one*.5f,Vector2.one*.5f,new Color(.12f,.14f,.18f,1));var hubRect=(RectTransform)hub.transform;hubRect.sizeDelta=Vector2.one*130;hubRect.anchoredPosition=Vector2.zero;hub.GetComponent<Image>().raycastTarget=false;
-        string homeClass=GameManager.Instance?.GetComponent<PlayerIdentityState>()?.BaseClassId??PlayerClassIds.Warrior;
-        var positions = new Vector2[PassiveTreeDefinition.NodeCount];
-        foreach (PassiveNodeDefinition node in PassiveTreeDefinition.Nodes)
-            positions[node.Id] = CalculateNodePosition(node,homeClass);
-
-        foreach (PassiveTreeEdge edge in PassiveTreeDefinition.Edges)
+        connections.Clear(); junctions.Clear();
+        string homeClass = GameManager.Instance?.GetComponent<PlayerIdentityState>()?.BaseClassId ?? PlayerClassIds.Warrior;
+        foreach (PassiveBranchBinding branch in authoredView.branches)
         {
-            PassiveNodeDefinition a = PassiveTreeDefinition.Node(edge.A);
-            PassiveNodeDefinition b = PassiveTreeDefinition.Node(edge.B);
-            if (!a.IsChoice && !b.IsChoice)
+            bool native = branch.Data is not PassiveClassBranchSO classData || classData.ClassId == homeClass;
+            foreach (PassiveTierViewBinding tier in branch.Tiers)
             {
-                Image direct = Line(content, positions[edge.A], positions[edge.B], out Outline directOutline);
-                connections.Add(new PassiveConnectionView { A = edge.A, B = edge.B, VisibilityNodeId = edge.B, Image = direct, Outline = directOutline });
-                continue;
+                BindNode(tier.spine);
+                BindGroup(tier.left, native, tier.spine);
+                BindGroup(tier.right, native, tier.spine);
             }
-
-            PassiveNodeDefinition choice = a.IsChoice ? a : b;
-            PassiveNodeDefinition spine = a.IsChoice ? b : a;
-            string groupId = choice.ChoiceGroupId;
-            Vector2 junctionPosition = CalculateJunctionPosition(choice, positions[spine.Id]);
-            if (!junctions.TryGetValue(groupId, out PassiveJunctionView junction))
-            {
-                Image stem = Line(content, positions[spine.Id], junctionPosition, out Outline stemOutline);
-                var stemView = new PassiveConnectionView { A = spine.Id, B = -1, VisibilityNodeId = choice.Id, IsJunctionStem = true, Image = stem, Outline = stemOutline };
-                connections.Add(stemView);
-                junction = new PassiveJunctionView { SpineNodeId = spine.Id, VisibilityNodeId = choice.Id, Image = CreateJunction(content, groupId, junctionPosition), Stem = stemView };
-                junctions.Add(groupId, junction);
-            }
-            else if (PassiveTreeDefinition.Node(junction.VisibilityNodeId).IsSubclassChoice && !choice.IsSubclassChoice)
-            {
-                junction.VisibilityNodeId = choice.Id;
-                junction.Stem.VisibilityNodeId = choice.Id;
-            }
-
-            Image fan = Line(content, junctionPosition, positions[choice.Id], out Outline fanOutline);
-            connections.Add(new PassiveConnectionView { A = spine.Id, B = choice.Id, VisibilityNodeId = choice.Id, Image = fan, Outline = fanOutline });
         }
-
-        foreach (PassiveNodeDefinition node in PassiveTreeDefinition.Nodes)
+        foreach (PassiveConnectionBinding line in authoredView.connections)
         {
-            Vector2 position = positions[node.Id];
-            nodes[node.Id] = CreateNodeButton(content, node, position);
-            int nodeId = node.Id;
-            nodes[node.Id].onClick.AddListener(() => SelectAndSpend(nodeId));
-            nodes[node.Id].gameObject.AddComponent<PassiveNodeView>().Initialize(this, nodeId);
-
-            if(node.Kind==PassiveNodeKind.Spine&&node.Tier==1){var label=Text(content,node.RouteClassId+" Label",Vector2.one*.5f,Vector2.one*.5f,20);label.rectTransform.sizeDelta=new Vector2(300,60);label.rectTransform.anchoredPosition=position-position.normalized*120;label.alignment=TextAlignmentOptions.Center;label.text=node.RouteClassId.Replace("class.",string.Empty).ToUpperInvariant();label.color=BranchColor(node.Branch);}
+            int a = PassiveTreeDefinition.NodeId(line.FromSlotId), b = PassiveTreeDefinition.NodeId(line.ToSlotId), visible = PassiveTreeDefinition.NodeId(line.VisibilitySlotId);
+            if (a < 0 || visible < 0 || line.Line == null) continue;
+            connections.Add(new PassiveConnectionView { A = a, B = b, VisibilityNodeId = visible, IsJunctionStem = line.IsJunctionStem, Image = line.Line.GetComponent<Image>(), Outline = line.Line.GetComponent<Outline>() });
         }
+    }
+
+    void BindGroup(PassiveChoiceGroupBinding group, bool native, PassiveNodeBinding spine)
+    {
+        if (group == null) return; group.SetNativeLayout(native);
+        PassiveNodeBinding[] active = new List<PassiveNodeBinding>(group.RuntimeNodes(native)).ToArray();
+        foreach (PassiveNodeBinding node in active) BindNode(node);
+        if (spine == null || group.junction == null || active.Length == 0) return;
+        int spineId = PassiveTreeDefinition.NodeId(spine.LogicalSlotId), visibleId = PassiveTreeDefinition.NodeId(active[0].LogicalSlotId);
+        if (spineId < 0 || visibleId < 0) return;
+        Image image = group.junction.GetComponent<Image>(); string key = PassiveTreeDefinition.Node(visibleId).ChoiceGroupId;
+        junctions[key] = new PassiveJunctionView { SpineNodeId = spineId, VisibilityNodeId = visibleId, Image = image };
+    }
+
+    void BindNode(PassiveNodeBinding binding)
+    {
+        if (binding == null) return; int id = PassiveTreeDefinition.NodeId(binding.LogicalSlotId); if (id < 0) return;
+        Button button = binding.Button; nodes[id] = button; nodeBindings[id] = binding; button.onClick.RemoveAllListeners(); int captured = id; button.onClick.AddListener(() => SelectAndSpend(captured));
+        PassiveNodeView nodeView = button.GetComponent<PassiveNodeView>(); if (nodeView == null) nodeView = button.gameObject.AddComponent<PassiveNodeView>(); nodeView.Initialize(this, id);
     }
 
     public static Vector2 CalculateNodePosition(PassiveNodeDefinition node)
@@ -196,35 +149,9 @@ public sealed class SkillTreeUI : MonoBehaviour
         return spinePosition + tangent * (sign * 145f);
     }
 
-    Button CreateNodeButton(Transform parent, PassiveNodeDefinition node, Vector2 position)
-    {
-        float size = PassiveTreeDefinition.IsKeystone(node.Id) ? 156f
-            : node.Size switch { PassiveNodeSize.Small => 58f, PassiveNodeSize.Medium => 78f, _ => 108f };
-        string objectName = node.DisplayName;
-        var go = Box(parent, objectName, Vector2.one * .5f, Vector2.one * .5f, Color.white);
-        var rect = (RectTransform)go.transform;
-        rect.sizeDelta = Vector2.one * size;
-        rect.anchoredPosition = position;
-        var image = go.GetComponent<Image>();
-        image.sprite = PassiveTreeDefinition.IsKeystone(node.Id)
-            ? PassiveTreeIconAtlas.GetKeystone(PassiveTreeDefinition.KeystoneAt(node.Id), PassiveNodeVisualState.Inactive)
-            : PassiveTreeIconAtlas.Get(node.Branch, node.Size, PassiveNodeVisualState.Inactive);
-        image.preserveAspect = true;
-        var button = go.AddComponent<Button>();
-        button.targetGraphic = image;
-        button.transition = Selectable.Transition.None;
-
-        var amount = Text(go.transform, "Magnitude", new Vector2(.05f, -.3f), new Vector2(.95f, .12f), node.Size == PassiveNodeSize.Small ? 10 : 12);
-        amount.alignment = TextAlignmentOptions.Center;
-        amount.text = node.IsSubclassChoice?"SUB":node.Effects.Length==0?string.Empty:MagnitudeText(node.Branch,node.Magnitude);
-        amount.color = new Color(.98f, .88f, .65f);
-        return button;
-    }
-
     void Update()
     {
         Bind();
-        hud?.PositionBelowArtwork(xp != null ? xp.rectTransform : null,18,28,430,22);
         if (hud != null && hud.player != null && hud.player.CurrentLife <= 0f) Close();
     }
 
@@ -255,10 +182,10 @@ public sealed class SkillTreeUI : MonoBehaviour
 
         foreach (PassiveConnectionView connection in connections)
         {
-            bool visible=nodes[connection.A].gameObject.activeSelf&&nodes[connection.VisibilityNodeId].gameObject.activeSelf;connection.Image.gameObject.SetActive(visible);if(!visible)continue;
+            if(connection.Image==null||nodes[connection.A]==null||nodes[connection.VisibilityNodeId]==null)continue;bool visible=nodes[connection.A].gameObject.activeSelf&&nodes[connection.VisibilityNodeId].gameObject.activeSelf;connection.Image.gameObject.SetActive(visible);if(!visible)continue;
             bool allocated = progression.IsAllocated(connection.A)&&(connection.IsJunctionStem||progression.IsAllocated(connection.B));
             connection.Image.color = allocated ? ConnectionAllocated : ConnectionInactive;
-            connection.Outline.enabled = allocated;
+            if(connection.Outline!=null)connection.Outline.enabled = allocated;
         }
 
 
@@ -289,9 +216,10 @@ public sealed class SkillTreeUI : MonoBehaviour
             : progression.CanSpend(nodeId)
                 ? hovered ? PassiveNodeVisualState.Hover : PassiveNodeVisualState.Inactive
                 : PassiveNodeVisualState.Unavailable;
-        nodes[nodeId].image.sprite = PassiveTreeDefinition.IsKeystone(node.Id)
-            ? PassiveTreeIconAtlas.GetKeystone(PassiveTreeDefinition.KeystoneAt(node.Id), state)
-            : PassiveTreeIconAtlas.Get(node.Branch, node.Size, state);
+        string subclassId=GameManager.Instance?.GetComponent<PlayerIdentityState>()?.SelectedSubclassId;
+        PassiveAuthoredNode authored=PassiveTreeDefinition.AuthoredNode(node,subclassId);
+        if(nodeBindings[nodeId]!=null)nodeBindings[nodeId].ApplyAuthoringPreview(authored,PassiveTreeDefinition.Database.IconLibrary,false);
+        nodes[nodeId].image.sprite = authoredView != null && PassiveTreeDefinition.Database.IconLibrary != null ? PassiveTreeDefinition.Database.IconLibrary.Resolve(authored,state) : nodes[nodeId].image.sprite;
         nodes[nodeId].image.color = node.IsSubclassChoice?new Color(.78f,.42f,1f):Color.white;
         if(node.IsSubclassChoice&&nodes[nodeId].transform.Find("Magnitude")?.GetComponent<TMP_Text>() is TMP_Text label)
         {var identity=GameManager.Instance?.GetComponent<PlayerIdentityState>();label.text=identity?.SubclassChoiceUnlocked==true&&!string.IsNullOrEmpty(identity.SelectedSubclassId)?"SUB":"LOCKED";}
@@ -435,139 +363,7 @@ public sealed class SkillTreeUI : MonoBehaviour
     {
         IsOpen = false;
         if (progression != null) progression.Changed -= Refresh;
-        if (panel != null) Destroy(panel);
-        if (xp != null) Destroy(xp.gameObject);
     }
-
-    static Color BranchColor(PassiveBranch branch) => branch switch
-    {
-        PassiveBranch.Defense => new Color(.36f, .85f, .68f),
-        PassiveBranch.Life => new Color(1f, .46f, .58f),
-        PassiveBranch.Mana => new Color(.35f, .55f, 1f),
-        PassiveBranch.Magic => new Color(.72f, .42f, 1f),
-        PassiveBranch.Lightning => new Color(.25f, .67f, 1f),
-        PassiveBranch.Fire => new Color(1f, .3f, .12f),
-        PassiveBranch.Poison => new Color(.25f, .9f, .54f),
-        PassiveBranch.Projectile => new Color(1f, .68f, .2f),
-        PassiveBranch.Physical => new Color(.82f, .64f, .46f),
-        PassiveBranch.Cold => new Color(.3f, .78f, 1f),
-        PassiveBranch.IncreasedProjectileAmount => new Color(.96f, .78f, .28f),
-        PassiveBranch.AttackSpeed => new Color(.5f, .82f, 1f),
-        PassiveBranch.BleedChance => new Color(.92f, .2f, .28f),
-        PassiveBranch.PoisonChance => new Color(.34f, .9f, .48f),
-        PassiveBranch.ChillChance => new Color(.28f, .8f, 1f),
-        PassiveBranch.IgniteChance => new Color(1f, .38f, .12f),
-        PassiveBranch.ShockChance => new Color(.46f, .64f, 1f),
-        PassiveBranch.ChanceToHitTwice => new Color(1f, .58f, .16f),
-        PassiveBranch.LifeRegeneration => new Color(.32f, .92f, .5f),
-        PassiveBranch.ManaRegeneration => new Color(.3f, .58f, 1f),
-        PassiveBranch.EmptyTravel => new Color(.68f, .66f, .62f),
-        _ => new Color(.9f, .86f, .78f)
-    };
-
-    static GameObject Box(Transform parent, string name, Vector2 min, Vector2 max, Color color)
-    {
-        var go = new GameObject(name, typeof(RectTransform), typeof(Image));
-        go.transform.SetParent(parent, false);
-        var rect = (RectTransform)go.transform;
-        rect.anchorMin = min; rect.anchorMax = max; rect.offsetMin = rect.offsetMax = Vector2.zero;
-        go.GetComponent<Image>().color = color;
-        return go;
-    }
-
-    static TMP_Text Text(Transform parent, string name, Vector2 min, Vector2 max, int size)
-    {
-        var go = new GameObject(name, typeof(RectTransform), typeof(TextMeshProUGUI));
-        go.transform.SetParent(parent, false);
-        var rect = (RectTransform)go.transform;
-        rect.anchorMin = min; rect.anchorMax = max; rect.offsetMin = rect.offsetMax = Vector2.zero;
-        var text = go.GetComponent<TextMeshProUGUI>();
-        text.fontSize = size; text.color = new Color(.92f, .93f, .95f); text.raycastTarget = false;
-        text.alignment = TextAlignmentOptions.MidlineLeft;
-        return text;
-    }
-
-    static Button Button(Transform parent, string name, Vector2 min, Vector2 max, out TMP_Text label)
-    {
-        var go = Box(parent, name, min, max, new Color(.12f, .15f, .18f));
-        var button = go.AddComponent<Button>();
-        button.targetGraphic = go.GetComponent<Image>();
-        label = Text(go.transform, "Label", Vector2.zero, Vector2.one, 16);
-        label.alignment = TextAlignmentOptions.Center;
-        return button;
-    }
-
-    static Image Line(Transform parent, Vector2 from, Vector2 to, out Outline outline)
-    {
-        var go = Box(parent, "Connection", Vector2.one * .5f, Vector2.one * .5f, ConnectionInactive);
-        var rect = (RectTransform)go.transform;
-        rect.anchoredPosition = (from + to) * .5f;
-        rect.sizeDelta = new Vector2(Vector2.Distance(from, to), 4f);
-        rect.localRotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(to.y - from.y, to.x - from.x) * Mathf.Rad2Deg);
-        var image = go.GetComponent<Image>();
-        image.raycastTarget = false;
-        outline = go.AddComponent<Outline>();
-        outline.effectColor = new Color(.08f, .42f, 1f, .65f);
-        outline.effectDistance = new Vector2(2f, -2f);
-        outline.enabled = false;
-        go.transform.SetAsFirstSibling();
-        return image;
-    }
-
-    static Image CreateJunction(Transform parent, string groupId, Vector2 position)
-    {
-        var go = Box(parent, "Branch Junction " + groupId, Vector2.one * .5f, Vector2.one * .5f, new Color(1f, .38f, .08f, 1f));
-        var rect = (RectTransform)go.transform;
-        rect.sizeDelta = Vector2.one * 26f;
-        rect.anchoredPosition = position;
-        var image = go.GetComponent<Image>();
-        image.sprite = JunctionSprite();
-        image.preserveAspect = true;
-        image.raycastTarget = false;
-        return image;
-    }
-
-    static Sprite junctionSprite;
-    static Sprite JunctionSprite()
-    {
-        if (junctionSprite != null) return junctionSprite;
-        const int size = 32;
-        var texture = new Texture2D(size, size, TextureFormat.RGBA32, false) { name = "Passive Branch Junction", hideFlags = HideFlags.DontSave };
-        var pixels = new Color[size * size];
-        Vector2 center = Vector2.one * ((size - 1) * .5f);
-        for (int y = 0; y < size; y++)
-        for (int x = 0; x < size; x++)
-        {
-            float distance = Vector2.Distance(new Vector2(x, y), center);
-            pixels[y * size + x] = distance <= 14f && distance >= 9f ? Color.white : Color.clear;
-        }
-        texture.SetPixels(pixels);
-        texture.Apply(false, true);
-        junctionSprite = Sprite.Create(texture, new Rect(0, 0, size, size), Vector2.one * .5f, size);
-        junctionSprite.name = "Passive Branch Junction";
-        return junctionSprite;
-    }
-}
-
-public sealed class PassiveNodeView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, ISelectHandler, IPointerClickHandler
-{
-    SkillTreeUI owner;
-    int nodeId;
-    public void Initialize(SkillTreeUI tree, int id) { owner = tree; nodeId = id; }
-    public void OnPointerEnter(PointerEventData eventData) => owner?.SetHovered(nodeId, true);
-    public void OnPointerExit(PointerEventData eventData) => owner?.SetHovered(nodeId, false);
-    public void OnSelect(BaseEventData eventData) => owner?.ShowDetails(nodeId);
-    public void OnPointerClick(PointerEventData eventData)
-    {
-        if (eventData.button == PointerEventData.InputButton.Right) owner?.Refund(nodeId);
-    }
-}
-
-public sealed class PassiveTreeViewportInput : MonoBehaviour, IScrollHandler
-{
-    SkillTreeUI owner;
-    public void Initialize(SkillTreeUI tree) => owner = tree;
-    public void OnScroll(PointerEventData eventData) => owner?.AdjustZoom(eventData);
 }
 
 public enum PassiveNodeVisualState
@@ -578,7 +374,7 @@ public enum PassiveNodeVisualState
     Unavailable
 }
 
-static class PassiveTreeIconAtlas
+public static class PassiveTreeIconAtlas
 {
     static readonly Sprite[,,] Icons = new Sprite[PassiveTreeDefinition.BranchCount, 3, 4];
     static readonly Texture2D[] BranchSheets = new Texture2D[PassiveTreeDefinition.BranchCount];

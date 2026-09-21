@@ -1,0 +1,51 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5c2616a405fd6d8468f6e99ac83976d7, type: 3}
+  m_Name: SO_PassiveEffectCatalog
+  m_EditorClassIdentifier: Assembly-CSharp::PassiveEffectCatalogSO
+  mechanics:
+  - stableId: subclass.warrior.bleed.rupture
+    displayName: Rupture
+    description: Bleed Warrior mechanic
+  - stableId: subclass.warrior.multihit.combo
+    displayName: Combo
+    description: Momentum Warrior mechanic
+  - stableId: subclass.barbarian.big_hit.full_life
+    displayName: Full Life
+    description: Titan Barbarian mechanic
+  - stableId: subclass.barbarian.fire.eruption
+    displayName: Eruption
+    description: Fire Barbarian mechanic
+  - stableId: subclass.ranger.poison.all_damage
+    displayName: All Damage
+    description: Venom Ranger mechanic
+  - stableId: subclass.ranger.projectile.focused
+    displayName: Focused
+    description: Projectile Ranger mechanic
+  - stableId: subclass.mage.cooldown.ignore
+    displayName: Ignore
+    description: Chrono Mage mechanic
+  - stableId: subclass.mage.storm.multi_shock
+    displayName: Multi Shock
+    description: Storm Mage mechanic
+  - stableId: subclass.priest.dark.heal_to_harm
+    displayName: Heal To Harm
+    description: Dark Priest mechanic
+  - stableId: subclass.priest.light.auras
+    displayName: Auras
+    description: Light Priest mechanic
+  - stableId: subclass.thief.assassin.first_strike
+    displayName: First Strike
+    description: Assassin mechanic
+  - stableId: subclass.thief.ailment_crit.critical_ailment
+    displayName: Critical Ailment
+    description: Ailment Assassin mechanic

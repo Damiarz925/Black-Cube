@@ -1,42 +1,215 @@
-// Passive Tree V3 authority: deterministic class/weapon routes and mutually-exclusive choices.
-using System;using System.Collections.Generic;using UnityEngine;
-public enum PassiveBranch{Defense,Life,Mana,Magic,Lightning,Fire,Poison,Projectile,Physical,Cold,IncreasedProjectileAmount,AttackSpeed,BleedChance,PoisonChance,ChillChance,IgniteChance,ShockChance,ChanceToHitTwice,LifeRegeneration,ManaRegeneration,CriticalChance,CriticalMultiplier,LifeOnHit,ManaOnHit,LifeOnKill,ManaOnKill,Strength,Dexterity,Intelligence,CooldownReduction,ProjectileSpeed,PrecisionChance,PrecisionDamage,RageGeneration,RageEffect,RageRetention,BleedDamage,IgniteDamage,PoisonDamage,ShockEffect,ChillEffect,PoisonSpeed,Resistances,PhysicalPenetration,LargeHitPower,EmptyTravel}
-public enum PassiveNodeSize{Small,Medium,Large} public enum PassiveNodeKind{ClassStart,Travel,Small,Notable,Keystone,Spine,Choice,SubclassChoice,WeaponSpine}
-public enum PassiveRegion{Warrior,Ranger,Thief,Mage,Priest,Barbarian,WarriorRanger,RangerThief,ThiefMage,MagePriest,PriestBarbarian,BarbarianWarrior,Center}
-public enum PassiveKeystone{None,BruteForce,InfernalConversion,VenomousTransmutation,ManaShield,LivingCurrent,RageFinisher,IronBastion,LivingFortress,ArcaneOverload,AbsoluteZero,BallisticBarrage,OpenWounds,Wildfire,DeepFreeze,Overcharged,ToxicSaturation,UndyingFlesh,EndlessCurrent,Frenzy,BulletHell,EchoingStrikes}
-[Serializable]public readonly struct PassiveEffect{public readonly StatTypes Stat;public readonly float Amount;public PassiveEffect(StatTypes stat,float amount){Stat=stat;Amount=amount;}}
-public readonly struct PassiveNodeDefinition{
- public readonly int Id,Position,PrerequisiteId,Tier;public readonly string StableId,DisplayName,Description,WeaponTypeRestriction,RouteClassId,RouteWeaponId,ChoiceGroupId;public readonly PassiveBranch Branch;public readonly PassiveNodeSize Size;public readonly PassiveNodeKind Kind;public readonly PassiveRegion Region;public readonly Vector2 LayoutPosition;public readonly float Magnitude;public readonly PassiveKeystone Keystone;public readonly PassiveEffect[] Effects;public readonly PassiveExtensionMetadata ExtensionMetadata;
- public bool IsClassRoute=>!string.IsNullOrEmpty(RouteClassId);public bool IsWeaponRoute=>!string.IsNullOrEmpty(RouteWeaponId);public bool IsChoice=>Kind is PassiveNodeKind.Choice or PassiveNodeKind.SubclassChoice;public bool IsSubclassChoice=>Kind==PassiveNodeKind.SubclassChoice;
- public PassiveNodeDefinition(int id,string stable,string name,PassiveBranch branch,int position,PassiveNodeSize size,PassiveNodeKind kind,PassiveRegion region,Vector2 layout,int prerequisite,PassiveEffect[] effects,string weapon=null,PassiveKeystone keystone=PassiveKeystone.None,PassiveExtensionMetadata metadata=null,string description=null,string routeClass=null,string routeWeapon=null,int tier=0,string group=null){Id=id;StableId=stable;DisplayName=name;Branch=branch;Position=position;Size=size;Kind=kind;Region=region;LayoutPosition=layout;PrerequisiteId=prerequisite;Effects=effects??Array.Empty<PassiveEffect>();WeaponTypeRestriction=weapon??string.Empty;Keystone=keystone;ExtensionMetadata=metadata??new PassiveExtensionMetadata();Description=description??string.Empty;Magnitude=Effects.Length>0?Effects[0].Amount:0;RouteClassId=routeClass??string.Empty;RouteWeaponId=routeWeapon??string.Empty;Tier=tier;ChoiceGroupId=group??string.Empty;}}
-public readonly struct PassiveTreeEdge{public readonly int A,B;public PassiveTreeEdge(int a,int b){A=a;B=b;}}
-public static class PassiveTreeDefinition{
- public const int ClassCount=6,ClassTierCount=10,WeaponCount=6,WeaponTierCount=5,GenericChoicesPerGroup=3,ChoiceGroupsPerTier=2,NodesPerClass=90,NodesPerWeapon=35,NodeCount=750,PointCost=1;public const float WeaponSpecificEfficiencyMultiplier=1.60f,BranchAngleDegrees=60f;
- public const int ClassSectorCount=6,NodesPerSector=90,BridgeRegionCount=0,BridgeNodesPerRegion=0,CenterNodeCount=0,OriginalBranchCount=10,BridgeBranchCount=10,BranchCount=37,OriginalNodesPerBranch=90,NodesPerBranch=90,RingNodesPerGap=0,RingNodeCount=0,OriginalNodeCount=540,ExistingNodeCount=750,InnerKeystoneNodeCount=0,OuterKeystoneNodeCount=0,KeystoneNodeCount=0,KeystoneStartId=0;
- static readonly string[] classes={PlayerClassIds.Warrior,PlayerClassIds.Ranger,PlayerClassIds.Thief,PlayerClassIds.Mage,PlayerClassIds.Priest,PlayerClassIds.Barbarian};static readonly string[] slugs={"warrior","ranger","thief","mage","priest","barbarian"};static readonly float[] angles={90,30,-30,-90,-150,150};static readonly string[] weapons={WeaponTypeIds.Sword,WeaponTypeIds.Bow,WeaponTypeIds.Dagger,WeaponTypeIds.Staff,WeaponTypeIds.Sceptre,WeaponTypeIds.TwoHandedAxe};
- static readonly List<PassiveNodeDefinition> building=new(NodeCount);static readonly List<PassiveTreeEdge> edgeBuild=new(NodeCount);static readonly Dictionary<string,int> stableIds=new(StringComparer.Ordinal);static readonly int[,] classSpines=new int[6,10],weaponSpines=new int[6,5];static readonly PassiveNodeDefinition[] nodes;static readonly PassiveTreeEdge[] edges;static readonly int[][] adjacency;
- static PassiveTreeDefinition(){for(int i=0;i<6;i++)BuildClass(i);for(int i=0;i<6;i++)BuildWeapon(i);nodes=building.ToArray();edges=edgeBuild.ToArray();adjacency=BuildAdjacency();if(nodes.Length!=NodeCount)throw new InvalidOperationException($"Passive Tree V3 expected {NodeCount} nodes, got {nodes.Length}.");}
- public static IReadOnlyList<PassiveNodeDefinition> Nodes=>nodes;public static IReadOnlyList<PassiveTreeEdge> Edges=>edges;public static IReadOnlyList<string> ClassIds=>classes;public static IReadOnlyList<string> WeaponIds=>weapons;public static PassiveNodeDefinition Node(int id)=>id>=0&&id<NodeCount?nodes[id]:throw new ArgumentOutOfRangeException(nameof(id));public static bool TryNode(string stable,out PassiveNodeDefinition node){if(stable!=null&&stableIds.TryGetValue(stable,out int id)){node=nodes[id];return true;}node=default;return false;}public static int NodeId(string stable)=>stable!=null&&stableIds.TryGetValue(stable,out int id)?id:-1;
- public static int ClassIndex(string id){for(int i=0;i<6;i++)if(classes[i]==id)return i;return -1;}public static int WeaponIndex(string id){for(int i=0;i<6;i++)if(weapons[i]==id)return i;return -1;}public static int ClassSpineNode(string id,int tier){int i=ClassIndex(id);return i>=0&&tier is>=1 and<=10?classSpines[i,tier-1]:-1;}public static int WeaponSpineNode(string id,int tier){int i=WeaponIndex(id);return i>=0&&tier is>=1 and<=5?weaponSpines[i,tier-1]:-1;}public static int StartNodeId(string id)=>ClassSpineNode(id,1);public static bool IsClassStart(int id)=>id>=0&&id<NodeCount&&nodes[id].Kind==PassiveNodeKind.Spine&&nodes[id].Tier==1;public static int RageFinisherNodeId=>NodeId("tree.v3.weapon.twohandedaxe.t05.right.c");public static bool IsKeystone(int id)=>id>=0&&id<NodeCount&&nodes[id].Keystone!=PassiveKeystone.None;public static bool IsRootConnected(int id,string classId)=>id==StartNodeId(classId);public static bool IsRootConnected(int id)=>IsRootConnected(id,PlayerClassIds.Warrior);public static IReadOnlyList<int> AdjacentNodeIds(int id)=>id>=0&&id<NodeCount?adjacency[id]:Array.Empty<int>();
- public static bool IsClassSpineComplete(string id,Func<int,bool> allocated){for(int t=1;t<=10;t++)if(!allocated(ClassSpineNode(id,t)))return false;return true;}public static string SignatureWeapon(string classId){int i=ClassIndex(classId);return i>=0?weapons[i]:string.Empty;}public static string WeaponClass(string weaponId){int i=WeaponIndex(weaponId);return i>=0?classes[i]:string.Empty;}public static IEnumerable<int> ChoiceNodes(string group){foreach(var n in nodes)if(n.ChoiceGroupId==group)yield return n.Id;}public static IEnumerable<int> RouteNodes(string classId,string weaponId=null){foreach(var n in nodes)if((weaponId==null&&n.RouteClassId==classId)||(weaponId!=null&&n.RouteWeaponId==weaponId))yield return n.Id;}
- public static PassiveKeystone KeystoneAt(int id)=>id==RageFinisherNodeId?PassiveKeystone.RageFinisher:Node(id).Keystone;
- public static bool IsOriginalBranch(PassiveBranch b)=>false;public static bool IsBridgeBranch(PassiveBranch b)=>false;public static bool IsRingBranch(PassiveBranch b)=>false;public static int NodesInBranch(PassiveBranch b){int c=0;foreach(var n in nodes)if(n.Branch==b)c++;return c;}public static int NodeId(PassiveBranch b,int p){int c=0;foreach(var n in nodes)if(n.Branch==b&&c++==p)return n.Id;throw new ArgumentOutOfRangeException(nameof(p));}public static int TerminalNodeId(PassiveBranch b)=>NodeId(b,NodesInBranch(b)-1);public static PassiveKeystone KeystoneFor(PassiveBranch b)=>PassiveKeystone.None;public static int KeystoneNodeId(PassiveBranch b){foreach(var n in nodes)if(n.Branch==b&&n.Keystone!=PassiveKeystone.None)return n.Id;return -1;}public static PassiveBranch OuterKeystoneBranch(int i)=>throw new ArgumentOutOfRangeException(nameof(i));public static PassiveKeystone OuterKeystoneFor(PassiveBranch b)=>PassiveKeystone.None;public static int OuterKeystoneNodeId(PassiveBranch b)=>-1;
+// Passive Tree V3 runtime topology. Node content is authoritative in Branch ScriptableObjects.
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
+
+public enum PassiveBranch { Defense, Life, Mana, Magic, Lightning, Fire, Poison, Projectile, Physical, Cold, IncreasedProjectileAmount, AttackSpeed, BleedChance, PoisonChance, ChillChance, IgniteChance, ShockChance, ChanceToHitTwice, LifeRegeneration, ManaRegeneration, CriticalChance, CriticalMultiplier, LifeOnHit, ManaOnHit, LifeOnKill, ManaOnKill, Strength, Dexterity, Intelligence, CooldownReduction, ProjectileSpeed, PrecisionChance, PrecisionDamage, RageGeneration, RageEffect, RageRetention, BleedDamage, IgniteDamage, PoisonDamage, ShockEffect, ChillEffect, PoisonSpeed, Resistances, PhysicalPenetration, LargeHitPower, EmptyTravel }
+public enum PassiveNodeSize { Small, Medium, Large }
+public enum PassiveNodeKind { ClassStart, Travel, Small, Notable, Keystone, Spine, Choice, SubclassChoice, WeaponSpine }
+public enum PassiveRegion { Warrior, Ranger, Thief, Mage, Priest, Barbarian, WarriorRanger, RangerThief, ThiefMage, MagePriest, PriestBarbarian, BarbarianWarrior, Center }
+public enum PassiveKeystone { None, BruteForce, InfernalConversion, VenomousTransmutation, ManaShield, LivingCurrent, RageFinisher, IronBastion, LivingFortress, ArcaneOverload, AbsoluteZero, BallisticBarrage, OpenWounds, Wildfire, DeepFreeze, Overcharged, ToxicSaturation, UndyingFlesh, EndlessCurrent, Frenzy, BulletHell, EchoingStrikes }
+
+[Serializable]
+public readonly struct PassiveEffect
+{
+    public readonly StatTypes Stat;
+    public readonly float Amount;
+    public PassiveEffect(StatTypes stat, float amount) { Stat = stat; Amount = amount; }
+}
+
+public readonly struct PassiveNodeDefinition
+{
+    public readonly int Id, Position, PrerequisiteId, Tier;
+    public readonly string StableId, DisplayName, Description, WeaponTypeRestriction, RouteClassId, RouteWeaponId, ChoiceGroupId;
+    public readonly PassiveBranch Branch;
+    public readonly PassiveNodeSize Size;
+    public readonly PassiveNodeKind Kind;
+    public readonly PassiveRegion Region;
+    public readonly Vector2 LayoutPosition;
+    public readonly float Magnitude;
+    public readonly PassiveKeystone Keystone;
+    public readonly PassiveEffect[] Effects;
+    public readonly string[] MechanicIds;
+    public readonly float[] MechanicValues;
+    public readonly PassiveExtensionMetadata ExtensionMetadata;
+    public bool IsClassRoute => !string.IsNullOrEmpty(RouteClassId);
+    public bool IsWeaponRoute => !string.IsNullOrEmpty(RouteWeaponId);
+    public bool IsChoice => Kind is PassiveNodeKind.Choice or PassiveNodeKind.SubclassChoice;
+    public bool IsSubclassChoice => Kind == PassiveNodeKind.SubclassChoice;
+
+    public PassiveNodeDefinition(int id, string stable, string name, PassiveBranch branch, int position, PassiveNodeSize size, PassiveNodeKind kind, PassiveRegion region, Vector2 layout, int prerequisite, PassiveEffect[] effects, string[] mechanicIds = null, float[] mechanicValues = null, string weapon = null, PassiveKeystone keystone = PassiveKeystone.None, PassiveExtensionMetadata metadata = null, string description = null, string routeClass = null, string routeWeapon = null, int tier = 0, string group = null)
+    {
+        Id = id; StableId = stable; DisplayName = name; Branch = branch; Position = position; Size = size; Kind = kind; Region = region; LayoutPosition = layout; PrerequisiteId = prerequisite;
+        Effects = effects ?? Array.Empty<PassiveEffect>(); MechanicIds = mechanicIds ?? Array.Empty<string>(); MechanicValues = mechanicValues ?? Array.Empty<float>(); WeaponTypeRestriction = weapon ?? string.Empty; Keystone = keystone;
+        ExtensionMetadata = metadata ?? new PassiveExtensionMetadata(); Description = description ?? string.Empty; Magnitude = Effects.Length > 0 ? Effects[0].Amount : MechanicValues.Length > 0 ? MechanicValues[0] : 0;
+        RouteClassId = routeClass ?? string.Empty; RouteWeaponId = routeWeapon ?? string.Empty; Tier = tier; ChoiceGroupId = group ?? string.Empty;
+    }
+}
+
+public readonly struct PassiveTreeEdge { public readonly int A, B; public PassiveTreeEdge(int a, int b) { A = a; B = b; } }
+
+public static class PassiveTreeDefinition
+{
+    public const int ClassCount = 6, ClassTierCount = 10, WeaponCount = 6, WeaponTierCount = 5, GenericChoicesPerGroup = 3, ChoiceGroupsPerTier = 2, NodesPerClass = 90, NodesPerWeapon = 35, NodeCount = 750, PointCost = 1;
+    public const float WeaponSpecificEfficiencyMultiplier = 1.60f, BranchAngleDegrees = 60f;
+    public const int ClassSectorCount = 6, NodesPerSector = 90, BridgeRegionCount = 0, BridgeNodesPerRegion = 0, CenterNodeCount = 0, OriginalBranchCount = 10, BridgeBranchCount = 10, BranchCount = 37, OriginalNodesPerBranch = 90, NodesPerBranch = 90, RingNodesPerGap = 0, RingNodeCount = 0, OriginalNodeCount = 540, ExistingNodeCount = 750, InnerKeystoneNodeCount = 0, OuterKeystoneNodeCount = 0, KeystoneNodeCount = 0, KeystoneStartId = 0;
+
+    static readonly List<string> classes = new() { PlayerClassIds.Warrior, PlayerClassIds.Ranger, PlayerClassIds.Thief, PlayerClassIds.Mage, PlayerClassIds.Priest, PlayerClassIds.Barbarian };
+    static readonly float[] angles = { 90, 30, -30, -90, -150, 150 };
+    static readonly List<string> weapons = new() { WeaponTypeIds.Sword, WeaponTypeIds.Bow, WeaponTypeIds.Dagger, WeaponTypeIds.Staff, WeaponTypeIds.Sceptre, WeaponTypeIds.TwoHandedAxe };
+    static readonly List<PassiveNodeDefinition> building = new(NodeCount);
+    static readonly List<PassiveTreeEdge> edgeBuild = new(NodeCount);
+    static readonly Dictionary<string, int> stableIds = new(StringComparer.Ordinal);
+    static readonly int[,] classSpines = new int[ClassCount, ClassTierCount], weaponSpines = new int[WeaponCount, WeaponTierCount];
+    static readonly PassiveTreeDatabaseSO database;
+    static readonly PassiveNodeDefinition[] nodes;
+    static readonly PassiveTreeEdge[] edges;
+    static readonly int[][] adjacency;
+
+    static PassiveTreeDefinition()
+    {
+        database = Resources.Load<PassiveTreeDatabaseSO>("GameData/PassiveTree/SO_PassiveTreeDatabase");
+        if (database == null) throw new InvalidOperationException("Authoritative Passive Tree database is missing from Resources/GameData/PassiveTree/SO_PassiveTreeDatabase.");
+        for (int i = 0; i < ClassCount; i++) BuildClass(i, RequiredClassBranch(classes[i]));
+        for (int i = 0; i < WeaponCount; i++) BuildWeapon(i, RequiredWeaponBranch(weapons[i]));
+        nodes = building.ToArray(); edges = edgeBuild.ToArray(); adjacency = BuildAdjacency();
+        if (nodes.Length != NodeCount) throw new InvalidOperationException($"Passive Tree V3 expected {NodeCount} nodes, got {nodes.Length} from authoring assets.");
+    }
+
+    public static PassiveTreeDatabaseSO Database => database;
+    public static IReadOnlyList<PassiveNodeDefinition> Nodes => nodes;
+    public static IReadOnlyList<PassiveTreeEdge> Edges => edges;
+    public static IReadOnlyList<string> ClassIds => classes;
+    public static IReadOnlyList<string> WeaponIds => weapons;
+    public static PassiveNodeDefinition Node(int id) => id >= 0 && id < NodeCount ? nodes[id] : throw new ArgumentOutOfRangeException(nameof(id));
+    public static bool TryNode(string stable, out PassiveNodeDefinition node) { if (stable != null && stableIds.TryGetValue(stable, out int id)) { node = nodes[id]; return true; } node = default; return false; }
+    public static int NodeId(string stable) => stable != null && stableIds.TryGetValue(stable, out int id) ? id : -1;
+    public static int ClassIndex(string id) { for (int i = 0; i < classes.Count; i++) if (classes[i] == id) return i; return -1; }
+    public static int WeaponIndex(string id) { for (int i = 0; i < weapons.Count; i++) if (weapons[i] == id) return i; return -1; }
+    public static int ClassSpineNode(string id, int tier) { int i = ClassIndex(id); return i >= 0 && tier is >= 1 and <= ClassTierCount ? classSpines[i, tier - 1] : -1; }
+    public static int WeaponSpineNode(string id, int tier) { int i = WeaponIndex(id); return i >= 0 && tier is >= 1 and <= WeaponTierCount ? weaponSpines[i, tier - 1] : -1; }
+    public static int StartNodeId(string id) => ClassSpineNode(id, 1);
+    public static bool IsClassStart(int id) => id >= 0 && id < NodeCount && nodes[id].Kind == PassiveNodeKind.Spine && nodes[id].Tier == 1;
+    public static int RageFinisherNodeId => NodeId("tree.v3.weapon.two_handed_axe.t05.right.c");
+    public static bool IsKeystone(int id) => id >= 0 && id < NodeCount && nodes[id].Keystone != PassiveKeystone.None;
+    public static bool IsRootConnected(int id, string classId) => id == StartNodeId(classId);
+    public static bool IsRootConnected(int id) => IsRootConnected(id, PlayerClassIds.Warrior);
+    public static IReadOnlyList<int> AdjacentNodeIds(int id) => id >= 0 && id < NodeCount ? adjacency[id] : Array.Empty<int>();
+    public static bool IsClassSpineComplete(string id, Func<int, bool> allocated) { for (int t = 1; t <= ClassTierCount; t++) if (!allocated(ClassSpineNode(id, t))) return false; return true; }
+    public static string SignatureWeapon(string classId) => RequiredClassBranch(classId).SignatureWeaponId;
+    public static string WeaponClass(string weaponId) => RequiredWeaponBranch(weaponId).OwningClassId;
+    public static IEnumerable<int> ChoiceNodes(string group) { foreach (var node in nodes) if (node.ChoiceGroupId == group) yield return node.Id; }
+    public static IEnumerable<int> RouteNodes(string classId, string weaponId = null) { foreach (var node in nodes) if ((weaponId == null && node.RouteClassId == classId) || (weaponId != null && node.RouteWeaponId == weaponId)) yield return node.Id; }
+    public static PassiveKeystone KeystoneAt(int id) => Node(id).Keystone;
+    public static bool IsOriginalBranch(PassiveBranch branch) => false;
+    public static bool IsBridgeBranch(PassiveBranch branch) => false;
+    public static bool IsRingBranch(PassiveBranch branch) => false;
+    public static int NodesInBranch(PassiveBranch branch) { int count = 0; foreach (var node in nodes) if (node.Branch == branch) count++; return count; }
+    public static int NodeId(PassiveBranch branch, int position) { int count = 0; foreach (var node in nodes) if (node.Branch == branch && count++ == position) return node.Id; throw new ArgumentOutOfRangeException(nameof(position)); }
+    public static int TerminalNodeId(PassiveBranch branch) => NodeId(branch, NodesInBranch(branch) - 1);
+    public static PassiveKeystone KeystoneFor(PassiveBranch branch) => PassiveKeystone.None;
+    public static int KeystoneNodeId(PassiveBranch branch) { foreach (var node in nodes) if (node.Branch == branch && node.Keystone != PassiveKeystone.None) return node.Id; return -1; }
+    public static PassiveBranch OuterKeystoneBranch(int index) => throw new ArgumentOutOfRangeException(nameof(index));
+    public static PassiveKeystone OuterKeystoneFor(PassiveBranch branch) => PassiveKeystone.None;
+    public static int OuterKeystoneNodeId(PassiveBranch branch) => -1;
+
 #if UNITY_EDITOR
- public static int FindIndexForTest(PassiveKeystone k){if(k==PassiveKeystone.RageFinisher)return RageFinisherNodeId;foreach(var n in nodes)if(n.Keystone==k)return n.Id;return -1;}
+    public static int FindIndexForTest(PassiveKeystone keystone) { foreach (var node in nodes) if (node.Keystone == keystone) return node.Id; return -1; }
 #endif
- public static string KeystoneName(PassiveKeystone k)=>k==PassiveKeystone.RageFinisher?"Rage Finisher":string.Empty;public static string KeystoneEffect(PassiveKeystone k)=>k==PassiveKeystone.RageFinisher?"At maximum Rage, arm one empowered Axe attack.":string.Empty;public static string DisplayName(PassiveBranch b)=>b switch{PassiveBranch.Poison=>"Void Damage",PassiveBranch.IncreasedProjectileAmount=>"Additional Projectiles",PassiveBranch.ChanceToHitTwice=>"Hit Twice",PassiveBranch.CriticalChance=>"Critical Chance",PassiveBranch.CriticalMultiplier=>"Critical Multiplier",PassiveBranch.PrecisionChance=>"Projectile Precision",PassiveBranch.PrecisionDamage=>"Precision Damage",_=>Split(b.ToString())};public static string GameplayMeaning(PassiveBranch b)=>DisplayName(b);public static bool UsesPercentDisplay(PassiveBranch b)=>b is not(PassiveBranch.LifeRegeneration or PassiveBranch.ManaRegeneration or PassiveBranch.LifeOnHit or PassiveBranch.ManaOnHit or PassiveBranch.LifeOnKill or PassiveBranch.ManaOnKill or PassiveBranch.IncreasedProjectileAmount or PassiveBranch.EmptyTravel);
- static void BuildClass(int c){Vector2 d=Dir(angles[c]),s=new(-d.y,d.x);int prev=-1;for(int tier=1;tier<=10;tier++){Vector2 p=d*(430+(tier-1)*255);var b=SpineBranch(c,tier);int id=Add($"tree.v3.class.{slugs[c]}.t{tier:00}.spine",$"{Title(slugs[c])} Tier {tier}",b,PassiveNodeKind.Spine,(PassiveRegion)c,p,prev,SpineEffects(c,tier),routeClass:classes[c],tier:tier,description:"Broad class-route mainline node.");classSpines[c,tier-1]=id;if(prev>=0)Edge(prev,id);prev=id;BuildClassGroup(c,tier,false,id,p,d,s,-1);BuildClassGroup(c,tier,true,id,p,d,s,1);}}
- static void BuildClassGroup(int c,int tier,bool right,int spine,Vector2 p,Vector2 d,Vector2 tangent,int sign){string side=right?"right":"left",group=$"tree.v3.class.{slugs[c]}.t{tier:00}.{side}";var choices=ClassChoices(c,tier,right);Vector2[] q={p+tangent*(sign*260)+d*80,p+tangent*(sign*350)+d*40,p+tangent*(sign*350)-d*40,p+tangent*(sign*260)-d*80};for(int o=0;o<3;o++){var b=choices[o];int id=Add($"{group}.{(char)('a'+o)}",DisplayName(b),b,PassiveNodeKind.Choice,(PassiveRegion)c,q[o],spine,new[]{Effect(b,ChoiceValue(b,tier))},routeClass:classes[c],tier:tier,group:group);Edge(spine,id);}int sid=Add($"{group}.subclass","Subclass Choice",PassiveBranch.Magic,PassiveNodeKind.SubclassChoice,(PassiveRegion)c,q[3],spine,Array.Empty<PassiveEffect>(),routeClass:classes[c],tier:tier,group:group,description:"Selected-subclass option on the native class route.");Edge(spine,sid);}
- static void BuildWeapon(int c){Vector2 d=Dir(angles[c]),s=new(-d.y,d.x);string slug=weapons[c].Replace("weapon.",string.Empty);int prev=-1;for(int tier=1;tier<=5;tier++){Vector2 p=d*(2980+(tier-1)*255);var b=WeaponSpineBranch(c,tier);int id=Add($"tree.v3.weapon.{slug}.t{tier:00}.spine",$"{WeaponTypeCatalog.Get(weapons[c]).DisplayName} Tier {tier}",b,PassiveNodeKind.WeaponSpine,(PassiveRegion)c,p,prev,new[]{Effect(b,ChoiceValue(b,tier)*WeaponSpecificEfficiencyMultiplier)},weapon:weapons[c],routeWeapon:weapons[c],tier:tier,description:"Weapon specialization mainline node.");weaponSpines[c,tier-1]=id;if(prev>=0)Edge(prev,id);else Edge(classSpines[c,9],id);prev=id;for(int r=0;r<2;r++){int sign=r==0?-1:1;string side=r==0?"left":"right",group=$"tree.v3.weapon.{slug}.t{tier:00}.{side}";var choices=WeaponChoices(c,tier,r==1);Vector2[] q={p+s*(sign*260)+d*80,p+s*(sign*330),p+s*(sign*260)-d*80};for(int o=0;o<3;o++){var x=choices[o];int n=Add($"{group}.{(char)('a'+o)}",WeaponTypeCatalog.Get(weapons[c]).DisplayName+" "+DisplayName(x),x,PassiveNodeKind.Choice,(PassiveRegion)c,q[o],id,new[]{Effect(x,ChoiceValue(x,tier)*WeaponSpecificEfficiencyMultiplier)},weapon:weapons[c],routeWeapon:weapons[c],tier:tier,group:group);Edge(id,n);}}}}
- static int Add(string stable,string name,PassiveBranch branch,PassiveNodeKind kind,PassiveRegion region,Vector2 pos,int prerequisite,PassiveEffect[] effects,string weapon=null,string description=null,string routeClass=null,string routeWeapon=null,int tier=0,string group=null){int id=building.Count;if(stableIds.ContainsKey(stable))throw new InvalidOperationException("Duplicate V3 passive ID: "+stable);stableIds.Add(stable,id);var size=kind is PassiveNodeKind.Spine or PassiveNodeKind.WeaponSpine?PassiveNodeSize.Medium:PassiveNodeSize.Small;var meta=new PassiveExtensionMetadata{StableSectionId=group??stable,RequiredSubclassId=kind==PassiveNodeKind.SubclassChoice?"selected":string.Empty,ClassStartIds=string.IsNullOrEmpty(routeClass)?Array.Empty<string>():new[]{routeClass},SpecializationGroupId=group??string.Empty,MutuallyExclusive=!string.IsNullOrEmpty(group),IsTravelNode=kind is PassiveNodeKind.Spine or PassiveNodeKind.WeaponSpine};building.Add(new(id,stable,name,branch,id,size,kind,region,pos,prerequisite,effects,weapon,metadata:meta,description:description,routeClass:routeClass,routeWeapon:routeWeapon,tier:tier,group:group));return id;}static void Edge(int a,int b){edgeBuild.Add(new(a,b));}static int[][] BuildAdjacency(){var x=new List<int>[NodeCount];for(int i=0;i<x.Length;i++)x[i]=new();foreach(var e in edgeBuild){x[e.A].Add(e.B);x[e.B].Add(e.A);}var r=new int[x.Length][];for(int i=0;i<x.Length;i++)r[i]=x[i].ToArray();return r;}
- static PassiveEffect Effect(PassiveBranch b,float n)=>new(Stat(b),n);static PassiveEffect[] SpineEffects(int c,int tier){var b=SpineBranch(c,tier);var x=new List<PassiveEffect>{Effect(b,SpineValue(b,tier))};if(tier==1){if(c==0)x.Add(new(StatTypes.Dexterity,4));if(c==2)x.Add(new(StatTypes.Intelligence,4));if(c==4)x.Add(new(StatTypes.Intelligence,4));}PassiveBranch extra=(c,tier) switch{(0,7)=>PassiveBranch.BleedDamage,(0,10)=>PassiveBranch.PhysicalPenetration,(1,7)=>PassiveBranch.ShockEffect,(1,8)=>PassiveBranch.PoisonDamage,(2,6)=>PassiveBranch.PoisonDamage,(2,7)=>PassiveBranch.PoisonSpeed,(3,6)=>PassiveBranch.ShockEffect,(3,7)=>PassiveBranch.ChillEffect,(4,6)=>PassiveBranch.Resistances,(4,8)=>PassiveBranch.ChillEffect,(5,5)=>PassiveBranch.LargeHitPower,(5,7)=>PassiveBranch.BleedDamage,(5,8)=>PassiveBranch.IgniteDamage,_=>PassiveBranch.EmptyTravel};if(extra!=PassiveBranch.EmptyTravel)x.Add(Effect(extra,BaseValue(extra)));return x.ToArray();}
- static StatTypes Stat(PassiveBranch b)=>b switch{PassiveBranch.Defense=>StatTypes.ArmourPercent,PassiveBranch.Life=>StatTypes.LifePercent,PassiveBranch.Mana=>StatTypes.ManaPercent,PassiveBranch.Magic=>StatTypes.AuraEffect,PassiveBranch.Lightning=>StatTypes.LightDmg,PassiveBranch.Fire=>StatTypes.FireDmg,PassiveBranch.Poison=>StatTypes.VoidDmg,PassiveBranch.Projectile=>StatTypes.ProjectileDmg,PassiveBranch.Physical=>StatTypes.PhysDmg,PassiveBranch.Cold=>StatTypes.ColdDmg,PassiveBranch.IncreasedProjectileAmount=>StatTypes.ProjectileAmount,PassiveBranch.AttackSpeed=>StatTypes.AttackSpeed,PassiveBranch.BleedChance=>StatTypes.BleedChance,PassiveBranch.PoisonChance=>StatTypes.PoisonChance,PassiveBranch.ChillChance=>StatTypes.ChillChance,PassiveBranch.IgniteChance=>StatTypes.IgniteChance,PassiveBranch.ShockChance=>StatTypes.ShockChance,PassiveBranch.ChanceToHitTwice=>StatTypes.ChanceToHitTwice,PassiveBranch.LifeRegeneration=>StatTypes.LifeRegeneration,PassiveBranch.ManaRegeneration=>StatTypes.ManaRegeneration,PassiveBranch.CriticalChance=>StatTypes.CritChance,PassiveBranch.CriticalMultiplier=>StatTypes.CritMult,PassiveBranch.LifeOnHit=>StatTypes.LifeOnHit,PassiveBranch.ManaOnHit=>StatTypes.ManaOnHit,PassiveBranch.LifeOnKill=>StatTypes.LifeOnKill,PassiveBranch.ManaOnKill=>StatTypes.ManaOnKill,PassiveBranch.Strength=>StatTypes.Strength,PassiveBranch.Dexterity=>StatTypes.Dexterity,PassiveBranch.Intelligence=>StatTypes.Intelligence,PassiveBranch.CooldownReduction=>StatTypes.CooldownReduction,PassiveBranch.ProjectileSpeed=>StatTypes.ProjectileSpeed,PassiveBranch.PrecisionChance=>StatTypes.ProjectilePrecisionChance,PassiveBranch.PrecisionDamage=>StatTypes.ProjectilePrecisionMultiplier,PassiveBranch.RageGeneration=>StatTypes.RageGeneration,PassiveBranch.RageEffect=>StatTypes.RageEffect,PassiveBranch.RageRetention=>StatTypes.RageDecayReduction,PassiveBranch.BleedDamage=>StatTypes.BleedDmg,PassiveBranch.IgniteDamage=>StatTypes.IgniteDmg,PassiveBranch.PoisonDamage=>StatTypes.PoisonDmg,PassiveBranch.ShockEffect=>StatTypes.ShockEffect,PassiveBranch.ChillEffect=>StatTypes.ChillEffect,PassiveBranch.PoisonSpeed=>StatTypes.PoisonSpeed,PassiveBranch.Resistances=>StatTypes.AllRes,PassiveBranch.PhysicalPenetration=>StatTypes.PhysPenetration,PassiveBranch.LargeHitPower=>StatTypes.GenericMult,_=>StatTypes.GenericDmg};
- static float SpineValue(PassiveBranch b,int t)=>BaseValue(b)*(1+.025f*(t-1));static float ChoiceValue(PassiveBranch b,int t)=>BaseValue(b)*(1.8f+.04f*(t-1));static float BaseValue(PassiveBranch b)=>b switch{PassiveBranch.Strength or PassiveBranch.Dexterity or PassiveBranch.Intelligence=>5,PassiveBranch.IncreasedProjectileAmount=>1,PassiveBranch.LifeOnHit or PassiveBranch.ManaOnHit or PassiveBranch.LifeOnKill or PassiveBranch.ManaOnKill or PassiveBranch.LifeRegeneration or PassiveBranch.ManaRegeneration=>2,PassiveBranch.CriticalMultiplier=>8,PassiveBranch.CriticalChance=>5,PassiveBranch.ChanceToHitTwice=>3,PassiveBranch.PrecisionChance=>6,PassiveBranch.PrecisionDamage=>8,_=>5};
- static PassiveBranch SpineBranch(int c,int t)=>c switch{0=>new[]{PassiveBranch.Strength,PassiveBranch.Life,PassiveBranch.Defense,PassiveBranch.Physical,PassiveBranch.ChanceToHitTwice,PassiveBranch.LifeOnHit,PassiveBranch.BleedChance,PassiveBranch.CriticalChance,PassiveBranch.AttackSpeed,PassiveBranch.Physical}[t-1],1=>new[]{PassiveBranch.Dexterity,PassiveBranch.AttackSpeed,PassiveBranch.Projectile,PassiveBranch.ProjectileSpeed,PassiveBranch.PrecisionChance,PassiveBranch.CriticalChance,PassiveBranch.ShockChance,PassiveBranch.PoisonChance,PassiveBranch.ManaOnHit,PassiveBranch.Projectile}[t-1],2=>new[]{PassiveBranch.Dexterity,PassiveBranch.CriticalChance,PassiveBranch.CriticalMultiplier,PassiveBranch.AttackSpeed,PassiveBranch.CooldownReduction,PassiveBranch.PoisonChance,PassiveBranch.Poison,PassiveBranch.ChanceToHitTwice,PassiveBranch.LifeOnHit,PassiveBranch.CriticalMultiplier}[t-1],3=>new[]{PassiveBranch.Intelligence,PassiveBranch.Mana,PassiveBranch.CooldownReduction,PassiveBranch.ManaRegeneration,PassiveBranch.Magic,PassiveBranch.ShockChance,PassiveBranch.ChillChance,PassiveBranch.CriticalChance,PassiveBranch.Poison,PassiveBranch.CooldownReduction}[t-1],4=>new[]{PassiveBranch.Strength,PassiveBranch.Life,PassiveBranch.Mana,PassiveBranch.LifeRegeneration,PassiveBranch.ManaRegeneration,PassiveBranch.Magic,PassiveBranch.Defense,PassiveBranch.ChillChance,PassiveBranch.Poison,PassiveBranch.Magic}[t-1],_=>new[]{PassiveBranch.Strength,PassiveBranch.Life,PassiveBranch.Physical,PassiveBranch.RageGeneration,PassiveBranch.CriticalMultiplier,PassiveBranch.LifeRegeneration,PassiveBranch.BleedChance,PassiveBranch.Fire,PassiveBranch.RageEffect,PassiveBranch.Defense}[t-1]};
- static readonly PassiveBranch[][][] ClassPools={new[]{new[]{PassiveBranch.Life,PassiveBranch.Defense,PassiveBranch.Physical,PassiveBranch.LifeRegeneration,PassiveBranch.LifeOnHit,PassiveBranch.BleedChance},new[]{PassiveBranch.CriticalChance,PassiveBranch.AttackSpeed,PassiveBranch.ChanceToHitTwice,PassiveBranch.Mana,PassiveBranch.ManaOnHit,PassiveBranch.CooldownReduction}},new[]{new[]{PassiveBranch.AttackSpeed,PassiveBranch.CriticalChance,PassiveBranch.PrecisionChance,PassiveBranch.Lightning,PassiveBranch.PoisonChance,PassiveBranch.Life},new[]{PassiveBranch.Projectile,PassiveBranch.ProjectileSpeed,PassiveBranch.IncreasedProjectileAmount,PassiveBranch.PrecisionDamage,PassiveBranch.CooldownReduction,PassiveBranch.ChanceToHitTwice}},new[]{new[]{PassiveBranch.CriticalChance,PassiveBranch.CriticalMultiplier,PassiveBranch.AttackSpeed,PassiveBranch.PoisonChance,PassiveBranch.Poison,PassiveBranch.LifeOnHit},new[]{PassiveBranch.ManaOnHit,PassiveBranch.CooldownReduction,PassiveBranch.ChanceToHitTwice,PassiveBranch.Defense,PassiveBranch.ManaRegeneration,PassiveBranch.ManaOnKill}},new[]{new[]{PassiveBranch.Mana,PassiveBranch.ManaRegeneration,PassiveBranch.ManaOnHit,PassiveBranch.ShockChance,PassiveBranch.Fire,PassiveBranch.CriticalChance},new[]{PassiveBranch.Fire,PassiveBranch.Cold,PassiveBranch.Lightning,PassiveBranch.CooldownReduction,PassiveBranch.CriticalMultiplier,PassiveBranch.Defense}},new[]{new[]{PassiveBranch.Life,PassiveBranch.LifeRegeneration,PassiveBranch.LifeOnHit,PassiveBranch.Defense,PassiveBranch.Cold,PassiveBranch.ChillChance},new[]{PassiveBranch.Mana,PassiveBranch.ManaRegeneration,PassiveBranch.ManaOnHit,PassiveBranch.Magic,PassiveBranch.CooldownReduction,PassiveBranch.Lightning}},new[]{new[]{PassiveBranch.Life,PassiveBranch.Defense,PassiveBranch.LifeRegeneration,PassiveBranch.RageGeneration,PassiveBranch.RageEffect,PassiveBranch.BleedChance},new[]{PassiveBranch.Physical,PassiveBranch.CriticalMultiplier,PassiveBranch.RageRetention,PassiveBranch.Fire,PassiveBranch.CriticalChance,PassiveBranch.LifeOnHit}}};
- static PassiveBranch[] ClassChoices(int c,int tier,bool right){var p=ClassPools[c][right?1:0];int o=((tier-1)*3)%p.Length;return new[]{p[o],p[(o+1)%p.Length],p[(o+2)%p.Length]};}
- static readonly PassiveBranch[][][] WeaponPools={new[]{new[]{PassiveBranch.Physical,PassiveBranch.AttackSpeed,PassiveBranch.CriticalChance,PassiveBranch.CriticalMultiplier,PassiveBranch.BleedChance,PassiveBranch.ChanceToHitTwice},new[]{PassiveBranch.LifeOnHit,PassiveBranch.ChanceToHitTwice,PassiveBranch.Defense,PassiveBranch.Life,PassiveBranch.ManaOnHit,PassiveBranch.CooldownReduction}},new[]{new[]{PassiveBranch.PrecisionChance,PassiveBranch.PrecisionDamage,PassiveBranch.ProjectileSpeed,PassiveBranch.CriticalChance,PassiveBranch.PoisonChance,PassiveBranch.Lightning},new[]{PassiveBranch.Projectile,PassiveBranch.AttackSpeed,PassiveBranch.IncreasedProjectileAmount,PassiveBranch.ManaOnHit,PassiveBranch.ShockChance,PassiveBranch.CriticalMultiplier}},new[]{new[]{PassiveBranch.CriticalChance,PassiveBranch.CriticalMultiplier,PassiveBranch.AttackSpeed,PassiveBranch.PoisonChance,PassiveBranch.BleedChance,PassiveBranch.Poison},new[]{PassiveBranch.LifeOnHit,PassiveBranch.ManaOnHit,PassiveBranch.CooldownReduction,PassiveBranch.ChanceToHitTwice,PassiveBranch.PoisonChance,PassiveBranch.AttackSpeed}},new[]{new[]{PassiveBranch.CooldownReduction,PassiveBranch.Mana,PassiveBranch.ManaRegeneration,PassiveBranch.CriticalChance,PassiveBranch.Fire,PassiveBranch.Lightning},new[]{PassiveBranch.Fire,PassiveBranch.Lightning,PassiveBranch.Cold,PassiveBranch.ManaOnHit,PassiveBranch.CriticalMultiplier,PassiveBranch.CooldownReduction}},new[]{new[]{PassiveBranch.Magic,PassiveBranch.CooldownReduction,PassiveBranch.ManaRegeneration,PassiveBranch.Cold,PassiveBranch.ChillChance,PassiveBranch.CriticalChance},new[]{PassiveBranch.LifeOnHit,PassiveBranch.ManaOnHit,PassiveBranch.LifeRegeneration,PassiveBranch.Defense,PassiveBranch.Life,PassiveBranch.Lightning}},new[]{new[]{PassiveBranch.Physical,PassiveBranch.CriticalMultiplier,PassiveBranch.RageGeneration,PassiveBranch.RageEffect,PassiveBranch.BleedChance,PassiveBranch.Fire},new[]{PassiveBranch.Life,PassiveBranch.Defense,PassiveBranch.LifeRegeneration,PassiveBranch.BleedChance,PassiveBranch.IgniteChance,PassiveBranch.LifeOnHit}}};
- static PassiveBranch[] WeaponChoices(int c,int tier,bool right){var p=WeaponPools[c][right?1:0];int o=((tier-1)*3)%p.Length;return new[]{p[o],p[(o+1)%p.Length],p[(o+2)%p.Length]};}static PassiveBranch WeaponSpineBranch(int c,int tier)=>WeaponChoices(c,tier,false)[(tier-1)%3];
- public static PassiveEffect[] SubclassEffects(string sub,PassiveNodeDefinition node){if(!node.IsSubclassChoice||string.IsNullOrEmpty(sub))return Array.Empty<PassiveEffect>();int i=(node.Tier+(node.StableId.Contains("right")?3:0))%3;PassiveBranch b=sub switch{SubclassIds.WarriorBleed=>new[]{PassiveBranch.BleedChance,PassiveBranch.Physical,PassiveBranch.LifeOnHit}[i],SubclassIds.WarriorMultihit=>new[]{PassiveBranch.AttackSpeed,PassiveBranch.ChanceToHitTwice,PassiveBranch.CriticalMultiplier}[i],SubclassIds.BarbarianBigHit=>new[]{PassiveBranch.Physical,PassiveBranch.CriticalMultiplier,PassiveBranch.Life}[i],SubclassIds.BarbarianFire=>new[]{PassiveBranch.Fire,PassiveBranch.IgniteChance,PassiveBranch.RageEffect}[i],SubclassIds.RangerPoison=>new[]{PassiveBranch.PoisonChance,PassiveBranch.Poison,PassiveBranch.AttackSpeed}[i],SubclassIds.RangerProjectile=>new[]{PassiveBranch.IncreasedProjectileAmount,PassiveBranch.PrecisionChance,PassiveBranch.ProjectileSpeed}[i],SubclassIds.ThiefAssassin=>new[]{PassiveBranch.CriticalChance,PassiveBranch.CriticalMultiplier,PassiveBranch.AttackSpeed}[i],SubclassIds.ThiefAilmentCrit=>new[]{PassiveBranch.CriticalMultiplier,PassiveBranch.PoisonChance,PassiveBranch.BleedChance}[i],SubclassIds.MageCooldown=>new[]{PassiveBranch.CooldownReduction,PassiveBranch.ManaRegeneration,PassiveBranch.ManaOnHit}[i],SubclassIds.MageStorm=>new[]{PassiveBranch.ShockChance,PassiveBranch.Lightning,PassiveBranch.CriticalChance}[i],SubclassIds.PriestDark=>new[]{PassiveBranch.Poison,PassiveBranch.PoisonChance,PassiveBranch.CriticalChance}[i],SubclassIds.PriestLight=>new[]{PassiveBranch.Magic,PassiveBranch.LifeOnHit,PassiveBranch.Defense}[i],_=>PassiveBranch.Magic};return new[]{Effect(b,ChoiceValue(b,node.Tier))};}
- static Vector2 Dir(float a){float r=a*Mathf.Deg2Rad;return new(Mathf.Cos(r),Mathf.Sin(r));}static string Title(string s)=>char.ToUpperInvariant(s[0])+s.Substring(1);static string Split(string s){for(int i=1;i<s.Length;i++)if(char.IsUpper(s[i]))s=s.Insert(i++," ");return s;}
+
+    public static string KeystoneName(PassiveKeystone keystone) => keystone == PassiveKeystone.RageFinisher ? "Rage Finisher" : string.Empty;
+    public static string KeystoneEffect(PassiveKeystone keystone) => keystone == PassiveKeystone.RageFinisher ? "At maximum Rage, arm one empowered Axe attack." : string.Empty;
+    public static string DisplayName(PassiveBranch branch) => branch switch { PassiveBranch.Poison => "Void Damage", PassiveBranch.IncreasedProjectileAmount => "Additional Projectiles", PassiveBranch.ChanceToHitTwice => "Hit Twice", PassiveBranch.CriticalChance => "Critical Chance", PassiveBranch.CriticalMultiplier => "Critical Multiplier", PassiveBranch.PrecisionChance => "Projectile Precision", PassiveBranch.PrecisionDamage => "Precision Damage", _ => Split(branch.ToString()) };
+    public static string GameplayMeaning(PassiveBranch branch) => DisplayName(branch);
+    public static bool UsesPercentDisplay(PassiveBranch branch) => branch is not (PassiveBranch.LifeRegeneration or PassiveBranch.ManaRegeneration or PassiveBranch.LifeOnHit or PassiveBranch.ManaOnHit or PassiveBranch.LifeOnKill or PassiveBranch.ManaOnKill or PassiveBranch.IncreasedProjectileAmount or PassiveBranch.EmptyTravel);
+
+    public static PassiveEffect[] SubclassEffects(string subclassId, PassiveNodeDefinition node)
+    {
+        if (!node.IsSubclassChoice || string.IsNullOrEmpty(subclassId)) return Array.Empty<PassiveEffect>();
+        PassiveClassBranchSO branch = RequiredClassBranch(node.RouteClassId);
+        PassiveClassTierData tier = branch.Tiers[node.Tier - 1];
+        PassiveChoiceSideData side = node.ChoiceGroupId.EndsWith("right", StringComparison.Ordinal) ? tier.Right : tier.Left;
+        PassiveAuthoredNode authored = subclassId == branch.SubclassAId ? side.SubclassA : subclassId == branch.SubclassBId ? side.SubclassB : null;
+        return authored == null ? Array.Empty<PassiveEffect>() : StatEffects(authored);
+    }
+
+    public static PassiveAuthoredNode AuthoredNode(PassiveNodeDefinition node, string subclassId = null)
+    {
+        if (node.IsSubclassChoice && !string.IsNullOrEmpty(subclassId))
+        {
+            PassiveClassBranchSO branch = RequiredClassBranch(node.RouteClassId); PassiveClassTierData tier = branch.Tiers[node.Tier - 1];
+            PassiveChoiceSideData side = node.ChoiceGroupId.EndsWith("right", StringComparison.Ordinal) ? tier.Right : tier.Left;
+            return subclassId == branch.SubclassAId ? side.SubclassA : subclassId == branch.SubclassBId ? side.SubclassB : null;
+        }
+        PassiveBranchDataSO route = node.IsClassRoute ? RequiredClassBranch(node.RouteClassId) : RequiredWeaponBranch(node.RouteWeaponId);
+        return route.AllAuthoredNodes().FirstOrDefault(candidate => candidate != null && candidate.LogicalSlotId == node.StableId);
+    }
+
+    static void BuildClass(int classIndex, PassiveClassBranchSO branch)
+    {
+        if (branch.Tiers.Count != ClassTierCount) throw new InvalidOperationException(branch.name + " must contain ten tiers.");
+        Vector2 direction = Direction(angles[classIndex]), tangent = new(-direction.y, direction.x); int previous = -1;
+        for (int tierNumber = 1; tierNumber <= ClassTierCount; tierNumber++)
+        {
+            PassiveClassTierData tier = branch.Tiers[tierNumber - 1]; Vector2 position = direction * (430 + (tierNumber - 1) * 255);
+            int spine = Add(tier.Spine, tier.Spine.LogicalSlotId, PassiveNodeKind.Spine, (PassiveRegion)classIndex, position, previous, routeClass: branch.ClassId, tier: tierNumber);
+            classSpines[classIndex, tierNumber - 1] = spine; if (previous >= 0) Edge(previous, spine); previous = spine;
+            BuildClassGroup(classIndex, tierNumber, false, spine, position, direction, tangent, tier.Left, branch.ClassId);
+            BuildClassGroup(classIndex, tierNumber, true, spine, position, direction, tangent, tier.Right, branch.ClassId);
+        }
+    }
+
+    static void BuildClassGroup(int classIndex, int tier, bool right, int spine, Vector2 position, Vector2 direction, Vector2 tangent, PassiveChoiceSideData sideData, string classId)
+    {
+        int sign = right ? 1 : -1; string side = right ? "right" : "left"; string group = $"tree.v3.class.{ClassSlug(classId)}.t{tier:00}.{side}";
+        Vector2[] positions = { position + tangent * (sign * 260) + direction * 80, position + tangent * (sign * 350) + direction * 40, position + tangent * (sign * 350) - direction * 40, position + tangent * (sign * 260) - direction * 80 };
+        PassiveAuthoredNode[] choices = { sideData.A, sideData.B, sideData.C };
+        for (int i = 0; i < choices.Length; i++) { int id = Add(choices[i], choices[i].LogicalSlotId, PassiveNodeKind.Choice, (PassiveRegion)classIndex, positions[i], spine, routeClass: classId, tier: tier, group: group); Edge(spine, id); }
+        PassiveAuthoredNode subclass = sideData.SubclassA;
+        int subclassId = Add(subclass, subclass.LogicalSlotId, PassiveNodeKind.SubclassChoice, (PassiveRegion)classIndex, positions[3], spine, routeClass: classId, tier: tier, group: group, suppressEffects: true); Edge(spine, subclassId);
+    }
+
+    static void BuildWeapon(int classIndex, PassiveWeaponBranchSO branch)
+    {
+        if (branch.Tiers.Count != WeaponTierCount) throw new InvalidOperationException(branch.name + " must contain five tiers.");
+        Vector2 direction = Direction(angles[classIndex]), tangent = new(-direction.y, direction.x); int previous = -1;
+        for (int tierNumber = 1; tierNumber <= WeaponTierCount; tierNumber++)
+        {
+            PassiveWeaponTierData tier = branch.Tiers[tierNumber - 1]; Vector2 position = direction * (2980 + (tierNumber - 1) * 255);
+            int spine = Add(tier.Spine, tier.Spine.LogicalSlotId, PassiveNodeKind.WeaponSpine, (PassiveRegion)classIndex, position, previous, weapon: branch.WeaponId, routeWeapon: branch.WeaponId, tier: tierNumber);
+            weaponSpines[classIndex, tierNumber - 1] = spine; if (previous >= 0) Edge(previous, spine); else Edge(classSpines[classIndex, ClassTierCount - 1], spine); previous = spine;
+            BuildWeaponGroup(classIndex, tierNumber, false, spine, position, direction, tangent, tier.Left, branch.WeaponId);
+            BuildWeaponGroup(classIndex, tierNumber, true, spine, position, direction, tangent, tier.Right, branch.WeaponId);
+        }
+    }
+
+    static void BuildWeaponGroup(int classIndex, int tier, bool right, int spine, Vector2 position, Vector2 direction, Vector2 tangent, PassiveChoiceSideData sideData, string weaponId)
+    {
+        int sign = right ? 1 : -1; string side = right ? "right" : "left"; string group = $"tree.v3.weapon.{weaponId.Replace("weapon.", string.Empty)}.t{tier:00}.{side}";
+        Vector2[] positions = { position + tangent * (sign * 260) + direction * 80, position + tangent * (sign * 330), position + tangent * (sign * 260) - direction * 80 };
+        PassiveAuthoredNode[] choices = { sideData.A, sideData.B, sideData.C };
+        for (int i = 0; i < choices.Length; i++) { int id = Add(choices[i], choices[i].LogicalSlotId, PassiveNodeKind.Choice, (PassiveRegion)classIndex, positions[i], spine, weapon: weaponId, routeWeapon: weaponId, tier: tier, group: group); Edge(spine, id); }
+    }
+
+    static int Add(PassiveAuthoredNode authored, string stableId, PassiveNodeKind runtimeKind, PassiveRegion region, Vector2 layout, int prerequisite, string weapon = null, string routeClass = null, string routeWeapon = null, int tier = 0, string group = null, bool suppressEffects = false)
+    {
+        if (authored == null) throw new InvalidOperationException("Passive authoring node is missing for " + stableId);
+        int id = building.Count; if (string.IsNullOrWhiteSpace(stableId) || stableIds.ContainsKey(stableId)) throw new InvalidOperationException("Missing or duplicate V3 passive ID: " + stableId); stableIds.Add(stableId, id);
+        PassiveEffect[] statEffects = suppressEffects ? Array.Empty<PassiveEffect>() : StatEffects(authored);
+        string[] mechanicIds = suppressEffects ? Array.Empty<string>() : authored.Effects.Where(x => x.Kind == PassiveEffectKind.Mechanic).Select(x => x.MechanicId).ToArray();
+        float[] mechanicValues = suppressEffects ? Array.Empty<float>() : authored.Effects.Where(x => x.Kind == PassiveEffectKind.Mechanic).Select(x => x.Value).ToArray();
+        var metadata = new PassiveExtensionMetadata { StableSectionId = group ?? stableId, RequiredSubclassId = runtimeKind == PassiveNodeKind.SubclassChoice ? "selected" : string.Empty, ClassStartIds = string.IsNullOrEmpty(routeClass) ? Array.Empty<string>() : new[] { routeClass }, SpecializationGroupId = group ?? string.Empty, MutuallyExclusive = !string.IsNullOrEmpty(group), IsTravelNode = runtimeKind is PassiveNodeKind.Spine or PassiveNodeKind.WeaponSpine };
+        building.Add(new PassiveNodeDefinition(id, stableId, authored.DisplayName, authored.Branch, id, authored.Size, runtimeKind, region, layout, prerequisite, statEffects, mechanicIds, mechanicValues, weapon, authored.Keystone, metadata, authored.Description, routeClass, routeWeapon, tier, group));
+        return id;
+    }
+
+    static PassiveEffect[] StatEffects(PassiveAuthoredNode authored) => authored.Effects.Where(x => x.Kind == PassiveEffectKind.Stat).Select(x => new PassiveEffect(x.Stat, x.Value)).ToArray();
+    static void Edge(int a, int b) => edgeBuild.Add(new PassiveTreeEdge(a, b));
+    static int[][] BuildAdjacency() { var lists = new List<int>[NodeCount]; for (int i = 0; i < lists.Length; i++) lists[i] = new(); foreach (var edge in edgeBuild) { lists[edge.A].Add(edge.B); lists[edge.B].Add(edge.A); } var result = new int[lists.Length][]; for (int i = 0; i < lists.Length; i++) result[i] = lists[i].ToArray(); return result; }
+    static PassiveClassBranchSO RequiredClassBranch(string id) => database.ClassBranches.FirstOrDefault(x => x != null && x.ClassId == id) ?? throw new InvalidOperationException("Missing class branch authoring asset: " + id);
+    static PassiveWeaponBranchSO RequiredWeaponBranch(string id) => database.WeaponBranches.FirstOrDefault(x => x != null && x.WeaponId == id) ?? throw new InvalidOperationException("Missing weapon branch authoring asset: " + id);
+    static Vector2 Direction(float angle) { float radians = angle * Mathf.Deg2Rad; return new Vector2(Mathf.Cos(radians), Mathf.Sin(radians)); }
+    static string ClassSlug(string classId) => classId.Replace("class.", string.Empty);
+    static string Split(string value) { for (int i = 1; i < value.Length; i++) if (char.IsUpper(value[i])) value = value.Insert(i++, " "); return value; }
 }
