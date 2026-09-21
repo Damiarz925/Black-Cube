@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4cb4374194f84cc89678ce32249532a0, type: 3}
+  m_Name: SO_PlayerGearProfile_Mid
+  m_EditorClassIdentifier: 
+  simulationNotice: SIMULATION ASSUMPTIONS — NOT GAME BALANCE
+  version: 1
+  candidatesPerSlot: 10
+  selectionStrategy: 2
+  targetObjectivePercentile: 0.6
+  candidateRetention: 5
+  gearsetBeamWidth: 30
+  minimumRarity: 1
+  maximumRarity: 2
+  useNaturalRarity: 1
+  allowNaturalLegendaries: 0
+  requireProductionLegalAffixes: 1
+  allowManualSlotLocks: 1
+  selectionImperfection: 0.1
+  allowLegalCrafting: 0
+  allowEmpoweredModifiers: 0
+  allowBossSpecialModifiers: 0
+  allowDeepEndgameImplicitRepair: 0
