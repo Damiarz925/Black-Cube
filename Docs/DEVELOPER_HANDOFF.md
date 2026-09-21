@@ -192,7 +192,7 @@ Run **Black Cube → Validation → Validate World Content** after content edits
 
 ## Step 17 handoff
 
-Read [PASSIVE_TREE_V2.md](PASSIVE_TREE_V2.md) and [WEAPON_MECHANICS.md](WEAPON_MECHANICS.md) before changing tree topology or weapon behavior. Keep stat IDs append-only, preserve `CooldownRecovery` at 84, and route new tree values through node effects rather than branch-specific projection code. Weapon-specific effects must remain conditional on the equipped stable weapon ID.
+Read [PASSIVE_TREE_V3.md](PASSIVE_TREE_V3.md) and [WEAPON_MECHANICS.md](WEAPON_MECHANICS.md) before changing tree topology or weapon behavior. Keep stat IDs append-only, preserve `CooldownRecovery` at 84, and route new tree values through node effects rather than branch-specific projection code. Weapon-specific effects must remain conditional on the equipped stable weapon ID.
 
 Character saves now live in `slot-01.json` through `slot-06.json`, each with `.bak`/`.tmp`. Always select the active slot before capture/load. Do not serialize Staff cooldown progress, Rage, an armed Finisher, queued skills, projectiles, or other combat transients. Legacy single-file migration retains its source and seeds Slot 1 once.
 

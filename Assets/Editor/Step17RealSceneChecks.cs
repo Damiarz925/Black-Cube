@@ -58,7 +58,7 @@ public static class Step17RealSceneChecks
     {
         int start=PassiveTreeDefinition.StartNodeId(classId);var parent=Enumerable.Repeat(-2,PassiveTreeDefinition.NodeCount).ToArray();var queue=new Queue<int>();queue.Enqueue(start);parent[start]=-1;
         while(queue.Count>0&&parent[target]==-2){int current=queue.Dequeue();foreach(int next in PassiveTreeDefinition.AdjacentNodeIds(current)){if(PassiveTreeDefinition.IsClassStart(next)&&next!=start||parent[next]!=-2)continue;parent[next]=current;queue.Enqueue(next);}}
-        Require(parent[target]!=-2,"Bow district is unreachable from Ranger start");var path=new List<int>();for(int id=target;id!=start;id=parent[id])path.Add(id);path.Reverse();return path;
+        Require(parent[target]!=-2,"Bow district is unreachable from Ranger start");var path=new List<int>();for(int id=target;id!=start;id=parent[id])path.Add(id);path.Add(start);path.Reverse();return path;
     }
     static Gear Weapon(PlayerController player,string id){var profile=WeaponTypeCatalog.Get(id);var go=new GameObject("Step17 "+profile.DisplayName);go.transform.SetParent(player.transform);var gear=go.AddComponent<Gear>();gear.Initialize(LootManager.GearType.Weapons,LootManager.GearRarity.Normal,1,Element.Phys,id);gear.BaseDamageMin=profile.BaseDamageMin;gear.BaseDamageMax=profile.BaseDamageMax;gear.BaseDamage=(profile.BaseDamageMin+profile.BaseDamageMax)*.5f;gear.BaseAttackSpeed=profile.AttacksPerSecond;gear.BaseCritChance=profile.BaseCritChance;return gear;}
     static void Delay(double seconds)=>readyAt=EditorApplication.timeSinceStartup+seconds;

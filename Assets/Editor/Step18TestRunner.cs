@@ -9,7 +9,7 @@ public static class Step18TestRunner
     public static void RunValidation()=>Run(()=>
     {
         if(GamePersistence.SchemaVersion!=10)throw new InvalidOperationException("Step 18 requires schema 10.");
-        if(PassiveTreeDefinition.NodeCount!=366)throw new InvalidOperationException("Passive Tree V2 topology changed.");
+        if(PassiveTreeDefinition.NodeCount!=750)throw new InvalidOperationException("Passive Tree V3 topology changed.");
         if(SubclassCatalog.All.Count!=12||PlayerSkillDefinition.CreateProductionDefaults().Count(x=>!string.IsNullOrEmpty(x.stableId))!=12)throw new InvalidOperationException("Production catalog count mismatch.");
         foreach(var weapon in WeaponTypeCatalog.All)if(WeaponSkillBindings.For(weapon.Id).Count!=2)throw new InvalidOperationException("Weapon skill binding mismatch: "+weapon.Id);
         Step17TestRunner.WritePassiveTreeReport();

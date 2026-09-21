@@ -147,7 +147,7 @@ New Game confirms replacement, clears all gameplay and relic/rebirth meta, prese
 - **Stats:** categorized player-stat panel with damage-range/average previews and equipment-derived refresh; Inventory may remain open alongside Stats or Enemy Inspection, but those two inspection panels are mutually exclusive.
 - **Enemy Inspection:** current enemy identity, rarity, level, stats/build and equipment inspection.
 - **Skills:** seven skill entries, single-selection/forfeit behavior and Cast Active Skill control.
-- **Passive Tree:** pan/zoom 7,000-pixel graph with allocation/refund, details, points and optional pause-while-open preference.
+- **Passive Tree:** pan/zoom 10,000-pixel V3 radial routes with allocation/refund, mutually exclusive choices, details, points and optional pause-while-open preference.
 - **Pause/Options/CODEX:** Resume, Options, paused CODEX → MOD LIST with item-type/side selectors and a scrollable tier catalog, Save & Main Menu, Save & Quit, and passive-tree pause preference.
 - **Death Menu:** killer summary, restart current level and return-to-menu path.
 
@@ -215,14 +215,14 @@ Six stable base classes, six stable weapon types, New Game class selection, sign
 
 ## Step 17 current state
 
-Passive Tree V2 ships with 366 nodes, six class starts, six bridge regions, a shared center, explicit generated coordinates, stable `tree.v2.*` IDs, free graph-safe respecs, and a confirmed Refund All action. Level 1 owns one passive point and level 100 owns exactly 100. Weapon effects use a centralized 1.60 specialization premium and activate only for the matching equipped type. See [PASSIVE_TREE_V2.md](PASSIVE_TREE_V2.md).
+Passive Tree V3 is the sole production topology: six ten-tier class spines, two optional mutually exclusive groups per tier, native-class subclass fourth choices, and six five-tier signature-weapon continuations. Cross-class roots unlock after the native spine is complete; weapon routes unlock after their associated class spine. Refunds preserve those dependencies. Level 1 owns one point and level 100 owns exactly 100. See [PASSIVE_TREE_V3.md](PASSIVE_TREE_V3.md).
 
-Cast Speed/Staff AutoCooldown, Bow Precision and projectile latency/barrages, Axe Rage and Rage Finisher, and local Average Weapon DPS are production systems. Final Staff skills and all other final weapon-skill assignments remain unapproved. See [WEAPON_MECHANICS.md](WEAPON_MECHANICS.md).
+Cooldown Reduction/Staff AutoCooldown, Bow Precision and projectile latency/barrages, Axe Rage and Rage Finisher, and local Average Weapon DPS are production systems. Deprecated Cast Speed remains serialized only and is not passive content. See [WEAPON_MECHANICS.md](WEAPON_MECHANICS.md).
 
 Persistence is schema 9 with six independent character slots, per-slot primary/backup/temp files, summaries and explicit selected-slot load/save. Legacy `current-save.json` migrates non-destructively to Slot 1 once. Schema 8 clears V1 passive allocations and grants the character's full level-owned V2 point total. Global preferences remain outside character files.
 # Step 18 production gameplay systems
 
-Step 18 promotes the weapon-skill and subclass foundations to production data: 12 stable weapon skills, 12 class-specific/weapon-agnostic subclasses, Cooldown Reduction, Freeze/Shatter, modular combat-event tags, Light Priest auras, and connected passive transformations. Save schema is 10. Passive Tree V2 remains 366 nodes. See `PRODUCTION_SKILLS.md` and `SUBCLASSES.md`. Values are first-pass placeholders, not final balance.
+Step 18 promotes the weapon-skill and subclass foundations to production data: 12 stable weapon skills, 12 class-specific/weapon-agnostic subclasses, Cooldown Reduction, Freeze/Shatter, modular combat-event tags, and Light Priest auras. Passive Tree V3 removes connected transformations and exposes selected-subclass options as native-route fourth choices. See `PRODUCTION_SKILLS.md`, `SUBCLASSES.md`, and `PASSIVE_TREE_V3.md`. Values are first-pass placeholders, not final balance.
 
 ## Step 18.5 current state
 
@@ -237,5 +237,7 @@ Fresh Step 18.6 evidence: focused EditMode 31/31 and complete EditMode 370/370 p
 ## Step 20 current state
 
 Schema 11 owns persistent per-character challenge keys/Essences, Catalysts, Reforgers, and final-challenge first-clear state. The production HUD now exposes a six-entry Challenge launcher and one three-tab endgame crafting interface. Six APEX pools contain 36 authored boss-special affixes. Boss infusion, Empowerment, and implicit-only reforge are production-accessible and entropy-backed. See `ENDGAME_ITEMIZATION.md`, `BOSS_SPECIAL_AFFIXES.md`, and `EMPOWERMENT.md`.
+
+Schema 12 is the Passive Tree V3 migration. It clears V2 allocations and retired transformed-node state, refunds the full level-owned point total, and preserves every non-passive character system.
 
 Fresh Step 20 evidence: focused EditMode 19/19 and complete EditMode 396/396 passed; world-content, itemization, passive-tree, reference, and endgame-resource/special-affix validators passed; the real-scene launcher → key spend → challenge → rewards → all three crafts → schema-11 save/load smoke passed. Fresh regression smokes also passed repeated-stage loot, all six weapons, Staff/Bow/Axe/Dagger contracts, ailment eligibility, class/load, and Rebirth. The Windows x64 build succeeded with zero errors at `Builds/Step20Windows/BlackCube.exe`, and the hidden standalone player remained alive for the ten-second startup smoke. BalanceLab was not run.

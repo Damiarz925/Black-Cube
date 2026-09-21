@@ -207,11 +207,11 @@ Boss-special data is deliberately plain serializable architecture, not a product
 
 | File | Responsibility |
 |---|---|
-| [PassiveTreeDefinition.cs](../Assets/Scripts/PassiveTreeDefinition.cs) | Generates the authoritative 366-node V2 graph, effects, regions, positions, stable IDs, weapon restrictions, and transformation metadata. |
+| [PassiveTreeDefinition.cs](../Assets/Scripts/PassiveTreeDefinition.cs) | Generates the authoritative V3 class/weapon routes, deterministic three-/four-choice geometry, effects, stable IDs, exclusivity groups, and weapon restrictions. |
 | [PlayerProgression.cs](../Assets/Scripts/PlayerProgression.cs) | Exact level-owned point budget, selected-class origin, graph-safe allocation/refunds, Refund All, and equipped-weapon-gated stat projection. |
 | [SkillTreeUI.cs](../Assets/Scripts/SkillTreeUI.cs) | V2 coordinate rendering, pan/zoom/tooltips/states/connections, class landmarks, and Refund All confirmation. |
 | [WeaponMechanics.cs](../Assets/Scripts/WeaponMechanics.cs) | Central Bow/projectile and Axe Rage/Rage-Finisher profiles/runtime authority. |
-| [PlayerSkillController.cs](../Assets/Scripts/PlayerSkillController.cs) | QueuedAttackReplacement plus two independent AutoCooldown slots and Cast Speed formula. |
+| [PlayerSkillController.cs](../Assets/Scripts/PlayerSkillController.cs) | QueuedAttackReplacement plus two independent AutoCooldown slots and the production Cooldown Reduction formula. |
 | [BattleManager.cs](../Assets/Scripts/BattleManager.cs) | Target-snapshotted projectiles, Precision composition, Rage event multiplier/generation, and production impact resolution. |
 | [GamePersistence.cs](../Assets/Scripts/GamePersistence.cs) | Schema 9, six active-slot files, Slot 1 legacy migration, summaries, and V1 passive refund migration. |
 | [MainMenuUI.cs](../Assets/Scripts/MainMenuUI.cs) | Six-slot New Game/Load selection, occupied-slot confirmation, class selection, and slot summaries. |
@@ -228,9 +228,9 @@ Boss-special data is deliberately plain serializable architecture, not a product
 # Step 18 map
 
 - `PlayerSkillDefinition` / `PlayerSkillController`: 12 skill definitions, three cast modes, CDR clocks.
-- `SubclassSystems`: stable effect catalog, passive themes, transformation and balance profiles.
+- `SubclassSystems`: stable effect catalog and subclass balance profiles.
 - `SubclassCombatState`: encounter counters, projectile mode math, aura contribution.
-- `PlayerProgression`: transformation allocation/replacement/refund authority.
+- `PlayerProgression`: V3 class/weapon allocation, exclusivity, unlock, modifier, and dependency-safe refund authority.
 - `SubclassMenuUI`: unlock/selection confirmation, aura and Frozen indicators.
 - `BattleManager`: production skill resolution, Freeze/Shatter, modular subclass combat hooks.
 - `AilmentEligibilityResolver`: default element masks, mixed-hit filtering, and modular Venom Ranger, Storm Mage, and Dark Priest exceptions.

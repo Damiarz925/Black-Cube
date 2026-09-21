@@ -1,66 +1,13 @@
-using System.Collections.Generic;
-using System.Linq;
-using NUnit.Framework;
-using UnityEngine;
-
+using System;using System.IO;using System.Linq;using NUnit.Framework;using UnityEngine;
 public sealed class PassiveTreeTests
 {
-    [Test] public void V2HasTargetSizeUniqueStableIdsAndExpectedMacroCounts()
-    {
-        Assert.That(PassiveTreeDefinition.NodeCount,Is.InRange(360,380));
-        Assert.That(PassiveTreeDefinition.Nodes.Select(x=>x.StableId).Distinct().Count(),Is.EqualTo(PassiveTreeDefinition.NodeCount));
-        foreach(PassiveRegion region in new[]{PassiveRegion.Warrior,PassiveRegion.Ranger,PassiveRegion.Thief,PassiveRegion.Mage,PassiveRegion.Priest,PassiveRegion.Barbarian})
-            Assert.That(PassiveTreeDefinition.Nodes.Count(x=>x.Region==region),Is.EqualTo(44),region.ToString());
-        Assert.That(PassiveTreeDefinition.Nodes.Count(x=>x.Region==PassiveRegion.Center),Is.EqualTo(42));
-        foreach(PassiveRegion region in new[]{PassiveRegion.WarriorRanger,PassiveRegion.RangerThief,PassiveRegion.ThiefMage,PassiveRegion.MagePriest,PassiveRegion.PriestBarbarian,PassiveRegion.BarbarianWarrior})
-            Assert.That(PassiveTreeDefinition.Nodes.Count(x=>x.Region==region),Is.EqualTo(10),region.ToString());
-    }
-
-    [Test] public void SixClassStartsAreStableFreeAndCorrectlyOriented()
-    {
-        var expected=new Dictionary<string,Vector2>{{PlayerClassIds.Warrior,Vector2.up},{PlayerClassIds.Ranger,new(.866f,.5f)},{PlayerClassIds.Thief,new(.866f,-.5f)},{PlayerClassIds.Mage,Vector2.down},{PlayerClassIds.Priest,new(-.866f,-.5f)},{PlayerClassIds.Barbarian,new(-.866f,.5f)}};
-        foreach(var pair in expected){var node=PassiveTreeDefinition.Node(PassiveTreeDefinition.StartNodeId(pair.Key));Assert.That(node.Kind,Is.EqualTo(PassiveNodeKind.ClassStart));Assert.That(Vector2.Dot(node.LayoutPosition.normalized,pair.Value),Is.GreaterThan(.99f));}
-    }
-
-    [Test] public void EntireGraphIsConnectedAndEveryEdgeIsUndirected()
-    {
-        var reached=new HashSet<int>{0};var queue=new Queue<int>();queue.Enqueue(0);
-        while(queue.Count>0){int id=queue.Dequeue();foreach(int next in PassiveTreeDefinition.AdjacentNodeIds(id)){Assert.That(PassiveTreeDefinition.AdjacentNodeIds(next),Does.Contain(id));if(reached.Add(next))queue.Enqueue(next);}}
-        Assert.That(reached.Count,Is.EqualTo(PassiveTreeDefinition.NodeCount));
-    }
-
-    [Test] public void WeaponNodesUseCentralPremiumAndAreConditioned()
-    {
-        Assert.That(PassiveTreeDefinition.WeaponSpecificEfficiencyMultiplier,Is.InRange(1.5f,1.75f));
-        var weaponNodes=PassiveTreeDefinition.Nodes.Where(x=>!string.IsNullOrEmpty(x.WeaponTypeRestriction)&&x.Effects.Length>0).ToArray();
-        Assert.That(weaponNodes.Length,Is.GreaterThan(60));Assert.That(weaponNodes.All(x=>WeaponTypeCatalog.IsValid(x.WeaponTypeRestriction)),Is.True);
-    }
-
-    [Test] public void EveryClassSectorHasModestBroadMechanicAccess()
-    {
-        var required=new[]{StatTypes.LifePercent,StatTypes.ManaPercent,StatTypes.CritChance,StatTypes.AttackSpeed,StatTypes.LifeOnHit,StatTypes.ManaOnHit,StatTypes.ArmourPercent,StatTypes.ChanceToHitTwice};
-        foreach(PassiveRegion region in new[]{PassiveRegion.Warrior,PassiveRegion.Ranger,PassiveRegion.Thief,PassiveRegion.Mage,PassiveRegion.Priest,PassiveRegion.Barbarian})
-        {var stats=PassiveTreeDefinition.Nodes.Where(x=>x.Region==region).SelectMany(x=>x.Effects).Select(x=>x.Stat).ToHashSet();foreach(var stat in required)Assert.That(stats,Does.Contain(stat),$"{region} lacks nearby {stat}");}
-    }
-
-    [Test] public void RageDistrictIncludesGenerationRetentionEffectAndRecovery()
-    {
-        var axe=PassiveTreeDefinition.Nodes.Where(x=>x.WeaponTypeRestriction==WeaponTypeIds.TwoHandedAxe).SelectMany(x=>x.Effects).Select(x=>x.Stat).ToHashSet();
-        Assert.That(axe,Does.Contain(StatTypes.RageGeneration));Assert.That(axe,Does.Contain(StatTypes.RageDecayReduction));Assert.That(axe,Does.Contain(StatTypes.RageEffect));Assert.That(axe,Does.Contain(StatTypes.LifeOnHit));Assert.That(axe,Does.Contain(StatTypes.BleedChance));
-    }
-
-    [Test] public void TransformFoundationExistsWithoutProductionTransformEffects()
-    {
-        foreach(var node in PassiveTreeDefinition.Nodes){Assert.That(node.ExtensionMetadata,Is.Not.Null);Assert.That(node.ExtensionMetadata.TransformedEffects,Is.Empty);Assert.That(node.ExtensionMetadata.SupportsTransformation,Is.True);}
-    }
-
-    [Test] public void LevelOneAndLevelHundredPointBudgetsEqualLevel()
-    {
-        var go=new GameObject("progression");try{go.AddComponent<PlayerIdentityState>();var p=go.AddComponent<PlayerProgression>();Assert.That(p.AvailablePoints,Is.EqualTo(1));Assert.That(p.RestoreProgression(100,0,100,new int[PassiveTreeDefinition.NodeCount]),Is.True);Assert.That(p.AvailablePoints,Is.EqualTo(100));}finally{Object.DestroyImmediate(go);}
-    }
-
-    [Test] public void SelectedClassIsTheOnlyFreeOriginAndRefundCannotStrandNodes()
-    {
-        var go=new GameObject("progression");try{var identity=go.AddComponent<PlayerIdentityState>();Assert.That(identity.BeginNewGame(PlayerClassIds.Mage),Is.True);var p=go.AddComponent<PlayerProgression>();Assert.That(p.RestoreProgression(10,0,10,new int[PassiveTreeDefinition.NodeCount]),Is.True);int mage=PassiveTreeDefinition.AdjacentNodeIds(PassiveTreeDefinition.StartNodeId(PlayerClassIds.Mage)).First();int warrior=PassiveTreeDefinition.AdjacentNodeIds(PassiveTreeDefinition.StartNodeId(PlayerClassIds.Warrior)).First();Assert.That(p.CanSpend(mage),Is.True);Assert.That(p.CanSpend(warrior),Is.False);Assert.That(p.TrySpend(mage),Is.True);int child=PassiveTreeDefinition.AdjacentNodeIds(mage).First(x=>!PassiveTreeDefinition.IsClassStart(x));Assert.That(p.TrySpend(child),Is.True);Assert.That(p.CanRefund(mage),Is.False);p.RefundAll();Assert.That(p.AvailablePoints,Is.EqualTo(10));Assert.That(p.ActiveClassId,Is.EqualTo(PlayerClassIds.Mage));}finally{Object.DestroyImmediate(go);}
-    }
+ [Test]public void Structure(){Assert.That(PassiveTreeDefinition.ClassIds,Has.Count.EqualTo(6));Assert.That(PassiveTreeDefinition.WeaponIds,Has.Count.EqualTo(6));Assert.That(PassiveTreeDefinition.NodeCount,Is.EqualTo(750));Assert.That(PassiveTreeDefinition.Nodes.Select(x=>x.StableId).Distinct().Count(),Is.EqualTo(750));Assert.That(PassiveTreeDefinition.Nodes.Any(x=>x.StableId.StartsWith("tree.v2.",StringComparison.Ordinal)),Is.False);foreach(string c in PassiveTreeDefinition.ClassIds){var route=PassiveTreeDefinition.RouteNodes(c).Select(PassiveTreeDefinition.Node).ToArray();Assert.That(route.Count(x=>x.Kind==PassiveNodeKind.Spine),Is.EqualTo(10),c);for(int t=1;t<=10;t++){var n=route.Where(x=>x.Tier==t).ToArray();Assert.That(n.Count(x=>x.Kind==PassiveNodeKind.Choice),Is.EqualTo(6));Assert.That(n.Count(x=>x.IsSubclassChoice),Is.EqualTo(2));Assert.That(n.Where(x=>x.IsChoice).Select(x=>x.ChoiceGroupId).Distinct().Count(),Is.EqualTo(2));}}foreach(string w in PassiveTreeDefinition.WeaponIds){var r=PassiveTreeDefinition.RouteNodes(null,w).Select(PassiveTreeDefinition.Node).ToArray();Assert.That(r.Count(x=>x.Kind==PassiveNodeKind.WeaponSpine),Is.EqualTo(5),w);Assert.That(r.Count(x=>x.Kind==PassiveNodeKind.Choice),Is.EqualTo(30),w);Assert.That(r.All(x=>x.WeaponTypeRestriction==w),Is.True,w);}}
+ [Test]public void DirectionsAndTemplates(){string[] ids={PlayerClassIds.Warrior,PlayerClassIds.Ranger,PlayerClassIds.Thief,PlayerClassIds.Mage,PlayerClassIds.Priest,PlayerClassIds.Barbarian};float[] a={90,30,-30,-90,-150,150};for(int i=0;i<6;i++){Vector2 e=new(Mathf.Cos(a[i]*Mathf.Deg2Rad),Mathf.Sin(a[i]*Mathf.Deg2Rad));Vector2 x=PassiveTreeDefinition.Node(PassiveTreeDefinition.ClassSpineNode(ids[i],1)).LayoutPosition.normalized;Assert.That(Vector2.Dot(x,e),Is.GreaterThan(.999f),ids[i]);}var h=PassiveTreeDefinition.RouteNodes(PlayerClassIds.Warrior).Select(PassiveTreeDefinition.Node).Where(x=>x.Tier==1&&x.ChoiceGroupId.EndsWith("left")).ToArray();Assert.That(h.Select(x=>x.LayoutPosition).Distinct().Count(),Is.EqualTo(4));var o=h.Where(x=>!x.IsSubclassChoice).Select(x=>SkillTreeUI.CalculateNodePosition(x,PlayerClassIds.Mage)).ToArray();Assert.That(o.Length,Is.EqualTo(3));Assert.That(Vector2.Distance(o[0],o[2]),Is.GreaterThan(150));}
+ [TestCase(PlayerClassIds.Warrior)][TestCase(PlayerClassIds.Barbarian)][TestCase(PlayerClassIds.Ranger)][TestCase(PlayerClassIds.Thief)][TestCase(PlayerClassIds.Mage)][TestCase(PlayerClassIds.Priest)]public void OnlyNativeRoot(string c){With(c,20,(i,p)=>{foreach(string r in PassiveTreeDefinition.ClassIds)Assert.That(p.CanSpend(PassiveTreeDefinition.ClassSpineNode(r,1)),Is.EqualTo(r==c),r);});}
+ [Test]public void SpineAndExclusiveChoices(){With(PlayerClassIds.Warrior,20,(i,p)=>{int a=PassiveTreeDefinition.ClassSpineNode(PlayerClassIds.Warrior,1),b=PassiveTreeDefinition.ClassSpineNode(PlayerClassIds.Warrior,2);Assert.That(p.CanSpend(b),Is.False);Assert.That(p.TrySpend(a),Is.True);Assert.That(p.CanSpend(b),Is.True);var g=PassiveTreeDefinition.Nodes.Where(x=>x.RouteClassId==PlayerClassIds.Warrior&&x.Tier==1&&x.Kind==PassiveNodeKind.Choice).GroupBy(x=>x.ChoiceGroupId).First().ToArray();Assert.That(p.TrySpend(g[0].Id),Is.True);Assert.That(p.TrySpend(g[1].Id),Is.False);Assert.That(p.CanSpend(b),Is.True);Assert.That(p.TryRefund(g[0].Id),Is.True);Assert.That(p.TrySpend(g[1].Id),Is.True);});}
+ [Test]public void CrossClassWeaponAndRefundDependencies(){With(PlayerClassIds.Thief,40,(i,p)=>{for(int t=1;t<=10;t++)Assert.That(p.TrySpend(PassiveTreeDefinition.ClassSpineNode(PlayerClassIds.Thief,t)),Is.True);int m=PassiveTreeDefinition.ClassSpineNode(PlayerClassIds.Mage,1),d=PassiveTreeDefinition.WeaponSpineNode(WeaponTypeIds.Dagger,1);Assert.That(p.CanSpend(m),Is.True);Assert.That(p.CanSpend(d),Is.True);Assert.That(p.TrySpend(m),Is.True);Assert.That(p.CanRefund(PassiveTreeDefinition.ClassSpineNode(PlayerClassIds.Thief,10)),Is.False);Assert.That(p.TryRefund(m),Is.True);Assert.That(p.TrySpend(d),Is.True);Assert.That(p.CanRefund(PassiveTreeDefinition.ClassSpineNode(PlayerClassIds.Thief,10)),Is.False);});}
+ [Test]public void SubclassFourthChoice(){With(PlayerClassIds.Warrior,20,(i,p)=>{Assert.That(p.TrySpend(PassiveTreeDefinition.ClassSpineNode(PlayerClassIds.Warrior,1)),Is.True);var s=PassiveTreeDefinition.Nodes.First(x=>x.RouteClassId==PlayerClassIds.Warrior&&x.Tier==1&&x.IsSubclassChoice);Assert.That(p.CanSpend(s.Id),Is.False);i.CompleteMilestone(PlayerIdentityState.StoryCompletionMilestoneId);Assert.That(i.SelectSubclass(SubclassIds.WarriorBleed),Is.True);Assert.That(PassiveTreeDefinition.SubclassEffects(i.SelectedSubclassId,s),Is.Not.Empty);Assert.That(p.CanSpend(s.Id),Is.True);int g=PassiveTreeDefinition.ChoiceNodes(s.ChoiceGroupId).First(x=>!PassiveTreeDefinition.Node(x).IsSubclassChoice);Assert.That(p.TrySpend(g),Is.True);Assert.That(p.TrySpend(s.Id),Is.False);Assert.That(p.TryRefund(g),Is.True);Assert.That(p.TrySpend(s.Id),Is.True);Assert.That(i.SelectSubclass(SubclassIds.WarriorMultihit),Is.True);Assert.That(p.IsAllocated(s.Id),Is.False);var off=PassiveTreeDefinition.Nodes.First(x=>x.RouteClassId==PlayerClassIds.Mage&&x.IsSubclassChoice);Assert.That(p.CanSpend(off.Id),Is.False);});}
+ [Test]public void PointEconomy(){With(PlayerClassIds.Warrior,1,(i,p)=>Assert.That(p.AvailablePoints,Is.EqualTo(1)));With(PlayerClassIds.Warrior,100,(i,p)=>Assert.That(p.AvailablePoints,Is.EqualTo(100)));}
+ [Test]public void SchemaElevenMigration(){string path=Path.Combine(Path.GetTempPath(),"BlackCubeV3-"+Guid.NewGuid().ToString("N")+".json");try{var p=new GameStatePayload{playerLevel=83,availablePassivePoints=1,baseClassId=PlayerClassIds.Mage,subclassChoiceUnlocked=true,selectedSubclassId=SubclassIds.MageStorm,encounterStartLife=100,encounterStartMana=100};p.passiveRanks.Add(new PassiveRankData(5,1));for(int i=0;i<RelicInventory.ActiveSlotCount;i++)p.activeRelicIds.Add(string.Empty);var e=new SaveEnvelope{schemaVersion=11,runId="v2",runSeed=3,savedAtUtc=DateTime.UtcNow.ToString("O"),payload=p};File.WriteAllText(path,JsonUtility.ToJson(e));Assert.That(GamePersistence.TryReadFile(path,out var m,out var error),Is.True,error);Assert.That(m.schemaVersion,Is.EqualTo(12));Assert.That(m.payload.passiveRanks,Is.Empty);Assert.That(m.payload.availablePassivePoints,Is.EqualTo(83));Assert.That(m.payload.baseClassId,Is.EqualTo(PlayerClassIds.Mage));Assert.That(m.payload.selectedSubclassId,Is.EqualTo(SubclassIds.MageStorm));}finally{if(File.Exists(path))File.Delete(path);}}
+ static void With(string c,int level,Action<PlayerIdentityState,PlayerProgression> body){var go=new GameObject("V3 test");try{var i=go.AddComponent<PlayerIdentityState>();Assert.That(i.BeginNewGame(c),Is.True);var p=go.AddComponent<PlayerProgression>();Assert.That(p.RestoreProgression(level,0,level,new int[PassiveTreeDefinition.NodeCount]),Is.True);body(i,p);}finally{UnityEngine.Object.DestroyImmediate(go);}}
 }

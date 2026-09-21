@@ -31,11 +31,11 @@ Each base class exposes exactly two stable subclass-slot references. `SubclassDe
 
 ## Passive-tree seam
 
-`PassiveExtensionMetadata` supports stable sections, class starts, affinity tags, subclass requirements, specialization/exclusivity groups, travel classification, stable transformation identity, and optional transformed effects. Passive Tree V2 now uses explicit graph positions/edges and selected-class reachability; every production node is transformation-ready while all transformed effect sets remain empty. See [PASSIVE_TREE_V2.md](PASSIVE_TREE_V2.md).
+`PassiveExtensionMetadata` supports stable sections, class starts, affinity tags, subclass requirements, specialization/exclusivity groups, and travel classification. Passive Tree V3 uses deterministic radial class/weapon templates, selected-class reachability, and native-route subclass choice slots. Transformation metadata and effects no longer exist. See [PASSIVE_TREE_V3.md](PASSIVE_TREE_V3.md).
 
 ## Persistence and unresolved decisions
 
-Schema 8 adds base class ID, story/subclass state, and stable weapon type per weapon. Schema 9 adds the one-time Passive Tree V2 refund and six per-character file slots. Schema-7 migration defaults historical classes to Warrior and historical weapons to Sword, preserving item state exactly before sequential V8/V9 migration.
+Schema 8 adds base class ID, story/subclass state, and stable weapon type per weapon. Schema 9 added the historical V2 refund and six per-character file slots. Schema 12 performs the V3 respec/refund while preserving class, selected subclass, and all non-passive state.
 
 Bow Precision and target-snapshotted projectile latency are real; Accuracy was not reintroduced. Staff supports data-driven AutoCooldown skills and Axe supports Rage. Final weapon skill assignments, weapon drop weighting, all twelve subclass identities/effects, subclass respec, and class art/audio remain future content work.
 # Step 18 production binding

@@ -208,7 +208,7 @@ public sealed class GamePersistenceTests
     }
     [Test] public void RichSnapshotJsonRoundTripPreservesAuthoritativeFields()
     {
-        var e=Valid();int first=PassiveTreeDefinition.AdjacentNodeIds(PassiveTreeDefinition.StartNodeId(PlayerClassIds.Warrior))[0];e.payload.passiveRanks.Add(new PassiveRankData(first,1));e.payload.availablePassivePoints=2;e.payload.hasSelectedSkill=true;e.payload.selectedSkill=PlayerSkillId.Fireball;
+        var e=Valid();int first=PassiveTreeDefinition.StartNodeId(PlayerClassIds.Warrior);e.payload.passiveRanks.Add(new PassiveRankData(first,1));e.payload.availablePassivePoints=2;e.payload.hasSelectedSkill=true;e.payload.selectedSkill=PlayerSkillId.Fireball;
         var gear=Gear("gear-rich",StatTypes.FireDmg);gear.rarity=LootManager.GearRarity.Rare;gear.itemLevel=37;gear.baseDamage=42.5f;gear.baseDamageMin=35f;gear.baseDamageMax=50f;gear.baseAttackSpeed=1.35f;gear.baseCritChance=.07f;e.payload.gearItems.Add(gear);e.payload.equippedGear.Add(new EquippedGearReference{slot=LootManager.GearType.Rings,gearId=gear.id});
         e.payload.currencies.Add(new CurrencyStackData(CraftingCurrencyType.AddRareModifier,8));e.payload.currencies.Add(new CurrencyStackData(CraftingCurrencyType.AncientReroll,3));
         var relic=new RelicData{id="relic-3",cycle=3,rarity=LootManager.GearRarity.Magic,craftableThisCycle=true};relic.modifiers.Add(new RelicModifier(RelicModifierType.MoreDamage,7.25f,true));e.payload.relicCycle=3;e.payload.relics.Add(relic);e.payload.activeRelicIds[2]=relic.id;

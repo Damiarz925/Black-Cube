@@ -8,7 +8,7 @@ The production goals are: one canonical capture/apply path, resumable encounter-
 
 ## 2. Current save implementation
 
-`GamePersistence` stores schema version 8 as UTF-8 JSON files under `Application.persistentDataPath`: `current-save.json`, `current-save.json.bak`, and the transactional `current-save.json.tmp`. The envelope carries schema version, stable run ID, deterministic run seed, UTC timestamp, and the complete payload. Class, subclass, weapon, gear, relic, skill, and passive ownership uses stable domain IDs rather than Unity object identity or list positions. Gear serializes weapon type/ranges, affix endpoints, OriginRarity, current/maximum Potential, and Empowered/boss-special provenance; currencies include fragment remainders and Empowerment Catalysts; relics retain generated level and tier metadata.
+`GamePersistence` stores schema version 12 as UTF-8 JSON in six character-slot files with transactional primary/backup/temp handling. The envelope carries schema version, stable run ID, deterministic run seed, UTC timestamp, and the complete payload. Class, subclass, weapon, gear, relic, skill, and passive ownership uses stable domain IDs rather than Unity object identity or list positions. Gear serializes weapon type/ranges, affix endpoints, OriginRarity, current/maximum Potential, and Empowered/boss-special provenance; currencies include fragment remainders and Empowerment Catalysts; relics retain generated level and tier metadata.
 
 Capture creates a detached DTO without rewards, rolls, consumption, spawning, or progression changes. It validates before serialization, verifies the durable temporary file by parsing and validating it, atomically replaces the primary while rotating its previous version to backup, and reports success only afterward. Confirmed New Game additionally replaces the backup with the new run. Load validates the complete primary before mutation, tries backup on failure, and applies under a restoration guard; both invalid files remain untouched.
 
@@ -211,5 +211,9 @@ Schema 9 migrates directly to schema 10 without reinterpretation. Schema 10 pers
 # Schema 11
 
 Schema 10 migrates sequentially to schema 11 with empty `endgameResources` and `challengeFirstClears`; no historical challenge completion is inferred. Schema 11 persists all six challenge-key quantities, all six challenge-Essence quantities, `currency.implicit-reforger`, valid first-clear flags, and the established Catalyst stack. These are isolated by the existing six character-slot files and survive Rebirth. New Game clears them. APEX/Empowered modifier provenance and rerolled implicits remain part of the existing gear snapshot and therefore survive save/load and Rebirth with their item.
+
+# Schema 12
+
+Schema 11 migrates sequentially to schema 12 for Passive Tree V3. V2 allocations and retired transformed-node state are intentionally unmappable and are cleared. Available passive points become the complete earned total (`clamp(playerLevel, 1, 100)`). Base class, selected subclass, story entitlement, equipment, inventory, currencies, relics, Rebirth history, endgame resources, first clears, and all other non-passive state are preserved. Current-schema saves persist V3 nodes by stable `tree.v3.*` ID and validate spine prerequisites, optional-choice exclusivity, native/cross-class access, weapon unlocks, and home-only subclass slots before restore.
 
 Active challenge encounter, partial boss health, proc counters, temporary buffs, and partial cooldowns are not saved. Load returns to the clean saved world encounter boundary.

@@ -70,6 +70,6 @@ public sealed class Step16ClassWeaponFoundationTests
     {
         var affix=new AffixDefinitions{allowedWeaponTypeIds=new[]{WeaponTypeIds.Bow},tiers=new(){new AffixTier{minItemLevel=1}}};Assert.That(affix.AllowsWeaponType(WeaponTypeIds.Bow),Is.True);Assert.That(affix.AllowsWeaponType(WeaponTypeIds.Sword),Is.False);
         var metadata=new PassiveExtensionMetadata{StableSectionId="test.section",ClassStartIds=new[]{"passive-start.ranger"},Affinities=new[]{PassiveAffinity.Projectile},RequiredSubclassId="test.subclass",SpecializationGroupId="test.group",MutuallyExclusive=true,IsTravelNode=true};
-        Assert.That(metadata.Affinities,Does.Contain(PassiveAffinity.Projectile));Assert.That(metadata.IsTravelNode,Is.True);Assert.That(PassiveTreeDefinition.Edges.Count,Is.GreaterThan(PassiveTreeDefinition.NodeCount));
+        Assert.That(metadata.Affinities,Does.Contain(PassiveAffinity.Projectile));Assert.That(metadata.IsTravelNode,Is.True);Assert.That(PassiveTreeDefinition.Edges.Count,Is.EqualTo(PassiveTreeDefinition.NodeCount-6));
     }
 }

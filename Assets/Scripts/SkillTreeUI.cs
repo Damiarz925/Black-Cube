@@ -1,5 +1,5 @@
 // Developer map: Builds the complete data-driven radial passive menu over PaperBattleHUD.
-// Dragging and wheel zoom navigate the 7,000px spoke/bridge/ring/keystone tree; pause behavior follows GameplayOptions.
+// Dragging and wheel zoom navigate the deterministic V3 radial class/weapon routes.
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -21,7 +21,6 @@ public sealed class SkillTreeUI : MonoBehaviour
     TMP_Text details;
     Button refundAll;
     TMP_Text refundAllLabel;
-    Button transformModeButton;TMP_Text transformModeLabel;bool transformMode;
     bool refundAllConfirmation;
     ScrollRect scroll;
     readonly Button[] nodes = new Button[PassiveTreeDefinition.NodeCount];
@@ -70,7 +69,6 @@ public sealed class SkillTreeUI : MonoBehaviour
         close.onClick.AddListener(Close);
         refundAll=Button(panel.transform,"Refund All",new Vector2(.66f,.905f),new Vector2(.81f,.97f),out refundAllLabel);
         refundAllLabel.text="REFUND ALL";refundAll.onClick.AddListener(ConfirmRefundAll);
-        transformModeButton=Button(panel.transform,"Subclass Transform",new Vector2(.49f,.905f),new Vector2(.65f,.97f),out transformModeLabel);transformModeLabel.text="SUBCLASS SIGIL";transformModeButton.onClick.AddListener(()=>{transformMode=!transformMode;Refresh();});
         if(GetComponent<SubclassMenuUI>()==null)gameObject.AddComponent<SubclassMenuUI>();
 
         var viewport = Box(panel.transform, "Tree Viewport", new Vector2(.025f, .145f), new Vector2(.975f, .825f), new Color(.045f, .052f, .062f, 1f));
@@ -89,7 +87,7 @@ public sealed class SkillTreeUI : MonoBehaviour
         content.transform.SetParent(viewport.transform, false);
         var contentRect = (RectTransform)content.transform;
         contentRect.anchorMin = contentRect.anchorMax = contentRect.pivot = Vector2.one * .5f;
-        contentRect.sizeDelta = new Vector2(7000f, 7000f);
+        contentRect.sizeDelta = new Vector2(10000f, 10000f);
         scroll.viewport = (RectTransform)viewport.transform;
         scroll.content = contentRect;
 
@@ -105,9 +103,11 @@ public sealed class SkillTreeUI : MonoBehaviour
 
     void BuildTree(Transform content)
     {
+        var hub=Box(content,"Central Hub",Vector2.one*.5f,Vector2.one*.5f,new Color(.12f,.14f,.18f,1));var hubRect=(RectTransform)hub.transform;hubRect.sizeDelta=Vector2.one*130;hubRect.anchoredPosition=Vector2.zero;hub.GetComponent<Image>().raycastTarget=false;
+        string homeClass=GameManager.Instance?.GetComponent<PlayerIdentityState>()?.BaseClassId??PlayerClassIds.Warrior;
         var positions = new Vector2[PassiveTreeDefinition.NodeCount];
         foreach (PassiveNodeDefinition node in PassiveTreeDefinition.Nodes)
-            positions[node.Id] = CalculateNodePosition(node);
+            positions[node.Id] = CalculateNodePosition(node,homeClass);
 
         foreach (PassiveTreeEdge edge in PassiveTreeDefinition.Edges)
         {
@@ -124,13 +124,30 @@ public sealed class SkillTreeUI : MonoBehaviour
             nodes[node.Id].onClick.AddListener(() => SelectAndSpend(nodeId));
             nodes[node.Id].gameObject.AddComponent<PassiveNodeView>().Initialize(this, nodeId);
 
-            if(node.Kind==PassiveNodeKind.ClassStart){var label=Text(content,node.DisplayName+" Label",Vector2.one*.5f,Vector2.one*.5f,20);label.rectTransform.sizeDelta=new Vector2(300,60);label.rectTransform.anchoredPosition=position+position.normalized*110;label.alignment=TextAlignmentOptions.Center;label.text=node.DisplayName.ToUpperInvariant();label.color=BranchColor(node.Branch);}
+            if(node.Kind==PassiveNodeKind.Spine&&node.Tier==1){var label=Text(content,node.RouteClassId+" Label",Vector2.one*.5f,Vector2.one*.5f,20);label.rectTransform.sizeDelta=new Vector2(300,60);label.rectTransform.anchoredPosition=position-position.normalized*120;label.alignment=TextAlignmentOptions.Center;label.text=node.RouteClassId.Replace("class.",string.Empty).ToUpperInvariant();label.color=BranchColor(node.Branch);}
         }
     }
 
     public static Vector2 CalculateNodePosition(PassiveNodeDefinition node)
     {
         return node.LayoutPosition;
+    }
+
+    public static Vector2 CalculateNodePosition(PassiveNodeDefinition node,string homeClass)
+    {
+        if(!node.IsClassRoute||!node.IsChoice||node.IsSubclassChoice||node.RouteClassId==homeClass)return node.LayoutPosition;
+        int spineId=PassiveTreeDefinition.ClassSpineNode(node.RouteClassId,node.Tier);
+        Vector2 spine=PassiveTreeDefinition.Node(spineId).LayoutPosition;
+        Vector2 outward=spine.normalized;
+        Vector2 tangent=new(-outward.y,outward.x);
+        int sign=node.StableId.Contains(".right.")?1:-1;
+        char slot=node.StableId[node.StableId.Length-1];
+        return slot switch
+        {
+            'a'=>spine+tangent*(sign*260)+outward*80,
+            'b'=>spine+tangent*(sign*330),
+            _=>spine+tangent*(sign*260)-outward*80
+        };
     }
 
     Button CreateNodeButton(Transform parent, PassiveNodeDefinition node, Vector2 position)
@@ -143,8 +160,8 @@ public sealed class SkillTreeUI : MonoBehaviour
         rect.sizeDelta = Vector2.one * size;
         rect.anchoredPosition = position;
         var image = go.GetComponent<Image>();
-        image.sprite = node.Kind==PassiveNodeKind.ClassStart?PassiveTreeIconAtlas.GetStart():PassiveTreeDefinition.IsKeystone(node.Id)
-            ? PassiveTreeIconAtlas.GetKeystone(node.Keystone, PassiveNodeVisualState.Inactive)
+        image.sprite = PassiveTreeDefinition.IsKeystone(node.Id)
+            ? PassiveTreeIconAtlas.GetKeystone(PassiveTreeDefinition.KeystoneAt(node.Id), PassiveNodeVisualState.Inactive)
             : PassiveTreeIconAtlas.Get(node.Branch, node.Size, PassiveNodeVisualState.Inactive);
         image.preserveAspect = true;
         var button = go.AddComponent<Button>();
@@ -153,8 +170,7 @@ public sealed class SkillTreeUI : MonoBehaviour
 
         var amount = Text(go.transform, "Magnitude", new Vector2(.05f, -.3f), new Vector2(.95f, .12f), node.Size == PassiveNodeSize.Small ? 10 : 12);
         amount.alignment = TextAlignmentOptions.Center;
-        amount.text = node.Effects.Length==0 || PassiveTreeDefinition.IsKeystone(node.Id)
-            ? string.Empty : MagnitudeText(node.Branch, node.Magnitude);
+        amount.text = node.IsSubclassChoice?"SUB":node.Effects.Length==0?string.Empty:MagnitudeText(node.Branch,node.Magnitude);
         amount.color = new Color(.98f, .88f, .65f);
         return button;
     }
@@ -180,11 +196,11 @@ public sealed class SkillTreeUI : MonoBehaviour
         string value = progression.AtCap ? "MAX LEVEL" : $"{progression.Experience:0} / {progression.RequiredXp:0} XP";
         xp.text = $"LEVEL {progression.Level}   /   {value}";
         points.text = $"{progression.AvailablePoints} POINTS AVAILABLE     /     LEVEL {progression.Level}     /     {value}";
-        var identity=GameManager.Instance?.GetComponent<PlayerIdentityState>();if(transformModeButton!=null){bool enabled=identity!=null&&identity.HasSubclassSigil&&!string.IsNullOrEmpty(identity.SelectedSubclassId);transformModeButton.interactable=enabled;if(!enabled)transformMode=false;transformModeLabel.text=transformMode?$"TRANSFORMING  {progression.TransformedCount}/{SubclassTransformationProfile.MaximumTransformedNodes}":"SUBCLASS SIGIL";}
         if (!IsOpen) return;
 
         foreach (PassiveNodeDefinition node in PassiveTreeDefinition.Nodes)
         {
+            bool visible=!node.IsSubclassChoice||node.RouteClassId==progression.ActiveClassId;nodes[node.Id].gameObject.SetActive(visible);if(!visible)continue;
             bool allocated = progression.IsAllocated(node.Id);
             bool canSpend = progression.CanSpend(node.Id);
             nodes[node.Id].interactable = !allocated && canSpend;
@@ -193,8 +209,8 @@ public sealed class SkillTreeUI : MonoBehaviour
 
         foreach (PassiveConnectionView connection in connections)
         {
-            bool allocated = (PassiveTreeDefinition.IsClassStart(connection.A)?connection.A==progression.ActiveStartNodeId:progression.IsAllocated(connection.A))
-                && (PassiveTreeDefinition.IsClassStart(connection.B)?connection.B==progression.ActiveStartNodeId:progression.IsAllocated(connection.B));
+            bool visible=nodes[connection.A].gameObject.activeSelf&&nodes[connection.B].gameObject.activeSelf;connection.Image.gameObject.SetActive(visible);if(!visible)continue;
+            bool allocated = progression.IsAllocated(connection.A)&&progression.IsAllocated(connection.B);
             connection.Image.color = allocated ? ConnectionAllocated : ConnectionInactive;
             connection.Outline.enabled = allocated;
         }
@@ -220,9 +236,11 @@ public sealed class SkillTreeUI : MonoBehaviour
                 ? hovered ? PassiveNodeVisualState.Hover : PassiveNodeVisualState.Inactive
                 : PassiveNodeVisualState.Unavailable;
         nodes[nodeId].image.sprite = PassiveTreeDefinition.IsKeystone(node.Id)
-            ? PassiveTreeIconAtlas.GetKeystone(node.Keystone, state)
+            ? PassiveTreeIconAtlas.GetKeystone(PassiveTreeDefinition.KeystoneAt(node.Id), state)
             : PassiveTreeIconAtlas.Get(node.Branch, node.Size, state);
-        nodes[nodeId].image.color = progression.IsTransformed(nodeId)?new Color(.75f,.35f,1f):transformMode&&progression.CanTransform(nodeId)?new Color(.55f,1f,.75f):Color.white;
+        nodes[nodeId].image.color = node.IsSubclassChoice?new Color(.78f,.42f,1f):Color.white;
+        if(node.IsSubclassChoice&&nodes[nodeId].transform.Find("Magnitude")?.GetComponent<TMP_Text>() is TMP_Text label)
+        {var identity=GameManager.Instance?.GetComponent<PlayerIdentityState>();label.text=identity?.SubclassChoiceUnlocked==true&&!string.IsNullOrEmpty(identity.SelectedSubclassId)?"SUB":"LOCKED";}
     }
 
     public void ShowDetails(int nodeId)
@@ -231,22 +249,26 @@ public sealed class SkillTreeUI : MonoBehaviour
         selectedNode = nodeId;
         PassiveNodeDefinition node = PassiveTreeDefinition.Node(nodeId);
         string state;
-        if(node.Kind==PassiveNodeKind.ClassStart)state=node.Id==progression.ActiveStartNodeId?"ACTIVE CLASS ORIGIN — COSTS NO POINTS":"INACTIVE CLASS LANDMARK";
-        else if (progression.IsAllocated(nodeId)) state = progression.CanRefund(nodeId)
+        if (progression.IsAllocated(nodeId)) state = progression.CanRefund(nodeId)
             ? "ALLOCATED — RIGHT-CLICK TO REFUND"
-            : "ALLOCATED — REFUND WOULD DISCONNECT ANOTHER NODE";
-        else if (!HasAllocatedConnection(nodeId)) state = "LOCKED — REQUIRES AN ADJACENT NODE";
+            : "ALLOCATED — REFUND WOULD INVALIDATE A DEPENDENT ROUTE";
+        else if(node.IsSubclassChoice&&(node.RouteClassId!=progression.ActiveClassId||string.IsNullOrEmpty(GameManager.Instance?.GetComponent<PlayerIdentityState>()?.SelectedSubclassId)))state="LOCKED — SELECT A SUBCLASS";
+        else if (!progression.CanSpend(nodeId)) state = "LOCKED — ROUTE PREREQUISITE OR CHOICE SIBLING";
         else if (progression.AvailablePoints < PassiveTreeDefinition.PointCost) state = "UNAVAILABLE — NEEDS 1 PASSIVE POINT";
         else state = "AVAILABLE — CLICK TO ALLOCATE (COST: 1 POINT)";
+        if(nodeId==PassiveTreeDefinition.RageFinisherNodeId)
+        {details.text=$"<b>RAGE FINISHER / AXE SPECIALIZATION</b>\n{PassiveTreeDefinition.KeystoneEffect(PassiveKeystone.RageFinisher)}\n<size=13>{state}</size>";return;}
         if (PassiveTreeDefinition.IsKeystone(nodeId))
         {
-            details.text = $"<b>{PassiveTreeDefinition.KeystoneName(node.Keystone).ToUpperInvariant()} / KEYSTONE</b>\n{PassiveTreeDefinition.KeystoneEffect(node.Keystone)}\n<size=13>{state}</size>";
+            var keystone=PassiveTreeDefinition.KeystoneAt(nodeId);details.text = $"<b>{PassiveTreeDefinition.KeystoneName(keystone).ToUpperInvariant()} / KEYSTONE</b>\n{PassiveTreeDefinition.KeystoneEffect(keystone)}\n<size=13>{state}</size>";
             return;
         }
-        string bonus = node.Effects.Length==0
+        var effects=node.IsSubclassChoice?PassiveTreeDefinition.SubclassEffects(GameManager.Instance?.GetComponent<PlayerIdentityState>()?.SelectedSubclassId,node):node.Effects;
+        string bonus = effects.Length==0
             ? "NO STAT BONUS"
-            : $"{MagnitudeText(node.Branch, node.Magnitude)} {PassiveTreeDefinition.GameplayMeaning(node.Branch)}";
-        details.text = $"<b>{PassiveTreeDefinition.DisplayName(node.Branch).ToUpperInvariant()} / {node.Size.ToString().ToUpperInvariant()} NODE</b>     {bonus}\n<size=13>{state}     /     BRANCH TOTAL: {TotalText(node.Branch, progression.GetBonus(node.Branch))}</size>";
+            : $"+{effects[0].Amount:0.##} {effects[0].Stat}";
+        string title=node.IsSubclassChoice?(GameManager.Instance?.GetComponent<PlayerIdentityState>()?.SelectedSubclassId??"SUBCLASS CHOICE"):node.DisplayName;
+        details.text = $"<b>{title.ToUpperInvariant()} / TIER {node.Tier}</b>     {bonus}\n<size=13>{state}</size>";
     }
 
     bool HasAllocatedConnection(int nodeId)
@@ -279,7 +301,7 @@ public sealed class SkillTreeUI : MonoBehaviour
     void SelectAndSpend(int nodeId)
     {
         selectedNode = nodeId;
-        if (progression != null){if(transformMode){if(progression.IsTransformed(nodeId))progression.TryRemoveTransformation(nodeId);else progression.TryTransform(nodeId);}else progression.TrySpend(nodeId);}
+        progression?.TrySpend(nodeId);
         Refresh();
         ShowDetails(nodeId);
     }
@@ -316,7 +338,7 @@ public sealed class SkillTreeUI : MonoBehaviour
         Refresh();
     }
 
-    public void Close() { IsOpen = false;transformMode=false;refundAllConfirmation=false;if(refundAllLabel!=null)refundAllLabel.text="REFUND ALL";if (panel != null) panel.SetActive(false); }
+    public void Close() { IsOpen = false;refundAllConfirmation=false;if(refundAllLabel!=null)refundAllLabel.text="REFUND ALL";if (panel != null) panel.SetActive(false); }
 
     public void AdjustZoom(PointerEventData eventData)
     {
@@ -667,7 +689,7 @@ static class PassiveTreeIconAtlas
         PassiveBranch.LifeOnHit or PassiveBranch.LifeOnKill=>1,
         PassiveBranch.ManaOnHit or PassiveBranch.ManaOnKill=>2,
         PassiveBranch.Strength=>8,PassiveBranch.Dexterity=>11,PassiveBranch.Intelligence=>3,
-        PassiveBranch.CastSpeed=>3,PassiveBranch.ProjectileSpeed or PassiveBranch.PrecisionChance or PassiveBranch.PrecisionDamage=>7,
+        PassiveBranch.CooldownReduction=>3,PassiveBranch.ProjectileSpeed or PassiveBranch.PrecisionChance or PassiveBranch.PrecisionDamage=>7,
         PassiveBranch.RageGeneration or PassiveBranch.RageEffect or PassiveBranch.RageRetention=>8,_=>20
     };
 

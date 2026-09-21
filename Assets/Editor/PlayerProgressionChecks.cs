@@ -168,7 +168,7 @@ public static class PlayerProgressionChecks
         var ui=Object.FindFirstObjectByType<SkillTreeUI>();ui.Toggle();
         yield return null;
         Check(SkillTreeUI.IsOpen && ui.Panel.activeSelf,"Skill screen opens");
-        Check(ui.NodeButton(0)!=null && ui.NodeButton(PassiveTreeDefinition.NodeCount-1)!=null,"All 290 passive buttons generated");
+        Check(ui.NodeButton(0)!=null && ui.NodeButton(PassiveTreeDefinition.NodeCount-1)!=null,"All V3 passive buttons generated");
         int available=xp.AvailablePoints;ui.NodeButton(0).onClick.Invoke();
         Check(xp.AvailablePoints==available-1 && xp.Rank(0)==1,"UI button spends point");
         Write("PASS skill screen: opens, preserves the configured pause behavior, and a real button spends a point and updates rank; visual fixture ready.");

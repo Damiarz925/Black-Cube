@@ -14,7 +14,7 @@ public sealed class Step20EndgameItemizationTests
     GameObject New(string name){var go=new GameObject(name);created.Add(go);return go;}
 
     [Test]public void SchemaElevenAndProductionCatalogAreValid()
-    {Assert.That(GamePersistence.SchemaVersion,Is.EqualTo(11));Assert.That(EndgameItemizationValidation.Validate(WorldContentCatalog.Reference),Is.Empty);Assert.That(WorldContentCatalog.Reference.challengeSpecialAffixPools,Has.Count.EqualTo(6));Assert.That(WorldContentCatalog.Reference.challengeSpecialAffixPools.ConvertAll(x=>x.modifiers.Count),Is.All.EqualTo(6));}
+    {Assert.That(GamePersistence.SchemaVersion,Is.EqualTo(12));Assert.That(EndgameItemizationValidation.Validate(WorldContentCatalog.Reference),Is.Empty);Assert.That(WorldContentCatalog.Reference.challengeSpecialAffixPools,Has.Count.EqualTo(6));Assert.That(WorldContentCatalog.Reference.challengeSpecialAffixPools.ConvertAll(x=>x.modifiers.Count),Is.All.EqualTo(6));}
 
     [Test]public void CharacterLedgerCapturesRestoresAndRejectsUnknownIds()
     {
@@ -26,7 +26,7 @@ public sealed class Step20EndgameItemizationTests
     [Test]public void SchemaTenMigratesWithEmptyEndgameOwnership()
     {
         string path=Path.Combine(Path.GetTempPath(),"BlackCube-Step20-"+Guid.NewGuid().ToString("N")+".json");try
-        {var payload=new GameStatePayload{playerLevel=1,availablePassivePoints=1,encounterStartLife=100,encounterStartMana=100};payload.endgameResources=null;payload.challengeFirstClears=null;for(int i=0;i<RelicInventory.ActiveSlotCount;i++)payload.activeRelicIds.Add(string.Empty);var envelope=new SaveEnvelope{schemaVersion=10,runId="step20",runSeed=20,savedAtUtc=DateTime.UtcNow.ToString("O"),payload=payload};File.WriteAllText(path,JsonUtility.ToJson(envelope));Assert.That(GamePersistence.TryReadFile(path,out var migrated,out var error),Is.True,error);Assert.That(migrated.schemaVersion,Is.EqualTo(11));Assert.That(migrated.payload.endgameResources,Is.Empty);Assert.That(migrated.payload.challengeFirstClears,Is.Empty);}
+        {var payload=new GameStatePayload{playerLevel=1,availablePassivePoints=1,encounterStartLife=100,encounterStartMana=100};payload.endgameResources=null;payload.challengeFirstClears=null;for(int i=0;i<RelicInventory.ActiveSlotCount;i++)payload.activeRelicIds.Add(string.Empty);var envelope=new SaveEnvelope{schemaVersion=10,runId="step20",runSeed=20,savedAtUtc=DateTime.UtcNow.ToString("O"),payload=payload};File.WriteAllText(path,JsonUtility.ToJson(envelope));Assert.That(GamePersistence.TryReadFile(path,out var migrated,out var error),Is.True,error);Assert.That(migrated.schemaVersion,Is.EqualTo(12));Assert.That(migrated.payload.endgameResources,Is.Empty);Assert.That(migrated.payload.challengeFirstClears,Is.Empty);}
         finally{if(File.Exists(path))File.Delete(path);}
     }
 

@@ -264,7 +264,7 @@ Combat levels above 360 use the final authored table as a safe endless fallback 
 | Maximum resistance | 75% baseline, matching/all additions and 90% hard cap before penetration. | Step 10 shared calculator includes Void and both actors; fresh regression passes. | Reconciled for v1. | 10 |
 | Projectile Amount / Bullet Hell | Fireball gains one independent target-snapshotted projectile per whole passive addition. | Step 10 launcher consumes the count and keystone contribution; fresh regression passes. | Reconciled for v1. | 10 |
 | Enemy Hit Twice | One extra legitimate, nonrecursive hit against the same living actor. | Step 10 symmetric enemy path and optimizer valuation; fresh regression passes. | Reconciled for v1. | 10 |
-| Cooldowns | Attack Speed and Cast Speed remain distinct. | Step 17 appends Cast Speed and consumes it only for eligible independent Staff AutoCooldown skills; legacy Cooldown Recovery remains unchanged. | Implemented first pass; final Staff skills/balance remain TBD. | 17 |
+| Cooldowns | Attack Speed and Cooldown Reduction remain distinct. | Cooldown Reduction governs eligible independent Staff AutoCooldown skills; deprecated Cast Speed remains serialized only. | Implemented first pass; final balance remains TBD. | 18/V3 |
 
 | Attributes, skill levels, kill resources | Use the locked Step 10 formulas and exactly-once death claim. | Step 10 derived projection, seven skill levels and kill recovery wired; fresh regression passes. | Reconciled for v1. | 10 |
 | Minions | Require entity, ownership and combat design. | Only a Minion damage scope/stat calculation exists; there are no minions. | Infrastructure only. | 9–10/content TBD |
@@ -276,16 +276,16 @@ Combat levels above 360 use the final authored table as a safe endless fallback 
 
 ## Step 17 contract additions
 
-The shared Passive Tree V2 has 366 nodes, six permanent class starts, broad generic access with thematic density, a 1.60 weapon-specialization premium, rare keystones, and 100 earned points at level 100. Respecs are free and graph-safe. Staff AutoCooldown/Cast Speed, Bow Precision/projectile latency, Axe Rage/Rage Finisher, and local Weapon DPS are implemented first passes, not final tuning.
+Passive Tree V3 has six radial ten-tier class routes and six outward five-tier weapon routes. Every tier has two optional three-choice groups; the native class adds one selected-subclass fourth sibling per group. Choices are mutually exclusive, cross-class and weapon access require completed class spines, and refunds are dependency-safe. Weapon effects use a 1.60 specialization premium. Level 100 owns 100 points and respecs are free.
 
-Six character slots are character-owned save containers; class, progression, inventory, relics, and passives do not cross slots. Ordinary preferences remain global. Schema 9 grants migrated characters a one-time full Passive Tree V2 refund without changing non-passive progression.
+Six character slots are character-owned save containers; class, progression, inventory, relics, and passives do not cross slots. Ordinary preferences remain global. Schema 12 grants migrated characters a full Passive Tree V3 respec without changing non-passive progression.
 # Step 18 locked contracts
 
 - Every weapon binds exactly two production skills; Staff uses AutoCooldown and Dagger Quick Strike uses ImmediateCooldown.
 - Cooldown Reduction (ID 126) replaces production Cast Speed; Cast Speed ID 120 remains deprecated, never reinterpreted.
 - Freeze skips one enemy attack and stores Chill strength for Shatter.
 - Each base class owns exactly two subclasses, but subclasses do not restrict weapon choice.
-- The Subclass Sigil unlocks at `story.main.complete`; subclass respec is free outside combat and clears transformations only.
+- The Subclass Sigil unlocks at `story.main.complete`; subclass respec is free outside combat and refunds allocated subclass fourth-choice nodes while preserving generic nodes.
 - Transformations replace up to 10 connected allocated non-start/non-Keystone nodes.
 - All Step 18 numbers are first-pass placeholders.
 

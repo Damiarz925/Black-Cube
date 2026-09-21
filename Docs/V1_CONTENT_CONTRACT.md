@@ -137,7 +137,7 @@ All locked systems pass focused and full regression; every required biome/scene/
 
 ## 25. Step 17 locked systems
 
-V1 uses one shared 366-node Passive Tree V2 with six permanent class starts and a 100-point level-100 budget. Weapon districts are stronger but never class-locked. Staff AutoCooldown/Cast Speed, Bow Precision and real projectile travel, and Axe Rage/Rage Finisher are first-pass production mechanics; their final tuning and the twelve final skill identities remain later content work.
+V1 uses Passive Tree V3: six ten-tier class routes, six five-tier signature-weapon routes, optional mutually exclusive choices, and native-route selected-subclass fourth options under a 100-point level-100 budget. Weapon routes are stronger and remain reachable through cross-class spine completion. Staff AutoCooldown/Cooldown Reduction, Bow Precision and real projectile travel, and Axe Rage/Rage Finisher are production mechanics with first-pass passive tuning.
 
 The local profile exposes six independent character slots. Class is character-owned and permanent; ordinary options/filter preferences remain global. Average Weapon DPS is local average hit × local APS with Crit/global combat modifiers excluded. Full-character DPS remains explicitly deferred.
 # Step 18 additions
