@@ -27,7 +27,7 @@ public readonly struct EnemyLootPowerSnapshot
 {
     public readonly float LevelLootFactor,RarityMultiplier,ActualGearScore,ExpectedGearScore,GearQualityFactor,LootPower,ExtraGearBudget,CurrencyRollBudget;
     public EnemyLootPowerSnapshot(float level,float rarity,float actual,float expected,float quality)
-    {LevelLootFactor=level;RarityMultiplier=rarity;ActualGearScore=actual;ExpectedGearScore=expected;GearQualityFactor=quality;LootPower=level*rarity*quality;ExtraGearBudget=Mathf.Max(0,LootPower-.75f)*.60f;CurrencyRollBudget=.18f*LootPower;}
+    {var p=LootBalanceProfileSO.Current;LevelLootFactor=level;RarityMultiplier=rarity;ActualGearScore=actual;ExpectedGearScore=expected;GearQualityFactor=quality;LootPower=level*rarity*quality;ExtraGearBudget=Mathf.Max(0,LootPower-p.extraGearThreshold)*p.extraGearCoefficient;CurrencyRollBudget=p.currencyRollCoefficient*LootPower;}
     public override string ToString()=>$"LevelLootFactor: {LevelLootFactor:0.00} / RarityMultiplier: {RarityMultiplier:0.00} / GearQualityFactor: {GearQualityFactor:0.00} / LootPower: {LootPower:0.00}";
 }
 
@@ -41,25 +41,13 @@ public enum CurrencyQualityTier{Common=0,Uncommon=1,Rare=2,Ancient=3}
 
 public static class CurrencyLootTable
 {
-    static readonly CurrencyLootEntry[] entries={
-        new("currency.normal_to_magic",CraftingCurrencyType.NormalToMagic,28,CurrencyQualityTier.Common),
-        new("currency.reroll_magic",CraftingCurrencyType.RerollMagic,24,CurrencyQualityTier.Common),
-        new("currency.magic_to_rare",CraftingCurrencyType.MagicToRare,17,CurrencyQualityTier.Uncommon,10),
-        new("currency.reroll_rare",CraftingCurrencyType.RerollRareModifier,13,CurrencyQualityTier.Uncommon,20),
-        new("currency.add_rare",CraftingCurrencyType.AddRareModifier,8,CurrencyQualityTier.Rare,30),
-        new("currency.remove_rare",CraftingCurrencyType.RemoveRareModifier,6,CurrencyQualityTier.Rare,35),
-        new("currency.ancient.normal_to_magic",CraftingCurrencyType.AncientNormalToMagic,2.5f,CurrencyQualityTier.Ancient,60,360,1,1,1,true),
-        new("currency.ancient.magic_to_rare",CraftingCurrencyType.AncientMagicToRare,2,CurrencyQualityTier.Ancient,60,360,1,1,1,true),
-        new("currency.ancient.rare_to_legendary",CraftingCurrencyType.AncientRareToLegendary,1.2f,CurrencyQualityTier.Ancient,60,360,2,1,1,true),
-        new("currency.ancient.reroll",CraftingCurrencyType.AncientReroll,1.5f,CurrencyQualityTier.Ancient,60,360,1,1,1,true),
-        new("currency.ancient.add",CraftingCurrencyType.AncientAddModifier,.8f,CurrencyQualityTier.Ancient,60,360,2,1,1,true),
-        new("currency.ancient.remove",CraftingCurrencyType.AncientRemoveModifier,.7f,CurrencyQualityTier.Ancient,60,360,2,1,1,true)};
-    public static IReadOnlyList<CurrencyLootEntry> Entries=>entries;
-    public static float QualityBias(EnemyAI.EnemyRarity rarity,bool boss)=>boss?2f:rarity switch{EnemyAI.EnemyRarity.Magic=>1.1f,EnemyAI.EnemyRarity.Rare=>1.3f,EnemyAI.EnemyRarity.Legendary=>1.6f,_=>1f};
+    public static IReadOnlyList<CurrencyLootEntry> Entries
+    {get{var result=new List<CurrencyLootEntry>();foreach(var item in LootBalanceProfileSO.Current.currencies)if(item!=null)result.Add(item.ToEntry());return result;}}
+    public static float QualityBias(EnemyAI.EnemyRarity rarity,bool boss)=>LootBalanceProfileSO.Current.QualityBias(rarity,boss);
     public static CurrencyLootEntry Choose(int level,EnemyAI.EnemyRarity rarity,bool boss,bool rebirthAccess,ILootRandomSource random)
     {
         float bias=QualityBias(rarity,boss),total=0;var eligible=new List<(CurrencyLootEntry,float)>();
-        foreach(var entry in entries){if(!entry.EnabledInOrdinaryLoot||level<entry.MinimumCombatLevel||level>entry.MaximumCombatLevel||(int)rarity<entry.MinimumEnemyRarity||(entry.RequiresRebirthAccess&&!rebirthAccess))continue;float weight=entry.BaseWeight*Mathf.Pow(bias,(int)entry.QualityTier);eligible.Add((entry,weight));total+=weight;}
+        foreach(var entry in Entries){if(!entry.EnabledInOrdinaryLoot||level<entry.MinimumCombatLevel||level>entry.MaximumCombatLevel||(int)rarity<entry.MinimumEnemyRarity||(entry.RequiresRebirthAccess&&!rebirthAccess))continue;float weight=entry.BaseWeight*Mathf.Pow(bias,(int)entry.QualityTier);eligible.Add((entry,weight));total+=weight;}
         if(total<=0||eligible.Count==0)return null;float roll=random.Value()*total;
         foreach(var pair in eligible){if(roll<pair.Item2)return pair.Item1;roll-=pair.Item2;}return eligible[eligible.Count-1].Item1;
     }
@@ -69,9 +57,10 @@ public static class CurrencyLootTable
 
 public static class EnemyLootProfile
 {
-    public const int MaximumExtraGear=12,MaximumCurrencyRolls=8;
-    public static float LevelFactor(int level)=>Mathf.Lerp(.75f,2f,Mathf.Pow(Mathf.Clamp01((Mathf.Max(1,level)-1)/359f),.75f));
-    public static float RarityMultiplier(EnemyAI.EnemyRarity rarity,bool boss)=>boss?5f:rarity switch{EnemyAI.EnemyRarity.Magic=>1.6f,EnemyAI.EnemyRarity.Rare=>2.6f,EnemyAI.EnemyRarity.Legendary=>4f,_=>1f};
+    public static int MaximumExtraGear=>LootBalanceProfileSO.Current.maximumExtraGear;
+    public static int MaximumCurrencyRolls=>LootBalanceProfileSO.Current.maximumCurrencyRolls;
+    public static float LevelFactor(int level){var p=LootBalanceProfileSO.Current;return Mathf.Lerp(p.levelFactorMinimum,p.levelFactorMaximum,Mathf.Pow(Mathf.Clamp01((Mathf.Max(1,level)-1)/359f),p.levelFactorExponent));}
+    public static float RarityMultiplier(EnemyAI.EnemyRarity rarity,bool boss)=>LootBalanceProfileSO.Current.RarityMultiplier(rarity,boss);
     public static float ExpectedGearScore(int level,EnemyAI.EnemyRarity rarity,int equippedSlots)
     {
         // Formula baseline mirrors the enemy model's capped gear-level and growing slot count without sampling.

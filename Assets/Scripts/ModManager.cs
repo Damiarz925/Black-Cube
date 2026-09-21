@@ -89,8 +89,9 @@ public class ModManager : MonoBehaviour
         int itemLevel,
         int modCount,
         Element weaponElement,
-        bool forEnemy = false)
+        bool forEnemy = false, ILootRandomSource random=null)
     {
+        random??=UnityLootRandomSource.Instance;
         var mods = new List<RolledMod>();       //create list of rolled mods to store item's mods
         var usedStats = new HashSet<StatTypes>();       //Create HashSet for usedstats
         var usedGroups = new HashSet<string>();         //Create HashSet for usedgroups
@@ -100,15 +101,15 @@ public class ModManager : MonoBehaviour
         // GUARANTEED BASE STATS FOR WEAPONS
         if (itemType == LootManager.GearType.Weapons)       //If the item type passed in is a weapon
         {
-            AddGuaranteedWeaponBaseStat(StatTypes.WeaponBaseDmg, rarity, itemLevel, mods, usedStats, usedGroups);       //Call add base stat for base dmg, attack speed, and crit
-            AddGuaranteedWeaponBaseStat(StatTypes.WeaponBaseAttackSpeed, rarity, itemLevel, mods, usedStats, usedGroups);
-            AddGuaranteedWeaponBaseStat(StatTypes.WeaponBaseCrit, rarity, itemLevel, mods, usedStats, usedGroups);
+            AddGuaranteedWeaponBaseStat(StatTypes.WeaponBaseDmg, rarity, itemLevel, mods, usedStats, usedGroups,random);       //Call add base stat for base dmg, attack speed, and crit
+            AddGuaranteedWeaponBaseStat(StatTypes.WeaponBaseAttackSpeed, rarity, itemLevel, mods, usedStats, usedGroups,random);
+            AddGuaranteedWeaponBaseStat(StatTypes.WeaponBaseCrit, rarity, itemLevel, mods, usedStats, usedGroups,random);
         }
 
         // NORMAL RANDOM MODS
         for (int i = 0; i < remaining; i++) //Loop through all of remaining 
         {
-            RolledMod mod = RollSingleMod(itemType, rarity, itemLevel, usedStats, usedGroups, weaponElement, forEnemy, mods);
+            RolledMod mod = RollSingleMod(itemType, rarity, itemLevel, usedStats, usedGroups, weaponElement, forEnemy, mods,random:random);
             if (mod == null) break; //If the mod is null, break
 
             mods.Add(mod);  //Add the mod to mods

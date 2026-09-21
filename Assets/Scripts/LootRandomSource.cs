@@ -83,3 +83,26 @@ public sealed class DelegateLootRandomSource:ILootRandomSource
     public int Range(int minimumInclusive,int maximumExclusive)=>maximumExclusive<=minimumInclusive?minimumInclusive:minimumInclusive+Mathf.FloorToInt(Value()*(maximumExclusive-minimumInclusive));
     public float Range(float minimumInclusive,float maximumInclusive)=>minimumInclusive+(maximumInclusive-minimumInclusive)*Value();
 }
+
+// Reproducible stream for Editor simulations and deterministic parity tests.
+// Gameplay continues to obtain ProductionLootRandomSource from the factory above.
+public sealed class SeededSimulationRandomSource:ILootRandomSource
+{
+    ulong state;
+    public string SourceName=>"Black-Cube seeded xorshift64* simulation";
+    public long EventId{get;}
+    public SeededSimulationRandomSource(long seed)
+    {
+        EventId=seed;
+        state=unchecked((ulong)seed)+0x9E3779B97F4A7C15UL;
+        if(state==0)state=0xA0761D6478BD642FUL;
+    }
+    ulong Next()
+    {
+        ulong x=state;x^=x>>12;x^=x<<25;x^=x>>27;state=x;
+        return x*2685821657736338717UL;
+    }
+    public float Value()=>(Next()>>40)/16777216f;
+    public int Range(int minimumInclusive,int maximumExclusive)=>maximumExclusive<=minimumInclusive?minimumInclusive:minimumInclusive+Mathf.FloorToInt(Value()*(maximumExclusive-minimumInclusive));
+    public float Range(float minimumInclusive,float maximumInclusive)=>minimumInclusive+(maximumInclusive-minimumInclusive)*Value();
+}

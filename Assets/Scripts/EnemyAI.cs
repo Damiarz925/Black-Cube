@@ -85,6 +85,8 @@ public class EnemyAI : MonoBehaviour
     private const int MaxTotalEnemyGearPieces = 8;
 
     private bool _initialized;      //bool for whether the enemy has been initialized or not
+    private ILootRandomSource buildRandom=UnityLootRandomSource.Instance;
+    private Element? simulationPrimaryElement;
 
     public enum EnemyRarity         //enum for enemy rarity Normal, magic, rare, legendary
     {
@@ -183,6 +185,10 @@ public class EnemyAI : MonoBehaviour
 #if UNITY_EDITOR
     // Balance-lab entry: isolated actor, same production setup/generation/optimizer, no scene level lookup.
     public void GenerateIsolatedBuild(int level, ModManager roller, EnemyRarity rarity)
+        =>GenerateIsolatedBuild(level,roller,rarity,UnityLootRandomSource.Instance);
+    public void GenerateIsolatedBuild(int level, ModManager roller, EnemyRarity rarity,ILootRandomSource random)
+        =>GenerateIsolatedBuild(level,roller,rarity,random,null);
+    public void GenerateIsolatedBuild(int level, ModManager roller, EnemyRarity rarity,ILootRandomSource random,Element? primaryDamageOverride)
     {
         stats ??= GetComponent<StatsComponent>();
         health ??= GetComponent<HealthComponent>();
@@ -192,6 +198,8 @@ public class EnemyAI : MonoBehaviour
         enemyLevel = Mathf.Max(1, level);
         modManager = roller;
         CurrentRarity = rarity;
+        buildRandom=random??UnityLootRandomSource.Instance;
+        simulationPrimaryElement=primaryDamageOverride;
         GetComponent<EnemyStatSetup>()?.SetupForZone(enemyLevel, health != null && health.IsBoss);
         GenerateGearForEnemy(enemyLevel);
         health?.RestoreFullLife();
@@ -318,9 +326,9 @@ public class EnemyAI : MonoBehaviour
 
     private int GetItemCountForLevel(int level)     //Calculates the range of items possible and rolls within that range, then returns the count to be used for item generation
     {
-        if (level < 35) return Random.Range(1, 3);
-        if (level < 50) return Random.Range(2, 5);
-        if (level < 75) return Random.Range(4, 7);
+        if (level < 35) return buildRandom.Range(1, 3);
+        if (level < 50) return buildRandom.Range(2, 5);
+        if (level < 75) return buildRandom.Range(4, 7);
         return 9;
     }
 
@@ -335,7 +343,7 @@ public class EnemyAI : MonoBehaviour
 
         for (int i = availableSlots.Count - 1; i > 0; i--)
         {
-            int swapIndex = Random.Range(0, i + 1);
+            int swapIndex = buildRandom.Range(0, i + 1);
             LootManager.GearType tmp = availableSlots[i];
             availableSlots[i] = availableSlots[swapIndex];
             availableSlots[swapIndex] = tmp;
@@ -366,7 +374,7 @@ public class EnemyAI : MonoBehaviour
 
         Gear gear = go.AddComponent<Gear>();            //create a gear object, which is go with the gear component added
 
-        var element = RollItemElement(type == LootManager.GearType.Weapons);
+        var element = type==LootManager.GearType.Weapons&&simulationPrimaryElement.HasValue?simulationPrimaryElement.Value:RollItemElement(type == LootManager.GearType.Weapons,buildRandom);
 
         // Enemy gear is not player loot. Its authored tier access must grow much
         // more slowly because intrinsic damage already compounds by combat level.
@@ -375,9 +383,9 @@ public class EnemyAI : MonoBehaviour
         int itemLevel = EffectiveEnemyGearItemLevel(zoneLevel);
         gear.Initialize(type, gearRarity, itemLevel, element);       //initailize gear, passing in the gear type, rarity, ilvl, and element
 
-        int modCount = Gear.RollEnemyModNumber(gearRarity); //preserve the existing enemy intrinsic count profile
+        int modCount = Gear.RollEnemyModNumber(gearRarity,buildRandom); //preserve the existing enemy intrinsic count profile
         var rolledMods = modManager != null
-            ? modManager.RollModsForItem(type, gearRarity, itemLevel, modCount, element, forEnemy: true)
+            ? modManager.RollModsForItem(type, gearRarity, itemLevel, modCount, element, forEnemy: true,random:buildRandom)
             : new List<RolledMod>();     //create variable for rolled mods, using the rollmodsforitem function from modmanager
         gear.ApplyMods(rolledMods);     //use gear.applymods with the rolled mods list to apply those mods to the gear item
 
@@ -618,9 +626,12 @@ public class EnemyAI : MonoBehaviour
     }
 
     public Element RollItemElement(bool forWeapon = false)
+        =>RollItemElement(forWeapon,UnityLootRandomSource.Instance);
+    public Element RollItemElement(bool forWeapon,ILootRandomSource random)
     {
-        if (!forWeapon) return (Element)Random.Range(0, (int)Element.Count);
-        int roll = Random.Range(0, 5);
+        random??=UnityLootRandomSource.Instance;
+        if (!forWeapon) return (Element)random.Range(0, (int)Element.Count);
+        int roll = random.Range(0, 5);
         return roll < (int)Element.Poison ? (Element)roll : Element.Void;
     }
 }

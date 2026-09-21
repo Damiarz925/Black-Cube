@@ -1,0 +1,164 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0983e645eda648b418a13bc8d0536f32, type: 3}
+  m_Name: LootBalanceProfile
+  m_EditorClassIdentifier: Assembly-CSharp::LootBalanceProfileSO
+  levelFactorMinimum: 0.75
+  levelFactorMaximum: 2
+  levelFactorExponent: 0.75
+  normalRarityMultiplier: 1
+  magicRarityMultiplier: 1.6
+  rareRarityMultiplier: 2.6
+  legendaryRarityMultiplier: 4
+  bossRarityMultiplier: 5
+  extraGearThreshold: 0.75
+  extraGearCoefficient: 0.6
+  currencyRollCoefficient: 0.18
+  maximumExtraGear: 12
+  maximumCurrencyRolls: 8
+  magicQualityBias: 1.1
+  rareQualityBias: 1.3
+  legendaryQualityBias: 1.6
+  bossQualityBias: 2
+  currencies:
+  - stableCurrencyId: currency.normal_to_magic
+    currency: 0
+    baseWeight: 28
+    qualityTier: 0
+    minimumCombatLevel: 1
+    maximumCombatLevel: 360
+    minimumEnemyRarity: 0
+    stackMinimum: 1
+    stackMaximum: 1
+    requiresRebirthAccess: 0
+    enabledInOrdinaryLoot: 1
+  - stableCurrencyId: currency.reroll_magic
+    currency: 2
+    baseWeight: 24
+    qualityTier: 0
+    minimumCombatLevel: 1
+    maximumCombatLevel: 360
+    minimumEnemyRarity: 0
+    stackMinimum: 1
+    stackMaximum: 1
+    requiresRebirthAccess: 0
+    enabledInOrdinaryLoot: 1
+  - stableCurrencyId: currency.magic_to_rare
+    currency: 1
+    baseWeight: 17
+    qualityTier: 1
+    minimumCombatLevel: 10
+    maximumCombatLevel: 360
+    minimumEnemyRarity: 0
+    stackMinimum: 1
+    stackMaximum: 1
+    requiresRebirthAccess: 0
+    enabledInOrdinaryLoot: 1
+  - stableCurrencyId: currency.reroll_rare
+    currency: 4
+    baseWeight: 13
+    qualityTier: 1
+    minimumCombatLevel: 20
+    maximumCombatLevel: 360
+    minimumEnemyRarity: 0
+    stackMinimum: 1
+    stackMaximum: 1
+    requiresRebirthAccess: 0
+    enabledInOrdinaryLoot: 1
+  - stableCurrencyId: currency.add_rare
+    currency: 3
+    baseWeight: 8
+    qualityTier: 2
+    minimumCombatLevel: 30
+    maximumCombatLevel: 360
+    minimumEnemyRarity: 0
+    stackMinimum: 1
+    stackMaximum: 1
+    requiresRebirthAccess: 0
+    enabledInOrdinaryLoot: 1
+  - stableCurrencyId: currency.remove_rare
+    currency: 5
+    baseWeight: 6
+    qualityTier: 2
+    minimumCombatLevel: 35
+    maximumCombatLevel: 360
+    minimumEnemyRarity: 0
+    stackMinimum: 1
+    stackMaximum: 1
+    requiresRebirthAccess: 0
+    enabledInOrdinaryLoot: 1
+  - stableCurrencyId: currency.ancient.normal_to_magic
+    currency: 6
+    baseWeight: 2.5
+    qualityTier: 3
+    minimumCombatLevel: 60
+    maximumCombatLevel: 360
+    minimumEnemyRarity: 1
+    stackMinimum: 1
+    stackMaximum: 1
+    requiresRebirthAccess: 1
+    enabledInOrdinaryLoot: 1
+  - stableCurrencyId: currency.ancient.magic_to_rare
+    currency: 7
+    baseWeight: 2
+    qualityTier: 3
+    minimumCombatLevel: 60
+    maximumCombatLevel: 360
+    minimumEnemyRarity: 1
+    stackMinimum: 1
+    stackMaximum: 1
+    requiresRebirthAccess: 1
+    enabledInOrdinaryLoot: 1
+  - stableCurrencyId: currency.ancient.rare_to_legendary
+    currency: 8
+    baseWeight: 1.2
+    qualityTier: 3
+    minimumCombatLevel: 60
+    maximumCombatLevel: 360
+    minimumEnemyRarity: 2
+    stackMinimum: 1
+    stackMaximum: 1
+    requiresRebirthAccess: 1
+    enabledInOrdinaryLoot: 1
+  - stableCurrencyId: currency.ancient.reroll
+    currency: 9
+    baseWeight: 1.5
+    qualityTier: 3
+    minimumCombatLevel: 60
+    maximumCombatLevel: 360
+    minimumEnemyRarity: 1
+    stackMinimum: 1
+    stackMaximum: 1
+    requiresRebirthAccess: 1
+    enabledInOrdinaryLoot: 1
+  - stableCurrencyId: currency.ancient.add
+    currency: 10
+    baseWeight: 0.8
+    qualityTier: 3
+    minimumCombatLevel: 60
+    maximumCombatLevel: 360
+    minimumEnemyRarity: 2
+    stackMinimum: 1
+    stackMaximum: 1
+    requiresRebirthAccess: 1
+    enabledInOrdinaryLoot: 1
+  - stableCurrencyId: currency.ancient.remove
+    currency: 11
+    baseWeight: 0.7
+    qualityTier: 3
+    minimumCombatLevel: 60
+    maximumCombatLevel: 360
+    minimumEnemyRarity: 2
+    stackMinimum: 1
+    stackMaximum: 1
+    requiresRebirthAccess: 1
+    enabledInOrdinaryLoot: 1

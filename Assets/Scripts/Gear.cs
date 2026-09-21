@@ -102,6 +102,9 @@ public class Gear : MonoBehaviour
     public void Initialize(LootManager.GearType type, LootManager.GearRarity rarity, int level, Element element, string stableWeaponTypeId = null)
     {
         EnsurePersistentId();
+        rolledMods.Clear();globalRolledMods.Clear();
+        BaseDamage=BaseDamageMin=BaseDamageMax=BaseAttackSpeed=BaseCritChance=0f;
+        LocalFlatDamage=LocalFlatDamageMax=LocalIncDamage=LocalBaseCrit=LocalIncCrit=LocalIncAttackSpeed=0f;
         itemType = type;
         weaponTypeId = type == LootManager.GearType.Weapons && WeaponTypeCatalog.IsValid(stableWeaponTypeId)
             ? stableWeaponTypeId : type == LootManager.GearType.Weapons ? WeaponTypeCatalog.HistoricalDefaultId : string.Empty;
@@ -198,6 +201,14 @@ public class Gear : MonoBehaviour
         LootManager.GearRarity.Magic => 2,
         LootManager.GearRarity.Rare => UnityEngine.Random.Range(3,5),
         _ => UnityEngine.Random.Range(5,7)
+    };
+
+    public static int RollEnemyModNumber(LootManager.GearRarity rarity,ILootRandomSource random) => rarity switch
+    {
+        LootManager.GearRarity.Normal => 1,
+        LootManager.GearRarity.Magic => 2,
+        LootManager.GearRarity.Rare => (random??UnityLootRandomSource.Instance).Range(3,5),
+        _ => (random??UnityLootRandomSource.Instance).Range(5,7)
     };
 
     //Function used to check if a rolled modifier matches a weapon's base element, if so that modifier will be applied as a local modifier to weapon damage, instead of global.
