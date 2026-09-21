@@ -17,3 +17,10 @@ public sealed class UIButtonStateVisual
     public Color textColor = Color.white;
     public Color childIconColor = Color.white;
 }
+
+[Serializable]
+public sealed class HUDButtonVisualSet
+{
+    public TopHUDButtonKind kind;
+    public Sprite normal, hover, pressed;
+}

@@ -101,99 +101,6 @@ public static class TopHUDLayout
     }
 }
 
-public sealed class HUDSpriteState : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
-    IPointerDownHandler, IPointerUpHandler, ISelectHandler, IDeselectHandler
-{
-    Button button;
-    Image image;
-    Sprite normal;
-    Sprite hover;
-    Sprite pressed;
-    bool pointerOver;
-    bool pointerDown;
-    bool focused;
-    bool persistentActive;
-
-    public bool PersistentActive => persistentActive;
-    public int VisualStateIndex => button != null && !button.IsInteractable() ? -1
-        : persistentActive ? 2 : pointerDown ? 2 : pointerOver || focused ? 1 : 0;
-
-    public void Initialize(Button owner, TopHUDButtonKind kind)
-    {
-        button = owner;
-        image = owner.targetGraphic as Image;
-        if (image == null) image = owner.GetComponent<Image>();
-        Texture2D sheet = Resources.Load<Texture2D>(TopHUDLayout.ResourceName(kind));
-        normal = Create(sheet, TopHUDLayout.StateSlice(kind, 0), kind + " Normal");
-        hover = Create(sheet, TopHUDLayout.StateSlice(kind, 1), kind + " Hover");
-        pressed = Create(sheet, TopHUDLayout.StateSlice(kind, 2), kind + " Pressed");
-        owner.transition = Selectable.Transition.None;
-        owner.targetGraphic = image;
-        image.preserveAspect = false;
-        image.raycastTarget = true;
-        Refresh();
-    }
-
-    public void SetPersistentActive(bool value)
-    {
-        if (persistentActive == value) return;
-        persistentActive = value;
-        Refresh();
-    }
-
-    public void Refresh()
-    {
-        if (image == null) return;
-        int state = VisualStateIndex;
-        image.sprite = state == 2 ? pressed : state == 1 ? hover : normal;
-        image.color = state < 0 ? new Color(.42f,.42f,.42f,1f) : Color.white;
-        image.enabled = image.sprite != null;
-    }
-
-    public void OnPointerEnter(PointerEventData eventData) { pointerOver = true; Refresh(); }
-    public void OnPointerExit(PointerEventData eventData) { pointerOver = false; pointerDown = false; Refresh(); }
-    public void OnPointerDown(PointerEventData eventData) { if (eventData.button == PointerEventData.InputButton.Left) pointerDown = true; Refresh(); }
-    public void OnPointerUp(PointerEventData eventData) { pointerDown = false; Refresh(); }
-    public void OnSelect(BaseEventData eventData) { focused = true; Refresh(); }
-    public void OnDeselect(BaseEventData eventData) { focused = false; pointerDown = false; Refresh(); }
-    void OnDisable() { pointerOver = pointerDown = focused = false; Refresh(); }
-
-    static Sprite Create(Texture2D texture, RectInt topLeft, string spriteName)
-    {
-        if (texture == null) return null;
-        Rect rect = new Rect(topLeft.x, texture.height - topLeft.yMax, topLeft.width, topLeft.height);
-        Sprite sprite = Sprite.Create(texture, rect, Vector2.one * .5f, 100f, 0, SpriteMeshType.FullRect);
-        sprite.name = spriteName;
-        return sprite;
-    }
-}
-
-public sealed class HUDResourceBar : MaskableGraphic
-{
-    [SerializeField, Range(0f,1f)] float fillAmount;
-    public float FillAmount { get => fillAmount; set { value = Mathf.Clamp01(value); if (Mathf.Approximately(fillAmount,value)) return; fillAmount=value; SetVerticesDirty(); } }
-    protected override void OnPopulateMesh(VertexHelper vh)
-    {
-        vh.Clear();
-        Rect r=GetPixelAdjustedRect();r.width*=fillAmount;
-        if(r.width<=0f||r.height<=0f)return;
-        UIVertex v=UIVertex.simpleVert;v.color=color;
-        v.position=new Vector2(r.xMin,r.yMin);vh.AddVert(v);v.position=new Vector2(r.xMin,r.yMax);vh.AddVert(v);
-        v.position=new Vector2(r.xMax,r.yMax);vh.AddVert(v);v.position=new Vector2(r.xMax,r.yMin);vh.AddVert(v);
-        vh.AddTriangle(0,1,2);vh.AddTriangle(2,3,0);
-    }
-}
-
-public sealed class HUDPortraitMaskGraphic : MaskableGraphic
-{
-    protected override void OnPopulateMesh(VertexHelper vh)
-    {
-        vh.Clear();Rect r=GetPixelAdjustedRect();float cut=Mathf.Min(r.width*.18f,r.height*.14f);
-        Vector2[] edge={new(r.xMin+cut,r.yMin),new(r.xMax-cut,r.yMin),new(r.xMax,r.yMin+cut),new(r.xMax,r.yMax-cut),new(r.xMax-cut,r.yMax),new(r.xMin+cut,r.yMax),new(r.xMin,r.yMax-cut),new(r.xMin,r.yMin+cut)};
-        UIVertex v=UIVertex.simpleVert;v.color=Color.white;v.position=r.center;vh.AddVert(v);foreach(Vector2 point in edge){v.position=point;vh.AddVert(v);}for(int i=0;i<8;i++)vh.AddTriangle(0,i+1,(i+1)%8+1);
-    }
-}
-
 public readonly struct HUDPortraitFraming
 {
     public readonly float Scale;
@@ -243,21 +150,5 @@ public readonly struct HUDPortraitFraming
     {
         Vector2 size=Vector2.one*Scale,center=Vector2.one*.5f+Offset*Scale;
         rect.anchorMin=center-size*.5f;rect.anchorMax=center+size*.5f;rect.offsetMin=rect.offsetMax=Vector2.zero;
-    }
-}
-
-public sealed class PlayerDisplayNameProvider : MonoBehaviour
-{
-    const string PreferenceKey="BlackCube.PlayerDisplayName";
-    [SerializeField] string displayName="Wanderer";
-    public string DisplayName => Normalize(displayName);
-    public event Action Changed;
-    void Awake() { displayName=Normalize(PlayerPrefs.GetString(PreferenceKey,DisplayName)); }
-    public static string Normalize(string value) => string.IsNullOrWhiteSpace(value) ? "Wanderer" : value.Trim();
-    public void SetDisplayName(string value)
-    {
-        string next=Normalize(value);
-        if(next==DisplayName)return;
-        displayName=next;PlayerPrefs.SetString(PreferenceKey,displayName);PlayerPrefs.Save();Changed?.Invoke();
     }
 }

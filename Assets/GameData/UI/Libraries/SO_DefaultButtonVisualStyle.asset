@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 76125722954d2ee41a833d9d43a05fed, type: 3}
+  m_Name: SO_DefaultButtonVisualStyle
+  m_EditorClassIdentifier: Assembly-CSharp::UIButtonVisualStyleSO
+  normal:
+    sprite: {fileID: 0}
+    color: {r: 1, g: 1, b: 1, a: 1}
+    scaleMultiplier: {x: 1, y: 1}
+    textColor: {r: 1, g: 1, b: 1, a: 1}
+    childIconColor: {r: 1, g: 1, b: 1, a: 1}
+  hovered:
+    sprite: {fileID: 0}
+    color: {r: 1, g: 0.86, b: 0.58, a: 1}
+    scaleMultiplier: {x: 1.03, y: 1.03}
+    textColor: {r: 1, g: 1, b: 1, a: 1}
+    childIconColor: {r: 1, g: 1, b: 1, a: 1}
+  pressed:
+    sprite: {fileID: 0}
+    color: {r: 0.85, g: 0.62, b: 0.28, a: 1}
+    scaleMultiplier: {x: 0.98, y: 0.98}
+    textColor: {r: 1, g: 1, b: 1, a: 1}
+    childIconColor: {r: 1, g: 1, b: 1, a: 1}
+  disabled:
+    sprite: {fileID: 0}
+    color: {r: 0.42, g: 0.42, b: 0.42, a: 1}
+    scaleMultiplier: {x: 1, y: 1}
+    textColor: {r: 1, g: 1, b: 1, a: 1}
+    childIconColor: {r: 1, g: 1, b: 1, a: 1}
+  selected:
+    sprite: {fileID: 0}
+    color: {r: 0.92, g: 0.62, b: 0.2, a: 1}
+    scaleMultiplier: {x: 1, y: 1}
+    textColor: {r: 1, g: 1, b: 1, a: 1}
+    childIconColor: {r: 1, g: 1, b: 1, a: 1}

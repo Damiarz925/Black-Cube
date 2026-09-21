@@ -9,6 +9,7 @@ using UnityEngine.UI;
 
 public class PaperBattleHUD : MonoBehaviour
 {
+    [SerializeField] GameplayHUDView authoredView;
     public TMP_Text runText;
     public TMP_Text playerText;
     public TMP_Text enemyText;
@@ -47,18 +48,36 @@ public class PaperBattleHUD : MonoBehaviour
 
     void Awake()
     {
-        RemoveLegacyTopHUD();
+        BindAuthoredHUD();
         if(GetComponent<StatusHUD>()==null)gameObject.AddComponent<StatusHUD>();
-        if(GetComponent<SkillTreeUI>()==null)gameObject.AddComponent<SkillTreeUI>();
+        if(GetComponent<SkillTreeUI>()==null)Debug.LogError("PaperBattleHUD is missing its authored SkillTreeUI controller.",this);
         if(GetComponent<PlayerSkillMenuUI>()==null)gameObject.AddComponent<PlayerSkillMenuUI>();
         var rebirth=GetComponent<RebirthConfirmationUI>();if(rebirth==null)rebirth=gameObject.AddComponent<RebirthConfirmationUI>();rebirth.Build();
         challengeLauncher=GetComponent<ChallengeLauncherUI>();if(challengeLauncher==null)challengeLauncher=gameObject.AddComponent<ChallengeLauncherUI>();challengeLauncher.Build();
         endgameItemization=GetComponent<EndgameItemizationUI>();if(endgameItemization==null)endgameItemization=gameObject.AddComponent<EndgameItemizationUI>();endgameItemization.Build();
         enemyInspection=GetComponent<EnemyInspectionPanelUI>();if(enemyInspection==null)enemyInspection=gameObject.AddComponent<EnemyInspectionPanelUI>();enemyInspection.Initialize(this);
         InventoryEquipmentPanelUI.SeparateStats(statsPanel);
-        BuildTopHUD();
         pauseMenu=GetComponent<PauseMenuUI>();if(pauseMenu==null)pauseMenu=gameObject.AddComponent<PauseMenuUI>();pauseMenu.Initialize(this);
         var corruptionTheme=GetComponent<CorruptionUITheme>();if(corruptionTheme==null)corruptionTheme=gameObject.AddComponent<CorruptionUITheme>();corruptionTheme.Initialize(this,enemyInspection);
+    }
+
+    public void SetAuthoredView(GameplayHUDView view)=>authoredView=view;
+
+    void BindAuthoredHUD()
+    {
+        if(authoredView==null)authoredView=GetComponent<GameplayHUDView>();
+        if(authoredView==null){Debug.LogError("PaperBattleHUD requires an authored GameplayHUDView. Run Black-Cube/UI Authoring/Build Gameplay HUD.",this);return;}
+        artworkRect=authoredView.artworkRoot;playerPortrait=authoredView.playerPortrait;enemyPortrait=authoredView.enemyPortrait;playerText=authoredView.playerName;enemyText=authoredView.enemyName;runText=authoredView.runSummary;
+        playerHealthFill=authoredView.playerLifeFill;playerManaFill=authoredView.playerManaFill;enemyHealthFill=authoredView.enemyLifeFill;enemyManaFill=authoredView.enemyManaFill;
+        playerHealthText=authoredView.playerLifeText;playerManaText=authoredView.playerManaText;enemyHealthText=authoredView.enemyLifeText;enemyManaText=authoredView.enemyManaText;
+        if(authoredView.inventoryPanel!=null)inventoryPanel=authoredView.inventoryPanel;if(authoredView.statsPanel!=null)statsPanel=authoredView.statsPanel;
+        BindButton(TopHUDButtonKind.Skills,authoredView.skillsButton,ToggleSkills);BindButton(TopHUDButtonKind.Passives,authoredView.passivesButton,TogglePassives);BindButton(TopHUDButtonKind.Enemy,authoredView.enemyButton,ToggleEnemyInspection);BindButton(TopHUDButtonKind.Inventory,authoredView.inventoryButton,ToggleInventory);BindButton(TopHUDButtonKind.Stats,authoredView.statsButton,ToggleStats);BindButton(TopHUDButtonKind.Pause,authoredView.pauseButton,PauseGameplay);BindButton(TopHUDButtonKind.Play,authoredView.playButton,PlayGameplay);ConfigureNavigation();
+    }
+
+    void BindButton(TopHUDButtonKind kind,Button button,UnityAction action)
+    {
+        if(button==null){Debug.LogError("Missing authored HUD button: "+kind,this);return;}button.onClick.RemoveAllListeners();button.onClick.AddListener(action);buttons[kind]=button;
+        HUDSpriteState state=button.GetComponent<HUDSpriteState>();if(state==null){Debug.LogError("Missing authored HUDSpriteState: "+kind,button);return;}UIVisualLibrarySO library=authoredView.GetComponent<UIAuthoringScreen>()?.VisualLibrary;HUDButtonVisualSet visuals=library?.HUDButton(kind);if(visuals!=null)state.Configure(button,visuals.normal,visuals.hover,visuals.pressed);else state.Bind(button);buttonStates[kind]=state;
     }
 
     void OnEnable()
@@ -100,6 +119,9 @@ public class PaperBattleHUD : MonoBehaviour
         return string.IsNullOrEmpty(value)?raw.Trim():value;
     }
 
+#if UNITY_EDITOR
+    // Explicit one-shot default-layout generator used only by GameplayHUDAuthoringBuilder.
+    // Production runtime binds the serialized GameplayHUDView and never executes this code.
     void BuildTopHUD()
     {
         if(transform.Find("Top HUD Artwork")!=null)return;
@@ -157,6 +179,7 @@ public class PaperBattleHUD : MonoBehaviour
         var go=new GameObject(kind+" Button",typeof(RectTransform),typeof(Image),typeof(Button),typeof(HUDSpriteState));go.transform.SetParent(artworkRect,false);TopHUDLayout.Apply((RectTransform)go.transform,TopHUDLayout.ButtonRect(kind));
         var button=go.GetComponent<Button>();button.targetGraphic=go.GetComponent<Image>();button.onClick.AddListener(action);var state=go.GetComponent<HUDSpriteState>();state.Initialize(button,kind);buttons[kind]=button;buttonStates[kind]=state;
     }
+#endif
 
     void ConfigureNavigation()
     {
@@ -215,13 +238,13 @@ public class PaperBattleHUD : MonoBehaviour
 
     public static void SetPortrait(Image image,Sprite sprite,bool enemy)
     {
-        if(image==null)return;image.sprite=sprite;image.enabled=sprite!=null;image.color=sprite!=null?Color.white:Color.clear;HUDPortraitFraming.Calculate(sprite,enemy).Apply(image.rectTransform);
+        if(image==null)return;image.sprite=sprite;image.enabled=sprite!=null;image.color=sprite!=null?Color.white:Color.clear;
     }
 
     void RefreshRunText()
     {
         if(runText==null)return;ZoneManager zone=FindFirstObjectByType<ZoneManager>();GameManager run=GameManager.Instance;string location=zone!=null?zone.LocationLabel.ToUpperInvariant():"FOREST 1";
-        string progress=run==null?string.Empty:$"  /  LEVEL {run.CurrentCombatLevel}  /  STAGE {run.EncounterStage}/{run.NormalKillsRequired+1}"+(run.BossActive?"  /  BOSS":string.Empty);runText.text="BLACK CUBE  /  "+location+progress;PositionBelowArtwork(runText.rectTransform,18,3,620,24);
+        string progress=run==null?string.Empty:$"  /  LEVEL {run.CurrentCombatLevel}  /  STAGE {run.EncounterStage}/{run.NormalKillsRequired+1}"+(run.BossActive?"  /  BOSS":string.Empty);runText.text="BLACK CUBE  /  "+location+progress;
     }
 
     void RefreshMenuStates()
@@ -251,10 +274,5 @@ public class PaperBattleHUD : MonoBehaviour
     void OnDestroy()
     {
         pauseMenu?.Release();ReleaseBindings();
-        if(runText!=null&&runText.transform.parent!=transform)
-        {
-            GameObject ownedRunText=runText.gameObject;runText=null;
-            if(Application.isPlaying)Destroy(ownedRunText);else DestroyImmediate(ownedRunText);
-        }
     }
 }

@@ -63,10 +63,13 @@ public static class UIAuthoringValidation
 
     static void ValidatePrefabBindings(List<string> errors)
     {
-        var ids = new Dictionary<string, string>(StringComparer.Ordinal);
         foreach (string guid in AssetDatabase.FindAssets("t:Prefab"))
         {
             string path = AssetDatabase.GUIDToAssetPath(guid); GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(path); if (prefab == null) continue;
+            // IDs identify controls within one authored screen. Reusable prefab assets and their
+            // production instances intentionally carry the same IDs, so uniqueness is scoped to
+            // each prefab rather than the entire AssetDatabase.
+            var ids = new Dictionary<string, string>(StringComparer.Ordinal);
             foreach (UIAuthoringElement item in prefab.GetComponentsInChildren<UIAuthoringElement>(true)) AddId(item.StableUiId, path, errors, ids);
             foreach (PassiveNodeBinding item in prefab.GetComponentsInChildren<PassiveNodeBinding>(true)) { AddId(item.StableUiId, path, errors, ids); if (string.IsNullOrWhiteSpace(item.LogicalSlotId)) errors.Add(path + ": passive node binding has no logical slot ID."); }
             foreach (PassiveBranchBinding branch in prefab.GetComponentsInChildren<PassiveBranchBinding>(true))
