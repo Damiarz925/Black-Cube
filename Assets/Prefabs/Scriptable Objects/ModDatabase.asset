@@ -16,6 +16,7 @@ MonoBehaviour:
   - statType: 0
     displayName: Weapon Damage
     allowedSlots: 07000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -59,11 +60,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 15
     tierSpread: 0.35
   - statType: 1
     displayName: Weapon Attack Speed
     allowedSlots: 07000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -107,11 +115,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 2
     displayName: Weapon Base Critical Chance
     allowedSlots: 07000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -155,11 +170,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 3
     displayName: Chance to Block
-    allowedSlots:
+    allowedSlots: 
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -203,11 +225,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 5
     tierSpread: 0.35
   - statType: 4
     displayName: Added Physical Damage
     allowedSlots: 07000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -251,11 +280,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 15
     tierSpread: 0.35
   - statType: 5
     displayName: Added Cold Damage
     allowedSlots: 07000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -299,11 +335,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 15
     tierSpread: 0.35
   - statType: 6
     displayName: Added Lightning Damage
     allowedSlots: 07000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -347,11 +390,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 15
     tierSpread: 0.35
   - statType: 7
     displayName: Added Fire Damage
     allowedSlots: 07000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -395,11 +445,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 15
     tierSpread: 0.35
   - statType: 8
     displayName: Increased Damage
     allowedSlots: 03000000000000000200000004000000050000000100000007000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -443,11 +500,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 8
     tierSpread: 0.35
   - statType: 9
     displayName: More Damage
     allowedSlots: 03000000000000000200000004000000050000000100000007000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -491,11 +555,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 10
     displayName: Damage Over Time Multiplier
     allowedSlots: 03000000000000000200000004000000050000000100000007000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -539,11 +610,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 11
     displayName: Increased Critical Strike Chance
     allowedSlots: 030000000000000004000000050000000100000007000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 1
     tiers:
@@ -587,11 +665,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 8
     tierSpread: 0.35
   - statType: 12
     displayName: Critical Strike Multiplier
     allowedSlots: 030000000100000007000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 1
     tiers:
@@ -635,11 +720,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 13
     displayName: Added Base Critical Chance
     allowedSlots: 030000000100000007000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -683,11 +775,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 3
     tierSpread: 0.35
   - statType: 14
     displayName: Increased Physical Damage
     allowedSlots: 03000000000000000100000007000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -731,11 +830,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 8
     tierSpread: 0.35
   - statType: 15
     displayName: Increased Cold Damage
     allowedSlots: 0300000004000000050000000100000007000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -779,11 +885,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 8
     tierSpread: 0.35
   - statType: 16
     displayName: Increased Lightning Damage
     allowedSlots: 04000000050000000100000007000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -827,11 +940,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 8
     tierSpread: 0.35
   - statType: 17
     displayName: Increased Fire Damage
     allowedSlots: 00000000050000000100000007000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -875,11 +995,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 8
     tierSpread: 0.35
   - statType: 18
     displayName: More Physical Damage
     allowedSlots: 03000000000000000100000007000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -923,11 +1050,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 19
     displayName: More Cold Damage
     allowedSlots: 0300000004000000050000000100000007000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -971,11 +1105,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 20
     displayName: More Lightning Damage
     allowedSlots: 04000000050000000100000007000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -1019,11 +1160,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 21
     displayName: More Fire Damage
     allowedSlots: 00000000050000000100000007000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -1067,11 +1215,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 22
     displayName: Physical Penetration
     allowedSlots: 03000000000000000100000007000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -1115,11 +1270,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 5
     tierSpread: 0.35
   - statType: 23
     displayName: Cold Penetration
     allowedSlots: 0300000004000000050000000100000007000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -1163,11 +1325,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 5
     tierSpread: 0.35
   - statType: 24
     displayName: Lightning Penetration
     allowedSlots: 04000000050000000100000007000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -1211,11 +1380,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 25
     displayName: Fire Penetration
     allowedSlots: 00000000050000000100000007000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -1259,11 +1435,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 5
     tierSpread: 0.35
   - statType: 26
     displayName: Increased Poison Damage
     allowedSlots: 03000000040000000100000007000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -1307,11 +1490,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 8
     tierSpread: 0.35
   - statType: 27
     displayName: Increased Ignite Damage
     allowedSlots: 000000000100000007000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -1355,11 +1545,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 8
     tierSpread: 0.35
   - statType: 28
     displayName: Increased Bleed Damage
     allowedSlots: 03000000000000000100000007000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -1403,11 +1600,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 8
     tierSpread: 0.35
   - statType: 29
     displayName: More Poison Damage
     allowedSlots: 03000000040000000100000007000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -1451,11 +1655,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 30
     displayName: More Ignite Damage
     allowedSlots: 000000000100000007000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -1499,11 +1710,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 31
     displayName: More Bleed Damage
     allowedSlots: 03000000000000000100000007000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -1547,11 +1765,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 32
     displayName: Chance to Poison
     allowedSlots: 03000000040000000100000007000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 1
     tiers:
@@ -1595,11 +1820,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 33
     displayName: Chance to Ignite
     allowedSlots: 000000000100000007000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 1
     tiers:
@@ -1643,11 +1875,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 34
     displayName: Chance to Bleed
     allowedSlots: 03000000000000000100000007000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 1
     tiers:
@@ -1691,11 +1930,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 35
     displayName: Poison Speed
     allowedSlots: 03000000040000000100000007000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -1739,11 +1985,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 5
     tierSpread: 0.35
   - statType: 36
     displayName: Ignite Speed
     allowedSlots: 000000000100000007000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -1787,11 +2040,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 5
     tierSpread: 0.35
   - statType: 37
     displayName: Bleed Speed
     allowedSlots: 03000000000000000100000007000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -1835,11 +2095,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 5
     tierSpread: 0.35
   - statType: 38
     displayName: Poison Duration
     allowedSlots: 03000000040000000100000007000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 1
     tiers:
@@ -1883,11 +2150,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 5
     tierSpread: 0.35
   - statType: 39
     displayName: Ignite Duration
     allowedSlots: 000000000100000007000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 1
     tiers:
@@ -1931,11 +2205,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 5
     tierSpread: 0.35
   - statType: 40
     displayName: Bleed Duration
     allowedSlots: 03000000000000000100000007000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 1
     tiers:
@@ -1979,11 +2260,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 5
     tierSpread: 0.35
   - statType: 41
     displayName: Poison Penetration
     allowedSlots: 03000000040000000100000007000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -2027,11 +2315,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 4
     tierSpread: 0.35
   - statType: 42
     displayName: Ignite Penetration
     allowedSlots: 000000000100000007000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -2075,11 +2370,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 4
     tierSpread: 0.35
   - statType: 43
     displayName: Bleed Penetration
     allowedSlots: 03000000000000000100000007000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -2123,11 +2425,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 4
     tierSpread: 0.35
   - statType: 44
     displayName: Chance to Shock
     allowedSlots: 040000000500000007000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 1
     tiers:
@@ -2171,11 +2480,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 4
     tierSpread: 0.35
   - statType: 45
     displayName: Chance to Chill
     allowedSlots: 040000000500000007000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 1
     tiers:
@@ -2219,11 +2535,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 4
     tierSpread: 0.35
   - statType: 46
     displayName: Shock Effect
     allowedSlots: 040000000500000007000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -2267,11 +2590,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 4
     tierSpread: 0.35
   - statType: 47
     displayName: Chill Effect
     allowedSlots: 040000000500000007000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -2315,11 +2645,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 4
     tierSpread: 0.35
   - statType: 48
     displayName: Shock Duration
     allowedSlots: 040000000500000007000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 1
     tiers:
@@ -2363,11 +2700,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 4
     tierSpread: 0.35
   - statType: 49
     displayName: Chill Duration
     allowedSlots: 040000000500000007000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 1
     tiers:
@@ -2411,11 +2755,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 4
     tierSpread: 0.35
   - statType: 50
     displayName: Added Armour
     allowedSlots: 03000000000000000200000004000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -2459,11 +2810,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 51
     displayName: Added Evasion
-    allowedSlots:
+    allowedSlots: 
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -2507,11 +2865,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 52
     displayName: Increased Armour
     allowedSlots: 03000000000000000200000004000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -2555,11 +2920,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 4
     tierSpread: 0.35
   - statType: 53
     displayName: Increased Evasion
-    allowedSlots:
+    allowedSlots: 
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -2603,11 +2975,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 4
     tierSpread: 0.35
   - statType: 54
     displayName: Cold Resistance
     allowedSlots: 03000000000000000200000004000000050000000100000006000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 1
     tiers:
@@ -2651,11 +3030,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 55
     displayName: Lightning Resistance
     allowedSlots: 03000000000000000200000004000000050000000100000006000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 1
     tiers:
@@ -2699,11 +3085,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 56
     displayName: Fire Resistance
     allowedSlots: 03000000000000000200000004000000050000000100000006000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 1
     tiers:
@@ -2747,11 +3140,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 57
     displayName: All Elemental Resistance
     allowedSlots: 00000000020000000500000006000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 1
     tiers:
@@ -2795,11 +3195,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 4
     tierSpread: 0.35
   - statType: 58
     displayName: Maximum Cold Resistance
     allowedSlots: 0000000002000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -2843,11 +3250,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 59
     displayName: Maximum Lightning Resistance
     allowedSlots: 0000000002000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -2891,11 +3305,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 60
     displayName: Maximum Fire Resistance
     allowedSlots: 0000000002000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -2939,11 +3360,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 61
     displayName: Maximum All Resistance
     allowedSlots: 0200000006000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -2987,11 +3415,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 4
     tierSpread: 0.35
   - statType: 62
     displayName: Poison Resistance
     allowedSlots: 000000000200000004000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -3035,11 +3470,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 63
     displayName: Ignite Resistance
     allowedSlots: 000000000200000004000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -3083,11 +3525,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 64
     displayName: Bleed Resistance
     allowedSlots: 000000000200000004000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -3131,11 +3580,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 65
     displayName: Shock Resistance
     allowedSlots: 000000000200000004000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -3179,11 +3635,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 66
     displayName: Chill Resistance
     allowedSlots: 000000000200000004000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -3227,11 +3690,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 67
     displayName: All Ailment Resistance
     allowedSlots: 02000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -3275,11 +3745,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 4
     tierSpread: 0.35
   - statType: 68
     displayName: Added Life
     allowedSlots: 03000000000000000200000004000000050000000100000006000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -3323,11 +3800,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 15
     tierSpread: 0.35
   - statType: 69
     displayName: Added Mana
     allowedSlots: 03000000000000000200000004000000050000000100000006000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -3371,11 +3855,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 15
     tierSpread: 0.35
   - statType: 70
     displayName: Increased Life
     allowedSlots: 02000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -3419,11 +3910,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 71
     displayName: Increased Mana
     allowedSlots: 0200000004000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -3467,11 +3965,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 72
     displayName: Life Regeneration
     allowedSlots: 0000000002000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 1
     tiers:
@@ -3515,11 +4020,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 73
     displayName: Mana Regeneration
     allowedSlots: 000000000200000004000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -3563,11 +4075,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 74
     displayName: Life on Hit
     allowedSlots: 02000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 1
     tiers:
@@ -3611,11 +4130,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 75
     displayName: Mana on Hit
     allowedSlots: 0200000004000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 1
     tiers:
@@ -3659,11 +4185,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 76
     displayName: Life on Kill
     allowedSlots: 02000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 1
     tiers:
@@ -3707,11 +4240,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 77
     displayName: Mana on Kill
     allowedSlots: 0200000004000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 1
     tiers:
@@ -3755,11 +4295,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 78
     displayName: Damage per 100 Maximum Mana
     allowedSlots: 04000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -3803,11 +4350,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 79
     displayName: Damage per 100 Current Mana
     allowedSlots: 04000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -3851,19 +4405,33 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 80
     displayName: 
-    allowedSlots:
+    allowedSlots: 
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers: []
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 81
     displayName: Increased Attack Speed
     allowedSlots: 03000000050000000100000007000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 1
     tiers:
@@ -3907,11 +4475,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 82
     displayName: Accuracy
-    allowedSlots:
+    allowedSlots: 
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -3955,11 +4530,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 83
     displayName: Chance to Hit Twice
     allowedSlots: 010000000600000007000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 1
     tiers:
@@ -4003,19 +4585,33 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 84
     displayName: 
-    allowedSlots:
+    allowedSlots: 
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers: []
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 85
     displayName: +1 Physical Skill Level
     allowedSlots: 01000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -4027,11 +4623,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 86
     displayName: +1 Fire Skill Level
     allowedSlots: 01000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -4043,11 +4646,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 87
     displayName: +1 Cold Skill Level
     allowedSlots: 01000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -4059,11 +4669,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 88
     displayName: +1 Lightning Skill Level
     allowedSlots: 01000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -4075,11 +4692,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 89
     displayName: +1 Poison Skill Level
     allowedSlots: 01000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -4091,11 +4715,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 90
     displayName: +1 Bleed Skill Level
     allowedSlots: 01000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -4107,11 +4738,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 91
     displayName: +1 Ignite Skill Level
     allowedSlots: 01000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -4123,11 +4761,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 92
     displayName: Strength
     allowedSlots: 03000000000000000200000004000000050000000100000006000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 1
     tiers:
@@ -4171,11 +4816,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 93
     displayName: Intelligence
     allowedSlots: 03000000000000000200000004000000050000000100000006000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 1
     tiers:
@@ -4219,11 +4871,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 94
     displayName: Dexterity
     allowedSlots: 03000000000000000200000004000000050000000100000006000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 1
     tiers:
@@ -4267,11 +4926,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 95
     displayName: Increased Strength
     allowedSlots: 000000000200000006000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -4315,11 +4981,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 96
     displayName: Increased Intelligence
     allowedSlots: 020000000400000006000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -4363,11 +5036,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 97
     displayName: Increased Dexterity
     allowedSlots: 030000000200000006000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -4411,11 +5091,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 98
     displayName: Life per Strength
     allowedSlots: 000000000200000006000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -4459,11 +5146,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 99
     displayName: Damage per Strength
     allowedSlots: 000000000200000006000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -4507,11 +5201,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 100
     displayName: Mana per Intelligence
     allowedSlots: 020000000400000006000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -4555,11 +5256,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 101
     displayName: DoT Multiplier per Intelligence
     allowedSlots: 020000000400000006000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -4603,11 +5311,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 102
     displayName: Attack Speed per Dexterity
     allowedSlots: 030000000200000006000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -4651,11 +5366,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 103
     displayName: Accuracy per Dexterity
-    allowedSlots:
+    allowedSlots: 
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -4699,11 +5421,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 104
     displayName: Added Fire Damage per Strength
     allowedSlots: 06000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -4747,11 +5476,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 105
     displayName: Added Lightning Damage per Intelligence
     allowedSlots: 06000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -4795,11 +5531,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 106
     displayName: Added Cold Damage per Dexterity
     allowedSlots: 06000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -4843,11 +5586,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 107
     displayName: Damage per Lowest Attribute
     allowedSlots: 06000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -4891,59 +5641,108 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 108
     displayName: 
     allowedSlots: 
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers: []
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 109
     displayName: 
     allowedSlots: 
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers: []
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 110
     displayName: 
     allowedSlots: 
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers: []
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 111
     displayName: 
     allowedSlots: 
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers: []
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 112
     displayName: 
     allowedSlots: 
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers: []
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 113
     displayName: 
     allowedSlots: 
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers: []
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 114
     displayName: Added Void Damage
     allowedSlots: 07000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -4987,11 +5786,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 15
     tierSpread: 0.35
   - statType: 115
     displayName: Increased Void Damage
     allowedSlots: 00000000050000000100000007000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -5035,11 +5841,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 8
     tierSpread: 0.35
   - statType: 116
     displayName: More Void Damage
     allowedSlots: 00000000050000000100000007000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -5083,11 +5896,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 117
     displayName: Void Penetration
     allowedSlots: 00000000050000000100000007000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -5131,11 +5951,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 5
     tierSpread: 0.35
   - statType: 118
     displayName: Void Resistance
     allowedSlots: 03000000000000000200000004000000050000000100000006000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 1
     tiers:
@@ -5179,11 +6006,18 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 119
     displayName: Maximum Void Resistance
     allowedSlots: 0000000002000000i
+    allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
@@ -5227,5 +6061,146 @@ MonoBehaviour:
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 120
+    displayName: 
+    allowedSlots: 
+    allowedWeaponTypeIds: []
+    groups: []
+    side: 0
+    tiers: []
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 121
+    displayName: 
+    allowedSlots: 
+    allowedWeaponTypeIds: []
+    groups: []
+    side: 0
+    tiers: []
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 122
+    displayName: 
+    allowedSlots: 
+    allowedWeaponTypeIds: []
+    groups: []
+    side: 0
+    tiers: []
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 123
+    displayName: 
+    allowedSlots: 
+    allowedWeaponTypeIds: []
+    groups: []
+    side: 0
+    tiers: []
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 124
+    displayName: 
+    allowedSlots: 
+    allowedWeaponTypeIds: []
+    groups: []
+    side: 0
+    tiers: []
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 125
+    displayName: 
+    allowedSlots: 
+    allowedWeaponTypeIds: []
+    groups: []
+    side: 0
+    tiers: []
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 126
+    displayName: 
+    allowedSlots: 
+    allowedWeaponTypeIds: []
+    groups: []
+    side: 0
+    tiers: []
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 127
+    displayName: 
+    allowedSlots: 
+    allowedWeaponTypeIds: []
+    groups: []
+    side: 0
+    tiers: []
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 128
+    displayName: 
+    allowedSlots: 
+    allowedWeaponTypeIds: []
+    groups: []
+    side: 0
+    tiers: []
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
     tierTopMultiplier: 6
     tierSpread: 0.35
