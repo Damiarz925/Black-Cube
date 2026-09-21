@@ -1,4 +1,4 @@
-// Developer map: Session XP and the 366-node six-sector Passive Tree V2 on GameManager.
+// Developer map: Session XP and Passive Tree V3 route allocation on GameManager.
 // Allocations replace stat modifiers by this component as source; encounter restart retains them.
 using System;
 using System.Collections.Generic;
@@ -15,7 +15,6 @@ public sealed class PlayerProgression : MonoBehaviour
     [SerializeField] double experience;
     [SerializeField] int availablePoints = 1;
     [SerializeField] int[] ranks = new int[PassiveTreeDefinition.NodeCount];
-    [SerializeField] List<int> transformedNodeIds = new();
 
     const double ReqAtLevel10Xp = 300d;
     const double ReqAtLevel16Xp = 619d;
@@ -52,42 +51,25 @@ public sealed class PlayerProgression : MonoBehaviour
     public int Rank(int node) => ranks != null && node >= 0 && node < ranks.Length && ranks[node] != 0 ? 1 : 0;
     public int[] CopyRanks() => ranks != null ? (int[])ranks.Clone() : new int[PassiveTreeDefinition.NodeCount];
     public bool IsAllocated(int node) => Rank(node) > 0;
-    public bool IsTransformed(int node)=>transformedNodeIds!=null&&transformedNodeIds.Contains(node);
-    public int TransformedCount=>transformedNodeIds?.Count??0;
-    public string[] CopyTransformedStableIds(){var result=new List<string>();if(transformedNodeIds!=null)foreach(int id in transformedNodeIds)if(id>=0&&id<PassiveTreeDefinition.NodeCount)result.Add(PassiveTreeDefinition.Node(id).StableId);return result.ToArray();}
-    public bool CanTransform(int node)
-    {
-        if(!IsAllocated(node)||IsTransformed(node)||TransformedCount>=SubclassTransformationProfile.MaximumTransformedNodes)return false;
-        var definition=PassiveTreeDefinition.Node(node);if(definition.Kind is PassiveNodeKind.ClassStart or PassiveNodeKind.Keystone||definition.ExtensionMetadata?.SupportsTransformation==false)return false;
-        if((identity??=GetComponent<PlayerIdentityState>())==null||!identity.HasSubclassSigil||string.IsNullOrEmpty(identity.SelectedSubclassId))return false;
-        if(TransformedCount==0)return true;foreach(int adjacent in PassiveTreeDefinition.AdjacentNodeIds(node))if(IsTransformed(adjacent))return true;return false;
-    }
-    public bool TryTransform(int node){if(!CanTransform(node))return false;transformedNodeIds.Add(node);ApplySkills();Changed?.Invoke();GamePersistence.MarkDirty();return true;}
-    public bool TryRemoveTransformation(int node){if(!IsTransformed(node))return false;transformedNodeIds.Remove(node);if(!ValidTransformedConnectivity())transformedNodeIds.Add(node);else{ApplySkills();Changed?.Invoke();GamePersistence.MarkDirty();return true;}return false;}
-    public void ClearTransformations(){if(transformedNodeIds==null||transformedNodeIds.Count==0)return;transformedNodeIds.Clear();ApplySkills();Changed?.Invoke();GamePersistence.MarkDirty();}
-    public bool RestoreTransformations(IEnumerable<string> stableIds)
-    {
-        var restored=new List<int>();if(stableIds!=null)foreach(string stable in stableIds){int id=PassiveTreeDefinition.NodeId(stable);if(id<0||!IsAllocated(id)||PassiveTreeDefinition.IsClassStart(id)||PassiveTreeDefinition.IsKeystone(id)||restored.Contains(id)||restored.Count>=SubclassTransformationProfile.MaximumTransformedNodes)return false;restored.Add(id);}
-        transformedNodeIds=restored;if(!ValidTransformedConnectivity())return false;ApplySkills();Changed?.Invoke();return true;
-    }
-    bool ValidTransformedConnectivity(){if(TransformedCount<=1)return true;var reached=new HashSet<int>();var q=new Queue<int>();q.Enqueue(transformedNodeIds[0]);reached.Add(transformedNodeIds[0]);while(q.Count>0)foreach(int adjacent in PassiveTreeDefinition.AdjacentNodeIds(q.Dequeue()))if(IsTransformed(adjacent)&&reached.Add(adjacent))q.Enqueue(adjacent);return reached.Count==TransformedCount;}
     public bool HasKeystone(PassiveKeystone keystone)
     {
         if (keystone == PassiveKeystone.None) return false;
+        if(keystone==PassiveKeystone.RageFinisher)return IsAllocated(PassiveTreeDefinition.RageFinisherNodeId);
         foreach(var node in PassiveTreeDefinition.Nodes)
             if(node.Keystone==keystone&&IsAllocated(node.Id))return true;
         return false;
     }
     public string ActiveClassId=>(identity??=GetComponent<PlayerIdentityState>())?.BaseClassId??PlayerClassIds.Warrior;
     public int ActiveStartNodeId=>PassiveTreeDefinition.StartNodeId(ActiveClassId);
+    public bool NativeSpineComplete=>PassiveTreeDefinition.IsClassSpineComplete(ActiveClassId,IsAllocated);
     public bool CanSpend(int node)
     {
-        if (node < 0 || node >= PassiveTreeDefinition.NodeCount || PassiveTreeDefinition.IsClassStart(node)
-            || availablePoints < PassiveTreeDefinition.PointCost || IsAllocated(node))
-            return false;
-        if (PassiveTreeDefinition.IsRootConnected(node,ActiveClassId)) return true;
-        foreach (int adjacent in PassiveTreeDefinition.AdjacentNodeIds(node))
-            if (IsAllocated(adjacent)) return true;
+        if(node<0||node>=PassiveTreeDefinition.NodeCount||availablePoints<1||IsAllocated(node))return false;
+        var n=PassiveTreeDefinition.Node(node);
+        if(n.IsSubclassChoice){var state=identity??=GetComponent<PlayerIdentityState>();if(n.RouteClassId!=ActiveClassId||state?.SubclassChoiceUnlocked!=true||string.IsNullOrEmpty(state.SelectedSubclassId))return false;}
+        if(n.IsChoice){if(!IsAllocated(n.PrerequisiteId))return false;foreach(int sibling in PassiveTreeDefinition.ChoiceNodes(n.ChoiceGroupId))if(IsAllocated(sibling))return false;return true;}
+        if(n.Kind==PassiveNodeKind.Spine){if(n.Tier==1)return n.RouteClassId==ActiveClassId||NativeSpineComplete;return IsAllocated(PassiveTreeDefinition.ClassSpineNode(n.RouteClassId,n.Tier-1));}
+        if(n.Kind==PassiveNodeKind.WeaponSpine){if(n.Tier==1)return PassiveTreeDefinition.IsClassSpineComplete(PassiveTreeDefinition.WeaponClass(n.RouteWeaponId),IsAllocated);return IsAllocated(PassiveTreeDefinition.WeaponSpineNode(n.RouteWeaponId,n.Tier-1));}
         return false;
     }
 
@@ -106,35 +88,22 @@ public sealed class PlayerProgression : MonoBehaviour
     public bool CanRefund(int node)
     {
         if (!IsAllocated(node)) return false;
-        var reachable = new bool[PassiveTreeDefinition.NodeCount];
-        var queue = new Queue<int>();
-        for (int id = 0; id < PassiveTreeDefinition.NodeCount; id++)
+        var n=PassiveTreeDefinition.Node(node);if(n.IsChoice)return true;
+        if(n.Kind==PassiveNodeKind.Spine)
         {
-            if (id != node && IsAllocated(id) && PassiveTreeDefinition.IsRootConnected(id,ActiveClassId))
-            {
-                reachable[id] = true;
-                queue.Enqueue(id);
-            }
+            for(int t=n.Tier+1;t<=10;t++)if(IsAllocated(PassiveTreeDefinition.ClassSpineNode(n.RouteClassId,t)))return false;
+            foreach(int id in PassiveTreeDefinition.RouteNodes(n.RouteClassId))if(id!=node&&IsAllocated(id)&&PassiveTreeDefinition.Node(id).Tier>=n.Tier)return false;
+            string weapon=PassiveTreeDefinition.SignatureWeapon(n.RouteClassId);foreach(int id in PassiveTreeDefinition.RouteNodes(null,weapon))if(IsAllocated(id))return false;
+            if(n.RouteClassId==ActiveClassId)foreach(var other in PassiveTreeDefinition.ClassIds)if(other!=ActiveClassId)foreach(int id in PassiveTreeDefinition.RouteNodes(other))if(IsAllocated(id))return false;
+            return true;
         }
-        while (queue.Count > 0)
-        {
-            int current = queue.Dequeue();
-            foreach (int adjacent in PassiveTreeDefinition.AdjacentNodeIds(current))
-            {
-                if (adjacent == node || reachable[adjacent] || !IsAllocated(adjacent)) continue;
-                reachable[adjacent] = true;
-                queue.Enqueue(adjacent);
-            }
-        }
-        for (int id = 0; id < PassiveTreeDefinition.NodeCount; id++)
-            if (id != node && IsAllocated(id) && !reachable[id]) return false;
-        return true;
+        if(n.Kind==PassiveNodeKind.WeaponSpine){for(int t=n.Tier+1;t<=5;t++)if(IsAllocated(PassiveTreeDefinition.WeaponSpineNode(n.RouteWeaponId,t)))return false;foreach(int id in PassiveTreeDefinition.RouteNodes(null,n.RouteWeaponId))if(id!=node&&IsAllocated(id)&&PassiveTreeDefinition.Node(id).Tier>=n.Tier)return false;return true;}
+        return false;
     }
 
     public bool TryRefund(int node)
     {
         if (!CanRefund(node)) return false;
-        if(IsTransformed(node))transformedNodeIds.Remove(node);
         ranks[node] = 0;
         availablePoints += PassiveTreeDefinition.PointCost;
         BindStats();
@@ -146,7 +115,6 @@ public sealed class PlayerProgression : MonoBehaviour
 
     public void RefundAll()
     {
-        transformedNodeIds?.Clear();
         int refunded=0;for(int i=0;i<ranks.Length;i++)if(ranks[i]!=0){ranks[i]=0;refunded++;}
         availablePoints+=refunded;BindStats();ApplySkills();Changed?.Invoke();GamePersistence.MarkDirty();
     }
@@ -198,7 +166,6 @@ public sealed class PlayerProgression : MonoBehaviour
         experience = 0;
         availablePoints = 1;
         ranks = new int[PassiveTreeDefinition.NodeCount];
-        transformedNodeIds = new List<int>();
         BindStats();
         ApplySkills();
         Changed?.Invoke();
@@ -218,11 +185,11 @@ public sealed class PlayerProgression : MonoBehaviour
             allocated += restoredRanks[i];
         }
         if (allocated + restoredAvailablePoints != restoredLevel) return false;
+        if(!ValidateAllocationState(restoredRanks,ActiveClassId,(identity??=GetComponent<PlayerIdentityState>())?.SelectedSubclassId))return false;
         level = restoredLevel;
         experience = restoredExperience;
         availablePoints = restoredAvailablePoints;
         ranks = (int[])restoredRanks.Clone();
-        transformedNodeIds = new List<int>();
         BindStats();
         ApplySkills();
         Changed?.Invoke();
@@ -258,7 +225,7 @@ public sealed class PlayerProgression : MonoBehaviour
             {
                 if(!IsAllocated(node.Id))continue;
                 if(!string.IsNullOrEmpty(node.WeaponTypeRestriction)&&node.WeaponTypeRestriction!=equipped)continue;
-                var effects=IsTransformed(node.Id)&&identity!=null?SubclassTransformationProfile.Effects(identity.SelectedSubclassId,node):node.Effects;
+                var effects=node.IsSubclassChoice&&identity!=null?PassiveTreeDefinition.SubclassEffects(identity.SelectedSubclassId,node):node.Effects;
                 foreach(var effect in effects)boundStats.AddModifier(new StatModifier(effect.Stat,StatOp.Flat,effect.Amount,this));
             }
             ApplySubclassCoreModifiers();
@@ -298,6 +265,23 @@ public sealed class PlayerProgression : MonoBehaviour
     void OnWeaponChanged(){if(boundStats==null)return;ApplySkills();Changed?.Invoke();}
     void OnIdentityChanged(){if(boundStats==null)return;ApplySkills();Changed?.Invoke();}
 
+    public int RefundSubclassChoiceNodes()
+    {int count=0;for(int i=0;i<ranks.Length;i++)if(ranks[i]!=0&&PassiveTreeDefinition.Node(i).IsSubclassChoice){ranks[i]=0;availablePoints++;count++;}if(count>0){ApplySkills();Changed?.Invoke();GamePersistence.MarkDirty();}return count;}
+    public static bool ValidateAllocationState(int[] values,string homeClass,string selectedSubclass)
+    {
+        if(values==null||values.Length!=PassiveTreeDefinition.NodeCount||!PlayerClassCatalog.IsValid(homeClass))return false;
+        bool A(int id)=>id>=0&&id<values.Length&&values[id]!=0;bool nativeComplete=PassiveTreeDefinition.IsClassSpineComplete(homeClass,A);
+        foreach(var n in PassiveTreeDefinition.Nodes)if(A(n.Id))
+        {
+            if(values[n.Id]!=1)return false;
+            if(n.IsChoice){if(!A(n.PrerequisiteId)||n.IsSubclassChoice&&(n.RouteClassId!=homeClass||string.IsNullOrEmpty(selectedSubclass)))return false;int chosen=0;foreach(int id in PassiveTreeDefinition.ChoiceNodes(n.ChoiceGroupId))if(A(id))chosen++;if(chosen>1)return false;}
+            else if(n.Kind==PassiveNodeKind.Spine){if(n.Tier==1){if(n.RouteClassId!=homeClass&&!nativeComplete)return false;}else if(!A(PassiveTreeDefinition.ClassSpineNode(n.RouteClassId,n.Tier-1)))return false;}
+            else if(n.Kind==PassiveNodeKind.WeaponSpine){if(n.Tier==1){if(!PassiveTreeDefinition.IsClassSpineComplete(PassiveTreeDefinition.WeaponClass(n.RouteWeaponId),A))return false;}else if(!A(PassiveTreeDefinition.WeaponSpineNode(n.RouteWeaponId,n.Tier-1)))return false;}
+            else return false;
+        }
+        return true;
+    }
+
     void AddPercent(StatTypes stat, PassiveBranch branch)
     {
         AddFlat(stat, branch);
@@ -321,7 +305,7 @@ public sealed class PlayerProgression : MonoBehaviour
 
         int[] legacy = ranks;
         ranks = new int[PassiveTreeDefinition.NodeCount];
-        // V1 node identities are intentionally not mapped to V2. Persistence
+        // Historical node identities are intentionally not mapped to V3. Persistence
         // refunds them from player level during schema migration.
     }
 

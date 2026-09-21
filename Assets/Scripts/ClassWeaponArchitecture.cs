@@ -31,12 +31,12 @@ public sealed class PlayerClassDefinition
 public static class PlayerClassCatalog
 {
     static readonly PlayerClassDefinition[] all={
-        new(PlayerClassIds.Warrior,"Warrior",WeaponTypeIds.Sword,"tree.v2.warrior.start"),
-        new(PlayerClassIds.Mage,"Mage",WeaponTypeIds.Staff,"tree.v2.mage.start"),
-        new(PlayerClassIds.Ranger,"Ranger",WeaponTypeIds.Bow,"tree.v2.ranger.start"),
-        new(PlayerClassIds.Barbarian,"Barbarian",WeaponTypeIds.TwoHandedAxe,"tree.v2.barbarian.start"),
-        new(PlayerClassIds.Priest,"Priest",WeaponTypeIds.Sceptre,"tree.v2.priest.start"),
-        new(PlayerClassIds.Thief,"Thief",WeaponTypeIds.Dagger,"tree.v2.thief.start")};
+        new(PlayerClassIds.Warrior,"Warrior",WeaponTypeIds.Sword,"tree.v3.class.warrior.t01.spine"),
+        new(PlayerClassIds.Mage,"Mage",WeaponTypeIds.Staff,"tree.v3.class.mage.t01.spine"),
+        new(PlayerClassIds.Ranger,"Ranger",WeaponTypeIds.Bow,"tree.v3.class.ranger.t01.spine"),
+        new(PlayerClassIds.Barbarian,"Barbarian",WeaponTypeIds.TwoHandedAxe,"tree.v3.class.barbarian.t01.spine"),
+        new(PlayerClassIds.Priest,"Priest",WeaponTypeIds.Sceptre,"tree.v3.class.priest.t01.spine"),
+        new(PlayerClassIds.Thief,"Thief",WeaponTypeIds.Dagger,"tree.v3.class.thief.t01.spine")};
     public static IReadOnlyList<PlayerClassDefinition> All=>all;
     public static bool TryGet(string id,out PlayerClassDefinition value){foreach(var x in all)if(x.Id==id){value=x;return true;}value=null;return false;}
     public static bool IsValid(string id)=>TryGet(id,out _);
@@ -110,7 +110,7 @@ public static class SubclassCatalog
     public static bool TryGet(string id,out SubclassDefinition value)
     {if(developerFixtures.TryGetValue(id,out value))return true;foreach(var x in production)if(x.Id==id){value=x;return true;}value=null;return false;}
     public static IReadOnlyList<SubclassDefinition> ForClass(string classId){var result=new List<SubclassDefinition>(2);foreach(var x in production)if(x.ParentClassId==classId)result.Add(x);return result;}
-    static SubclassDefinition New(string id,string parent,string name,string section,params string[] hooks)=>new(id,parent,name,"tree.transform."+section,hooks);
+    static SubclassDefinition New(string id,string parent,string name,string section,params string[] hooks)=>new(id,parent,name,"tree.v3.subclass."+section,hooks);
 #if UNITY_EDITOR
     public static bool RegisterDeveloperFixture(SubclassDefinition value)
     {if(value==null||string.IsNullOrWhiteSpace(value.Id)||!PlayerClassCatalog.IsValid(value.ParentClassId))return false;developerFixtures[value.Id]=value;return true;}
@@ -133,7 +133,6 @@ public sealed class PlayerIdentityState:MonoBehaviour
     public string BaseClassId{get;private set;}=PlayerClassIds.Warrior;
     public string SelectedSubclassId{get;private set;}=string.Empty;
     public bool SubclassChoiceUnlocked{get;private set;}
-    public bool HasSubclassSigil=>SubclassChoiceUnlocked;
     public SubclassProjectileMode ProjectileMode{get;private set;}
     public event Action Changed;
     public PlayerClassDefinition ClassDefinition=>PlayerClassCatalog.TryGet(BaseClassId,out var x)?x:null;
@@ -143,7 +142,7 @@ public sealed class PlayerIdentityState:MonoBehaviour
     public bool CompleteMilestone(string milestoneId)
     {if(milestoneId!=StoryCompletionMilestoneId)return false;SubclassChoiceUnlocked=true;Changed?.Invoke();GamePersistence.MarkDirty();return true;}
     public bool SelectSubclass(string id)
-    {if(!SubclassChoiceUnlocked||!SubclassCatalog.TryGet(id,out var value)||value.ParentClassId!=BaseClassId)return false;if(SelectedSubclassId!=id)GetComponent<PlayerProgression>()?.ClearTransformations();SelectedSubclassId=id;Changed?.Invoke();GamePersistence.MarkDirty();return true;}
+    {if(!SubclassChoiceUnlocked||!SubclassCatalog.TryGet(id,out var value)||value.ParentClassId!=BaseClassId)return false;if(SelectedSubclassId!=id)GetComponent<PlayerProgression>()?.RefundSubclassChoiceNodes();SelectedSubclassId=id;Changed?.Invoke();GamePersistence.MarkDirty();return true;}
     public bool SetProjectileMode(SubclassProjectileMode mode){if(SelectedSubclassId!=SubclassIds.RangerProjectile)return false;ProjectileMode=mode;Changed?.Invoke();GamePersistence.MarkDirty();return true;}
     public bool Restore(string classId,bool unlocked,string subclassId,SubclassProjectileMode mode=default)
     {
@@ -163,10 +162,6 @@ public sealed class PassiveExtensionMetadata
     public string SpecializationGroupId;
     public bool MutuallyExclusive;
     public bool IsTravelNode;
-    // Empty in production for Step 17; future subclass items populate these.
-    public string TransformationIdentity;
-    public PassiveEffect[] TransformedEffects=Array.Empty<PassiveEffect>();
-    public bool SupportsTransformation=true;
 }
 
 public static class WeaponSkillBindings

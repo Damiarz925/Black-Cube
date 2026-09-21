@@ -32,46 +32,6 @@ public static class SubclassEffectCatalog
     public static IEnumerable<SubclassEffectDefinition> ForSubclass(string id){foreach(var x in all)if(x.SubclassId==id)yield return x;}
 }
 
-public enum PassiveTheme{TravelStrength,TravelDexterity,TravelIntelligence,Life,Mana,Recovery,Crit,AttackSpeed,HitTwice,Physical,Fire,Cold,Lightning,Void,Bleed,Poison,Ignite,Shock,Chill,Projectile,Cooldown,Armour,Resistance,Aura,WeaponSpecific,Other}
-
-public static class SubclassTransformationProfile
-{
-    public const int MaximumTransformedNodes=10;
-    public static PassiveTheme Theme(PassiveNodeDefinition node)=>node.Branch switch
-    {
-        PassiveBranch.Strength=>PassiveTheme.TravelStrength,PassiveBranch.Dexterity=>PassiveTheme.TravelDexterity,PassiveBranch.Intelligence=>PassiveTheme.TravelIntelligence,
-        PassiveBranch.Life=>PassiveTheme.Life,PassiveBranch.Mana=>PassiveTheme.Mana,PassiveBranch.LifeRegeneration or PassiveBranch.ManaRegeneration or PassiveBranch.LifeOnHit or PassiveBranch.ManaOnHit or PassiveBranch.LifeOnKill or PassiveBranch.ManaOnKill=>PassiveTheme.Recovery,
-        PassiveBranch.CriticalChance or PassiveBranch.CriticalMultiplier=>PassiveTheme.Crit,PassiveBranch.AttackSpeed=>PassiveTheme.AttackSpeed,PassiveBranch.ChanceToHitTwice=>PassiveTheme.HitTwice,
-        PassiveBranch.Physical=>PassiveTheme.Physical,PassiveBranch.Fire=>PassiveTheme.Fire,PassiveBranch.Cold=>PassiveTheme.Cold,PassiveBranch.Lightning=>PassiveTheme.Lightning,PassiveBranch.Poison=>PassiveTheme.Void,
-        PassiveBranch.BleedChance=>PassiveTheme.Bleed,PassiveBranch.PoisonChance=>PassiveTheme.Poison,PassiveBranch.IgniteChance=>PassiveTheme.Ignite,PassiveBranch.ShockChance=>PassiveTheme.Shock,PassiveBranch.ChillChance=>PassiveTheme.Chill,
-        PassiveBranch.Projectile or PassiveBranch.ProjectileSpeed or PassiveBranch.PrecisionChance or PassiveBranch.PrecisionDamage or PassiveBranch.IncreasedProjectileAmount=>PassiveTheme.Projectile,
-        PassiveBranch.CastSpeed=>PassiveTheme.Cooldown,PassiveBranch.Defense=>PassiveTheme.Armour,_=>string.IsNullOrEmpty(node.WeaponTypeRestriction)?PassiveTheme.Other:PassiveTheme.WeaponSpecific
-    };
-
-    public static PassiveEffect[] Effects(string subclassId,PassiveNodeDefinition node)
-    {
-        float scale=node.Kind==PassiveNodeKind.Notable?2.5f:1f;PassiveTheme theme=Theme(node);
-        StatTypes stat=subclassId switch
-        {
-            SubclassIds.WarriorBleed=>theme is PassiveTheme.Life or PassiveTheme.Recovery?StatTypes.LifeOnHit:StatTypes.BleedDmg,
-            SubclassIds.WarriorMultihit=>theme==PassiveTheme.Crit?StatTypes.CritMult:StatTypes.AttackSpeed,
-            SubclassIds.BarbarianBigHit=>theme is PassiveTheme.Life or PassiveTheme.Armour?StatTypes.LifePercent:StatTypes.PhysMult,
-            SubclassIds.BarbarianFire=>theme==PassiveTheme.Ignite?StatTypes.IgniteDmg:StatTypes.FireDmg,
-            SubclassIds.RangerPoison=>theme==PassiveTheme.Projectile?StatTypes.PoisonChance:StatTypes.PoisonDmg,
-            SubclassIds.RangerProjectile=>theme==PassiveTheme.Crit?StatTypes.ProjectilePrecisionMultiplier:StatTypes.ProjectileDmg,
-            SubclassIds.MageCooldown=>theme is PassiveTheme.Mana or PassiveTheme.Recovery?StatTypes.ManaRegeneration:StatTypes.CooldownReduction,
-            SubclassIds.MageStorm=>theme==PassiveTheme.Crit?StatTypes.ShockChance:StatTypes.ShockEffect,
-            SubclassIds.PriestDark=>theme is PassiveTheme.Life or PassiveTheme.Recovery?StatTypes.VoidDmg:StatTypes.VoidMult,
-            SubclassIds.PriestLight=>theme==PassiveTheme.Recovery?StatTypes.LifeOnHit:StatTypes.AuraEffect,
-            SubclassIds.ThiefAssassin=>theme==PassiveTheme.AttackSpeed?StatTypes.CritMult:StatTypes.CritChance,
-            SubclassIds.ThiefAilmentCrit=>theme==PassiveTheme.Crit?StatTypes.CritMult:StatTypes.GenericDotMult,
-            _=>node.Effects.Length>0?node.Effects[0].Stat:StatTypes.GenericDmg
-        };
-        float amount=stat is StatTypes.LifeOnHit or StatTypes.ManaRegeneration?2*scale:5*scale;
-        return new[]{new PassiveEffect(stat,amount)};
-    }
-}
-
 public static class SubclassBalanceProfile
 {
     public const float RuptureChance=.15f,ComboMorePerPriorHit=.05f;public const int ComboMaximum=10;

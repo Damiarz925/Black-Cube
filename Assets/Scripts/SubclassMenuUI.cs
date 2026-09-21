@@ -21,7 +21,7 @@ public sealed class SubclassMenuUI:MonoBehaviour
     }
     void Update()=>Refresh();
     PlayerIdentityState Identity=>GameManager.Instance!=null?GameManager.Instance.GetComponent<PlayerIdentityState>():null;
-    void Toggle(){if(Identity?.HasSubclassSigil!=true)return;panel.SetActive(!panel.activeSelf);pending=null;Refresh();}
+    void Toggle(){if(Identity?.SubclassChoiceUnlocked!=true)return;panel.SetActive(!panel.activeSelf);pending=null;Refresh();}
     void Choose(int index)
     {
         var identity=Identity;var options=identity!=null?SubclassCatalog.ForClass(identity.BaseClassId):null;if(options==null||index<0||index>=options.Count)return;string id=options[index].Id;
@@ -37,7 +37,7 @@ public sealed class SubclassMenuUI:MonoBehaviour
     }
     void Refresh()
     {
-        var identity=Identity;if(openLabel==null)return;open.interactable=identity?.HasSubclassSigil==true;openLabel.text=identity?.HasSubclassSigil==true?(string.IsNullOrEmpty(identity.SelectedSubclassId)?"CHOOSE SUBCLASS":"SUBCLASS") : "SUBCLASS LOCKED";
+        var identity=Identity;if(openLabel==null)return;open.interactable=identity?.SubclassChoiceUnlocked==true;openLabel.text=identity?.SubclassChoiceUnlocked==true?(string.IsNullOrEmpty(identity.SelectedSubclassId)?"CHOOSE SUBCLASS":"SUBCLASS") : "SUBCLASS LOCKED";
         if(panel!=null&&panel.activeSelf&&identity!=null){var options=SubclassCatalog.ForClass(identity.BaseClassId);title.text=$"{identity.ClassDefinition?.DisplayName.ToUpperInvariant()} SUBCLASSES";for(int i=0;i<2;i++){bool exists=i<options.Count;choices[i].gameObject.SetActive(exists);if(exists)choiceLabels[i].text=(identity.SelectedSubclassId==options[i].Id?"CURRENT  ":pending==options[i].Id?"CONFIRM  ":string.Empty)+options[i].DisplayName.ToUpperInvariant();}bool projectile=identity.SelectedSubclassId==SubclassIds.RangerProjectile;mode.gameObject.SetActive(projectile);if(projectile)modeLabel.text=$"PROJECTILE MODE: {identity.ProjectileMode.ToString().ToUpperInvariant()} (CHANGE)";if(pending==null)description.text=string.IsNullOrEmpty(identity.SelectedSubclassId)?"Choose one class-specific subclass. Selection is free to change outside active combat.":SubclassCatalog.TryGet(identity.SelectedSubclassId,out var current)?current.DisplayName+"\n"+current.Description:string.Empty;}
         var state=hud?.player!=null?hud.player.GetComponent<SubclassCombatState>():null;bool light=state?.Has(SubclassIds.PriestLight)==true;aura.gameObject.SetActive(light);if(light){var enemy=BattleManager.Instance?.CurrentEnemyAI?.GetComponent<HealthComponent>();float max=enemy!=null?enemy.MaxLife:0;aura.text=$"AURAS  P {state.AuraIntensity(0,max):P0}  F {state.AuraIntensity(1,max):P0}  C {state.AuraIntensity(2,max):P0}  L {state.AuraIntensity(3,max):P0}";}
         var status=BattleManager.Instance?.CurrentEnemyAI?.GetComponent<StatusController>();if(frozen!=null){frozen.gameObject.SetActive(status?.IsFrozen==true);frozen.text="FROZEN — NEXT ATTACK SKIPPED";}
