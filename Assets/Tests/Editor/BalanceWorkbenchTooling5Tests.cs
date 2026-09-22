@@ -14,6 +14,8 @@ public sealed class BalanceWorkbenchTooling5Tests
         var all=BreakpointFinder.Find(level=>Math.Sin(level),1,30,7,0,BreakpointOperator.CrossUp,true);
         Assert.That(all.Count,Is.GreaterThan(1));
         Assert.That(all.All(x=>x.before<=0&&x.at>0),Is.True);
+        var ci=BreakpointFinder.WilsonInterval(.5,100);
+        Assert.That(ci.low,Is.LessThan(.5));Assert.That(ci.high,Is.GreaterThan(.5));
     }
 
     [Test] public void Sensitivity_UsesProductionEvaluatorAndReproduces()

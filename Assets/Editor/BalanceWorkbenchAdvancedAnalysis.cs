@@ -79,9 +79,11 @@ namespace BlackCube.BalanceWorkbench
 
     public enum BreakpointOperator { Greater, GreaterOrEqual, Less, LessOrEqual, CrossUp, CrossDown }
     [Serializable] public sealed class BreakpointPoint { public int level; public double value; }
-    [Serializable] public sealed class BreakpointResult { public int level;public double before,at,after,threshold;public int samples;public long seed;public string metric,fingerprint;public List<BreakpointPoint> curve=new(); }
+    [Serializable] public sealed class BreakpointResult { public int level;public double before,at,after,threshold,confidenceLow,confidenceHigh;public int samples;public long seed;public string metric,fingerprint;public List<BreakpointPoint> curve=new(); }
     public static class BreakpointFinder
     {
+        public static (double low,double high) WilsonInterval(double proportion,int samples,double z=1.96)
+        {if(samples<=0)return (0,1);double p=Math.Clamp(proportion,0,1),d=1+z*z/samples,c=(p+z*z/(2*samples))/d,h=z*Math.Sqrt(p*(1-p)/samples+z*z/(4.0*samples*samples))/d;return (Math.Max(0,c-h),Math.Min(1,c+h));}
         static bool Matches(double value,double threshold,BreakpointOperator op)=>op switch{BreakpointOperator.Greater or BreakpointOperator.CrossUp=>value>threshold,BreakpointOperator.GreaterOrEqual=>value>=threshold,BreakpointOperator.Less or BreakpointOperator.CrossDown=>value<threshold,_=>value<=threshold};
         public static List<BreakpointResult> Find(Func<int,double> evaluator,int start,int end,int increment,double threshold,BreakpointOperator op,bool all=false)
         {
@@ -117,7 +119,9 @@ namespace BlackCube.BalanceWorkbench
             {
                 var points=group.Select((x,i)=>new CurvePoint{x=i+1,mean=x.value}).ToList();if(points.Count==1)points.Insert(0,new CurvePoint{x=0,mean=0});var series=new CurveSeries{name=group.Key,color=Color.cyan,points=points};string png=new BalanceWorkbenchChart().ExportPng(new[]{series},stem+"_"+group.Key);lines.AddRange(new[]{"","### "+group.Key,"","!["+group.Key+"]("+Path.GetFileName(png)+")"});
             }
-            if(differences!=null){lines.AddRange(new[]{"","## Regression comparison","","| Scenario | Metric | Before | After | Delta | Change |","|---|---|---:|---:|---:|---:|"});lines.AddRange(differences.Select(x=>$"| {x.scenario} | {x.metric} | {x.before:0.####} | {x.after:0.####} | {x.delta:+0.####;-0.####;0} | {x.percent:+0.##%;-0.##%;0%} |"));}File.WriteAllLines(path,lines);AssetDatabase.Refresh();return path;
+            if(differences!=null){lines.AddRange(new[]{"","## Regression comparison","","| Scenario | Metric | Before | After | Delta | Change |","|---|---|---:|---:|---:|---:|"});lines.AddRange(differences.Select(x=>$"| {x.scenario} | {x.metric} | {x.before:0.####} | {x.after:0.####} | {x.delta:+0.####;-0.####;0} | {x.percent:+0.##%;-0.##%;0%} |"));}
+            var highlighted=differences?.Where(x=>x.highlighted).ToList()??new List<BalanceDifference>();var invalid=snapshot.metrics.Where(x=>!double.IsFinite(x.value)).ToList();if(highlighted.Count>0||invalid.Count>0){lines.AddRange(new[]{"","## Warnings",""});lines.AddRange(highlighted.Select(x=>"- User threshold crossed: "+x.scenario+" / "+x.metric+" changed "+x.percent.ToString("+0.##%;-0.##%;0%")));lines.AddRange(invalid.Select(x=>"- Technical validity: non-finite result for "+x.scenario+" / "+x.metric));}
+            File.WriteAllLines(path,lines);AssetDatabase.Refresh();return path;
         }
     }
 }

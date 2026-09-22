@@ -26,10 +26,12 @@ namespace BlackCube.BalanceWorkbench
     }
     public static class CraftingSimulator
     {
+        public static readonly CraftingCurrencyType[] OrdinaryActions={CraftingCurrencyType.NormalToMagic,CraftingCurrencyType.RerollMagic,CraftingCurrencyType.MagicToRare,CraftingCurrencyType.AddRareModifier,CraftingCurrencyType.RerollRareModifier,CraftingCurrencyType.RemoveRareModifier};
         static int Matches(Gear gear,CraftingSimulationRequest request)=>request.targets.Count(t=>gear.rolledMods.Any(m=>m!=null&&m.statType==t.stat&&m.tierIndex<=t.maximumTier&&m.value>=t.minimumRoll));
         public static CraftingSimulationResult Run(CraftingSimulationRequest request,Action<float> progress=null,Func<bool> cancelled=null)
         {
             if(request.item==null)throw new ArgumentException("Select a real starting item.");if(request.policy.Count==0)throw new ArgumentException("Add at least one production crafting action.");
+            if(request.policy.Any(x=>!OrdinaryActions.Contains(x.action)))throw new ArgumentException("Policy includes an action not supported by the isolated ordinary-equipment simulator.");
             var result=new CraftingSimulationResult{metadata=ExperimentMetadata.Create("Crafting Simulator",request.seed,request.trials,request.item.itemLevel,request.item.itemLevel,JsonUtility.ToJson(request))};var costs=new Dictionary<CraftingCurrencyType,List<double>>();var actionCounts=new List<double>();var matchCounts=new List<double>();using var session=new WorkbenchSession();var root=new GameObject("Crafting simulations"){hideFlags=HideFlags.HideAndDontSave};try
             {
                 for(int i=0;i<request.trials;i++)
