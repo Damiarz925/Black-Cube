@@ -32,9 +32,13 @@ public class EnemyAI : MonoBehaviour
     private EnemyArchetypeDefinition contentArchetype;
     private BossDefinition contentBoss;
     private CorruptionMechanicProfile corruptionProfile;
+    private EnemyRarityProfile rarityProfile;
+    private EnemyRarityProfile configuredRarityOverride;
     private LocationMechanicProfile locationProfile;
     private int authoredTurnCount;
+    private EnemyBehaviorRuntimeState behaviorState=new();
     private EnemySkillDefinition activeAuthoredSkill;
+    public EnemyBehaviorDecision LastBehaviorDecision { get; private set; }
     private float activeBossPhaseDamageMultiplier=1f;
     public int CurrentAuthoredHitCount { get; private set; } = 1;
     public string ContentId => contentBoss?.stableId ?? contentArchetype?.stableId ?? string.Empty;
@@ -108,12 +112,15 @@ public class EnemyAI : MonoBehaviour
     }
 
     public void ConfigureWorldContent(WorldContentDatabase database, EnemyArchetypeDefinition archetype,
-        BossDefinition boss, CorruptionTierDefinition corruption, LocationDefinition location)
+        BossDefinition boss, CorruptionTierDefinition corruption, LocationDefinition location,
+        CorruptionMechanicProfile corruptionOverride = null, EnemyRarityProfile rarityOverride = null)
     {
         contentDatabase=database;contentArchetype=archetype;contentBoss=boss;
-        corruptionProfile=database?.CorruptionMechanic(corruption?.mechanicProfileId);
+        corruptionProfile=corruptionOverride ?? database?.CorruptionMechanic(corruption?.mechanicProfileId);
+        configuredRarityOverride=rarityOverride;
         locationProfile=database?.LocationMechanic(location?.mechanicProfileId);
         authoredTurnCount=0;activeAuthoredSkill=null;
+        behaviorState=new EnemyBehaviorRuntimeState();LastBehaviorDecision=null;
         activeBossPhaseDamageMultiplier=1f;CurrentAuthoredHitCount=1;
     }
 
@@ -129,6 +136,7 @@ public class EnemyAI : MonoBehaviour
 
         InitRarityWeights();            //call initrarityweights
         CurrentRarity = RollEnemyRarity();      //set current rarity by calling rollenemyrarity
+        rarityProfile=configuredRarityOverride??contentDatabase?.EnemyRarity(CurrentRarity);
 
         EnemyStatSetup statSetup = GetComponent<EnemyStatSetup>();
         if (statSetup != null)
@@ -144,12 +152,13 @@ public class EnemyAI : MonoBehaviour
     void ApplyWorldContentProfile()
     {
         if(stats==null)return;
-        float damage=contentArchetype?.damageMultiplier??1f;
-        float speed=(contentArchetype?.attackSpeedMultiplier??1f)*(corruptionProfile?.speedMultiplier??1f)*(locationProfile?.enemySpeedMultiplier??1f);
-        float life=contentArchetype?.lifeMultiplier??1f;
-        if(damage>1f)stats.AddModifier(new StatModifier(StatTypes.GenericDmg,StatOp.Additive,damage-1f,this));
-        if(speed>1f)stats.AddModifier(new StatModifier(StatTypes.AttackSpeed,StatOp.Additive,speed-1f,this));
-        if(life>1f)stats.AddModifier(new StatModifier(StatTypes.LifePercent,StatOp.Additive,life-1f,this));
+        rarityProfile??=configuredRarityOverride??contentDatabase?.EnemyRarity(CurrentRarity);
+        float damage=(contentArchetype?.damageMultiplier??1f)*(rarityProfile?.damageMultiplier??1f);
+        float speed=(contentArchetype?.attackSpeedMultiplier??1f)*(corruptionProfile?.speedMultiplier??1f)*(locationProfile?.enemySpeedMultiplier??1f)*(rarityProfile?.speedMultiplier??1f);
+        float life=(contentArchetype?.lifeMultiplier??1f)*(rarityProfile?.lifeMultiplier??1f);
+        if(!Mathf.Approximately(damage,1f))stats.AddModifier(new StatModifier(StatTypes.GenericDmg,StatOp.Additive,damage-1f,this));
+        if(!Mathf.Approximately(speed,1f))stats.AddModifier(new StatModifier(StatTypes.AttackSpeed,StatOp.Additive,speed-1f,this));
+        if(!Mathf.Approximately(life,1f))stats.AddModifier(new StatModifier(StatTypes.LifePercent,StatOp.Additive,life-1f,this));
         string loadout=contentBoss?.skillLoadoutId??contentArchetype?.skillLoadoutId;
         var ailment=EnemyActionPlanner.Select(contentDatabase,loadout,2);
         if(ailment!=null)ApplyAilmentIdentity(ailment.kind);
@@ -164,23 +173,32 @@ public class EnemyAI : MonoBehaviour
     public EnemySkillDefinition BeginAuthoredTurn()
     {
         string loadout=contentBoss?.skillLoadoutId??contentArchetype?.skillLoadoutId;
+        string phaseId=null;
         activeBossPhaseDamageMultiplier=1f;
         if(contentBoss!=null&&contentDatabase!=null&&health!=null)
         {
-            var profile=contentDatabase.BossPhase(contentBoss.phaseProfileId);
-            if(profile?.phases!=null)foreach(var phase in profile.phases)
-                if(health.MaxLife>0f&&health.CurrentLife/health.MaxLife<=phase.beginsAtLifeFraction&&!string.IsNullOrWhiteSpace(phase.skillLoadoutId)){loadout=phase.skillLoadoutId;activeBossPhaseDamageMultiplier=phase.damageMultiplier;}
+            var profile=contentDatabase.BossPhase(contentBoss.phaseProfileId);var phase=BossPhaseResolver.Resolve(profile,health.MaxLife>0f?health.CurrentLife/health.MaxLife:1f);
+            if(phase!=null&&!string.IsNullOrWhiteSpace(phase.skillLoadoutId)){loadout=phase.skillLoadoutId;phaseId=phase.mechanicId;activeBossPhaseDamageMultiplier=phase.damageMultiplier;}
         }
         int turn=authoredTurnCount++;
         int corruption=corruptionProfile?.percentage??0;
         int cadenceTurn=turn+(corruption>=40?turn/3:0)+(corruption==100?1:0);
-        activeAuthoredSkill=EnemyActionPlanner.Select(contentDatabase,loadout,cadenceTurn);
+        var behavior=contentDatabase?.BehaviorForLoadout(loadout);
+        if(behavior!=null)
+        {
+            behaviorState.completedAttacks=cadenceTurn;behaviorState.selfLifeFraction=health!=null&&health.MaxLife>0?health.CurrentLife/health.MaxLife:1f;behaviorState.corruption=corruption;behaviorState.bossPhaseId=phaseId;behaviorState.random01=DeterministicBehaviorRoll(behavior.stableId,cadenceTurn);
+            LastBehaviorDecision=EnemyBehaviorResolver.Resolve(contentDatabase,behavior,behaviorState);activeAuthoredSkill=contentDatabase.EnemySkill(LastBehaviorDecision.selectedSkillId);
+        }
+        else activeAuthoredSkill=EnemyActionPlanner.Select(contentDatabase,loadout,cadenceTurn);
         CurrentAuthoredHitCount=Mathf.Max(1,activeAuthoredSkill?.hitCount??1);
         if(corruption>=80&&(turn+1)%(corruption==100?3:4)==0)CurrentAuthoredHitCount++;
         if(activeAuthoredSkill?.kind==EnemySkillKind.Recover&&health!=null)
             health.RestoreLife(health.MaxLife*.025f*(corruptionProfile?.recoveryMultiplier??1f));
         return activeAuthoredSkill;
     }
+
+    static float DeterministicBehaviorRoll(string id,int turn)
+    {unchecked{uint h=2166136261;foreach(char c in id??string.Empty){h^=c;h*=16777619;}h^=(uint)turn;h*=16777619;h^=h>>16;return (h&0x00ffffff)/16777216f;}}
 
 #if UNITY_EDITOR
     // Balance-lab entry: isolated actor, same production setup/generation/optimizer, no scene level lookup.
@@ -189,6 +207,8 @@ public class EnemyAI : MonoBehaviour
     public void GenerateIsolatedBuild(int level, ModManager roller, EnemyRarity rarity,ILootRandomSource random)
         =>GenerateIsolatedBuild(level,roller,rarity,random,null);
     public void GenerateIsolatedBuild(int level, ModManager roller, EnemyRarity rarity,ILootRandomSource random,Element? primaryDamageOverride)
+        =>GenerateIsolatedBuild(level,roller,rarity,random,primaryDamageOverride,null);
+    public void GenerateIsolatedBuild(int level, ModManager roller, EnemyRarity rarity,ILootRandomSource random,Element? primaryDamageOverride,EnemyScalingValues? scalingOverride)
     {
         stats ??= GetComponent<StatsComponent>();
         health ??= GetComponent<HealthComponent>();
@@ -198,10 +218,12 @@ public class EnemyAI : MonoBehaviour
         enemyLevel = Mathf.Max(1, level);
         modManager = roller;
         CurrentRarity = rarity;
+        rarityProfile=configuredRarityOverride??contentDatabase?.EnemyRarity(CurrentRarity);
         buildRandom=random??UnityLootRandomSource.Instance;
         simulationPrimaryElement=primaryDamageOverride;
-        GetComponent<EnemyStatSetup>()?.SetupForZone(enemyLevel, health != null && health.IsBoss);
+        GetComponent<EnemyStatSetup>()?.SetupForZone(enemyLevel, health != null && health.IsBoss, scalingOverride);
         GenerateGearForEnemy(enemyLevel);
+        ApplyWorldContentProfile();
         health?.RestoreFullLife();
     }
 #endif
@@ -221,6 +243,11 @@ public class EnemyAI : MonoBehaviour
 
     public EnemyRarity RollEnemyRarity()        //roll the enemy rarity
     {
+        if(contentDatabase?.enemyRarityProfiles?.Count>0)
+        {
+            int authoredTotal=0;foreach(var profile in contentDatabase.enemyRarityProfiles)authoredTotal+=Mathf.Max(0,profile.spawnWeight);
+            if(authoredTotal>0){int authoredRoll=Random.Range(0,authoredTotal);foreach(var profile in contentDatabase.enemyRarityProfiles){int weight=Mathf.Max(0,profile.spawnWeight);if(authoredRoll<weight)return profile.rarity;authoredRoll-=weight;}}
+        }
         int roll = Random.Range(0, totalEnemyRarityWeight);     //roll is a value between 0 and the total enemy rarity weight calculated in initrarityweights
 
         foreach (var pair in enemyRarityWeights)        //for each pair in enemyrarityweights
@@ -239,6 +266,7 @@ public class EnemyAI : MonoBehaviour
 
     private LootManager.GearRarity MapEnemyRarityToGearRarity(EnemyRarity rarity)       //maps the enemy rarity to gear rarity with a switch statement setting each rarity to the same rarity for gear. Default to normal
     {
+        var authored=contentDatabase?.EnemyRarity(rarity);if(authored!=null)return authored.gearRarity;
         return rarity switch
         {
             EnemyRarity.Normal => LootManager.GearRarity.Normal,

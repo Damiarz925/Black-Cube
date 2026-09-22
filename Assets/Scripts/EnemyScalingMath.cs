@@ -22,13 +22,18 @@ public static class EnemyScalingMath
     public static Intrinsic Calculate(int level, EnemyScalingProfile profile = null)
     {
         profile ??= EnemyScalingProfile.Default;
+        return Calculate(level,profile.Capture());
+    }
+
+    public static Intrinsic Calculate(int level, EnemyScalingValues values)
+    {
         level = Math.Max(1, level);
-        int first = Math.Min(level - 1, profile.CurveBreakLevel - 1);
-        int later = Math.Max(0, level - profile.CurveBreakLevel);
-        float life = (float)(Math.Pow(profile.LifeGrowth, first) * Math.Pow(profile.LateLifeGrowth, later));
-        float damage = (float)(Math.Pow(profile.DamageGrowth, first) * Math.Pow(profile.LateDamageGrowth, later));
-        return new Intrinsic(level, life, damage, profile.ArmourPerLevel * (level - 1),
-            Mathf.Min(profile.ResistancePointsCap, profile.ResistancePointsPerLevel * (level - 1)));
+        int breakLevel=Math.Max(2,values.curveBreakLevel);int first = Math.Min(level - 1, breakLevel - 1);
+        int later = Math.Max(0, level - breakLevel);
+        float life = (float)(Math.Pow(values.lifeGrowth, first) * Math.Pow(values.lateLifeGrowth, later));
+        float damage = (float)(Math.Pow(values.damageGrowth, first) * Math.Pow(values.lateDamageGrowth, later));
+        return new Intrinsic(level, life, damage, values.armourPerLevel * (level - 1),
+            Mathf.Min(values.resistancePointsCap, values.resistancePointsPerLevel * (level - 1)));
     }
 
     public static void ScaleOutgoing(DamageContext context, float factor)

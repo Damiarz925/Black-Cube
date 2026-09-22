@@ -2,6 +2,7 @@
 // stable mechanical identities and progression references are authoritative.
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public enum EnemyContentRank { Ordinary, Elite, MainBoss, ChallengeBoss }
@@ -18,6 +19,11 @@ public enum EnemySkillKind { Strike, MultiHit, Guard, Recover, ApplyBleed, Apply
 {
     public string stableId; public Element preferredElement; public List<StatTypes> preferredStats=new();
 }
+[Serializable] public sealed class EnemyRarityProfile
+{
+    public string stableId; public EnemyAI.EnemyRarity rarity; [Min(0)] public int spawnWeight;
+    public LootManager.GearRarity gearRarity; [Min(.01f)] public float lifeMultiplier=1f,damageMultiplier=1f,speedMultiplier=1f;
+}
 [Serializable] public sealed class LocationMechanicProfile
 {
     public string stableId, displayName, encounterModifierId; public float enemyDamageMultiplier=1f, enemySpeedMultiplier=1f;
@@ -33,6 +39,11 @@ public enum EnemySkillKind { Strike, MultiHit, Guard, Recover, ApplyBleed, Apply
 }
 [Serializable] public sealed class BossPhaseProfile
 { public string stableId; public List<BossPhaseDefinition> phases=new(); }
+public static class BossPhaseResolver
+{
+    public static BossPhaseDefinition Resolve(BossPhaseProfile profile,float lifeFraction)
+        =>profile?.phases?.Where(x=>x!=null&&lifeFraction<=x.beginsAtLifeFraction).OrderBy(x=>x.beginsAtLifeFraction).FirstOrDefault();
+}
 [Serializable] public sealed class ChallengeRewardProfile
 {
     public string stableId, associatedContentId, entryResourceId, rewardResourceId, specialAffixPoolId;
@@ -43,6 +54,12 @@ public static class EnemyActionPlanner
 {
     public static EnemySkillDefinition Select(WorldContentDatabase db,string loadoutId,int completedTurns)
     {
+        var profile=db?.BehaviorForLoadout(loadoutId);
+        if(profile!=null)
+        {
+            var decision=EnemyBehaviorResolver.Resolve(db,profile,new EnemyBehaviorRuntimeState{completedAttacks=Mathf.Max(0,completedTurns)});
+            return db.EnemySkill(decision.selectedSkillId);
+        }
         var loadout=db?.SkillLoadout(loadoutId); if(loadout?.skillIds==null||loadout.skillIds.Count==0)return null;
         int turn=Mathf.Max(0,completedTurns);
         for(int offset=0;offset<loadout.skillIds.Count;offset++)
@@ -85,7 +102,7 @@ public static class ProductionWorldContent
     public static WorldContentDatabase Build()
     {
         var db=ScriptableObject.CreateInstance<WorldContentDatabase>();db.name="V1 Production World Content";db.hideFlags=HideFlags.HideAndDontSave;
-        BuildCorruption(db); BuildSkills(db); BuildLocationMechanics(db);
+        BuildCorruption(db); BuildRarities(db); BuildSkills(db); BuildBehaviorProfiles(db); BuildLocationMechanics(db);
         for(int b=0;b<6;b++)BuildBiome(db,b);
         BuildChallenges(db); return db;
     }
@@ -93,6 +110,10 @@ public static class ProductionWorldContent
     {
         int[] values={0,20,40,60,80,100};
         for(int i=0;i<values.Length;i++){int p=values[i];string id=$"corruption-{p:000}";db.corruptionTiers.Add(new CorruptionTierDefinition{stableId=id,percentage=p,displayName=$"{p}% Corruption",presentationHookId=$"corruption.presentation.{p:000}",mechanicProfileId=$"mechanic.{id}"});db.corruptionMechanicProfiles.Add(new CorruptionMechanicProfile{stableId=$"mechanic.{id}",percentage=p,damageMultiplier=1f+p*.0025f,speedMultiplier=1f+p*.001f,recoveryMultiplier=1f+p*.002f,mechanicIds=p==0?new():new List<string>{p>=40?"corruption.escalating-pressure":"corruption.stirring",p>=80?"corruption.empowered-cadence":"corruption.exposure",p==100?"corruption.apex-modifier":"corruption.stable"}});}
+    }
+    static void BuildRarities(WorldContentDatabase db)
+    {
+        int[] weights={40,20,10,1};foreach(EnemyAI.EnemyRarity rarity in Enum.GetValues(typeof(EnemyAI.EnemyRarity)))db.enemyRarityProfiles.Add(new EnemyRarityProfile{stableId="enemy-rarity."+rarity.ToString().ToLowerInvariant(),rarity=rarity,spawnWeight=weights[(int)rarity],gearRarity=(LootManager.GearRarity)(int)rarity,lifeMultiplier=1f,damageMultiplier=1f,speedMultiplier=1f});
     }
     static void BuildSkills(WorldContentDatabase db)
     {
@@ -112,16 +133,25 @@ public static class ProductionWorldContent
         }
     }
     static List<StatTypes> PreferredStats(int b)=>b switch{0=>new(){StatTypes.PhysDmg,StatTypes.FlatArmour,StatTypes.BleedChance},1=>new(){StatTypes.FireDmg,StatTypes.IgniteChance},2=>new(){StatTypes.ColdDmg,StatTypes.ChillChance,StatTypes.ColdRes},3=>new(){StatTypes.LightDmg,StatTypes.ShockChance,StatTypes.AttackSpeed},4=>new(){StatTypes.VoidDmg,StatTypes.PoisonChance,StatTypes.VoidRes},_=>new(){StatTypes.GenericDmg,StatTypes.AllRes,StatTypes.AttackSpeed}};
+    static void BuildBehaviorProfiles(WorldContentDatabase db)
+    {
+        foreach(var loadout in db.enemySkillLoadouts)
+        {
+            var profile=new EnemyBehaviorProfileDefinition{stableId="behavior."+loadout.stableId,displayName=loadout.stableId.Replace("loadout.",string.Empty).Replace('.',' ') + " Behavior",sourceLoadoutId=loadout.stableId,preserveLegacyRotatingCadence=true};
+            for(int i=0;i<loadout.skillIds.Count;i++){var skill=db.EnemySkill(loadout.skillIds[i]);profile.rules.Add(new EnemyActionRule{stableId=$"{profile.stableId}.rule-{i+1:00}",skillId=loadout.skillIds[i],condition=EnemyBehaviorCondition.EveryNAttacks,everyNAttacks=Mathf.Max(1,skill?.cadence??1),priority=0,weight=1,fallbackEligible=true});}
+            db.enemyBehaviorProfiles.Add(profile);
+        }
+    }
     static void BuildLocationMechanics(WorldContentDatabase db)
     {for(int b=0;b<6;b++)for(int l=0;l<10;l++)db.locationMechanicProfiles.Add(new LocationMechanicProfile{stableId=$"location-mechanic.{BiomeIds[b]}.{l+1:00}",displayName=Locations[b][l]+" Rules",encounterModifierId=$"encounter-rule.{BiomeIds[b]}.{l+1:00}",enemyDamageMultiplier=1f+(l%5)*.025f,enemySpeedMultiplier=1f+(l/5)*.04f});}
     static void BuildBiome(WorldContentDatabase db,int b)
     {
         string biome=BiomeIds[b];var definition=new BiomeDefinition{stableId=$"biome.{biome}",displayName=BiomeNames[b],firstCombatLevel=b*60+1,lastCombatLevel=(b+1)*60,placeholder=false};
-        for(int e=0;e<8;e++){string eid=$"enemy.{biome}.{Slug(Enemies[b][e])}";db.enemyArchetypes.Add(new EnemyArchetypeDefinition{stableId=eid,displayName=Enemies[b][e],codexEntryId=$"codex.{eid}",rank=e<6?EnemyContentRank.Ordinary:EnemyContentRank.Elite,primaryElement=Elements[b],skillLoadoutId=$"loadout.{biome}.{(e<6?"ordinary":"elite")}",buildPreferenceId=$"build.{biome}",damageMultiplier=e<6?1f:1.18f,attackSpeedMultiplier=1f+(e%3)*.04f,lifeMultiplier=e<6?1f:1.3f,futureContentHooks=new(){"presentation.paper-enemy.fallback"}});}
+        for(int e=0;e<8;e++){string eid=$"enemy.{biome}.{Slug(Enemies[b][e])}",loadout=$"loadout.{biome}.{(e<6?"ordinary":"elite")}";db.enemyArchetypes.Add(new EnemyArchetypeDefinition{stableId=eid,displayName=Enemies[b][e],codexEntryId=$"codex.{eid}",rank=e<6?EnemyContentRank.Ordinary:EnemyContentRank.Elite,primaryElement=Elements[b],skillLoadoutId=loadout,behaviorProfileId="behavior."+loadout,buildPreferenceId=$"build.{biome}",damageMultiplier=e<6?1f:1.18f,attackSpeedMultiplier=1f+(e%3)*.04f,lifeMultiplier=e<6?1f:1.3f,futureContentHooks=new(){"presentation.paper-enemy.fallback"}});}
         for(int l=0;l<10;l++)
         {
             string bossId=$"boss.{biome}.{l+1:00}.{Slug(Bosses[b][l])}";string phaseId=$"phase.{bossId}";
-            var boss=new BossDefinition{stableId=bossId,displayName=Bosses[b][l],codexEntryId=$"codex.{bossId}",presentationId="presentation.paper-boss.fallback",biomeIndex=b,locationIndex=l,phaseProfileId=phaseId,skillLoadoutId=$"loadout.{biome}.elite",challengeBoss=false,futureMechanicIds=new(){$"mechanic.{biome}.{l+1:00}"},futureSkillIds=new(){$"enemy-skill.{biome}.elite"},futureRewardHooks=new(){$"reward.main-boss.{biome}.{l+1:00}"}};
+            var boss=new BossDefinition{stableId=bossId,displayName=Bosses[b][l],codexEntryId=$"codex.{bossId}",presentationId="presentation.paper-boss.fallback",biomeIndex=b,locationIndex=l,phaseProfileId=phaseId,skillLoadoutId=$"loadout.{biome}.elite",behaviorProfileId=$"behavior.loadout.{biome}.elite",challengeBoss=false,futureMechanicIds=new(){$"mechanic.{biome}.{l+1:00}"},futureSkillIds=new(){$"enemy-skill.{biome}.elite"},futureRewardHooks=new(){$"reward.main-boss.{biome}.{l+1:00}"}};
             if(b==1&&l==9)boss.futureStoryFlags.Add(PlayerIdentityState.StoryCompletionMilestoneId);db.bosses.Add(boss);
             db.bossPhaseProfiles.Add(new BossPhaseProfile{stableId=phaseId,phases=new(){new BossPhaseDefinition{beginsAtLifeFraction=1f,skillLoadoutId=$"loadout.{biome}.elite",mechanicId=$"boss.{biome}.opening",damageMultiplier=1f},new BossPhaseDefinition{beginsAtLifeFraction=.5f,skillLoadoutId=$"loadout.{biome}.elite",mechanicId=$"boss.{biome}.desperation",damageMultiplier=1.2f}}});
             string tableId=$"encounter.{biome}.{l+1:00}";var pool=new List<WeightedEnemyArchetype>();for(int e=0;e<8;e++)pool.Add(new WeightedEnemyArchetype{enemyArchetypeId=$"enemy.{biome}.{Slug(Enemies[b][e])}",weight=e<6?8:2});
@@ -135,7 +165,7 @@ public static class ProductionWorldContent
         for(int b=0;b<6;b++)
         {
             string content=$"challenge.{BiomeIds[b]}.apex",bossId=$"boss.challenge.{BiomeIds[b]}.apex",pool=$"special-affix-pool.{BiomeIds[b]}.apex";
-            db.bosses.Add(new BossDefinition{stableId=bossId,displayName=ChallengeNames[b],codexEntryId=$"codex.{bossId}",presentationId="presentation.paper-boss.fallback",biomeIndex=b,locationIndex=-1,phaseProfileId=$"phase.boss.{BiomeIds[b]}.10.{Slug(Bosses[b][9])}",skillLoadoutId=$"loadout.{BiomeIds[b]}.elite",challengeBoss=true,futureRewardHooks=new(){$"reward.{content}"}});
+            db.bosses.Add(new BossDefinition{stableId=bossId,displayName=ChallengeNames[b],codexEntryId=$"codex.{bossId}",presentationId="presentation.paper-boss.fallback",biomeIndex=b,locationIndex=-1,phaseProfileId=$"phase.boss.{BiomeIds[b]}.10.{Slug(Bosses[b][9])}",skillLoadoutId=$"loadout.{BiomeIds[b]}.elite",behaviorProfileId=$"behavior.loadout.{BiomeIds[b]}.elite",challengeBoss=true,futureRewardHooks=new(){$"reward.{content}"}});
             var c=new ChallengeEncounterDefinition{stableContentId=content,displayName=ChallengeNames[b],minimumCombatLevel=100+b*40,entryResourceId=EndgameResourceIds.ChallengeKey(BiomeIds[b]),entryResourceAmount=1,bossId=bossId,rewardResourceId=EndgameResourceIds.ChallengeEssence(BiomeIds[b]),rewardResourceAmount=1,specialAffixPoolId=pool,lootSourceId=$"loot-source.{content}",repeatable=true,unlockRequirementIds=new(){b==0?PlayerIdentityState.StoryCompletionMilestoneId:$"progress.biome.{b+1}.reached"}};
             db.challengeEncounters.Add(c);db.challengeRewardProfiles.Add(new ChallengeRewardProfile{stableId=$"reward-profile.{content}",associatedContentId=content,entryResourceId=c.entryResourceId,rewardResourceId=c.rewardResourceId,specialAffixPoolId=pool,entryAmount=1,rewardAmount=1,repeatable=true});
             db.challengeSpecialAffixPools.Add(BuildSpecialPool(b,pool,content,c.minimumCombatLevel));

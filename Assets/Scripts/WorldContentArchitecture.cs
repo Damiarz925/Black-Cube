@@ -63,6 +63,7 @@ public sealed class EnemyArchetypeDefinition
     public EnemyContentRank rank;
     public Element primaryElement;
     public string skillLoadoutId;
+    public string behaviorProfileId;
     public string buildPreferenceId;
     public float damageMultiplier = 1f;
     public float attackSpeedMultiplier = 1f;
@@ -83,6 +84,7 @@ public sealed class BossDefinition
     public int locationIndex;
     public string phaseProfileId;
     public string skillLoadoutId;
+    public string behaviorProfileId;
     public bool challengeBoss;
     public List<string> futureMechanicIds = new();
     public List<string> futureSkillIds = new();
@@ -136,40 +138,6 @@ public sealed class ChallengeEncounterDefinition
     public string lootSourceId;
     public bool repeatable = true;
     public List<string> unlockRequirementIds = new();
-}
-
-[CreateAssetMenu(menuName = "Black Cube/World Content Database")]
-public sealed class WorldContentDatabase : ScriptableObject
-{
-    public List<BiomeDefinition> biomes = new();
-    public List<CorruptionTierDefinition> corruptionTiers = new();
-    public List<EnemyArchetypeDefinition> enemyArchetypes = new();
-    public List<BossDefinition> bosses = new();
-    public List<EncounterTableDefinition> encounterTables = new();
-    public List<ChallengeEncounterDefinition> challengeEncounters = new();
-    public List<EnemySkillDefinition> enemySkills = new();
-    public List<EnemySkillLoadoutDefinition> enemySkillLoadouts = new();
-    public List<EnemyBuildPreferenceDefinition> enemyBuildPreferences = new();
-    public List<LocationMechanicProfile> locationMechanicProfiles = new();
-    public List<CorruptionMechanicProfile> corruptionMechanicProfiles = new();
-    public List<BossPhaseProfile> bossPhaseProfiles = new();
-    public List<ChallengeRewardProfile> challengeRewardProfiles = new();
-    public List<SpecialAffixPoolDefinition> challengeSpecialAffixPools = new();
-
-    public BiomeDefinition Biome(string id) => biomes?.Find(x => x != null && x.stableId == id);
-    public CorruptionTierDefinition Corruption(string id) => corruptionTiers?.Find(x => x != null && x.stableId == id);
-    public EnemyArchetypeDefinition Enemy(string id) => enemyArchetypes?.Find(x => x != null && x.stableId == id);
-    public BossDefinition Boss(string id) => bosses?.Find(x => x != null && x.stableId == id);
-    public EncounterTableDefinition EncounterTable(string id) => encounterTables?.Find(x => x != null && x.stableId == id);
-    public ChallengeEncounterDefinition Challenge(string id) => challengeEncounters?.Find(x => x != null && x.stableContentId == id);
-    public EnemySkillDefinition EnemySkill(string id) => enemySkills?.Find(x => x != null && x.stableId == id);
-    public EnemySkillLoadoutDefinition SkillLoadout(string id) => enemySkillLoadouts?.Find(x => x != null && x.stableId == id);
-    public EnemyBuildPreferenceDefinition BuildPreference(string id) => enemyBuildPreferences?.Find(x => x != null && x.stableId == id);
-    public LocationMechanicProfile LocationMechanic(string id) => locationMechanicProfiles?.Find(x => x != null && x.stableId == id);
-    public CorruptionMechanicProfile CorruptionMechanic(string id) => corruptionMechanicProfiles?.Find(x => x != null && x.stableId == id);
-    public BossPhaseProfile BossPhase(string id) => bossPhaseProfiles?.Find(x => x != null && x.stableId == id);
-    public ChallengeRewardProfile ChallengeReward(string id) => challengeRewardProfiles?.Find(x => x != null && x.stableId == id);
-    public SpecialAffixPoolDefinition ChallengeSpecialPool(string id) => challengeSpecialAffixPools?.Find(x => x != null && x.stableId == id);
 }
 
 public readonly struct WorldPosition
@@ -272,9 +240,11 @@ public static class WorldContentCatalog
 {
     static WorldContentDatabase reference;
     public static WorldContentDatabase Reference => reference != null ? reference : reference = BuildReference();
+    public static void Reload() => reference = null;
 
     static WorldContentDatabase BuildReference()
     {
-        return ProductionWorldContent.Build();
+        WorldContentDatabase asset = Resources.Load<WorldContentDatabase>("GameData/WorldContentDatabase");
+        return asset != null ? asset : ProductionWorldContent.Build();
     }
 }

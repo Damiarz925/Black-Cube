@@ -28,6 +28,9 @@ public class EnemyStatSetup : MonoBehaviour
     }
 
     public void SetupForZone(int zoneLevel, bool isBoss)
+        => SetupForZone(zoneLevel, isBoss, null);
+
+    public void SetupForZone(int zoneLevel, bool isBoss, EnemyScalingValues? previewOverride)
     {
         if (stats == null)
             stats = GetComponent<StatsComponent>();
@@ -39,7 +42,9 @@ public class EnemyStatSetup : MonoBehaviour
             return;
         }
 
-        Intrinsic = EnemyScalingMath.Calculate(zoneLevel);
+        Intrinsic = previewOverride.HasValue
+            ? EnemyScalingMath.Calculate(zoneLevel, previewOverride.Value)
+            : EnemyScalingMath.Calculate(zoneLevel);
         stats.BeginUpdate();
         try
         {

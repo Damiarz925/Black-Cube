@@ -1,5 +1,12 @@
 using UnityEngine;
 
+[System.Serializable]
+public struct EnemyScalingValues
+{
+    public int curveBreakLevel;
+    public float lifeGrowth,lateLifeGrowth,damageGrowth,lateDamageGrowth,armourPerLevel,resistancePointsPerLevel,resistancePointsCap;
+}
+
 // The single tunable source for intrinsic enemy progression. Gear never owns these values.
 [CreateAssetMenu(menuName = "Black Cube/Enemy Scaling Profile")]
 public sealed class EnemyScalingProfile : ScriptableObject
@@ -21,6 +28,8 @@ public sealed class EnemyScalingProfile : ScriptableObject
     public float ArmourPerLevel => armourPerLevel;
     public float ResistancePointsPerLevel => resistancePointsPerLevel;
     public float ResistancePointsCap => resistancePointsCap;
+    public EnemyScalingValues Capture()=>new(){curveBreakLevel=curveBreakLevel,lifeGrowth=lifeGrowth,lateLifeGrowth=lateLifeGrowth,damageGrowth=damageGrowth,lateDamageGrowth=lateDamageGrowth,armourPerLevel=armourPerLevel,resistancePointsPerLevel=resistancePointsPerLevel,resistancePointsCap=resistancePointsCap};
+    public void Apply(EnemyScalingValues values){curveBreakLevel=Mathf.Max(2,values.curveBreakLevel);lifeGrowth=Mathf.Max(.0001f,values.lifeGrowth);lateLifeGrowth=Mathf.Max(.0001f,values.lateLifeGrowth);damageGrowth=Mathf.Max(.0001f,values.damageGrowth);lateDamageGrowth=Mathf.Max(.0001f,values.lateDamageGrowth);armourPerLevel=Mathf.Max(0,values.armourPerLevel);resistancePointsPerLevel=Mathf.Max(0,values.resistancePointsPerLevel);resistancePointsCap=Mathf.Max(0,values.resistancePointsCap);}
 
     private static EnemyScalingProfile defaultProfile;
     public static EnemyScalingProfile Default
