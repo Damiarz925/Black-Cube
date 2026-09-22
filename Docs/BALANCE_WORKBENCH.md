@@ -97,3 +97,11 @@ Enemy, behavior, phase, scaling, rarity, and corruption edits are staged. They d
 Generated enemy curves use real candidate generation and `EnemyBuildOptimizer` at every sampled level and expose P10/P50/mean/P90/P99 for Life, hit damage, DPS, Armour, GearScore, primary resistance, and regeneration. Enemy Preview supports exact seed reproduction, forced-damage experiments, gear/behavior inspection, and four-way comparison. Behavior Preview uses the same deterministic resolver as runtime and records full **Why This Action?** traces. Boss/phase, rarity, and 0–100% corruption editing are views over the production catalog rather than Workbench-only copies.
 
 See ENEMY_AUTHORING_TOOLS.md, ENEMY_BEHAVIOR_AUTHORING.md, and ENEMY_SCALING_EDITOR.md.
+
+## Tooling 4: headless combat laboratory
+
+The Workbench now includes Combat Lab, Combat Timeline, Batch Matchups, Boss Lab, and Combat Curves. It uses an event-driven pure combat state with deterministic fight seeds, actual attack/skill/projectile/ailment/resource sequencing, shared production mitigation/Rage/behavior/phase services, exact Tooling 2 player snapshots, and exact Tooling 3 enemy snapshots. Single fights retain inspectable traces; batches retain aggregates and outlier seeds without retaining 10,000 full timelines.
+
+Results cover Win/Loss/Timeout/Error, complete duration percentiles, remaining Life, DPS, damage source/type, healing/overheal, Mana starvation, Rage, ailments, skills, projectiles, and boss phase time. Action and Rage Finisher policies are saved simulation-only assumptions. Matchup matrices, level/corruption/rarity/gear-profile sweeps, policy comparison, trace replay, CSV/JSON/PNG exports, stale fingerprint warnings, and safety repro artifacts are integrated into the same window.
+
+See `COMBAT_LAB.md`, `COMBAT_SIMULATION_ARCHITECTURE.md`, and `PLAYER_COMBAT_POLICIES.md`.
