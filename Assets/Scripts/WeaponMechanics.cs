@@ -27,6 +27,8 @@ public static class WeaponMechanicProfile
     public static float ProjectileTravelTime(float increasedSpeed)=>Mathf.Max(MinimumProjectileTravelTime,BaseProjectileTravelTime/(1f+Mathf.Max(0f,increasedSpeed)));
     public static float PrecisionChance(float addedChance)=>Mathf.Clamp01(BaseBowPrecisionChance+Mathf.Max(0f,addedChance));
     public static float PrecisionMultiplier(float increasedDamage)=>BaseBowPrecisionMultiplier*(1+Mathf.Max(0f,increasedDamage));
+    public static float RageGainFromDamage(float damage,float maximumLife,float eventMultiplier=1f)
+        =>damage<=0?0:(5+Mathf.Min(10,Mathf.Floor(damage/Mathf.Max(1,maximumLife)*50)))*Mathf.Max(0,eventMultiplier);
 }
 
 [RequireComponent(typeof(PlayerController),typeof(StatsComponent))]
@@ -43,8 +45,8 @@ public sealed class RageState:MonoBehaviour
     void Update(){Tick(Time.deltaTime);}
     void OnWeaponChanged(){if(IsSupportedWeapon)return;Rage=0;FinisherArmed=false;sinceGain=0;Changed?.Invoke();}
     public void Tick(float delta){if(!IsSupportedWeapon||Rage<=0||delta<=0)return;float before=Mathf.Max(0,sinceGain-WeaponMechanicProfile.RageDecayDelay);sinceGain+=delta;float after=Mathf.Max(0,sinceGain-WeaponMechanicProfile.RageDecayDelay);float decayTime=after-before;if(decayTime<=0)return;float reduction=Mathf.Clamp01(stats.GetStat(StatTypes.RageDecayReduction));SetRage(Rage-WeaponMechanicProfile.RageDecayPerSecond*(1f-reduction)*decayTime);}
-    public void GainFromDamageDealt(float damage,float targetMaximumLife,float eventMultiplier=1f){if(!IsSupportedWeapon||damage<=0)return;Gain((5+Mathf.Min(10,Mathf.Floor(damage/Mathf.Max(1,targetMaximumLife)*50)))*Mathf.Max(0,eventMultiplier));}
-    public void GainFromDamageTaken(float damage,float playerMaximumLife){if(!IsSupportedWeapon||damage<=0)return;Gain(5+Mathf.Min(10,Mathf.Floor(damage/Mathf.Max(1,playerMaximumLife)*50)));}
+    public void GainFromDamageDealt(float damage,float targetMaximumLife,float eventMultiplier=1f){if(!IsSupportedWeapon||damage<=0)return;Gain(WeaponMechanicProfile.RageGainFromDamage(damage,targetMaximumLife,eventMultiplier));}
+    public void GainFromDamageTaken(float damage,float playerMaximumLife){if(!IsSupportedWeapon||damage<=0)return;Gain(WeaponMechanicProfile.RageGainFromDamage(damage,playerMaximumLife));}
     void Gain(float amount){float multiplier=1+Mathf.Max(0,stats.GetStat(StatTypes.RageGeneration));sinceGain=0;SetRage(Rage+amount*multiplier);}
     void SetRage(float value){float next=Mathf.Clamp(value,0,MaximumRage);if(Mathf.Approximately(next,Rage))return;Rage=next;if(Rage<MaximumRage)FinisherArmed=false;Changed?.Invoke();}
     public bool TryArmFinisher(){if(!FinisherAvailable||FinisherArmed)return false;FinisherArmed=true;Changed?.Invoke();return true;}

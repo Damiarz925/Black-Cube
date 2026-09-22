@@ -94,19 +94,21 @@ public sealed class EnemyBehaviorDecision
 public static class EnemyBehaviorResolver
 {
     public static EnemyBehaviorDecision Resolve(WorldContentDatabase db,EnemyBehaviorProfileDefinition profile,EnemyBehaviorRuntimeState state)
+        =>Resolve(profile,state,id=>db?.EnemySkill(id)!=null);
+    public static EnemyBehaviorDecision Resolve(EnemyBehaviorProfileDefinition profile,EnemyBehaviorRuntimeState state,Func<string,bool> skillExists)
     {
         state??=new EnemyBehaviorRuntimeState();
         var decision=new EnemyBehaviorDecision{profileId=profile?.stableId};
         if(profile?.rules==null||profile.rules.Count==0)return decision;
-        if(profile.preserveLegacyRotatingCadence)return ResolveLegacy(db,profile,state,decision);
+        if(profile.preserveLegacyRotatingCadence)return ResolveLegacy(profile,state,decision,skillExists);
         var eligible=new List<EnemyActionRule>();
         foreach(var rule in profile.rules)
         {
-            string reason;bool ok=Eligible(db,rule,state,out reason);
+            string reason;bool ok=Eligible(rule,state,skillExists,out reason);
             decision.traces.Add(new EnemyBehaviorRuleTrace{ruleId=rule?.stableId,skillId=rule?.skillId,eligible=ok,priority=rule?.priority??0,weight=rule?.weight??0,randomRoll=state.random01,reason=reason});
             if(ok)eligible.Add(rule);
         }
-        if(eligible.Count==0)eligible.AddRange(profile.rules.Where(x=>x!=null&&x.fallbackEligible&&db?.EnemySkill(x.skillId)!=null));
+        if(eligible.Count==0)eligible.AddRange(profile.rules.Where(x=>x!=null&&x.fallbackEligible&&skillExists?.Invoke(x.skillId)==true));
         if(eligible.Count==0)return decision;
         int top=eligible.Max(x=>x.priority);var group=eligible.Where(x=>x.priority==top).ToList();
         EnemyActionRule selected=group[0];
@@ -118,21 +120,21 @@ public static class EnemyBehaviorResolver
         Record(selected,state);decision.selectedRuleId=selected.stableId;decision.selectedSkillId=selected.skillId;decision.reason=$"Highest eligible priority {top}";return decision;
     }
 
-    static EnemyBehaviorDecision ResolveLegacy(WorldContentDatabase db,EnemyBehaviorProfileDefinition profile,EnemyBehaviorRuntimeState state,EnemyBehaviorDecision decision)
+    static EnemyBehaviorDecision ResolveLegacy(EnemyBehaviorProfileDefinition profile,EnemyBehaviorRuntimeState state,EnemyBehaviorDecision decision,Func<string,bool> skillExists)
     {
         int turn=Mathf.Max(0,state.completedAttacks),count=profile.rules.Count;
         for(int offset=0;offset<count;offset++)
         {
-            var rule=profile.rules[(turn+offset)%count];var skill=db?.EnemySkill(rule?.skillId);int cadence=Mathf.Max(1,rule?.everyNAttacks??1);bool ok=skill!=null&&(turn+1)%cadence==0;
-            decision.traces.Add(new EnemyBehaviorRuleTrace{ruleId=rule?.stableId,skillId=rule?.skillId,eligible=ok,priority=rule?.priority??0,weight=rule?.weight??0,reason=skill==null?"Missing skill":ok?$"Action {turn+1} matches every {cadence}":$"Action {turn+1} does not match every {cadence}"});
+            var rule=profile.rules[(turn+offset)%count];bool skill=skillExists?.Invoke(rule?.skillId)==true;int cadence=Mathf.Max(1,rule?.everyNAttacks??1);bool ok=skill&&(turn+1)%cadence==0;
+            decision.traces.Add(new EnemyBehaviorRuleTrace{ruleId=rule?.stableId,skillId=rule?.skillId,eligible=ok,priority=rule?.priority??0,weight=rule?.weight??0,reason=!skill?"Missing skill":ok?$"Action {turn+1} matches every {cadence}":$"Action {turn+1} does not match every {cadence}"});
             if(!ok)continue;Record(rule,state);decision.selectedRuleId=rule.stableId;decision.selectedSkillId=rule.skillId;decision.reason="Legacy rotating cadence matched";return decision;
         }
         var fallback=profile.rules[turn%count];Record(fallback,state);decision.selectedRuleId=fallback.stableId;decision.selectedSkillId=fallback.skillId;decision.reason="No cadence matched; rotating fallback";return decision;
     }
 
-    static bool Eligible(WorldContentDatabase db,EnemyActionRule rule,EnemyBehaviorRuntimeState state,out string reason)
+    static bool Eligible(EnemyActionRule rule,EnemyBehaviorRuntimeState state,Func<string,bool> skillExists,out string reason)
     {
-        if(rule==null||db?.EnemySkill(rule.skillId)==null){reason="Missing rule or skill";return false;}
+        if(rule==null||skillExists?.Invoke(rule.skillId)!=true){reason="Missing rule or skill";return false;}
         int uses=state.uses.TryGetValue(rule.stableId,out int u)?u:0;
         if((rule.oncePerEncounter||rule.condition==EnemyBehaviorCondition.OncePerEncounter)&&uses>0){reason="Already used once";return false;}
         if(rule.maximumUses>0&&uses>=rule.maximumUses){reason="Maximum uses reached";return false;}

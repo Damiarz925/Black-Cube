@@ -946,12 +946,7 @@ public class BattleManager : MonoBehaviour
     }
 
     public static int RollOverflowApplications(float chance)
-    {
-        chance = Mathf.Max(0f, chance);
-        int guaranteed = Mathf.FloorToInt(chance);
-        float remainder = chance - guaranteed;
-        return guaranteed + (remainder > 0f && Random.value < remainder ? 1 : 0);
-    }
+        => BlackCube.CombatSimulation.CombatDeterministicRules.RollOverflowApplications(chance,()=>Random.value);
 
     public static float AdjustedChance(StatsComponent stats, StatTypes chance)
     {
