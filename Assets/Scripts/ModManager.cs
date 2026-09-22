@@ -169,7 +169,7 @@ public class ModManager : MonoBehaviour
 
     /// <summary>Uses the drop generator's pools, groups, weights and item-level gates for crafting.</summary>
     public RolledMod RollAdditionalMod(Gear gear, LootManager.GearRarity rarity,
-        AffixSide? requiredSide = null)
+        AffixSide? requiredSide = null, ILootRandomSource random = null)
     {
         if (gear == null) return null;
         var usedStats = new HashSet<StatTypes>();
@@ -183,10 +183,10 @@ public class ModManager : MonoBehaviour
                 foreach (string group in definition.groups) usedGroups.Add(group);
         }
         return RollSingleMod(gear.ItemType, rarity, gear.ItemLevel, usedStats, usedGroups,
-            gear.BaseElement, false, gear.rolledMods, requiredSide: requiredSide, weaponTypeId: gear.WeaponTypeId);
+            gear.BaseElement, false, gear.rolledMods, requiredSide: requiredSide, weaponTypeId: gear.WeaponTypeId, random: random);
     }
 
-    public RolledMod RerollModifier(Gear gear, RolledMod replaced, LootManager.GearRarity rarity)
+    public RolledMod RerollModifier(Gear gear, RolledMod replaced, LootManager.GearRarity rarity, ILootRandomSource random = null)
     {
         if (gear == null || replaced == null || replaced.lockedOriginal || replaced.isEmpowered || replaced.isBossSpecial) return null;
         var usedStats = new HashSet<StatTypes>();
@@ -201,7 +201,7 @@ public class ModManager : MonoBehaviour
         }
         return RollSingleMod(gear.ItemType, rarity, gear.ItemLevel, usedStats, usedGroups,
             gear.BaseElement, false, gear.rolledMods, replaced,
-            requiredSide: AffixPolicy.Side(replaced.statType), weaponTypeId: gear.WeaponTypeId);
+            requiredSide: AffixPolicy.Side(replaced.statType), weaponTypeId: gear.WeaponTypeId, random: random);
     }
 
     static void ReserveIntrinsicWeaponStats(Gear gear, HashSet<StatTypes> usedStats)
@@ -309,7 +309,7 @@ public class ModManager : MonoBehaviour
             or >= StatTypes.Plus1Phys and <= StatTypes.Plus1Ignite;
     }
 
-    private static bool IsWeaponAffixEligible(StatTypes stat, Element weaponElement)
+    public static bool IsWeaponAffixEligible(StatTypes stat, Element weaponElement)
     {
         switch (stat)
         {

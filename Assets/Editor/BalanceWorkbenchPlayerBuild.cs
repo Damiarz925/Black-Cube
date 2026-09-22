@@ -15,22 +15,25 @@ namespace BlackCube.BalanceWorkbench
 
     [Serializable] public sealed class GearSnapshot
     {
-        public LootManager.GearType slot;public LootManager.GearRarity rarity;public int itemLevel;public Element element;public string weaponTypeId;public float baseMin,baseMax,baseSpeed,baseCrit;public List<RolledModSnapshot> mods=new();
+        public LootManager.GearType slot;public LootManager.GearRarity rarity,originRarity;public int itemLevel,currentPotential,maximumPotential;public Element element;public string weaponTypeId;public float baseMin,baseMax,baseSpeed,baseCrit;public List<RolledModSnapshot> mods=new();
         public string Description=>$"{rarity} {slot} L{itemLevel}"+(slot==LootManager.GearType.Weapons?$" {weaponTypeId}":"")+"\n"+string.Join("\n",mods.Select(x=>$"{x.stat} T{x.tier}: {x.value:0.##}"+(x.paired?$"–{x.high:0.##}":"")));
-        public static GearSnapshot Capture(Gear g)=>new(){slot=g.ItemType,rarity=g.ItemRarity,itemLevel=g.ItemLevel,element=g.BaseElement,weaponTypeId=g.WeaponTypeId,baseMin=g.BaseDamageMin,baseMax=g.BaseDamageMax,baseSpeed=g.BaseAttackSpeed,baseCrit=g.BaseCritChance,mods=g.rolledMods.Where(x=>x!=null).Select(RolledModSnapshot.Capture).ToList()};
+        public static GearSnapshot Capture(Gear g)=>new(){slot=g.ItemType,rarity=g.ItemRarity,originRarity=g.OriginRarity,itemLevel=g.ItemLevel,currentPotential=g.CurrentCraftingPotential,maximumPotential=g.MaximumCraftingPotential,element=g.BaseElement,weaponTypeId=g.WeaponTypeId,baseMin=g.BaseDamageMin,baseMax=g.BaseDamageMax,baseSpeed=g.BaseAttackSpeed,baseCrit=g.BaseCritChance,mods=g.rolledMods.Where(x=>x!=null).Select(RolledModSnapshot.Capture).ToList()};
         public Gear Materialize(Transform parent,string name)
         {
-            var go=new GameObject(name){hideFlags=HideFlags.HideAndDontSave};go.transform.SetParent(parent);var g=go.AddComponent<Gear>();g.Initialize(slot,rarity,itemLevel,element,weaponTypeId);g.ApplyMods(mods.Select(x=>x.Restore()).ToList());g.BaseDamageMin=baseMin;g.BaseDamageMax=baseMax;g.BaseDamage=(baseMin+baseMax)*.5f;g.BaseAttackSpeed=baseSpeed;g.BaseCritChance=baseCrit;return g;
+            var go=new GameObject(name){hideFlags=HideFlags.HideAndDontSave};go.transform.SetParent(parent);var g=go.AddComponent<Gear>();g.Initialize(slot,rarity,itemLevel,element,weaponTypeId);g.ApplyMods(mods.Select(x=>x.Restore()).ToList());if(maximumPotential>0)g.RestoreCraftingState(originRarity,currentPotential,maximumPotential);g.BaseDamageMin=baseMin;g.BaseDamageMax=baseMax;g.BaseDamage=(baseMin+baseMax)*.5f;g.BaseAttackSpeed=baseSpeed;g.BaseCritChance=baseCrit;return g;
         }
     }
 
     [Serializable] public sealed class PlayerBuildSnapshot
     {
         public int playerLevel=50,combatLevel=50;public string classId=PlayerClassIds.Warrior,subclassId="",weaponTypeId=WeaponTypeIds.Sword;public SubclassProjectileMode projectileMode;
-        public List<GearSnapshot> equipment=new();public List<string> passiveStableIds=new();public long seed=41001;public string dataFingerprint,gearProfileGuid;public int gearProfileVersion;
+        public List<GearSnapshot> equipment=new();public List<string> passiveStableIds=new();public List<AnalysisStatDelta> analysisDeltas=new();public long seed=41001;public string dataFingerprint,gearProfileGuid;public int gearProfileVersion;
         public PlayerBuildSnapshot Clone()=>JsonUtility.FromJson<PlayerBuildSnapshot>(JsonUtility.ToJson(this));
         public int[] AllocationRanks(){var r=new int[PassiveTreeDefinition.NodeCount];foreach(string id in passiveStableIds??new())if(PassiveTreeDefinition.TryNode(id,out var n))r[n.Id]=1;return r;}
     }
+
+    // Editor-only scenario perturbations. They enter the same modifier pipeline as gear/passives.
+    [Serializable] public sealed class AnalysisStatDelta { public StatTypes stat; public float amount; }
 
     [Serializable] public sealed class SkillAnalyticalMetrics
     {public string name,castMode,assumption;public double averageDamagePerUse,averageDirectHit,expectedHits,effectiveCooldown,idealCooldownDps,manaCost;public bool sustainable;}
@@ -58,6 +61,7 @@ namespace BlackCube.BalanceWorkbench
                 int[] ranks=build.AllocationRanks();foreach(var node in PassiveTreeDefinition.Nodes)if(ranks[node.Id]!=0&&(string.IsNullOrEmpty(node.WeaponTypeRestriction)||node.WeaponTypeRestriction==build.weaponTypeId))
                 {var effects=node.IsSubclassChoice?PassiveTreeDefinition.SubclassEffects(build.subclassId,node):node.Effects;foreach(var e in effects)Stats.AddModifier(new StatModifier(e.Stat,StatOp.Flat,e.Amount,this));}
                 SubclassStatPackage.Apply(build.subclassId,(s,v)=>Stats.AddModifier(new StatModifier(s,StatOp.Flat,v,this)));
+                foreach(var delta in build.analysisDeltas??new())Stats.AddModifier(new StatModifier(delta.stat,StatOp.Flat,delta.amount,this));
                 foreach(var snapshot in build.equipment??new()){var g=snapshot.Materialize(root.transform,"Workbench "+snapshot.slot);gear.Add(g);foreach(var m in g.globalRolledMods)Stats.AddModifier(new StatModifier(m.statType,StatMappings.GetRolledModifierOperation(m.statType),m.value,g));if(g.ItemType==LootManager.GearType.Weapons)Player.EquipWeapon(g);}
             }finally{Stats.EndUpdate();}
             Metrics=Capture(build);

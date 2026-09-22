@@ -566,31 +566,31 @@ public static class EquipmentCrafting
             _ => false
         };
     }
-    public static bool TryApply(CraftingCurrencyType currency, Gear gear, ModManager mods)
+    public static bool TryApply(CraftingCurrencyType currency, Gear gear, ModManager mods, ILootRandomSource random = null)
     {
         if (!CanApply(currency, gear) || mods == null) return false;
         switch (currency)
         {
             case CraftingCurrencyType.NormalToMagic:
-                if (!AddPair(gear, mods, LootManager.GearRarity.Magic)) return false;
+                if (!AddPair(gear, mods, LootManager.GearRarity.Magic, random)) return false;
                 gear.SetRarity(LootManager.GearRarity.Magic); break;
             case CraftingCurrencyType.MagicToRare:
-                if (!AddPair(gear, mods, LootManager.GearRarity.Rare)) return false;
+                if (!AddPair(gear, mods, LootManager.GearRarity.Rare, random)) return false;
                 gear.SetRarity(LootManager.GearRarity.Rare); break;
             case CraftingCurrencyType.AddRareModifier:
-                if (!Add(gear, mods, gear.ItemRarity)) return false; break;
+                if (!Add(gear, mods, gear.ItemRarity, null, random)) return false; break;
             case CraftingCurrencyType.RerollMagic:
             case CraftingCurrencyType.RerollRareModifier:
-                if (!RerollRandomUnlocked(gear, mods)) return false; break;
+                if (!RerollRandomUnlocked(gear, mods, random)) return false; break;
             case CraftingCurrencyType.RemoveRareModifier:
-                if (!RemoveRandomUnlocked(gear)) return false; break;
+                if (!RemoveRandomUnlocked(gear, random)) return false; break;
             default: return false;
         }
         if(!gear.TrySpendCraftingPotential(CraftingPotentialProfile.OrdinaryCost(currency)))return false;
         gear.RebuildMods();
         return true;
     }
-    static bool AddPair(Gear gear, ModManager mods, LootManager.GearRarity rarity)
+    static bool AddPair(Gear gear, ModManager mods, LootManager.GearRarity rarity, ILootRandomSource random)
     {
         int original = gear.rolledMods.Count;
         for (int index = 0; index < 2; index++)
@@ -602,7 +602,7 @@ public static class EquipmentCrafting
                 if (AffixPolicy.Side(mod) == AffixSide.Prefix) prefixes++; else suffixes++;
             }
             AffixSide side = prefixes <= suffixes ? AffixSide.Prefix : AffixSide.Suffix;
-            if (!Add(gear, mods, rarity, side))
+            if (!Add(gear, mods, rarity, side, random))
             {
                 gear.rolledMods.RemoveRange(original, gear.rolledMods.Count - original);
                 return false;
@@ -611,26 +611,26 @@ public static class EquipmentCrafting
         return true;
     }
     static bool Add(Gear gear, ModManager mods, LootManager.GearRarity rarity,
-        AffixSide? side = null)
+        AffixSide? side = null, ILootRandomSource random = null)
     {
-        RolledMod added = mods.RollAdditionalMod(gear, rarity, side);
+        RolledMod added = mods.RollAdditionalMod(gear, rarity, side, random);
         if (added == null) return false;
         added.lockedOriginal = false; gear.rolledMods.Add(added); return true;
     }
-    static bool RerollRandomUnlocked(Gear gear, ModManager mods)
+    static bool RerollRandomUnlocked(Gear gear, ModManager mods, ILootRandomSource random)
     {
         var candidates = Rerollable(gear);
         if (candidates.Count == 0) return false;
-        RolledMod old = candidates[UnityEngine.Random.Range(0, candidates.Count)];
-        RolledMod replacement = mods.RerollModifier(gear, old, gear.ItemRarity);
+        RolledMod old = candidates[random?.Range(0, candidates.Count) ?? UnityEngine.Random.Range(0, candidates.Count)];
+        RolledMod replacement = mods.RerollModifier(gear, old, gear.ItemRarity, random);
         if (replacement == null) return false;
         replacement.lockedOriginal = false;
         gear.rolledMods[gear.rolledMods.IndexOf(old)] = replacement; return true;
     }
-    static bool RemoveRandomUnlocked(Gear gear)
+    static bool RemoveRandomUnlocked(Gear gear, ILootRandomSource random)
     {
         var candidates = Removable(gear);
-        return candidates.Count > 0 && gear.rolledMods.Remove(candidates[UnityEngine.Random.Range(0, candidates.Count)]);
+        return candidates.Count > 0 && gear.rolledMods.Remove(candidates[random?.Range(0, candidates.Count) ?? UnityEngine.Random.Range(0, candidates.Count)]);
     }
     static bool IsRareOrLegendary(Gear gear)=>gear.ItemRarity is LootManager.GearRarity.Rare or LootManager.GearRarity.Legendary;
     static int Maximum(LootManager.GearRarity rarity)=>rarity==LootManager.GearRarity.Legendary?6:RareCap;
