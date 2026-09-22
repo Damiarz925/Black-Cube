@@ -88,3 +88,12 @@ Gear Curves generates full legal sets for Low, Mid, and Optimized profiles. Scen
 Player vs Enemy reuses the exact Enemy Gear Lab sample set. It reports neutral analytical `enemy Life / player DPS` TTK and `player Life / enemy DPS` TTD ratios for percentile enemies. These are not combat simulations. Normalized mode indexes each curve’s first point to 100 so growth shapes can be compared without plotting incompatible units on one raw axis.
 
 The production-data fingerprint includes affix, enemy, loot, skill, passive database/Branch, and player gear-profile assets. Editing a passive Branch or gear profile therefore changes the fingerprint and invalidates the assumptions behind an older result.
+# Tooling 3 enemy authoring
+
+The same Balance Workbench now includes Enemy Authoring, Enemy Scaling, Enemy Preview, Behavior Preview, and Boss / Phase Authoring. These surfaces read the authoritative Assets/Resources/GameData/WorldContentDatabase.asset, production EnemyScalingProfile, EnemyAI, and EnemyBuildOptimizer.
+
+Enemy, behavior, phase, scaling, rarity, and corruption edits are staged. They do not write production data until the corresponding validated Apply button is confirmed. Production applications use Unity Undo, dirty and save only the authoritative asset, reload shared data, and invalidate cached results and the production-data fingerprint.
+
+Generated enemy curves use real candidate generation and `EnemyBuildOptimizer` at every sampled level and expose P10/P50/mean/P90/P99 for Life, hit damage, DPS, Armour, GearScore, primary resistance, and regeneration. Enemy Preview supports exact seed reproduction, forced-damage experiments, gear/behavior inspection, and four-way comparison. Behavior Preview uses the same deterministic resolver as runtime and records full **Why This Action?** traces. Boss/phase, rarity, and 0–100% corruption editing are views over the production catalog rather than Workbench-only copies.
+
+See ENEMY_AUTHORING_TOOLS.md, ENEMY_BEHAVIOR_AUTHORING.md, and ENEMY_SCALING_EDITOR.md.
