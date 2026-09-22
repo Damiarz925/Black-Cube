@@ -1,0 +1,5 @@
+# Breakpoint Finder
+
+Open **Balance Workbench → Breakpoint Finder**. Choose Player Analytical, Enemy Gear, Combat, Drops, or Loot Progression; then set a level range, coarse step, metric ID, threshold, and comparison operator. **Find Breakpoint** scans for the first crossing or all crossings; it checks intervening integer levels, so non-monotonic curves are not assumed to be smooth. Combat metric IDs include `win_rate`, `p50_ttk`, `p90_ttk`, and `mana_starvation`. Player IDs come from the Player Build Lab metric catalog. Enemy uses `dps_p50` or `life_p50`; Drops uses `gear_per_kill` or `currency_per_kill`; Loot uses `upgrades_per_100`. Combat scans reuse the current Combat Lab scenario and fight count; analytical scans change player level.
+
+The result shows before/at/after values, seed, fight count, a curve with threshold line, CSV, and PNG export. For stochastic combat metrics, a crossing from a small fight count is only an estimate: increase fights and repeat around that level. This first pass does not display a confidence interval or batch multiple classes/profiles in one action.

@@ -1,5 +1,15 @@
 # Black-Cube Balance Workbench
 
+Tooling 5 adds seven analysis tabs to the same Workbench: Sensitivity, Affix Analyzer, Loot Progression, Crafting Simulator, Balance Snapshots, Breakpoint Finder, and Balance Report. These inspect production data and never rebalance it automatically. See the dedicated guides below for the supported inputs, exports, and current boundaries.
+
+- [Sensitivity Analyzer](SENSITIVITY_ANALYZER.md)
+- [Affix Analyzer](AFFIX_ANALYZER.md)
+- [Loot Progression](LOOT_PROGRESSION_SIMULATOR.md)
+- [Crafting Simulator](CRAFTING_SIMULATOR.md)
+- [Balance Snapshots](BALANCE_SNAPSHOTS.md)
+- [Breakpoint Finder](BREAKPOINT_FINDER.md)
+- [Balance Reporting](BALANCE_REPORTING.md)
+
 Open **Black-Cube → Balance Workbench** in the Unity Editor. The Workbench is an inspection, simulation, and authoring frontend over production systems; it is not a second balance implementation.
 
 ## Architecture and parity

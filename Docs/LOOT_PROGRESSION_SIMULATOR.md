@@ -1,0 +1,7 @@
+# Loot Progression Simulator
+
+Open **Balance Workbench → Loot Progression**. Prepare the character and objective first, then choose combat level, enemy rarity, boss role, kill count, seed, and minimum objective gain. **Static** compares each generated item to the starting build. **Progressive auto-equip** updates the simulated build when it finds an upgrade, making later upgrades harder to find. The actual production item-type, rarity, weapon, element, affix, tier, currency-selection and loot-budget services are used with a seeded random stream. Each kill is rolled independently.
+
+Read total kills, drops, upgrades, first-upgrade kill for this run, percentile intervals between upgrades, upgrade magnitude, slot and rarity counts, and currency accumulation. **Inspect Best Dropped Item** opens the exact saved item snapshot. CSV export records every accepted upgrade. Percentiles are over intervals within the run, not over independently repeated first-upgrade trials.
+
+**Sample actual enemy gear** reuses the Enemy Gear Lab population path (up to 1,000 independent production builds) and applies each sampled quality factor to subsequent kill budgets. Switch it off for an expected-quality (`1.0`) controlled preview. **Compare Rarities** runs each fixed enemy rarity with the same kill budget. If a Tooling 2 gear profile is selected, **Level Sweep** generates a build at levels 10–100 through the existing gear optimizer and plots kills per upgrade. The tab does not yet sample biome/stage rarity mixtures. This matters when extrapolating to actual world farming.

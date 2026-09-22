@@ -114,6 +114,8 @@ __pycache__/
 
 # Deterministic balance-lab generated reports (committed observations live in Docs).
 /Logs/Balance/
+# Generated Workbench CSV/PNG/Markdown captures are local experiment output.
+/ReviewCaptures/BalanceWorkbench/
 
 # Huge third-party/store asset payloads. Other store assets remain allowed.
 /[Aa]ssets/[Ss]tore [Aa]ssets/[Aa]llsky/
