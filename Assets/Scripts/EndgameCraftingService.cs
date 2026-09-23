@@ -41,17 +41,25 @@ public static class EndgameCraftingService
     {
         if(gear==null||gear.ItemLevel!=100||gear.ItemRarity is not (LootManager.GearRarity.Rare or LootManager.GearRarity.Legendary)
             ||gear.ImplicitMod==null||EndgameResourceLedger.Instance==null||EndgameResourceLedger.Instance.Count(EndgameResourceIds.ImplicitReforger)<1||ModManager.Instance==null)return false;
+        if(!TryReforgeImplicitCore(gear,ModManager.Instance,random))return false;
+        if(!EndgameResourceLedger.Instance.TrySpend(EndgameResourceIds.ImplicitReforger))return false;
+        Publish(gear);return true;
+    }
+    // Shared production mutation used by the player-facing transaction and isolated Workbench trials.
+    public static bool TryReforgeImplicitCore(Gear gear,ModManager mods,ILootRandomSource random=null)
+    {
+        if(gear==null||gear.ItemLevel!=100||gear.ItemRarity is not (LootManager.GearRarity.Rare or LootManager.GearRarity.Legendary)
+            ||gear.ImplicitMod==null||mods==null)return false;
         random??=LootRandomSourceFactory.CreateProduction();StatTypes old=gear.ImplicitMod.statType;RolledMod replacement=null;
         for(int attempt=0;attempt<96;attempt++)
         {
-            List<RolledMod> rolled=ModManager.Instance.RollEquipmentModsForItem(gear.ItemType,gear.ItemRarity,100,gear.BaseElement,gear.WeaponTypeId,random);
+            List<RolledMod> rolled=mods.RollEquipmentModsForItem(gear.ItemType,gear.ItemRarity,100,gear.BaseElement,gear.WeaponTypeId,random);
             if(rolled==null)continue;RolledMod candidate=rolled.Find(x=>x!=null&&x.lockedOriginal&&!Gear.IsWeaponBaseStat(x.statType));
             if(candidate!=null&&candidate.statType!=old){replacement=Clone(candidate);break;}
         }
         if(replacement==null)return false;int index=gear.rolledMods.IndexOf(gear.ImplicitMod);if(index<0)return false;
         replacement.lockedOriginal=true;gear.rolledMods[index]=replacement;gear.RebuildMods();
-        if(!EndgameResourceLedger.Instance.TrySpend(EndgameResourceIds.ImplicitReforger))return false;
-        Publish(gear);return true;
+        return true;
     }
     static RolledMod Clone(RolledMod m)=>new(m.statType,m.tierIndex,m.value,m.HighValue,true){hasSecondaryValue=m.hasSecondaryValue,secondaryValue=m.secondaryValue};
     static void Publish(Gear gear){Inventory.Instance?.NotifyItemChanged(gear);EquipmentManager.Instance?.NotifyItemChanged(gear);GamePersistence.Save();}

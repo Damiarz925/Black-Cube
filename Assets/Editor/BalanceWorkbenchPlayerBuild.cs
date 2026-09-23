@@ -8,9 +8,14 @@ namespace BlackCube.BalanceWorkbench
 {
     [Serializable] public sealed class RolledModSnapshot
     {
-        public StatTypes stat; public int tier; public float value,high; public bool paired,implicitMod,empowered,bossSpecial; public string pool,id;
-        public static RolledModSnapshot Capture(RolledMod x)=>new(){stat=x.statType,tier=x.tierIndex,value=x.value,high=x.secondaryValue,paired=x.hasSecondaryValue,implicitMod=x.lockedOriginal,empowered=x.isEmpowered,bossSpecial=x.isBossSpecial,pool=x.specialPoolId,id=x.specialModifierId};
-        public RolledMod Restore()=>paired?new RolledMod(stat,tier,value,high,implicitMod):new RolledMod(stat,tier,value,implicitMod){isEmpowered=empowered,isBossSpecial=bossSpecial,specialPoolId=pool,specialModifierId=id};
+        public StatTypes stat; public int tier; public float value,high; public bool paired,implicitMod,empowered,bossSpecial; public string pool,id;public AffixSide specialSide;
+        public static RolledModSnapshot Capture(RolledMod x)=>new(){stat=x.statType,tier=x.tierIndex,value=x.value,high=x.secondaryValue,paired=x.hasSecondaryValue,implicitMod=x.lockedOriginal,empowered=x.isEmpowered,bossSpecial=x.isBossSpecial,pool=x.specialPoolId,id=x.specialModifierId,specialSide=x.specialAffixSide};
+        public RolledMod Restore()
+        {
+            var mod=paired?new RolledMod(stat,tier,value,high,implicitMod):new RolledMod(stat,tier,value,implicitMod);
+            mod.isEmpowered=empowered;mod.isBossSpecial=bossSpecial;mod.specialPoolId=pool;mod.specialModifierId=id;mod.specialAffixSide=specialSide;
+            return mod;
+        }
     }
 
     [Serializable] public sealed class GearSnapshot

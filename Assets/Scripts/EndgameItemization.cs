@@ -44,16 +44,16 @@ public static class EmpowermentProgressionProfile
 
 public static class EmpowermentCrafting
 {
-    public static bool IsEligible(Gear gear,RolledMod mod,int combatLevel)
+    public static bool IsEligible(Gear gear,RolledMod mod,int combatLevel,ModDatabase database=null)
     {
         if(gear==null||mod==null||!gear.rolledMods.Contains(mod)||gear.EmpoweredModifierCount>=EmpowermentProgressionProfile.MaximumEmpoweredModifiers(combatLevel)
             ||mod.lockedOriginal||mod.isEmpowered||mod.isBossSpecial||Gear.IsWeaponBaseStat(mod.statType)||mod.tierIndex!=1)return false;
-        var definition=ModManager.Instance?.Database?.GetDefinition(mod.statType);return IsEmpowerable(definition,mod.statType)
+        var definition=(database??ModManager.Instance?.Database)?.GetDefinition(mod.statType);return IsEmpowerable(definition,mod.statType)
             &&ModManager.ApplicableTiers(definition,gear.ItemType,gear.WeaponTypeId).Exists(x=>x.tierIndex==1);
     }
-    public static bool TryApply(Gear gear,RolledMod target,int combatLevel,float valueRoll=-1f,float highRoll=-1f)
+    public static bool TryApply(Gear gear,RolledMod target,int combatLevel,float valueRoll=-1f,float highRoll=-1f,ModDatabase database=null)
     {
-        if(!IsEligible(gear,target,combatLevel))return false;var definition=ModManager.Instance.Database.GetDefinition(target.statType);
+        if(!IsEligible(gear,target,combatLevel,database))return false;var definition=(database??ModManager.Instance.Database).GetDefinition(target.statType);
         var tier=ModManager.ApplicableTiers(definition,gear.ItemType,gear.WeaponTypeId).Find(x=>x.tierIndex==1);if(tier==null)return false;
         EmpoweredRange(definition,tier,out float min,out float max,out float minHigh,out float maxHigh);
         target.value=Round(Mathf.Lerp(min,max,valueRoll<0?UnityEngine.Random.value:Mathf.Clamp01(valueRoll)));
