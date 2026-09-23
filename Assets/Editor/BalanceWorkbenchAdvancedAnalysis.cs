@@ -80,6 +80,9 @@ namespace BlackCube.BalanceWorkbench
     public enum BreakpointOperator { Greater, GreaterOrEqual, Less, LessOrEqual, CrossUp, CrossDown }
     [Serializable] public sealed class BreakpointPoint { public int level; public double value; }
     [Serializable] public sealed class BreakpointResult { public int level;public double before,at,after,threshold,confidenceLow,confidenceHigh;public int samples;public long seed;public string metric,fingerprint;public List<BreakpointPoint> curve=new(); }
+    [Serializable] public sealed class BreakpointBatchCase { public string name,classId,subclassId,weaponId,biomeId;public EnemyAI.EnemyRarity rarity;public int corruption; }
+    [Serializable] public sealed class BreakpointBatchRow { public string scenario,confidence;public bool crossingFound;public int firstCrossing,allCrossings,samples;public double before,at,threshold,confidenceLow,confidenceHigh;public List<BreakpointResult> crossings=new(); }
+    [Serializable] public sealed class BreakpointSampleBudget { public int initial=100,refinement=100,maximum=1000;public double confidenceZ=1.96; }
     public static class BreakpointFinder
     {
         public static (double low,double high) WilsonInterval(double proportion,int samples,double z=1.96)
@@ -92,25 +95,50 @@ namespace BlackCube.BalanceWorkbench
             for(int coarse=start+increment;coarse<=end+increment;coarse+=increment){int high=Math.Min(end,coarse);if(high<=start)break;int low=Math.Max(start,coarse-increment);for(int level=low+1;level<=high;level++){bool current=Matches(At(level),threshold,op);bool crossed=op is BreakpointOperator.CrossUp or BreakpointOperator.CrossDown ? !prior&&current : !prior&&current;if(crossed){results.Add(new BreakpointResult{level=level,before=At(level-1),at=At(level),after=At(Math.Min(end,level+1)),threshold=threshold});if(!all)goto Done;}prior=current;}if(high==end)break;}
             Done:var points=cache.OrderBy(x=>x.Key).Select(x=>new BreakpointPoint{level=x.Key,value=x.Value}).ToList();foreach(var r in results)r.curve=points;return results;
         }
+        public static List<BreakpointBatchRow> FindBatch(IReadOnlyList<BreakpointBatchCase> cases,Func<BreakpointBatchCase,int,double> evaluator,int start,int end,int increment,double threshold,BreakpointOperator op,BreakpointSampleBudget budget=null,Func<BreakpointBatchCase,int,int,double> sampledEvaluator=null,Action<float> progress=null,Func<bool> cancelled=null)
+        {
+            if(cases==null||evaluator==null)throw new ArgumentException("Batch cases and evaluator are required.");
+            var rows=new List<BreakpointBatchRow>();
+            for(int i=0;i<cases.Count;i++)
+            {
+                if(cancelled?.Invoke()==true)break;var c=cases[i];var points=Find(level=>sampledEvaluator==null?evaluator(c,level):sampledEvaluator(c,level,Math.Max(1,budget?.initial??100)),start,end,increment,threshold,op,true);
+                var row=new BreakpointBatchRow{scenario=c.name,threshold=threshold,crossingFound=points.Count>0,firstCrossing=points.FirstOrDefault()?.level??0,allCrossings=points.Count,crossings=points,samples=sampledEvaluator==null?1:Math.Max(1,budget?.initial??100),confidence="DETERMINISTIC"};
+                if(points.Count>0){row.before=points[0].before;row.at=points[0].at;}
+                if(sampledEvaluator!=null&&points.Count>0)
+                {
+                    int max=Math.Max(row.samples,budget?.maximum??row.samples),step=Math.Max(1,budget?.refinement??row.samples);double z=budget?.confidenceZ??1.96;
+                    while(true)
+                    {
+                        var ci=WilsonInterval(row.at,row.samples,z);row.confidenceLow=ci.low;row.confidenceHigh=ci.high;
+                        bool ambiguous=ci.low<=threshold&&ci.high>=threshold;row.confidence=ambiguous?"AMBIGUOUS / CI OVERLAPS THRESHOLD":Matches(row.at,threshold,op)?"CLEAR CROSSING":"REFINEMENT DID NOT CONFIRM CROSSING";
+                        if(!ambiguous||row.samples>=max||cancelled?.Invoke()==true)break;
+                        row.samples=Math.Min(max,row.samples+step);row.at=sampledEvaluator(c,row.firstCrossing,row.samples);
+                    }
+                }
+                rows.Add(row);progress?.Invoke((i+1f)/Math.Max(1,cases.Count));
+            }
+            return rows.OrderBy(x=>x.crossingFound?x.firstCrossing:int.MaxValue).ThenBy(x=>x.scenario,StringComparer.Ordinal).ToList();
+        }
     }
 
-    [Serializable] public sealed class BalanceScenario { public string name,source="Player Analytical",metric="basic_dps";public PlayerBuildSnapshot build=new();public CombatLabRequest combat=new();public DropLabRequest drop=new();public SensitivityRequest sensitivity=new();public AffixAnalysisRequest affix=new();public LootProgressionRequest loot=new();public CraftingSimulationRequest crafting=new(); }
+    public enum BalanceWidgetKind { SingleMetric, Curve, Distribution, Matrix, Ranking, Breakpoint }
+    [Serializable] public sealed class BalanceScenario { public string name,source="Player Analytical",metric="basic_dps";public BalanceWidgetKind widgetKind;public int startLevel=1,endLevel=100,increment=10,sampleCount=100;public double threshold=.7;public BreakpointOperator breakpointOperator=BreakpointOperator.Less;public List<PlayerBuildSnapshot> matrixBuilds=new();public ItemLabRequest item=new();public PlayerBuildSnapshot build=new();public CombatLabRequest combat=new();public DropLabRequest drop=new();public SensitivityRequest sensitivity=new();public AffixAnalysisRequest affix=new();public LootProgressionRequest loot=new();public CraftingSimulationRequest crafting=new(); }
     [Serializable] public sealed class BalanceSuite { public string name="Example / user-editable";public List<BalanceScenario> scenarios=new(); }
     [Serializable] public sealed class BalanceMetricValue { public string scenario,source,metric;public double value; }
-    [Serializable] public sealed class BalanceSnapshot { public string name,description,timestampUtc,gitCommit,fingerprint;public BalanceSuite suite;public List<BalanceMetricValue> metrics=new(); }
-    [Serializable] public sealed class BalanceDifference { public string scenario,source,metric;public double before,after,delta,percent;public bool highlighted; }
+    [Serializable] public sealed class BalanceSnapshot { public string name,description,timestampUtc,gitCommit,fingerprint;public BalanceSuite suite;public List<BalanceMetricValue> metrics=new();public List<SnapshotWidgetData> widgets=new(); }
+    [Serializable] public sealed class BalanceDifference { public string scenario,source,metric,status;public double before,after,delta,percent;public bool highlighted; }
     public static class BalanceSnapshotService
     {
         public static BalanceSnapshot Capture(BalanceSuite suite,string name,Action<float> progress=null,Func<bool> cancelled=null)
         {
-            var snap=new BalanceSnapshot{name=name,timestampUtc=DateTime.UtcNow.ToString("O"),gitCommit=ProductionBalanceAdapters.GitCommit(),fingerprint=ProductionBalanceAdapters.DataFingerprint(),suite=JsonUtility.FromJson<BalanceSuite>(JsonUtility.ToJson(suite))};for(int i=0;i<suite.scenarios.Count;i++){if(cancelled?.Invoke()==true)break;var s=suite.scenarios[i];double value=s.source switch{"Combat"=>CombatValue(s),"Drops"=>DropValue(s),"Enemy"=>ProductionBalanceAdapters.RunEnemies(new EnemyLabRequest{level=s.combat.enemyLevel,sampleCount=32,seed=s.combat.seed,archetypeId=s.combat.enemyArchetypeId,rarity=s.combat.rarity}).dps.p50,"Sensitivity"=>SensitivityAnalyzer.Run(s.sensitivity).rows.Select(x=>Math.Abs(x.absoluteDelta)).DefaultIfEmpty(0).Max(),"Affix"=>AffixAnalyzer.Run(s.affix).rows.Select(x=>x.objectiveDelta).DefaultIfEmpty(0).Max(),"Loot Progression"=>LootProgressionAnalyzer.Run(s.loot).upgrades.Count/(double)Math.Max(1,s.loot.kills)*100,"Crafting"=>CraftingSuccess(s.crafting),_=>OptimizationMetricCatalog.Get(s.metric).Value(PlayerBuildEvaluator.Evaluate(s.build))};snap.metrics.Add(new BalanceMetricValue{scenario=s.name,source=s.source,metric=s.metric,value=value});progress?.Invoke((i+1f)/suite.scenarios.Count);}return snap;
+            var snap=new BalanceSnapshot{name=name,timestampUtc=DateTime.UtcNow.ToString("O"),gitCommit=ProductionBalanceAdapters.GitCommit(),fingerprint=ProductionBalanceAdapters.DataFingerprint(),suite=JsonUtility.FromJson<BalanceSuite>(JsonUtility.ToJson(suite))};for(int i=0;i<suite.scenarios.Count;i++){if(cancelled?.Invoke()==true)break;var s=suite.scenarios[i];try{if(s.widgetKind==BalanceWidgetKind.SingleMetric){double value=s.source switch{"Combat"=>CombatValue(s),"Drops"=>DropValue(s),"Enemy"=>ProductionBalanceAdapters.RunEnemies(new EnemyLabRequest{level=s.combat.enemyLevel,sampleCount=32,seed=s.combat.seed,archetypeId=s.combat.enemyArchetypeId,rarity=s.combat.rarity}).dps.p50,"Sensitivity"=>SensitivityAnalyzer.Run(s.sensitivity).rows.Select(x=>Math.Abs(x.absoluteDelta)).DefaultIfEmpty(0).Max(),"Affix"=>AffixAnalyzer.Run(s.affix).rows.Select(x=>x.objectiveDelta).DefaultIfEmpty(0).Max(),"Loot Progression"=>LootProgressionAnalyzer.Run(s.loot).upgrades.Count/(double)Math.Max(1,s.loot.kills)*100,"Crafting"=>CraftingSuccess(s.crafting),_=>OptimizationMetricCatalog.Get(s.metric).Value(PlayerBuildEvaluator.Evaluate(s.build))};snap.metrics.Add(new BalanceMetricValue{scenario=s.name,source=s.source,metric=s.metric,value=value});}else snap.widgets.Add(BalanceSnapshotWidgets.Capture(s,cancelled));}catch(Exception ex){snap.widgets.Add(new SnapshotWidgetData{scenario=s.name,kind=s.widgetKind,source=s.source,status="FAILED",error=ex.Message});}progress?.Invoke((i+1f)/suite.scenarios.Count);}return snap;
         }
         static double CraftingSuccess(CraftingSimulationRequest request){var r=CraftingSimulator.Run(request);return r.trials>0?r.successes/(double)r.trials:0;}
         static double CombatValue(BalanceScenario s){var r=CombatLabAdapters.Batch(s.combat);return s.metric switch{"p50_ttk"=>r.duration.p50,"p90_ttk"=>r.duration.p90,"mana_starvation"=>r.manaStarvation.mean,_=>r.winRate};}
         static double DropValue(BalanceScenario s){var r=ProductionBalanceAdapters.RunDrops(s.drop);return s.metric=="gear_per_kill"?r.averageGearItems:r.averageCurrencyRolls;}
         public static List<BalanceDifference> Compare(BalanceSnapshot a,BalanceSnapshot b,double highlightPercent)
         {
-            var result=new List<BalanceDifference>();foreach(var x in a.metrics){var y=b.metrics.FirstOrDefault(v=>v.scenario==x.scenario&&v.metric==x.metric&&v.source==x.source);if(y==null)continue;double delta=y.value-x.value,percent=Math.Abs(x.value)>1e-9?delta/x.value:0;result.Add(new BalanceDifference{scenario=x.scenario,source=x.source,metric=x.metric,before=x.value,after=y.value,delta=delta,percent=percent,highlighted=Math.Abs(percent)>=highlightPercent});}return result;
+            var result=new List<BalanceDifference>();var keys=a.metrics.Select(x=>$"{x.scenario}|{x.source}|{x.metric}").Union(b.metrics.Select(x=>$"{x.scenario}|{x.source}|{x.metric}"));foreach(string key in keys){var x=a.metrics.FirstOrDefault(v=>$"{v.scenario}|{v.source}|{v.metric}"==key);var y=b.metrics.FirstOrDefault(v=>$"{v.scenario}|{v.source}|{v.metric}"==key);double delta=x!=null&&y!=null?y.value-x.value:0,percent=x!=null&&y!=null&&Math.Abs(x.value)>1e-9?delta/x.value:0;result.Add(new BalanceDifference{scenario=y?.scenario??x?.scenario,source=y?.source??x?.source,metric=y?.metric??x?.metric,before=x?.value??0,after=y?.value??0,delta=delta,percent=percent,highlighted=x!=null&&y!=null&&Math.Abs(percent)>=highlightPercent,status=x==null?"MISSING FROM A":y==null?"MISSING FROM B":a.fingerprint!=b.fingerprint?"STALE":Math.Abs(delta)>1e-9?"CHANGED":"UNCHANGED"});}return result;
         }
         public static string ExportMarkdown(BalanceSnapshot snapshot,IReadOnlyList<BalanceDifference> differences=null)
         {
