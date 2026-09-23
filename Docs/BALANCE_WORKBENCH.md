@@ -115,3 +115,11 @@ The Workbench now includes Combat Lab, Combat Timeline, Batch Matchups, Boss Lab
 Results cover Win/Loss/Timeout/Error, complete duration percentiles, remaining Life, DPS, damage source/type, healing/overheal, Mana starvation, Rage, ailments, skills, projectiles, and boss phase time. Action and Rage Finisher policies are saved simulation-only assumptions. Matchup matrices, level/corruption/rarity/gear-profile sweeps, policy comparison, trace replay, CSV/JSON/PNG exports, stale fingerprint warnings, and safety repro artifacts are integrated into the same window.
 
 See `COMBAT_LAB.md`, `COMBAT_SIMULATION_ARCHITECTURE.md`, and `PLAYER_COMBAT_POLICIES.md`.
+
+## Tooling 5 completion checkpoint
+
+The advanced-analysis tabs now include independent first-upgrade trials with censoring, world/stage encounter-source selection and level sweeps; production ordinary/endgame crafting trials with simulated resources and bounded policy search; scalar/curve/distribution/matrix/ranking/breakpoint snapshot widgets; class × enemy-rarity batch breakpoints with Wilson refinement; and sectioned report bundles. Each result carries its scenario, seed, Git revision, and production-data fingerprint where applicable. None of these analyses automatically edits production balance.
+
+`Tooling5EditorSmokeRunner.Run` opens the Workbench and exercises the seven tab request/result controllers plus report export in an Editor session. Its log states the exact boundary: native IMGUI mouse clicks and visible layout still require a foreground manual check. The legacy BalanceLab is not part of this workflow.
+
+Detailed operation and known limitations are documented in `LOOT_PROGRESSION_SIMULATOR.md`, `CRAFTING_SIMULATOR.md`, `BALANCE_SNAPSHOTS.md`, `BREAKPOINT_FINDER.md`, and `BALANCE_REPORTING.md`. In particular, boss-stage quality in mixed loot runs currently uses expected-quality baseline, batch breakpoint dimensions are class and enemy rarity only, and some report widget catalog labels render through a generic scenario data view.

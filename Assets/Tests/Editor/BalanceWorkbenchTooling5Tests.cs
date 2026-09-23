@@ -6,6 +6,7 @@ using NUnit.Framework;
 public sealed class BalanceWorkbenchTooling5Tests
 {
     static PlayerBuildSnapshot Build()=>new(){playerLevel=60,combatLevel=60,classId=PlayerClassIds.Warrior,weaponTypeId=WeaponTypeIds.Sword,equipment=new(){new GearSnapshot{slot=LootManager.GearType.Weapons,rarity=LootManager.GearRarity.Rare,itemLevel=60,element=Element.Phys,weaponTypeId=WeaponTypeIds.Sword,baseMin=40,baseMax=60,baseSpeed=1.2f,baseCrit=.05f}}};
+    static GearSnapshot EndgameItem()=>new(){slot=LootManager.GearType.Weapons,rarity=LootManager.GearRarity.Legendary,originRarity=LootManager.GearRarity.Legendary,itemLevel=100,currentPotential=14,maximumPotential=14,element=Element.Phys,weaponTypeId=WeaponTypeIds.Sword,baseMin=40,baseMax=60,baseSpeed=1.2f,baseCrit=.05f,mods=new(){new RolledModSnapshot{stat=StatTypes.Life,tier=1,value=10,implicitMod=true},new RolledModSnapshot{stat=StatTypes.GenericDmg,tier=1,value=.1f}}};
 
     [Test] public void BreakpointFinder_FindsExactIntegerAndAllNonMonotonicCrossings()
     {
@@ -16,6 +17,55 @@ public sealed class BalanceWorkbenchTooling5Tests
         Assert.That(all.All(x=>x.before<=0&&x.at>0),Is.True);
         var ci=BreakpointFinder.WilsonInterval(.5,100);
         Assert.That(ci.low,Is.LessThan(.5));Assert.That(ci.high,Is.GreaterThan(.5));
+    }
+
+    [Test] public void BatchBreakpoint_RecordsCrossingsAndExplicitNoCrossing()
+    {
+        var cases=new[]{new BreakpointBatchCase{name="A"},new BreakpointBatchCase{name="B"},new BreakpointBatchCase{name="C"}};
+        var results=BreakpointFinder.FindBatch(cases,(c,level)=>c.name=="A"?level-30:c.name=="B"?level-50:-1,1,60,10,0,BreakpointOperator.GreaterOrEqual);
+        Assert.That(results.Single(x=>x.scenario=="A").firstCrossing,Is.EqualTo(30));
+        Assert.That(results.Single(x=>x.scenario=="B").firstCrossing,Is.EqualTo(50));
+        Assert.That(results.Single(x=>x.scenario=="C").crossingFound,Is.False);
+    }
+
+    [Test] public void SampledBreakpoint_RefinesAmbiguousWilsonIntervalWithinBudget()
+    {
+        int maxObserved=0;var cases=new[]{new BreakpointBatchCase{name="sampled"}};
+        var budget=new BreakpointSampleBudget{initial=20,refinement=20,maximum=60};
+        var rows=BreakpointFinder.FindBatch(cases,(c,l)=>l<5?.8:.6,1,8,2,.7,BreakpointOperator.Less,budget,(c,l,n)=>{maxObserved=Math.Max(n,maxObserved);return l<5?.8:.6;});
+        Assert.That(rows.Single().firstCrossing,Is.EqualTo(5));
+        Assert.That(rows.Single().samples,Is.LessThanOrEqualTo(60));
+        Assert.That(maxObserved,Is.GreaterThanOrEqualTo(20));
+        Assert.That(rows.Single().confidenceLow,Is.LessThanOrEqualTo(rows.Single().at));
+    }
+
+    [Test] public void CraftPolicySearch_RespectsConfiguredStateCap()
+    {
+        var request=new CraftPolicySearchRequest{simulation=new CraftingSimulationRequest{item=Build().equipment.Single(),targets=new(){new CraftTarget{stat=StatTypes.PhysDmg}},requiredMatches=1},allowedActions=new(){new CraftPolicyStep{action=CraftingCurrencyType.RerollRareModifier},new CraftPolicyStep{action=CraftingCurrencyType.RemoveRareModifier}},beamWidth=2,maxCraftActions=3,candidateOutcomesPerAction=2,maximumStates=4};
+        var result=CraftingPolicySearcher.Search(request);
+        Assert.That(result.evaluatedStates,Is.LessThanOrEqualTo(4));
+        Assert.That(result.label,Does.Contain("not proven optimal"));
+    }
+
+    [Test] public void CraftingSimulator_BossInfusionMatchesProductionMutationWithSameSeed()
+    {
+        var challenge=WorldContentCatalog.Reference.challengeEncounters[0];var snapshot=EndgameItem();const long seed=17403;
+        var go=new UnityEngine.GameObject("Direct boss infusion");try
+        {
+            var direct=snapshot.Materialize(go.transform,"direct");var target=direct.rolledMods.Single(x=>x.statType==StatTypes.GenericDmg&&!x.lockedOriginal);
+            bool expected=BossSpecialCrafting.TryReplace(direct,target,WorldContentCatalog.Reference.ChallengeSpecialPool(challenge.specialAffixPoolId),360,new SeededSimulationRandomSource(seed));
+            var request=new CraftingSimulationRequest{item=snapshot,combatLevel=360,trials=1,maxActions=1,seed=seed,targets=new(){new CraftTarget{stat=StatTypes.PhysDmg}},policy=new(){new CraftPolicyStep{operation=CraftOperation.BossInfusion,targetStat=StatTypes.GenericDmg,challengeId=challenge.stableContentId}},resources=new(){new SimulatedResourceQuantity{id=challenge.rewardResourceId,startingQuantity=1}}};
+            var actual=CraftingSimulator.Run(request);Assert.That(expected,Is.True);Assert.That(actual.replay.actions,Is.EqualTo(1));
+            Assert.That(actual.replay.finalItem.mods.Single(x=>x.bossSpecial).id,Is.EqualTo(GearSnapshot.Capture(direct).mods.Single(x=>x.bossSpecial).id));
+            Assert.That(actual.replay.finalItem.currentPotential,Is.EqualTo(direct.CurrentCraftingPotential));
+        }finally{UnityEngine.Object.DestroyImmediate(go);}
+    }
+
+    [Test] public void CraftingSimulator_EnforcesEndgameResourcesAndProgression()
+    {
+        var snapshot=EndgameItem();var request=new CraftingSimulationRequest{item=snapshot,combatLevel=119,trials=1,maxActions=1,targets=new(){new CraftTarget{stat=StatTypes.PhysDmg}},policy=new(){new CraftPolicyStep{operation=CraftOperation.Empowerment,targetStat=StatTypes.GenericDmg}},resources=new(){new SimulatedResourceQuantity{id=CraftingCurrencyType.EmpowermentCatalyst.ToString(),startingQuantity=0}}};
+        var blocked=CraftingSimulator.Run(request);Assert.That(blocked.budgetFailures,Is.EqualTo(1));Assert.That(blocked.replay.actions,Is.Zero);
+        request.resources[0].startingQuantity=1;var gated=CraftingSimulator.Run(request);Assert.That(gated.progressionFailures,Is.EqualTo(1));Assert.That(gated.replay.actions,Is.Zero);
     }
 
     [Test] public void Sensitivity_UsesProductionEvaluatorAndReproduces()
@@ -50,6 +100,29 @@ public sealed class BalanceWorkbenchTooling5Tests
         Assert.That(a.upgrades.Select(x=>x.item.Description),Is.EqualTo(b.upgrades.Select(x=>x.item.Description)));
     }
 
+    [Test] public void FirstUpgradeDistribution_AccountsForCensoringWithoutTreatingItAsSuccess()
+    {
+        var distribution=new FirstUpgradeDistribution{maxKills=10,observations=new()
+        {new FirstUpgradeTrial{trial=1,kills=3},new FirstUpgradeTrial{trial=2,kills=7},new FirstUpgradeTrial{trial=3,kills=10,censored=true}}};
+        LootProgressionAnalyzer.SummarizeFirstUpgradeObservations(distribution,new[]{3,7});
+        Assert.That(distribution.successes,Is.EqualTo(2));Assert.That(distribution.censored,Is.EqualTo(1));
+        Assert.That(distribution.successfulKills.p50,Is.EqualTo(5));
+        Assert.That(distribution.curve.Single(x=>x.kills==3).probabilityFound,Is.EqualTo(1d/3).Within(1e-9));
+        Assert.That(distribution.curve.Single(x=>x.kills==7).probabilityFound,Is.EqualTo(2d/3).Within(1e-9));
+    }
+
+    [Test] public void WorldLootSource_UsesTheProductionEncounterResolver()
+    {
+        var request=new LootProgressionRequest{sourceMode=LootSourceMode.FullCombatLevelLoop,combatLevel=80,seed=77};
+        for(int kill=1;kill<=20;kill++)
+        {
+            var actual=LootProgressionAnalyzer.ResolveWorldSource(request,kill,77);
+            var expected=WorldProgression.Resolve(80,1+(kill-1)%10,WorldContentCatalog.Reference,77+(kill-1)/10);
+            Assert.That(actual.Encounter?.enemyArchetypeId,Is.EqualTo(expected.Encounter?.enemyArchetypeId));
+            Assert.That(actual.Encounter?.bossId,Is.EqualTo(expected.Encounter?.bossId));
+        }
+    }
+
     [Test] public void Snapshot_UnchangedSuiteReproducesAndControlledChangeShowsDelta()
     {
         var build=Build();var suite=new BalanceSuite{scenarios=new(){new BalanceScenario{name="Warrior",build=build,metric="basic_dps"}}};
@@ -58,5 +131,26 @@ public sealed class BalanceWorkbenchTooling5Tests
         suite.scenarios[0].build.analysisDeltas.Add(new AnalysisStatDelta{stat=StatTypes.AttackSpeed,amount=.1f});
         var after=BalanceSnapshotService.Capture(suite,"After");
         Assert.That(BalanceSnapshotService.Compare(before,after,.1).Single().delta,Is.GreaterThan(0));
+    }
+
+    [Test] public void SnapshotCurve_TracksLargestChangedLevel()
+    {
+        var a=new BalanceSnapshot{fingerprint="fixture",widgets=new(){new SnapshotWidgetData{scenario="curve",kind=BalanceWidgetKind.Curve,fingerprint="fixture",curve=new(){new BreakpointPoint{level=10,value=2},new BreakpointPoint{level=20,value=4}}}}};
+        var b=new BalanceSnapshot{fingerprint="fixture",widgets=new(){new SnapshotWidgetData{scenario="curve",kind=BalanceWidgetKind.Curve,fingerprint="fixture",curve=new(){new BreakpointPoint{level=10,value=2},new BreakpointPoint{level=20,value=7}}}}};
+        var diff=BalanceSnapshotWidgets.Compare(a,b).Single();Assert.That(diff.status,Is.EqualTo("CHANGED"));Assert.That(diff.largestChangeLevel,Is.EqualTo(20));Assert.That(diff.maximumAbsoluteDelta,Is.EqualTo(3));
+    }
+
+    [Test] public void SnapshotMatrix_ChangesOnlyOneCell()
+    {
+        var a=new BalanceSnapshot{fingerprint="fixture",widgets=new(){new SnapshotWidgetData{scenario="matrix",kind=BalanceWidgetKind.Matrix,fingerprint="fixture",matrix=new(){new SnapshotMatrixCell{row="A",column="X",value=.5},new SnapshotMatrixCell{row="A",column="Y",value=.6},new SnapshotMatrixCell{row="B",column="X",value=.7},new SnapshotMatrixCell{row="B",column="Y",value=.8}}}}};
+        var b=UnityEngine.JsonUtility.FromJson<BalanceSnapshot>(UnityEngine.JsonUtility.ToJson(a));b.widgets[0].matrix[2].value=.4;
+        var diff=BalanceSnapshotWidgets.Compare(a,b).Single();Assert.That(diff.matrix.Count(x=>Math.Abs(x.delta)>1e-9),Is.EqualTo(1));Assert.That(diff.matrix.Single(x=>Math.Abs(x.delta)>1e-9).row,Is.EqualTo("B"));
+    }
+
+    [Test] public void ReportBundle_WritesMarkdownCsvAndMetadata()
+    {
+        var run=new BalanceReportRun{title="Fixture Report",timestampUtc="fixture",fingerprint="fixture",gitCommit="fixture",widgets=new(){new ReportWidgetResult{section="Scaling",title="Curve",scenarioName="curve",source="SavedSnapshotResults",status="OK",type=ReportWidgetType.CurveChart,widget=new SnapshotWidgetData{metric="dps",kind=BalanceWidgetKind.Curve,curve=new(){new BreakpointPoint{level=1,value=2},new BreakpointPoint{level=2,value=3}}}}}};
+        var path=BalanceReportService.ExportBundle(run);var folder=System.IO.Path.GetDirectoryName(path);
+        Assert.That(System.IO.File.Exists(path),Is.True);Assert.That(System.IO.File.Exists(System.IO.Path.Combine(folder,"metadata.json")),Is.True);Assert.That(System.IO.Directory.GetFiles(System.IO.Path.Combine(folder,"Data"),"*.csv").Length,Is.GreaterThan(0));Assert.That(System.IO.Directory.GetFiles(System.IO.Path.Combine(folder,"Charts"),"*.png").Length,Is.GreaterThan(0));
     }
 }
