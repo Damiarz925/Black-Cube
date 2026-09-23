@@ -5,3 +5,5 @@ In **Balance Workbench → Balance Snapshots**, create a named suite of saved so
 Widget comparison reports maximum absolute/relative curve delta, average and summed curve delta, level of largest change, distribution mean/median/P10/P90/P99/standard deviation, cell-by-cell matrix changes, ranking deltas, and breakpoint-count/level changes. Status is explicit: **UNCHANGED**, **CHANGED**, **MISSING FROM A**, **MISSING FROM B**, **STALE**, or **FAILED**. A stale fingerprint indicates changed production data; it is not a balance verdict. **Open Source** restores the scenario in its originating tab.
 
 The current matrix scenario uses saved builds against all production enemy rarities at one configured combat level; there is no arbitrary class-by-biome scenario editor yet. Distributions store summary/histogram rather than raw samples. A missing cell is not scored as zero. Use matching scenario names, metric IDs, and source settings for A/B claims.
+
+Expensive widget captures are cached in memory by the full serialized scenario and production-data fingerprint. A configuration or production-asset change invalidates that key; the cache never persists across Editor restarts.

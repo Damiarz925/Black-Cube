@@ -16,7 +16,7 @@ namespace BlackCube.BalanceWorkbench
     [Serializable] public sealed class CraftingSimulationRequest
     {
         public GearSnapshot item;public List<CraftTarget> targets=new();public int requiredMatches=1;public List<CraftPolicyStep> policy=new();public int trials=1000,maxActions=100;public long seed=80001;
-        public List<CurrencyStackData> budgets=new();public List<SimulatedResourceQuantity> resources=new();public int combatLevel=100,minimumEmpowered,maximumUndesirable=int.MaxValue;public bool requireSpecificEmpowered;public StatTypes targetEmpoweredStat;public string targetBossSpecialId,targetImplicitStat;public CraftTargetGroupMode targetGroupMode=CraftTargetGroupMode.AtLeastN;
+        public List<CurrencyStackData> budgets=new();public List<SimulatedResourceQuantity> resources=new();public int combatLevel=100,minimumEmpowered,maximumUndesirable=int.MaxValue,maximumImplicitTier=int.MaxValue;public float minimumImplicitRoll;public double minimumObjectiveImprovement;public PlayerBuildSnapshot objectiveBuild;public OptimizationObjective objective=new();public bool requireSpecificEmpowered;public StatTypes targetEmpoweredStat;public string targetBossSpecialId,targetBossPoolId,targetImplicitStat;public CraftTargetGroupMode targetGroupMode=CraftTargetGroupMode.AtLeastN;
     }
     [Serializable] public sealed class CraftTraceStep
     {public int number;public CraftingCurrencyType action;public CraftOperation operation;public bool applied;public int potentialBefore,potentialAfter;public string item,resourceId,failureReason;}
@@ -38,8 +38,17 @@ namespace BlackCube.BalanceWorkbench
             if(matches<required||gear.EmpoweredModifierCount<request.minimumEmpowered)return false;
             if(request.requireSpecificEmpowered&&!gear.rolledMods.Any(x=>x!=null&&x.isEmpowered&&x.statType==request.targetEmpoweredStat))return false;
             if(!string.IsNullOrEmpty(request.targetBossSpecialId)&&!gear.rolledMods.Any(x=>x!=null&&x.isBossSpecial&&x.specialModifierId==request.targetBossSpecialId))return false;
+            if(!string.IsNullOrEmpty(request.targetBossPoolId)&&!gear.rolledMods.Any(x=>x!=null&&x.isBossSpecial&&x.specialPoolId==request.targetBossPoolId))return false;
             if(!string.IsNullOrEmpty(request.targetImplicitStat)&&gear.ImplicitMod?.statType.ToString()!=request.targetImplicitStat)return false;
-            int undesirable=gear.rolledMods.Count(x=>x!=null&&!x.lockedOriginal&&!x.isBossSpecial&&!request.targets.Any(t=>t.stat==x.statType));return undesirable<=request.maximumUndesirable;
+            if((request.maximumImplicitTier<int.MaxValue||request.minimumImplicitRoll>0)&&(gear.ImplicitMod==null||gear.ImplicitMod.tierIndex>request.maximumImplicitTier||gear.ImplicitMod.value<request.minimumImplicitRoll))return false;
+            int undesirable=gear.rolledMods.Count(x=>x!=null&&!x.lockedOriginal&&!x.isBossSpecial&&!request.targets.Any(t=>t.stat==x.statType));if(undesirable>request.maximumUndesirable)return false;
+            if(request.minimumObjectiveImprovement>0)
+            {
+                if(request.objectiveBuild==null)throw new ArgumentException("Objective-improvement target requires a reference build.");
+                var before=PlayerBuildEvaluator.Evaluate(request.objectiveBuild);var candidate=request.objectiveBuild.Clone();candidate.equipment.RemoveAll(x=>x.slot==gear.ItemType);candidate.equipment.Add(GearSnapshot.Capture(gear));var after=PlayerBuildEvaluator.Evaluate(candidate);
+                if(OptimizationMetricCatalog.Score(after,before,request.objective)<request.minimumObjectiveImprovement)return false;
+            }
+            return true;
         }
         static string ResourceFor(CraftPolicyStep step,ChallengeEncounterDefinition challenge)=>step.operation switch{CraftOperation.Empowerment=>CraftingCurrencyType.EmpowermentCatalyst.ToString(),CraftOperation.BossInfusion=>challenge?.rewardResourceId,CraftOperation.ImplicitReforge=>EndgameResourceIds.ImplicitReforger,_=>step.action.ToString()};
         static bool Apply(CraftPolicyStep step,Gear item,CraftingSimulationRequest request,WorkbenchSession session,ILootRandomSource rng,ChallengeEncounterDefinition challenge)

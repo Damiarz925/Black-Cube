@@ -25,9 +25,12 @@ namespace BlackCube.BalanceWorkbench
     [Serializable] public sealed class SnapshotWidgetComparisonExport { public List<SnapshotWidgetDifference> rows=new(); }
     public static class BalanceSnapshotWidgets
     {
+        static readonly Dictionary<string,SnapshotWidgetData> cache=new();
         public static SnapshotWidgetData Capture(BalanceScenario scenario,Func<bool> cancelled=null)
         {
-            var widget=new SnapshotWidgetData{scenario=scenario.name,source=scenario.source,metric=scenario.metric,kind=scenario.widgetKind,config=JsonUtility.ToJson(scenario),fingerprint=ProductionBalanceAdapters.DataFingerprint(),seed=scenario.combat.seed};
+            string config=JsonUtility.ToJson(scenario),fingerprint=ProductionBalanceAdapters.DataFingerprint(),key=fingerprint+":"+config;
+            if(cache.TryGetValue(key,out var prior))return JsonUtility.FromJson<SnapshotWidgetData>(JsonUtility.ToJson(prior));
+            var widget=new SnapshotWidgetData{scenario=scenario.name,source=scenario.source,metric=scenario.metric,kind=scenario.widgetKind,config=config,fingerprint=fingerprint,seed=scenario.combat.seed};
             switch(scenario.widgetKind)
             {
                 case BalanceWidgetKind.Curve:
@@ -50,11 +53,22 @@ namespace BlackCube.BalanceWorkbench
                 case BalanceWidgetKind.Ranking:
                     if(scenario.source=="Sensitivity")widget.ranking=SensitivityAnalyzer.Run(scenario.sensitivity,null,cancelled).rows.Select(x=>new SnapshotNamedValue{name=x.stat.ToString(),value=x.absoluteDelta}).ToList();
                     else if(scenario.source=="Affix")widget.ranking=AffixAnalyzer.Run(scenario.affix,cancelled).rows.Take(100).Select(x=>new SnapshotNamedValue{name=x.name+" T"+x.tier,value=x.objectiveDelta}).ToList();
-                    else throw new InvalidOperationException("Ranking source must be Sensitivity or Affix.");break;
+                    else if(scenario.source=="Passive")widget.ranking=PassiveTreeOptimizer.Analyze(scenario.build,scenario.objective).OrderByDescending(x=>x.objectiveDelta).Take(100).Select(x=>new SnapshotNamedValue{name=x.name,value=x.objectiveDelta}).ToList();
+                    else if(scenario.source=="Loot Progression")
+                    {
+                        var loot=LootProgressionAnalyzer.Run(scenario.loot,null,cancelled);widget.ranking.Add(new SnapshotNamedValue{name="Gear per kill",value=loot.drops/(double)Math.Max(1,loot.kills)});widget.ranking.Add(new SnapshotNamedValue{name="Upgrades per kill",value=loot.upgrades.Count/(double)Math.Max(1,loot.kills)});
+                        widget.ranking.AddRange(loot.upgrades.GroupBy(x=>x.slot).Select(x=>new SnapshotNamedValue{name="Slot/"+x.Key,value=x.Count()}));widget.ranking.AddRange(loot.upgrades.GroupBy(x=>x.rarity).Select(x=>new SnapshotNamedValue{name="Item rarity/"+x.Key,value=x.Count()}));widget.ranking.AddRange(loot.currency.Select(x=>new SnapshotNamedValue{name="Currency/"+x.type,value=x.amount}));
+                    }
+                    else if(scenario.source=="Crafting")
+                    {
+                        var craft=CraftingSimulator.Run(scenario.crafting,null,cancelled);widget.ranking.Add(new SnapshotNamedValue{name="Success rate",value=craft.trials==0?0:craft.successes/(double)craft.trials});widget.ranking.Add(new SnapshotNamedValue{name="Potential failures",value=craft.potentialFailures});widget.ranking.Add(new SnapshotNamedValue{name="Resource failures",value=craft.budgetFailures});widget.ranking.Add(new SnapshotNamedValue{name="Median actions",value=craft.actions.p50});widget.ranking.AddRange(craft.resourceCosts.Select(x=>new SnapshotNamedValue{name="Resource/"+x.resourceId,value=x.amount}));
+                    }
+                    else throw new InvalidOperationException("Ranking/table source must be Sensitivity, Affix, Passive, Loot Progression, or Crafting.");break;
                 case BalanceWidgetKind.Breakpoint:
                     widget.breakpoints=BreakpointFinder.Find(level=>Measure(scenario,level),scenario.startLevel,scenario.endLevel,scenario.increment,scenario.threshold,scenario.breakpointOperator,true);break;
                 default:throw new InvalidOperationException("Choose a non-scalar snapshot widget.");
             }
+            if(widget.status=="OK"){if(cache.Count>=128)cache.Clear();cache[key]=JsonUtility.FromJson<SnapshotWidgetData>(JsonUtility.ToJson(widget));}
             return widget;
         }
         public static double Measure(BalanceScenario scenario,int level)
@@ -74,7 +88,9 @@ namespace BlackCube.BalanceWorkbench
             foreach(var key in a.Select(x=>x.scenario).Union(b.Select(x=>x.scenario)).Distinct())
             {
                 var left=a.FirstOrDefault(x=>x.scenario==key);var right=b.FirstOrDefault(x=>x.scenario==key);var row=new SnapshotWidgetDifference{scenario=key,kind=right?.kind??left?.kind??BalanceWidgetKind.SingleMetric};
-                if(left==null)row.status="MISSING FROM A";else if(right==null)row.status="MISSING FROM B";else if(left.status=="FAILED"||right.status=="FAILED")row.status="FAILED";else if(left.fingerprint!=before.fingerprint||right.fingerprint!=after.fingerprint)row.status="STALE";else
+                if(left==null)row.status="MISSING FROM A";else if(right==null)row.status="MISSING FROM B";else if(left.status=="FAILED"||right.status=="FAILED")row.status="FAILED";else if(left.fingerprint!=before.fingerprint||right.fingerprint!=after.fingerprint)row.status="STALE";
+                else if(left.kind!=right.kind||left.kind==BalanceWidgetKind.Curve&&!left.curve.Select(x=>x.level).OrderBy(x=>x).SequenceEqual(right.curve.Select(x=>x.level).OrderBy(x=>x))||left.kind==BalanceWidgetKind.Matrix&&!left.matrix.Select(x=>x.row+"|"+x.column).OrderBy(x=>x).SequenceEqual(right.matrix.Select(x=>x.row+"|"+x.column).OrderBy(x=>x))||left.kind==BalanceWidgetKind.Ranking&&!left.ranking.Select(x=>x.name).OrderBy(x=>x).SequenceEqual(right.ranking.Select(x=>x.name).OrderBy(x=>x)))row.status="FAILED";
+                else
                 {
                     var deltas=new List<double>();var percentages=new List<double>();
                     switch(row.kind)

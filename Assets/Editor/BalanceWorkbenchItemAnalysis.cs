@@ -63,7 +63,8 @@ namespace BlackCube.BalanceWorkbench
     [Serializable] public sealed class LootProgressionRequest
     {public PlayerBuildSnapshot build=new();public OptimizationObjective objective=new();public int combatLevel=60,kills=10000;public long seed=70001;public EnemyAI.EnemyRarity rarity=EnemyAI.EnemyRarity.Normal;public bool boss,progressive,generateActualEnemyGear=true,stopAtFirstUpgrade;public string archetypeId="Any",biomeId="",locationId="";public double minimumImprovement;public LootSourceMode sourceMode=LootSourceMode.FixedRarity;public int firstStage=1,lastStage=10,firstCombatLevel=1,lastCombatLevel=360;}
     [Serializable] public sealed class LootSourceBreakdown
-    {public string biome,location,archetype,rarity,slot,itemRarity;public int stage,kills,drops,upgrades;public bool boss;}
+    {public string biome,location,archetype,rarity;public int stage,kills,drops,upgrades;public bool boss;public List<CurrencyStackData> currency=new();public List<LootSourceCount> slots=new(),itemRarities=new();}
+    [Serializable] public sealed class LootSourceCount { public string name;public int count; }
     [Serializable] public sealed class LootUpgrade
     {public int kill;public string slot,rarity,biome,location,archetype,enemyRarity;public int stage;public bool boss;public double magnitude;public GearSnapshot item;}
     [Serializable] public sealed class LootProgressionResult
@@ -72,11 +73,37 @@ namespace BlackCube.BalanceWorkbench
     [Serializable] public sealed class FirstUpgradeCurvePoint { public int kills,found,censored;public double probabilityFound,probabilityNotFound; }
     [Serializable] public sealed class FirstUpgradeDistribution
     {public ExperimentMetadata metadata;public int trials,successes,censored,maxKills;public MetricSummary successfulKills;public List<FirstUpgradeTrial> observations=new();public List<FirstUpgradeCurvePoint> curve=new();}
+    [Serializable] public sealed class ProgressiveIntervalDistribution
+    {public ExperimentMetadata metadata;public int trials,firstReached,secondReached,thirdReached,laterCount;public MetricSummary first,second,third,later;}
     public enum LootSweepBuildSource { Low, Mid, Optimized, Tooling2Profile, CustomBuild }
     [Serializable] public sealed class LootProgressionSweepRow
     {public int level,kills;public double gearPerKill,currencyPerKill,upgradeChancePerKill,expectedKillsPerUpgrade,firstUpgradeMedian,averageUpgradeMagnitude,bossUpgradeContribution,rareLegendaryContribution;}
     public static class LootProgressionAnalyzer
     {
+        static void AddCount(List<LootSourceCount> counts,string name,int amount=1)
+        {var row=counts.FirstOrDefault(x=>x.name==name);if(row==null){row=new LootSourceCount{name=name};counts.Add(row);}row.count+=amount;}
+        public static ProgressiveIntervalDistribution RunProgressiveIntervalTrials(LootProgressionRequest request,int trials,int killsPerTrial,Action<float> progress=null,Func<bool> cancelled=null)
+        {
+            if(request.build==null)throw new ArgumentException("Select a starting build.");
+            trials=Math.Max(1,trials);killsPerTrial=Math.Max(1,killsPerTrial);
+            var output=new ProgressiveIntervalDistribution{metadata=ExperimentMetadata.Create("Progressive Upgrade Intervals",request.seed,trials,request.combatLevel,request.combatLevel,JsonUtility.ToJson(request))};
+            var first=new List<double>();var second=new List<double>();var third=new List<double>();var later=new List<double>();
+            for(int i=0;i<trials;i++)
+            {
+                if(cancelled?.Invoke()==true)break;
+                var trial=JsonUtility.FromJson<LootProgressionRequest>(JsonUtility.ToJson(request));trial.seed=unchecked(request.seed+7919L*i);trial.kills=killsPerTrial;trial.progressive=true;trial.stopAtFirstUpgrade=false;
+                var result=Run(trial,null,cancelled,true);if(cancelled?.Invoke()==true)break;
+                int previous=0;for(int n=0;n<result.upgrades.Count;n++)
+                {
+                    int interval=result.upgrades[n].kill-previous;previous=result.upgrades[n].kill;
+                    if(n==0)first.Add(interval);else if(n==1)second.Add(interval);else if(n==2)third.Add(interval);else later.Add(interval);
+                }
+                output.trials++;progress?.Invoke(output.trials/(float)trials);
+            }
+            output.firstReached=first.Count;output.secondReached=second.Count;output.thirdReached=third.Count;output.laterCount=later.Count;
+            output.first=MetricSummary.From(first);output.second=MetricSummary.From(second);output.third=MetricSummary.From(third);output.later=MetricSummary.From(later);output.metadata.sampleCount=output.trials;
+            return output;
+        }
         public static List<LootProgressionSweepRow> RunWorldSweep(LootProgressionRequest template,int start,int end,int step,int loopsPerLevel,int firstUpgradeTrials,LootSweepBuildSource buildSource,PlayerGearProfileSO toolingProfile,Action<float> progress=null,Func<bool> cancelled=null)
         {
             var rows=new List<LootProgressionSweepRow>();start=Mathf.Clamp(start,1,360);end=Mathf.Clamp(end,start,360);step=Math.Max(1,step);loopsPerLevel=Math.Max(1,loopsPerLevel);
@@ -146,13 +173,13 @@ namespace BlackCube.BalanceWorkbench
                 {
                     if(cancelled?.Invoke()==true)break;bool world=request.sourceMode is not (LootSourceMode.FixedRarity or LootSourceMode.SpecificEnemy);var position=world?ResolveWorldSource(request,kill,unchecked((int)request.seed)):default;int level=world?position.CombatLevel:request.combatLevel;bool boss=world?position.Encounter?.kind==EncounterKind.Boss:request.boss;string archetype=world?position.Encounter?.enemyArchetypeId:request.archetypeId;var rarity=request.rarity;
                     if(world){var db=WorldContentCatalog.Reference;var profiles=db.enemyRarityProfiles.Where(x=>x!=null&&x.spawnWeight>0).ToList();int total=profiles.Sum(x=>x.spawnWeight);if(total>0){int choice=rng.Range(0,total);foreach(var profile in profiles){if(choice<profile.spawnWeight){rarity=profile.rarity;break;}choice-=profile.spawnWeight;}}}
-                    string qualityKey=$"{level}:{rarity}:{archetype}:{boss}";if(!qualities.TryGetValue(qualityKey,out var qualitySamples)){qualitySamples=new List<float>{1};if(request.generateActualEnemyGear&&!boss){var generated=ProductionBalanceAdapters.RunEnemies(new EnemyLabRequest{level=level,sampleCount=Math.Min(request.kills,world?4:1000),rarity=rarity,archetypeId=string.IsNullOrEmpty(archetype)?"Any":archetype,seed=request.seed+37+qualities.Count});qualitySamples=generated.samples.Select(x=>Mathf.Clamp((float)x.gearScore/Mathf.Max(.001f,EnemyLootProfile.ExpectedGearScore(level,rarity,x.slotCount)),.60f,3f)).ToList();if(qualitySamples.Count==0)throw new InvalidOperationException("No production enemy gear samples were generated.");}qualities[qualityKey]=qualitySamples;}float quality=qualitySamples[(kill-1)%qualitySamples.Count];float expected=EnemyLootProfile.ExpectedGearScore(level,rarity,1);var power=new EnemyLootPowerSnapshot(EnemyLootProfile.LevelFactor(level),EnemyLootProfile.RarityMultiplier(rarity,boss),expected*quality,expected,quality);
+                    string bossId=boss&&world?position.Encounter?.bossId:null;string qualityKey=$"{level}:{rarity}:{archetype}:{bossId}:{boss}";if(!qualities.TryGetValue(qualityKey,out var qualitySamples)){qualitySamples=new List<float>{1};if(request.generateActualEnemyGear){var generated=ProductionBalanceAdapters.RunEnemies(new EnemyLabRequest{level=level,sampleCount=Math.Min(request.kills,world?4:1000),rarity=rarity,archetypeId=string.IsNullOrEmpty(archetype)?"Any":archetype,useBoss=boss&&world,bossId=bossId,seed=request.seed+37+qualities.Count});qualitySamples=generated.samples.Select(x=>Mathf.Clamp((float)x.gearScore/Mathf.Max(.001f,EnemyLootProfile.ExpectedGearScore(level,rarity,x.slotCount)),.60f,3f)).ToList();if(qualitySamples.Count==0)throw new InvalidOperationException("No production enemy gear samples were generated.");}qualities[qualityKey]=qualitySamples;}float quality=qualitySamples[(kill-1)%qualitySamples.Count];float expected=EnemyLootProfile.ExpectedGearScore(level,rarity,1);var power=new EnemyLootPowerSnapshot(EnemyLootProfile.LevelFactor(level),EnemyLootProfile.RarityMultiplier(rarity,boss),expected*quality,expected,quality);
                     string sourceKey=$"{position.BiomeLabel}|{position.LocationLabel}|{position.Stage}|{archetype}|{rarity}|{boss}";if(!sources.TryGetValue(sourceKey,out var source)){source=new LootSourceBreakdown{biome=world?position.BiomeLabel:"Fixed",location=world?position.LocationLabel:"Fixed",stage=world?position.Stage:0,archetype=archetype,rarity=rarity.ToString(),boss=boss};sources[sourceKey]=source;}source.kills++;
                     int gearCount=1+EnemyLootProfile.StochasticRound(power.ExtraGearBudget,EnemyLootProfile.MaximumExtraGear,rng);int currencyRolls=EnemyLootProfile.StochasticRound(power.CurrencyRollBudget,EnemyLootProfile.MaximumCurrencyRolls,rng);
-                    for(int c=0;c<currencyRolls;c++){var entry=CurrencyLootTable.Choose(level,rarity,boss,level>=RebirthManager.RequiredZone,rng);if(entry!=null)money[entry.Currency]=money.GetValueOrDefault(entry.Currency)+rng.Range(entry.StackMinimum,entry.StackMaximum+1);}
+                    for(int c=0;c<currencyRolls;c++){var entry=CurrencyLootTable.Choose(level,rarity,boss,level>=RebirthManager.RequiredZone,rng);if(entry!=null){int amount=rng.Range(entry.StackMinimum,entry.StackMaximum+1);money[entry.Currency]=money.GetValueOrDefault(entry.Currency)+amount;int index=source.currency.FindIndex(x=>x.type==entry.Currency);if(index<0)source.currency.Add(new CurrencyStackData(entry.Currency,amount));else source.currency[index]=new CurrencyStackData(entry.Currency,source.currency[index].amount+amount);}}
                     for(int itemIndex=0;itemIndex<gearCount;itemIndex++)
                     {
-                        var slot=loot.RollItemType(rng);var element=loot.RollItemElement(slot==LootManager.GearType.Weapons,rng);int itemLevel=level+(int)rarity;var itemRarity=loot.RollItemRarity(itemLevel,rng);string weapon=slot==LootManager.GearType.Weapons?LootManager.RollWeaponTypeId(rng):null;var gear=session.ReusableItem;gear.Initialize(slot,itemRarity,itemLevel,element,weapon);List<RolledMod> mods=null;for(int attempt=0;attempt<64&&mods==null;attempt++)mods=session.Roller.RollEquipmentModsForItem(slot,itemRarity,itemLevel,element,gear.WeaponTypeId,rng);if(mods==null)continue;gear.ApplyMods(mods);if(slot==LootManager.GearType.Weapons)LootManager.ApplyNaturalWeaponProfile(gear);var snapshot=GearSnapshot.Capture(gear);result.drops++;source.drops++;
+                        var slot=loot.RollItemType(rng);var element=loot.RollItemElement(slot==LootManager.GearType.Weapons,rng);int itemLevel=level+(int)rarity;var itemRarity=loot.RollItemRarity(itemLevel,rng);string weapon=slot==LootManager.GearType.Weapons?LootManager.RollWeaponTypeId(rng):null;var gear=session.ReusableItem;gear.Initialize(slot,itemRarity,itemLevel,element,weapon);List<RolledMod> mods=null;for(int attempt=0;attempt<64&&mods==null;attempt++)mods=session.Roller.RollEquipmentModsForItem(slot,itemRarity,itemLevel,element,gear.WeaponTypeId,rng);if(mods==null)continue;gear.ApplyMods(mods);if(slot==LootManager.GearType.Weapons)LootManager.ApplyNaturalWeaponProfile(gear);var snapshot=GearSnapshot.Capture(gear);result.drops++;source.drops++;AddCount(source.slots,slot.ToString());AddCount(source.itemRarities,itemRarity.ToString());
                         var reference=request.progressive?build:baseline;var before=request.progressive?progressiveMetrics:baselineMetrics;var candidate=reference.Clone();candidate.equipment.RemoveAll(x=>x.slot==slot);candidate.equipment.Add(snapshot);var after=PlayerBuildEvaluator.Evaluate(candidate);double gain=OptimizationMetricCatalog.Score(after,before,request.objective);if(gain<=Math.Max(0,request.minimumImprovement))continue;result.upgrades.Add(new LootUpgrade{kill=kill,slot=slot.ToString(),rarity=itemRarity.ToString(),biome=source.biome,location=source.location,stage=source.stage,archetype=archetype,enemyRarity=rarity.ToString(),boss=boss,magnitude=gain,item=snapshot});source.upgrades++;if(request.progressive){build=candidate;progressiveMetrics=after;}
                     }
                     result.kills=kill;if(request.stopAtFirstUpgrade&&result.upgrades.Count>0)break;if((kill&127)==0)progress?.Invoke(kill/(float)request.kills);

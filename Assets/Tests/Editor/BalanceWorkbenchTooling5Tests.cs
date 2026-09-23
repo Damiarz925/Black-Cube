@@ -61,11 +61,47 @@ public sealed class BalanceWorkbenchTooling5Tests
         }finally{UnityEngine.Object.DestroyImmediate(go);}
     }
 
+    [Test] public void CraftingSimulator_EmpowermentMatchesProductionMutationWithSameSeed()
+    {
+        var snapshot=EndgameItem();const long seed=39114;
+        using var session=new WorkbenchSession();var go=new UnityEngine.GameObject("Direct empowerment");try
+        {
+            var direct=snapshot.Materialize(go.transform,"direct");var target=direct.rolledMods.Single(x=>x.statType==StatTypes.GenericDmg&&!x.lockedOriginal);
+            var random=new SeededSimulationRandomSource(seed);
+            bool expected=EmpowermentCrafting.TryApply(direct,target,360,random.Value(),random.Value(),session.Roller.Database);
+            var request=new CraftingSimulationRequest{item=snapshot,combatLevel=360,trials=1,maxActions=1,seed=seed,targets=new(){new CraftTarget{stat=StatTypes.PhysDmg}},policy=new(){new CraftPolicyStep{operation=CraftOperation.Empowerment,targetStat=StatTypes.GenericDmg}},resources=new(){new SimulatedResourceQuantity{id=CraftingCurrencyType.EmpowermentCatalyst.ToString(),startingQuantity=1}}};
+            var actual=CraftingSimulator.Run(request);Assert.That(expected,Is.True);Assert.That(actual.replay.actions,Is.EqualTo(1));
+            Assert.That(actual.replay.finalItem.mods.Single(x=>x.empowered).value,Is.EqualTo(GearSnapshot.Capture(direct).mods.Single(x=>x.empowered).value));
+        }finally{UnityEngine.Object.DestroyImmediate(go);}
+    }
+
+    [Test] public void CraftingSimulator_ImplicitReforgeMatchesProductionMutationWithSameSeed()
+    {
+        var snapshot=EndgameItem();const long seed=51008;
+        using var session=new WorkbenchSession();var go=new UnityEngine.GameObject("Direct implicit reforge");try
+        {
+            var direct=snapshot.Materialize(go.transform,"direct");
+            bool expected=EndgameCraftingService.TryReforgeImplicitCore(direct,session.Roller,new SeededSimulationRandomSource(seed));
+            var request=new CraftingSimulationRequest{item=snapshot,combatLevel=360,trials=1,maxActions=1,seed=seed,targets=new(){new CraftTarget{stat=StatTypes.PhysDmg}},policy=new(){new CraftPolicyStep{operation=CraftOperation.ImplicitReforge}},resources=new(){new SimulatedResourceQuantity{id=EndgameResourceIds.ImplicitReforger,startingQuantity=1}}};
+            var actual=CraftingSimulator.Run(request);Assert.That(expected,Is.True);Assert.That(actual.replay.actions,Is.EqualTo(1));
+            var final=actual.replay.finalItem.mods.Single(x=>x.implicitMod);var baseline=GearSnapshot.Capture(direct).mods.Single(x=>x.implicitMod);
+            Assert.That(final.stat,Is.EqualTo(baseline.stat));Assert.That(final.tier,Is.EqualTo(baseline.tier));Assert.That(final.value,Is.EqualTo(baseline.value));
+        }finally{UnityEngine.Object.DestroyImmediate(go);}
+    }
+
     [Test] public void CraftingSimulator_EnforcesEndgameResourcesAndProgression()
     {
         var snapshot=EndgameItem();var request=new CraftingSimulationRequest{item=snapshot,combatLevel=119,trials=1,maxActions=1,targets=new(){new CraftTarget{stat=StatTypes.PhysDmg}},policy=new(){new CraftPolicyStep{operation=CraftOperation.Empowerment,targetStat=StatTypes.GenericDmg}},resources=new(){new SimulatedResourceQuantity{id=CraftingCurrencyType.EmpowermentCatalyst.ToString(),startingQuantity=0}}};
         var blocked=CraftingSimulator.Run(request);Assert.That(blocked.budgetFailures,Is.EqualTo(1));Assert.That(blocked.replay.actions,Is.Zero);
         request.resources[0].startingQuantity=1;var gated=CraftingSimulator.Run(request);Assert.That(gated.progressionFailures,Is.EqualTo(1));Assert.That(gated.replay.actions,Is.Zero);
+    }
+
+    [Test] public void CraftingTarget_ImplicitFamilyTierAndRollAreEnforced()
+    {
+        var request=new CraftingSimulationRequest{item=EndgameItem(),targets=new(),requiredMatches=0,targetImplicitStat=StatTypes.Life.ToString(),maximumImplicitTier=1,minimumImplicitRoll=10,trials=1,maxActions=1,policy=new(){new CraftPolicyStep{action=CraftingCurrencyType.RerollRareModifier}}};
+        Assert.That(CraftingSimulator.Run(request).successes,Is.EqualTo(1));
+        request.minimumImplicitRoll=11;
+        Assert.That(CraftingSimulator.Run(request).successes,Is.EqualTo(0));
     }
 
     [Test] public void Sensitivity_UsesProductionEvaluatorAndReproduces()
@@ -98,6 +134,8 @@ public sealed class BalanceWorkbenchTooling5Tests
         var a=LootProgressionAnalyzer.Run(request);var b=LootProgressionAnalyzer.Run(request);
         Assert.That(a.kills,Is.EqualTo(12));Assert.That(a.drops,Is.EqualTo(b.drops));
         Assert.That(a.upgrades.Select(x=>x.item.Description),Is.EqualTo(b.upgrades.Select(x=>x.item.Description)));
+        Assert.That(a.sources.Sum(x=>x.slots.Sum(s=>s.count)),Is.EqualTo(a.drops));
+        foreach(var currency in a.currency)Assert.That(a.sources.Sum(x=>x.currency.Where(c=>c.type==currency.type).Sum(c=>c.amount)),Is.EqualTo(currency.amount));
     }
 
     [Test] public void FirstUpgradeDistribution_AccountsForCensoringWithoutTreatingItAsSuccess()
@@ -111,6 +149,16 @@ public sealed class BalanceWorkbenchTooling5Tests
         Assert.That(distribution.curve.Single(x=>x.kills==7).probabilityFound,Is.EqualTo(2d/3).Within(1e-9));
     }
 
+    [Test] public void ProgressiveIntervals_UseIndependentTrialSeedsAndReportReachCounts()
+    {
+        var request=new LootProgressionRequest{build=Build(),kills=8,combatLevel=60,seed=7741};
+        var first=LootProgressionAnalyzer.RunProgressiveIntervalTrials(request,2,8);
+        var repeat=LootProgressionAnalyzer.RunProgressiveIntervalTrials(request,2,8);
+        Assert.That(first.trials,Is.EqualTo(2));Assert.That(first.firstReached,Is.GreaterThanOrEqualTo(first.secondReached));
+        Assert.That(first.secondReached,Is.GreaterThanOrEqualTo(first.thirdReached));
+        Assert.That(first.first.mean,Is.EqualTo(repeat.first.mean));Assert.That(first.laterCount,Is.EqualTo(repeat.laterCount));
+    }
+
     [Test] public void WorldLootSource_UsesTheProductionEncounterResolver()
     {
         var request=new LootProgressionRequest{sourceMode=LootSourceMode.FullCombatLevelLoop,combatLevel=80,seed=77};
@@ -121,6 +169,13 @@ public sealed class BalanceWorkbenchTooling5Tests
             Assert.That(actual.Encounter?.enemyArchetypeId,Is.EqualTo(expected.Encounter?.enemyArchetypeId));
             Assert.That(actual.Encounter?.bossId,Is.EqualTo(expected.Encounter?.bossId));
         }
+    }
+
+    [Test] public void WorldLootBossQuality_UsesTheAuthoredBossPrefabBuild()
+    {
+        var world=WorldProgression.Resolve(80,10,WorldContentCatalog.Reference,77);
+        var result=ProductionBalanceAdapters.RunEnemies(new EnemyLabRequest{useBoss=true,bossId=world.Encounter.bossId,level=80,sampleCount=1,rarity=EnemyAI.EnemyRarity.Rare,seed=775});
+        Assert.That(result.samples,Has.Count.EqualTo(1));Assert.That(result.samples[0].slotCount,Is.GreaterThan(0));Assert.That(result.samples[0].gearScore,Is.GreaterThan(0));
     }
 
     [Test] public void Snapshot_UnchangedSuiteReproducesAndControlledChangeShowsDelta()
@@ -147,10 +202,30 @@ public sealed class BalanceWorkbenchTooling5Tests
         var diff=BalanceSnapshotWidgets.Compare(a,b).Single();Assert.That(diff.matrix.Count(x=>Math.Abs(x.delta)>1e-9),Is.EqualTo(1));Assert.That(diff.matrix.Single(x=>Math.Abs(x.delta)>1e-9).row,Is.EqualTo("B"));
     }
 
+    [Test] public void SnapshotMatrix_IncompleteComparisonIsFailedNotUnchanged()
+    {
+        var a=new BalanceSnapshot{fingerprint="fixture",widgets=new(){new SnapshotWidgetData{scenario="matrix",kind=BalanceWidgetKind.Matrix,fingerprint="fixture",matrix=new(){new SnapshotMatrixCell{row="A",column="X",value=.5},new SnapshotMatrixCell{row="B",column="X",value=.7}}}}};
+        var b=UnityEngine.JsonUtility.FromJson<BalanceSnapshot>(UnityEngine.JsonUtility.ToJson(a));b.widgets[0].matrix.RemoveAt(1);
+        Assert.That(BalanceSnapshotWidgets.Compare(a,b).Single().status,Is.EqualTo("FAILED"));
+    }
+
     [Test] public void ReportBundle_WritesMarkdownCsvAndMetadata()
     {
         var run=new BalanceReportRun{title="Fixture Report",timestampUtc="fixture",fingerprint="fixture",gitCommit="fixture",widgets=new(){new ReportWidgetResult{section="Scaling",title="Curve",scenarioName="curve",source="SavedSnapshotResults",status="OK",type=ReportWidgetType.CurveChart,widget=new SnapshotWidgetData{metric="dps",kind=BalanceWidgetKind.Curve,curve=new(){new BreakpointPoint{level=1,value=2},new BreakpointPoint{level=2,value=3}}}}}};
         var path=BalanceReportService.ExportBundle(run);var folder=System.IO.Path.GetDirectoryName(path);
         Assert.That(System.IO.File.Exists(path),Is.True);Assert.That(System.IO.File.Exists(System.IO.Path.Combine(folder,"metadata.json")),Is.True);Assert.That(System.IO.Directory.GetFiles(System.IO.Path.Combine(folder,"Data"),"*.csv").Length,Is.GreaterThan(0));Assert.That(System.IO.Directory.GetFiles(System.IO.Path.Combine(folder,"Charts"),"*.png").Length,Is.GreaterThan(0));
+    }
+
+    [Test] public void ReportRegressionWidget_ComparesBeforeSnapshotAndExportsTable()
+    {
+        var suite=new BalanceSuite{scenarios=new(){new BalanceScenario{name="Warrior",build=Build(),metric="basic_dps"}}};
+        var before=BalanceSnapshotService.Capture(suite,"Before");
+        var preset=new BalanceReportPreset{sections=new(){new ReportSectionPreset{title="Regression",widgets=new(){new ReportWidgetPreset{title="Before versus current",type=ReportWidgetType.SnapshotRegressionSummary}}}}};
+        var report=BalanceReportService.Run(preset,suite,before);
+        Assert.That(report.widgets.Single().scalarRegression,Has.Count.EqualTo(1));
+        Assert.That(report.widgets.Single().scalarRegression.Single().status,Is.EqualTo("UNCHANGED"));
+        var path=BalanceReportService.ExportBundle(report);var folder=System.IO.Path.GetDirectoryName(path);
+        Assert.That(System.IO.File.ReadAllText(path),Does.Contain("Before versus current"));
+        Assert.That(System.IO.Directory.GetFiles(System.IO.Path.Combine(folder,"Data"),"*.csv"),Has.Length.EqualTo(1));
     }
 }
