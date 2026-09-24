@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
+using Unity.Profiling;
 
 namespace BlackCube.BalanceWorkbench
 {
@@ -55,19 +56,75 @@ namespace BlackCube.BalanceWorkbench
 
     public static class PassiveTreeOptimizer
     {
-        sealed class State{public int[] ranks;public double score;public List<PassivePointResult> sequence;public PlayerBuildMetrics metrics;public string Key=>string.Join(",",Enumerable.Range(0,ranks.Length).Where(i=>ranks[i]!=0));}
+        static readonly ProfilerMarker SearchMarker=new("Workbench.PassiveSearch");
+        static readonly ProfilerMarker LegalMarker=new("Workbench.PassiveLegalNext");
+        static readonly ProfilerMarker EvaluationMarker=new("Workbench.PassiveBuildEvaluation");
+        static readonly ProfilerMarker RetainMarker=new("Workbench.PassiveDiverseRetain");
+        // Allocation is monotone: adding one node to a valid state can only violate that
+        // node's prerequisite/choice rule or the explicit off-class budget. Keep the
+        // authoritative full validator for the initial and final states.
+        static readonly PassiveNodeDefinition[] compiledNodes=PassiveTreeDefinition.Nodes.ToArray();
+        static readonly Dictionary<string,int[]> choiceGroups=compiledNodes.Where(n=>n.IsChoice).GroupBy(n=>n.ChoiceGroupId).ToDictionary(g=>g.Key,g=>g.Select(n=>n.Id).ToArray());
+        sealed class State{public int[] ranks;public string bits,Key;public List<int> nodeIds;public List<string> ids;public double score;public List<PassivePointResult> sequence;public PlayerBuildMetrics metrics;}
+        static string Bits(int[] ranks){var chars=new char[(ranks.Length+15)/16];for(int i=0;i<ranks.Length;i++)if(ranks[i]!=0)chars[i>>4]=(char)(chars[i>>4]|1<<(i&15));return new string(chars);}
+        static string WithBit(string parent,int node){var chars=parent.ToCharArray();chars[node>>4]=(char)(chars[node>>4]|1<<(node&15));return new string(chars);}
         public static PassiveOptimizationResult Optimize(PlayerBuildSnapshot source,int points,OptimizationObjective objective,bool beamSearch,int beamWidth=500,OptimizationConstraints constraints=null,Action<float> progress=null,Func<bool> cancelled=null)
         {
-            constraints??=new();points=Mathf.Clamp(points,0,100);var initial=source.Clone();foreach(string id in constraints.lockedPassiveIds)if(!initial.passiveStableIds.Contains(id))initial.passiveStableIds.Add(id);var baseline=PlayerBuildEvaluator.Evaluate(initial);var firstRanks=initial.AllocationRanks();if(!PlayerProgression.ValidateAllocationState(firstRanks,initial.classId,initial.subclassId))throw new InvalidOperationException("Initial/locked passive allocation is not production-legal.");var states=new List<State>{new(){ranks=firstRanks,metrics=baseline,sequence=new(),score=0}};var output=new PassiveOptimizationResult{baseline=baseline,algorithm=beamSearch?$"Beam {beamWidth}":"Greedy"};int target=Math.Max(firstRanks.Sum(),points);
+            using var searchSample=SearchMarker.Auto();
+            constraints??=new();points=Mathf.Clamp(points,0,100);var initial=source.Clone();foreach(string id in constraints.lockedPassiveIds)if(!initial.passiveStableIds.Contains(id))initial.passiveStableIds.Add(id);using var evaluation=new PlayerBuildEvaluation(initial);var baseline=evaluation.Metrics;var firstRanks=initial.AllocationRanks();if(!PlayerProgression.ValidateAllocationState(firstRanks,initial.classId,initial.subclassId))throw new InvalidOperationException("Initial/locked passive allocation is not production-legal.");var firstNodeIds=Enumerable.Range(0,firstRanks.Length).Where(i=>firstRanks[i]!=0).ToList();var states=new List<State>{new(){ranks=firstRanks,bits=Bits(firstRanks),nodeIds=firstNodeIds,Key=string.Join(",",firstNodeIds),ids=Ids(firstRanks),metrics=baseline,sequence=new(),score=0}};var output=new PassiveOptimizationResult{baseline=baseline,algorithm=beamSearch?$"Beam {beamWidth}":"Greedy"};int target=Math.Max(firstRanks.Sum(),points);
+            var progressClock=System.Diagnostics.Stopwatch.StartNew();long lastProgress=0;bool stopped=false;var candidateBuild=initial.Clone();
             for(int depth=firstRanks.Sum();depth<target&&cancelled?.Invoke()!=true;depth++)
             {
-                var expanded=new List<State>();foreach(var state in states)foreach(int node in LegalNext(state.ranks,initial.classId,initial.subclassId,constraints)){var ranks=(int[])state.ranks.Clone();ranks[node]=1;var b=initial.Clone();b.passiveStableIds=Ids(ranks);var metrics=PlayerBuildEvaluator.Evaluate(b);double score=OptimizationMetricCatalog.Score(metrics,baseline,objective);var n=PassiveTreeDefinition.Node(node);var step=new PassivePointResult{point=depth+1,nodeId=node,stableId=n.StableId,name=n.DisplayName,branch=n.IsWeaponRoute?n.RouteWeaponId:n.RouteClassId,effect=n.Description,primaryDelta=OptimizationMetricCatalog.Get(objective.primary).Value(metrics)-OptimizationMetricCatalog.Get(objective.primary).Value(state.metrics),secondaryDelta=OptimizationMetricCatalog.Get(objective.secondary).Value(metrics)-OptimizationMetricCatalog.Get(objective.secondary).Value(state.metrics),scoreDelta=score-state.score,scorePercent=state.score==0?score*100:(score-state.score)/Math.Max(.000001,Math.Abs(state.score))*100};var seq=new List<PassivePointResult>(state.sequence){step};expanded.Add(new State{ranks=ranks,metrics=metrics,score=score,sequence=seq});}
-                var unique=expanded.GroupBy(x=>x.Key).Select(x=>x.OrderByDescending(y=>y.score).First()).ToList();int keep=beamSearch?Math.Max(1,beamWidth):1;var retained=DiverseRetain(unique,keep);output.debug.Add(new PassiveSearchDebug{depth=depth+1,candidateStates=expanded.Count,uniqueStates=unique.Count,retainedStates=retained.Count,diversityGroups=retained.Select(x=>Diversity(x.ranks)).Distinct().Count(),statesEvaluated=expanded.Count,bestScore=retained.Count>0?retained.Max(x=>x.score):0});states=retained;if(states.Count==0)break;progress?.Invoke((depth+1f)/Math.Max(1,target));
+                var expanded=new List<State>();var seen=new HashSet<string>(StringComparer.Ordinal);int candidates=0,processed=0;
+                foreach(var state in states)
+                {
+                    foreach(int node in LegalNext(state.ranks,initial.classId,initial.subclassId,constraints))
+                    {
+                        candidates++;string bits=WithBit(state.bits,node);if(!seen.Add(bits))continue;
+                        var ranks=(int[])state.ranks.Clone();ranks[node]=1;var n=compiledNodes[node];var ids=new List<string>(state.ids){n.StableId};var nodeIds=new List<int>(state.nodeIds);int insertion=nodeIds.BinarySearch(node);nodeIds.Insert(insertion<0?~insertion:insertion,node);candidateBuild.passiveStableIds=ids;PlayerBuildMetrics metrics;using(EvaluationMarker.Auto())metrics=evaluation.ReevaluatePassives(candidateBuild);double score=OptimizationMetricCatalog.Score(metrics,baseline,objective);
+                        var step=new PassivePointResult{point=depth+1,nodeId=node,stableId=n.StableId,name=n.DisplayName,branch=n.IsWeaponRoute?n.RouteWeaponId:n.RouteClassId,effect=n.Description,primaryDelta=OptimizationMetricCatalog.Get(objective.primary).Value(metrics)-OptimizationMetricCatalog.Get(objective.primary).Value(state.metrics),secondaryDelta=OptimizationMetricCatalog.Get(objective.secondary).Value(metrics)-OptimizationMetricCatalog.Get(objective.secondary).Value(state.metrics),scoreDelta=score-state.score,scorePercent=state.score==0?score*100:(score-state.score)/Math.Max(.000001,Math.Abs(state.score))*100};
+                        expanded.Add(new State{ranks=ranks,bits=bits,nodeIds=nodeIds,Key=string.Join(",",nodeIds),ids=ids,metrics=metrics,score=score,sequence=new List<PassivePointResult>(state.sequence){step}});
+                        if((++processed&31)==0&&progress!=null&&progressClock.ElapsedMilliseconds-lastProgress>=100){lastProgress=progressClock.ElapsedMilliseconds;progress((depth+(float)processed/Math.Max(1,states.Count*32))/Math.Max(1,target));if(cancelled?.Invoke()==true){stopped=true;break;}}
+                    }
+                    if(stopped)break;
+                }
+                if(stopped)break;
+                int keep=beamSearch?Math.Max(1,beamWidth):1;List<State> retained;using(RetainMarker.Auto())retained=DiverseRetain(expanded,keep);output.debug.Add(new PassiveSearchDebug{depth=depth+1,candidateStates=candidates,uniqueStates=expanded.Count,retainedStates=retained.Count,diversityGroups=retained.Select(x=>Diversity(x.ranks)).Distinct().Count(),statesEvaluated=expanded.Count,bestScore=retained.Count>0?retained.Max(x=>x.score):0});states=retained;if(states.Count==0)break;progress?.Invoke((depth+1f)/Math.Max(1,target));
             }
-            var best=states.OrderByDescending(x=>x.score).ThenBy(x=>x.Key,StringComparer.Ordinal).First();output.build=initial.Clone();output.build.passiveStableIds=Ids(best.ranks);output.metrics=best.metrics;output.score=best.score;output.sequence=best.sequence;return output;
+            var best=states.OrderByDescending(x=>x.score).ThenBy(x=>x.Key,StringComparer.Ordinal).First();output.build=initial.Clone();output.build.passiveStableIds=Ids(best.ranks);if(!PlayerProgression.ValidateAllocationState(best.ranks,initial.classId,initial.subclassId))throw new InvalidOperationException("Optimized passive allocation failed production validation.");output.metrics=best.metrics;output.score=best.score;output.sequence=best.sequence;return output;
         }
         public static List<int> LegalNext(int[] ranks,string classId,string subclassId,OptimizationConstraints constraints=null)
-        {constraints??=new();var excluded=new HashSet<string>(constraints.excludedPassiveIds??new());var result=new List<int>();for(int id=0;id<ranks.Length;id++){var node=PassiveTreeDefinition.Node(id);if(ranks[id]!=0||excluded.Contains(node.StableId))continue;var copy=(int[])ranks.Clone();copy[id]=1;if(constraints.maximumOffClassPoints>=0){int off=0;foreach(var n in PassiveTreeDefinition.Nodes)if(copy[n.Id]!=0&&(n.IsClassRoute&&n.RouteClassId!=classId||n.IsWeaponRoute&&PassiveTreeDefinition.WeaponClass(n.RouteWeaponId)!=classId))off++;if(off>constraints.maximumOffClassPoints)continue;}if(PlayerProgression.ValidateAllocationState(copy,classId,subclassId))result.Add(id);}return result;}
+        {
+            using var legalSample=LegalMarker.Auto();
+            constraints??=new();var excluded=new HashSet<string>(constraints.excludedPassiveIds??new());var result=new List<int>();
+            bool Allocated(int id)=>id>=0&&id<ranks.Length&&ranks[id]!=0;
+            var complete=PassiveTreeDefinition.ClassIds.ToDictionary(c=>c,c=>PassiveTreeDefinition.IsClassSpineComplete(c,Allocated));
+            bool nativeComplete=complete.GetValueOrDefault(classId);
+            int offClass=0;if(constraints.maximumOffClassPoints>=0)foreach(var n in compiledNodes)if(Allocated(n.Id)&&OffClass(n,classId))offClass++;
+            foreach(var n in compiledNodes)
+            {
+                if(Allocated(n.Id)||excluded.Contains(n.StableId)||constraints.maximumOffClassPoints>=0&&offClass+(OffClass(n,classId)?1:0)>constraints.maximumOffClassPoints)continue;
+                if(n.IsChoice)
+                {
+                    if(!Allocated(n.PrerequisiteId)||n.IsSubclassChoice&&(n.RouteClassId!=classId||string.IsNullOrEmpty(subclassId)))continue;
+                    if(choiceGroups.TryGetValue(n.ChoiceGroupId,out var group)&&group.Any(Allocated))continue;
+                }
+                else if(n.Kind==PassiveNodeKind.Spine)
+                {
+                    if(n.Tier==1){if(n.RouteClassId!=classId&&!nativeComplete)continue;}
+                    else if(!Allocated(PassiveTreeDefinition.ClassSpineNode(n.RouteClassId,n.Tier-1)))continue;
+                }
+                else if(n.Kind==PassiveNodeKind.WeaponSpine)
+                {
+                    if(n.Tier==1){if(!complete.GetValueOrDefault(PassiveTreeDefinition.WeaponClass(n.RouteWeaponId)))continue;}
+                    else if(!Allocated(PassiveTreeDefinition.WeaponSpineNode(n.RouteWeaponId,n.Tier-1)))continue;
+                }
+                else continue;
+                result.Add(n.Id);
+            }
+            return result;
+        }
+        static bool OffClass(PassiveNodeDefinition n,string classId)=>n.IsClassRoute&&n.RouteClassId!=classId||n.IsWeaponRoute&&PassiveTreeDefinition.WeaponClass(n.RouteWeaponId)!=classId;
         public static List<PassiveMarginalResult> Analyze(PlayerBuildSnapshot build,OptimizationObjective objective,OptimizationConstraints constraints=null,bool includeLocked=true)
         {
             constraints??=new();var baseline=PlayerBuildEvaluator.Evaluate(build);var ranks=build.AllocationRanks();var results=new List<PassiveMarginalResult>();foreach(var n in PassiveTreeDefinition.Nodes){if(ranks[n.Id]!=0||constraints.excludedPassiveIds.Contains(n.StableId))continue;var package=MinimumLegalPackage(ranks,n.Id,build.classId,build.subclassId);if(package==null||(package.Count>1&&!includeLocked))continue;var b=build.Clone();var next=(int[])ranks.Clone();foreach(int x in package)next[x]=1;b.passiveStableIds=Ids(next);var m=PlayerBuildEvaluator.Evaluate(b);double score=OptimizationMetricCatalog.Score(m,baseline,objective);results.Add(new PassiveMarginalResult{nodeId=n.Id,stableId=n.StableId,name=n.DisplayName,branch=n.IsWeaponRoute?n.RouteWeaponId:n.RouteClassId,effect=n.Description,immediatelyLegal=package.Count==1,pathCost=package.Count,primaryDelta=OptimizationMetricCatalog.Get(objective.primary).Value(m)-OptimizationMetricCatalog.Get(objective.primary).Value(baseline),secondaryDelta=OptimizationMetricCatalog.Get(objective.secondary).Value(m)-OptimizationMetricCatalog.Get(objective.secondary).Value(baseline),objectiveDelta=score,totalPackageGain=score,pathAdjustedValue=score/package.Count});}return results.OrderByDescending(x=>x.pathAdjustedValue).ThenBy(x=>x.stableId,StringComparer.Ordinal).ToList();

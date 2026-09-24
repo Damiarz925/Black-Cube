@@ -11,6 +11,11 @@ using UnityEngine;
 
 namespace BlackCube.BalanceWorkbench
 {
+    public sealed class WorkbenchFingerprintInvalidation:AssetPostprocessor
+    {
+        static void OnPostprocessAllAssets(string[] imported,string[] deleted,string[] moved,string[] movedFrom)
+        {ProductionBalanceAdapters.InvalidateFingerprint();}
+    }
     [Serializable] public sealed class ExperimentMetadata
     {
         public string experimentType,timestampUtc,gitCommit,dataFingerprint,scenario;
@@ -99,6 +104,9 @@ namespace BlackCube.BalanceWorkbench
 
     public static class ProductionBalanceAdapters
     {
+        static string fingerprintCache;static bool fingerprintDirty=true;
+        static ProductionBalanceAdapters(){EditorApplication.projectChanged+=InvalidateFingerprint;Undo.undoRedoPerformed+=InvalidateFingerprint;}
+        public static void InvalidateFingerprint(){fingerprintDirty=true;}
         public static ItemLabResult RunItems(ItemLabRequest request,Action<float> progress=null,Func<bool> cancelled=null)
         {
             var result=new ItemLabResult{metadata=ExperimentMetadata.Create("Weapon / Item Lab",request.seed,request.sampleCount,request.itemLevel,request.itemLevel,JsonUtility.ToJson(request))};var rng=new SeededSimulationRandomSource(request.seed);
@@ -148,7 +156,7 @@ namespace BlackCube.BalanceWorkbench
 
         public static List<CurveSeries> IntrinsicCurves(int start,int end,int step,float authoredLife=100)
         {CurveSeries life=new(){name="Intrinsic Life",color=new Color(.25f,.85f,.4f)};CurveSeries damage=new(){name="Intrinsic Damage",color=new Color(1f,.35f,.2f)};CurveSeries armour=new(){name="Intrinsic Armour",color=new Color(.4f,.65f,1f)};CurveSeries res=new(){name="Intrinsic Resistance",color=new Color(.8f,.55f,1f)};for(int l=Math.Max(1,start);l<=Math.Max(start,end);l+=Math.Max(1,step)){var x=EnemyScalingMath.Calculate(l);life.points.Add(new CurvePoint{x=l,mean=x.ScaledLife(authoredLife)});damage.points.Add(new CurvePoint{x=l,mean=x.DamageFactor});armour.points.Add(new CurvePoint{x=l,mean=x.Armour});res.points.Add(new CurvePoint{x=l,mean=x.ResistancePoints});}return new(){life,damage,armour,res};}
-        public static string DataFingerprint(){var paths=new List<string>{"Assets/Prefabs/Scriptable Objects/ModDatabase.asset","Assets/Resources/EnemyScalingProfile.asset","Assets/Resources/LootBalanceProfile.asset","Assets/Resources/GameData/PassiveTree/SO_PassiveTreeDatabase.asset","Assets/Resources/GameData/WorldContentDatabase.asset","Assets/Resources/PlayerSkills.asset"};foreach(string filter in new[]{"t:PassiveClassBranchSO","t:PassiveWeaponBranchSO","t:PlayerGearProfileSO"})paths.AddRange(AssetDatabase.FindAssets(filter).Select(AssetDatabase.GUIDToAssetPath));using var sha=SHA256.Create();var bytes=new List<byte>();foreach(string p in paths.Distinct().OrderBy(x=>x,StringComparer.Ordinal))if(File.Exists(p)){bytes.AddRange(Encoding.UTF8.GetBytes(p));bytes.AddRange(File.ReadAllBytes(p));}return BitConverter.ToString(sha.ComputeHash(bytes.ToArray())).Replace("-",string.Empty).Substring(0,16);}
+        public static string DataFingerprint(){if(!fingerprintDirty&&fingerprintCache!=null)return fingerprintCache;var paths=new List<string>{"Assets/Prefabs/Scriptable Objects/ModDatabase.asset","Assets/Resources/EnemyScalingProfile.asset","Assets/Resources/LootBalanceProfile.asset","Assets/Resources/GameData/PassiveTree/SO_PassiveTreeDatabase.asset","Assets/Resources/GameData/WorldContentDatabase.asset","Assets/Resources/PlayerSkills.asset"};foreach(string filter in new[]{"t:PassiveClassBranchSO","t:PassiveWeaponBranchSO","t:PlayerGearProfileSO"})paths.AddRange(AssetDatabase.FindAssets(filter).Select(AssetDatabase.GUIDToAssetPath));using var sha=SHA256.Create();var bytes=new List<byte>();foreach(string p in paths.Distinct().OrderBy(x=>x,StringComparer.Ordinal))if(File.Exists(p)){bytes.AddRange(Encoding.UTF8.GetBytes(p));bytes.AddRange(File.ReadAllBytes(p));}fingerprintCache=BitConverter.ToString(sha.ComputeHash(bytes.ToArray())).Replace("-",string.Empty).Substring(0,16);fingerprintDirty=false;return fingerprintCache;}
         public static string GitCommit(){try{var psi=new System.Diagnostics.ProcessStartInfo("git","rev-parse --short HEAD"){WorkingDirectory=Directory.GetParent(Application.dataPath).FullName,RedirectStandardOutput=true,UseShellExecute=false,CreateNoWindow=true};using var p=System.Diagnostics.Process.Start(psi);return p.StandardOutput.ReadToEnd().Trim();}catch{return "unavailable";}}
     }
 

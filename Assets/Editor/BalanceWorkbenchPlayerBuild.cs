@@ -41,7 +41,7 @@ namespace BlackCube.BalanceWorkbench
     [Serializable] public sealed class AnalysisStatDelta { public StatTypes stat; public float amount; }
 
     [Serializable] public sealed class SkillAnalyticalMetrics
-    {public string name,castMode,assumption;public double averageDamagePerUse,averageDirectHit,expectedHits,effectiveCooldown,idealCooldownDps,manaCost;public bool sustainable;}
+    {public string name,castMode,assumption;public double averageDamagePerUse,averageDirectHit,expectedHits,effectiveCooldown,idealCooldownDps,manaCost;public bool sustainable;public SkillAnalyticalMetrics Clone()=>(SkillAnalyticalMetrics)MemberwiseClone();}
 
     [Serializable] public sealed class PlayerBuildMetrics
     {
@@ -52,10 +52,12 @@ namespace BlackCube.BalanceWorkbench
         public double ehpPhysical,ehpFire,ehpCold,ehpLightning,ehpVoid,recoveryPerSecond;
         public double baseWeaponAverage,weaponAttributeIncreased,playerLevelIncreased,genericIncreased,physicalIncreased,genericMore,physicalMore;
         public List<SkillAnalyticalMetrics> skills=new();public List<string> assumptions=new();
+        public PlayerBuildMetrics Clone(){var copy=(PlayerBuildMetrics)MemberwiseClone();copy.skills=skills.Select(x=>x.Clone()).ToList();copy.assumptions=new List<string>(assumptions);return copy;}
     }
 
     public sealed class PlayerBuildEvaluation:IDisposable
     {
+        public static long ReusedEvaluationCount{get;private set;}
         readonly GameObject root;readonly List<Gear> gear=new();public readonly StatsComponent Stats;public readonly PlayerController Player;public readonly HealthComponent Health;public readonly ManaComponent Mana;public readonly PlayerBuildMetrics Metrics;
         public PlayerBuildEvaluation(PlayerBuildSnapshot build)
         {
@@ -70,6 +72,24 @@ namespace BlackCube.BalanceWorkbench
                 foreach(var snapshot in build.equipment??new()){var g=snapshot.Materialize(root.transform,"Workbench "+snapshot.slot);gear.Add(g);foreach(var m in g.globalRolledMods)Stats.AddModifier(new StatModifier(m.statType,StatMappings.GetRolledModifierOperation(m.statType),m.value,g));if(g.ItemType==LootManager.GearType.Weapons)Player.EquipWeapon(g);}
             }finally{Stats.EndUpdate();}
             Metrics=Capture(build);
+        }
+        // Passive searches keep level, class, weapon and gear fixed. Reapply only
+        // the changing passive package to the same isolated production actor.
+        // Gear modifiers retain their Gear source and are not removed here.
+        public PlayerBuildMetrics ReevaluatePassives(PlayerBuildSnapshot build)
+        {
+            ReusedEvaluationCount++;
+            Stats.BeginUpdate();try
+            {
+                Stats.RemoveModifiersFromSource(this);
+                Stats.AddModifier(new StatModifier(StatTypes.Life,StatOp.Flat,PlayerProgression.LevelLifeBonus(build.playerLevel),this));
+                var allocated=new List<PassiveNodeDefinition>();var seen=new HashSet<int>();foreach(string id in build.passiveStableIds??new())if(PassiveTreeDefinition.TryNode(id,out var entry)&&seen.Add(entry.Id))allocated.Add(entry);allocated.Sort((a,b)=>a.Id.CompareTo(b.Id));
+                foreach(var node in allocated)if(string.IsNullOrEmpty(node.WeaponTypeRestriction)||node.WeaponTypeRestriction==build.weaponTypeId)
+                {var effects=node.IsSubclassChoice?PassiveTreeDefinition.SubclassEffects(build.subclassId,node):node.Effects;foreach(var e in effects)Stats.AddModifier(new StatModifier(e.Stat,StatOp.Flat,e.Amount,this));}
+                SubclassStatPackage.Apply(build.subclassId,(s,v)=>Stats.AddModifier(new StatModifier(s,StatOp.Flat,v,this)));
+                foreach(var delta in build.analysisDeltas??new())Stats.AddModifier(new StatModifier(delta.stat,StatOp.Flat,delta.amount,this));
+            }finally{Stats.EndUpdate();}
+            return Capture(build);
         }
         PlayerBuildMetrics Capture(PlayerBuildSnapshot b)
         {
@@ -103,7 +123,22 @@ namespace BlackCube.BalanceWorkbench
     }
 
     public static class PlayerBuildEvaluator
-    {public static PlayerBuildMetrics Evaluate(PlayerBuildSnapshot build){if(build==null)throw new ArgumentNullException(nameof(build));using var e=new PlayerBuildEvaluation(build);return e.Metrics;}}
+    {
+        static readonly Dictionary<string,PlayerBuildMetrics> cache=new();static string cacheFingerprint;
+        public static long CacheHits{get;private set;}public static long CacheMisses{get;private set;}
+        public static int CacheEntries=>cache.Count;
+        public static PlayerBuildMetrics Evaluate(PlayerBuildSnapshot build)
+        {
+            if(build==null)throw new ArgumentNullException(nameof(build));string fingerprint=ProductionBalanceAdapters.DataFingerprint();
+            if(cacheFingerprint!=fingerprint){cache.Clear();cacheFingerprint=fingerprint;}
+            string key=JsonUtility.ToJson(build);
+            if(cache.TryGetValue(key,out var prior)){CacheHits++;return prior.Clone();}
+            CacheMisses++;
+            using var evaluation=new PlayerBuildEvaluation(build);var result=evaluation.Metrics;
+            if(cache.Count>=1024)cache.Clear();cache[key]=result.Clone();
+            return result;
+        }
+    }
 
     [Serializable] public sealed class BuildAblationContribution{public string source;public double primary,secondary;}
     public static class PlayerBuildContributionAnalyzer
