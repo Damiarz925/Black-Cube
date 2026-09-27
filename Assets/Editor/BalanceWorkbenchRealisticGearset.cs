@@ -112,7 +112,7 @@ namespace BlackCube.BalanceWorkbench
             return result;
         }
 
-        static double Score(PlayerBuildMetrics value,PlayerBuildMetrics baseline,
+        internal static double Score(PlayerBuildMetrics value,PlayerBuildMetrics baseline,
             OptimizationObjective objective,OptimizationConstraints floors)
         {
             double offense=OptimizationMetricCatalog.Score(value,baseline,objective);

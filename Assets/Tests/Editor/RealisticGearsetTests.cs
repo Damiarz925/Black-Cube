@@ -30,5 +30,12 @@ public sealed class RealisticGearsetTests
         Assert.That(result.build.equipment.Count,Is.EqualTo(8));
         Assert.That(result.inventorySize,Is.EqualTo(8));
         Assert.That(result.metrics.totalSustainableDps,Is.GreaterThan(0));
+        var joint=RealisticPlayerOptimizer.Optimize(new PlayerBuildSnapshot
+        {playerLevel=10,combatLevel=10,weaponTypeId=WeaponTypeIds.Sword},inventory,
+            new OptimizationObjective(),new OptimizationConstraints(),
+            DefenseAdherence.Soft,10,1);
+        Assert.That(joint.build,Is.Not.Null,joint.warning);
+        Assert.That(joint.build.equipment.Count,Is.EqualTo(8));
+        Assert.That(joint.build.passiveStableIds.Count,Is.EqualTo(10));
     }
 }

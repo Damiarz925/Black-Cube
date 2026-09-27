@@ -105,8 +105,39 @@ namespace BlackCube.BalanceWorkbench
     {
         FullLevelCalibrationRequest fullLevelRequest=new();
         FullLevelCalibrationResult fullLevelResult;
+        ResistancePressureResult resistancePressure;
         void DefenseCalibrationTab()
         {
+            Heading("PRODUCTION T1 RESISTANCE INVESTMENT PRESSURE");
+            EditorGUILayout.HelpBox("Read-only reference derived from the live ModDatabase and legal item pools. It does not reserve actual gear affixes or set final Life/Armour targets.",MessageType.Info);
+            if(GUILayout.Button("AUDIT RESISTANCE TIERS",GUILayout.Height(30)))
+                Run("Resistance tier investment audit",_=>
+                {
+                    using var session=new WorkbenchSession();
+                    resistancePressure=ResistancePressureAnalyzer.Analyze(session.Roller.Database);
+                });
+            if(resistancePressure!=null)
+            {
+                MetricRow("All direct T1 options available at item level",resistancePressure.allT1AvailableAt.ToString());
+                MetricRow("Selected T1 investment available at item level",resistancePressure.referenceInvestmentAvailableAt.ToString());
+                MetricRow("Reference resistance suffix count",resistancePressure.referenceInvestment.Count.ToString());
+                MetricRow("75% all four covered by reference",resistancePressure.reachesTarget?"Yes":"No");
+                foreach(var stat in new[]{StatTypes.FireRes,StatTypes.ColdRes,StatTypes.LightRes,StatTypes.VoidRes})
+                {
+                    var options=resistancePressure.t1Options.Where(x=>x.stat==stat).ToList();
+                    if(options.Count>0)MetricRow($"{stat} T1 unlock / midpoint",
+                        $"L{options.Min(x=>x.itemLevel)} / {options.Max(x=>x.midpoint):P0}");
+                }
+                Heading("SAME INVESTMENT AT EARLIER LEGAL TIERS");
+                foreach(var row in resistancePressure.earlierTiers)
+                    MetricRow($"Item Level {row.itemLevel}",
+                        $"{row.fire:P0} / {row.cold:P0} / {row.lightning:P0} / {row.voidResistance:P0}");
+                EditorGUILayout.HelpBox(resistancePressure.assumptions,MessageType.Info);
+                if(!string.IsNullOrEmpty(resistancePressure.warning))
+                    EditorGUILayout.HelpBox(resistancePressure.warning,MessageType.Warning);
+                if(GUILayout.Button("EXPORT RESISTANCE PRESSURE JSON"))
+                    status=WorkbenchExports.SaveJson("resistance_pressure",resistancePressure);
+            }
             Heading("FULL-LEVEL DEFENSE CALIBRATION");
             EditorGUILayout.HelpBox("Runs the production nine normal encounters plus boss. No-Recovery disables renewable player Life healing only; Mana and offense remain active.",MessageType.Info);
             BuildInputs();

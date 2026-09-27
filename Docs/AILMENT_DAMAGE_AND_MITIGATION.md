@@ -1,0 +1,7 @@
+# Ailment damage, eligibility, and mitigation
+
+Ordinary Bleed is Physical damage, Ignite is Fire damage, and Poison is Void damage. The ordinary ailment basis uses only matching damage in a mixed hit: Physical→Bleed, Fire→Ignite, Void→Poison, Lightning→Shock, Cold→Chill. Physical damage does not Poison by default. Explicit production overrides remain local: Ranger poison subclass, Venom Shot's guaranteed Poison/virtual hit basis, Dark Priest Void ailment access, and Mage Storm's all-damage Shock behavior.
+
+Damaging ailments use the same canonical mitigation and penetration as their damage type: Bleed uses Armour-derived plus explicit Physical Damage Reduction and Physical Penetration; Ignite uses Fire Resistance and Fire Penetration; Poison uses Void Resistance and Void Penetration. Ailment-specific resistance and penetration affixes are deprecated and absent from ordinary generation. All Elemental Resistance covers Fire, Cold, and Lightning only, never Void or Physical.
+
+Shock and Chill are continuous effects during their durations, not ticking damage. Reduced Shock Effect and Reduced Chill Effect reduce their effect magnitude; Lightning/Cold Resistance instead mitigate the corresponding damage. Offensive Shock/Chill Speed families are absent from current ordinary pools; the item pools use Shock/Chill Effectiveness where intended. See `AFFIX_POOLS.md` for legal item sides and `ITEMIZATION.md` for the new stat identities.

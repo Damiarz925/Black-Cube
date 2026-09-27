@@ -125,3 +125,7 @@ The advanced-analysis tabs now include independent first-upgrade trials with cen
 `Tooling5EditorSmokeRunner.Run` opens the Workbench and exercises the seven tab request/result controllers plus report export in an Editor session. Its log states the exact boundary: native IMGUI mouse clicks and visible layout still require a foreground manual check. The legacy BalanceLab is not part of this workflow.
 
 Detailed operation and known limitations are documented in `LOOT_PROGRESSION_SIMULATOR.md`, `CRAFTING_SIMULATOR.md`, `BALANCE_SNAPSHOTS.md`, `BREAKPOINT_FINDER.md`, and `BALANCE_REPORTING.md`. In particular, batch breakpoint dimensions are class and enemy rarity only, and some report widget catalog labels render through a generic scenario data view.
+
+## Realistic-player workflow checkpoint
+
+The left navigation now groups Player, Enemy, Loot / Itemization, Combat, and Analysis tools and provides a tool search. The Progression History tab supports a seeded production-XP/loot history, historical item generation, shared-currency production crafting with Fast/Serious/Deep bounded searches, ground-loot versus crafted whole-gearset comparison, and a bounded gear/passive alternation. The default comparison uses Expected Crafting; Ground Loot Only remains explicit. Craftability ranks projects, but every historical item remains available for the final gearset. See `REALISTIC_PLAYER_MODEL.md` for assumptions and limitations, `AFFIX_POOLS.md` for the exact Prefix/Suffix mapping, and `ENEMY_POWER_AND_LOOT.md` for the separate enemy-power authoring requirement.

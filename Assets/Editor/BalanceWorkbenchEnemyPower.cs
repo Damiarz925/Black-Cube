@@ -69,8 +69,10 @@ namespace BlackCube.BalanceWorkbench
         int enemyPowerLevel=50,enemyPowerSamples=24;
         EnemyAI.EnemyRarity enemyPowerRarity=EnemyAI.EnemyRarity.Rare;
         long enemyPowerSeed=54001;
+        string enemyPowerArchetypeId;
         EnemyLootPowerReferenceRow enemyPowerRow;
         EnemyPowerResult enemyPowerPreview;
+        EnemySample enemyPowerSample;
         void EnemyPowerTab()
         {
             Heading("REFERENCE PLAYER AND ENEMY POWER");
@@ -80,10 +82,22 @@ namespace BlackCube.BalanceWorkbench
             EditorGUILayout.HelpBox(stale?"STALE / INCOMPLETE reference. Loot power is neutral until an explicit matching reference exists.":
                 "Reference fingerprint current. Missing levels/rarities still use neutral power and are shown as incomplete.",
                 stale?MessageType.Warning:MessageType.Info);
+            int priorLevel=enemyPowerLevel;
+            var priorRarity=enemyPowerRarity;
+            string priorArchetype=enemyPowerArchetypeId;
+            long priorSeed=enemyPowerSeed;
             enemyPowerLevel=EditorGUILayout.IntSlider("Combat Level",enemyPowerLevel,1,360);
             enemyPowerRarity=(EnemyAI.EnemyRarity)EditorGUILayout.EnumPopup("Enemy Rarity",enemyPowerRarity);
             enemyPowerSamples=EditorGUILayout.IntSlider("Enemy Samples",enemyPowerSamples,1,256);
             enemyPowerSeed=EditorGUILayout.LongField("Seed",enemyPowerSeed);
+            var archetypes=WorldContentCatalog.Reference.enemyArchetypes;
+            var archetypeIds=archetypes.Select(x=>x.stableId).ToArray();
+            int archetypeIndex=Mathf.Max(0,Array.IndexOf(archetypeIds,enemyPowerArchetypeId));
+            archetypeIndex=EditorGUILayout.Popup("Preview Archetype",archetypeIndex,archetypeIds);
+            enemyPowerArchetypeId=archetypeIds[archetypeIndex];
+            if(priorLevel!=enemyPowerLevel||priorRarity!=enemyPowerRarity||
+                priorArchetype!=enemyPowerArchetypeId||priorSeed!=enemyPowerSeed)
+            {enemyPowerPreview=EnemyPowerResult.Unavailable;enemyPowerSample=null;}
             EditorGUILayout.LabelField("Selected player level",playerBuild.playerLevel.ToString());
             EditorGUILayout.LabelField("Selected player combat level",playerBuild.combatLevel.ToString());
             EditorGUILayout.LabelField("Equipped reference items",(playerBuild.equipment?.Count??0).ToString());
@@ -105,20 +119,78 @@ namespace BlackCube.BalanceWorkbench
             {
                 Run("Previewing enemy power",_=>
                 {
-                    var id=WorldContentCatalog.Reference.enemyArchetypes.First().stableId;
-                    var sample=CombatLabAdapters.EnemySnapshot(id,enemyPowerLevel,enemyPowerRarity,0,enemyPowerSeed);
+                    var population=ProductionBalanceAdapters.RunEnemies(new EnemyLabRequest
+                    {
+                        archetypeId=enemyPowerArchetypeId,level=enemyPowerLevel,
+                        sampleCount=1,productionRarity=false,rarity=enemyPowerRarity,
+                        seed=enemyPowerSeed
+                    });
+                    enemyPowerSample=population.samples.Single();
+                    var sample=new CombatantSnapshot
+                    {
+                        id=enemyPowerArchetypeId,name=enemyPowerSample.archetype,
+                        maximumLife=(float)enemyPowerSample.life,
+                        attackSpeed=(float)enemyPowerSample.attackSpeed,
+                        armour=(float)enemyPowerSample.armour,
+                        fireResistance=(float)enemyPowerSample.fireResistance,
+                        coldResistance=(float)enemyPowerSample.coldResistance,
+                        lightningResistance=(float)enemyPowerSample.lightningResistance,
+                        voidResistance=(float)enemyPowerSample.voidResistance,
+                        critChance=(float)enemyPowerSample.critChance,
+                        critMultiplier=CombatCalculator.BaseCriticalMultiplier+(float)enemyPowerSample.critMultiplier
+                    };
+                    float hit=(float)enemyPowerSample.damagePerHit;
+                    switch(enemyPowerSample.primaryDamage)
+                    {
+                        case "Fire":sample.basicDamage.fire=hit;break;
+                        case "Cold":sample.basicDamage.cold=hit;break;
+                        case "Light":sample.basicDamage.lightning=hit;break;
+                        case "Void":sample.basicDamage.voidDamage=hit;break;
+                        default:sample.basicDamage.physical=hit;break;
+                    }
                     enemyPowerPreview=EnemyLootPowerScorer.Evaluate(sample,enemyPowerRow,profile.offenseWeight);
                 });
             }
             if(enemyPowerPreview.available)
             {
                 Heading("GENERATED ENEMY POWER");
+                MetricRow("Archetype / Rarity",$"{enemyPowerSample.archetype} / {enemyPowerRarity}");
+                MetricRow("Level / Seed",$"{enemyPowerLevel} / {enemyPowerSeed}");
+                MetricRow("Gear Score (diagnostic)",enemyPowerSample.gearScore.ToString("0.##"));
+                EditorGUILayout.LabelField("Equipped Gear",EditorStyles.boldLabel);
+                EditorGUILayout.SelectableLabel(enemyPowerSample.equipment,
+                    EditorStyles.wordWrappedLabel,GUILayout.MinHeight(32));
+                MetricRow("Enemy Basic DPS",enemyPowerSample.dps.ToString("0.##"));
+                MetricRow("Enemy Life / Armour",$"{enemyPowerSample.life:0.##} / {enemyPowerSample.armour:0.##}");
+                var referenceHit=enemyPowerRow.referencePlayer.basicDamage;
+                float rawPlayerDps=(referenceHit.physical+referenceHit.fire+
+                    referenceHit.cold+referenceHit.lightning+referenceHit.voidDamage)*
+                    enemyPowerRow.referencePlayer.attackSpeed*
+                    (1f+enemyPowerRow.referencePlayer.critChance*
+                        (enemyPowerRow.referencePlayer.critMultiplier-1f))*
+                    (1f+enemyPowerRow.referencePlayer.hitTwiceChance);
+                MetricRow("Enemy EHP vs Reference Hit Mix",
+                    (enemyPowerSample.life*rawPlayerDps/Math.Max(.001,enemyPowerPreview.actualPlayerDps)).ToString("0.##"));
+                MetricRow("Enemy→Player TTD",
+                    (enemyPowerRow.referencePlayer.maximumLife/Math.Max(.001,enemyPowerPreview.actualIncomingDps)).ToString("0.##"),"s");
+                MetricRow("Player→Enemy TTK",
+                    (enemyPowerSample.life/Math.Max(.001,enemyPowerPreview.actualPlayerDps)).ToString("0.##"),"s");
                 MetricRow("Offense pressure",enemyPowerPreview.offensePressure.ToString("0.###"),"×");
                 MetricRow("Defense pressure",enemyPowerPreview.defensePressure.ToString("0.###"),"×");
                 MetricRow("Power / loot multiplier",enemyPowerPreview.power.ToString("0.###"),"×");
-                var drop=LootDropBalanceProfileSO.Current.EvaluateCurrency(CraftingCurrencyType.NormalToMagic,
-                    new DropRateContext(enemyPowerLevel,enemyPowerRarity,false,enemyPowerPreview.power));
-                MetricRow("Normal→Magic budget",(drop.finalBudget*100f).ToString("0.###"),"%");
+                var loot=LootDropBalanceProfileSO.Current;
+                var context=new DropRateContext(enemyPowerLevel,enemyPowerRarity,false,
+                    enemyPowerPreview.power,archetypeId:enemyPowerArchetypeId);
+                var gear=loot.EvaluateGear(context);
+                Heading("PREVIEW LOOT BUDGETS — NO STAGE / LOCATION OVERRIDE");
+                MetricRow("Gear Base / Rarity Additive",$"{gear.baseChance:0.###} / {gear.rarityAdditive:0.###}");
+                MetricRow("Final Gear Copies",gear.finalBudget.ToString("0.###"));
+                foreach(var rule in loot.currencies.Where(x=>x!=null&&!x.useLegacyWeightedRoll))
+                {
+                    var drop=loot.EvaluateCurrency(rule.currency,context);
+                    MetricRow(CurrencyPresentation.Name(rule.currency),
+                        $"{drop.baseChance:P2} + {drop.rarityAdditive:P2} → {drop.finalBudget:P2}");
+                }
             }
             Heading("PRODUCTION EDITING");
             var so=new SerializedObject(profile);so.Update();EditorGUILayout.PropertyField(so.FindProperty("offenseWeight"));

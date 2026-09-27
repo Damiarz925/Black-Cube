@@ -49,3 +49,4 @@ Timeline, batch, matrix, and curve CSV; result/trace JSON; and curve PNG use the
 - Scaling across levels: **Combat Curves**.
 - Reproduce an abnormal result: select an outlier and replay its exact seed.
 
+The separate **Defense Calibration** tab runs the production nine normal encounters plus boss with Life and Mana carried between encounters. **No Renewable Life Recovery** suppresses Life regeneration/on-hit/on-kill healing only, preserving base Life, Armour, resistances, offense, and Mana rules. Use the resulting clear rate, boss reach/kill rates, stage failures, and remaining Life to calibrate a supplied build; the tool does not invent a final Life or Armour curve. The Player Build analytical Total DPS estimate should be checked here against actual resource use and combat results.
