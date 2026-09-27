@@ -5,6 +5,10 @@ using UnityEngine;
 
 public class EnemyAI : MonoBehaviour
 {
+#if UNITY_EDITOR
+    // Editor-only timing hook; null in ordinary gameplay. It never changes candidate selection.
+    public static System.Action<long,long> EditorBuildPhaseTiming;
+#endif
     // Boss pressure is role-owned and separate from the authored level-1
     // prefab Life seeds and the shared intrinsic level curve.
     public const float BossRoleDamageMultiplier = 1.8f;
@@ -299,15 +303,25 @@ public class EnemyAI : MonoBehaviour
             new List<EnemyBuildOptimizer.CandidateSlot>(selectedSlots.Count + 1);
         List<Gear> allCandidates = new List<Gear>((selectedSlots.Count + 1) * candidateCount);
 
+#if UNITY_EDITOR
+        long candidateStart = System.Diagnostics.Stopwatch.GetTimestamp();
+#endif
         AddCandidateSlot(LootManager.GearType.Weapons, zoneLevel, candidateCount, candidateSlots, allCandidates);
         for (int i = 0; i < selectedSlots.Count; i++)
             AddCandidateSlot(selectedSlots[i], zoneLevel, candidateCount, candidateSlots, allCandidates);
+#if UNITY_EDITOR
+        long candidateEnd = System.Diagnostics.Stopwatch.GetTimestamp();
+#endif
 
         // Candidate generation is now complete. Search never asks ModManager for a
         // reroll and evaluates isolated stat snapshots rather than mutating this enemy.
         LastOptimizerBaseStats = EnemyBuildOptimizer.CaptureBaseStats(stats);
         EnemyBuildOptimizer.BuildResult winner = EnemyBuildOptimizer.SelectBestBuild(
             candidateSlots, LastOptimizerBaseStats, baseSpeed, IntrinsicDamageFactor);
+#if UNITY_EDITOR
+        EditorBuildPhaseTiming?.Invoke(candidateEnd - candidateStart,
+            System.Diagnostics.Stopwatch.GetTimestamp() - candidateEnd);
+#endif
         LastBuildEvaluation = winner != null ? winner.Evaluation : default;
         HashSet<Gear> selected = new HashSet<Gear>();
         if (winner != null)

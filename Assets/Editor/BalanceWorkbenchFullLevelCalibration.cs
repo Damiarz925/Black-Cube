@@ -170,13 +170,15 @@ namespace BlackCube.BalanceWorkbench
                         Progress("Full level"),()=>cancelled);
                 });
             if(fullLevelResult==null)return;
+            var currentRunBuild=playerBuild.Clone();
+            currentRunBuild.combatLevel=fullLevelRequest.combatLevel;
             bool stale=fullLevelResult.dataFingerprint!=ProductionBalanceAdapters.DataFingerprint()||
                 fullLevelResult.combatLevel!=fullLevelRequest.combatLevel||
                 fullLevelResult.requestedTrials!=fullLevelRequest.trials||
                 fullLevelResult.seed!=fullLevelRequest.seed||
                 fullLevelResult.noRecovery!=fullLevelRequest.noRecovery||
                 fullLevelResult.maximumFightDuration!=fullLevelRequest.maximumFightDuration||
-                fullLevelResult.buildHash!=ScenarioResultIdentity.BuildHash(playerBuild);
+                fullLevelResult.buildHash!=ScenarioResultIdentity.BuildHash(currentRunBuild);
             if(stale)EditorGUILayout.HelpBox("STALE RESULT — inputs or production data changed after this run. Values below retain their original run context.",MessageType.Warning);
             Heading("RUN CONTEXT");
             MetricRow("Player Level / Combat Level",$"{fullLevelResult.runBuild.playerLevel} / {fullLevelResult.combatLevel}");

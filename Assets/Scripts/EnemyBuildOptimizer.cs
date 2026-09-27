@@ -6,6 +6,22 @@ using UnityEngine;
 
 public static class EnemyBuildOptimizer
 {
+    // Classification is immutable for a compiled stat enum. Avoid reflection and
+    // enum-name allocations for every candidate in the production beam search.
+    private static readonly int StatCount = Enum.GetValues(typeof(StatTypes)).Length;
+    private static readonly bool[] PercentStat = ClassifyStats(false);
+    private static readonly bool[] IndependentMoreStat = ClassifyStats(true);
+    private static bool[] ClassifyStats(bool moreOnly)
+    {
+        var result=new bool[StatCount];
+        for(int i=0;i<result.Length;i++)
+        {
+            var stat=(StatTypes)i;
+            result[i]=StatsComponent.IsPercentStat(stat)&&
+                (!moreOnly||stat.ToString().EndsWith("Mult",StringComparison.Ordinal));
+        }
+        return result;
+    }
     public static float CanonicalGearScore(Evaluation evaluation)=>Mathf.Exp(evaluation.Score);
     // Search tuning. The global fill plus per-archetype reservations never exceeds BeamWidth.
     public const int BeamWidth = 40;
@@ -138,8 +154,7 @@ public static class EnemyBuildOptimizer
 
         public StatSnapshot(float[] baseRaw)
         {
-            int count = Enum.GetValues(typeof(StatTypes)).Length;
-            raw = new float[count];
+            raw = new float[StatCount];
             if (baseRaw != null)
                 Array.Copy(baseRaw, raw, Mathf.Min(baseRaw.Length, raw.Length));
         }
@@ -153,7 +168,7 @@ public static class EnemyBuildOptimizer
                 if (mod == null) continue;
                 int index = (int)mod.statType;
                 if (index < 0 || index >= raw.Length) continue;
-                if (IsIndependentMore(mod.statType))
+                if (IndependentMoreStat[index])
                     raw[index] = ((1f + raw[index] / 100f) * (1f + mod.value / 100f) - 1f) * 100f;
                 else
                     raw[index] += mod.value;
@@ -165,7 +180,7 @@ public static class EnemyBuildOptimizer
             int index = (int)stat;
             return index >= 0 && index < raw.Length ? raw[index] : 0f;
         }
-        public float Get(StatTypes stat) => StatsComponent.IsPercentStat(stat) ? Raw(stat) / 100f : Raw(stat);
+        public float Get(StatTypes stat) => (int)stat>=0&&(int)stat<StatCount&&PercentStat[(int)stat] ? Raw(stat) / 100f : Raw(stat);
     }
 
     public static int CandidateCountForLevel(int level)
@@ -176,10 +191,9 @@ public static class EnemyBuildOptimizer
 
     public static float[] CaptureBaseStats(StatsComponent stats)
     {
-        int count = Enum.GetValues(typeof(StatTypes)).Length;
-        float[] values = new float[count];
+        float[] values = new float[StatCount];
         if (stats == null) return values;
-        for (int i = 0; i < count; i++)
+        for (int i = 0; i < StatCount; i++)
             values[i] = stats.GetRawStat((StatTypes)i);
         return values;
     }
@@ -360,9 +374,6 @@ public static class EnemyBuildOptimizer
         }
         return a.Length.CompareTo(b.Length);
     }
-
-    private static bool IsIndependentMore(StatTypes stat) =>
-        StatsComponent.IsPercentStat(stat) && stat.ToString().EndsWith("Mult", StringComparison.Ordinal);
 
     private static float ScaleHit(float baseAmount, Element element, StatSnapshot stats)
     {

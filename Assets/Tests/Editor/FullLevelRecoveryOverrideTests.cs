@@ -27,13 +27,20 @@ public sealed class FullLevelRecoveryOverrideTests
     [Test]
     public void FullLevelCalibration_UsesProductionStageOrder()
     {
-        var result=FullLevelCalibrationSimulator.Run(new FullLevelCalibrationRequest
+        var request=new FullLevelCalibrationRequest
         {
             player=new PlayerBuildSnapshot{playerLevel=1,combatLevel=1},
             combatLevel=1,trials=1,seed=231,maximumFightDuration=5,noRecovery=true
-        });
+        };
+        var result=FullLevelCalibrationSimulator.Run(request);
         Assert.That(result.trials,Is.EqualTo(1));
         Assert.That(result.failedAtStage.Count+result.clears,Is.EqualTo(1));
         Assert.That(result.bossReached,Is.LessThanOrEqualTo(1));
+        Assert.That(result.combatLevel,Is.EqualTo(1));
+        Assert.That(result.seed,Is.EqualTo(231));
+        Assert.That(result.noRecovery,Is.True);
+        Assert.That(result.buildHash,Is.EqualTo(ScenarioResultIdentity.BuildHash(request.player)));
+        request.player.playerLevel=99;
+        Assert.That(result.runBuild.playerLevel,Is.EqualTo(1),"Run context must not alias the input.");
     }
 }

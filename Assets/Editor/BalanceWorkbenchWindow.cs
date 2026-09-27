@@ -11,10 +11,24 @@ namespace BlackCube.BalanceWorkbench
     public sealed partial class BalanceWorkbenchWindow:EditorWindow
     {
         enum Tab{Dashboard,WeaponItemLab,EnemyGearLab,DropSimulator,CurveExplorer,PlayerBuildLab,GearCurves,PassiveOptimizer,PassiveHeatmap,ScenarioSweep,PlayerVsEnemy,EnemyAuthoring,EnemyScaling,EnemyPreview,BehaviorPreview,BossPhaseAuthoring,CombatLab,CombatTimeline,BatchMatchups,BossLab,CombatCurves,Experiments,SettingsValidation,Sensitivity,AffixAnalyzer,LootProgression,CraftingSimulator,BalanceSnapshots,BreakpointFinder,BalanceReport,Performance,EnemyPower,ProgressionHistory,DefenseCalibration}
-        Tab tab;Vector2 scroll,navScroll;string toolSearch=string.Empty;readonly bool[] navOpen={true,true,true,true,true,true};readonly BalanceWorkbenchChart chart=new();ItemLabRequest item=new();EnemyLabRequest enemy=new();DropLabRequest drop=new();ItemLabResult itemResult;EnemyLabResult enemyResult;DropLabResult dropResult;List<DropLabResult> dropMatrix=new();List<CurveSeries> curves=new();string status="Ready",headerCommit;double headerCommitRefresh;bool cancelled;int sweepStart=1,sweepEnd=100,sweepIncrement=10,sweepSamples=100;
+        Tab tab;Vector2 scroll,navScroll;string toolSearch=string.Empty;readonly bool[] navOpen={true,true,true,true,true,true};readonly BalanceWorkbenchChart chart=new();ItemLabRequest item=new();EnemyLabRequest enemy=new();DropLabRequest drop=new();ItemLabResult itemResult;EnemyLabResult enemyResult;DropLabResult dropResult;List<DropLabResult> dropMatrix=new();List<CurveSeries> curves=new();string status="Ready",headerCommit;double headerCommitRefresh;bool cancelled,workbenchBusy;int sweepStart=1,sweepEnd=100,sweepIncrement=10,sweepSamples=100;
         static readonly string[] labels={"DASHBOARD","WEAPON / ITEM","ENEMY GEAR","DROPS","CURVES","PLAYER BUILD","GEAR CURVES","PASSIVE OPT","HEATMAP","SCENARIO","PLAYER vs ENEMY","ENEMY AUTHOR","ENEMY SCALING","ENEMY PREVIEW","BEHAVIOR","BOSS / PHASE","COMBAT LAB","TIMELINE","MATCHUPS","BOSS LAB","COMBAT CURVES","EXPERIMENTS","VALIDATION","SENSITIVITY","AFFIX ANALYZER","LOOT PROGRESSION","CRAFTING SIMULATOR","BALANCE SNAPSHOTS","BREAKPOINT FINDER","BALANCE REPORT","PERFORMANCE","ENEMY POWER","PROGRESSION HISTORY","DEFENSE CALIBRATION"};
-        [MenuItem("Black-Cube/Balance Workbench")]
-        public static void Open()=>GetWindow<BalanceWorkbenchWindow>("Balance Workbench");
+        [MenuItem("Black-Cube/Balance Workbench/Open")]
+        public static void Open()
+        {
+            var window=GetWindow<BalanceWorkbenchWindow>("Balance Workbench");
+            window.minSize=new Vector2(800f,600f);
+            EditorApplication.delayCall+=() =>
+            {
+                if(window==null)return;
+                Rect bounds=window.position;
+                if(bounds.width>=800f&&bounds.height>=600f)return;
+                bounds.width=Mathf.Max(bounds.width,800f);
+                bounds.height=Mathf.Max(bounds.height,600f);
+                window.position=bounds;
+            };
+        }
+        void OnEnable()=>minSize=new Vector2(800f,600f);
         void OnGUI()
         {
             long drawStart=Stopwatch.GetTimestamp();
@@ -74,17 +88,21 @@ namespace BlackCube.BalanceWorkbench
         };
         static void MetricRow(string label,string value,string unit=null,string delta=null,string state=null)
         {
+            metricValueStyle??=new GUIStyle(EditorStyles.boldLabel)
+                {wordWrap=true,alignment=TextAnchor.MiddleRight};
             using(new EditorGUILayout.HorizontalScope(EditorStyles.helpBox))
             {
                 GUILayout.Label(new GUIContent(label,label),EditorStyles.wordWrappedLabel,GUILayout.MinWidth(180),GUILayout.MaxWidth(280),GUILayout.ExpandWidth(true));
                 GUILayout.FlexibleSpace();
-                float valueWidth=Mathf.Clamp(EditorStyles.boldLabel.CalcSize(new GUIContent(value)).x+8f,105f,240f);
-                GUILayout.Label(value,EditorStyles.boldLabel,GUILayout.Width(valueWidth));
+                float valueWidth=Mathf.Clamp(metricValueStyle.CalcSize(new GUIContent(value)).x+8f,
+                    105f,Mathf.Max(190f,EditorGUIUtility.currentViewWidth*.42f));
+                GUILayout.Label(new GUIContent(value,value),metricValueStyle,GUILayout.Width(valueWidth));
                 if(!string.IsNullOrEmpty(unit))GUILayout.Label(unit,GUILayout.Width(30));
                 if(!string.IsNullOrEmpty(delta))GUILayout.Label(delta,GUILayout.Width(75));
                 if(!string.IsNullOrEmpty(state))GUILayout.Label(state,GUILayout.Width(80));
             }
         }
+        static GUIStyle metricValueStyle;
         void DrawHeader(){if(headerCommit==null||EditorApplication.timeSinceStartup>=headerCommitRefresh){headerCommit=ProductionBalanceAdapters.GitCommit();headerCommitRefresh=EditorApplication.timeSinceStartup+30;}using(new EditorGUILayout.HorizontalScope(EditorStyles.toolbar)){GUILayout.Label("BLACK-CUBE BALANCE WORKBENCH",EditorStyles.boldLabel);GUILayout.FlexibleSpace();GUILayout.Label($"Data {ProductionBalanceAdapters.DataFingerprint()}  Git {headerCommit}");}}
         void DrawFooter(){EditorGUILayout.Space();using(new EditorGUILayout.HorizontalScope(EditorStyles.helpBox)){GUILayout.Label(status);GUILayout.FlexibleSpace();if(GUILayout.Button("Cancel Simulation",GUILayout.Width(120)))cancelled=true;}}
         static void Heading(string text,string tooltip=null){GUILayout.Space(6);GUILayout.Label(new GUIContent(text,tooltip),EditorStyles.boldLabel);}
@@ -111,9 +129,76 @@ namespace BlackCube.BalanceWorkbench
             Heading("VALIDATION");if(GUILayout.Button("VALIDATE BALANCE TOOLING")){string[] errors=BalanceWorkbenchValidation.Validate();status=errors.Length==0?"PASS: all balance tooling adapters validated.":string.Join(" | ",errors);EditorUtility.DisplayDialog(errors.Length==0?"Validation Passed":"Validation Failed",status,"OK");}EditorGUILayout.LabelField("Production RNG",LootRandomSourceFactory.CreateProduction().GetType().Name);EditorGUILayout.LabelField("Save schema",GamePersistence.SchemaVersion.ToString());EditorGUILayout.LabelField("Data fingerprint",ProductionBalanceAdapters.DataFingerprint());Heading("FUTURE EXTENSION POINTS");GUILayout.Label("Player Builds · Passive Optimizer · Enemy Authoring · Combat Lab · Sensitivity · Affix Analyzer · Crafting · Regression · Breakpoints",EditorStyles.wordWrappedLabel);
         }
         string lastOperation="None";double lastElapsedMs,lastRepaintMs,repaintTotalMs;long repaintSampleCount;int lastGen0,lastGen1,lastGen2;long lastCacheHits,lastCacheMisses,lastReusedEvaluations;bool lastCancelled,lastFailed;
-        void Run(string title,Action<float> action){cancelled=false;lastFailed=false;int g0=GC.CollectionCount(0),g1=GC.CollectionCount(1),g2=GC.CollectionCount(2);long hits=PlayerBuildEvaluator.CacheHits,misses=PlayerBuildEvaluator.CacheMisses,reused=PlayerBuildEvaluation.ReusedEvaluationCount;var timer=Stopwatch.StartNew();try{action(0);status=cancelled?"Simulation cancelled; partial result retained.":title+" complete.";}catch(Exception ex){lastFailed=true;status=ex.Message;Debug.LogException(ex);}finally{timer.Stop();lastOperation=title;lastElapsedMs=timer.Elapsed.TotalMilliseconds;lastGen0=GC.CollectionCount(0)-g0;lastGen1=GC.CollectionCount(1)-g1;lastGen2=GC.CollectionCount(2)-g2;lastCacheHits=PlayerBuildEvaluator.CacheHits-hits;lastCacheMisses=PlayerBuildEvaluator.CacheMisses-misses;lastReusedEvaluations=PlayerBuildEvaluation.ReusedEvaluationCount-reused;lastCancelled=cancelled;EditorUtility.ClearProgressBar();Repaint();}}
-        void PerformanceTab(){Heading("WORKBENCH UI");EditorGUILayout.LabelField("Last repaint",$"{lastRepaintMs:0.###} ms");EditorGUILayout.LabelField("Average repaint",$"{repaintTotalMs/Math.Max(1,repaintSampleCount):0.###} ms across {repaintSampleCount} samples");EditorGUILayout.LabelField("Reused-actor evaluations",lastReusedEvaluations.ToString());if(lastFailed)EditorGUILayout.HelpBox("Last operation failed: "+status,MessageType.Error);DrawPerformanceOperations();}
-        void DrawPerformanceOperations(){Heading("LAST WORKBENCH OPERATION");EditorGUILayout.LabelField("Operation",lastOperation);EditorGUILayout.LabelField("Status",lastCancelled?"Cancelled":"Completed");EditorGUILayout.LabelField("Elapsed",$"{lastElapsedMs:0.###} ms");EditorGUILayout.LabelField("GC collections",$"Gen0 {lastGen0} · Gen1 {lastGen1} · Gen2 {lastGen2}");EditorGUILayout.LabelField("Build evaluations",(lastCacheHits+lastCacheMisses).ToString());EditorGUILayout.LabelField("Build cache",$"Hits {lastCacheHits} · misses {lastCacheMisses} · entries {PlayerBuildEvaluator.CacheEntries}");if(passiveResult?.debug?.Count>0){Heading("PASSIVE SEARCH COUNTERS");int attempts=passiveResult.debug.Sum(x=>x.candidateStates),unique=passiveResult.debug.Sum(x=>x.statesEvaluated);EditorGUILayout.LabelField("Candidate attempts",attempts.ToString());EditorGUILayout.LabelField("Unique states evaluated",unique.ToString());EditorGUILayout.LabelField("Duplicate allocations skipped",(attempts-unique).ToString());EditorGUILayout.LabelField("Peak candidates / depth",passiveResult.debug.Max(x=>x.candidateStates).ToString());EditorGUILayout.LabelField("Final retained",passiveResult.debug[^1].retainedStates.ToString());EditorGUILayout.LabelField("Final depth",passiveResult.debug[^1].depth.ToString());EditorGUILayout.LabelField("Evaluations / second",(unique/Math.Max(.001,lastElapsedMs/1000)).ToString("0.##"));}if(GUILayout.Button("EXPORT PERFORMANCE REPORT")){Directory.CreateDirectory(WorkbenchExports.Root);string path=Path.Combine(WorkbenchExports.Root,"workbench_performance_"+DateTime.UtcNow.ToString("yyyyMMdd_HHmmss")+".csv");int states=passiveResult?.debug?.Sum(x=>x.statesEvaluated)??0;string csv="Operation,ElapsedMs,States,CacheHits,CacheMisses,Gen0,Gen1,Gen2,Fingerprint,GitCommit,Cancelled\n"+string.Join(",",new[]{lastOperation,lastElapsedMs.ToString("R",System.Globalization.CultureInfo.InvariantCulture),states.ToString(),lastCacheHits.ToString(),lastCacheMisses.ToString(),lastGen0.ToString(),lastGen1.ToString(),lastGen2.ToString(),ProductionBalanceAdapters.DataFingerprint(),headerCommit,lastCancelled.ToString()});File.WriteAllText(path,csv);status="Exported "+path;}Heading("BENCHMARK REPORTS");foreach(string phase in new[]{"baseline_core","baseline_passive","after_core","after_passive"}){string path=$"Logs/BalanceWorkbenchPerformance/{phase}.json";if(!File.Exists(path))continue;var report=JsonUtility.FromJson<WorkbenchPerformanceReport>(File.ReadAllText(path));Heading(phase);foreach(var row in report.rows)EditorGUILayout.LabelField(row.operation,$"{row.elapsedMs:0.###} ms · {row.evaluations} evaluations · {row.resultHash}");}EditorGUILayout.HelpBox("Benchmark reports are written by the explicit batchmode runner, not by opening this tab. Times vary by machine and Editor state; compare matching result hashes first.",MessageType.Info);}
+        void Run(string title,Action<float> action)
+        {
+            if(workbenchBusy){status="A Workbench operation is already running.";return;}
+            workbenchBusy=true;cancelled=false;lastFailed=false;
+            int g0=GC.CollectionCount(0),g1=GC.CollectionCount(1),g2=GC.CollectionCount(2);
+            long hits=PlayerBuildEvaluator.CacheHits,misses=PlayerBuildEvaluator.CacheMisses,
+                reused=PlayerBuildEvaluation.ReusedEvaluationCount;
+            var timer=Stopwatch.StartNew();
+            try
+            {
+                action(0);
+                status=cancelled?"CANCELLED — inspect completed trials only; partial data is not a complete sweep.":title+" complete.";
+            }
+            catch(OperationCanceledException)
+            {cancelled=true;status="CANCELLED — previous complete result retained.";}
+            catch(Exception ex)
+            {lastFailed=true;status="ERROR: "+ex.Message;Debug.LogException(ex);}
+            finally
+            {
+                timer.Stop();lastOperation=title;lastElapsedMs=timer.Elapsed.TotalMilliseconds;
+                lastGen0=GC.CollectionCount(0)-g0;lastGen1=GC.CollectionCount(1)-g1;
+                lastGen2=GC.CollectionCount(2)-g2;
+                lastCacheHits=PlayerBuildEvaluator.CacheHits-hits;
+                lastCacheMisses=PlayerBuildEvaluator.CacheMisses-misses;
+                lastReusedEvaluations=PlayerBuildEvaluation.ReusedEvaluationCount-reused;
+                lastCancelled=cancelled;workbenchBusy=false;
+                EditorUtility.ClearProgressBar();Repaint();
+            }
+        }
+        void PerformanceTab(){Heading("WORKBENCH UI");EditorGUILayout.LabelField("Last repaint",$"{lastRepaintMs:0.###} ms");EditorGUILayout.LabelField("Average repaint",$"{repaintTotalMs/Math.Max(1,repaintSampleCount):0.###} ms across {repaintSampleCount} samples");EditorGUILayout.LabelField("Reused-actor evaluations",lastReusedEvaluations.ToString());if(lastFailed)EditorGUILayout.HelpBox("Last operation failed: "+status,MessageType.Error);DrawPerformanceOperations();DrawBenchmarkComparison();}
+        void DrawPerformanceOperations()
+        {
+            Heading("LAST WORKBENCH OPERATION");
+            MetricRow("Operation",lastOperation);
+            MetricRow("Status",lastFailed?"ERROR":lastCancelled?"Cancelled":"Completed");
+            MetricRow("Elapsed",$"{lastElapsedMs:0.###} ms");
+            MetricRow("GC collections",$"Gen0 {lastGen0} · Gen1 {lastGen1} · Gen2 {lastGen2}");
+            MetricRow("Build evaluations",(lastCacheHits+lastCacheMisses).ToString());
+            MetricRow("Build cache",$"Hits {lastCacheHits} · misses {lastCacheMisses} · entries {PlayerBuildEvaluator.CacheEntries}");
+            if(passiveResult?.debug?.Count>0)
+            {
+                Heading("PASSIVE SEARCH COUNTERS");
+                int attempts=passiveResult.debug.Sum(x=>x.candidateStates);
+                int unique=passiveResult.debug.Sum(x=>x.statesEvaluated);
+                MetricRow("Candidate attempts",attempts.ToString());
+                MetricRow("Unique states evaluated",unique.ToString());
+                MetricRow("Duplicate allocations skipped",(attempts-unique).ToString());
+                MetricRow("Peak candidates / depth",passiveResult.debug.Max(x=>x.candidateStates).ToString());
+                MetricRow("Final retained",passiveResult.debug[^1].retainedStates.ToString());
+                MetricRow("Final depth",passiveResult.debug[^1].depth.ToString());
+                MetricRow("Evaluations / second",(unique/Math.Max(.001,lastElapsedMs/1000)).ToString("0.##"));
+                if(passiveResult.profile!=null)
+                {
+                    MetricRow("Legal next",$"{passiveResult.profile.legalNextMs:0.###} ms");
+                    MetricRow("Build evaluation",$"{passiveResult.profile.buildEvaluationMs:0.###} ms");
+                    MetricRow("Beam retention",$"{passiveResult.profile.retainMs:0.###} ms");
+                    MetricRow("Other",$"{passiveResult.profile.otherMs:0.###} ms");
+                }
+            }
+            if(GUILayout.Button("EXPORT PERFORMANCE REPORT"))
+            {
+                Directory.CreateDirectory(WorkbenchExports.Root);
+                string path=Path.Combine(WorkbenchExports.Root,"workbench_performance_"+
+                    DateTime.UtcNow.ToString("yyyyMMdd_HHmmss")+".csv");
+                int states=passiveResult?.debug?.Sum(x=>x.statesEvaluated)??0;
+                string csv="Operation,ElapsedMs,States,CacheHits,CacheMisses,Gen0,Gen1,Gen2,Fingerprint,GitCommit,Cancelled\n"+
+                    string.Join(",",new[]{lastOperation,lastElapsedMs.ToString("R",System.Globalization.CultureInfo.InvariantCulture),states.ToString(),lastCacheHits.ToString(),lastCacheMisses.ToString(),lastGen0.ToString(),lastGen1.ToString(),lastGen2.ToString(),ProductionBalanceAdapters.DataFingerprint(),headerCommit,lastCancelled.ToString()});
+                File.WriteAllText(path,csv);status="Exported "+path;
+            }
+        }
         Action<float> Progress(string label)=>p=>{if(EditorUtility.DisplayCancelableProgressBar("Black-Cube Balance Workbench",$"{label}: {p:P1}",p))cancelled=true;};
         static int SampleCount(int value,int max=10000){using(new EditorGUILayout.HorizontalScope()){value=EditorGUILayout.IntField("Sample Count",value);if(GUILayout.Button("100",GUILayout.Width(48)))value=100;if(GUILayout.Button("1,000",GUILayout.Width(52)))value=1000;if(GUILayout.Button("10,000",GUILayout.Width(58)))value=10000;}return Mathf.Clamp(value,1,max);}
         void SweepInputs(int max,bool showSamples=true){using(new EditorGUILayout.HorizontalScope()){sweepStart=EditorGUILayout.IntField("Sweep Start",sweepStart);sweepEnd=EditorGUILayout.IntField("End",sweepEnd);sweepIncrement=EditorGUILayout.IntField("Step",sweepIncrement);if(showSamples)sweepSamples=EditorGUILayout.IntField("Samples / Level",sweepSamples);}sweepStart=Mathf.Clamp(sweepStart,1,max);sweepEnd=Mathf.Clamp(sweepEnd,sweepStart,max);sweepIncrement=Mathf.Max(1,sweepIncrement);sweepSamples=Mathf.Clamp(sweepSamples,1,10000);}

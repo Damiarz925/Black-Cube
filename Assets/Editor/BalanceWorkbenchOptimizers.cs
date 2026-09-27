@@ -50,8 +50,10 @@ namespace BlackCube.BalanceWorkbench
 
     [Serializable] public sealed class PassivePointResult{public int point,nodeId;public string stableId,name,branch,effect,alternative;public double primaryDelta,secondaryDelta,scoreDelta,scorePercent;}
     [Serializable] public sealed class PassiveSearchDebug{public int depth,candidateStates,uniqueStates,retainedStates,diversityGroups,statesEvaluated;public double bestScore;}
+    [Serializable] public sealed class PassiveSearchProfile
+    {public double totalMs,legalNextMs,buildEvaluationMs,retainMs,otherMs;public int legalCalls,evaluations;}
     [Serializable] public sealed class PassiveOptimizationResult
-    {public PlayerBuildSnapshot build;public PlayerBuildMetrics baseline,metrics;public double score;public List<PassivePointResult> sequence=new();public List<PassiveSearchDebug> debug=new();public string algorithm;}
+    {public PlayerBuildSnapshot build;public PlayerBuildMetrics baseline,metrics;public double score;public List<PassivePointResult> sequence=new();public List<PassiveSearchDebug> debug=new();public string algorithm;public PassiveSearchProfile profile=new();}
     [Serializable] public sealed class PassiveMarginalResult{public int nodeId,pathCost;public string stableId,name,branch,effect;public bool immediatelyLegal;public double primaryDelta,secondaryDelta,objectiveDelta,pathAdjustedValue,totalPackageGain;}
 
     public static class PassiveTreeOptimizer
@@ -73,15 +75,20 @@ namespace BlackCube.BalanceWorkbench
             using var searchSample=SearchMarker.Auto();
             constraints??=new();points=Mathf.Clamp(points,0,100);var initial=source.Clone();foreach(string id in constraints.lockedPassiveIds)if(!initial.passiveStableIds.Contains(id))initial.passiveStableIds.Add(id);using var evaluation=new PlayerBuildEvaluation(initial);var baseline=evaluation.Metrics;var firstRanks=initial.AllocationRanks();if(!PlayerProgression.ValidateAllocationState(firstRanks,initial.classId,initial.subclassId))throw new InvalidOperationException("Initial/locked passive allocation is not production-legal.");var firstNodeIds=Enumerable.Range(0,firstRanks.Length).Where(i=>firstRanks[i]!=0).ToList();var initialScore=dynamicDefense?RealisticGearsetOptimizer.Score(baseline,baseline,objective,constraints):0;var states=new List<State>{new(){ranks=firstRanks,bits=Bits(firstRanks),nodeIds=firstNodeIds,Key=string.Join(",",firstNodeIds),ids=Ids(firstRanks),metrics=baseline,sequence=new(),score=initialScore}};var output=new PassiveOptimizationResult{baseline=baseline,algorithm=beamSearch?$"Beam {beamWidth}":"Greedy"};int target=Math.Max(firstRanks.Sum(),points);
             var progressClock=System.Diagnostics.Stopwatch.StartNew();long lastProgress=0;bool stopped=false;var candidateBuild=initial.Clone();
+            long legalTicks=0,evaluationTicks=0,retainTicks=0;
             for(int depth=firstRanks.Sum();depth<target&&cancelled?.Invoke()!=true;depth++)
             {
                 var expanded=new List<State>();var seen=new HashSet<string>(StringComparer.Ordinal);int candidates=0,processed=0;
                 foreach(var state in states)
                 {
-                    foreach(int node in LegalNext(state.ranks,initial.classId,initial.subclassId,constraints))
+                    long legalStart=System.Diagnostics.Stopwatch.GetTimestamp();
+                    var legalNodes=LegalNext(state.ranks,initial.classId,initial.subclassId,constraints);
+                    legalTicks+=System.Diagnostics.Stopwatch.GetTimestamp()-legalStart;
+                    output.profile.legalCalls++;
+                    foreach(int node in legalNodes)
                     {
                         candidates++;string bits=WithBit(state.bits,node);if(!seen.Add(bits))continue;
-                        var ranks=(int[])state.ranks.Clone();ranks[node]=1;var n=compiledNodes[node];var ids=new List<string>(state.ids){n.StableId};var nodeIds=new List<int>(state.nodeIds);int insertion=nodeIds.BinarySearch(node);nodeIds.Insert(insertion<0?~insertion:insertion,node);candidateBuild.passiveStableIds=ids;PlayerBuildMetrics metrics;using(EvaluationMarker.Auto())metrics=evaluation.ReevaluatePassives(candidateBuild);double score=dynamicDefense?RealisticGearsetOptimizer.Score(metrics,baseline,objective,constraints):OptimizationMetricCatalog.Score(metrics,baseline,objective);
+                        var ranks=(int[])state.ranks.Clone();ranks[node]=1;var n=compiledNodes[node];var ids=new List<string>(state.ids){n.StableId};var nodeIds=new List<int>(state.nodeIds);int insertion=nodeIds.BinarySearch(node);nodeIds.Insert(insertion<0?~insertion:insertion,node);candidateBuild.passiveStableIds=ids;PlayerBuildMetrics metrics;long evaluationStart=System.Diagnostics.Stopwatch.GetTimestamp();using(EvaluationMarker.Auto())metrics=evaluation.ReevaluatePassives(candidateBuild);double score=dynamicDefense?RealisticGearsetOptimizer.Score(metrics,baseline,objective,constraints):OptimizationMetricCatalog.Score(metrics,baseline,objective);evaluationTicks+=System.Diagnostics.Stopwatch.GetTimestamp()-evaluationStart;output.profile.evaluations++;
                         var step=new PassivePointResult{point=depth+1,nodeId=node,stableId=n.StableId,name=n.DisplayName,branch=n.IsWeaponRoute?n.RouteWeaponId:n.RouteClassId,effect=n.Description,primaryDelta=OptimizationMetricCatalog.Get(objective.primary).Value(metrics)-OptimizationMetricCatalog.Get(objective.primary).Value(state.metrics),secondaryDelta=OptimizationMetricCatalog.Get(objective.secondary).Value(metrics)-OptimizationMetricCatalog.Get(objective.secondary).Value(state.metrics),scoreDelta=score-state.score,scorePercent=state.score==0?score*100:(score-state.score)/Math.Max(.000001,Math.Abs(state.score))*100};
                         expanded.Add(new State{ranks=ranks,bits=bits,nodeIds=nodeIds,Key=string.Join(",",nodeIds),ids=ids,metrics=metrics,score=score,sequence=new List<PassivePointResult>(state.sequence){step}});
                         if((++processed&31)==0&&progress!=null&&progressClock.ElapsedMilliseconds-lastProgress>=100){lastProgress=progressClock.ElapsedMilliseconds;progress((depth+(float)processed/Math.Max(1,states.Count*32))/Math.Max(1,target));if(cancelled?.Invoke()==true){stopped=true;break;}}
@@ -89,8 +96,15 @@ namespace BlackCube.BalanceWorkbench
                     if(stopped)break;
                 }
                 if(stopped)break;
-                int keep=beamSearch?Math.Max(1,beamWidth):1;List<State> retained;using(RetainMarker.Auto())retained=DiverseRetain(expanded,keep);output.debug.Add(new PassiveSearchDebug{depth=depth+1,candidateStates=candidates,uniqueStates=expanded.Count,retainedStates=retained.Count,diversityGroups=retained.Select(x=>Diversity(x.ranks)).Distinct().Count(),statesEvaluated=expanded.Count,bestScore=retained.Count>0?retained.Max(x=>x.score):0});states=retained;if(states.Count==0)break;progress?.Invoke((depth+1f)/Math.Max(1,target));
+                int keep=beamSearch?Math.Max(1,beamWidth):1;List<State> retained;long retainStart=System.Diagnostics.Stopwatch.GetTimestamp();using(RetainMarker.Auto())retained=DiverseRetain(expanded,keep);retainTicks+=System.Diagnostics.Stopwatch.GetTimestamp()-retainStart;output.debug.Add(new PassiveSearchDebug{depth=depth+1,candidateStates=candidates,uniqueStates=expanded.Count,retainedStates=retained.Count,diversityGroups=retained.Select(x=>Diversity(x.ranks)).Distinct().Count(),statesEvaluated=expanded.Count,bestScore=retained.Count>0?retained.Max(x=>x.score):0});states=retained;if(states.Count==0)break;progress?.Invoke((depth+1f)/Math.Max(1,target));
             }
+            if(stopped||cancelled?.Invoke()==true)throw new OperationCanceledException("Passive optimization cancelled; no partial result was published.");
+            output.profile.totalMs=progressClock.Elapsed.TotalMilliseconds;
+            double ms=1000d/System.Diagnostics.Stopwatch.Frequency;
+            output.profile.legalNextMs=legalTicks*ms;
+            output.profile.buildEvaluationMs=evaluationTicks*ms;
+            output.profile.retainMs=retainTicks*ms;
+            output.profile.otherMs=Math.Max(0,output.profile.totalMs-output.profile.legalNextMs-output.profile.buildEvaluationMs-output.profile.retainMs);
             var best=states.OrderByDescending(x=>x.score).ThenBy(x=>x.Key,StringComparer.Ordinal).First();output.build=initial.Clone();output.build.passiveStableIds=Ids(best.ranks);if(!PlayerProgression.ValidateAllocationState(best.ranks,initial.classId,initial.subclassId))throw new InvalidOperationException("Optimized passive allocation failed production validation.");output.metrics=best.metrics;output.score=best.score;output.sequence=best.sequence;return output;
         }
         public static List<int> LegalNext(int[] ranks,string classId,string subclassId,OptimizationConstraints constraints=null)
@@ -140,7 +154,8 @@ namespace BlackCube.BalanceWorkbench
 
     [Serializable] public sealed class PlayerCurvePoint
     {
-        public int playerLevel,combatLevel,profileVersion,passiveBeamWidth,samplesPerLevel=1;
+        public int playerLevel,combatLevel,itemLevelAssumption,profileVersion,passiveBeamWidth,samplesPerLevel=1;
+        public int gearGenerations,gearEvaluationRequests,passiveEvaluations,combatSimulations,enemyGenerations;
         public string profile,profileGuid,dataFingerprint,resultId,buildHash,gearHash,
             passiveHash,evaluationHash,passiveAlgorithm;
         public PlayerBuildSnapshot build;
@@ -227,9 +242,12 @@ namespace BlackCube.BalanceWorkbench
                         start,template.combatLevel,combatLevelOffset);
                     build.seed=template.seed+level*7919+profile.version*101;
                     Phase("gear",0);
+                    long gearRequestsBefore=PlayerBuildEvaluator.CacheHits+PlayerBuildEvaluator.CacheMisses;
                     var gear=PlayerGearsetOptimizer.Optimize(build,profile,objective,
                         profile.selectionStrategy==PlayerGearSelectionStrategy.FullGearsetBeamSearch,
                         null,p=>Phase("gear",p*.55f),cancelled);
+                    int gearEvaluationRequests=(int)Math.Min(int.MaxValue,
+                        PlayerBuildEvaluator.CacheHits+PlayerBuildEvaluator.CacheMisses-gearRequestsBefore);
                     if(cancelled?.Invoke()==true)throw new OperationCanceledException(
                         "Scenario Sweep cancelled during gear generation; no partial result was published.");
                     build=gear.build;
@@ -250,6 +268,7 @@ namespace BlackCube.BalanceWorkbench
                     var point=new PlayerCurvePoint
                     {
                         playerLevel=level,combatLevel=build.combatLevel,
+                        itemLevelAssumption=profile.ResolveItemLevel(level,build.combatLevel),
                         profile=profile.name,profileGuid=gear.profileGuid,
                         profileVersion=gear.profileVersion,dataFingerprint=result.dataFingerprint,
                         build=build.Clone(),metrics=metrics.Clone(),
@@ -257,6 +276,9 @@ namespace BlackCube.BalanceWorkbench
                         objectiveScore=OptimizationMetricCatalog.Score(metrics,gear.baseline,objective),
                         passiveScore=passive?.score??0,passiveAlgorithm=passive?.algorithm??"None",
                         passiveBeamWidth=optimizePassives?passiveBeamWidth:0,
+                        gearGenerations=gear.debug.generated,
+                        gearEvaluationRequests=gearEvaluationRequests,
+                        passiveEvaluations=passive?.debug.Sum(x=>x.statesEvaluated)??0,
                         seed=build.seed,optimizePassives=optimizePassives,
                         progressive=progressive,freeRespec=freeRespec
                     };

@@ -16,6 +16,8 @@ namespace BlackCube.BalanceWorkbench
     public static class SustainableDamageEstimator
     {
         const double Warmup=15,Measurement=45,Epsilon=1e-6;
+        static readonly string AutoMode=PlayerSkillCastMode.AutoCooldown.ToString();
+        static readonly string QueuedMode=PlayerSkillCastMode.QueuedAttackReplacement.ToString();
 
         public static SustainableDamageResult Best(PlayerBuildMetrics metrics)
         {
@@ -37,6 +39,13 @@ namespace BlackCube.BalanceWorkbench
             if(metrics==null)throw new ArgumentNullException(nameof(metrics));
             var skills=metrics.skills??new List<SkillAnalyticalMetrics>();
             int[] priority={first,second};
+            var autoMode=new bool[skills.Count];
+            var queuedMode=new bool[skills.Count];
+            for(int i=0;i<skills.Count;i++)
+            {
+                autoMode[i]=string.Equals(skills[i].castMode,AutoMode,StringComparison.Ordinal);
+                queuedMode[i]=string.Equals(skills[i].castMode,QueuedMode,StringComparison.Ordinal);
+            }
             bool chosen(int index)=>index>=0&&index<skills.Count&&(index==first||index==second);
             string policy=first<0?"No Skills":second<0?$"Skill {first+1} Only":
                 $"Skill {first+1} → Skill {second+1}";
@@ -53,7 +62,7 @@ namespace BlackCube.BalanceWorkbench
                 double next=nextAttack;
                 for(int i=0;i<skills.Count;i++)
                 {
-                    if(!chosen(i)||skills[i].castMode!=PlayerSkillCastMode.AutoCooldown.ToString())continue;
+                    if(!chosen(i)||!autoMode[i])continue;
                     double cost=Math.Max(0,skills[i].manaCost);
                     if(cost>manaCap+Epsilon)continue;
                     double candidate=Math.Max(t,ready[i]);
@@ -74,7 +83,7 @@ namespace BlackCube.BalanceWorkbench
                 if(t>=Warmup+Measurement)break;
                 foreach(int i in priority)
                 {
-                    if(!chosen(i)||skills[i].castMode!=PlayerSkillCastMode.AutoCooldown.ToString())continue;
+                    if(!chosen(i)||!autoMode[i])continue;
                     var s=skills[i];double cost=Math.Max(0,s.manaCost);
                     if(ready[i]>t+Epsilon||mana+Epsilon<cost)continue;
                     mana=Math.Max(0,mana-cost);
@@ -88,7 +97,7 @@ namespace BlackCube.BalanceWorkbench
                     nextAttack=t+period;
                     int queued=-1;
                     foreach(int i in priority)
-                        if(chosen(i)&&skills[i].castMode==PlayerSkillCastMode.QueuedAttackReplacement.ToString()
+                        if(chosen(i)&&queuedMode[i]
                             &&mana+Epsilon>=Math.Max(0,skills[i].manaCost)){queued=i;break;}
                     if(queued<0)
                     {

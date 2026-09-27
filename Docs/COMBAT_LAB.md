@@ -1,6 +1,6 @@
 # Combat Lab
 
-Open **Black-Cube → Balance Workbench** and use **Combat Lab**, **Combat Timeline**, **Batch Matchups**, **Boss Lab**, or **Combat Curves**. Combat Lab never edits production balance. Its player policies are explicit simulation assumptions.
+Open **Black-Cube → Balance Workbench → Open** and use **Combat Lab**, **Combat Timeline**, **Batch Matchups**, **Boss Lab**, or **Combat Curves**. Combat Lab never edits production balance. Its player policies are explicit simulation assumptions.
 
 ## One fight and replay
 
@@ -21,6 +21,8 @@ Outlier buttons rerun fastest, slowest, closest, and selected loss seeds with a 
 Player Action Policy controls queued skills and Dagger ImmediateCooldown activation. Staff AutoCooldown skills remain automatic. Rage Finisher Policy independently controls whether a ready finisher is never used, used immediately, held for the next/selected skill, or held for a target-Life threshold. **Compare Built-In Policies** runs the same matchup and seed family under each action policy.
 
 Save a `PlayerCombatPolicySO` for reusable assumptions. Save/load experiment JSON includes the player snapshot, enemy configuration, policy, fight count, seed, duration, population mode, corruption, and rarity.
+
+A build sent from a selected Scenario Sweep point carries that point's cloned Player Level, Combat Level, class/subclass/weapon, exact gear and passive IDs. It also displays the analytical selected skill policy as transfer context. Verify the Combat Lab's **separate** action policy before running: an analytical “Skill 1 Only” policy has no exact one-to-one mapping to the simulator's fallback-capable priority policies, so the Workbench deliberately does not silently rewrite this control. Ailment overflow is resolved as guaranteed whole applications plus one fractional roll (for example 251% = two guaranteed and 51% for a third). The combat result then applies the production Poison/Bleed/Ignite stack limits and replacement rules; analytical ailment potential is not a prediction of identical realized fight DPS.
 
 ## Matchups, bosses, and curves
 

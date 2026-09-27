@@ -40,6 +40,8 @@ namespace BlackCube.BalanceWorkbench
 
     public sealed class ScenarioInspection
     {
+        public int itemLevelAssumption,gearGenerations,gearEvaluationRequests,
+            passiveEvaluations,combatSimulations,enemyGenerations;
         public string resultId,gearHash,passiveHash,evaluationHash,fingerprint;
         public string profile,passiveAlgorithm,skillPolicy;
         public PlayerBuildSnapshot build;
@@ -75,7 +77,8 @@ namespace BlackCube.BalanceWorkbench
         }
 
         static string ResultId(PlayerCurvePoint point)=>Hash(string.Join("|",point.dataFingerprint,point.profileGuid,
-                point.profileVersion,point.playerLevel,point.combatLevel,point.seed,
+                point.profileVersion,point.playerLevel,point.combatLevel,
+                point.itemLevelAssumption,point.seed,
                 JsonUtility.ToJson(point.objective),point.optimizePassives,point.progressive,
                 point.freeRespec,point.passiveBeamWidth,point.buildHash,
                 point.evaluationHash));
@@ -100,6 +103,12 @@ namespace BlackCube.BalanceWorkbench
                 resultId=point.resultId,gearHash=point.gearHash,
                 passiveHash=point.passiveHash,evaluationHash=point.evaluationHash,
                 fingerprint=point.dataFingerprint,profile=point.profile,
+                itemLevelAssumption=point.itemLevelAssumption,
+                gearGenerations=point.gearGenerations,
+                gearEvaluationRequests=point.gearEvaluationRequests,
+                passiveEvaluations=point.passiveEvaluations,
+                combatSimulations=point.combatSimulations,
+                enemyGenerations=point.enemyGenerations,
                 passiveAlgorithm=point.passiveAlgorithm,skillPolicy=point.metrics.selectedSkillPolicy,
                 build=build,metrics=evaluated.Clone(),objective=objective,
                 contributions=PlayerBuildContributionAnalyzer.Analyze(build,objective)

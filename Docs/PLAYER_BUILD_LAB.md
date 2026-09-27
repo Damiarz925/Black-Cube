@@ -1,6 +1,6 @@
 # Player Build Lab
 
-Open **Black-Cube → Balance Workbench → Player Build**. Choose player level and combat level separately, then select a class, an unlocked subclass assumption (or None), and weapon type. The weapon determines the two production weapon skills shown by the evaluator.
+Open **Black-Cube → Balance Workbench → Open → Player Build**. Choose player level and combat level separately, then select a class, an unlocked subclass assumption (or None), and weapon type. The weapon determines the two production weapon skills shown by the evaluator.
 
 Choose readable Primary and Secondary objectives. Weighted mode combines normalized log-relative improvements; Lexicographic mode protects Primary priority and uses Secondary as a tie/second priority. Expand optional constraints when the build needs a minimum Life, Armour, or resistance rather than pure offense.
 
@@ -11,3 +11,7 @@ The result shows hit range, expected basic DPS, element split, crit/Hit Twice ex
 Use **Capture as A** and **Capture as B** around any two configurations for an absolute and percentage metric comparison. Player scenarios saved from the Experiments tab retain class, subclass, weapon, objectives, constraints, optimizer settings, sweep settings, and gear-profile path.
 
 The real-player pass adds **Sustainable Total DPS**, **Sustainable Skill DPS**, selected skill-use policy, and Mana starvation to the analytical metrics. The resource scheduler compares no skills, each skill alone, and both priority orders over warmup and sustained measurement. It applies production Mana cost, regeneration, on-hit recovery, cooldowns, and queued-versus-automatic skill timing. This is a fast ranking estimate, not enemy-specific final damage: validate skill effects, ailments, mitigation, and actual wins in Combat Lab. `+Level of All Skills` contributes through the central skill-level damage factor; ordinary basic attacks are not automatically skill-tagged.
+
+When opened from a Scenario/Gear Curves row, **Result Context** names the captured level, CL, profile, class/weapon, seed, objective and passive search. The Advanced foldout shows the result, gear, passive and evaluation hashes. The contribution trace is recalculated against that point's captured objective, rather than reusing the previous selection. Captures A/B deep-copy the build and metrics so later edits cannot alter an earlier comparison. Build or production-data changes invalidate the current evaluation; objective changes invalidate its contribution trace.
+
+Analytical ailment chances above 100% represent expected overflow applications (251% means 2.51 attempts per eligible hit). The displayed ailment DPS is an uncapped, neutral-resistance potential. Combat Lab owns stack limits, stronger-application replacement, mitigation, and encounter timing; in particular it should be used before treating Ignite potential as realized DPS.

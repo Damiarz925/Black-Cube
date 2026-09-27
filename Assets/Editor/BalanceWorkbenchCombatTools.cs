@@ -10,7 +10,18 @@ namespace BlackCube.BalanceWorkbench
 {
     [Serializable] public sealed class CombatLabRequest
     {
-        public PlayerBuildSnapshot player=new();public string enemyArchetypeId;public string bossId;public bool useBoss;public int enemyLevel=50,fightCount=100,corruption;public EnemyAI.EnemyRarity rarity=EnemyAI.EnemyRarity.Normal;public long seed=51001;public EnemySamplingMode samplingMode;public CombatSimulationConfig config=new();
+        public PlayerBuildSnapshot player=new();public string analyticalSelectedSkillPolicy;
+        public string enemyArchetypeId;public string bossId;public bool useBoss;public int enemyLevel=50,fightCount=100,corruption;public EnemyAI.EnemyRarity rarity=EnemyAI.EnemyRarity.Normal;public long seed=51001;public EnemySamplingMode samplingMode;public CombatSimulationConfig config=new();
+    }
+    public static class CombatLabTransfer
+    {
+        public static void SetPlayer(CombatLabRequest request,PlayerBuildSnapshot build,
+            string analyticalSelectedSkillPolicy)
+        {
+            if(request==null||build==null)throw new ArgumentNullException();
+            request.player=build.Clone();
+            request.analyticalSelectedSkillPolicy=analyticalSelectedSkillPolicy;
+        }
     }
     [Serializable] public sealed class CombatDistribution
     {public double mean,stdDev,p01,p05,p10,p25,p50,p75,p90,p95,p99;public static CombatDistribution From(IEnumerable<double> values){var a=values.Where(double.IsFinite).OrderBy(x=>x).ToArray();if(a.Length==0)return new();double mean=a.Average(),variance=a.Select(x=>(x-mean)*(x-mean)).Average();double P(double q){double n=(a.Length-1)*q;int lo=(int)Math.Floor(n),hi=(int)Math.Ceiling(n);return a[lo]+(a[hi]-a[lo])*(n-lo);}return new(){mean=mean,stdDev=Math.Sqrt(variance),p01=P(.01),p05=P(.05),p10=P(.1),p25=P(.25),p50=P(.5),p75=P(.75),p90=P(.9),p95=P(.95),p99=P(.99)};}}

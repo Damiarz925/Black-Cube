@@ -60,9 +60,20 @@ namespace BlackCube.BalanceWorkbench
     public sealed class PlayerBuildEvaluation:IDisposable
     {
         public static long ReusedEvaluationCount{get;private set;}
-        readonly GameObject root;readonly List<Gear> gear=new();public readonly StatsComponent Stats;public readonly PlayerController Player;public readonly HealthComponent Health;public readonly ManaComponent Mana;public readonly PlayerBuildMetrics Metrics;
+        readonly GameObject root;readonly List<Gear> gear=new();
+        readonly IReadOnlyList<PlayerSkillId> boundSkills;
+        readonly Dictionary<PlayerSkillId,PlayerSkillDefinition> skillDefinitions=new();
+        public readonly StatsComponent Stats;public readonly PlayerController Player;public readonly HealthComponent Health;public readonly ManaComponent Mana;public readonly PlayerBuildMetrics Metrics;
         public PlayerBuildEvaluation(PlayerBuildSnapshot build)
         {
+            boundSkills=WeaponSkillBindings.For(build.weaponTypeId);
+            var catalog=Resources.Load<PlayerSkillCatalog>("PlayerSkills");
+            var definitions=catalog?.skills??PlayerSkillDefinition.CreateProductionDefaults();
+            if(!boundSkills.All(id=>definitions.Any(x=>x!=null&&x.id==id)))
+                definitions=PlayerSkillDefinition.CreateProductionDefaults();
+            foreach(var definition in definitions)
+                if(definition!=null&&!skillDefinitions.ContainsKey(definition.id))
+                    skillDefinitions.Add(definition.id,definition);
             root=new GameObject("Balance Workbench Player"){hideFlags=HideFlags.HideAndDontSave};Stats=root.AddComponent<StatsComponent>();root.AddComponent<PlayerStatSetup>();PlayerStatSetup.ApplyBaseline(Stats);Health=root.AddComponent<HealthComponent>();Health.ConfigureIsolatedStats(Stats);Mana=root.AddComponent<ManaComponent>();Mana.ConfigureIsolatedStats(Stats);Player=root.AddComponent<PlayerController>();Player.ConfigureIsolatedBuildLevel(build.playerLevel);
             Stats.BeginUpdate();try
             {
@@ -119,13 +130,9 @@ namespace BlackCube.BalanceWorkbench
         }
         void AddSkills(PlayerBuildMetrics m,PlayerBuildSnapshot b)
         {
-            var catalog=Resources.Load<PlayerSkillCatalog>("PlayerSkills");
-            var definitions=catalog?.skills??PlayerSkillDefinition.CreateProductionDefaults();
-            var bound=WeaponSkillBindings.For(b.weaponTypeId);
-            if(!bound.All(id=>definitions.Any(x=>x!=null&&x.id==id)))definitions=PlayerSkillDefinition.CreateProductionDefaults();
-            foreach(var sid in bound)
+            foreach(var sid in boundSkills)
             {
-                var s=definitions.FirstOrDefault(x=>x!=null&&x.id==sid);if(s==null)continue;
+                if(!skillDefinitions.TryGetValue(sid,out var s))continue;
                 double hits=Math.Max(1,s.baseHitCount);if(s.effect==WeaponSkillEffect.RapidFlurry)hits=WeaponMechanicProfile.RapidFlurryHits(Stats.GetStat(StatTypes.AttackSpeed));if(s.effect==WeaponSkillEffect.DoubleProjectiles)hits=m.projectileCount*2;
                 int level=PlayerSkillController.CalculateEffectiveSkillLevel(Stats.GetRawStat(PlayerSkillController.SkillLevelStat(s.id))+Stats.GetRawStat(StatTypes.PlusAllSkills));
                 double direct=m.averageHit*s.hitDamageMultiplier*PlayerSkillController.SkillDamageLevelFactor(level),use=direct*hits;double cd=s.castMode==PlayerSkillCastMode.QueuedAttackReplacement?0:Math.Max(PlayerSkillController.MinimumAutoCooldown,s.baseCooldown/(1+Math.Max(0,m.cooldownReduction)));

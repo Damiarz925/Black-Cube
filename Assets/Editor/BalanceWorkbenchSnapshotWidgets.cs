@@ -26,9 +26,12 @@ namespace BlackCube.BalanceWorkbench
     public static class BalanceSnapshotWidgets
     {
         static readonly Dictionary<string,SnapshotWidgetData> cache=new();
+        static string cacheFingerprint;
         public static SnapshotWidgetData Capture(BalanceScenario scenario,Func<bool> cancelled=null)
         {
-            string config=JsonUtility.ToJson(scenario),fingerprint=ProductionBalanceAdapters.DataFingerprint(),key=fingerprint+":"+config;
+            string config=JsonUtility.ToJson(scenario),fingerprint=ProductionBalanceAdapters.DataFingerprint();
+            if(cacheFingerprint!=fingerprint){cache.Clear();cacheFingerprint=fingerprint;}
+            string key=fingerprint+":"+config;
             if(cache.TryGetValue(key,out var prior))return JsonUtility.FromJson<SnapshotWidgetData>(JsonUtility.ToJson(prior));
             var widget=new SnapshotWidgetData{scenario=scenario.name,source=scenario.source,metric=scenario.metric,kind=scenario.widgetKind,config=config,fingerprint=fingerprint,seed=scenario.combat.seed};
             switch(scenario.widgetKind)

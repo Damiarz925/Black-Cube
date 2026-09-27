@@ -12,7 +12,7 @@ Tooling 5 adds seven analysis tabs to the same Workbench: Sensitivity, Affix Ana
 - [Breakpoint Finder](BREAKPOINT_FINDER.md)
 - [Balance Reporting](BALANCE_REPORTING.md)
 
-Open **Black-Cube → Balance Workbench** in the Unity Editor. The Workbench is an inspection, simulation, and authoring frontend over production systems; it is not a second balance implementation.
+Open **Black-Cube → Balance Workbench → Open** in the Unity Editor. The Workbench is an inspection, simulation, and authoring frontend over production systems; it is not a second balance implementation. Its floating window opens at a minimum usable size of 800 × 600; maximize it for wide result tables.
 
 ## Architecture and parity
 
@@ -121,6 +121,16 @@ See `COMBAT_LAB.md`, `COMBAT_SIMULATION_ARCHITECTURE.md`, and `PLAYER_COMBAT_POL
 ## Tooling 5 completion checkpoint
 
 The advanced-analysis tabs now include independent first-upgrade trials with censoring, world/stage encounter-source selection and level sweeps; production ordinary/endgame crafting trials with simulated resources and bounded policy search; scalar/curve/distribution/matrix/ranking/breakpoint snapshot widgets; class × enemy-rarity batch breakpoints with Wilson refinement; and sectioned report bundles. Each result carries its scenario, seed, Git revision, and production-data fingerprint where applicable. None of these analyses automatically edits production balance.
+
+## Trustworthy result workflow
+
+New Scenario/Gear Curves default to **Match Player Level**. The other explicit Combat Level policies are **Fixed**, **Offset from Player Level**, and **Advance from Start** (the old behavior). Presets saved before the policy field existed load as the explicit legacy Advance mode, not as Match. Rows always show both L and CL. The graph's horizontal coordinate is Player Level; consult the row when CL also changes.
+
+Each sweep point captures its generated gear, passive IDs, objective, solver settings, metrics, seed, profile/version and production-data fingerprint. Selecting a point verifies its result/build/gear/passive/evaluation hashes, reevaluates that exact stored build, and calculates contributions from its stored objective. A mismatch fails visibly. Editing controls after a run marks the result stale; it does not rewrite the stored point. Data-asset changes invalidate the fingerprint and require a rerun for trustworthy drill-down.
+
+The **Performance** reports are engineering diagnostics, not balance targets. **Run Quick Benchmarks** and **Run Full Benchmarks** run in the Editor and write separate local JSON/CSV reports under `Logs/BalanceWorkbenchPerformance`; Full includes 1,000 production enemy samples and Beam 100 / 50 and can occupy the Editor for several minutes. The batch runners `WorkbenchPerformanceBenchmarks.AfterCore` and `AfterPassive` write the same Full reports without an interactive Editor. **Refresh Reports** reloads them. **Capture Current as Baseline** explicitly copies available Quick and Full reports and their Git revision, data fingerprint, timestamp, machine and runtime metadata to saved baselines. Compare result hashes **and evaluation counts** before comparing timings: a changed hash or count is a non-equivalent run, so the UI does not claim a speedup. Enemy timing is split into candidate generation, optimizer, already-generated evaluation and power-score portions; passive timing is split into legal-next, build evaluation, retention and remaining work. Unity Editor and machine state affect times. Ordinary simulation does not write production assets or saves.
+
+**Affix Analyzer → Production Affix Tier Cliff Diagnostic** is a read-only ladder for weapon base damage, weapon base attack speed, weapon base crit and one selected affix family. It shows legal unlock item level, raw roll range, midpoint and the gain from the preceding tier. “REVIEW jump” means the midpoint at least doubled; it does not declare the value incorrectly balanced.
 
 `Tooling5EditorSmokeRunner.Run` opens the Workbench and exercises the seven tab request/result controllers plus report export in an Editor session. Its log states the exact boundary: native IMGUI mouse clicks and visible layout still require a foreground manual check. The legacy BalanceLab is not part of this workflow.
 

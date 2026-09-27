@@ -9,7 +9,7 @@ namespace BlackCube.BalanceWorkbench
     public sealed partial class BalanceWorkbenchWindow
     {
         enum HeatmapMode{ImmediateObjective,PrimaryMetric,SecondaryMetric,PathAdjusted,SelectedPath}
-        PlayerBuildSnapshot playerBuild=new();OptimizationObjective objective=new();OptimizationConstraints playerConstraints=new();PlayerBuildMetrics playerMetrics,compareA,compareB;PlayerBuildSnapshot compareABuild,compareBBuild;List<BuildAblationContribution> contributions=new();GearOptimizationResult gearResult;PassiveOptimizationResult passiveResult;List<PassiveMarginalResult> marginal=new();ScenarioSweepResult playerSweep;ScenarioInspection selectedScenarioInspection;PlayerGearProfileSO gearProfile;int passivePoints=50,passiveBeamWidth=100,scenarioCombatLevelOffset;bool passiveBeam,scenarioPassives,scenarioProgressive,scenarioFreeRespec=true,showConstraints,showScenarioWorkload,showInspectionDebug;CombatLevelSweepPolicy scenarioCombatLevelPolicy=CombatLevelSweepPolicy.MatchPlayerLevel;string curveMetric="basic_dps",playerMetricsBuildHash,playerMetricsFingerprint,contributionsObjectiveHash;Vector2 heatPan;float heatZoom=.09f;HeatmapMode heatmapMode;PassiveMarginalResult selectedMarginal;
+        PlayerBuildSnapshot playerBuild=new();OptimizationObjective objective=new();OptimizationConstraints playerConstraints=new();PlayerBuildMetrics playerMetrics,compareA,compareB;PlayerBuildSnapshot compareABuild,compareBBuild;List<BuildAblationContribution> contributions=new();GearOptimizationResult gearResult;PassiveOptimizationResult passiveResult;List<PassiveMarginalResult> marginal=new();ScenarioSweepResult playerSweep;ScenarioInspection selectedScenarioInspection;PlayerGearProfileSO gearProfile;int passivePoints=50,passiveBeamWidth=100,scenarioCombatLevelOffset;bool passiveBeam,scenarioPassives,scenarioProgressive,scenarioFreeRespec=true,showConstraints,showScenarioWorkload,showInspectionDebug,showProfileSemantics;CombatLevelSweepPolicy scenarioCombatLevelPolicy=CombatLevelSweepPolicy.MatchPlayerLevel;string curveMetric="basic_dps",playerMetricsBuildHash,playerMetricsFingerprint,contributionsObjectiveHash;Vector2 heatPan;float heatZoom=.09f;HeatmapMode heatmapMode;PassiveMarginalResult selectedMarginal;
 
         void BuildInputs(bool showCombatLevel=true)
         {
@@ -18,7 +18,7 @@ namespace BlackCube.BalanceWorkbench
         }
         void ObjectiveInputs()
         {
-            string[] names=OptimizationMetricCatalog.All.Select(x=>x.Name).ToArray();int p=Mathf.Max(0,OptimizationMetricCatalog.All.ToList().FindIndex(x=>x.Id==objective.primary));objective.primary=OptimizationMetricCatalog.All[EditorGUILayout.Popup("Primary Objective",p,names)].Id;int s=Mathf.Max(0,OptimizationMetricCatalog.All.ToList().FindIndex(x=>x.Id==objective.secondary));objective.secondary=OptimizationMetricCatalog.All[EditorGUILayout.Popup("Secondary Objective",s,names)].Id;objective.mode=(OptimizationMode)EditorGUILayout.EnumPopup("Objective Mode",objective.mode);if(objective.mode==OptimizationMode.Weighted)objective.primaryWeight=EditorGUILayout.Slider("Primary Weight",objective.primaryWeight,0,1);EditorGUILayout.HelpBox("Optimization Score is scenario-relative, not a canonical power rating. Weighted mode uses signed log-relative change with a 5% baseline floor; lexicographic mode prioritizes Primary and uses Secondary only as the deterministic second priority.",MessageType.None);
+            string[] names=OptimizationMetricCatalog.All.Select(x=>x.Name).ToArray();int p=Mathf.Max(0,OptimizationMetricCatalog.All.ToList().FindIndex(x=>x.Id==objective.primary));objective.primary=OptimizationMetricCatalog.All[EditorGUILayout.Popup("Primary Objective",p,names)].Id;int s=Mathf.Max(0,OptimizationMetricCatalog.All.ToList().FindIndex(x=>x.Id==objective.secondary));objective.secondary=OptimizationMetricCatalog.All[EditorGUILayout.Popup("Secondary Objective",s,names)].Id;objective.mode=(OptimizationMode)EditorGUILayout.EnumPopup("Objective Mode",objective.mode);if(objective.mode==OptimizationMode.Weighted)objective.primaryWeight=EditorGUILayout.Slider("Primary Weight",objective.primaryWeight,0,1);EditorGUILayout.HelpBox("Optimization Score is scenario-relative, not a canonical power rating. Weighted mode uses signed log-relative change with a 5% baseline floor; Secondary Weight = 1 − Primary Weight. Lexicographic mode prioritizes Primary and uses Secondary only as the deterministic second priority.",MessageType.None);
         }
         void ConstraintInputs()
         {
@@ -106,7 +106,7 @@ namespace BlackCube.BalanceWorkbench
                 if(GUILayout.Button("AFFIX ANALYZER")){affixRequest.build=playerBuild.Clone();tab=Tab.AffixAnalyzer;}
                 if(GUILayout.Button("LOOT PROGRESSION")){lootRequest.build=playerBuild.Clone();tab=Tab.LootProgression;}
                 if(GUILayout.Button("BREAKPOINT FINDER"))tab=Tab.BreakpointFinder;
-                if(GUILayout.Button("COMBAT LAB")){combatRequest.player=playerBuild.Clone();tab=Tab.CombatLab;}
+                if(GUILayout.Button("COMBAT LAB")){CombatLabTransfer.SetPlayer(combatRequest,playerBuild,playerMetrics.selectedSkillPolicy);combatPlayerPinned=true;tab=Tab.CombatLab;}
             }
         }
         void SetPlayerEvaluation(PlayerBuildSnapshot build,PlayerBuildMetrics metrics,bool analyze,
@@ -124,6 +124,7 @@ namespace BlackCube.BalanceWorkbench
         {
             Heading("RESULT CONTEXT — STORED SCENARIO POINT");
             MetricRow("L / CL / Gear Profile",$"L{inspection.build.playerLevel} / CL{inspection.build.combatLevel} / {inspection.profile}");
+            MetricRow("Item Level assumption",inspection.itemLevelAssumption.ToString());
             MetricRow("Class / Subclass / Weapon",$"{inspection.build.classId} / {inspection.build.subclassId} / {inspection.build.weaponTypeId}");
             MetricRow("Seed / Objective",$"{inspection.build.seed} / {OptimizationMetricCatalog.Get(inspection.objective.primary).Name}");
             MetricRow("Passives / Optimizer",$"{inspection.build.passiveStableIds.Count} / {inspection.passiveAlgorithm}");
@@ -136,16 +137,53 @@ namespace BlackCube.BalanceWorkbench
                 MetricRow("Passive Hash",inspection.passiveHash);
                 MetricRow("Evaluation Hash",inspection.evaluationHash);
                 MetricRow("Fingerprint",inspection.fingerprint);
+                MetricRow("Sweep work: gear generation / evaluation",
+                    $"{inspection.gearGenerations} / {inspection.gearEvaluationRequests}");
+                MetricRow("Sweep work: passive / combat / enemy",
+                    $"{inspection.passiveEvaluations} / {inspection.combatSimulations} / {inspection.enemyGenerations}");
                 foreach(string id in inspection.build.passiveStableIds)
                     EditorGUILayout.LabelField(id);
             }
         }
         void MetricsPanel(PlayerBuildMetrics m)
         {
-            Heading("AUTHORITATIVE ANALYTICAL METRICS");EditorGUILayout.LabelField("Average hit / Basic DPS",$"{m.averageHit:0.##} / {m.basicDps:0.##}");MetricRow("Sustainable Total DPS",m.totalSustainableDps.ToString("0.##"));MetricRow("Sustainable Skill DPS",m.sustainableSkillDps.ToString("0.##"));MetricRow("Selected Skill Policy",m.selectedSkillPolicy);MetricRow("Time at Zero Mana",m.manaStarvationFraction.ToString("P1"));EditorGUILayout.LabelField("APS / Crit / Crit Multi",$"{m.attacksPerSecond:0.###} / {m.critChance:P2} / {m.critMultiplier:0.###}x");EditorGUILayout.LabelField("Physical · Fire · Cold · Lightning · Void",$"{m.physicalOutput:0.#} · {m.fireOutput:0.#} · {m.coldOutput:0.#} · {m.lightningOutput:0.#} · {m.voidOutput:0.#}");EditorGUILayout.LabelField("Poison · Bleed · Ignite DPS",$"{m.poisonDps:0.#} · {m.bleedDps:0.#} · {m.igniteDps:0.#}");EditorGUILayout.LabelField("Life / Armour / Mana",$"{m.life:0.#} / {m.armour:0.#} / {m.mana:0.#}");EditorGUILayout.LabelField("EHP Phys · Fire · Cold · Lightning · Void",$"{m.ehpPhysical:0.#} · {m.ehpFire:0.#} · {m.ehpCold:0.#} · {m.ehpLightning:0.#} · {m.ehpVoid:0.#}");foreach(var skill in m.skills)EditorGUILayout.LabelField(skill.name,$"{skill.averageDamagePerUse:0.#}/use · {skill.effectiveCooldown:0.##}s · {(skill.sustainable?"sustainable":"Mana pressure")}");foreach(string assumption in m.assumptions)EditorGUILayout.HelpBox(assumption,MessageType.None);
-            Heading("DAMAGE CONTRIBUTION TRACE");EditorGUILayout.LabelField("Base weapon average",m.baseWeaponAverage.ToString("0.###"));EditorGUILayout.LabelField("Attribute / level increased",$"{m.weaponAttributeIncreased:P2} / {m.playerLevelIncreased:P2}");EditorGUILayout.LabelField("Generic / Physical increased",$"{m.genericIncreased:P2} / {m.physicalIncreased:P2}");EditorGUILayout.LabelField("Generic / Physical more",$"{m.genericMore:P2} / {m.physicalMore:P2}");EditorGUILayout.LabelField("Crit / Hit Twice expectation",$"{m.critContribution:0.###} / {m.hitTwiceContribution:0.###}");
-            if(contributions.Count>0){Heading("MARGINAL / ABLATION CONTRIBUTION");foreach(var x in contributions)EditorGUILayout.LabelField(x.source,$"Primary {x.primary:+0.###;-0.###;0} · Secondary {x.secondary:+0.###;-0.###;0}");EditorGUILayout.HelpBox("Interacting source categories do not necessarily sum to the full metric.",MessageType.None);}
-            if(gearResult!=null){Heading("SCENARIO-RELATIVE ITEM CONTRIBUTIONS");foreach(var x in gearResult.selected)EditorGUILayout.LabelField(x.item.slot.ToString(),$"Objective {x.score:+0.####;-0.####;0} · Primary {x.primaryDelta:+0.##;-0.##;0} · Secondary {x.secondaryDelta:+0.##;-0.##;0}");EditorGUILayout.LabelField("Gear search debug",$"Generated {gearResult.debug.generated}; retained {gearResult.debug.retained}; states {gearResult.debug.statesEvaluated}; pruned {gearResult.debug.statesPruned}; beam {gearResult.debug.beamWidth}");if(GUILayout.Button("EVALUATE FINAL GEARSET WITH COMBAT LAB")){playerBuild=gearResult.build.Clone();combatRequest.player=playerBuild.Clone();tab=Tab.CombatLab;}}
+            Heading("AUTHORITATIVE ANALYTICAL METRICS");
+            MetricRow("Average Hit",m.averageHit.ToString("0.##"));
+            MetricRow("Basic DPS",m.basicDps.ToString("0.##"));
+            MetricRow("Sustainable Total DPS",m.totalSustainableDps.ToString("0.##"));
+            MetricRow("Sustainable Skill DPS",m.sustainableSkillDps.ToString("0.##"));
+            MetricRow("Selected Skill Policy",m.selectedSkillPolicy);
+            MetricRow("Time at Zero Mana",m.manaStarvationFraction.ToString("P1"));
+            MetricRow("APS / Crit / Crit Multi",$"{m.attacksPerSecond:0.###} / {m.critChance:P2} / {m.critMultiplier:0.###}x");
+            MetricRow("Physical / Fire / Cold / Lightning / Void",$"{m.physicalOutput:0.#} / {m.fireOutput:0.#} / {m.coldOutput:0.#} / {m.lightningOutput:0.#} / {m.voidOutput:0.#}");
+            MetricRow("Poison / Bleed / Ignite potential",$"{m.poisonDps:0.#} / {m.bleedDps:0.#} / {m.igniteDps:0.#}");
+            MetricRow("Life / Armour / Mana",$"{m.life:0.#} / {m.armour:0.#} / {m.mana:0.#}");
+            MetricRow("EHP Phys / Fire / Cold / Lightning / Void",$"{m.ehpPhysical:0.#} / {m.ehpFire:0.#} / {m.ehpCold:0.#} / {m.ehpLightning:0.#} / {m.ehpVoid:0.#}");
+            foreach(var skill in m.skills)
+                MetricRow(skill.name,$"{skill.averageDamagePerUse:0.#}/use · {skill.effectiveCooldown:0.##}s · {(skill.sustainable?"sustainable":"Mana pressure")}");
+            foreach(string assumption in m.assumptions)EditorGUILayout.HelpBox(assumption,MessageType.None);
+            Heading("DAMAGE CONTRIBUTION TRACE");
+            MetricRow("Base weapon average",m.baseWeaponAverage.ToString("0.###"));
+            MetricRow("Attribute / level increased",$"{m.weaponAttributeIncreased:P2} / {m.playerLevelIncreased:P2}");
+            MetricRow("Generic / Physical increased",$"{m.genericIncreased:P2} / {m.physicalIncreased:P2}");
+            MetricRow("Generic / Physical more",$"{m.genericMore:P2} / {m.physicalMore:P2}");
+            MetricRow("Crit / Hit Twice expectation",$"{m.critContribution:0.###} / {m.hitTwiceContribution:0.###}");
+            if(contributions.Count>0)
+            {
+                Heading("MARGINAL / ABLATION CONTRIBUTION");
+                foreach(var x in contributions)
+                    MetricRow(x.source,$"Primary {x.primary:+0.###;-0.###;0} · Secondary {x.secondary:+0.###;-0.###;0}");
+                EditorGUILayout.HelpBox("Interacting source categories do not necessarily sum to the full metric.",MessageType.None);
+            }
+            if(gearResult!=null)
+            {
+                Heading("SCENARIO-RELATIVE ITEM CONTRIBUTIONS");
+                foreach(var x in gearResult.selected)
+                    MetricRow(x.item.slot.ToString(),$"Objective {x.score:+0.####;-0.####;0} · Primary {x.primaryDelta:+0.##;-0.##;0} · Secondary {x.secondaryDelta:+0.##;-0.##;0}");
+                MetricRow("Gear search debug",$"Generated {gearResult.debug.generated}; retained {gearResult.debug.retained}; states {gearResult.debug.statesEvaluated}; pruned {gearResult.debug.statesPruned}; beam {gearResult.debug.beamWidth}");
+                if(GUILayout.Button("EVALUATE FINAL GEARSET WITH COMBAT LAB"))
+                {playerBuild=gearResult.build.Clone();CombatLabTransfer.SetPlayer(combatRequest,playerBuild,gearResult.metrics.selectedSkillPolicy);combatPlayerPinned=true;tab=Tab.CombatLab;}
+            }
         }
         void GearCurves()
         {
@@ -153,6 +191,7 @@ namespace BlackCube.BalanceWorkbench
             ObjectiveInputs();SweepInputs(100,false);MetricPopup();
             EditorGUILayout.HelpBox("Exactly one deterministic generated gearset is evaluated per profile and Player Level. This is not a Samples / Level distribution.",MessageType.Info);
             var profiles=LoadProfiles();
+            DrawProfileSemantics(profiles);
             if(GUILayout.Button("RUN LOW / MID / OPTIMIZED GEAR CURVES",GUILayout.Height(30)))
                 Run("Gear curves",_=>
                 {
@@ -166,7 +205,7 @@ namespace BlackCube.BalanceWorkbench
         void PassiveOptimizer()
         {
             Heading("PRODUCTION PASSIVE OPTIMIZER");BuildInputs();ObjectiveInputs();ConstraintInputs();passivePoints=EditorGUILayout.IntSlider("Passive Point Budget",passivePoints,0,100);using(new EditorGUILayout.HorizontalScope()){GUILayout.Label("Search preset",GUILayout.Width(110));if(GUILayout.Button("Fast · Greedy")){passiveBeam=false;passiveBeamWidth=1;}if(GUILayout.Button("Normal · Beam 100")){passiveBeam=true;passiveBeamWidth=100;}if(GUILayout.Button("Deep · Beam 500")){passiveBeam=true;passiveBeamWidth=500;}}passiveBeam=EditorGUILayout.Toggle("Beam Search",passiveBeam);if(passiveBeam)passiveBeamWidth=EditorGUILayout.IntSlider("Beam Width",passiveBeamWidth,10,2000);int remaining=Math.Max(0,passivePoints-playerBuild.passiveStableIds.Count);long estimate=(long)remaining*(passiveBeam?passiveBeamWidth:1)*Math.Max(25,PassiveTreeOptimizer.LegalNext(playerBuild.AllocationRanks(),playerBuild.classId,playerBuild.subclassId,playerConstraints).Count);EditorGUILayout.LabelField("Rough candidate estimate",$"{estimate:N0} upper-range attempts · {(estimate<10000?"LOW":estimate<100000?"MEDIUM":"HIGH")}");if(passiveBeam&&passiveBeamWidth>=500&&passivePoints>=50)EditorGUILayout.HelpBox("Deep searches can evaluate hundreds of thousands of builds. Run in batchmode or allow substantial time; Cancel Simulation stops at the next progress checkpoint.",MessageType.Warning);using(new EditorGUILayout.HorizontalScope()){if(GUILayout.Button("OPTIMIZE",GUILayout.Height(30)))Run("Passive optimization",_=>{passiveResult=PassiveTreeOptimizer.Optimize(playerBuild,passivePoints,objective,passiveBeam,passiveBeamWidth,playerConstraints,Progress("Passive depth"),()=>cancelled);playerBuild=passiveResult.build.Clone();SetPlayerEvaluation(playerBuild,passiveResult.metrics,true);});if(GUILayout.Button("ANALYZE LEGAL NEXT NODES",GUILayout.Height(30)))Run("Marginal analysis",_=>marginal=PassiveTreeOptimizer.Analyze(playerBuild,objective,playerConstraints,false));if(passiveResult!=null&&GUILayout.Button("EXPORT CSV"))status=WorkbenchExports.SavePassiveCsv(passiveResult);}
-            if(passiveResult!=null){Heading("OPTIMAL LEGAL ALLOCATION");EditorGUILayout.LabelField("Algorithm / Score",$"{passiveResult.algorithm} / {passiveResult.score:0.######}");EditorGUILayout.LabelField("Points / Stable IDs",$"{passiveResult.build.passiveStableIds.Count} / {string.Join(", ",passiveResult.build.passiveStableIds)}");foreach(var x in passiveResult.sequence)using(new EditorGUILayout.HorizontalScope()){GUILayout.Label($"{x.point}. {x.name}",GUILayout.Width(260));GUILayout.Label($"Primary {x.primaryDelta:+0.###;-0.###;0}",GUILayout.Width(150));GUILayout.Label($"Secondary {x.secondaryDelta:+0.###;-0.###;0}",GUILayout.Width(160));GUILayout.Label($"Objective {x.scoreDelta:+0.#####;-0.#####;0}");}if(passiveResult.debug.Count>0){var d=passiveResult.debug[^1];EditorGUILayout.LabelField("Search debug",$"Depth {d.depth}; candidate {d.candidateStates}; unique {d.uniqueStates}; retained {d.retainedStates}; diversity {d.diversityGroups}");}if(GUILayout.Button("EVALUATE OPTIMIZED PASSIVES WITH COMBAT LAB")){playerBuild=passiveResult.build.Clone();combatRequest.player=playerBuild.Clone();tab=Tab.CombatLab;}}
+            if(passiveResult!=null){Heading("OPTIMAL LEGAL ALLOCATION");EditorGUILayout.LabelField("Algorithm / Score",$"{passiveResult.algorithm} / {passiveResult.score:0.######}");EditorGUILayout.LabelField("Points / Stable IDs",$"{passiveResult.build.passiveStableIds.Count} / {string.Join(", ",passiveResult.build.passiveStableIds)}");foreach(var x in passiveResult.sequence)using(new EditorGUILayout.HorizontalScope()){GUILayout.Label($"{x.point}. {x.name}",GUILayout.Width(260));GUILayout.Label($"Primary {x.primaryDelta:+0.###;-0.###;0}",GUILayout.Width(150));GUILayout.Label($"Secondary {x.secondaryDelta:+0.###;-0.###;0}",GUILayout.Width(160));GUILayout.Label($"Objective {x.scoreDelta:+0.#####;-0.#####;0}");}if(passiveResult.debug.Count>0){var d=passiveResult.debug[^1];EditorGUILayout.LabelField("Search debug",$"Depth {d.depth}; candidate {d.candidateStates}; unique {d.uniqueStates}; retained {d.retainedStates}; diversity {d.diversityGroups}");}if(GUILayout.Button("EVALUATE OPTIMIZED PASSIVES WITH COMBAT LAB")){playerBuild=passiveResult.build.Clone();CombatLabTransfer.SetPlayer(combatRequest,playerBuild,passiveResult.metrics.selectedSkillPolicy);combatPlayerPinned=true;tab=Tab.CombatLab;}}
             if(marginal.Count>0){Heading("IMMEDIATE MARGINAL VALUE");foreach(var x in marginal.Take(30))using(new EditorGUILayout.HorizontalScope()){if(GUILayout.Button(x.name,GUILayout.Width(220)))selectedMarginal=x;GUILayout.Label(x.branch,GUILayout.Width(150));GUILayout.Label($"P {x.primaryDelta:+0.##;-0.##;0}",GUILayout.Width(100));GUILayout.Label($"S {x.secondaryDelta:+0.##;-0.##;0}",GUILayout.Width(100));GUILayout.Label($"Obj {x.objectiveDelta:+0.#####;-0.#####;0}");}if(selectedMarginal!=null&&GUILayout.Button("PING NODE DATA"))PingNode(selectedMarginal.nodeId);}
         }
         void PassiveHeatmap()
@@ -188,6 +227,7 @@ namespace BlackCube.BalanceWorkbench
             if(scenarioProgressive)scenarioFreeRespec=EditorGUILayout.Toggle("Allow Free Respec",scenarioFreeRespec);
             passiveBeamWidth=EditorGUILayout.IntSlider("Passive Beam Width",passiveBeamWidth,1,500);
             var profiles=LoadProfiles();
+            DrawProfileSemantics(profiles);
             showScenarioWorkload=EditorGUILayout.Foldout(showScenarioWorkload,"ESTIMATED WORKLOAD",true);
             if(showScenarioWorkload)
             {
@@ -210,6 +250,16 @@ namespace BlackCube.BalanceWorkbench
                     playerSweep=completed;curves=completed.Curves(curveMetric);
                 });
             DrawPlayerCurves(true);
+        }
+        void DrawProfileSemantics(IReadOnlyList<PlayerGearProfileSO> profiles)
+        {
+            showProfileSemantics=EditorGUILayout.Foldout(showProfileSemantics,
+                "GEAR PROFILE ASSUMPTIONS",true);
+            if(!showProfileSemantics)return;
+            foreach(var profile in profiles)
+                MetricRow(profile.name,
+                    $"{profile.selectionStrategy} · {profile.candidatesPerSlot} candidates/slot · retain {profile.candidateRetention} · beam {profile.gearsetBeamWidth} · natural rarity {(profile.useNaturalRarity?"ON":"OFF")}");
+            EditorGUILayout.HelpBox("Natural rarity ON bypasses profile min/max rarity. Target percentile only applies to Percentile Target; beam width only applies to Full Gearset Beam Search. Selection Imperfection, Allow Legal Crafting and Deep Endgame Implicit Repair are serialized profile fields but are not consumed by this sweep optimizer. Do not interpret them as active acquisition/crafting simulation.",MessageType.Warning);
         }
         void DrawScenarioCombatLevelControls()
         {

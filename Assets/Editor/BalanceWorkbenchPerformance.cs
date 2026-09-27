@@ -18,7 +18,7 @@ namespace BlackCube.BalanceWorkbench
     }
     [Serializable] public sealed class WorkbenchPerformanceReport
     {
-        public string phase,utc,commit,fingerprint;public List<WorkbenchPerformanceRow> rows=new();
+        public string phase,utc,commit,fingerprint,machine,unityVersion,runtimeVersion;public List<WorkbenchPerformanceRow> rows=new();
     }
     public static class WorkbenchPerformanceBenchmarks
     {
@@ -40,37 +40,81 @@ namespace BlackCube.BalanceWorkbench
             catch(Exception ex){row.error=ex.ToString();}
             finally{clock.Stop();row.elapsedMs=clock.Elapsed.TotalMilliseconds;row.allocatedMb=(GC.GetAllocatedBytesForCurrentThread()-allocation)/(1024.0*1024);row.gen0=GC.CollectionCount(0)-g0;row.gen1=GC.CollectionCount(1)-g1;row.gen2=GC.CollectionCount(2)-g2;report.rows.Add(row);Save(report);UnityEngine.Debug.Log($"PERF {name}: {row.elapsedMs:0.###} ms, {row.allocatedMb:0.###} MB, hash {row.resultHash}, error {row.error}");}
         }
+        static void RecordPhase(WorkbenchPerformanceReport report,string name,double ms,int count,string resultHash)
+        {
+            report.rows.Add(new WorkbenchPerformanceRow{operation=name,elapsedMs=ms,
+                evaluations=count,resultHash=resultHash});
+            Save(report);
+        }
         static void Save(WorkbenchPerformanceReport report)
         {
             Directory.CreateDirectory("Logs/BalanceWorkbenchPerformance");string stem=report.phase;File.WriteAllText($"Logs/BalanceWorkbenchPerformance/{stem}.json",JsonUtility.ToJson(report,true));
             File.WriteAllLines($"Logs/BalanceWorkbenchPerformance/{stem}.csv",new[]{"Operation,ElapsedMs,AllocatedMB,Gen0,Gen1,Gen2,States,Evaluations,ResultHash,Error"}.Concat(report.rows.Select(x=>$"\"{x.operation}\",{x.elapsedMs:R},{x.allocatedMb:R},{x.gen0},{x.gen1},{x.gen2},{x.states},{x.evaluations},{x.resultHash},\"{(x.error??"").Replace("\"","\"\"")}\"")));
         }
-        static void Execute(string phase,string segment)
+        static void Execute(string phase,string segment,bool exitEditor=true,bool quick=false)
         {
-            var report=new WorkbenchPerformanceReport{phase=phase+"_"+segment,utc=DateTime.UtcNow.ToString("O"),commit=ProductionBalanceAdapters.GitCommit(),fingerprint=ProductionBalanceAdapters.DataFingerprint()};
+            var report=new WorkbenchPerformanceReport{phase=phase+"_"+segment,utc=DateTime.UtcNow.ToString("O"),commit=ProductionBalanceAdapters.GitCommit(),fingerprint=ProductionBalanceAdapters.DataFingerprint(),machine=Environment.MachineName,unityVersion=Application.unityVersion,runtimeVersion=Environment.Version.ToString()};
             try
             {
                 var build=Fixture();Measure(report,"Fixture Mid gear",()=> (JsonUtility.ToJson(build),0,0));
                 if(segment=="passive")
                 {
-                    foreach(var entry in new[]{(name:"Greedy 50",beam:false,width:1),(name:"Beam 100 / 50",beam:true,width:100),(name:"Beam 500 / 50",beam:true,width:500)})
-                        Measure(report,entry.name,()=>{var r=PassiveTreeOptimizer.Optimize(build,50,Objective,entry.beam,entry.width);return (JsonUtility.ToJson(r.build)+"|"+r.score.ToString("R",System.Globalization.CultureInfo.InvariantCulture)+"|"+string.Join(",",r.sequence.Select(x=>x.stableId)),r.debug.Sum(x=>x.candidateStates),r.debug.Sum(x=>x.statesEvaluated));});
+                    var searches=quick?
+                        new[]{(name:"Greedy 50",beam:false,width:1),(name:"Beam 50 / 50",beam:true,width:50)}:
+                        new[]{(name:"Greedy 50",beam:false,width:1),(name:"Beam 50 / 50",beam:true,width:50),(name:"Beam 100 / 50",beam:true,width:100)};
+                    foreach(var entry in searches)
+                    {
+                        PassiveOptimizationResult measured=null;
+                        Measure(report,entry.name,()=>{measured=PassiveTreeOptimizer.Optimize(build,50,Objective,entry.beam,entry.width);return (JsonUtility.ToJson(measured.build)+"|"+measured.score.ToString("R",System.Globalization.CultureInfo.InvariantCulture)+"|"+string.Join(",",measured.sequence.Select(x=>x.stableId)),measured.debug.Sum(x=>x.candidateStates),measured.debug.Sum(x=>x.statesEvaluated));});
+                        if(measured==null)continue;
+                        string hash=report.rows[^1].resultHash;
+                        RecordPhase(report,entry.name+" · legal next",measured.profile.legalNextMs,measured.profile.legalCalls,hash);
+                        RecordPhase(report,entry.name+" · build evaluation",measured.profile.buildEvaluationMs,measured.profile.evaluations,hash);
+                        RecordPhase(report,entry.name+" · retain",measured.profile.retainMs,measured.profile.evaluations,hash);
+                        RecordPhase(report,entry.name+" · other",measured.profile.otherMs,measured.profile.evaluations,hash);
+                    }
                 }
                 else
                 {
                     Measure(report,"Player evaluation single",()=> (JsonUtility.ToJson(PlayerBuildEvaluator.Evaluate(build)),0,1));
-                    Measure(report,"Player evaluation x1000",()=>{PlayerBuildMetrics last=null;for(int i=0;i<1000;i++)last=PlayerBuildEvaluator.Evaluate(build);return (JsonUtility.ToJson(last),0,1000);});
-                    Measure(report,"Items x1000",()=>{var r=ProductionBalanceAdapters.RunItems(new ItemLabRequest{itemLevel=50,sampleCount=1000,rarity=LootManager.GearRarity.Rare,weaponTypeId=WeaponTypeIds.Sword,seed=41001});return (StableRows(r.samples),0,1000);});
+                    int itemCount=quick?100:1000,enemyCount=quick?100:1000,dropCount=quick?1000:10000;
+                    Measure(report,$"Player evaluation x{itemCount}",()=>{PlayerBuildMetrics last=null;for(int i=0;i<itemCount;i++)last=PlayerBuildEvaluator.Evaluate(build);return (JsonUtility.ToJson(last),0,itemCount);});
+                    Measure(report,$"Items x{itemCount}",()=>{var r=ProductionBalanceAdapters.RunItems(new ItemLabRequest{itemLevel=50,sampleCount=itemCount,rarity=LootManager.GearRarity.Rare,weaponTypeId=WeaponTypeIds.Sword,seed=41001});return (StableRows(r.samples),0,itemCount);});
                     string enemyId=WorldContentCatalog.Reference.enemyArchetypes.First().stableId;
-                    Measure(report,"Enemies x1000",()=>{var r=ProductionBalanceAdapters.RunEnemies(new EnemyLabRequest{archetypeId=enemyId,level=50,sampleCount=1000,rarity=EnemyAI.EnemyRarity.Rare,seed=41001});return (StableRows(r.samples),0,1000);});
-                    Measure(report,"Drops x10000",()=>{var r=ProductionBalanceAdapters.RunDrops(new DropLabRequest{level=50,rarity=EnemyAI.EnemyRarity.Rare,sampleCount=10000,seed=41001,generateActualEnemyGear=false});return ($"{r.averageGearItems:R}|{r.averageCurrencyRolls:R}|{r.chanceAnyCurrency:R}|{StableRows(r.currencies)}",0,10000);});
+                    EnemyLabResult enemyProfile=null;
+                    Measure(report,$"Enemies x{enemyCount}",()=>{enemyProfile=ProductionBalanceAdapters.RunEnemies(new EnemyLabRequest{archetypeId=enemyId,level=50,sampleCount=enemyCount,rarity=EnemyAI.EnemyRarity.Rare,seed=41001});return (StableRows(enemyProfile.samples),0,enemyCount);});
+                    if(enemyProfile!=null)
+                    {
+                        string hash=report.rows[^1].resultHash;int count=enemyProfile.samples.Count;var t=enemyProfile.timing;
+                        RecordPhase(report,$"Enemy instantiate x{count}",t.instantiateMs,count,hash);
+                        RecordPhase(report,$"Enemy configure x{count}",t.configureMs,count,hash);
+                        RecordPhase(report,$"Enemy generate production x{count}",t.generateMs,count,hash);
+                        RecordPhase(report,$"Enemy candidate gear x{count}",t.candidateGearMs,count,hash);
+                        RecordPhase(report,$"Enemy build optimizer x{count}",t.buildOptimizerMs,count,hash);
+                        RecordPhase(report,$"Enemy evaluate generated x{count}",t.captureMs,count,hash);
+                        RecordPhase(report,$"Enemy power score x{count}",t.powerScoreMs,count,hash);
+                        RecordPhase(report,$"Enemy dispose x{count}",t.disposeMs,count,hash);
+                    }
+                    Measure(report,$"Drops x{dropCount}",()=>{var r=ProductionBalanceAdapters.RunDrops(new DropLabRequest{level=50,rarity=EnemyAI.EnemyRarity.Rare,sampleCount=dropCount,seed=41001,generateActualEnemyGear=false});return ($"{r.averageGearItems:R}|{r.averageCurrencyRolls:R}|{r.chanceAnyCurrency:R}|{StableRows(r.currencies)}",0,dropCount);});
                     var combat=new CombatLabRequest{player=build,enemyArchetypeId=enemyId,enemyLevel=50,rarity=EnemyAI.EnemyRarity.Rare,seed=41001};
-                    foreach(int count in new[]{1000,10000})Measure(report,$"Pure combats x{count}",()=>{combat.fightCount=count;var r=CombatLabAdapters.Batch(combat);return (JsonUtility.ToJson(r),0,count);});
+                    foreach(int count in quick?new[]{1000}:new[]{1000,10000})Measure(report,$"Pure combats x{count}",()=>{combat.fightCount=count;var r=CombatLabAdapters.Batch(combat);return (JsonUtility.ToJson(r),0,count);});
                     Measure(report,"Sensitivity analytical",()=>{var r=SensitivityAnalyzer.Run(new SensitivityRequest{build=build,stats=new(){StatTypes.AttackSpeed,StatTypes.CritChance,StatTypes.CritMult,StatTypes.PhysDmg},amount=.1f});return (StableRows(r.rows),0,r.rows.Count);});
                     Measure(report,"Fingerprint x100",()=>{string last=null;for(int i=0;i<100;i++)last=ProductionBalanceAdapters.DataFingerprint();return (last,0,100);});
+                    var mid=AssetDatabase.LoadAssetAtPath<PlayerGearProfileSO>(
+                        "Assets/Balance/Profiles/SO_PlayerGearProfile_Mid.asset");
+                    Measure(report,"Scenario Mid L10–50 gear only",()=>
+                    {
+                        var sweep=PlayerScenarioSweep.Run(build,new[]{mid},Objective,10,50,10,
+                            false,false,true,1);
+                        return (StableRows(sweep.points),
+                            sweep.points.Sum(x=>x.gearGenerations),
+                            sweep.points.Sum(x=>x.gearEvaluationRequests));
+                    });
                 }
             }
-            finally{Save(report);EditorApplication.Exit(report.rows.Any(x=>x.error!=null)?1:0);}
+            finally{Save(report);if(exitEditor)EditorApplication.Exit(report.rows.Any(x=>x.error!=null)?1:0);}
+            if(!exitEditor&&report.rows.Any(x=>x.error!=null))
+                throw new InvalidOperationException("Benchmark failed: "+report.rows.First(x=>x.error!=null).error);
         }
         public static void BaselineCore()=>Execute("baseline","core");
         public static void BaselinePassive()=>Execute("baseline","passive");
@@ -78,6 +122,8 @@ namespace BlackCube.BalanceWorkbench
         public static void AfterPassive()=>Execute("after","passive");
         public static void TrustBeforeCore()=>Execute("trust_before","core");
         public static void TrustBeforePassive()=>Execute("trust_before","passive");
+        public static void EditorQuick(){Execute("after_quick","core",false,true);Execute("after_quick","passive",false,true);}
+        public static void EditorFull(){Execute("after","core",false);Execute("after","passive",false);}
     }
 
     public static class WorkbenchPerformanceTestRunner

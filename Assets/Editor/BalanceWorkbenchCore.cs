@@ -73,8 +73,11 @@ namespace BlackCube.BalanceWorkbench
     [Serializable] public sealed class EnemyLabResult
     {
         public ExperimentMetadata metadata;public List<EnemySample> samples=new();public MetricSummary life,dps,gearScore,armour,slots;
+        public EnemyLabTiming timing=new();
         public void Summarize(){life=MetricSummary.From(samples.Select(x=>x.life));dps=MetricSummary.From(samples.Select(x=>x.dps));gearScore=MetricSummary.From(samples.Select(x=>x.gearScore));armour=MetricSummary.From(samples.Select(x=>x.armour));slots=MetricSummary.From(samples.Select(x=>(double)x.slotCount));}
     }
+    [Serializable] public sealed class EnemyLabTiming
+    {public double instantiateMs,configureMs,generateMs,candidateGearMs,buildOptimizerMs,captureMs,powerScoreMs,disposeMs;}
 
     [Serializable] public sealed class DropLabRequest
     {
@@ -127,9 +130,68 @@ namespace BlackCube.BalanceWorkbench
 
         public static EnemyLabResult RunEnemies(EnemyLabRequest request,Action<float> progress=null,Func<bool> cancelled=null)
         {
-            var result=new EnemyLabResult{metadata=ExperimentMetadata.Create("Enemy Gear Lab",request.seed,request.sampleCount,request.level,request.level,JsonUtility.ToJson(request))};var rng=new SeededSimulationRandomSource(request.seed);var prefabs=BlackCube.BalanceSimulationRunner.DiscoverEnemies();if(prefabs.Count==0)throw new InvalidOperationException("No production enemy prefab resolved.");var db=WorldContentCatalog.Reference;
+            if(request==null||request.sampleCount<1)throw new ArgumentException("Enemy sample count must be positive.",nameof(request));
+            var result=new EnemyLabResult{metadata=ExperimentMetadata.Create("Enemy Gear Lab",request.seed,request.sampleCount,request.level,request.level,JsonUtility.ToJson(request))};
+            var rng=new SeededSimulationRandomSource(request.seed);
+            var prefabs=BlackCube.BalanceSimulationRunner.DiscoverEnemies();
+            if(prefabs.Count==0)throw new InvalidOperationException("No production enemy prefab resolved.");
+            var db=WorldContentCatalog.Reference;
             GameObject bossFallback=request.useBoss?BossFallbackPrefab():null;
-            using var session=new WorkbenchSession();for(int i=0;i<request.sampleCount;i++){if(cancelled?.Invoke()==true)break;var archetype=request.useBoss?null:ResolveArchetype(request,rng,db);var boss=request.useBoss?db?.Boss(request.bossId):null;if(request.useBoss&&boss==null)throw new InvalidOperationException("Production boss definition is missing: "+request.bossId);GameObject prefab=boss?.prefab!=null?boss.prefab:request.useBoss?bossFallback:archetype?.prefab!=null?archetype.prefab:prefabs[rng.Range(0,prefabs.Count)];if(prefab==null)throw new InvalidOperationException("No production boss fallback prefab is assigned.");var actor=UnityEngine.Object.Instantiate(prefab);actor.hideFlags=HideFlags.HideAndDontSave;try{var ai=actor.GetComponent<EnemyAI>();var corruption=db.corruptionTiers.OrderBy(x=>Math.Abs(x.percentage-request.corruptionPercentage)).FirstOrDefault();var biome=boss!=null?db.biomes[Mathf.Clamp(boss.biomeIndex,0,db.biomes.Count-1)]:EnemyAuthoringAdapters.BiomeFor(db,archetype?.stableId);var location=boss!=null&&boss.locationIndex>=0&&boss.locationIndex<biome.locations.Count?biome.locations[boss.locationIndex]:biome?.locations.FirstOrDefault();if(archetype!=null||boss!=null){actor.GetComponent<HealthComponent>()?.SetEnemyRole(boss!=null);ai.ConfigureWorldContent(db,archetype,boss,corruption,location,request.corruptionOverride,request.rarityOverride);}var rarity=request.productionRarity?RollEnemyRarity(rng,db):request.rarity;ai.GenerateIsolatedBuild(request.level,session.Roller,rarity,rng,request.forcePrimaryDamage?request.primaryDamage:null,request.useScalingOverride?request.scalingOverride:null);result.samples.Add(CaptureEnemy(i,request.level,archetype,ai,actor));}finally{UnityEngine.Object.DestroyImmediate(actor);}if((i&7)==0)progress?.Invoke((i+1f)/request.sampleCount);}result.metadata.sampleCount=result.samples.Count;result.Summarize();return result;
+            using var session=new WorkbenchSession();
+            var oldTiming=EnemyAI.EditorBuildPhaseTiming;
+            double tickMs=1000d/System.Diagnostics.Stopwatch.Frequency;
+            EnemyAI.EditorBuildPhaseTiming=(candidate,optimizer)=>
+            {result.timing.candidateGearMs+=candidate*tickMs;result.timing.buildOptimizerMs+=optimizer*tickMs;};
+            try
+            {
+                for(int i=0;i<request.sampleCount;i++)
+                {
+                    if(cancelled?.Invoke()==true)break;
+                    var archetype=request.useBoss?null:ResolveArchetype(request,rng,db);
+                    var boss=request.useBoss?db?.Boss(request.bossId):null;
+                    if(request.useBoss&&boss==null)throw new InvalidOperationException("Production boss definition is missing: "+request.bossId);
+                    GameObject prefab=boss?.prefab!=null?boss.prefab:request.useBoss?bossFallback:archetype?.prefab!=null?archetype.prefab:prefabs[rng.Range(0,prefabs.Count)];
+                    if(prefab==null)throw new InvalidOperationException("No production boss fallback prefab is assigned.");
+                    long start=System.Diagnostics.Stopwatch.GetTimestamp();
+                    var actor=UnityEngine.Object.Instantiate(prefab);
+                    actor.hideFlags=HideFlags.HideAndDontSave;
+                    result.timing.instantiateMs+=(System.Diagnostics.Stopwatch.GetTimestamp()-start)*tickMs;
+                    try
+                    {
+                        var ai=actor.GetComponent<EnemyAI>();
+                        start=System.Diagnostics.Stopwatch.GetTimestamp();
+                        var corruption=db.corruptionTiers.OrderBy(x=>Math.Abs(x.percentage-request.corruptionPercentage)).FirstOrDefault();
+                        var biome=boss!=null?db.biomes[Mathf.Clamp(boss.biomeIndex,0,db.biomes.Count-1)]:EnemyAuthoringAdapters.BiomeFor(db,archetype?.stableId);
+                        var location=boss!=null&&boss.locationIndex>=0&&boss.locationIndex<biome.locations.Count?biome.locations[boss.locationIndex]:biome?.locations.FirstOrDefault();
+                        if(archetype!=null||boss!=null)
+                        {
+                            actor.GetComponent<HealthComponent>()?.SetEnemyRole(boss!=null);
+                            ai.ConfigureWorldContent(db,archetype,boss,corruption,location,request.corruptionOverride,request.rarityOverride);
+                        }
+                        var rarity=request.productionRarity?RollEnemyRarity(rng,db):request.rarity;
+                        result.timing.configureMs+=(System.Diagnostics.Stopwatch.GetTimestamp()-start)*tickMs;
+                        start=System.Diagnostics.Stopwatch.GetTimestamp();
+                        ai.GenerateIsolatedBuild(request.level,session.Roller,rarity,rng,
+                            request.forcePrimaryDamage?request.primaryDamage:null,
+                            request.useScalingOverride?request.scalingOverride:null);
+                        result.timing.generateMs+=(System.Diagnostics.Stopwatch.GetTimestamp()-start)*tickMs;
+                        start=System.Diagnostics.Stopwatch.GetTimestamp();
+                        result.samples.Add(CaptureEnemy(i,request.level,archetype,ai,actor,result.timing));
+                        result.timing.captureMs+=(System.Diagnostics.Stopwatch.GetTimestamp()-start)*tickMs;
+                    }
+                    finally
+                    {
+                        start=System.Diagnostics.Stopwatch.GetTimestamp();
+                        UnityEngine.Object.DestroyImmediate(actor);
+                        result.timing.disposeMs+=(System.Diagnostics.Stopwatch.GetTimestamp()-start)*tickMs;
+                    }
+                    if((i&7)==0)progress?.Invoke((i+1f)/request.sampleCount);
+                }
+            }
+            finally{EnemyAI.EditorBuildPhaseTiming=oldTiming;}
+            result.metadata.sampleCount=result.samples.Count;
+            result.Summarize();
+            return result;
         }
         static GameObject BossFallbackPrefab()
         {
@@ -139,10 +201,13 @@ namespace BlackCube.BalanceWorkbench
         }
         static EnemyArchetypeDefinition ResolveArchetype(EnemyLabRequest r,ILootRandomSource rng,WorldContentDatabase db){if(db?.enemyArchetypes==null||db.enemyArchetypes.Count==0)return null;if(r.archetypeId!="Any")return db.Enemy(r.archetypeId);return db.enemyArchetypes[rng.Range(0,db.enemyArchetypes.Count)];}
         static EnemyAI.EnemyRarity RollEnemyRarity(ILootRandomSource r,WorldContentDatabase db){var profiles=db?.enemyRarityProfiles?.Where(x=>x!=null&&x.spawnWeight>0).ToList();if(profiles?.Count>0){int total=profiles.Sum(x=>x.spawnWeight),roll=r.Range(0,total);foreach(var profile in profiles){if(roll<profile.spawnWeight)return profile.rarity;roll-=profile.spawnWeight;}}int v=r.Range(0,71);return v<40?EnemyAI.EnemyRarity.Normal:v<60?EnemyAI.EnemyRarity.Magic:v<70?EnemyAI.EnemyRarity.Rare:EnemyAI.EnemyRarity.Legendary;}
-        static EnemySample CaptureEnemy(int index,int level,EnemyArchetypeDefinition archetype,EnemyAI ai,GameObject actor)
+        static EnemySample CaptureEnemy(int index,int level,EnemyArchetypeDefinition archetype,EnemyAI ai,GameObject actor,EnemyLabTiming timing)
         {
             var stats=actor.GetComponent<StatsComponent>();var health=actor.GetComponent<HealthComponent>();var hit=ai.BuildNonCriticalAttackContext();double amount=hit.Hits==null?0:hit.Hits.Sum(x=>(double)x.Amount);double aps=ai.GetFinalAttackSpeed();var weapon=ai.EquippedWeapon;
-            return new EnemySample{index=index,level=level,archetype=archetype?.displayName??actor.name,rarity=(int)ai.CurrentRarity,primaryDamage=(archetype?.primaryElement??ai.WeaponMainElement).ToString(),slotCount=ai.EquippedItems.Count,candidateCount=EnemyBuildOptimizer.CandidateCountForLevel(level),life=health?.MaxLife??stats.GetStat(StatTypes.Life),damagePerHit=amount,attackSpeed=aps,dps=amount*aps,armour=stats.GetStat(StatTypes.FlatArmour),fireResistance=stats.GetStat(StatTypes.FireRes),coldResistance=stats.GetStat(StatTypes.ColdRes),lightningResistance=stats.GetStat(StatTypes.LightRes),voidResistance=stats.GetStat(StatTypes.VoidRes),lifeRegeneration=stats.GetStat(StatTypes.LifeRegeneration),gearScore=EnemyBuildOptimizer.CanonicalGearScore(ai.LastBuildEvaluation),weaponDps=weapon!=null?weapon.GetAverageWeaponDps():0,critChance=stats.GetStat(StatTypes.CritChance),critMultiplier=stats.GetStat(StatTypes.CritMult),equipment=string.Join(" | ",ai.EquippedItems.Select(x=>$"{x.ItemType}:{x.ItemRarity}:{x.WeaponTypeId}"))};
+            long start=System.Diagnostics.Stopwatch.GetTimestamp();
+            float score=EnemyBuildOptimizer.CanonicalGearScore(ai.LastBuildEvaluation);
+            timing.powerScoreMs+=(System.Diagnostics.Stopwatch.GetTimestamp()-start)*1000d/System.Diagnostics.Stopwatch.Frequency;
+            return new EnemySample{index=index,level=level,archetype=archetype?.displayName??actor.name,rarity=(int)ai.CurrentRarity,primaryDamage=(archetype?.primaryElement??ai.WeaponMainElement).ToString(),slotCount=ai.EquippedItems.Count,candidateCount=EnemyBuildOptimizer.CandidateCountForLevel(level),life=health?.MaxLife??stats.GetStat(StatTypes.Life),damagePerHit=amount,attackSpeed=aps,dps=amount*aps,armour=stats.GetStat(StatTypes.FlatArmour),fireResistance=stats.GetStat(StatTypes.FireRes),coldResistance=stats.GetStat(StatTypes.ColdRes),lightningResistance=stats.GetStat(StatTypes.LightRes),voidResistance=stats.GetStat(StatTypes.VoidRes),lifeRegeneration=stats.GetStat(StatTypes.LifeRegeneration),gearScore=score,weaponDps=weapon!=null?weapon.GetAverageWeaponDps():0,critChance=stats.GetStat(StatTypes.CritChance),critMultiplier=stats.GetStat(StatTypes.CritMult),equipment=string.Join(" | ",ai.EquippedItems.Select(x=>$"{x.ItemType}:{x.ItemRarity}:{x.WeaponTypeId}"))};
         }
 
         public static DropLabResult RunDrops(DropLabRequest request,Action<float> progress=null,Func<bool> cancelled=null)
