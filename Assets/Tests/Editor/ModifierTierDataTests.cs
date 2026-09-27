@@ -13,6 +13,27 @@ public class ModifierTierDataTests
     private static readonly int[] ExpectedWeights = { 50, 35, 20, 10, 5 };
 
     [Test]
+    public void Level100PerfectArmourAndPhysicalReductionMeetPreClampTarget()
+    {
+        // Seeded production sample: 32 rare builds for each of the eight Cinder Wastes
+        // archetypes at combat level 100 / 60% corruption, weighted by the level-100
+        // encounter table (8 for ordinary archetypes, 2 for elites).
+        const float referenceHit = 2053.71415f;
+        ModDatabase db = LoadDatabase();
+        float flat = db.GetDefinition(StatTypes.FlatArmour).tiers.Single(x => x.tierIndex == 1).maxValue;
+        float increased = db.GetDefinition(StatTypes.ArmourPercent).tiers.Single(x => x.tierIndex == 1).maxValue;
+        float explicitReduction = 2f * db.GetDefinition(StatTypes.PhysicalDamageReduction).tiers.Single(x => x.tierIndex == 1).maxValue;
+        float armour = 4f * flat * (1f + 4f * increased / 100f);
+        float beforeClamp = armour / (armour + 10f * referenceHit) + explicitReduction;
+
+        Assert.That(armour, Is.EqualTo(61596f).Within(.01f));
+        Assert.That(explicitReduction, Is.EqualTo(.2f).Within(.00001f));
+        Assert.That(beforeClamp, Is.EqualTo(.95f).Within(.0001f));
+        Assert.That(CombatCalculator.ApplyArmourValue(referenceHit, armour, explicitReduction, 0f),
+            Is.EqualTo(referenceHit * .1f).Within(.01f), "Production mitigation must still clamp to 90%.");
+    }
+
+    [Test]
     public void SuppliedRanges_AreExactAndComplete()
     {
         ModDatabase db = LoadDatabase();
@@ -42,8 +63,10 @@ public class ModifierTierDataTests
         Expect(db, S(StatTypes.ShockChance, StatTypes.ChillChance), "7,14;10,20;14,28;19,40;27,57");
         Expect(db, S(StatTypes.ShockEffect, StatTypes.ChillEffect), "3,7;5,10;6,13;9,19;13,27");
         Expect(db, S(StatTypes.ShockDuration, StatTypes.ChillDuration), "1,1;1,1;1,1;1,2;1,2");
-        Expect(db, S(StatTypes.FlatArmour, StatTypes.FlatEvasion), "26,54;41,85;64,132;100,207;156,324");
-        Expect(db, S(StatTypes.ArmourPercent, StatTypes.EvasionPercent), "8,17;11,24;16,34;23,48;32,67");
+        Expect(db, S(StatTypes.FlatArmour), "105,218;165,342;258,532;403,834;628,1305");
+        Expect(db, S(StatTypes.FlatEvasion), "26,54;41,85;64,132;100,207;156,324");
+        Expect(db, S(StatTypes.ArmourPercent), "32,68;44,97;64,137;93,193;129,270");
+        Expect(db, S(StatTypes.EvasionPercent), "8,17;11,24;16,34;23,48;32,67");
         Expect(db, S(StatTypes.ColdRes, StatTypes.LightRes, StatTypes.FireRes, StatTypes.PoisonRes, StatTypes.IgniteRes, StatTypes.BleedRes, StatTypes.ShockRes, StatTypes.ChillRes), "3,7;5,11;8,17;12,26;20,40");
         Expect(db, S(StatTypes.VoidRes), "3,7;5,11;8,17;12,26;20,40");
         Expect(db, S(StatTypes.AllRes), "2,4;3,6;4,8;6,11;8,16");

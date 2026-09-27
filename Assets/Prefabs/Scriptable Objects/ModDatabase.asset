@@ -2771,40 +2771,40 @@ MonoBehaviour:
     side: 0
     tiers:
     - tierIndex: 5
-      minValue: 26
-      maxValue: 54
+      minValue: 105
+      maxValue: 218
       minItemLevel: 1
       weight: 50
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
     - tierIndex: 4
-      minValue: 41
-      maxValue: 85
+      minValue: 165
+      maxValue: 342
       minItemLevel: 20
       weight: 35
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
     - tierIndex: 3
-      minValue: 64
-      maxValue: 132
+      minValue: 258
+      maxValue: 532
       minItemLevel: 40
       weight: 20
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
     - tierIndex: 2
-      minValue: 100
-      maxValue: 207
+      minValue: 403
+      maxValue: 834
       minItemLevel: 60
       weight: 10
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
     - tierIndex: 1
-      minValue: 156
-      maxValue: 324
+      minValue: 628
+      maxValue: 1305
       minItemLevel: 75
       weight: 5
       pairedDamage: 0
@@ -2881,40 +2881,40 @@ MonoBehaviour:
     side: 0
     tiers:
     - tierIndex: 5
-      minValue: 8
-      maxValue: 17
+      minValue: 32
+      maxValue: 68
       minItemLevel: 1
       weight: 50
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
     - tierIndex: 4
-      minValue: 11
-      maxValue: 24
+      minValue: 44
+      maxValue: 97
       minItemLevel: 20
       weight: 35
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
     - tierIndex: 3
-      minValue: 16
-      maxValue: 34
+      minValue: 64
+      maxValue: 137
       minItemLevel: 40
       weight: 20
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
     - tierIndex: 2
-      minValue: 23
-      maxValue: 48
+      minValue: 93
+      maxValue: 193
       minItemLevel: 60
       weight: 10
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
     - tierIndex: 1
-      minValue: 32
-      maxValue: 67
+      minValue: 129
+      maxValue: 270
       minItemLevel: 75
       weight: 5
       pairedDamage: 0
