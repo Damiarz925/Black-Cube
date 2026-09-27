@@ -76,6 +76,8 @@ namespace BlackCube.BalanceWorkbench
         public static void BaselinePassive()=>Execute("baseline","passive");
         public static void AfterCore()=>Execute("after","core");
         public static void AfterPassive()=>Execute("after","passive");
+        public static void TrustBeforeCore()=>Execute("trust_before","core");
+        public static void TrustBeforePassive()=>Execute("trust_before","passive");
     }
 
     public static class WorkbenchPerformanceTestRunner

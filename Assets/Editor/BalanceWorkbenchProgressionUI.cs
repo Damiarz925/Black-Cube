@@ -204,7 +204,7 @@ namespace BlackCube.BalanceWorkbench
                 MetricRow("Ground / Crafted Mana Regen",$"{groundComparison.metrics.manaRegen:0.##} / {craftedComparison.metrics.manaRegen:0.##}");
             }
             if(GUILayout.Button("SEND GEARSET TO PLAYER BUILD"))
-            {playerBuild=gearset.build.Clone();playerMetrics=gearset.metrics;tab=Tab.PlayerBuildLab;}
+            {playerBuild=gearset.build.Clone();SetPlayerEvaluation(playerBuild,gearset.metrics,true);tab=Tab.PlayerBuildLab;}
             Heading("JOINT GEAR + PASSIVE SEARCH");
             EditorGUILayout.HelpBox("Alternates production-legal passive allocations with the whole historical gear inventory. Each passive pass starts from the locked/source allocation; defense deficits are valued dynamically. This is a bounded local search, not proof of a global optimum.",MessageType.Info);
             if(GUILayout.Button("OPTIMIZE GEAR + PASSIVES",GUILayout.Height(32)))
@@ -227,7 +227,7 @@ namespace BlackCube.BalanceWorkbench
             MetricRow("Joint Sustainable Total DPS",realisticPlayerResult.metrics.totalSustainableDps.ToString("0.##"));
             MetricRow("Joint Fire / Cold / Lightning / Void",$"{realisticPlayerResult.metrics.fireResistance:P0} / {realisticPlayerResult.metrics.coldResistance:P0} / {realisticPlayerResult.metrics.lightningResistance:P0} / {realisticPlayerResult.metrics.voidResistance:P0}");
             if(GUILayout.Button("SEND JOINT BUILD TO PLAYER BUILD"))
-            {playerBuild=realisticPlayerResult.build.Clone();playerMetrics=realisticPlayerResult.metrics;tab=Tab.PlayerBuildLab;}
+            {playerBuild=realisticPlayerResult.build.Clone();SetPlayerEvaluation(playerBuild,realisticPlayerResult.metrics,true);tab=Tab.PlayerBuildLab;}
         }
         static bool IsDefensiveAffix(StatTypes stat)=>stat is
             StatTypes.FireRes or StatTypes.ColdRes or StatTypes.LightRes or StatTypes.VoidRes or

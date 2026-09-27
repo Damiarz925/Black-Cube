@@ -17,6 +17,13 @@ namespace BlackCube.BalanceWorkbench
     }
     [Serializable] public sealed class FullLevelCalibrationResult
     {
+        public PlayerBuildSnapshot runBuild;
+        public string buildHash,dataFingerprint;
+        public int combatLevel;
+        public long seed;
+        public bool noRecovery;
+        public float maximumFightDuration;
+        public int requestedTrials;
         public int trials,clears,bossReached,bossKilled;
         public double clearRate,bossReachRate,bossKillRate,averageRemainingLife,
             averageDamageDealt,averageDamageTaken;
@@ -32,7 +39,11 @@ namespace BlackCube.BalanceWorkbench
             if(request?.player==null)throw new ArgumentNullException(nameof(request));
             int level=Mathf.Clamp(request.combatLevel,1,360);
             int count=Mathf.Clamp(request.trials,1,100);
-            var result=new FullLevelCalibrationResult();
+            var result=new FullLevelCalibrationResult{runBuild=request.player.Clone(),
+                buildHash=ScenarioResultIdentity.BuildHash(request.player),
+                dataFingerprint=ProductionBalanceAdapters.DataFingerprint(),
+                combatLevel=level,seed=request.seed,noRecovery=request.noRecovery,
+                maximumFightDuration=request.maximumFightDuration,requestedTrials=count};
             var player=CombatLabAdapters.PlayerSnapshot(request.player);
             var db=WorldContentCatalog.Reference;
             var rarityProfiles=db.enemyRarityProfiles.Where(x=>x!=null&&x.spawnWeight>0).ToArray();
@@ -140,7 +151,7 @@ namespace BlackCube.BalanceWorkbench
             }
             Heading("FULL-LEVEL DEFENSE CALIBRATION");
             EditorGUILayout.HelpBox("Runs the production nine normal encounters plus boss. No-Recovery disables renewable player Life healing only; Mana and offense remain active.",MessageType.Info);
-            BuildInputs();
+            BuildInputs(false);
             fullLevelRequest.combatLevel=EditorGUILayout.IntSlider("Combat Level",fullLevelRequest.combatLevel,1,360);
             fullLevelRequest.trials=EditorGUILayout.IntSlider("Trials",fullLevelRequest.trials,1,100);
             fullLevelRequest.seed=EditorGUILayout.LongField("Seed",fullLevelRequest.seed);
@@ -149,11 +160,30 @@ namespace BlackCube.BalanceWorkbench
             if(GUILayout.Button("RUN FULL LEVEL SEQUENCE",GUILayout.Height(32)))
                 Run("Full-level survival calibration",p=>
                 {
-                    fullLevelRequest.player=playerBuild.Clone();
-                    fullLevelResult=FullLevelCalibrationSimulator.Run(fullLevelRequest,
+                    var request=new FullLevelCalibrationRequest{player=playerBuild.Clone(),
+                        combatLevel=fullLevelRequest.combatLevel,trials=fullLevelRequest.trials,
+                        seed=fullLevelRequest.seed,noRecovery=fullLevelRequest.noRecovery,
+                        maximumFightDuration=fullLevelRequest.maximumFightDuration};
+                    request.player.combatLevel=request.combatLevel;
+                    fullLevelResult=null;
+                    fullLevelResult=FullLevelCalibrationSimulator.Run(request,
                         Progress("Full level"),()=>cancelled);
                 });
             if(fullLevelResult==null)return;
+            bool stale=fullLevelResult.dataFingerprint!=ProductionBalanceAdapters.DataFingerprint()||
+                fullLevelResult.combatLevel!=fullLevelRequest.combatLevel||
+                fullLevelResult.requestedTrials!=fullLevelRequest.trials||
+                fullLevelResult.seed!=fullLevelRequest.seed||
+                fullLevelResult.noRecovery!=fullLevelRequest.noRecovery||
+                fullLevelResult.maximumFightDuration!=fullLevelRequest.maximumFightDuration||
+                fullLevelResult.buildHash!=ScenarioResultIdentity.BuildHash(playerBuild);
+            if(stale)EditorGUILayout.HelpBox("STALE RESULT — inputs or production data changed after this run. Values below retain their original run context.",MessageType.Warning);
+            Heading("RUN CONTEXT");
+            MetricRow("Player Level / Combat Level",$"{fullLevelResult.runBuild.playerLevel} / {fullLevelResult.combatLevel}");
+            MetricRow("Class / Subclass / Weapon",$"{fullLevelResult.runBuild.classId} / {fullLevelResult.runBuild.subclassId} / {fullLevelResult.runBuild.weaponTypeId}");
+            MetricRow("Trials / Seed",$"{fullLevelResult.trials} of {fullLevelResult.requestedTrials} / {fullLevelResult.seed}");
+            MetricRow("No Renewable Life Recovery",fullLevelResult.noRecovery?"ON":"OFF");
+            MetricRow("Build Hash / Fingerprint",$"{fullLevelResult.buildHash} / {fullLevelResult.dataFingerprint}");
             MetricRow("Full-Level Clear Rate",fullLevelResult.clearRate.ToString("P1"));
             MetricRow("Boss Reach / Kill",$"{fullLevelResult.bossReachRate:P1} / {fullLevelResult.bossKillRate:P1}");
             MetricRow("Average Remaining Life",fullLevelResult.averageRemainingLife.ToString("0.#"));

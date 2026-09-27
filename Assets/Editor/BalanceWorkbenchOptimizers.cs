@@ -138,12 +138,137 @@ namespace BlackCube.BalanceWorkbench
         static string Diversity(int[] ranks){var classes=PassiveTreeDefinition.ClassIds.Select(c=>Enumerable.Range(1,10).Where(t=>ranks[PassiveTreeDefinition.ClassSpineNode(c,t)]!=0).DefaultIfEmpty(0).Max());var weapons=PassiveTreeDefinition.WeaponIds.Select(w=>Enumerable.Range(1,5).Where(t=>ranks[PassiveTreeDefinition.WeaponSpineNode(w,t)]!=0).DefaultIfEmpty(0).Max());return string.Join(".",classes.Concat(weapons));}static List<string> Ids(int[] ranks)=>Enumerable.Range(0,ranks.Length).Where(i=>ranks[i]!=0).Select(i=>PassiveTreeDefinition.Node(i).StableId).ToList();
     }
 
-    [Serializable] public sealed class PlayerCurvePoint{public int playerLevel,combatLevel;public string profile;public PlayerBuildSnapshot build;public PlayerBuildMetrics metrics;public double objectiveScore;public long seed;}
-    [Serializable] public sealed class ScenarioSweepResult{public List<PlayerCurvePoint> points=new();public string dataFingerprint;public List<CurveSeries> Curves(string metricId){var groups=points.GroupBy(x=>x.profile);return groups.Select((g,i)=>new CurveSeries{name=g.Key,color=Color.HSVToRGB((i*.23f)%1,.7f,.95f),points=g.OrderBy(x=>x.playerLevel).Select(x=>new CurvePoint{x=x.playerLevel,mean=OptimizationMetricCatalog.Get(metricId).Value(x.metrics)}).ToList()}).ToList();}}
+    [Serializable] public sealed class PlayerCurvePoint
+    {
+        public int playerLevel,combatLevel,profileVersion,passiveBeamWidth,samplesPerLevel=1;
+        public string profile,profileGuid,dataFingerprint,resultId,buildHash,gearHash,
+            passiveHash,evaluationHash,passiveAlgorithm;
+        public PlayerBuildSnapshot build;
+        public PlayerBuildMetrics metrics;
+        public OptimizationObjective objective;
+        public double objectiveScore,passiveScore;
+        public long seed;
+        public bool optimizePassives,progressive,freeRespec;
+    }
+    [Serializable] public sealed class ScenarioSweepResult
+    {
+        public List<PlayerCurvePoint> points=new();
+        public string dataFingerprint,requestSignature;
+        public CombatLevelSweepPolicy combatLevelPolicy;
+        public int combatLevelOffset,start,end,step;
+        public bool optimizePassives,progressive,freeRespec;
+        public List<CurveSeries> Curves(string metricId)
+        {
+            var groups=points.GroupBy(x=>x.profile);
+            return groups.Select((g,i)=>new CurveSeries
+            {
+                name=g.Key,color=Color.HSVToRGB((i*.23f)%1,.7f,.95f),
+                points=g.OrderBy(x=>x.playerLevel).Select(x=>new CurvePoint
+                {x=x.playerLevel,mean=OptimizationMetricCatalog.Get(metricId).Value(x.metrics)}).ToList()
+            }).ToList();
+        }
+    }
     public static class PlayerScenarioSweep
     {
-        public static ScenarioSweepResult Run(PlayerBuildSnapshot template,IEnumerable<PlayerGearProfileSO> profiles,OptimizationObjective objective,int start,int end,int step,bool optimizePassives,bool progressive,bool freeRespec,int passiveBeamWidth=100,Action<float> progress=null,Func<bool> cancelled=null)
-        {var result=new ScenarioSweepResult{dataFingerprint=ProductionBalanceAdapters.DataFingerprint()};var list=profiles.Where(x=>x!=null).ToList();int total=Math.Max(1,list.Count*((end-start)/Math.Max(1,step)+1)),done=0;foreach(var profile in list){PlayerBuildSnapshot previous=null;for(int level=start;level<=end&&cancelled?.Invoke()!=true;level+=Math.Max(1,step)){var b=progressive&&previous!=null?previous.Clone():template.Clone();b.playerLevel=level;b.combatLevel=Mathf.Clamp(template.combatLevel+(level-start),1,360);b.seed=template.seed+level*7919+profile.version*101;var gear=PlayerGearsetOptimizer.Optimize(b,profile,objective,profile.selectionStrategy==PlayerGearSelectionStrategy.FullGearsetBeamSearch);b=gear.build;if(optimizePassives){if(freeRespec||!progressive)b.passiveStableIds.Clear();b=PassiveTreeOptimizer.Optimize(b,level,objective,passiveBeamWidth>1,passiveBeamWidth).build;}var metrics=PlayerBuildEvaluator.Evaluate(b);result.points.Add(new PlayerCurvePoint{playerLevel=level,combatLevel=b.combatLevel,profile=profile.name,build=b,metrics=metrics,objectiveScore=OptimizationMetricCatalog.Score(metrics,gear.baseline,objective),seed=b.seed});previous=b;progress?.Invoke(++done/(float)total);}}return result;}
+        public static string RequestSignature(PlayerBuildSnapshot template,
+            IEnumerable<PlayerGearProfileSO> profiles,OptimizationObjective objective,
+            int start,int end,int step,bool optimizePassives,bool progressive,bool freeRespec,
+            int passiveBeamWidth,CombatLevelSweepPolicy policy,int offset)
+        {
+            string profileData=string.Join("|",profiles.Where(x=>x!=null).Select(x=>
+                AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(x))+":"+
+                JsonUtility.ToJson(x)));
+            return ScenarioResultIdentity.Hash(string.Join("|",JsonUtility.ToJson(template),
+                profileData,JsonUtility.ToJson(objective),start,end,step,optimizePassives,
+                progressive,freeRespec,passiveBeamWidth,policy,offset));
+        }
+
+        public static ScenarioSweepResult Run(PlayerBuildSnapshot template,
+            IEnumerable<PlayerGearProfileSO> profiles,OptimizationObjective objective,
+            int start,int end,int step,bool optimizePassives,bool progressive,bool freeRespec,
+            int passiveBeamWidth=100,Action<float> progress=null,Func<bool> cancelled=null,
+            CombatLevelSweepPolicy combatLevelPolicy=CombatLevelSweepPolicy.MatchPlayerLevel,
+            int combatLevelOffset=0,Action<string,float> detailedProgress=null)
+        {
+            if(template==null||profiles==null||objective==null)
+                throw new ArgumentNullException("Scenario template, profiles, and objective are required.");
+            if(start<1||end>100||end<start||step<=0)
+                throw new ArgumentOutOfRangeException(nameof(step),"Use Player Levels 1–100, Start <= End, and Step > 0.");
+            var list=profiles.Where(x=>x!=null).ToList();
+            if(list.Count==0)throw new InvalidOperationException("Select at least one gear profile.");
+            var result=new ScenarioSweepResult
+            {
+                dataFingerprint=ProductionBalanceAdapters.DataFingerprint(),
+                combatLevelPolicy=combatLevelPolicy,combatLevelOffset=combatLevelOffset,
+                start=start,end=end,step=step,optimizePassives=optimizePassives,
+                progressive=progressive,freeRespec=freeRespec,
+                requestSignature=RequestSignature(template,list,objective,start,end,step,
+                    optimizePassives,progressive,freeRespec,passiveBeamWidth,
+                    combatLevelPolicy,combatLevelOffset)
+            };
+            int total=list.Count*((end-start)/step+1),done=0;
+            foreach(var profile in list)
+            {
+                PlayerBuildSnapshot previous=null;
+                for(int level=start;level<=end;level+=step)
+                {
+                    if(cancelled?.Invoke()==true)throw new OperationCanceledException(
+                        "Scenario Sweep cancelled; no partial result was published.");
+                    float Fraction(float phase)=>Mathf.Clamp01((done+phase)/total);
+                    void Phase(string name,float phase)
+                    {
+                        float fraction=Fraction(phase);
+                        detailedProgress?.Invoke($"{profile.name} — L{level} / CL{ScenarioLevelPolicy.CombatLevel(combatLevelPolicy,level,start,template.combatLevel,combatLevelOffset)} — {name} — sample 1/1",fraction);
+                        progress?.Invoke(fraction);
+                    }
+                    var build=progressive&&previous!=null?previous.Clone():template.Clone();
+                    build.playerLevel=level;
+                    build.combatLevel=ScenarioLevelPolicy.CombatLevel(combatLevelPolicy,level,
+                        start,template.combatLevel,combatLevelOffset);
+                    build.seed=template.seed+level*7919+profile.version*101;
+                    Phase("gear",0);
+                    var gear=PlayerGearsetOptimizer.Optimize(build,profile,objective,
+                        profile.selectionStrategy==PlayerGearSelectionStrategy.FullGearsetBeamSearch,
+                        null,p=>Phase("gear",p*.55f),cancelled);
+                    if(cancelled?.Invoke()==true)throw new OperationCanceledException(
+                        "Scenario Sweep cancelled during gear generation; no partial result was published.");
+                    build=gear.build;
+                    PassiveOptimizationResult passive=null;
+                    if(optimizePassives)
+                    {
+                        if(freeRespec||!progressive)build.passiveStableIds.Clear();
+                        Phase("passives",.55f);
+                        passive=PassiveTreeOptimizer.Optimize(build,level,objective,
+                            passiveBeamWidth>1,passiveBeamWidth,null,
+                            p=>Phase("passives",.55f+p*.4f),cancelled);
+                        if(cancelled?.Invoke()==true)throw new OperationCanceledException(
+                            "Scenario Sweep cancelled during passive search; no partial result was published.");
+                        build=passive.build;
+                    }
+                    Phase("evaluation",.95f);
+                    var metrics=PlayerBuildEvaluator.Evaluate(build);
+                    var point=new PlayerCurvePoint
+                    {
+                        playerLevel=level,combatLevel=build.combatLevel,
+                        profile=profile.name,profileGuid=gear.profileGuid,
+                        profileVersion=gear.profileVersion,dataFingerprint=result.dataFingerprint,
+                        build=build.Clone(),metrics=metrics.Clone(),
+                        objective=JsonUtility.FromJson<OptimizationObjective>(JsonUtility.ToJson(objective)),
+                        objectiveScore=OptimizationMetricCatalog.Score(metrics,gear.baseline,objective),
+                        passiveScore=passive?.score??0,passiveAlgorithm=passive?.algorithm??"None",
+                        passiveBeamWidth=optimizePassives?passiveBeamWidth:0,
+                        seed=build.seed,optimizePassives=optimizePassives,
+                        progressive=progressive,freeRespec=freeRespec
+                    };
+                    ScenarioResultIdentity.Stamp(point);
+                    result.points.Add(point);
+                    previous=build.Clone();
+                    done++;
+                    Phase("complete",0);
+                }
+            }
+            return result;
+        }
         public static double AnalyticalTtk(PlayerBuildMetrics player,EnemySample enemy)=>enemy==null||player==null||player.basicDps<=0?double.PositiveInfinity:enemy.life/player.basicDps;public static double AnalyticalTtd(PlayerBuildMetrics player,EnemySample enemy)=>enemy==null||player==null||enemy.dps<=0?double.PositiveInfinity:player.life/enemy.dps;
     }
 }
