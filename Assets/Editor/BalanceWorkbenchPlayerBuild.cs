@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using BlackCube.CombatSimulation;
 using UnityEditor;
 using UnityEngine;
 
@@ -109,13 +110,50 @@ namespace BlackCube.BalanceWorkbench
             var m=new PlayerBuildMetrics();var avg=Player.BuildNonCriticalAttackContext();var lo=Player.BuildNonCriticalAttackContextAtRangeEnd(false);var hi=Player.BuildNonCriticalAttackContextAtRangeEnd(true);m.averageHit=Sum(avg);m.minimumHit=Sum(lo);m.maximumHit=Sum(hi);m.attacksPerSecond=Player.GetFinalAttackSpeed();m.critChance=Player.GetFinalCritChance();m.critMultiplier=CombatCalculator.BaseCriticalMultiplier+Stats.GetStat(StatTypes.CritMult);m.critContribution=m.averageHit*m.critChance*(m.critMultiplier-1);m.hitTwiceChance=Mathf.Clamp01(Stats.GetStat(StatTypes.ChanceToHitTwice));m.hitTwiceContribution=m.averageHit*m.hitTwiceChance;m.basicDps=(m.averageHit+m.critContribution+m.hitTwiceContribution)*m.attacksPerSecond;
             var weapon=gear.FirstOrDefault(x=>x.ItemType==LootManager.GearType.Weapons);m.baseWeaponAverage=weapon?.GetEffectiveBaseDamage()??0;m.weaponAttributeIncreased=Player.WeaponAttributeDamageBonus;m.playerLevelIncreased=Player.LevelDamageBonus;m.genericIncreased=Stats.GetStat(StatTypes.GenericDmg);m.physicalIncreased=Stats.GetStat(StatTypes.PhysDmg);m.genericMore=Stats.GetStat(StatTypes.GenericMult);m.physicalMore=Stats.GetStat(StatTypes.PhysMult);
             foreach(var h in avg.Hits){double expected=h.Amount*(1+m.critChance*(m.critMultiplier-1))*(1+m.hitTwiceChance)*m.attacksPerSecond;switch(h.Element){case Element.Phys:m.physicalOutput+=expected;break;case Element.Fire:m.fireOutput+=expected;break;case Element.Cold:m.coldOutput+=expected;break;case Element.Light:m.lightningOutput+=expected;break;case Element.Void:case Element.Poison:m.voidOutput+=expected;break;}}
-            m.projectileCount=Math.Max(1,1+Stats.GetRawStat(StatTypes.ProjectileAmount));m.projectileTravelTime=WeaponMechanicProfile.ProjectileTravelTime(Stats.GetStat(StatTypes.ProjectileSpeed));m.precisionChance=WeaponMechanicProfile.PrecisionChance(Stats.GetStat(StatTypes.ProjectilePrecisionChance));m.precisionMultiplier=WeaponMechanicProfile.PrecisionMultiplier(Stats.GetStat(StatTypes.ProjectilePrecisionMultiplier));m.cooldownReduction=Stats.GetStat(StatTypes.CooldownReduction);
+            m.projectileCount=BattleManager.CalculateProjectileCount(Stats.GetRawStat(StatTypes.ProjectileAmount),0);m.projectileTravelTime=WeaponMechanicProfile.ProjectileTravelTime(Stats.GetStat(StatTypes.ProjectileSpeed));m.precisionChance=WeaponMechanicProfile.PrecisionChance(Stats.GetStat(StatTypes.ProjectilePrecisionChance));m.precisionMultiplier=WeaponMechanicProfile.PrecisionMultiplier(Stats.GetStat(StatTypes.ProjectilePrecisionMultiplier));m.cooldownReduction=Stats.GetStat(StatTypes.CooldownReduction);
+            if(b.weaponTypeId==WeaponTypeIds.Bow)
+            {
+                double projectileFactor=b.subclassId==SubclassIds.RangerProjectile&&b.projectileMode==SubclassProjectileMode.Focused?
+                    SubclassBalanceProfile.FocusedMultiplier((int)m.projectileCount):m.projectileCount;
+                double precisionFactor=1+m.precisionChance*(m.precisionMultiplier-1);
+                double factor=projectileFactor*precisionFactor;
+                m.basicDps*=factor;m.physicalOutput*=factor;m.fireOutput*=factor;
+                m.coldOutput*=factor;m.lightningOutput*=factor;m.voidOutput*=factor;
+            }
+            if(b.subclassId==SubclassIds.BarbarianFire)
+            {
+                double added=m.physicalOutput*SubclassBalanceProfile.AddedFireFromPhysical;
+                m.fireOutput+=added;m.basicDps+=added;
+                m.assumptions.Add("Fire Barbarian's Physical-as-Fire is included in search DPS; Eruption is an expected-rate approximation and exact triggers are Combat Lab-only.");
+            }
             // These are expected applications per eligible hit, not probabilities capped at one.
             // Production combat resolves the integer overflow plus fractional remainder.
             m.poisonChance=Mathf.Max(0,Stats.GetStat(StatTypes.PoisonChance));m.bleedChance=Mathf.Max(0,Stats.GetStat(StatTypes.BleedChance));m.igniteChance=Mathf.Max(0,Stats.GetStat(StatTypes.IgniteChance));m.shockChance=Mathf.Max(0,Stats.GetStat(StatTypes.ShockChance));m.chillChance=Mathf.Max(0,Stats.GetStat(StatTypes.ChillChance));m.shockEffect=Stats.GetStat(StatTypes.ShockEffect);m.chillEffect=Stats.GetStat(StatTypes.ChillEffect);
             // Neutral, zero-resistance single-hit ailment basis. Combat Lab owns sequence/stack simulation.
             double poisonBasis=b.subclassId==SubclassIds.RangerPoison?m.averageHit:m.voidOutput/Math.Max(.0001,m.attacksPerSecond);
             m.poisonMagnitude=poisonBasis*(1+Stats.GetStat(StatTypes.PoisonDmg))*(1+Stats.GetStat(StatTypes.PoisonMult))*(1+Stats.GetStat(StatTypes.GenericDotMult));m.bleedMagnitude=m.physicalOutput/Math.Max(.0001,m.attacksPerSecond)*(1+Stats.GetStat(StatTypes.BleedDmg))*(1+Stats.GetStat(StatTypes.BleedMult))*(1+Stats.GetStat(StatTypes.GenericDotMult));m.igniteMagnitude=m.fireOutput/Math.Max(.0001,m.attacksPerSecond)*(1+Stats.GetStat(StatTypes.IgniteDmg))*(1+Stats.GetStat(StatTypes.IgniteMult))*(1+Stats.GetStat(StatTypes.GenericDotMult));m.poisonDps=m.poisonMagnitude*m.poisonChance*m.attacksPerSecond;m.bleedDps=m.bleedMagnitude*m.bleedChance*m.attacksPerSecond;m.igniteDps=m.igniteMagnitude*m.igniteChance*m.attacksPerSecond;m.assumptions.Add("Ailment chance includes overflow applications above 100%. Ailment DPS is an uncapped eligible-hit potential at neutral resistance; encounter stack caps, replacement, mitigation and timing are handled by Combat Lab.");
+            if(b.weaponTypeId==WeaponTypeIds.Bow&&b.projectileMode==SubclassProjectileMode.Volley)
+            {
+                m.bleedMagnitude/=m.projectileCount;m.igniteMagnitude/=m.projectileCount;
+                m.bleedDps/=m.projectileCount;m.igniteDps/=m.projectileCount;
+                if(b.subclassId!=SubclassIds.RangerPoison){m.poisonMagnitude/=m.projectileCount;m.poisonDps/=m.projectileCount;}
+            }
+            if(b.weaponTypeId==WeaponTypeIds.Bow)
+            {
+                double hitFactor=b.subclassId==SubclassIds.RangerProjectile&&b.projectileMode==SubclassProjectileMode.Focused?1:m.projectileCount;
+                m.poisonDps*=hitFactor;m.bleedDps*=hitFactor;m.igniteDps*=hitFactor;
+            }
+            m.poisonDps*=Math.Max(1,4+Mathf.RoundToInt(Stats.GetRawStat(StatTypes.PoisonDuration)))/4.0*
+                (1+Math.Max(0,Stats.GetStat(StatTypes.PoisonSpeed)));
+            m.bleedDps*=Math.Max(1,5+Mathf.RoundToInt(Stats.GetRawStat(StatTypes.BleedDuration)))/5.0;
+            m.igniteDps*=Math.Max(1,2+Mathf.RoundToInt(Stats.GetRawStat(StatTypes.IgniteDuration)))/2.0;
+            if(b.subclassId==SubclassIds.ThiefAilmentCrit)
+            {
+                double factor=SubclassBalanceProfile.AilmentExtraMore((float)m.critMultiplier)*
+                    (1+m.critChance*(SubclassBalanceProfile.CriticalAilmentMultiplier((float)m.critMultiplier)-1));
+                m.poisonDps*=factor;m.bleedDps*=factor;m.igniteDps*=factor;
+                m.assumptions.Add("Ailment Assassin expected critical ailment factor is applied once at creation; stack replacement remains Combat Lab-only.");
+            }
             m.life=Health.MaxLife;m.mana=Mana.MaxMana;m.armour=Stats.GetStat(StatTypes.FlatArmour)*(1+Stats.GetStat(StatTypes.ArmourPercent));m.fireResistance=Resistance(StatTypes.FireRes);m.coldResistance=Resistance(StatTypes.ColdRes);m.lightningResistance=Resistance(StatTypes.LightRes);m.voidResistance=Resistance(StatTypes.VoidRes);m.lifeRegen=Stats.GetStat(StatTypes.LifeRegeneration);m.lifeOnHit=Stats.GetStat(StatTypes.LifeOnHit);m.lifeOnKill=Stats.GetStat(StatTypes.LifeOnKill);m.manaRegen=Stats.GetStat(StatTypes.ManaRegeneration);m.manaOnHit=Stats.GetStat(StatTypes.ManaOnHit);m.manaOnKill=Stats.GetStat(StatTypes.ManaOnKill);m.strength=DerivedStatCalculator.Strength(Stats);m.dexterity=DerivedStatCalculator.Dexterity(Stats);m.intelligence=DerivedStatCalculator.Intelligence(Stats);m.auraEffect=Stats.GetStat(StatTypes.AuraEffect);m.rageGeneration=Stats.GetStat(StatTypes.RageGeneration);m.rageEffect=Stats.GetStat(StatTypes.RageEffect);m.recoveryPerSecond=m.lifeRegen+m.lifeOnHit*m.attacksPerSecond;
             m.physicalDamageReduction=Stats.GetStat(StatTypes.PhysicalDamageReduction);
             m.ehpPhysical=m.life/Math.Max(.01,CombatCalculator.ApplyArmourValue(100,(float)m.armour,(float)m.physicalDamageReduction,0)/100);m.ehpFire=Ehp(m.life,m.fireResistance);m.ehpCold=Ehp(m.life,m.coldResistance);m.ehpLightning=Ehp(m.life,m.lightningResistance);m.ehpVoid=Ehp(m.life,m.voidResistance);m.totalGearScore=gear.Sum(x=>x.ItemType==LootManager.GearType.Weapons?x.GetAverageWeaponDps():x.rolledMods.Sum(y=>Math.Abs(y.value)+(y.hasSecondaryValue?Math.Abs(y.secondaryValue):0)));
@@ -125,6 +163,21 @@ namespace BlackCube.BalanceWorkbench
             m.sustainableSkillDps=sustainable.skillDps;
             m.manaStarvationFraction=sustainable.starvationFraction;
             m.selectedSkillPolicy=sustainable.policy;
+            if(b.subclassId==SubclassIds.BarbarianFire)
+                m.totalSustainableDps+=m.basicDps*SubclassBalanceProfile.EruptionChance*SubclassBalanceProfile.EruptionMagnitude;
+            if(b.subclassId==SubclassIds.PriestDark)
+            {
+                m.totalSustainableDps+=m.lifeOnHit*m.attacksPerSecond;
+                m.assumptions.Add("Dark Priest search includes a neutral-resistance estimate of Life-on-Hit conversion; exact Void mitigation and other healing sources are Combat Lab-only.");
+            }
+            if(b.subclassId==SubclassIds.PriestLight)
+            {
+                int active=(m.physicalOutput>0?1:0)+(m.fireOutput>0?1:0)+(m.coldOutput>0?1:0)+(m.lightningOutput>0?1:0);
+                m.totalSustainableDps*=1+active*.1*(1+Math.Max(0,m.auraEffect));
+                m.assumptions.Add("Light Priest search approximates each active aura at half intensity; Combat Lab uses damage-relative buildup against the reference enemy.");
+            }
+            if(b.subclassId==SubclassIds.WarriorBleed||b.subclassId==SubclassIds.BarbarianBigHit||b.subclassId==SubclassIds.ThiefAssassin)
+                m.assumptions.Add("Rupture timing, Rage Finisher and opening/execution windows are not folded into steady-state search DPS; finalist Combat Lab reranking is authoritative for these mechanics.");
             m.assumptions.Add("Sustainable DPS uses a deterministic 30-second warmup plus 90-second resource schedule; skill ailment interactions require Combat Lab validation.");
             return m;
         }
@@ -133,9 +186,30 @@ namespace BlackCube.BalanceWorkbench
             foreach(var sid in boundSkills)
             {
                 if(!skillDefinitions.TryGetValue(sid,out var s))continue;
-                double hits=Math.Max(1,s.baseHitCount);if(s.effect==WeaponSkillEffect.RapidFlurry)hits=WeaponMechanicProfile.RapidFlurryHits(Stats.GetStat(StatTypes.AttackSpeed));if(s.effect==WeaponSkillEffect.DoubleProjectiles)hits=m.projectileCount*2;
+                double hits=Math.Max(1,s.baseHitCount);if(s.effect==WeaponSkillEffect.RapidFlurry)hits=WeaponMechanicProfile.RapidFlurryHits(Stats.GetStat(StatTypes.AttackSpeed));if(s.projectile)hits*=m.projectileCount;if(s.effect==WeaponSkillEffect.DoubleProjectiles)hits*=2;if(s.projectile&&b.subclassId==SubclassIds.RangerProjectile&&b.projectileMode==SubclassProjectileMode.Focused)hits=1;
                 int level=PlayerSkillController.CalculateEffectiveSkillLevel(Stats.GetRawStat(PlayerSkillController.SkillLevelStat(s.id))+Stats.GetRawStat(StatTypes.PlusAllSkills));
-                double direct=m.averageHit*s.hitDamageMultiplier*PlayerSkillController.SkillDamageLevelFactor(level),use=direct*hits;double cd=s.castMode==PlayerSkillCastMode.QueuedAttackReplacement?0:Math.Max(PlayerSkillController.MinimumAutoCooldown,s.baseCooldown/(1+Math.Max(0,m.cooldownReduction)));
+                if(s.effect==WeaponSkillEffect.ShockBarrage)
+                {
+                    double shockStrength=Math.Min(1,.5*(1+m.shockEffect));
+                    double expectedInstances=Math.Min(b.subclassId==SubclassIds.MageStorm?3:1,m.shockChance*Math.Max(.1,m.attacksPerSecond)*5);
+                    double combined=Math.Pow(1+shockStrength,expectedInstances)-1;
+                    hits=CombatDeterministicRules.ShockBarrageHits((float)combined);
+                    m.assumptions.Add($"Shock Barrage search estimate: {expectedInstances:0.##} simultaneous Shock instances and {hits:0} hits/use; Combat Lab resolves exact timed applications.");
+                }
+                double direct=m.averageHit*s.hitDamageMultiplier*PlayerSkillController.SkillDamageLevelFactor(level);
+                if(s.projectile)direct*=1+m.precisionChance*(m.precisionMultiplier-1);
+                if(s.projectile&&b.subclassId==SubclassIds.RangerProjectile&&b.projectileMode==SubclassProjectileMode.Focused)direct*=SubclassBalanceProfile.FocusedMultiplier((int)m.projectileCount*(s.effect==WeaponSkillEffect.DoubleProjectiles?2:1));
+                if(s.suppressDirectDamage||s.effect==WeaponSkillEffect.VirtualPoison)direct=0;
+                double use=direct*hits;
+                if(s.effect==WeaponSkillEffect.VirtualPoison)
+                {
+                    use=m.poisonMagnitude*Math.Max(1,s.ailmentBasisMultiplier)*hits*Math.Max(1,s.guaranteedAilmentApplications)*
+                        Math.Max(1,4+Mathf.RoundToInt(Stats.GetRawStat(StatTypes.PoisonDuration)))/4.0*
+                        (1+Math.Max(0,Stats.GetStat(StatTypes.PoisonSpeed)));
+                    m.assumptions.Add("Venom Shot search value is its virtual Poison basis over full duration; exact stack timing and Void mitigation are Combat Lab-only.");
+                }
+                double cd=s.castMode==PlayerSkillCastMode.QueuedAttackReplacement?0:Math.Max(PlayerSkillController.MinimumAutoCooldown,s.baseCooldown/(1+Math.Max(0,m.cooldownReduction)));
+                if(b.subclassId==SubclassIds.MageCooldown&&cd>0)cd=Math.Max(PlayerSkillController.MinimumAutoCooldown,cd*(1-SubclassBalanceProfile.CooldownIgnoreChance));
                 double cost=Math.Round(Math.Max(0,s.manaCost)*PlayerSkillController.ManaCostLevelFactor(level));
                 var x=new SkillAnalyticalMetrics{name=s.displayName,castMode=s.castMode.ToString(),averageDirectHit=direct,expectedHits=hits,averageDamagePerUse=use,effectiveCooldown=cd,idealCooldownDps=cd>0?use/cd:0,manaCost=cost,sustainable=cd<=0||m.manaRegen*cd>=cost,assumption=cd>0?"Ideal cooldown DPS assumes sufficient Mana and uninterrupted eligible casts.":"Damage per use only; queued attack timing is not modeled as a rotation."};m.skills.Add(x);m.assumptions.Add(s.displayName+": "+x.assumption);
             }

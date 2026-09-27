@@ -15,6 +15,7 @@ namespace BlackCube.CombatSimulation
         public static long DeriveSeed(long seed,int fightIndex)
         {unchecked{ulong x=(ulong)seed+0x9E3779B97F4A7C15UL*(ulong)(fightIndex+1);x=(x^(x>>30))*0xBF58476D1CE4E5B9UL;x=(x^(x>>27))*0x94D049BB133111EBUL;return (long)(x^(x>>31));}}
         public static float AttackInterval(float attacksPerSecond,float chill=0)=>1f/Mathf.Max(.0001f,attacksPerSecond*Mathf.Max(.01f,1-chill));
+        public static int ShockBarrageHits(float combinedShock,int maximum=6)=>Mathf.Clamp(1+Mathf.FloorToInt(Mathf.Max(0,combinedShock)/.20f),1,Mathf.Max(1,maximum));
     }
 
     public enum CombatOutcome{PlayerWin,PlayerLoss,Timeout,SimulationError}
@@ -27,23 +28,25 @@ namespace BlackCube.CombatSimulation
     [Serializable] public sealed class CombatDamageSnapshot
     {public float physical,fire,cold,lightning,voidDamage;public float Total=>physical+fire+cold+lightning+voidDamage;public CombatDamageSnapshot Clone()=>new(){physical=physical,fire=fire,cold=cold,lightning=lightning,voidDamage=voidDamage};public void Scale(float x){physical*=x;fire*=x;cold*=x;lightning*=x;voidDamage*=x;}}
     [Serializable] public sealed class CombatSkillSnapshot
-    {public string id,name;public PlayerSkillCastMode castMode;public WeaponSkillEffect effect;public float manaCost,cooldown,hitMultiplier=1,secondaryMultiplier,ailmentBasisMultiplier=1;public int hits=1,projectiles=1;public bool projectile,supportsPrecision;public Element conversionElement;public float conversion;public StatusEffects.AilmentKind specializedAilment;public int guaranteedAilmentApplications,guaranteedAdditionalChill;}
+    {public string id,name;public PlayerSkillCastMode castMode;public WeaponSkillEffect effect;public float manaCost,cooldown,hitMultiplier=1,secondaryMultiplier,ailmentBasisMultiplier=1;public int hits=1,projectiles=1;public bool projectile,supportsPrecision,suppressDirectDamage;public Element conversionElement;public float conversion;public StatusEffects.AilmentKind specializedAilment;public int guaranteedAilmentApplications,guaranteedAdditionalChill;}
     [Serializable] public sealed class CombatEnemySkillSnapshot
     {public string id,name;public EnemySkillKind kind;public Element element;public float damageMultiplier=1;public int hits=1;}
     [Serializable] public sealed class CombatantSnapshot
     {
-        public string id,name,classId,subclassId,weaponTypeId,behaviorProfileId;public bool player,boss,challengeBoss,hasRageFinisher;
-        public float maximumLife,maximumMana,attackSpeed,critChance,critMultiplier=CombatCalculator.BaseCriticalMultiplier,hitTwiceChance,armour,physicalDamageReduction;
+        public string id,name,classId,subclassId,weaponTypeId,behaviorProfileId;public bool player,boss,challengeBoss,hasRageFinisher;public int corruption;
+        public float maximumLife,maximumMana,attackSpeed,attackSpeedBonus,critChance,critMultiplier=CombatCalculator.BaseCriticalMultiplier,hitTwiceChance,armour,physicalDamageReduction;
         public float fireResistance,coldResistance,lightningResistance,voidResistance,maximumResistance=CombatCalculator.BaseMaximumResistance;
         public float physicalPenetration,firePenetration,coldPenetration,lightningPenetration,voidPenetration;
         public float lifeRegeneration,manaRegeneration,lifeOnHit,manaOnHit,lifeOnKill,manaOnKill;
         public float poisonChance,bleedChance,igniteChance,shockChance,chillChance,poisonMagnitude,bleedMagnitude,igniteMagnitude,shockEffect,chillEffect;
+        public int poisonExtraTicks,bleedExtraTicks,igniteExtraTicks;
         // Legacy ailment-resistance fields remain for serialized laboratory presets.
         // New simulation uses only the explicit effect-reduction fields below.
         public float poisonResistance,bleedResistance,igniteResistance,shockResistance,chillResistance,allAilmentResistance,poisonSpeed;
         public float reducedShockEffect,reducedChillEffect;
         public float projectileTravelTime=1,precisionChance,precisionMultiplier=1.5f,rageGeneration,rageEffect,rageDecayReduction,auraEffect;
         public int projectileCount=1,maximumBleedStacks=5,maximumIgniteStacks=1,maximumShockInstances=1;
+        public SubclassProjectileMode projectileMode=SubclassProjectileMode.Volley;
         public CombatDamageSnapshot basicDamage=new();public List<CombatSkillSnapshot> skills=new();public List<CombatEnemySkillSnapshot> enemySkills=new();
         public EnemyBehaviorProfileDefinition behavior;public BossPhaseProfile phases;
     }
@@ -52,6 +55,7 @@ namespace BlackCube.CombatSimulation
         public long seed=51001;public float maximumDuration=120;public int maximumEvents=100000,maximumSameTimestampEvents=256,maximumTriggerDepth=16;
         public PlayerActionPolicy actionPolicy=PlayerActionPolicy.SkillsWhenAvailable;public RageFinisherPolicy ragePolicy=RageFinisherPolicy.Immediately;[Range(0,1)]public float rageTargetThreshold=.25f;[Range(0,1)]public float manaReserve=.15f;public bool retainTrace=true;public int traceLimit=10000;
         public bool disablePlayerLifeRecovery;
+        public bool enableSkill1=true,enableSkill2=true;
         public float startingPlayerLife=-1f,startingPlayerMana=-1f;
     }
     [CreateAssetMenu(menuName="Black-Cube/Balance/Player Combat Policy",fileName="SO_CombatPolicy")]
@@ -60,12 +64,13 @@ namespace BlackCube.CombatSimulation
     [Serializable] public sealed class CombatTraceEvent
     {public int index;public float time;public CombatEventType type;public CombatTraceFilter category;public string source,target,action,reason,ruleId,phase;public float amount,lifeBefore,lifeAfter,manaBefore,manaAfter,rageBefore,rageAfter,roll,chance;public int projectileIndex,stackCount;}
     [Serializable] public sealed class CombatContribution{public string id;public double total,effective,overheal;public int count;}
-    [Serializable] public sealed class CombatAilmentMetric{public string id;public int applications,maxStacks;public double damage,uptime,magnitudeTotal,stackTime,maximumEffect;}
+    [Serializable] public sealed class CombatAilmentMetric{public string id;public int applications,maxStacks,criticalApplications;public double damage,uptime,magnitudeTotal,stackTime,maximumEffect;}
     [Serializable] public sealed class CombatSkillMetric{public string id;public int activations,resolves,manaFailures,cooldownBypasses,queuedRepeats;public double damage,lastUse=-1,intervalTotal,readyStarvedTime;}
     [Serializable] public sealed class CombatSimulationResult
     {
         public long seed;public string fingerprint,error;public CombatOutcome outcome;public float duration,playerLife,enemyLife,playerMana,playerRage,minMana,averageMana,averageRage,timeAtZeroMana,timeAtMaximumRage;
-        public int eventCount,playerAttacks,enemyAttacks,enemyAttacksSkipped,projectilesLaunched,projectilesImpacted,projectilesFizzled,precisionCount,criticalCount,hitTwiceCount,rageFinisherUses,shatters;
+        public int eventCount,playerAttacks,enemyAttacks,enemyAttacksSkipped,projectilesLaunched,projectilesImpacted,projectilesFizzled,precisionCount,criticalCount,hitTwiceCount,rageFinisherUses,ruptureTriggers,executionTriggers,rapidFlurryUses,rapidFlurryHits,shockBarrageUses,shockBarrageHits,eruptionTriggers,comboResets,maximumCombo,fullLifeBonusHits,injuredBonusHits,shatters;
+        public float executionDamage,openingDamage,rageFinisherDamage,rageFinisherCriticalDamage,physicalAuraIntensity,fireAuraIntensity,coldAuraIntensity,lightningAuraIntensity;
         public float manaSpent,manaRegenerated,manaOnHit,rageGenerated,rageSpent,rageLostToDecay,projectileTravelTotal;
         public List<CombatTraceEvent> trace=new();public List<CombatContribution> damage=new(),damageByType=new(),healing=new();public List<CombatAilmentMetric> ailments=new();public List<CombatSkillMetric> skills=new(),enemySkills=new();public List<CombatContribution> phaseTime=new();
         public bool Won=>outcome==CombatOutcome.PlayerWin;
@@ -78,7 +83,7 @@ namespace BlackCube.CombatSimulation
     sealed class State
     {
         public CombatantSnapshot data;public float life,mana,rage,rageDecayEligibleAt,chill,chillExpiresAt,phaseStartedAt;public bool frozen,enemyHasActed,finisherArmed,disableLifeRecovery;public int combo,alternate;public string phase;
-        public readonly List<Dot> dots=new();public readonly List<(float strength,float expires)> shocks=new();public EnemyBehaviorRuntimeState behavior=new();
+        public readonly List<Dot> dots=new();public readonly List<(float strength,float expires)> shocks=new();public readonly float[] auraDamage=new float[4];public EnemyBehaviorRuntimeState behavior=new();
     }
 
     public static class HeadlessCombatSimulator
@@ -92,8 +97,8 @@ namespace BlackCube.CombatSimulation
             var result=new CombatSimulationResult{seed=config.seed,playerLife=initialLife,enemyLife=enemy.maximumLife,playerMana=initialMana,minMana=initialMana};
             var p=new State{data=player,life=initialLife,mana=initialMana,disableLifeRecovery=config.disablePlayerLifeRecovery};var e=new State{data=enemy,life=enemy.maximumLife,mana=enemy.maximumMana};var rng=new DeterministicCombatRandom(config.seed);var queue=new List<Scheduled>();int order=0,same=0;float now=0,last=0;
             void Add(float time,CombatEventType type,bool playerSource,int skill=-1,int projectile=0,Dot dot=null)=>queue.Add(new Scheduled{time=Mathf.Max(now,time),order=order++,type=type,playerSource=playerSource,skill=skill,projectile=projectile,dot=dot});
-            UpdatePhase(e,0,result,config);Add(CombatDeterministicRules.AttackInterval(player.attackSpeed),CombatEventType.PlayerAttackReady,true);Add(CombatDeterministicRules.AttackInterval(enemy.attackSpeed),CombatEventType.EnemyAttackReady,false);
-            for(int i=0;i<player.skills.Count;i++)if(player.skills[i].castMode==PlayerSkillCastMode.AutoCooldown||(player.skills[i].castMode==PlayerSkillCastMode.ImmediateCooldown&&config.actionPolicy!=PlayerActionPolicy.BasicOnly))Add(Mathf.Max(.01f,player.skills[i].cooldown),CombatEventType.SkillReady,true,i);
+            UpdatePhase(e,0,result,config);Add(player.subclassId==SubclassIds.ThiefAssassin?0:CombatDeterministicRules.AttackInterval(player.attackSpeed),CombatEventType.PlayerAttackReady,true);Add(CombatDeterministicRules.AttackInterval(enemy.attackSpeed),CombatEventType.EnemyAttackReady,false);
+            for(int i=0;i<player.skills.Count;i++)if((i==0?config.enableSkill1:config.enableSkill2)&&config.actionPolicy!=PlayerActionPolicy.BasicOnly&&(player.skills[i].castMode==PlayerSkillCastMode.AutoCooldown||player.skills[i].castMode==PlayerSkillCastMode.ImmediateCooldown))Add(Mathf.Max(.01f,player.skills[i].cooldown),CombatEventType.SkillReady,true,i);
             try
             {
                 while(queue.Count>0&&result.eventCount<config.maximumEvents)
@@ -105,7 +110,7 @@ namespace BlackCube.CombatSimulation
                     switch(ev.type)
                     {
                         case CombatEventType.PlayerAttackReady:
-                            PlayerAttack(p,e,now,rng,result,config,Add);Add(now+CombatDeterministicRules.AttackInterval(p.data.attackSpeed,p.chill),CombatEventType.PlayerAttackReady,true);break;
+                            PlayerAttack(p,e,now,rng,result,config,Add);Add(now+PlayerAttackInterval(p,e),CombatEventType.PlayerAttackReady,true);break;
                         case CombatEventType.EnemyAttackReady:
                             EnemyAttack(e,p,now,rng,result,config,Add);Add(now+CombatDeterministicRules.AttackInterval(e.data.attackSpeed,e.chill),CombatEventType.EnemyAttackReady,false);break;
                         case CombatEventType.SkillReady:
@@ -117,6 +122,10 @@ namespace BlackCube.CombatSimulation
                     ScheduleDots(p,e,Add);UpdatePhase(e,now,result,config);if(Dead(p,e)){result.projectilesFizzled+=queue.Count(x=>x.type==CombatEventType.ProjectileImpact);break;}
                 }
                 ClosePhase(e,now,result);result.duration=now;result.playerLife=Mathf.Max(0,p.life);result.enemyLife=Mathf.Max(0,e.life);result.playerMana=p.mana;result.playerRage=p.rage;if(now>0){result.averageMana/=now;result.averageRage/=now;}
+                result.physicalAuraIntensity=SubclassBalanceProfile.AuraIntensity(p.auraDamage[0],e.data.maximumLife);
+                result.fireAuraIntensity=SubclassBalanceProfile.AuraIntensity(p.auraDamage[1],e.data.maximumLife);
+                result.coldAuraIntensity=SubclassBalanceProfile.AuraIntensity(p.auraDamage[2],e.data.maximumLife);
+                result.lightningAuraIntensity=SubclassBalanceProfile.AuraIntensity(p.auraDamage[3],e.data.maximumLife);
                 result.outcome=e.life<=0?CombatOutcome.PlayerWin:p.life<=0?CombatOutcome.PlayerLoss:result.eventCount>=config.maximumEvents?CombatOutcome.SimulationError:CombatOutcome.Timeout;
                 if(result.outcome==CombatOutcome.SimulationError)result.error="Maximum event count exceeded.";
             }
@@ -127,7 +136,7 @@ namespace BlackCube.CombatSimulation
         static void Advance(State p,State e,float delta,float now,CombatSimulationResult r)
         {
             if(delta<=0)return;float pm=p.mana;p.mana=Mathf.Min(p.data.maximumMana,p.mana+p.data.manaRegeneration*delta);r.manaRegenerated+=p.mana-pm;r.averageMana+=((pm+p.mana)*.5f)*delta;r.averageRage+=p.rage*delta;if(p.mana<=Epsilon)r.timeAtZeroMana+=delta;if(p.rage>=100-Epsilon)r.timeAtMaximumRage+=delta;
-            Heal(p,p.data.lifeRegeneration*delta,"Life Regeneration",r);Heal(e,e.data.lifeRegeneration*delta,"Enemy Regeneration",r);
+            Heal(p,p.data.lifeRegeneration*delta,"Life Regeneration",r);Heal(e,e.data.lifeRegeneration*delta*(p.data.subclassId==SubclassIds.PriestLight?.5f:1f),"Enemy Regeneration",r);
             if(p.rage>0&&p.data.weaponTypeId==WeaponTypeIds.TwoHandedAxe){float decayTime=Mathf.Max(0,now-Mathf.Max(now-delta,p.rageDecayEligibleAt));float loss=WeaponMechanicProfile.RageDecayPerSecond*(1-Mathf.Clamp01(p.data.rageDecayReduction))*decayTime;loss=Mathf.Min(loss,p.rage);p.rage-=loss;r.rageLostToDecay+=loss;}
             for(int i=0;i<p.shocks.Count;i++)p.shocks[i]=(p.shocks[i].strength,p.shocks[i].expires-delta);for(int i=0;i<e.shocks.Count;i++)e.shocks[i]=(e.shocks[i].strength,e.shocks[i].expires-delta);p.shocks.RemoveAll(x=>x.expires<=0);e.shocks.RemoveAll(x=>x.expires<=0);if(now>=p.chillExpiresAt)p.chill=0;if(now>=e.chillExpiresAt)e.chill=0;
             AccumulateAilments(p,delta,r);AccumulateAilments(e,delta,r);
@@ -141,11 +150,11 @@ namespace BlackCube.CombatSimulation
         {
             if(e.frozen){e.frozen=false;r.enemyAttacksSkipped++;Trace(r,c,now,CombatEventType.Status,CombatTraceFilter.Status,e,p,"Enemy attack skipped","Freeze consumed");return;}r.enemyAttacks++;int skill=-1;
             if(e.data.behavior!=null&&e.data.enemySkills.Count>0){e.behavior.completedAttacks=r.enemyAttacks-1;e.behavior.selfLifeFraction=e.life/e.data.maximumLife;e.behavior.playerLifeFraction=p.life/p.data.maximumLife;e.behavior.bossPhaseId=e.phase;e.behavior.random01=rng.Value();var decision=EnemyBehaviorResolver.Resolve(e.data.behavior,e.behavior,id=>e.data.enemySkills.Any(x=>x.id==id));skill=e.data.enemySkills.FindIndex(x=>x.id==decision.selectedSkillId);Trace(r,c,now,CombatEventType.BehaviorDecision,CombatTraceFilter.Behavior,e,p,decision.selectedSkillId,decision.reason,decision.selectedRuleId,e.phase,e.behavior.random01);}
-            ResolveHit(e,p,skill,now,rng,r,c);e.enemyHasActed=true;p.enemyHasActed=true;p.combo=0;
+            ResolveHit(e,p,skill,now,rng,r,c);e.enemyHasActed=true;p.enemyHasActed=true;if(p.combo>0)r.comboResets++;p.combo=0;
         }
         static int ChooseSkill(State p,State e,CombatSimulationConfig c)
         {
-            var candidates=p.data.skills.Select((x,i)=>(x,i)).Where(x=>x.x.castMode==PlayerSkillCastMode.QueuedAttackReplacement&&p.mana+Epsilon>=x.x.manaCost).ToList();if(c.actionPolicy==PlayerActionPolicy.BasicOnly||candidates.Count==0)return-1;if(c.actionPolicy==PlayerActionPolicy.ManaConservative)candidates=candidates.Where(x=>p.mana-x.x.manaCost>=p.data.maximumMana*c.manaReserve).ToList();if(candidates.Count==0)return-1;if(c.actionPolicy==PlayerActionPolicy.Skill2Priority)return candidates.OrderByDescending(x=>x.i).First().i;if(c.actionPolicy==PlayerActionPolicy.AlternateSkills){int x=candidates[p.alternate++%candidates.Count].i;return x;}return candidates.OrderBy(x=>x.i).First().i;
+            var candidates=p.data.skills.Select((x,i)=>(x,i)).Where(x=>(x.i==0?c.enableSkill1:c.enableSkill2)&&x.x.castMode==PlayerSkillCastMode.QueuedAttackReplacement&&p.mana+Epsilon>=x.x.manaCost).ToList();if(c.actionPolicy==PlayerActionPolicy.BasicOnly||candidates.Count==0)return-1;if(c.actionPolicy==PlayerActionPolicy.ManaConservative)candidates=candidates.Where(x=>p.mana-x.x.manaCost>=p.data.maximumMana*c.manaReserve).ToList();if(candidates.Count==0)return-1;if(c.actionPolicy==PlayerActionPolicy.Skill2Priority)return candidates.OrderByDescending(x=>x.i).First().i;if(c.actionPolicy==PlayerActionPolicy.AlternateSkills){int x=candidates[p.alternate++%candidates.Count].i;return x;}return candidates.OrderBy(x=>x.i).First().i;
         }
         static void ResolveCooldownSkill(State p,State e,int index,float now,DeterministicCombatRandom rng,CombatSimulationResult r,CombatSimulationConfig c,Action<float,CombatEventType,bool,int,int,Dot> add)
         {
@@ -154,29 +163,124 @@ namespace BlackCube.CombatSimulation
         static bool SpendMana(State p,CombatSkillSnapshot s,CombatSimulationResult r,float now,CombatSimulationConfig c)
         {if(p.mana+Epsilon<s.manaCost){Trace(r,c,now,CombatEventType.Mana,CombatTraceFilter.Mana,p,null,s.name,"Insufficient Mana",amount:s.manaCost);return false;}float before=p.mana;p.mana-=s.manaCost;r.manaSpent+=s.manaCost;r.minMana=Mathf.Min(r.minMana,p.mana);Trace(r,c,now,CombatEventType.Mana,CombatTraceFilter.Mana,p,null,s.name,"Mana spent",amount:s.manaCost,manaBefore:before,manaAfter:p.mana);return true;}
         static void LaunchOrHit(State s,State t,int skill,float now,DeterministicCombatRandom rng,CombatSimulationResult r,CombatSimulationConfig c,Action<float,CombatEventType,bool,int,int,Dot> add)
-        {bool projectile=skill>=0?s.data.skills[skill].projectile:s.data.weaponTypeId==WeaponTypeIds.Bow;int count=skill>=0?Mathf.Max(1,s.data.skills[skill].projectiles):Mathf.Max(1,s.data.projectileCount);if(skill>=0&&s.data.skills[skill].effect==WeaponSkillEffect.DoubleProjectiles)count*=2;if(s.data.subclassId==SubclassIds.RangerProjectile&&count>1)count=1;if(!projectile){for(int i=0;i<count;i++)ResolveHit(s,t,skill,now,rng,r,c,i);return;}for(int i=0;i<count;i++){float launch=now+i*WeaponMechanicProfile.ProjectileBarrageSpacing,impact=launch+s.data.projectileTravelTime;r.projectilesLaunched++;r.projectileTravelTotal+=s.data.projectileTravelTime;Trace(r,c,launch,CombatEventType.ProjectileLaunch,CombatTraceFilter.Projectile,s,t,skill>=0?s.data.skills[skill].name:"Basic Projectile","Snapshot at launch",projectile:i);add(impact,CombatEventType.ProjectileImpact,s.data.player,skill,i,null);}}
+        {
+            bool projectile=skill>=0?s.data.skills[skill].projectile:s.data.weaponTypeId==WeaponTypeIds.Bow;
+            // The adapter has already expanded Double Volley to its final count.
+            int count=skill>=0?Mathf.Max(1,s.data.skills[skill].projectiles):Mathf.Max(1,s.data.projectileCount);
+            if(s.data.subclassId==SubclassIds.RangerProjectile&&s.data.projectileMode==SubclassProjectileMode.Focused&&count>1)count=1;
+            if(!projectile){for(int i=0;i<count;i++)ResolveHit(s,t,skill,now,rng,r,c,i);return;}
+            for(int i=0;i<count;i++)
+            {
+                float launch=now+i*WeaponMechanicProfile.ProjectileBarrageSpacing,impact=launch+s.data.projectileTravelTime;
+                r.projectilesLaunched++;r.projectileTravelTotal+=s.data.projectileTravelTime;
+                Trace(r,c,launch,CombatEventType.ProjectileLaunch,CombatTraceFilter.Projectile,s,t,skill>=0?s.data.skills[skill].name:"Basic Projectile","Snapshot at launch",projectile:i);
+                add(impact,CombatEventType.ProjectileImpact,s.data.player,skill,i,null);
+            }
+        }
         static void ResolveHit(State s,State t,int skill,float now,DeterministicCombatRandom rng,CombatSimulationResult r,CombatSimulationConfig c,int projectile=0)
         {
             var packet=s.data.basicDamage.Clone();string action="Basic Attack";float multiplier=1;int hits=1;CombatSkillSnapshot ps=null;CombatEnemySkillSnapshot es=null;
-            if(s.data.player&&skill>=0){ps=s.data.skills[skill];action=ps.name;multiplier=ps.effect==WeaponSkillEffect.ArmourStrike?WeaponMechanicProfile.ArmourStrikeMultiplier(s.data.armour):ps.hitMultiplier;hits=Mathf.Max(1,ps.hits);if(ps.effect==WeaponSkillEffect.RapidFlurry)hits=WeaponMechanicProfile.RapidFlurryHits(Mathf.Max(0,s.data.attackSpeed-1));if(ps.effect==WeaponSkillEffect.ShockBarrage)hits+=Mathf.FloorToInt(CombinedShock(t)*5);Convert(packet,ps.conversionElement,ps.conversion);}
+            if(s.data.player&&skill>=0){ps=s.data.skills[skill];action=ps.name;multiplier=ps.effect==WeaponSkillEffect.ArmourStrike?WeaponMechanicProfile.ArmourStrikeMultiplier(s.data.armour):ps.hitMultiplier;hits=Mathf.Max(1,ps.hits);if(ps.effect==WeaponSkillEffect.RapidFlurry)hits=WeaponMechanicProfile.RapidFlurryHits(s.data.attackSpeedBonus);if(ps.effect==WeaponSkillEffect.ShockBarrage)hits=CombatDeterministicRules.ShockBarrageHits(CombinedShock(t));Convert(packet,ps.conversionElement,ps.conversion);}
             else if(!s.data.player&&skill>=0){es=s.data.enemySkills[skill];action=es.name;multiplier=es.damageMultiplier;hits=Mathf.Max(1,es.hits);Convert(packet,es.element,1);Metric(r.enemySkills,es.id).activations++;}
-            float subclass=1;if(s.data.player){if(s.data.subclassId==SubclassIds.WarriorMultihit)subclass*=SubclassBalanceProfile.ComboMultiplier(s.combo);if(s.data.subclassId==SubclassIds.BarbarianBigHit&&t.life>=t.data.maximumLife-Epsilon)subclass*=1+SubclassBalanceProfile.FullLifeMore;if(s.data.subclassId==SubclassIds.ThiefAssassin&&!t.enemyHasActed)subclass*=1.5f;if(s.data.subclassId==SubclassIds.ThiefAssassin&&t.data.boss&&t.life<=t.data.maximumLife*.1f)subclass*=1.5f;if(s.data.subclassId==SubclassIds.BarbarianFire)packet.fire+=packet.physical*SubclassBalanceProfile.AddedFireFromPhysical;if(s.data.subclassId==SubclassIds.PriestLight)packet.voidDamage=0;if(s.data.subclassId==SubclassIds.RangerProjectile&&s.data.projectileCount>1)subclass*=SubclassBalanceProfile.FocusedMultiplier(s.data.projectileCount);}
+            float subclass=1;if(s.data.player){if(s.data.subclassId==SubclassIds.BarbarianBigHit&&t.life>=t.data.maximumLife-Epsilon){subclass*=1+SubclassBalanceProfile.FullLifeMore;r.fullLifeBonusHits++;}if(s.data.subclassId==SubclassIds.BarbarianBigHit&&s.life<=s.data.maximumLife*.5f){subclass*=1+SubclassBalanceProfile.InjuredMore;r.injuredBonusHits++;}if(s.data.subclassId==SubclassIds.ThiefAssassin&&!t.enemyHasActed)subclass*=1.5f;if(s.data.subclassId==SubclassIds.ThiefAssassin&&t.data.boss&&t.life<=t.data.maximumLife*.1f)subclass*=1.5f;if(s.data.subclassId==SubclassIds.BarbarianFire)packet.fire+=packet.physical*SubclassBalanceProfile.AddedFireFromPhysical;if(s.data.subclassId==SubclassIds.PriestDark)packet.voidDamage*=1+s.data.corruption*.002f;if(s.data.subclassId==SubclassIds.PriestLight){packet.voidDamage=0;subclass*=1+LightAuraBonus(s,t);}int finalProjectiles=skill>=0?ps.projectiles:s.data.projectileCount;if(s.data.subclassId==SubclassIds.RangerProjectile&&s.data.projectileMode==SubclassProjectileMode.Focused&&finalProjectiles>1)subclass*=SubclassBalanceProfile.FocusedMultiplier(finalProjectiles);}
             bool useFinisher=ShouldUseFinisher(s,t,skill,c);if(useFinisher){s.finisherArmed=true;multiplier*=WeaponMechanicProfile.RageFinisherMoreMultiplier;r.rageFinisherUses++;}
             float rageMult=s.data.weaponTypeId==WeaponTypeIds.TwoHandedAxe?1+s.rage*WeaponMechanicProfile.RageDamagePerPoint*(1+Mathf.Max(0,s.data.rageEffect))+(s.rage>=100?WeaponMechanicProfile.FullRageMoreBonus*(1+Mathf.Max(0,s.data.rageEffect)):0):1;packet.Scale(multiplier*subclass*rageMult);
+            if(ps?.effect==WeaponSkillEffect.RapidFlurry){r.rapidFlurryUses++;r.rapidFlurryHits+=hits;}
+            if(ps?.effect==WeaponSkillEffect.ShockBarrage){r.shockBarrageUses++;r.shockBarrageHits+=hits;}
             for(int h=0;h<hits&&t.life>0;h++){var hit=packet.Clone();bool crit=rng.Value()<s.data.critChance;if(crit){hit.Scale(s.data.critMultiplier);r.criticalCount++;}bool precision=(ps?.supportsPrecision==true||s.data.weaponTypeId==WeaponTypeIds.Bow)&&rng.Value()<s.data.precisionChance;if(precision){hit.Scale(s.data.precisionMultiplier);r.precisionCount++;}ApplyPacket(s,t,hit,action,now,rng,r,c,ps,projectile,crit,precision);if(t.life>0&&rng.Value()<s.data.hitTwiceChance){r.hitTwiceCount++;ApplyPacket(s,t,hit,action+" (Hit Twice)",now,rng,r,c,ps,projectile,crit,precision);}}
-            if(s.data.player)s.combo++;if(s.finisherArmed){r.rageSpent+=s.rage;s.rage=0;s.finisherArmed=false;}if(!s.data.player&&es!=null)Metric(r.enemySkills,es.id).resolves++;
+            if(s.finisherArmed){r.rageSpent+=s.rage;s.rage=0;s.finisherArmed=false;}if(!s.data.player&&es!=null)Metric(r.enemySkills,es.id).resolves++;
         }
-        static void ApplyPacket(State s,State t,CombatDamageSnapshot packet,string action,float now,DeterministicCombatRandom rng,CombatSimulationResult r,CombatSimulationConfig c,CombatSkillSnapshot skill,int projectile,bool crit,bool precision)
+        static void ApplyPacket(State s,State t,CombatDamageSnapshot packet,string action,float now,DeterministicCombatRandom rng,CombatSimulationResult r,CombatSimulationConfig c,CombatSkillSnapshot skill,int projectile,bool crit,bool precision,bool allowEruption=true)
         {
-            float shock=CombinedShock(t),before=t.life,defense=!s.data.player&&t.data.weaponTypeId==WeaponTypeIds.TwoHandedAxe?1-Mathf.Min(WeaponMechanicProfile.MaximumRageDefense,t.rage*WeaponMechanicProfile.RageDefensePerPoint*(1+Mathf.Max(0,t.data.rageEffect))):1;float phys=MitigateElement(packet.physical,Element.Phys,s.data,t.data)*(1+shock)*defense,fire=MitigateElement(packet.fire,Element.Fire,s.data,t.data)*(1+shock)*defense,cold=MitigateElement(packet.cold,Element.Cold,s.data,t.data)*(1+shock)*defense,light=MitigateElement(packet.lightning,Element.Light,s.data,t.data)*(1+shock)*defense,vd=MitigateElement(packet.voidDamage,Element.Void,s.data,t.data)*(1+shock)*defense,damage=phys+fire+cold+light+vd;t.life-=damage;float effective=Mathf.Min(before,damage);Contribution(r.damage,(s.data.player?"Player/":"Enemy/")+action).total+=effective;AddType(r,s.data.player,"Physical",phys,before,damage);AddType(r,s.data.player,"Fire",fire,before,damage);AddType(r,s.data.player,"Cold",cold,before,damage);AddType(r,s.data.player,"Lightning",light,before,damage);AddType(r,s.data.player,"Void",vd,before,damage);if(s.data.player&&skill!=null)Metric(r.skills,skill.id).damage+=effective;else if(!s.data.player){var enemySkill=s.data.enemySkills.FirstOrDefault(x=>x.name==action);if(enemySkill!=null)Metric(r.enemySkills,enemySkill.id).damage+=effective;}Trace(r,c,now,s.data.player?CombatEventType.PlayerAttackReady:CombatEventType.EnemyAttackReady,s.data.player?CombatTraceFilter.PlayerAttack|CombatTraceFilter.Damage:CombatTraceFilter.EnemyAttack|CombatTraceFilter.Damage,s,t,action,$"Crit={crit}; Precision={precision}; ShockTaken={shock:0.###}",amount:damage,lifeBefore:before,lifeAfter:t.life,projectile:projectile);
-            if(damage>0){Heal(s,s.data.lifeOnHit,"Life on Hit",r);float restored=Mathf.Min(s.data.maximumMana-s.mana,s.data.manaOnHit);s.mana+=restored;if(s.data.player)r.manaOnHit+=restored;if(s.data.weaponTypeId==WeaponTypeIds.TwoHandedAxe){float gain=WeaponMechanicProfile.RageGainFromDamage(damage,t.data.maximumLife,skill?.effect==WeaponSkillEffect.RageStrike?1.5f:1)*(1+Mathf.Max(0,s.data.rageGeneration));float rb=s.rage;s.rage=Mathf.Min(100,s.rage+gain);s.rageDecayEligibleAt=now+WeaponMechanicProfile.RageDecayDelay;r.rageGenerated+=s.rage-rb;Trace(r,c,now,CombatEventType.Rage,CombatTraceFilter.Rage,s,t,"Rage gained","Damage dealt",amount:s.rage-rb,rageBefore:rb,rageAfter:s.rage);}}
-            if(s.data.player){ApplyAilments(s,t,packet,skill,now,rng,r,c);if(skill?.effect==WeaponSkillEffect.HealFromDamage)Heal(s,damage*skill.secondaryMultiplier,"Weapon Skill",r);if(s.data.subclassId==SubclassIds.PriestLight)Heal(s,damage*.1f,"Light Priest",r);if(s.data.subclassId==SubclassIds.BarbarianFire&&rng.Value()<SubclassBalanceProfile.EruptionChance){var erupt=new CombatDamageSnapshot{fire=packet.Total*SubclassBalanceProfile.EruptionMagnitude};ApplyPacket(s,t,erupt,"Eruption",now,rng,r,c,null,0,false,false);}}
+            if(s.data.player&&s.data.subclassId==SubclassIds.WarriorMultihit&&allowEruption)
+                packet.Scale(SubclassBalanceProfile.ComboMultiplier(s.combo));
+            float shock=CombinedShock(t),before=t.life,defense=!s.data.player&&t.data.weaponTypeId==WeaponTypeIds.TwoHandedAxe?1-Mathf.Min(WeaponMechanicProfile.MaximumRageDefense,t.rage*WeaponMechanicProfile.RageDefensePerPoint*(1+Mathf.Max(0,t.data.rageEffect))):1;float phys=MitigateElement(packet.physical,Element.Phys,s.data,t.data)*(1+shock)*defense,fire=MitigateElement(packet.fire,Element.Fire,s.data,t.data)*(1+shock)*defense,cold=MitigateElement(packet.cold,Element.Cold,s.data,t.data)*(1+shock)*defense,light=MitigateElement(packet.lightning,Element.Light,s.data,t.data)*(1+shock)*defense,vd=MitigateElement(packet.voidDamage,Element.Void,s.data,t.data)*(1+shock)*defense;
+            if(skill?.effect==WeaponSkillEffect.VirtualPoison||skill?.suppressDirectDamage==true)phys=fire=cold=light=vd=0;
+            float damage=phys+fire+cold+light+vd;t.life-=damage;float effective=Mathf.Min(before,damage);Contribution(r.damage,(s.data.player?"Player/":"Enemy/")+action).total+=effective;if(s.data.subclassId==SubclassIds.ThiefAssassin&&!t.enemyHasActed)r.openingDamage+=effective;if(action=="Eruption")r.eruptionTriggers++;if(s.finisherArmed&&allowEruption){r.rageFinisherDamage+=effective;if(crit)r.rageFinisherCriticalDamage+=effective;}AddType(r,s.data.player,"Physical",phys,before,damage);AddType(r,s.data.player,"Fire",fire,before,damage);AddType(r,s.data.player,"Cold",cold,before,damage);AddType(r,s.data.player,"Lightning",light,before,damage);AddType(r,s.data.player,"Void",vd,before,damage);if(s.data.player&&skill!=null)Metric(r.skills,skill.id).damage+=effective;else if(!s.data.player){var enemySkill=s.data.enemySkills.FirstOrDefault(x=>x.name==action);if(enemySkill!=null)Metric(r.enemySkills,enemySkill.id).damage+=effective;}Trace(r,c,now,s.data.player?CombatEventType.PlayerAttackReady:CombatEventType.EnemyAttackReady,s.data.player?CombatTraceFilter.PlayerAttack|CombatTraceFilter.Damage:CombatTraceFilter.EnemyAttack|CombatTraceFilter.Damage,s,t,action,$"Crit={crit}; Precision={precision}; ShockTaken={shock:0.###}",amount:damage,lifeBefore:before,lifeAfter:t.life,projectile:projectile);
+            if(damage>0){HealOrConvert(s,t,s.data.lifeOnHit,"Life on Hit",r);float restored=Mathf.Min(s.data.maximumMana-s.mana,s.data.manaOnHit);s.mana+=restored;if(s.data.player)r.manaOnHit+=restored;if(s.data.player&&s.data.subclassId==SubclassIds.WarriorMultihit){s.combo++;r.maximumCombo=Mathf.Max(r.maximumCombo,s.combo);}if(s.data.player&&s.data.subclassId==SubclassIds.PriestLight){float raw=Mathf.Max(Epsilon,packet.physical+packet.fire+packet.cold+packet.lightning);s.auraDamage[0]+=effective*packet.physical/raw;s.auraDamage[1]+=effective*packet.fire/raw;s.auraDamage[2]+=effective*packet.cold/raw;s.auraDamage[3]+=effective*packet.lightning/raw;}if(s.data.weaponTypeId==WeaponTypeIds.TwoHandedAxe){float gain=WeaponMechanicProfile.RageGainFromDamage(damage,t.data.maximumLife,skill?.effect==WeaponSkillEffect.RageStrike?1.5f:1)*(1+Mathf.Max(0,s.data.rageGeneration));float rb=s.rage;s.rage=Mathf.Min(100,s.rage+gain);s.rageDecayEligibleAt=now+WeaponMechanicProfile.RageDecayDelay;r.rageGenerated+=s.rage-rb;Trace(r,c,now,CombatEventType.Rage,CombatTraceFilter.Rage,s,t,"Rage gained","Damage dealt",amount:s.rage-rb,rageBefore:rb,rageAfter:s.rage);}}
+            if(s.data.player){ApplyAilments(s,t,packet,skill,now,rng,r,c);if(skill?.effect==WeaponSkillEffect.HealFromDamage)HealOrConvert(s,t,damage*skill.secondaryMultiplier,"Weapon Skill",r);if(s.data.subclassId==SubclassIds.PriestLight)Heal(s,damage*.1f,"Light Priest",r);if(allowEruption&&s.data.subclassId==SubclassIds.BarbarianFire&&rng.Value()<SubclassBalanceProfile.EruptionChance){var erupt=new CombatDamageSnapshot{fire=packet.Total*SubclassBalanceProfile.EruptionMagnitude};ApplyPacket(s,t,erupt,"Eruption",now,rng,r,c,null,0,false,false,false);}if(s.data.subclassId==SubclassIds.ThiefAssassin&&!t.data.boss&&t.life>0&&t.life<=t.data.maximumLife*.1f){float execution=t.life;t.life=0;r.executionTriggers++;r.executionDamage+=execution;Contribution(r.damage,"Player/Execution").total+=execution;}}
             if(t.life<=0){Heal(s,s.data.lifeOnKill,"Life on Kill",r);s.mana=Mathf.Min(s.data.maximumMana,s.mana+s.data.manaOnKill);Trace(r,c,now,CombatEventType.Death,CombatTraceFilter.Status,s,t,t.data.name+" died",action);}
         }
         static void ApplyAilments(State s,State t,CombatDamageSnapshot packet,CombatSkillSnapshot skill,float now,DeterministicCombatRandom rng,CombatSimulationResult r,CombatSimulationConfig c)
-        {bool poisonEligible=packet.voidDamage>0||s.data.subclassId==SubclassIds.RangerPoison||skill?.specializedAilment==StatusEffects.AilmentKind.Poison;if(poisonEligible)ApplyDot("Poison",s.data.poisonChance,skill?.specializedAilment==StatusEffects.AilmentKind.Poison?skill.guaranteedAilmentApplications:0,s.data.poisonMagnitude,4,Mathf.Max(.25f,1/(1+Mathf.Max(0,s.data.poisonSpeed))),int.MaxValue,s,t,now,rng,r,c);if(packet.physical>0)ApplyDot("Bleed",s.data.bleedChance,skill?.specializedAilment==StatusEffects.AilmentKind.Bleed?skill.guaranteedAilmentApplications:0,s.data.bleedMagnitude,5,2,s.data.maximumBleedStacks,s,t,now,rng,r,c);if(packet.fire>0)ApplyDot("Ignite",s.data.igniteChance,skill?.specializedAilment==StatusEffects.AilmentKind.Ignite?skill.guaranteedAilmentApplications:0,s.data.igniteMagnitude,2,2,s.data.maximumIgniteStacks,s,t,now,rng,r,c);if(packet.lightning>0){int apps=CombatDeterministicRules.RollOverflowApplications(s.data.shockChance,rng.Value);for(int i=0;i<apps;i++){float strength=Mathf.Min(1,.5f*(1+s.data.shockEffect))*(1-Mathf.Clamp01(t.data.reducedShockEffect));if(t.shocks.Count>=s.data.maximumShockInstances)t.shocks.RemoveAt(0);t.shocks.Add((strength,5));var m=Ailment(r,"Shock");m.applications++;m.magnitudeTotal+=strength;m.maximumEffect=Math.Max(m.maximumEffect,CombinedShock(t));}if(apps>0)Trace(r,c,now,CombatEventType.AilmentApply,CombatTraceFilter.Ailment,s,t,"Shock applied","Production chance/instance cap",amount:CombinedShock(t),stackCount:t.shocks.Count);}if(packet.cold>0&&CombatDeterministicRules.RollOverflowApplications(s.data.chillChance,rng.Value)+(skill?.guaranteedAdditionalChill??0)>0){float slow=BattleManager.CalculateChillSlow(MitigateElement(packet.cold,Element.Cold,s.data,t.data),t.data.maximumLife,s.data.chillEffect)*(1-Mathf.Clamp01(t.data.reducedChillEffect));t.chill=Mathf.Max(t.chill,slow);t.chillExpiresAt=Mathf.Max(t.chillExpiresAt,now+5);var m=Ailment(r,"Chill");m.applications++;m.magnitudeTotal+=slow;m.maximumEffect=Math.Max(m.maximumEffect,slow);if(skill?.effect==WeaponSkillEffect.FrostJudgment&&rng.Value()<slow){t.frozen=true;Ailment(r,"Freeze").applications++;Trace(r,c,now,CombatEventType.AilmentApply,CombatTraceFilter.Ailment,s,t,"Freeze applied","Frost Judgment vs Chilled target",amount:slow);}}}
-        static void ApplyDot(string id,float chance,int guaranteed,float magnitude,int ticks,float interval,int cap,State s,State t,float now,DeterministicCombatRandom rng,CombatSimulationResult r,CombatSimulationConfig c)
-        {int apps=guaranteed+CombatDeterministicRules.RollOverflowApplications(chance,rng.Value);if(apps<=0||magnitude<=0)return;for(int i=0;i<apps;i++){var d=new Dot{id=id,source=s.data.id,playerSource=s.data.player,damage=magnitude/ticks,ticks=ticks,stacks=1,interval=interval,next=now+interval};var same=t.dots.Where(x=>x.id==id).ToList();if(same.Count>=cap){var weakest=same.OrderBy(x=>x.damage*x.ticks).First();if(weakest.damage*weakest.ticks>=d.damage*d.ticks)continue;t.dots.Remove(weakest);}if(id=="Ignite"&&same.Count>0){var old=same.OrderByDescending(x=>x.damage*x.ticks).First();if(old.damage*old.ticks>=d.damage*d.ticks)continue;t.dots.Remove(old);}t.dots.Add(d);var metric=Ailment(r,id);metric.applications++;metric.magnitudeTotal+=magnitude;metric.maxStacks=Math.Max(metric.maxStacks,t.dots.Count(x=>x.id==id));Trace(r,c,now,CombatEventType.AilmentApply,CombatTraceFilter.Ailment,s,t,id+" applied","Chance resolved",amount:magnitude,stackCount:t.dots.Count(x=>x.id==id));}}
+        {
+            bool darkVoid=s.data.subclassId==SubclassIds.PriestDark&&packet.voidDamage>0;
+            bool poisonEligible=packet.voidDamage>0||s.data.subclassId==SubclassIds.RangerPoison||skill?.specializedAilment==StatusEffects.AilmentKind.Poison;
+            if(poisonEligible)
+            {
+                float basis=s.data.poisonMagnitude*(skill?.specializedAilment==StatusEffects.AilmentKind.Poison?Mathf.Max(1,skill.ailmentBasisMultiplier):1);
+                ApplyDot("Poison",s.data.poisonChance,skill?.specializedAilment==StatusEffects.AilmentKind.Poison?skill.guaranteedAilmentApplications:0,
+                    basis,4,s.data.poisonExtraTicks,AilmentCalculator.PoisonTickInterval(2,s.data.poisonSpeed),int.MaxValue,s,t,now,rng,r,c);
+            }
+            int bleed=0;
+            if(packet.physical>0||darkVoid)
+                bleed=ApplyDot("Bleed",s.data.bleedChance,skill?.specializedAilment==StatusEffects.AilmentKind.Bleed?skill.guaranteedAilmentApplications:0,
+                    s.data.bleedMagnitude,5,s.data.bleedExtraTicks,2,s.data.maximumBleedStacks,s,t,now,rng,r,c);
+            if(bleed>0&&s.data.subclassId==SubclassIds.WarriorBleed&&rng.Value()<SubclassBalanceProfile.RuptureChance)
+            {
+                float remaining=0;
+                foreach(var dot in t.dots.Where(x=>x.id=="Bleed").ToArray())
+                {remaining+=MitigateElement(dot.damage,Element.Phys,s.data,t.data)*dot.ticks;t.dots.Remove(dot);}
+                if(remaining>0)
+                {
+                    float effective=Mathf.Min(t.life,remaining);t.life-=remaining;
+                    Contribution(r.damage,"Player/Rupture").total+=effective;
+                    Ailment(r,"Rupture").damage+=effective;r.ruptureTriggers++;
+                    Trace(r,c,now,CombatEventType.AilmentApply,CombatTraceFilter.Ailment|CombatTraceFilter.Damage,s,t,"Rupture","Consumed remaining mitigated Bleed damage",amount:remaining);
+                }
+            }
+            if(packet.fire>0||darkVoid)
+                ApplyDot("Ignite",s.data.igniteChance,skill?.specializedAilment==StatusEffects.AilmentKind.Ignite?skill.guaranteedAilmentApplications:0,
+                    s.data.igniteMagnitude,2,s.data.igniteExtraTicks,2,s.data.maximumIgniteStacks,s,t,now,rng,r,c);
+            if(packet.lightning>0||darkVoid||s.data.subclassId==SubclassIds.MageStorm&&packet.Total>0)
+            {
+                int apps=CombatDeterministicRules.RollOverflowApplications(s.data.shockChance,rng.Value);
+                for(int i=0;i<apps;i++)
+                {
+                    float strength=Mathf.Min(1,.5f*(1+s.data.shockEffect))*(1-Mathf.Clamp01(t.data.reducedShockEffect));
+                    if(t.shocks.Count>=s.data.maximumShockInstances)t.shocks.RemoveAt(0);
+                    t.shocks.Add((strength,5));var m=Ailment(r,"Shock");m.applications++;
+                    m.magnitudeTotal+=strength;m.maximumEffect=Math.Max(m.maximumEffect,CombinedShock(t));
+                }
+                if(apps>0)Trace(r,c,now,CombatEventType.AilmentApply,CombatTraceFilter.Ailment,s,t,
+                    "Shock applied","Production chance/instance cap",amount:CombinedShock(t),stackCount:t.shocks.Count);
+            }
+            if((packet.cold>0||darkVoid)&&CombatDeterministicRules.RollOverflowApplications(s.data.chillChance,rng.Value)+(skill?.guaranteedAdditionalChill??0)>0)
+            {
+                float eligible=packet.cold>0?packet.cold:packet.voidDamage;
+                float slow=BattleManager.CalculateChillSlow(MitigateElement(eligible,packet.cold>0?Element.Cold:Element.Void,s.data,t.data),
+                    t.data.maximumLife,s.data.chillEffect)*(1-Mathf.Clamp01(t.data.reducedChillEffect));
+                t.chill=Mathf.Max(t.chill,slow);t.chillExpiresAt=Mathf.Max(t.chillExpiresAt,now+5);
+                var m=Ailment(r,"Chill");m.applications++;m.magnitudeTotal+=slow;m.maximumEffect=Math.Max(m.maximumEffect,slow);
+                if(skill?.effect==WeaponSkillEffect.FrostJudgment&&rng.Value()<slow)
+                {t.frozen=true;Ailment(r,"Freeze").applications++;Trace(r,c,now,CombatEventType.AilmentApply,CombatTraceFilter.Ailment,s,t,"Freeze applied","Frost Judgment vs Chilled target",amount:slow);}
+            }
+        }
+        static int ApplyDot(string id,float chance,int guaranteed,float magnitude,int baseTicks,int extraTicks,float interval,int cap,State s,State t,float now,DeterministicCombatRandom rng,CombatSimulationResult r,CombatSimulationConfig c)
+        {
+            int apps=guaranteed+CombatDeterministicRules.RollOverflowApplications(chance,rng.Value),applied=0;
+            if(apps<=0||magnitude<=0)return 0;
+            for(int i=0;i<apps;i++)
+            {
+                float amount=magnitude;bool criticalAilment=false;
+                if(s.data.subclassId==SubclassIds.ThiefAilmentCrit)
+                {
+                    amount*=SubclassBalanceProfile.AilmentExtraMore(s.data.critMultiplier);
+                    criticalAilment=rng.Value()<s.data.critChance;
+                    if(criticalAilment)amount*=SubclassBalanceProfile.CriticalAilmentMultiplier(s.data.critMultiplier);
+                }
+                int ticks=Mathf.Max(1,baseTicks+extraTicks);
+                if(id=="Poison")ticks=Mathf.Max(1,Mathf.CeilToInt(ticks*(1+Mathf.Max(0,s.data.poisonSpeed))));
+                var d=new Dot{id=id,source=s.data.id,playerSource=s.data.player,damage=amount/baseTicks,ticks=ticks,stacks=1,interval=interval,next=now+interval};
+                var same=t.dots.Where(x=>x.id==id).ToList();
+                if(same.Count>=cap){var weakest=same.OrderBy(x=>x.damage*x.ticks).First();if(weakest.damage*weakest.ticks>=d.damage*d.ticks)continue;t.dots.Remove(weakest);}
+                if(id=="Ignite"&&same.Count>0){var old=same.OrderByDescending(x=>x.damage*x.ticks).First();if(old.damage*old.ticks>=d.damage*d.ticks)continue;t.dots.Remove(old);}
+                t.dots.Add(d);applied++;var metric=Ailment(r,id);metric.applications++;
+                if(criticalAilment)metric.criticalApplications++;
+                metric.magnitudeTotal+=amount;metric.maxStacks=Math.Max(metric.maxStacks,t.dots.Count(x=>x.id==id));
+                Trace(r,c,now,CombatEventType.AilmentApply,CombatTraceFilter.Ailment,s,t,id+" applied",criticalAilment?"Critical ailment":"Chance resolved",amount:amount,stackCount:t.dots.Count(x=>x.id==id));
+            }
+            return applied;
+        }
         static void TickDot(Dot dot,State p,State e,float now,CombatSimulationResult r,CombatSimulationConfig c,Action<float,CombatEventType,bool,int,int,Dot> add){if(dot==null||dot.ticks<=0)return;State target=dot.playerSource?e:p,source=dot.playerSource?p:e;if(!target.dots.Contains(dot)||target.life<=0)return;dot.scheduled=false;float before=target.life;Element element=dot.id=="Bleed"?Element.Phys:dot.id=="Ignite"?Element.Fire:Element.Void;float damage=MitigateElement(dot.damage,element,source.data,target.data);target.life-=damage;dot.ticks--;var m=Ailment(r,dot.id);m.damage+=Mathf.Min(before,damage);m.maxStacks=Math.Max(m.maxStacks,target.dots.Count(x=>x.id==dot.id));Contribution(r.damage,(dot.playerSource?"Player/":"Enemy/")+dot.id).total+=Mathf.Min(before,damage);Trace(r,c,now,CombatEventType.AilmentTick,CombatTraceFilter.Ailment|CombatTraceFilter.Damage,source,target,dot.id+" tick","Scheduled production-style DOT tick",amount:damage,lifeBefore:before,lifeAfter:target.life,stackCount:m.maxStacks);if(dot.ticks<=0)target.dots.Remove(dot);else{dot.next=now+dot.interval;dot.scheduled=true;add(dot.next,CombatEventType.AilmentTick,dot.playerSource,-1,0,dot);}}
         static void ScheduleDots(State p,State e,Action<float,CombatEventType,bool,int,int,Dot> add){foreach(var d in p.dots.Concat(e.dots))if(!d.scheduled&&d.ticks>0){d.scheduled=true;add(d.next,CombatEventType.AilmentTick,d.playerSource,-1,0,d);}}
         static void UpdatePhase(State e,float now,CombatSimulationResult r,CombatSimulationConfig c){if(e.data.phases==null)return;var phase=BossPhaseResolver.Resolve(e.data.phases,e.life/e.data.maximumLife);string id=phase?.mechanicId;if(id==e.phase)return;ClosePhase(e,now,r);e.phase=id;e.phaseStartedAt=now;Trace(r,c,now,CombatEventType.BossPhase,CombatTraceFilter.BossPhase,e,null,"Boss phase: "+id,"Authored Life threshold",phase:id);}
@@ -188,6 +292,12 @@ namespace BlackCube.CombatSimulation
         static float MitigateElement(float value,Element element,CombatantSnapshot a,CombatantSnapshot d){if(value<=0)return 0;if(element==Element.Phys)return CombatCalculator.ApplyArmourValue(value,d.armour,d.physicalDamageReduction,a.physicalPenetration);float resistance=element switch{Element.Fire=>d.fireResistance,Element.Cold=>d.coldResistance,Element.Light=>d.lightningResistance,_=>d.voidResistance};float pen=element switch{Element.Fire=>a.firePenetration,Element.Cold=>a.coldPenetration,Element.Light=>a.lightningPenetration,_=>a.voidPenetration};return CombatCalculator.ApplyResistanceValue(value,resistance,pen,d.maximumResistance);}
         static void Convert(CombatDamageSnapshot p,Element to,float amount){if(amount<=0)return;float phys=p.physical,fire=p.fire,cold=p.cold,light=p.lightning,vd=p.voidDamage;p.physical*=1-amount;p.fire*=1-amount;p.cold*=1-amount;p.lightning*=1-amount;p.voidDamage*=1-amount;float add=(phys+fire+cold+light+vd)*amount;switch(to){case Element.Phys:p.physical+=add;break;case Element.Fire:p.fire+=add;break;case Element.Cold:p.cold+=add;break;case Element.Light:p.lightning+=add;break;default:p.voidDamage+=add;break;}}
         static float CombinedShock(State s){float product=1;foreach(var x in s.shocks)product*=1+Mathf.Max(0,x.strength);return Mathf.Max(0,product-1);}
+        static float LightAuraBonus(State source,State target)
+        {float sum=0;for(int i=0;i<source.auraDamage.Length;i++)sum+=SubclassBalanceProfile.FinalAuraBonus(.2f,SubclassBalanceProfile.AuraIntensity(source.auraDamage[i],target.data.maximumLife),source.data.auraEffect);return sum;}
+        static float PlayerAttackInterval(State source,State target)
+        {float speed=source.data.attackSpeed;if(source.data.subclassId==SubclassIds.PriestLight)speed*=1+SubclassBalanceProfile.FinalAuraBonus(.1f,SubclassBalanceProfile.AuraIntensity(source.auraDamage[0],target.data.maximumLife),source.data.auraEffect);return CombatDeterministicRules.AttackInterval(speed,source.chill);}
+        static void HealOrConvert(State source,State target,float amount,string reason,CombatSimulationResult result)
+        {if(source.data.player&&source.data.subclassId==SubclassIds.PriestDark){if(amount<=0||target.life<=0)return;float damage=MitigateElement(amount,Element.Void,source.data,target.data);float effective=Mathf.Min(target.life,damage);target.life-=damage;Contribution(result.damage,"Player/Healing Converted to Void").total+=effective;Contribution(result.damageByType,"Player/Void").total+=effective;return;}Heal(source,amount,reason,result);}
         static void Heal(State s,float amount,string source,CombatSimulationResult r){if(amount<=0||s.life<=0||s.disableLifeRecovery)return;float missing=Mathf.Max(0,s.data.maximumLife-s.life),effective=Mathf.Min(missing,amount);s.life+=effective;var c=Contribution(r.healing,source);c.total+=amount;c.effective+=effective;c.overheal+=amount-effective;c.count++;}
         static CombatContribution Contribution(List<CombatContribution> list,string id){var x=list.FirstOrDefault(y=>y.id==id);if(x==null){x=new CombatContribution{id=id};list.Add(x);}return x;}
         static CombatAilmentMetric Ailment(CombatSimulationResult r,string id){var x=r.ailments.FirstOrDefault(y=>y.id==id);if(x==null){x=new CombatAilmentMetric{id=id};r.ailments.Add(x);}return x;}

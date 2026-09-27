@@ -11,8 +11,16 @@ namespace BlackCube.BalanceWorkbench
     {
         public bool minimumLifeEnabled,minimumArmourEnabled,minimumFireResistanceEnabled,minimumColdResistanceEnabled,minimumLightningResistanceEnabled,minimumVoidResistanceEnabled;
         public float minimumLife,minimumArmour,minimumFireResistance,minimumColdResistance,minimumLightningResistance,minimumVoidResistance;
+        public bool minimumCombinedPhysicalReductionEnabled;
+        public float minimumCombinedPhysicalReduction,referencePhysicalHit=100;
         public List<string> lockedPassiveIds=new(),excludedPassiveIds=new();public List<LootManager.GearType> lockedSlots=new();public int maximumOffClassPoints=-1;
-        public bool Accept(PlayerBuildMetrics m)=>m!=null&&(!minimumLifeEnabled||m.life>=minimumLife)&&(!minimumArmourEnabled||m.armour>=minimumArmour)&&(!minimumFireResistanceEnabled||m.fireResistance>=minimumFireResistance)&&(!minimumColdResistanceEnabled||m.coldResistance>=minimumColdResistance)&&(!minimumLightningResistanceEnabled||m.lightningResistance>=minimumLightningResistance)&&(!minimumVoidResistanceEnabled||m.voidResistance>=minimumVoidResistance);
+        public bool Accept(PlayerBuildMetrics m)=>m!=null&&(!minimumLifeEnabled||m.life>=minimumLife)&&(!minimumArmourEnabled||m.armour>=minimumArmour)&&(!minimumCombinedPhysicalReductionEnabled||CombinedPhysicalReduction(m)>=minimumCombinedPhysicalReduction)&&(!minimumFireResistanceEnabled||m.fireResistance>=minimumFireResistance)&&(!minimumColdResistanceEnabled||m.coldResistance>=minimumColdResistance)&&(!minimumLightningResistanceEnabled||m.lightningResistance>=minimumLightningResistance)&&(!minimumVoidResistanceEnabled||m.voidResistance>=minimumVoidResistance);
+        public double CombinedPhysicalReduction(PlayerBuildMetrics m)
+        {
+            if(m==null)return 0;
+            float hit=Mathf.Max(1,referencePhysicalHit);
+            return 1-CombatCalculator.ApplyArmourValue(hit,(float)m.armour,(float)m.physicalDamageReduction,0)/hit;
+        }
     }
 
     [Serializable] public sealed class GearCandidateResult{public GearSnapshot item;public double primaryDelta,secondaryDelta,score;}

@@ -10,6 +10,7 @@ namespace BlackCube.BalanceWorkbench
     {
         public PlayerBuildSnapshot build;
         public PlayerBuildMetrics metrics;
+        public List<PlayerBuildSnapshot> finalists=new();
         public int inventorySize,candidatesEvaluated,shortlisted,completeSetsEvaluated;
         public bool satisfiesEnabledFloors;
         public string warning;
@@ -90,7 +91,9 @@ namespace BlackCube.BalanceWorkbench
                             score=Score(metrics,baseline,objective,floors),
                             key=string.Join("|",selected.Select(x=>x.Description))});
                     }
-                states=expanded.OrderByDescending(x=>x.score)
+                states=expanded.GroupBy(x=>x.key,StringComparer.Ordinal)
+                    .Select(x=>x.OrderByDescending(y=>y.score).First())
+                    .OrderByDescending(x=>x.score)
                     .ThenBy(x=>x.key,StringComparer.Ordinal).Take(beamWidth).ToList();
             }
             var finalists=states.Select(x=>
@@ -107,6 +110,12 @@ namespace BlackCube.BalanceWorkbench
             }
             var best=eligible.OrderByDescending(x=>x.score).First();
             result.build=best.build;result.metrics=best.metrics;
+            result.finalists=eligible.GroupBy(x=>x.build.equipment.Count==0?"":
+                    string.Join("|",x.build.equipment.Select(g=>g.Description)),StringComparer.Ordinal)
+                .Select(x=>x.OrderByDescending(y=>y.score).First())
+                .OrderByDescending(x=>x.score)
+                .ThenBy(x=>string.Join("|",x.build.equipment.Select(g=>g.Description)),StringComparer.Ordinal)
+                .Take(10).Select(x=>x.build.Clone()).ToList();
             result.satisfiesEnabledFloors=floors.Accept(best.metrics);
             if(!result.satisfiesEnabledFloors)result.warning="SOFT defense profile accepted unmet floors; inspect actual deficits.";
             return result;
@@ -125,6 +134,8 @@ namespace BlackCube.BalanceWorkbench
             }
             Add(floors.minimumLifeEnabled,value.life,floors.minimumLife);
             Add(floors.minimumArmourEnabled,value.armour,floors.minimumArmour);
+            Add(floors.minimumCombinedPhysicalReductionEnabled,
+                floors.CombinedPhysicalReduction(value),floors.minimumCombinedPhysicalReduction);
             Add(floors.minimumFireResistanceEnabled,value.fireResistance,floors.minimumFireResistance);
             Add(floors.minimumColdResistanceEnabled,value.coldResistance,floors.minimumColdResistance);
             Add(floors.minimumLightningResistanceEnabled,value.lightningResistance,floors.minimumLightningResistance);
