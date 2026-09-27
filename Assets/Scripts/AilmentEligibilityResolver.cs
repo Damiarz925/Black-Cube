@@ -17,7 +17,7 @@ public static class AilmentEligibilityResolver
         if(effect._StatusType==StatusEffects.StatusType.Chill)return ElementMask.Cold;
         return effect.Ailment switch
         {
-            StatusEffects.AilmentKind.Poison=>ElementMask.Phys|ElementMask.Void,
+            StatusEffects.AilmentKind.Poison=>ElementMask.Void,
             StatusEffects.AilmentKind.Bleed=>ElementMask.Phys,
             StatusEffects.AilmentKind.Ignite=>ElementMask.Fire,
             _=>effect.Elements

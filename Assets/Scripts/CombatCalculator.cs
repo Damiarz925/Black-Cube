@@ -31,7 +31,8 @@ public static class CombatCalculator
 
     public static float GetMaximumResistance(Element element, StatsComponent defender)
     {
-        float bonus = defender != null ? defender.GetStat(StatTypes.MaxAllRes) : 0f;
+        float bonus = defender != null && (element is Element.Fire or Element.Cold or Element.Light)
+            ? defender.GetStat(StatTypes.MaxAllRes) : 0f;
         if (defender != null)
         {
             bonus += element switch
@@ -47,11 +48,17 @@ public static class CombatCalculator
     }
 
     public static float ApplyArmourValue(float damage, float armour, float physicalPenetration)
+        => ApplyArmourValue(damage, armour, 0f, physicalPenetration);
+
+    // Explicit PDR adds to the final Armour-derived reduction before ordinary
+    // Physical Penetration is applied once.
+    public static float ApplyArmourValue(float damage, float armour, float explicitReduction,
+        float physicalPenetration)
     {
         if (damage <= 0f) return 0f;
         armour = Mathf.Max(0f, armour);
         float reduction = Mathf.Clamp01(armour / (armour + 10f * damage));
-        reduction = Mathf.Clamp(reduction - physicalPenetration, -0.9f, 0.9f);
+        reduction = Mathf.Clamp(reduction + explicitReduction - physicalPenetration, -0.9f, 0.9f);
         return damage * (1f - reduction);
     }
 
@@ -116,8 +123,7 @@ public static class CombatCalculator
         float allRes = defender.GetStat(StatTypes.AllRes); //Get the actual all res stat
 
         float totalRes = res;
-        if (element == Element.Fire || element == Element.Cold || element == Element.Light
-            || element == Element.Void || element == Element.Poison)     //AllRes applies to every core non-Physical hit; Poison is legacy Void.
+        if (element == Element.Fire || element == Element.Cold || element == Element.Light)
             totalRes += allRes;
 
         float pen = 0f;
@@ -147,53 +153,26 @@ public static class CombatCalculator
         float penetration = attacker != null
             ? attacker.GetStat(StatTypes.PhysPenetration)
             : 0f;
-        return ApplyArmourValue(physDamage, totalArmour, penetration);
+        return ApplyArmourValue(physDamage, totalArmour,
+            defender.GetStat(StatTypes.PhysicalDamageReduction), penetration);
     }
 
     // ----------------- NEW: DOT DEFENCES -----------------
 
     /// <summary>
-    /// Applies ailment-specific resists and penetration to DOT damage.
-    /// Uses PoisonRes/BleedRes/IgniteRes + AllAilmentRes, minus PoisonPen/BleedPen/IgnitePen.
+    /// Damaging ailments inherit their ordinary damage type's mitigation and penetration.
     /// </summary>
     public static float CalculateAilmentTickDamage(float baseTickDamage, StatusEffects effect, StatsComponent attacker, StatsComponent defender)   // required for resists
     {
         if (baseTickDamage <= 0f || effect == null || defender == null)     //If effect has no dmg, is null, or defender is null, return
             return 0f;
 
-        if (effect.Ailment == StatusEffects.AilmentKind.Poison)
+        return effect.Ailment switch
         {
-            float voidResistance = defender.GetStat(StatTypes.VoidRes) + defender.GetStat(StatTypes.AllRes);
-            float voidPenetration = attacker != null ? attacker.GetStat(StatTypes.VoidPenetration) : 0f;
-            return ApplyResistanceValue(baseTickDamage, voidResistance, voidPenetration,
-                GetMaximumResistance(Element.Void, defender));
-        }
-
-        float resAilment = 0f;
-        float resAllAil = defender.GetStat(StatTypes.AllAilmentRes);        //Grab the all ailment rest stat
-        float penAilment = 0f;
-
-        switch (effect.Ailment)     //Check which ailment effect was passed in then grab the defender's res stat and attacker's pen stat for that ailment
-        {
-            case StatusEffects.AilmentKind.Bleed:
-                resAilment = defender.GetStat(StatTypes.BleedRes);
-                if (attacker != null)
-                    penAilment = attacker.GetStat(StatTypes.BleedPenetration);
-                break;
-
-            case StatusEffects.AilmentKind.Ignite:
-                resAilment = defender.GetStat(StatTypes.IgniteRes);
-                if (attacker != null)
-                    penAilment = attacker.GetStat(StatTypes.IgnitePenetration);
-                break;
-
-            default:
-                break;
-        }
-
-        float totalRes = resAilment + resAllAil - penAilment;       //Calculate the total res by adding the specific ailment res to all ailment res and subtracting the attacker's pen
-        totalRes = Mathf.Clamp(totalRes, -0.9f, 0.9f);      //Clamp it at -90% to 90%
-
-        return baseTickDamage * (1f - totalRes);        // Resistance is already a fraction; do not divide by 100 again.
+            StatusEffects.AilmentKind.Bleed => ApplyArmourAndPenetration(baseTickDamage, attacker, defender),
+            StatusEffects.AilmentKind.Ignite => ApplyResistancesAndPenetration(baseTickDamage, Element.Fire, attacker, defender),
+            StatusEffects.AilmentKind.Poison => ApplyResistancesAndPenetration(baseTickDamage, Element.Void, attacker, defender),
+            _ => baseTickDamage
+        };
     }
 }

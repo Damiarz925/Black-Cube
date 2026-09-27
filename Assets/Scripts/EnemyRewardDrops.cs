@@ -16,6 +16,8 @@ public sealed class EnemyDropResult
 {
     public bool equipment;
     public int gearCount;
+    public EnemyPowerResult combatPower;
+    public DropBudgetBreakdown gearBudget;
     public readonly List<CraftingCurrencyType> currencies=new();
     public readonly List<CurrencyDropStack> currencyStacks=new();
     public EnemyLootPowerSnapshot power;
@@ -76,11 +78,56 @@ public static class EnemyLootProfile
     public static int StochasticRound(float budget,int cap,Func<float> next)=>StochasticRound(budget,cap,new DelegateLootRandomSource(next));
     public static EnemyDropResult Roll(EnemyAI enemy,bool boss,ILootRandomSource random)
     {
-        random??=LootRandomSourceFactory.CreateProduction();var snapshot=Evaluate(enemy,boss);var result=new EnemyDropResult{equipment=true,power=snapshot};
-        result.gearCount=1+StochasticRound(snapshot.ExtraGearBudget,MaximumExtraGear,random);
-        int currencyRolls=StochasticRound(snapshot.CurrencyRollBudget,MaximumCurrencyRolls,random);int level=enemy!=null?enemy.EnemyLevel:1;var rarity=enemy!=null?enemy.CurrentRarity:EnemyAI.EnemyRarity.Normal;bool access=level>=RebirthManager.RequiredZone;
-        var aggregate=new Dictionary<CraftingCurrencyType,int>();for(int i=0;i<currencyRolls;i++){var entry=CurrencyLootTable.Choose(level,rarity,boss,access,random);if(entry==null)continue;int amount=random.Range(entry.StackMinimum,entry.StackMaximum+1);aggregate[entry.Currency]=(aggregate.TryGetValue(entry.Currency,out int old)?old:0)+amount;}
-        foreach(var pair in aggregate){result.currencyStacks.Add(new CurrencyDropStack(pair.Key,pair.Value));for(int i=0;i<pair.Value;i++)result.currencies.Add(pair.Key);}return result;
+        random??=LootRandomSourceFactory.CreateProduction();
+        var snapshot=Evaluate(enemy,boss);
+        var combatPower=EnemyLootPowerScorer.Evaluate(enemy);
+        int level=enemy!=null?enemy.EnemyLevel:1;
+        var rarity=enemy!=null?enemy.CurrentRarity:EnemyAI.EnemyRarity.Normal;
+        var world=WorldProgression.Resolve(level,GameManager.Instance?.EncounterStage??1,
+            WorldContentCatalog.Reference,GamePersistence.CurrentRunSeed);
+        var context=new DropRateContext(level,rarity,boss,combatPower.power,
+            world.Encounter?.stableId,world.Location?.stableId,enemy?.ContentId,enemy?.ContentId);
+        var result=RollConfigured(context,random,snapshot);
+        result.combatPower=combatPower;
+        return result;
+    }
+    public static EnemyDropResult RollConfigured(DropRateContext context,ILootRandomSource random,
+        EnemyLootPowerSnapshot legacySnapshot=default)
+    {
+        random??=LootRandomSourceFactory.CreateProduction();
+        var profile=LootDropBalanceProfileSO.Current;
+        var result=new EnemyDropResult{power=legacySnapshot};
+        result.gearBudget=profile.EvaluateGear(context);
+        result.gearCount=LootDropBalanceProfileSO.RollCopies(result.gearBudget.finalBudget,random);
+        result.equipment=result.gearCount>0;
+        var aggregate=new Dictionary<CraftingCurrencyType,int>();
+        foreach(var rule in profile.currencies)
+        {
+            if(rule==null||rule.useLegacyWeightedRoll||context.level<rule.minimumCombatLevel)continue;
+            int copies=LootDropBalanceProfileSO.RollCopies(
+                profile.EvaluateCurrency(rule.currency,context).finalBudget,random);
+            if(copies>0)aggregate[rule.currency]=copies;
+        }
+        // Unlisted currencies explicitly retain their old weighted-roll path.
+        // Listed direct-rate currencies never receive a second legacy reward.
+        float legacyPower=legacySnapshot.LevelLootFactor*legacySnapshot.RarityMultiplier*
+            legacySnapshot.GearQualityFactor;
+        int legacyRolls=StochasticRound(LootBalanceProfileSO.Current.currencyRollCoefficient*
+            legacyPower,MaximumCurrencyRolls,random);
+        for(int i=0;i<legacyRolls;i++)
+        {
+            var entry=CurrencyLootTable.Choose(context.level,context.rarity,context.boss,
+                context.level>=RebirthManager.RequiredZone,random);
+            if(entry==null||profile.Rule(entry.Currency)?.useLegacyWeightedRoll!=true)continue;
+            int amount=random.Range(entry.StackMinimum,entry.StackMaximum+1);
+            aggregate[entry.Currency]=(aggregate.TryGetValue(entry.Currency,out int old)?old:0)+amount;
+        }
+        foreach(var pair in aggregate)
+        {
+            result.currencyStacks.Add(new CurrencyDropStack(pair.Key,pair.Value));
+            for(int i=0;i<pair.Value;i++)result.currencies.Add(pair.Key);
+        }
+        return result;
     }
     public static EnemyDropResult Roll(EnemyAI enemy,bool boss,Func<float> next)=>Roll(enemy,boss,new DelegateLootRandomSource(next));
 }

@@ -77,7 +77,7 @@ public sealed class BalanceWorkbenchTooling4Tests
 
     [Test] public void DamagingAilments_UseScheduledTicksCapsAndMetrics()
     {
-        var p=Player();p.basicDamage.fire=10;p.poisonChance=1;p.bleedChance=1;p.igniteChance=1;p.poisonMagnitude=40;p.bleedMagnitude=50;p.igniteMagnitude=20;
+          var p=Player();p.basicDamage.fire=10;p.basicDamage.voidDamage=10;p.poisonChance=1;p.bleedChance=1;p.igniteChance=1;p.poisonMagnitude=40;p.bleedMagnitude=50;p.igniteMagnitude=20;
         var result=HeadlessCombatSimulator.Run(p,Enemy(),Config(duration:6.1f));
         Assert.That(result.ailments.Single(x=>x.id=="Poison").damage,Is.GreaterThan(0));
         Assert.That(result.ailments.Single(x=>x.id=="Bleed").maxStacks,Is.LessThanOrEqualTo(p.maximumBleedStacks));

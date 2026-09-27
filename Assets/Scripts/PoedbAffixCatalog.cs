@@ -114,7 +114,7 @@ public static class PoedbAffixCatalog
             case StatTypes.ManaOnKill:
                 tiers=Scalar(24,7,10,40,11,15,52,16,25,66,26,37,81,38,50);return true;
             case StatTypes.LifeRegeneration:
-                if(!Slot(slot,H,B)){tiers=new();return true;}
+                if(!Slot(slot,H,B))return false; // Belt uses its authored tier ladder.
                 var lifeRegen=ScalarFloat(1,1,2,7,2.1f,8,19,8.1f,16,31,16.1f,24,
                     44,24.1f,32,55,32.1f,48,68,48.1f,64,74,64.1f,96,
                     78,96.1f,128,83,128.1f,152,86,152.1f,176);

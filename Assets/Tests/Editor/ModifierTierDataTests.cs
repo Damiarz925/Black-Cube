@@ -84,6 +84,8 @@ public class ModifierTierDataTests
         {
             AffixDefinitions def = db.GetDefinition(stat);
             bool specialSkillTier = stat is >= StatTypes.Plus1Phys and <= StatTypes.Plus1Ignite;
+            bool allSkills = stat == StatTypes.PlusAllSkills;
+            bool newDefense = stat is StatTypes.PhysicalDamageReduction or StatTypes.ReducedShockEffect or StatTypes.ReducedChillEffect;
             Assert.That(def, Is.Not.Null, stat.ToString());
             Assert.That(def.displayName, Is.Not.Empty, stat.ToString());
             Assert.That(def.tiers.Count, Is.EqualTo(specialSkillTier ? 1 : 5), stat.ToString());
@@ -91,10 +93,10 @@ public class ModifierTierDataTests
             Assert.That(pools.Any(p => p.Value.Contains(stat)), Is.True, stat + " is not generation-eligible in any slot");
             Assert.That(AvailableTierCount(def, 1), Is.EqualTo(specialSkillTier ? 0 : 1), stat.ToString());
             Assert.That(AvailableTierCount(def, 19), Is.EqualTo(specialSkillTier ? 0 : 1), stat.ToString());
-            Assert.That(AvailableTierCount(def, 20), Is.EqualTo(specialSkillTier ? 0 : 2), stat.ToString());
-            Assert.That(AvailableTierCount(def, 40), Is.EqualTo(specialSkillTier ? 1 : 3), stat.ToString());
-            Assert.That(AvailableTierCount(def, 60), Is.EqualTo(specialSkillTier ? 1 : 4), stat.ToString());
-            Assert.That(AvailableTierCount(def, 75), Is.EqualTo(specialSkillTier ? 1 : 5), stat.ToString());
+            Assert.That(AvailableTierCount(def, 20), Is.EqualTo(specialSkillTier ? 0 : allSkills ? 1 : 2), stat.ToString());
+            Assert.That(AvailableTierCount(def, 40), Is.EqualTo(specialSkillTier ? 1 : allSkills ? 2 : 3), stat.ToString());
+            Assert.That(AvailableTierCount(def, 60), Is.EqualTo(specialSkillTier ? 1 : allSkills ? 3 : 4), stat.ToString());
+            Assert.That(AvailableTierCount(def, 75), Is.EqualTo(specialSkillTier ? 1 : allSkills || newDefense ? 4 : 5), stat.ToString());
         }
     }
 
@@ -182,7 +184,7 @@ public class ModifierTierDataTests
         try
         {
             StatsComponent attacker = attackerObject.AddComponent<StatsComponent>();
-            AssertAilmentInterval(attacker, "PoisonStatus.asset", StatTypes.PoisonTickRate, Element.Phys, 7f, -5);
+            AssertAilmentInterval(attacker, "PoisonStatus.asset", StatTypes.PoisonTickRate, Element.Void, 7f, -5);
             AssertAilmentInterval(attacker, "IgniteStatus.asset", StatTypes.IgniteTickRate, Element.Fire, 7f, -5);
             AssertAilmentInterval(attacker, "BleedStatus.asset", StatTypes.BleedTickRate, Element.Phys, 7f, -5);
         }

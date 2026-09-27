@@ -528,7 +528,7 @@ namespace BlackCube
                     fireRes=playerStats.GetStat(StatTypes.FireRes)+playerStats.GetStat(StatTypes.AllRes),
                     coldRes=playerStats.GetStat(StatTypes.ColdRes)+playerStats.GetStat(StatTypes.AllRes),
                     lightRes=playerStats.GetStat(StatTypes.LightRes)+playerStats.GetStat(StatTypes.AllRes),
-                    voidRes=playerStats.GetStat(StatTypes.VoidRes)+playerStats.GetStat(StatTypes.AllRes),
+                    voidRes=playerStats.GetStat(StatTypes.VoidRes),
                     armour=playerStats.GetStat(StatTypes.FlatArmour)
                         *(1f+playerStats.GetStat(StatTypes.ArmourPercent)),
                     implicitScore=implicitScore,explicitScore=explicitScore,

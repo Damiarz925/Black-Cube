@@ -35,15 +35,21 @@ public static class AffixPolicy
     public static AffixSide Side(StatTypes stat)
     {
         if (stat is StatTypes.ColdRes or StatTypes.FireRes or StatTypes.LightRes or StatTypes.VoidRes
-            or StatTypes.AllRes or StatTypes.Strength or StatTypes.Dexterity or StatTypes.Intelligence
+            or StatTypes.AllRes or StatTypes.MaxColdRes or StatTypes.MaxFireRes
+            or StatTypes.MaxLightRes or StatTypes.MaxVoidRes or StatTypes.MaxAllRes
+            or StatTypes.Strength or StatTypes.Dexterity or StatTypes.Intelligence
+            or StatTypes.StrengthPercent or StatTypes.DexterityPercent or StatTypes.IntelligencePercent
             or StatTypes.AttackSpeed or StatTypes.CritChance or StatTypes.CritMult
+            or StatTypes.BaseCritChance or StatTypes.GenericDotMult
             or StatTypes.LifeOnKill or StatTypes.ManaOnKill or StatTypes.ManaOnHit
-            or StatTypes.LifeRegeneration
+            or StatTypes.LifeRegeneration or StatTypes.ManaRegeneration
             or StatTypes.LifeOnHit or StatTypes.ChanceToHitTwice
             or StatTypes.PoisonChance or StatTypes.BleedChance or StatTypes.IgniteChance
             or StatTypes.ShockChance or StatTypes.ChillChance
             or StatTypes.PoisonDuration or StatTypes.BleedDuration or StatTypes.IgniteDuration
-            or StatTypes.ShockDuration or StatTypes.ChillDuration)
+            or StatTypes.ShockDuration or StatTypes.ChillDuration
+            or StatTypes.PoisonTickRate or StatTypes.BleedTickRate or StatTypes.IgniteTickRate
+            or StatTypes.ShockEffect or StatTypes.ChillEffect)
             return AffixSide.Suffix;
         return AffixSide.Prefix;
     }

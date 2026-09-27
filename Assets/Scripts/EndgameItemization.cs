@@ -92,7 +92,8 @@ public static class EmpowermentCrafting
     public static bool IsEmpowerable(AffixDefinitions definition,StatTypes stat)
     {
         if(definition==null||!definition.empowerable||Gear.IsWeaponBaseStat(stat))return false;
-        return stat is < StatTypes.Plus1Phys or > StatTypes.Plus1Ignite;
+        return stat != StatTypes.PlusAllSkills
+            && stat is < StatTypes.Plus1Phys or > StatTypes.Plus1Ignite;
     }
 
     public static void EmpoweredRange(AffixDefinitions definition,AffixTier tier,

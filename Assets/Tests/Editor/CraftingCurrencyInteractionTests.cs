@@ -75,6 +75,41 @@ public class CraftingCurrencyInteractionTests
         Assert.That(inventory.ArmedCurrency,Is.Null);
     }
 
+    [Test]
+    public void FocusedRemove_OnlyChangesSelectedSideAndSpendsBothCurrencies()
+    {
+        CreateModManager();CurrencyInventory inventory=Currency(1,CraftingCurrencyType.RemoveRareModifier);
+        inventory.Add(CraftingCurrencyType.AffixFocus);
+        Gear gear=Track(new GameObject("focused gear",typeof(Gear))).GetComponent<Gear>();
+        gear.Initialize(LootManager.GearType.Helmets,LootManager.GearRarity.Rare,60,Element.Phys);
+        gear.ApplyMods(new List<RolledMod>{new(StatTypes.Life,1,20,true),new(StatTypes.FlatArmour,1,20),new(StatTypes.FireRes,1,10)});
+        gear.RestoreCraftingState(LootManager.GearRarity.Rare,10,10);
+        inventory.SetAffixFocus(true,AffixSide.Prefix);inventory.Arm(CraftingCurrencyType.RemoveRareModifier);
+        Assert.That(inventory.TryApplyArmedToGear(gear),Is.True);
+        Assert.That(gear.rolledMods.Exists(x=>x.statType==StatTypes.FlatArmour),Is.False);
+        Assert.That(gear.rolledMods.Exists(x=>x.statType==StatTypes.FireRes),Is.True);
+        Assert.That(inventory.Count(CraftingCurrencyType.RemoveRareModifier),Is.Zero);
+        Assert.That(inventory.Count(CraftingCurrencyType.AffixFocus),Is.Zero);
+    }
+
+    [Test]
+    public void InvalidFocusedSide_DoesNotSpendEitherCurrencyOrMutateItem()
+    {
+        CreateModManager();CurrencyInventory inventory=Currency(1,CraftingCurrencyType.RerollRareModifier);
+        inventory.Add(CraftingCurrencyType.AffixFocus);
+        Gear gear=Track(new GameObject("focused gear",typeof(Gear))).GetComponent<Gear>();
+        gear.Initialize(LootManager.GearType.Helmets,LootManager.GearRarity.Rare,60,Element.Phys);
+        gear.ApplyMods(new List<RolledMod>{new(StatTypes.Life,1,20,true),new(StatTypes.FireRes,1,10)});
+        gear.RestoreCraftingState(LootManager.GearRarity.Rare,10,10);
+        string before=JsonUtility.ToJson(gear);
+        inventory.SetAffixFocus(true,AffixSide.Prefix);inventory.Arm(CraftingCurrencyType.RerollRareModifier);
+        Assert.That(inventory.TryApplyArmedToGear(gear),Is.False);
+        Assert.That(inventory.Count(CraftingCurrencyType.RerollRareModifier),Is.EqualTo(1));
+        Assert.That(inventory.Count(CraftingCurrencyType.AffixFocus),Is.EqualTo(1));
+        Assert.That(JsonUtility.ToJson(gear),Is.EqualTo(before));
+        Assert.That(inventory.LastCraftFeedback,Does.Contain("Prefix"));
+    }
+
     CurrencyInventory Currency(int amount,CraftingCurrencyType type=CraftingCurrencyType.NormalToMagic)
     {
         var inventory=Track(new GameObject("currencies",typeof(CurrencyInventory))).GetComponent<CurrencyInventory>();SetInstance(typeof(CurrencyInventory),inventory);inventory.Add(type,amount);return inventory;

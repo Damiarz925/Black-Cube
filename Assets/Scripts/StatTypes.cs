@@ -184,5 +184,11 @@ public enum StatTypes
     // reinterpreted so existing serialized data keeps its original meaning.
     CooldownReduction = 126,
     AuraEffect = 127,
-    PoisonSpeed = 128
+    PoisonSpeed = 128,
+
+    // Real-player itemization pass. Legacy identities above remain reserved.
+    PhysicalDamageReduction = 129,
+    ReducedShockEffect = 130,
+    ReducedChillEffect = 131,
+    PlusAllSkills = 132
 }

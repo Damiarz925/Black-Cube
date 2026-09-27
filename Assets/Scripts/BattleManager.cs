@@ -830,7 +830,8 @@ public class BattleManager : MonoBehaviour
         DamageContext poisonBasis = poisonTransmutation ? specialized
             : skill != null && skill.specializedAilment == StatusEffects.AilmentKind.Poison
             ? specialized : ctx;
-        if(skill?.effect==WeaponSkillEffect.VirtualPoison)poisonBasis.EventTags|=CombatEventTags.FullAilmentBasis;
+        if(skill?.effect==WeaponSkillEffect.VirtualPoison || skill?.id==PlayerSkillId.Envenom)
+            poisonBasis.EventTags|=CombatEventTags.FullAilmentBasis;
         DamageContext bleedBasis = skill != null && skill.specializedAilment == StatusEffects.AilmentKind.Bleed
             ? specialized : ctx;
         DamageContext igniteBasis = skill != null && skill.specializedAilment == StatusEffects.AilmentKind.Ignite
@@ -863,8 +864,7 @@ public class BattleManager : MonoBehaviour
         float lightningDealt=CombatCalculator.CalculateFinalDamage(eligible,attacker,defender);
         if (lightningDealt <= 0f) return;
 
-        float chance = AdjustForApplicationResistance(shockEffect,
-            AdjustedChance(attacker, StatTypes.ShockChance), attacker, defender);
+        float chance = AdjustedChance(attacker, StatTypes.ShockChance);
         int stacks = RollOverflowApplications(chance);
         if (stacks <= 0) return;
 
@@ -876,7 +876,8 @@ public class BattleManager : MonoBehaviour
         int duration = Mathf.Max(1, 5 + Mathf.RoundToInt(attacker.GetRawStat(StatTypes.ShockDuration)));
         float auraShock=subclassState?.Has(SubclassIds.PriestLight)==true?subclassState.AuraSecondary(3,.20f):0f;
         float coefficient = Mathf.Min(1f, .5f * (1f + attacker.GetStat(StatTypes.ShockEffect)+auraShock)
-            * (keystones != null ? keystones.ShockTriggeredHitMultiplier : 1f));
+            * (keystones != null ? keystones.ShockTriggeredHitMultiplier : 1f))
+            * (1f - Mathf.Clamp01(defender != null ? defender.GetStat(StatTypes.ReducedShockEffect) : 0f));
         target.AddShockInstance(coefficient,duration,subclassState!=null?subclassState.MaximumShockInstances:1);
         int triggers = target.AddShockStacks(shockEffect, stacks, duration, coefficient, threshold);
         if (triggers <= 0) return;
@@ -901,22 +902,20 @@ public class BattleManager : MonoBehaviour
         float coldDealt=CombatCalculator.CalculateFinalDamage(eligible,attacker,defender);
         if (coldDealt <= 0f) return;
 
-        float chance = AdjustForApplicationResistance(chillEffect,
-            AdjustedChance(attacker, StatTypes.ChillChance), attacker, defender);
+        float chance = AdjustedChance(attacker, StatTypes.ChillChance);
         if (guaranteedApplications <= 0 && RollOverflowApplications(chance) <= 0) return;
 
-        float resistance = defender != null
-            ? defender.GetStat(StatTypes.ChillRes) + defender.GetStat(StatTypes.AllAilmentRes) : 0f;
-        float resistanceFactor = 1f - Mathf.Clamp(resistance, -.9f, .9f);
+        float effectFactor = 1f - Mathf.Clamp01(defender != null
+            ? defender.GetStat(StatTypes.ReducedChillEffect) : 0f);
         PassiveKeystoneState keystones = attacker.GetComponent<PassiveKeystoneState>();
         float effectiveness = keystones != null ? keystones.ChillEffectMultiplier : 1f;
         float cap = .3f + (keystones != null ? keystones.DeepFreezeMaximumEffectIncrease : 0f)
             + (attacker.GetComponent<PlayerController>()!=null?RelicInventory.Instance?.MaximumChillSlowIncrease??0f:0f);
         float auraChill=subclass?.Has(SubclassIds.PriestLight)==true?subclass.AuraSecondary(2,.20f):0f;
         float slow = CalculateChillSlow(coldDealt, targetHealth.MaxLife,
-            attacker.GetStat(StatTypes.ChillEffect)+auraChill, effectiveness, cap) * resistanceFactor;
-        int duration = Mathf.Max(1, Mathf.RoundToInt((4f
-            + attacker.GetRawStat(StatTypes.ChillDuration)) * resistanceFactor));
+            attacker.GetStat(StatTypes.ChillEffect)+auraChill, effectiveness, cap) * effectFactor;
+        int duration = Mathf.Max(1, Mathf.RoundToInt(4f
+            + attacker.GetRawStat(StatTypes.ChillDuration)));
         target.ApplyChill(chillEffect, Mathf.Min(cap, slow), duration,cap);
     }
 
@@ -958,26 +957,8 @@ public class BattleManager : MonoBehaviour
     public static float AdjustForApplicationResistance(StatusEffects effect, float chance,
         StatsComponent attacker, StatsComponent defender)
     {
-        chance = Mathf.Max(0f, chance);
-        if (effect == null || defender == null) return chance;
-
-        float resistance;
-        if (effect.Ailment == StatusEffects.AilmentKind.Poison)
-        {
-            float penetration = attacker != null ? attacker.GetStat(StatTypes.PoisonPenetration) : 0f;
-            resistance = defender.GetStat(StatTypes.PoisonRes)
-                + defender.GetStat(StatTypes.AllAilmentRes) - penetration;
-        }
-        else if (effect._StatusType == StatusEffects.StatusType.Shock)
-        {
-            resistance = defender.GetStat(StatTypes.ShockRes) + defender.GetStat(StatTypes.AllAilmentRes);
-        }
-        else if (effect._StatusType == StatusEffects.StatusType.Chill)
-        {
-            resistance = defender.GetStat(StatTypes.ChillRes) + defender.GetStat(StatTypes.AllAilmentRes);
-        }
-        else return chance;
-
-        return chance * (1f - Mathf.Clamp(resistance, -.9f, .9f));
+        // Legacy call site retained for compatibility. Ordinary resistances
+        // mitigate damage, while reduced Shock/Chill effect scales magnitude.
+        return Mathf.Max(0f, chance);
     }
 }

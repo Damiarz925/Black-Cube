@@ -14,7 +14,7 @@ public sealed class Step18_5GameplayTests
     [TestCase(StatusEffects.AilmentKind.Bleed,StatusEffects.StatusType.DamageOverTime,Element.Fire,0)]
     [TestCase(StatusEffects.AilmentKind.Ignite,StatusEffects.StatusType.DamageOverTime,Element.Fire,100)]
     [TestCase(StatusEffects.AilmentKind.Ignite,StatusEffects.StatusType.DamageOverTime,Element.Light,0)]
-    [TestCase(StatusEffects.AilmentKind.Poison,StatusEffects.StatusType.DamageOverTime,Element.Phys,100)]
+    [TestCase(StatusEffects.AilmentKind.Poison,StatusEffects.StatusType.DamageOverTime,Element.Phys,0)]
     [TestCase(StatusEffects.AilmentKind.Poison,StatusEffects.StatusType.DamageOverTime,Element.Void,100)]
     [TestCase(StatusEffects.AilmentKind.Poison,StatusEffects.StatusType.DamageOverTime,Element.Light,0)]
     [TestCase(StatusEffects.AilmentKind.None,StatusEffects.StatusType.Shock,Element.Light,100)]
@@ -25,7 +25,7 @@ public sealed class Step18_5GameplayTests
     {var effect=Effect(kind,type);var hit=new DamageContext(1);hit.AddDamage(element,100);Assert.That(AilmentEligibilityResolver.EligibleRawDamage(effect,hit,null),Is.EqualTo(expected));}
 
     [Test] public void MixedHitsUseOnlyEligiblePortionAndLightningCannotPoisonFromChanceAlone()
-    {var poison=Effect(StatusEffects.AilmentKind.Poison,StatusEffects.StatusType.DamageOverTime);var hit=new DamageContext(3);hit.AddDamage(Element.Phys,20);hit.AddDamage(Element.Void,30);hit.AddDamage(Element.Light,100);Assert.That(AilmentEligibilityResolver.EligibleRawDamage(poison,hit,null),Is.EqualTo(50));var lightning=new DamageContext(1);lightning.AddDamage(Element.Light,100);Assert.That(AilmentEligibilityResolver.EligibleRawDamage(poison,lightning,Stats()),Is.Zero);}
+    {var poison=Effect(StatusEffects.AilmentKind.Poison,StatusEffects.StatusType.DamageOverTime);var hit=new DamageContext(3);hit.AddDamage(Element.Phys,20);hit.AddDamage(Element.Void,30);hit.AddDamage(Element.Light,100);Assert.That(AilmentEligibilityResolver.EligibleRawDamage(poison,hit,null),Is.EqualTo(30));var lightning=new DamageContext(1);lightning.AddDamage(Element.Light,100);Assert.That(AilmentEligibilityResolver.EligibleRawDamage(poison,lightning,Stats()),Is.Zero);}
 
     [Test] public void ExplicitOverridesAreEffectScopedAndRevocable()
     {

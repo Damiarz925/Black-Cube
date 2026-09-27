@@ -55,7 +55,6 @@ public sealed class InventoryModFilter
         (ModFilterCategory.Critical, "Critical"),
         (ModFilterCategory.Armour, "Armour"),
         (ModFilterCategory.ElementalResistance, "Elemental Res"),
-        (ModFilterCategory.AilmentResistance, "Ailment Res"),
         (ModFilterCategory.Life, "Life"),
         (ModFilterCategory.Mana, "Mana"),
         (ModFilterCategory.Speed, "Speed"),
@@ -213,7 +212,8 @@ public sealed class InventoryModFilter
 
     private static bool IsIntrinsicWeaponStat(StatTypes stat) => stat is
         StatTypes.WeaponBaseDmg or StatTypes.WeaponBaseAttackSpeed or StatTypes.WeaponBaseCrit;
-    private static bool IsSkillLevel(StatTypes stat) => stat is >= StatTypes.Plus1Phys and <= StatTypes.Plus1Ignite;
+    private static bool IsSkillLevel(StatTypes stat) =>
+        stat is >= StatTypes.Plus1Phys and <= StatTypes.Plus1Ignite or StatTypes.PlusAllSkills;
     private static bool IsCritical(StatTypes stat) => stat is StatTypes.CritChance or StatTypes.CritMult or StatTypes.BaseCritChance;
     private static bool IsResistance(StatTypes stat) =>
         stat is >= StatTypes.ColdRes and <= StatTypes.AllAilmentRes
@@ -243,7 +243,9 @@ public sealed class InventoryModFilter
             StatTypes.IgniteDuration or StatTypes.IgnitePenetration => ModFilterCategory.Ignite | ModFilterCategory.Fire,
         StatTypes.ShockChance or StatTypes.ShockEffect or StatTypes.ShockDuration => ModFilterCategory.Shock | ModFilterCategory.Lightning,
         StatTypes.ChillChance or StatTypes.ChillEffect or StatTypes.ChillDuration => ModFilterCategory.Chill | ModFilterCategory.Cold,
-        StatTypes.FlatArmour or StatTypes.ArmourPercent => ModFilterCategory.Armour,
+        StatTypes.FlatArmour or StatTypes.ArmourPercent or StatTypes.PhysicalDamageReduction => ModFilterCategory.Armour,
+        StatTypes.ReducedShockEffect => ModFilterCategory.Shock,
+        StatTypes.ReducedChillEffect => ModFilterCategory.Chill,
         StatTypes.FlatEvasion or StatTypes.EvasionPercent => ModFilterCategory.Evasion,
         StatTypes.ChanceToBlock => ModFilterCategory.Block,
         StatTypes.FireRes or StatTypes.MaxFireRes => ModFilterCategory.Fire | ModFilterCategory.ElementalResistance,
@@ -272,6 +274,7 @@ public sealed class InventoryModFilter
         StatTypes.Plus1Poison => ModFilterCategory.SkillLevels | ModFilterCategory.Poison,
         StatTypes.Plus1Bleed => ModFilterCategory.SkillLevels | ModFilterCategory.Bleed,
         StatTypes.Plus1Ignite => ModFilterCategory.SkillLevels | ModFilterCategory.Ignite | ModFilterCategory.Fire,
+        StatTypes.PlusAllSkills => ModFilterCategory.SkillLevels,
         StatTypes.Strength or StatTypes.Intelligence or StatTypes.Dexterity or StatTypes.StrengthPercent or
             StatTypes.IntelligencePercent or StatTypes.DexterityPercent or StatTypes.DmgPerLowestStat
             => ModFilterCategory.Attributes,

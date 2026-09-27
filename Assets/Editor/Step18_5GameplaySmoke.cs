@@ -42,7 +42,8 @@ public static class Step18_5GameplaySmoke
         StatusEffects shock=Effect(StatusEffects.AilmentKind.None,StatusEffects.StatusType.Shock);
         DamageContext lightning=Hit(Element.Light),physical=Hit(Element.Phys),voidHit=Hit(Element.Void);
         Require(AilmentEligibilityResolver.EligibleRawDamage(poison,lightning,stats)==0,"Warrior-style Lightning incorrectly qualified for Poison.");
-        Require(AilmentEligibilityResolver.EligibleRawDamage(poison,physical,stats)>0,"Physical failed to qualify for Poison.");
+        Require(AilmentEligibilityResolver.EligibleRawDamage(poison,physical,stats)==0,"Ordinary Physical unexpectedly qualified for Poison.");
+        Require(AilmentEligibilityResolver.EligibleRawDamage(poison,voidHit,stats)>0,"Void failed to qualify for Poison.");
         state.GrantExternalEffect(SubclassEffectIds.RangerAllDamagePoison);Require(AilmentEligibilityResolver.EligibleRawDamage(poison,lightning,stats)>0,"Ranger Poison override failed.");state.RevokeExternalEffect(SubclassEffectIds.RangerAllDamagePoison);
         state.GrantExternalEffect(SubclassEffectIds.DarkPriestVoidAilments);Require(AilmentEligibilityResolver.EligibleRawDamage(ignite,voidHit,stats)>0,"Dark Priest Void override failed.");state.RevokeExternalEffect(SubclassEffectIds.DarkPriestVoidAilments);
         state.GrantExternalEffect(SubclassEffectIds.MageAllDamageShock);Require(AilmentEligibilityResolver.EligibleRawDamage(shock,physical,stats)>0,"Mage Storm Shock override failed.");state.RevokeExternalEffect(SubclassEffectIds.MageAllDamageShock);

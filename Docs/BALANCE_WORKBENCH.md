@@ -1,5 +1,7 @@
 # Black-Cube Balance Workbench
 
+The real-player pass adds collapsible left navigation and a tool search, direct-rate drop authoring, an explicit Enemy Power reference editor, Progression History with seeded historical inventory, a bounded ground-loot gearset search, sustainable Mana-aware Total DPS in Player Build, and a full-level No-Recovery defense calibration view. These features are documented in [Realistic Player Model](REALISTIC_PLAYER_MODEL.md), [Enemy Power and Loot](ENEMY_POWER_AND_LOOT.md), [Affix Pools](AFFIX_POOLS.md), and [Affix Focus](AFFIX_FOCUS_CURRENCY.md). The realistic crafting loop and derived Balanced defense targets are not complete; see the boundaries in those guides.
+
 Tooling 5 adds seven analysis tabs to the same Workbench: Sensitivity, Affix Analyzer, Loot Progression, Crafting Simulator, Balance Snapshots, Breakpoint Finder, and Balance Report. These inspect production data and never rebalance it automatically. See the dedicated guides below for the supported inputs, exports, and current boundaries.
 
 - [Sensitivity Analyzer](SENSITIVITY_ANALYZER.md)

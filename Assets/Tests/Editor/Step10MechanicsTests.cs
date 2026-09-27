@@ -72,10 +72,10 @@ public sealed class Step10MechanicsTests
         var stats = NewGameObject("matching-cap").AddComponent<StatsComponent>();
         stats.SetBaseStat(capStat, 5f);
         stats.SetBaseStat(StatTypes.MaxAllRes, 4f);
-        Assert.That(CombatCalculator.GetMaximumResistance(element, stats), Is.EqualTo(.84f).Within(.0001f));
+        Assert.That(CombatCalculator.GetMaximumResistance(element, stats), Is.EqualTo(element==Element.Void?.80f:.84f).Within(.0001f));
         foreach (Element other in new[] { Element.Fire, Element.Cold, Element.Light, Element.Void })
             if (other != element)
-                Assert.That(CombatCalculator.GetMaximumResistance(other, stats), Is.EqualTo(.79f).Within(.0001f));
+                Assert.That(CombatCalculator.GetMaximumResistance(other, stats), Is.EqualTo(other==Element.Void?.75f:.79f).Within(.0001f));
     }
 
     [Test]
@@ -192,7 +192,7 @@ public sealed class Step10MechanicsTests
         var physical = new DamageContext(1); physical.AddDamage(Element.Phys, 100f);
         AilmentCalculator.ComputeAilmentFromHit(effect, physical, attacker,
             out float physicalTick, out _, out _);
-        Assert.That(physicalTick, Is.EqualTo(5.625f).Within(.001f));
+        Assert.That(physicalTick, Is.Zero, "Ordinary Physical hits cannot Poison.");
 
         var alreadyScaledVoid = new DamageContext(1); alreadyScaledVoid.AddDamage(Element.Void, 150f);
         AilmentCalculator.ComputeAilmentFromHit(effect, alreadyScaledVoid, attacker,
@@ -201,8 +201,8 @@ public sealed class Step10MechanicsTests
 
         defender.SetBaseStat(StatTypes.VoidRes, 50f);
         defender.SetBaseStat(StatTypes.PoisonRes, 90f);
-        Assert.That(CombatCalculator.CalculateAilmentTickDamage(physicalTick, effect, attacker, defender),
-            Is.EqualTo(physicalTick * .5f).Within(.001f));
+        Assert.That(CombatCalculator.CalculateAilmentTickDamage(voidTick, effect, attacker, defender),
+            Is.EqualTo(voidTick * .5f).Within(.001f));
     }
 
     [Test]
@@ -229,7 +229,7 @@ public sealed class Step10MechanicsTests
         Assert.That(PlayerSkillController.CalculateEffectiveSkillLevel(0f), Is.EqualTo(1));
         Assert.That(PlayerSkillController.CalculateEffectiveSkillLevel(1f), Is.EqualTo(2));
         Assert.That(PlayerSkillController.CalculateEffectiveSkillLevel(99f), Is.EqualTo(20));
-        Assert.That(PlayerSkillController.SkillDamageLevelFactor(10), Is.EqualTo(1.45f).Within(.001f));
+        Assert.That(PlayerSkillController.SkillDamageLevelFactor(10), Is.EqualTo(Mathf.Pow(1.1f, 9)).Within(.001f));
         Assert.That(PlayerSkillController.ManaCostLevelFactor(20), Is.EqualTo(1.38f).Within(.001f));
         foreach (PlayerSkillId id in Enum.GetValues(typeof(PlayerSkillId)))
             Assert.That(PlayerSkillController.SkillLevelStat(id), Is.InRange(StatTypes.Plus1Phys, StatTypes.Plus1Ignite));

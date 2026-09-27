@@ -41,7 +41,6 @@ public static class StatCategoryMapping
 
             // More damage / multipliers
             case StatTypes.GenericMult:
-            case StatTypes.GenericDotMult:
             case StatTypes.PhysMult:
             case StatTypes.ColdMult:
             case StatTypes.LightMult:
@@ -51,6 +50,8 @@ public static class StatCategoryMapping
             case StatTypes.IgniteMult:
             case StatTypes.BleedMult:
                 return StatCategory.MoreDamage;
+            case StatTypes.GenericDotMult:
+                return StatCategory.DamageOverTime;
 
             // Penetration
             case StatTypes.PhysPenetration:
@@ -105,6 +106,9 @@ public static class StatCategoryMapping
             case StatTypes.ShockRes:
             case StatTypes.ChillRes:
             case StatTypes.AllAilmentRes:
+            case StatTypes.PhysicalDamageReduction:
+            case StatTypes.ReducedShockEffect:
+            case StatTypes.ReducedChillEffect:
                 return StatCategory.Defenses;
 
             // Resources
@@ -168,6 +172,7 @@ public static class StatCategoryMapping
             case StatTypes.Plus1Poison:
             case StatTypes.Plus1Bleed:
             case StatTypes.Plus1Ignite:
+            case StatTypes.PlusAllSkills:
                 return StatCategory.Other;
 
             default:

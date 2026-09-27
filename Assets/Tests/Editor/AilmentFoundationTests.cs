@@ -83,7 +83,7 @@ public sealed class AilmentFoundationTests
         hit.Hits[0]=new ElementalHit(Element.Fire,200);
         AilmentCalculator.ComputeAilmentFromHit(effect,hit,attacker,out var scaledTick,out _,out _);
         Assert.That(scaledTick,Is.EqualTo(baseTick*2).Within(.001),"A hit increased/More/crit/range result is already in the pre-defense hit context.");
-        controller.GetComponent<StatsComponent>().SetBaseStat(StatTypes.IgniteRes,50);
+        controller.GetComponent<StatsComponent>().SetBaseStat(StatTypes.FireRes,50);
         float mitigated=CombatCalculator.CalculateAilmentTickDamage(scaledTick,effect,attacker,controller.GetComponent<StatsComponent>());
         Assert.That(mitigated,Is.EqualTo(scaledTick*.5f).Within(.001));
     }

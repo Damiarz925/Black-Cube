@@ -221,6 +221,8 @@ public class GameManager : MonoBehaviour
 
         ILootRandomSource lootRandom=LootRandomSourceFactory.CreateProduction();
         EnemyDropResult drops=EnemyLootProfile.Roll(enemyAI,wasBoss,lootRandom);
+        // Challenge-key odds remain on their pre-pass legacy factor; ordinary
+        // gear/currency now use the new reference-backed combat-power budget.
         EndgameDropProfile.TryAwardChallengeKey(currentZoneLevel,rarity,wasBoss,drops.power.LootPower,WorldContentCatalog.Reference,lootRandom);
         if(wasBoss&&ChallengeRuntimeService.Instance?.IsActive!=true&&lootRandom.Value()<EndgameDropProfile.CatalystChance(currentZoneLevel))
             CurrencyInventory.Instance?.Add(CraftingCurrencyType.EmpowermentCatalyst);
@@ -237,7 +239,7 @@ public class GameManager : MonoBehaviour
         }
         Transform pickupTarget=FindAnyObjectByType<PlayerController>()?.transform;
         if(drops!=null)foreach(var stack in drops.currencyStacks)CurrencyWorldPickup.Spawn(stack.currency,stack.amount,enemyHealth.transform.position,pickupTarget);
-        if(drops!=null)Debug.Log($"[Loot] event={lootRandom.EventId} source={lootRandom.SourceName}; {drops.power}; GearDrops: {drops.gearCount}; CurrencyStacks: {drops.currencyStacks.Count}");
+        if(drops!=null)Debug.Log($"[Loot] event={lootRandom.EventId} source={lootRandom.SourceName}; CombatPower={(drops.combatPower.available?drops.combatPower.power.ToString("0.###"):"REFERENCE INCOMPLETE (neutral 1x)")}; GearBudget={drops.gearBudget.finalBudget:0.###}; LegacyChallengeKeyFactor={drops.power.LootPower:0.###}; GearDrops={drops.gearCount}; CurrencyStacks={drops.currencyStacks.Count}");
 
         Debug.Log($"GameManager: Enemy killed. Boss={wasBoss}, zoneKills={enemiesKilledInZone}/{enemiesToKillBeforeBoss}");
 

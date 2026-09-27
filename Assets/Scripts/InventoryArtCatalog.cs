@@ -23,6 +23,7 @@ public static class InventoryArtCatalog
         CraftingCurrencyType.AncientAddModifier => Load("UI/Currency/AncientAddYellow"),
         CraftingCurrencyType.AncientRemoveModifier => Load("UI/Currency/AncientRemove"),
         CraftingCurrencyType.EmpowermentCatalyst => PlaceholderIcon.EmpowermentCatalyst,
+        CraftingCurrencyType.AffixFocus => Resources.Load<Sprite>("UI/Currency/AffixFocus") ?? PlaceholderIcon.EmpowermentCatalyst,
         _ => null
     };
 
@@ -40,6 +41,7 @@ public static class InventoryArtCatalog
         CraftingCurrencyType.AncientReroll => "UI/Currency/AncientBlueReroll",
         CraftingCurrencyType.AncientAddModifier => "UI/Currency/AncientAddYellow",
         CraftingCurrencyType.AncientRemoveModifier => "UI/Currency/AncientRemove",
+        CraftingCurrencyType.AffixFocus => "UI/Currency/AffixFocus",
         _ => null
     };
 

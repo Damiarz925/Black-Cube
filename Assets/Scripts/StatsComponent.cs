@@ -188,6 +188,9 @@ public class StatsComponent : MonoBehaviour
             case StatTypes.ShockRes:
             case StatTypes.ChillRes:
             case StatTypes.AllAilmentRes:
+            case StatTypes.PhysicalDamageReduction:
+            case StatTypes.ReducedShockEffect:
+            case StatTypes.ReducedChillEffect:
 
             // Life / mana % increases. Both regeneration stats remain flat units
             // per second and are therefore intentionally excluded here.

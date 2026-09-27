@@ -17,7 +17,7 @@ public static class StatDisplayFormatting
         { StatTypes.FlatVoid, "Flat Void Damage" },
         { StatTypes.GenericDmg, "Increased Damage" },
         { StatTypes.GenericMult, "More Damage" },
-        { StatTypes.GenericDotMult, "More DoT Damage" },
+        { StatTypes.GenericDotMult, "Damage Over Time Multiplier" },
         { StatTypes.CritMult, "Critical Damage Multiplier" },
         { StatTypes.CritChance, "Increased Critical Chance" },
         { StatTypes.BaseCritChance, "Added Base Critical Chance (Points)" },
@@ -57,6 +57,10 @@ public static class StatDisplayFormatting
         { StatTypes.FlatLightPerIntelligence, "Added Lightning Damage per Intelligence" },
         { StatTypes.FlatColdPerDexterity, "Added Cold Damage per Dexterity" },
         { StatTypes.DmgPerLowestStat, "Damage per 10 Lowest Attribute" },
+        { StatTypes.PhysicalDamageReduction, "Physical Damage Reduction" },
+        { StatTypes.ReducedShockEffect, "Reduced Shock Effect" },
+        { StatTypes.ReducedChillEffect, "Reduced Chill Effect" },
+        { StatTypes.PlusAllSkills, "+Level of All Skills" },
     };
 
     public static string ToFriendlyName(StatTypes t)

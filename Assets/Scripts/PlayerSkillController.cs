@@ -104,7 +104,9 @@ public sealed class PlayerSkillController : MonoBehaviour
     {
         if (skill == null) return 1;
         StatsComponent stats = GetComponent<StatsComponent>();
-        float added=stats != null ? stats.GetRawStat(SkillLevelStat(skill.id)) : 0f;
+        float added=stats != null
+            ? stats.GetRawStat(SkillLevelStat(skill.id)) + stats.GetRawStat(StatTypes.PlusAllSkills)
+            : 0f;
         if(skill==SelectedSkill)added+=RelicInventory.Instance?.EquippedSkillLevelBonus??0;
         return CalculateEffectiveSkillLevel(added);
     }
@@ -112,8 +114,9 @@ public sealed class PlayerSkillController : MonoBehaviour
     public static int CalculateEffectiveSkillLevel(float addedLevels) =>
         Mathf.Clamp(1 + Mathf.FloorToInt(Mathf.Max(0f, addedLevels)), 1, 20);
 
+    public const float MoreSkillDamagePerBonusLevel = .10f;
     public static float SkillDamageLevelFactor(int effectiveLevel) =>
-        1f + .05f * (Mathf.Clamp(effectiveLevel, 1, 20) - 1);
+        Mathf.Pow(1f + MoreSkillDamagePerBonusLevel, Mathf.Clamp(effectiveLevel, 1, 20) - 1);
 
     public static float ManaCostLevelFactor(int effectiveLevel) =>
         1f + .02f * (Mathf.Clamp(effectiveLevel, 1, 20) - 1);

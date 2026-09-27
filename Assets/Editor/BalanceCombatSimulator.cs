@@ -257,6 +257,8 @@ namespace BlackCube
                 if(effect==null)continue;
                 bool matching=skill!=null&&skill.specializedAilment==effect.Ailment;
                 var basis=matching?special:context;
+                if(matching&&skill.id==PlayerSkillId.Envenom)
+                    basis.EventTags|=CombatEventTags.FullAilmentBasis;
                 if(AilmentCalculator.GetSourceHitDamage(effect,basis)<=0f)continue;
                 float chance=ApplicationChance(effect,source.Stats,target.DefenseStats);
                 int applications=RollApplications(random,chance)

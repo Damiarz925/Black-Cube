@@ -78,7 +78,7 @@ namespace BlackCube.BalanceWorkbench
 
     [Serializable] public sealed class DropLabRequest
     {
-        public int level=80,sampleCount=10000;public EnemyAI.EnemyRarity rarity=EnemyAI.EnemyRarity.Rare;public bool boss,generateActualEnemyGear;public string archetypeId="Any";public bool forcePrimaryDamage;public Element primaryDamage=Element.Phys;public float fixedGearQuality=1f;public long seed=3001;
+        public int level=80,stage=1,sampleCount=10000;public EnemyAI.EnemyRarity rarity=EnemyAI.EnemyRarity.Rare;public bool boss,generateActualEnemyGear;public string archetypeId="Any";public bool forcePrimaryDamage;public Element primaryDamage=Element.Phys;public float fixedGearQuality=1f,fixedEnemyPower=1f;public long seed=3001;
     }
     [Serializable] public sealed class CurrencyDropMetric
     {public string stableId,name;public float weight;public int minimumLevel,qualityTier;public double chancePerKill,averagePerKill,perHundred,perThousand,expectedKillsPerDrop;}
@@ -147,6 +147,84 @@ namespace BlackCube.BalanceWorkbench
 
         public static DropLabResult RunDrops(DropLabRequest request,Action<float> progress=null,Func<bool> cancelled=null)
         {
+            var result=new DropLabResult{metadata=ExperimentMetadata.Create("Drop Simulator",request.seed,
+                request.sampleCount,request.level,request.level,JsonUtility.ToJson(request))};
+            var rng=new SeededSimulationRandomSource(request.seed);
+            var gearCounts=new List<double>(request.sampleCount);
+            var currencyCounts=new List<double>(request.sampleCount);
+            var totals=new Dictionary<CraftingCurrencyType,int>();
+            var hits=new Dictionary<CraftingCurrencyType,int>();
+            int any=0,stacks=0,max=0;
+            float expected=EnemyLootProfile.ExpectedGearScore(request.level,request.rarity,1);
+            var powers=new List<float>{Mathf.Max(0f,request.fixedEnemyPower)};
+            var qualities=new List<float>{request.fixedGearQuality};
+            if(request.generateActualEnemyGear)
+            {
+                var enemies=RunEnemies(new EnemyLabRequest{level=request.level,
+                    sampleCount=Math.Min(request.sampleCount,1000),rarity=request.rarity,
+                    archetypeId=request.archetypeId,forcePrimaryDamage=request.forcePrimaryDamage,
+                    primaryDamage=request.primaryDamage,seed=request.seed+7919});
+                qualities=enemies.samples.Select(x=>Mathf.Clamp((float)(x.gearScore/
+                    Math.Max(.001,EnemyLootProfile.ExpectedGearScore(request.level,request.rarity,x.slotCount))),.6f,3f)).ToList();
+                powers=new List<float>();
+                var reference=EnemyLootPowerReferenceSO.Current;
+                EnemyLootPowerReferenceRow row=null;
+                bool ready=reference!=null&&reference.TryGet(request.level,request.rarity,out row);
+                foreach(var sample in enemies.samples)
+                {
+                    var preview=new EnemyPreviewSnapshot{sample=sample,archetypeId=sample.archetype,
+                        displayName=sample.archetype,level=request.level,rarity=request.rarity};
+                    var combat=CombatLabAdapters.EnemySnapshot(preview,null);
+                    powers.Add(ready?EnemyLootPowerScorer.Evaluate(combat,row,reference.offenseWeight).power:1f);
+                }
+                if(powers.Count==0){powers.Add(1f);qualities.Add(1f);}
+            }
+            var world=WorldProgression.Resolve(request.level,request.stage,WorldContentCatalog.Reference);
+            for(int i=0;i<request.sampleCount;i++)
+            {
+                if(cancelled?.Invoke()==true)break;
+                float quality=qualities[i%qualities.Count],power=powers[i%powers.Count];
+                var legacy=new EnemyLootPowerSnapshot(EnemyLootProfile.LevelFactor(request.level),
+                    EnemyLootProfile.RarityMultiplier(request.rarity,request.boss),expected*quality,expected,quality);
+                var context=new DropRateContext(request.level,request.rarity,request.boss,power,
+                    world.Encounter?.stableId,world.Location?.stableId,
+                    request.archetypeId=="Any"?null:request.archetypeId,null);
+                var drop=EnemyLootProfile.RollConfigured(context,rng,legacy);
+                gearCounts.Add(drop.gearCount);currencyCounts.Add(drop.currencies.Count);
+                max=Math.Max(max,drop.gearCount);
+                if(drop.currencyStacks.Count>0)any++;
+                stacks+=drop.currencyStacks.Count;
+                foreach(var stack in drop.currencyStacks)
+                {
+                    totals[stack.currency]=totals.TryGetValue(stack.currency,out int old)?old+stack.amount:stack.amount;
+                    hits[stack.currency]=hits.TryGetValue(stack.currency,out int hit)?hit+1:1;
+                }
+                if((i&255)==0)progress?.Invoke((i+1f)/request.sampleCount);
+            }
+            int n=gearCounts.Count;
+            result.metadata.sampleCount=n;result.gearCount=MetricSummary.From(gearCounts);
+            result.currencyRolls=MetricSummary.From(currencyCounts);result.averageGearItems=result.gearCount.mean;
+            result.averageCurrencyRolls=result.currencyRolls.mean;result.maximumGearItems=max;
+            result.chanceAnyCurrency=n==0?0:any/(double)n;
+            result.averageCurrencyStacks=n==0?0:stacks/(double)n;
+            foreach(var entry in LootDropBalanceProfileSO.Current.currencies)
+            {
+                if(entry==null)continue;
+                int total=totals.TryGetValue(entry.currency,out int c)?c:0;
+                int hit=hits.TryGetValue(entry.currency,out int h)?h:0;
+                double avg=n==0?0:total/(double)n,chance=n==0?0:hit/(double)n;
+                result.currencies.Add(new CurrencyDropMetric{stableId=entry.currency.ToString(),
+                    name=CurrencyPresentation.Name(entry.currency),weight=entry.useLegacyWeightedRoll?-1f:entry.baseChance,
+                    minimumLevel=entry.minimumCombatLevel,qualityTier=entry.useLegacyWeightedRoll?-1:0,
+                    averagePerKill=avg,chancePerKill=chance,perHundred=avg*100,perThousand=avg*1000,
+                    expectedKillsPerDrop=chance>0?1/chance:double.PositiveInfinity});
+            }
+            return result;
+        }
+
+        // Retained only for comparing historical Tooling 1 drop experiments.
+        static DropLabResult RunLegacyDrops(DropLabRequest request,Action<float> progress=null,Func<bool> cancelled=null)
+        {
             var result=new DropLabResult{metadata=ExperimentMetadata.Create("Drop Simulator",request.seed,request.sampleCount,request.level,request.level,JsonUtility.ToJson(request))};var rng=new SeededSimulationRandomSource(request.seed);var gearCounts=new List<double>(request.sampleCount);var rollCounts=new List<double>(request.sampleCount);var counts=new Dictionary<CraftingCurrencyType,int>();var hits=new Dictionary<CraftingCurrencyType,int>();int any=0,stacks=0,max=0;float expected=EnemyLootProfile.ExpectedGearScore(request.level,request.rarity,1);var qualities=new List<float>{request.fixedGearQuality};
             if(request.generateActualEnemyGear){var enemies=RunEnemies(new EnemyLabRequest{level=request.level,sampleCount=Math.Min(request.sampleCount,1000),rarity=request.rarity,archetypeId=request.archetypeId,forcePrimaryDamage=request.forcePrimaryDamage,primaryDamage=request.primaryDamage,seed=request.seed+7919});qualities=enemies.samples.Select(x=>Mathf.Clamp((float)(x.gearScore/Math.Max(.001,EnemyLootProfile.ExpectedGearScore(request.level,request.rarity,x.slotCount))),.6f,3f)).ToList();if(qualities.Count==0)qualities.Add(1f);}
             for(int i=0;i<request.sampleCount;i++){if(cancelled?.Invoke()==true)break;float quality=qualities[i%qualities.Count];var power=new EnemyLootPowerSnapshot(EnemyLootProfile.LevelFactor(request.level),EnemyLootProfile.RarityMultiplier(request.rarity,request.boss),expected*quality,expected,quality);int gear=1+EnemyLootProfile.StochasticRound(power.ExtraGearBudget,EnemyLootProfile.MaximumExtraGear,rng);int rolls=EnemyLootProfile.StochasticRound(power.CurrencyRollBudget,EnemyLootProfile.MaximumCurrencyRolls,rng);gearCounts.Add(gear);rollCounts.Add(rolls);max=Math.Max(max,gear);var seen=new HashSet<CraftingCurrencyType>();for(int j=0;j<rolls;j++){var entry=CurrencyLootTable.Choose(request.level,request.rarity,request.boss,request.level>=RebirthManager.RequiredZone,rng);if(entry==null)continue;int amount=rng.Range(entry.StackMinimum,entry.StackMaximum+1);counts[entry.Currency]=counts.TryGetValue(entry.Currency,out int old)?old+amount:amount;seen.Add(entry.Currency);stacks++;}if(seen.Count>0)any++;foreach(var currency in seen)hits[currency]=hits.TryGetValue(currency,out int old)?old+1:1;if((i&255)==0)progress?.Invoke((i+1f)/request.sampleCount);}
@@ -156,7 +234,7 @@ namespace BlackCube.BalanceWorkbench
 
         public static List<CurveSeries> IntrinsicCurves(int start,int end,int step,float authoredLife=100)
         {CurveSeries life=new(){name="Intrinsic Life",color=new Color(.25f,.85f,.4f)};CurveSeries damage=new(){name="Intrinsic Damage",color=new Color(1f,.35f,.2f)};CurveSeries armour=new(){name="Intrinsic Armour",color=new Color(.4f,.65f,1f)};CurveSeries res=new(){name="Intrinsic Resistance",color=new Color(.8f,.55f,1f)};for(int l=Math.Max(1,start);l<=Math.Max(start,end);l+=Math.Max(1,step)){var x=EnemyScalingMath.Calculate(l);life.points.Add(new CurvePoint{x=l,mean=x.ScaledLife(authoredLife)});damage.points.Add(new CurvePoint{x=l,mean=x.DamageFactor});armour.points.Add(new CurvePoint{x=l,mean=x.Armour});res.points.Add(new CurvePoint{x=l,mean=x.ResistancePoints});}return new(){life,damage,armour,res};}
-        public static string DataFingerprint(){if(!fingerprintDirty&&fingerprintCache!=null)return fingerprintCache;var paths=new List<string>{"Assets/Prefabs/Scriptable Objects/ModDatabase.asset","Assets/Resources/EnemyScalingProfile.asset","Assets/Resources/LootBalanceProfile.asset","Assets/Resources/GameData/PassiveTree/SO_PassiveTreeDatabase.asset","Assets/Resources/GameData/WorldContentDatabase.asset","Assets/Resources/PlayerSkills.asset"};foreach(string filter in new[]{"t:PassiveClassBranchSO","t:PassiveWeaponBranchSO","t:PlayerGearProfileSO"})paths.AddRange(AssetDatabase.FindAssets(filter).Select(AssetDatabase.GUIDToAssetPath));using var sha=SHA256.Create();var bytes=new List<byte>();foreach(string p in paths.Distinct().OrderBy(x=>x,StringComparer.Ordinal))if(File.Exists(p)){bytes.AddRange(Encoding.UTF8.GetBytes(p));bytes.AddRange(File.ReadAllBytes(p));}fingerprintCache=BitConverter.ToString(sha.ComputeHash(bytes.ToArray())).Replace("-",string.Empty).Substring(0,16);fingerprintDirty=false;return fingerprintCache;}
+        public static string DataFingerprint(){if(!fingerprintDirty&&fingerprintCache!=null)return fingerprintCache;var paths=new List<string>{"Assets/Prefabs/Scriptable Objects/ModDatabase.asset","Assets/Resources/EnemyScalingProfile.asset","Assets/Resources/LootBalanceProfile.asset","Assets/Resources/LootDropBalanceProfile.asset","Assets/Resources/GameData/PassiveTree/SO_PassiveTreeDatabase.asset","Assets/Resources/GameData/WorldContentDatabase.asset","Assets/Resources/PlayerSkills.asset"};foreach(string filter in new[]{"t:PassiveClassBranchSO","t:PassiveWeaponBranchSO","t:PlayerGearProfileSO"})paths.AddRange(AssetDatabase.FindAssets(filter).Select(AssetDatabase.GUIDToAssetPath));using var sha=SHA256.Create();var bytes=new List<byte>();foreach(string p in paths.Distinct().OrderBy(x=>x,StringComparer.Ordinal))if(File.Exists(p)){bytes.AddRange(Encoding.UTF8.GetBytes(p));bytes.AddRange(File.ReadAllBytes(p));}fingerprintCache=BitConverter.ToString(sha.ComputeHash(bytes.ToArray())).Replace("-",string.Empty).Substring(0,16);fingerprintDirty=false;return fingerprintCache;}
         public static string GitCommit(){try{var psi=new System.Diagnostics.ProcessStartInfo("git","rev-parse --short HEAD"){WorkingDirectory=Directory.GetParent(Application.dataPath).FullName,RedirectStandardOutput=true,UseShellExecute=false,CreateNoWindow=true};using var p=System.Diagnostics.Process.Start(psi);return p.StandardOutput.ReadToEnd().Trim();}catch{return "unavailable";}}
     }
 

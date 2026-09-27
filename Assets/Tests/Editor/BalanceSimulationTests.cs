@@ -264,9 +264,10 @@ public sealed class BalanceSimulationTests
             source.SetBaseStat(StatTypes.BleedChance, 0f);
             source.SetBaseStat(StatTypes.PoisonChance, 100f);
             poison.ConfigureRuntime("Poison", StatusEffects.StatusType.DamageOverTime,
-                StatusEffects.AilmentKind.Poison, ElementMask.Phys, .1f, 4, 100,
+                StatusEffects.AilmentKind.Poison, ElementMask.Void, .1f, 4, 100,
                 StatusEffects.StackPolicy.StackIndependently, 2);
-            var globalPoison = BalanceCombatSimulator.Simulate(physical, source, 1000f, 1f, 0f,
+            var voidHit = new DamageContext(1); voidHit.AddDamage(Element.Void, 100f);
+            var globalPoison = BalanceCombatSimulator.Simulate(voidHit, source, 1000f, 1f, 0f,
                 idle, target, 1000f, .0001f, 0f, new[] { poison }, 53, 3.1f);
             Assert.That(globalPoison.AilmentTicks, Is.GreaterThan(0));
         }

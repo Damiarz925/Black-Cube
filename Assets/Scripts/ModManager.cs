@@ -54,6 +54,7 @@ public class ModManager : MonoBehaviour
         {StatTypes.Plus1Poison, 5 },
         {StatTypes.Plus1Bleed, 5 },
         {StatTypes.Plus1Ignite, 5 },
+        {StatTypes.PlusAllSkills, 5 },
     };
 
     private void Awake()
@@ -306,7 +307,8 @@ public class ModManager : MonoBehaviour
             or StatTypes.ManaOnHit or StatTypes.ManaOnKill or StatTypes.DmgPerMaxMana
             or StatTypes.DmgPerCurrentMana or StatTypes.ManaPerIntelligence
             or StatTypes.LifeOnKill
-            or >= StatTypes.Plus1Phys and <= StatTypes.Plus1Ignite;
+            or >= StatTypes.Plus1Phys and <= StatTypes.Plus1Ignite
+            or StatTypes.PlusAllSkills;
     }
 
     public static bool IsWeaponAffixEligible(StatTypes stat, Element weaponElement)
@@ -376,7 +378,7 @@ public class ModManager : MonoBehaviour
             case StatTypes.PoisonDuration:
             case StatTypes.PoisonPenetration:
             case StatTypes.Plus1Poison:
-                return weaponElement is Element.Phys or Element.Fire or Element.Cold or Element.Light or Element.Void or Element.Poison;
+                return weaponElement == Element.Void || weaponElement == Element.Poison;
 
             case StatTypes.BleedDmg:
             case StatTypes.BleedMult:
@@ -386,9 +388,6 @@ public class ModManager : MonoBehaviour
             case StatTypes.BleedPenetration:
             case StatTypes.Plus1Bleed:
                 return weaponElement == Element.Phys;
-
-            case StatTypes.GenericDotMult:
-                return weaponElement is Element.Phys or Element.Fire or Element.Cold or Element.Light or Element.Void or Element.Poison;
 
             default:
                 return true;

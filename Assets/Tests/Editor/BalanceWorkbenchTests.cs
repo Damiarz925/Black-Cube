@@ -28,7 +28,7 @@ public sealed class BalanceWorkbenchTests
     [Test] public void DropSimulator_IsDeterministicAndReadsAuthoritativeProfile()
     {
         var request=new DropLabRequest{level=150,rarity=EnemyAI.EnemyRarity.Rare,sampleCount=2000,seed=81,fixedGearQuality=1.25f};var profile=LootBalanceProfileSO.Current;float before=profile.currencyRollCoefficient;var a=ProductionBalanceAdapters.RunDrops(request);var b=ProductionBalanceAdapters.RunDrops(request);
-        Assert.That(a.averageGearItems,Is.EqualTo(b.averageGearItems));Assert.That(a.averageCurrencyRolls,Is.EqualTo(b.averageCurrencyRolls));Assert.That(a.currencies.Select(x=>x.averagePerKill),Is.EqualTo(b.currencies.Select(x=>x.averagePerKill)));Assert.That(profile.currencyRollCoefficient,Is.EqualTo(before));Assert.That(a.currencies.Count,Is.EqualTo(profile.currencies.Count));Assert.That(a.averageGearItems,Is.GreaterThanOrEqualTo(1));
+        Assert.That(a.averageGearItems,Is.EqualTo(b.averageGearItems));Assert.That(a.averageCurrencyRolls,Is.EqualTo(b.averageCurrencyRolls));Assert.That(a.currencies.Select(x=>x.averagePerKill),Is.EqualTo(b.currencies.Select(x=>x.averagePerKill)));Assert.That(profile.currencyRollCoefficient,Is.EqualTo(before));Assert.That(a.currencies.Count,Is.EqualTo(Enum.GetValues(typeof(CraftingCurrencyType)).Length));Assert.That(a.averageGearItems,Is.GreaterThanOrEqualTo(1));
     }
 
     [Test] public void DropSimulator_ActualGearModeUsesProductionEnemySamples()

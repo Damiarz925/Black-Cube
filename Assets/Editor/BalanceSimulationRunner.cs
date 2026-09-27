@@ -306,7 +306,7 @@ namespace BlackCube
                 fireRes = stats.GetStat(StatTypes.FireRes) + stats.GetStat(StatTypes.AllRes),
                 coldRes = stats.GetStat(StatTypes.ColdRes) + stats.GetStat(StatTypes.AllRes),
                 lightRes = stats.GetStat(StatTypes.LightRes) + stats.GetStat(StatTypes.AllRes),
-                voidRes = stats.GetStat(StatTypes.VoidRes) + stats.GetStat(StatTypes.AllRes),
+                voidRes = stats.GetStat(StatTypes.VoidRes),
                 hitTwice = hitTwice, optimizerOffense = ai.LastBuildEvaluation.Offense,
                 optimizerDefense = ai.LastBuildEvaluation.Defense,
                 referencePlayerLife = referenceLife, referencePlayerHit = playerHit,
