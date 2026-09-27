@@ -96,7 +96,7 @@ public static class CodexModCatalog
             {
                 string range = tier.pairedDamage
                     ? $"Adds ({tier.minValue:0.##}–{tier.maxValue:0.##}) to ({tier.minHighValue:0.##}–{tier.maxHighValue:0.##})"
-                    : $"{tier.minValue:0.##}–{tier.maxValue:0.##}{(StatsComponent.IsPercentStat(family.Stat) ? "%" : "")}";
+                    : $"{StatsComponent.ToDisplayedValue(family.Stat,tier.minValue):0.##}–{StatsComponent.ToDisplayedValue(family.Stat,tier.maxValue):0.##}{(StatsComponent.IsPercentStat(family.Stat) ? "%" : "")}";
                 text.AppendLine($"    T{tier.tierIndex}  |  ilvl {tier.minItemLevel}  |  {range}");
             }
         }

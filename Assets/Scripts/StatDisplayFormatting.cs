@@ -89,7 +89,7 @@ public static class StatDisplayFormatting
     {
         float raw = type is StatTypes.Strength or StatTypes.Dexterity or StatTypes.Intelligence
             ? DerivedStatCalculator.Attribute(stats, type)
-            : stats.GetRawStat(type);
+            : StatsComponent.ToDisplayedValue(type, stats.GetRawStat(type));
 
         // Hide near-zero from floats
         if (System.MathF.Abs(raw) < 0.0001f)

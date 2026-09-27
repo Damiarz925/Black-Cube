@@ -58,7 +58,7 @@ public sealed class RealPlayerItemizationTests
             source.GetComponent<StatsComponent>().SetBaseStat(StatTypes.PhysPenetration,10f);
             var defense=target.GetComponent<StatsComponent>();
             defense.SetBaseStat(StatTypes.FlatArmour,1000f);
-            defense.SetBaseStat(StatTypes.PhysicalDamageReduction,8f);
+            defense.SetBaseStat(StatTypes.PhysicalDamageReduction,.08f);
             bleed.ConfigureRuntime("Bleed",StatusEffects.StatusType.DamageOverTime,
                 StatusEffects.AilmentKind.Bleed,ElementMask.Phys,.1f,5,1,
                 StatusEffects.StackPolicy.StackIndependently,2);
@@ -66,6 +66,22 @@ public sealed class RealPlayerItemizationTests
                 source.GetComponent<StatsComponent>(),defense),Is.EqualTo(52f).Within(.001f));
         }
         finally { Object.DestroyImmediate(source);Object.DestroyImmediate(target);Object.DestroyImmediate(bleed); }
+    }
+
+    [TestCase(.02f, 2f, 98f)]
+    [TestCase(.1f, 10f, 90f)]
+    public void FractionStoredPhysicalReductionMatchesDisplayedPercentAndCombat(float roll, float display, float remainingHit)
+    {
+        var target=new GameObject("target",typeof(StatsComponent));
+        try
+        {
+            var stats=target.GetComponent<StatsComponent>();
+            stats.SetBaseStat(StatTypes.PhysicalDamageReduction,roll);
+            Assert.That(stats.GetStat(StatTypes.PhysicalDamageReduction),Is.EqualTo(roll).Within(.00001f));
+            Assert.That(StatDisplayFormatting.FormatValue(stats,StatTypes.PhysicalDamageReduction),Is.EqualTo($"{display:0.##}%"));
+            Assert.That(CombatCalculator.ApplyArmourValue(100f,0f,stats.GetStat(StatTypes.PhysicalDamageReduction),0f),Is.EqualTo(remainingHit).Within(.001f));
+        }
+        finally { Object.DestroyImmediate(target); }
     }
 
     [Test]

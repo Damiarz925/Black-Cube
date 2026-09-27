@@ -62,7 +62,7 @@ public static class ItemTooltipFormatter
             or StatTypes.FlatFire or StatTypes.FlatCold or StatTypes.FlatLight or StatTypes.FlatVoid);
         string unit=percent?"%":"";
         string rolled=special!=null?$"{special.displayName}: {special.description}":paired?$"Adds {mod.value:0.##}–{mod.HighValue:0.##} {ItemTooltipUI.ElementName(item.BaseElement)} Damage"
-            :$"{StatDisplayFormatting.ToFriendlyName(mod.statType)}: {mod.value:+0.##;-0.##;0}{unit}";
+            :$"{StatDisplayFormatting.ToFriendlyName(mod.statType)}: {StatsComponent.ToDisplayedValue(mod.statType,mod.value):+0.##;-0.##;0}{unit}";
         string range=TierRange(item,mod,percent);
         string color=implicitLine?"#9FC8BC":mod.isEmpowered?"#73D8EE":mod.isBossSpecial?"#D88BFF":"#E4C979";
         // Reserve a compact space for the runtime-built padlock Image. TMP's
@@ -92,7 +92,7 @@ public static class ItemTooltipFormatter
         if(!valid)return "(historical roll / current range differs)";
         string unit=percent?"%":"";
         return tier.pairedDamage?$"(min {min:0.##}–{max:0.##}, max {minHigh:0.##}–{maxHigh:0.##})"
-            :$"({min:0.##}–{max:0.##}{unit})";
+            :$"({StatsComponent.ToDisplayedValue(mod.statType,min):0.##}–{StatsComponent.ToDisplayedValue(mod.statType,max):0.##}{unit})";
     }
 
     public static string DescribeRelic(RelicData relic)

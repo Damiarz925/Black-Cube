@@ -29,16 +29,19 @@ public class StatsComponent : MonoBehaviour
     /// </summary>
     public float GetStat(StatTypes type)
     {
-        float raw = GetRawStat(type);
-
-        if (IsPercentStat(type))
-        {
-            // 20 => 0.20
-            return raw / 100f;
-        }
-
-        return raw;
+        return ToGameplayValue(type, GetRawStat(type));
     }
+
+    // Physical Damage Reduction affixes were authored and serialized as fractions
+    // (0.02 means 2%), unlike the other percent stats stored as percent points.
+    // Keep that identity stable for existing items and use one conversion in every
+    // combat/simulation stat store.
+    public static float ToGameplayValue(StatTypes type, float raw)
+        => type == StatTypes.PhysicalDamageReduction ? raw
+            : IsPercentStat(type) ? raw / 100f : raw;
+
+    public static float ToDisplayedValue(StatTypes type, float raw)
+        => type == StatTypes.PhysicalDamageReduction ? raw * 100f : raw;
 
     /// <summary>
     /// Raw-unit calculated value (e.g., 20 == "20%"). More damage returns

@@ -180,7 +180,7 @@ public static class EnemyBuildOptimizer
             int index = (int)stat;
             return index >= 0 && index < raw.Length ? raw[index] : 0f;
         }
-        public float Get(StatTypes stat) => (int)stat>=0&&(int)stat<StatCount&&PercentStat[(int)stat] ? Raw(stat) / 100f : Raw(stat);
+        public float Get(StatTypes stat) => StatsComponent.ToGameplayValue(stat, Raw(stat));
     }
 
     public static int CandidateCountForLevel(int level)
