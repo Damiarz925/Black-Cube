@@ -120,7 +120,7 @@ public static class PassiveTreeDefinition
 
     public static string KeystoneName(PassiveKeystone keystone) => keystone == PassiveKeystone.RageFinisher ? "Rage Finisher" : string.Empty;
     public static string KeystoneEffect(PassiveKeystone keystone) => keystone == PassiveKeystone.RageFinisher ? "At maximum Rage, arm one empowered Axe attack." : string.Empty;
-    public static string DisplayName(PassiveBranch branch) => branch switch { PassiveBranch.Poison => "Void Damage", PassiveBranch.IncreasedProjectileAmount => "Additional Projectiles", PassiveBranch.ChanceToHitTwice => "Hit Twice", PassiveBranch.CriticalChance => "Critical Chance", PassiveBranch.CriticalMultiplier => "Critical Multiplier", PassiveBranch.PrecisionChance => "Projectile Precision", PassiveBranch.PrecisionDamage => "Precision Damage", _ => Split(branch.ToString()) };
+    public static string DisplayName(PassiveBranch branch) => branch switch { PassiveBranch.Poison => "Void Damage", PassiveBranch.IncreasedProjectileAmount => "Additional Projectiles", PassiveBranch.ChanceToHitTwice => "Multistrike", PassiveBranch.CriticalChance => "Critical Chance", PassiveBranch.CriticalMultiplier => "Critical Multiplier", PassiveBranch.PrecisionChance => "Projectile Precision", PassiveBranch.PrecisionDamage => "Precision Damage", _ => Split(branch.ToString()) };
     public static string GameplayMeaning(PassiveBranch branch) => DisplayName(branch);
     public static bool UsesPercentDisplay(PassiveBranch branch) => branch is not (PassiveBranch.LifeRegeneration or PassiveBranch.ManaRegeneration or PassiveBranch.LifeOnHit or PassiveBranch.ManaOnHit or PassiveBranch.LifeOnKill or PassiveBranch.ManaOnKill or PassiveBranch.IncreasedProjectileAmount or PassiveBranch.EmptyTravel);
 

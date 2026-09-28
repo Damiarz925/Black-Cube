@@ -50,6 +50,7 @@ public sealed class PassiveBranchAuthoringEditor : Editor
         if (GUILayout.Button("VALIDATE BRANCH")) ShowValidation(branch);
         if (GUILayout.Button("PING BRANCH SO")) EditorGUIUtility.PingObject(branch);
         if (GUILayout.Button("SELECT BRANCH VIEW")) SelectBranchView(branch.RouteId);
+        if (GUILayout.Button("LAYOUT VIEW")) PassiveTreeLayoutWindow.Open();
         EditorGUILayout.EndHorizontal();
         EditorGUILayout.BeginHorizontal();
         if (GUILayout.Button("COLLAPSE ALL TIERS")) SetAllFoldouts(branch, false);

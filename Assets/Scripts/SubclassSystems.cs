@@ -15,7 +15,7 @@ public static class SubclassEffectCatalog
 {
     static readonly SubclassEffectDefinition[] all={
         E("subclass.warrior.bleed.core",SubclassIds.WarriorBleed,"+20pp Bleed Chance and +40% Bleed damage"),E("subclass.warrior.bleed.rupture",SubclassIds.WarriorBleed,"15% Bleed rupture"),
-        E("subclass.warrior.multihit.core",SubclassIds.WarriorMultihit,"+10% Attack Speed and +10pp Hit Twice"),E("subclass.warrior.multihit.combo",SubclassIds.WarriorMultihit,"5% more per prior hit, maximum 10"),
+        E("subclass.warrior.multihit.core",SubclassIds.WarriorMultihit,"+10% Attack Speed and +10pp Multistrike"),E("subclass.warrior.multihit.combo",SubclassIds.WarriorMultihit,"5% more per prior hit, maximum 10"),
         E("subclass.barbarian.big_hit.core",SubclassIds.BarbarianBigHit,"25% less Attack Speed and 60% more Physical hit damage"),E("subclass.barbarian.big_hit.full_life",SubclassIds.BarbarianBigHit,"75% more against full-Life enemies; 35% more while injured"),
         E("subclass.barbarian.fire.added",SubclassIds.BarbarianFire,"40% base Physical gained as Fire"),E("subclass.barbarian.fire.eruption",SubclassIds.BarbarianFire,"20% chance for a 75% Fire eruption"),
         E("subclass.ranger.poison.all_damage",SubclassIds.RangerPoison,"All damage can Poison"),E("subclass.ranger.poison.core",SubclassIds.RangerPoison,"Poison chance, damage, duration and speed"),

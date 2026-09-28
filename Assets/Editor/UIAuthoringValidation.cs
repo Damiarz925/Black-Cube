@@ -92,6 +92,13 @@ public static class UIAuthoringValidation
                 foreach (PassiveTierViewBinding tier in branch.Tiers)
                 {
                     ValidateVariant(path, branch.RouteId, tier.spine == null ? Array.Empty<PassiveNodeBinding>() : new[] { tier.spine }, errors);
+                    if (tier.leftSlot != null || tier.rightSlot != null)
+                    {
+                        foreach (var slot in new[] { tier.leftSlot, tier.rightSlot })
+                            if (slot == null || slot.button == null || slot.icon == null || PassiveTreeDefinition.ChoiceNodes(slot.choiceGroupId).Count() != 4)
+                                errors.Add(path + ": invalid collapsed passive choice slot.");
+                        continue;
+                    }
                     ValidateVariant(path, branch.RouteId, tier.left == null ? Array.Empty<PassiveNodeBinding>() : tier.left.RuntimeNodes(true), errors);
                     ValidateVariant(path, branch.RouteId, tier.left == null ? Array.Empty<PassiveNodeBinding>() : tier.left.RuntimeNodes(false), errors);
                     ValidateVariant(path, branch.RouteId, tier.right == null ? Array.Empty<PassiveNodeBinding>() : tier.right.RuntimeNodes(true), errors);

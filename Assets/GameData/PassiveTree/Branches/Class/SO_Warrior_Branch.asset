@@ -40,8 +40,8 @@ MonoBehaviour:
     spine:
       stableId: tree.v3.class.warrior.t01.spine
       logicalSlotId: tree.v3.class.warrior.t01.spine
-      displayName: Warrior Tier 1
-      description: Broad class-route mainline node.
+      displayName: Strength
+      description: +10 flat Strength.
       branch: 26
       size: 1
       kind: 5
@@ -50,50 +50,30 @@ MonoBehaviour:
       - kind: 0
         stat: 92
         mechanicId: 
-        value: 5
-      - kind: 0
-        stat: 94
-        mechanicId: 
-        value: 4
+        value: 10
       iconMode: 0
       iconOverride: {fileID: 0}
     right:
       a:
         stableId: tree.v3.class.warrior.t01.right.a
         logicalSlotId: tree.v3.class.warrior.t01.right.a
-        displayName: Critical Chance
+        displayName: Bleed Chance
         description: 
-        branch: 20
+        branch: 12
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 11
+          stat: 34
           mechanicId: 
-          value: 9
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 63
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: 97cbeb42289d11448a85161073ae5dc9, type: 3}
       b:
         stableId: tree.v3.class.warrior.t01.right.b
         logicalSlotId: tree.v3.class.warrior.t01.right.b
-        displayName: Attack Speed
-        description: 
-        branch: 11
-        size: 0
-        kind: 6
-        keystone: 0
-        effects:
-        - kind: 0
-          stat: 81
-          mechanicId: 
-          value: 9
-        iconMode: 0
-        iconOverride: {fileID: 0}
-      c:
-        stableId: tree.v3.class.warrior.t01.right.c
-        logicalSlotId: tree.v3.class.warrior.t01.right.c
-        displayName: Hit Twice
+        displayName: Multistrike Chance
         description: 
         branch: 17
         size: 0
@@ -103,9 +83,25 @@ MonoBehaviour:
         - kind: 0
           stat: 83
           mechanicId: 
-          value: 5.3999996
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 5
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: 4628009dc15d25f44a8b9c896bfeb7e1, type: 3}
+      c:
+        stableId: tree.v3.class.warrior.t01.right.c
+        logicalSlotId: tree.v3.class.warrior.t01.right.c
+        displayName: Increased Critical Chance
+        description: 
+        branch: 20
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 11
+          mechanicId: 
+          value: 42
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: 9a8398eb01579964aa1ec1892920d26c, type: 3}
       subclassA:
         stableId: tree.v3.class.warrior.t01.right.subclass.variant.warrior-bleed
         logicalSlotId: tree.v3.class.warrior.t01.right.subclass
@@ -142,7 +138,7 @@ MonoBehaviour:
       a:
         stableId: tree.v3.class.warrior.t01.left.a
         logicalSlotId: tree.v3.class.warrior.t01.left.a
-        displayName: Life
+        displayName: Maximum Life
         description: 
         branch: 1
         size: 0
@@ -152,13 +148,13 @@ MonoBehaviour:
         - kind: 0
           stat: 70
           mechanicId: 
-          value: 9
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 15
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: 8a993350bdd739c4c8299b39e51a8eb6, type: 3}
       b:
         stableId: tree.v3.class.warrior.t01.left.b
         logicalSlotId: tree.v3.class.warrior.t01.left.b
-        displayName: Defense
+        displayName: Increased Armour
         description: 
         branch: 0
         size: 0
@@ -168,25 +164,25 @@ MonoBehaviour:
         - kind: 0
           stat: 52
           mechanicId: 
-          value: 9
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 100
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: 188d5588f3b2ca240a4654298013b3ba, type: 3}
       c:
         stableId: tree.v3.class.warrior.t01.left.c
         logicalSlotId: tree.v3.class.warrior.t01.left.c
-        displayName: Physical
+        displayName: Mana On Hit
         description: 
-        branch: 8
+        branch: 23
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 14
+          stat: 75
           mechanicId: 
-          value: 9
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 18.5
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: c18c48bd216ff3d40b4a764c152ce0c0, type: 3}
       subclassA:
         stableId: tree.v3.class.warrior.t01.left.subclass.variant.warrior-bleed
         logicalSlotId: tree.v3.class.warrior.t01.left.subclass
@@ -223,52 +219,52 @@ MonoBehaviour:
     spine:
       stableId: tree.v3.class.warrior.t02.spine
       logicalSlotId: tree.v3.class.warrior.t02.spine
-      displayName: Warrior Tier 2
-      description: Broad class-route mainline node.
-      branch: 1
+      displayName: Strength
+      description: +10 flat Strength.
+      branch: 26
       size: 1
       kind: 5
       keystone: 0
       effects:
       - kind: 0
-        stat: 70
+        stat: 92
         mechanicId: 
-        value: 5.125
+        value: 10
       iconMode: 0
       iconOverride: {fileID: 0}
     right:
       a:
         stableId: tree.v3.class.warrior.t02.right.a
         logicalSlotId: tree.v3.class.warrior.t02.right.a
-        displayName: Mana
+        displayName: Increased Bleed Damage
         description: 
-        branch: 2
+        branch: 36
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 71
+          stat: 28
           mechanicId: 
-          value: 9.2
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 42
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: eca8f101f8442774384ebedb7cb9ec3e, type: 3}
       b:
         stableId: tree.v3.class.warrior.t02.right.b
         logicalSlotId: tree.v3.class.warrior.t02.right.b
-        displayName: Mana On Hit
+        displayName: Attack Speed
         description: 
-        branch: 23
+        branch: 11
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 75
+          stat: 81
           mechanicId: 
-          value: 3.6799998
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 10
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: 9278976e849afd64692e2014ebb004f4, type: 3}
       c:
         stableId: tree.v3.class.warrior.t02.right.c
         logicalSlotId: tree.v3.class.warrior.t02.right.c
@@ -282,9 +278,9 @@ MonoBehaviour:
         - kind: 0
           stat: 126
           mechanicId: 
-          value: 9.2
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 10
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: ef8b4bc4f5c24914a901b1a305362e7d, type: 3}
       subclassA:
         stableId: tree.v3.class.warrior.t02.right.subclass.variant.warrior-bleed
         logicalSlotId: tree.v3.class.warrior.t02.right.subclass
@@ -321,19 +317,19 @@ MonoBehaviour:
       a:
         stableId: tree.v3.class.warrior.t02.left.a
         logicalSlotId: tree.v3.class.warrior.t02.left.a
-        displayName: Life Regeneration
-        description: 
-        branch: 18
+        displayName: All Elemental Resistance
+        description: Fire, Cold and Lightning resistance only. Does not include Void.
+        branch: 42
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 72
+          stat: 57
           mechanicId: 
-          value: 3.6799998
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 6
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: a0e7f3f66170c7a40a9c86fac84ee4e3, type: 3}
       b:
         stableId: tree.v3.class.warrior.t02.left.b
         logicalSlotId: tree.v3.class.warrior.t02.left.b
@@ -347,25 +343,25 @@ MonoBehaviour:
         - kind: 0
           stat: 74
           mechanicId: 
-          value: 3.6799998
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 37
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: b935a26a71a8a8d43acc296f12855637, type: 3}
       c:
         stableId: tree.v3.class.warrior.t02.left.c
         logicalSlotId: tree.v3.class.warrior.t02.left.c
-        displayName: Bleed Chance
+        displayName: Increased Critical Chance
         description: 
-        branch: 12
+        branch: 20
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 34
+          stat: 11
           mechanicId: 
-          value: 9.2
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 42
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: 9a8398eb01579964aa1ec1892920d26c, type: 3}
       subclassA:
         stableId: tree.v3.class.warrior.t02.left.subclass.variant.warrior-bleed
         logicalSlotId: tree.v3.class.warrior.t02.left.subclass
@@ -402,68 +398,68 @@ MonoBehaviour:
     spine:
       stableId: tree.v3.class.warrior.t03.spine
       logicalSlotId: tree.v3.class.warrior.t03.spine
-      displayName: Warrior Tier 3
-      description: Broad class-route mainline node.
-      branch: 0
+      displayName: Strength
+      description: +10 flat Strength.
+      branch: 26
       size: 1
       kind: 5
       keystone: 0
       effects:
       - kind: 0
-        stat: 52
+        stat: 92
         mechanicId: 
-        value: 5.25
+        value: 10
       iconMode: 0
       iconOverride: {fileID: 0}
     right:
       a:
         stableId: tree.v3.class.warrior.t03.right.a
         logicalSlotId: tree.v3.class.warrior.t03.right.a
-        displayName: Critical Chance
+        displayName: Bleed Chance
         description: 
-        branch: 20
+        branch: 12
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 11
+          stat: 34
           mechanicId: 
-          value: 9.4
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 63
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: 97cbeb42289d11448a85161073ae5dc9, type: 3}
       b:
         stableId: tree.v3.class.warrior.t03.right.b
         logicalSlotId: tree.v3.class.warrior.t03.right.b
-        displayName: Attack Speed
+        displayName: Increased Bleed Damage
         description: 
-        branch: 11
+        branch: 36
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 81
+          stat: 28
           mechanicId: 
-          value: 9.4
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 42
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: eca8f101f8442774384ebedb7cb9ec3e, type: 3}
       c:
         stableId: tree.v3.class.warrior.t03.right.c
         logicalSlotId: tree.v3.class.warrior.t03.right.c
-        displayName: Hit Twice
+        displayName: Increased Strength
         description: 
-        branch: 17
+        branch: 26
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 83
+          stat: 95
           mechanicId: 
-          value: 5.64
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 7.5
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: 5b1377a9703037e48a81f69dd6f5abd0, type: 3}
       subclassA:
         stableId: tree.v3.class.warrior.t03.right.subclass.variant.warrior-bleed
         logicalSlotId: tree.v3.class.warrior.t03.right.subclass
@@ -500,7 +496,7 @@ MonoBehaviour:
       a:
         stableId: tree.v3.class.warrior.t03.left.a
         logicalSlotId: tree.v3.class.warrior.t03.left.a
-        displayName: Life
+        displayName: Maximum Life
         description: 
         branch: 1
         size: 0
@@ -510,41 +506,41 @@ MonoBehaviour:
         - kind: 0
           stat: 70
           mechanicId: 
-          value: 9.4
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 15
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: 8a993350bdd739c4c8299b39e51a8eb6, type: 3}
       b:
         stableId: tree.v3.class.warrior.t03.left.b
         logicalSlotId: tree.v3.class.warrior.t03.left.b
-        displayName: Defense
-        description: 
-        branch: 0
+        displayName: All Elemental Resistance
+        description: Fire, Cold and Lightning resistance only. Does not include Void.
+        branch: 42
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 52
+          stat: 57
           mechanicId: 
-          value: 9.4
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 6
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: a0e7f3f66170c7a40a9c86fac84ee4e3, type: 3}
       c:
         stableId: tree.v3.class.warrior.t03.left.c
         logicalSlotId: tree.v3.class.warrior.t03.left.c
-        displayName: Physical
+        displayName: Cooldown Reduction
         description: 
-        branch: 8
+        branch: 29
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 14
+          stat: 126
           mechanicId: 
-          value: 9.4
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 10
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: ef8b4bc4f5c24914a901b1a305362e7d, type: 3}
       subclassA:
         stableId: tree.v3.class.warrior.t03.left.subclass.variant.warrior-bleed
         logicalSlotId: tree.v3.class.warrior.t03.left.subclass
@@ -581,68 +577,68 @@ MonoBehaviour:
     spine:
       stableId: tree.v3.class.warrior.t04.spine
       logicalSlotId: tree.v3.class.warrior.t04.spine
-      displayName: Warrior Tier 4
-      description: Broad class-route mainline node.
-      branch: 8
+      displayName: Strength
+      description: +10 flat Strength.
+      branch: 26
       size: 1
       kind: 5
       keystone: 0
       effects:
       - kind: 0
-        stat: 14
+        stat: 92
         mechanicId: 
-        value: 5.375
+        value: 10
       iconMode: 0
       iconOverride: {fileID: 0}
     right:
       a:
         stableId: tree.v3.class.warrior.t04.right.a
         logicalSlotId: tree.v3.class.warrior.t04.right.a
-        displayName: Mana
+        displayName: Multistrike Chance
         description: 
-        branch: 2
+        branch: 17
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 71
+          stat: 83
           mechanicId: 
-          value: 9.599999
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 5
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: 4628009dc15d25f44a8b9c896bfeb7e1, type: 3}
       b:
         stableId: tree.v3.class.warrior.t04.right.b
         logicalSlotId: tree.v3.class.warrior.t04.right.b
-        displayName: Mana On Hit
+        displayName: Attack Speed
         description: 
-        branch: 23
+        branch: 11
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 75
+          stat: 81
           mechanicId: 
-          value: 3.84
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 10
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: 9278976e849afd64692e2014ebb004f4, type: 3}
       c:
         stableId: tree.v3.class.warrior.t04.right.c
         logicalSlotId: tree.v3.class.warrior.t04.right.c
-        displayName: Cooldown Reduction
+        displayName: Increased Critical Chance
         description: 
-        branch: 29
+        branch: 20
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 126
+          stat: 11
           mechanicId: 
-          value: 9.599999
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 42
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: 9a8398eb01579964aa1ec1892920d26c, type: 3}
       subclassA:
         stableId: tree.v3.class.warrior.t04.right.subclass.variant.warrior-bleed
         logicalSlotId: tree.v3.class.warrior.t04.right.subclass
@@ -679,19 +675,19 @@ MonoBehaviour:
       a:
         stableId: tree.v3.class.warrior.t04.left.a
         logicalSlotId: tree.v3.class.warrior.t04.left.a
-        displayName: Life Regeneration
+        displayName: Increased Armour
         description: 
-        branch: 18
+        branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 72
+          stat: 52
           mechanicId: 
-          value: 3.84
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 100
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: 188d5588f3b2ca240a4654298013b3ba, type: 3}
       b:
         stableId: tree.v3.class.warrior.t04.left.b
         logicalSlotId: tree.v3.class.warrior.t04.left.b
@@ -705,25 +701,25 @@ MonoBehaviour:
         - kind: 0
           stat: 74
           mechanicId: 
-          value: 3.84
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 37
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: b935a26a71a8a8d43acc296f12855637, type: 3}
       c:
         stableId: tree.v3.class.warrior.t04.left.c
         logicalSlotId: tree.v3.class.warrior.t04.left.c
-        displayName: Bleed Chance
+        displayName: Mana On Hit
         description: 
-        branch: 12
+        branch: 23
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 34
+          stat: 75
           mechanicId: 
-          value: 9.599999
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 18.5
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: c18c48bd216ff3d40b4a764c152ce0c0, type: 3}
       subclassA:
         stableId: tree.v3.class.warrior.t04.left.subclass.variant.warrior-bleed
         logicalSlotId: tree.v3.class.warrior.t04.left.subclass
@@ -760,36 +756,36 @@ MonoBehaviour:
     spine:
       stableId: tree.v3.class.warrior.t05.spine
       logicalSlotId: tree.v3.class.warrior.t05.spine
-      displayName: Warrior Tier 5
-      description: Broad class-route mainline node.
-      branch: 17
+      displayName: Strength
+      description: +10 flat Strength.
+      branch: 26
       size: 1
       kind: 5
       keystone: 0
       effects:
       - kind: 0
-        stat: 83
+        stat: 92
         mechanicId: 
-        value: 3.3
+        value: 10
       iconMode: 0
       iconOverride: {fileID: 0}
     right:
       a:
         stableId: tree.v3.class.warrior.t05.right.a
         logicalSlotId: tree.v3.class.warrior.t05.right.a
-        displayName: Critical Chance
+        displayName: Bleed Chance
         description: 
-        branch: 20
+        branch: 12
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 11
+          stat: 34
           mechanicId: 
-          value: 9.8
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 63
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: 97cbeb42289d11448a85161073ae5dc9, type: 3}
       b:
         stableId: tree.v3.class.warrior.t05.right.b
         logicalSlotId: tree.v3.class.warrior.t05.right.b
@@ -803,25 +799,25 @@ MonoBehaviour:
         - kind: 0
           stat: 81
           mechanicId: 
-          value: 9.8
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 10
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: 9278976e849afd64692e2014ebb004f4, type: 3}
       c:
         stableId: tree.v3.class.warrior.t05.right.c
         logicalSlotId: tree.v3.class.warrior.t05.right.c
-        displayName: Hit Twice
+        displayName: Increased Strength
         description: 
-        branch: 17
+        branch: 26
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 83
+          stat: 95
           mechanicId: 
-          value: 5.8799996
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 7.5
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: 5b1377a9703037e48a81f69dd6f5abd0, type: 3}
       subclassA:
         stableId: tree.v3.class.warrior.t05.right.subclass.variant.warrior-bleed
         logicalSlotId: tree.v3.class.warrior.t05.right.subclass
@@ -858,7 +854,7 @@ MonoBehaviour:
       a:
         stableId: tree.v3.class.warrior.t05.left.a
         logicalSlotId: tree.v3.class.warrior.t05.left.a
-        displayName: Life
+        displayName: Maximum Life
         description: 
         branch: 1
         size: 0
@@ -868,41 +864,41 @@ MonoBehaviour:
         - kind: 0
           stat: 70
           mechanicId: 
-          value: 9.8
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 15
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: 8a993350bdd739c4c8299b39e51a8eb6, type: 3}
       b:
         stableId: tree.v3.class.warrior.t05.left.b
         logicalSlotId: tree.v3.class.warrior.t05.left.b
-        displayName: Defense
+        displayName: Life On Hit
         description: 
-        branch: 0
+        branch: 22
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 52
+          stat: 74
           mechanicId: 
-          value: 9.8
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 37
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: b935a26a71a8a8d43acc296f12855637, type: 3}
       c:
         stableId: tree.v3.class.warrior.t05.left.c
         logicalSlotId: tree.v3.class.warrior.t05.left.c
-        displayName: Physical
+        displayName: Increased Critical Chance
         description: 
-        branch: 8
+        branch: 20
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 14
+          stat: 11
           mechanicId: 
-          value: 9.8
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 42
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: 9a8398eb01579964aa1ec1892920d26c, type: 3}
       subclassA:
         stableId: tree.v3.class.warrior.t05.left.subclass.variant.warrior-bleed
         logicalSlotId: tree.v3.class.warrior.t05.left.subclass
@@ -939,39 +935,55 @@ MonoBehaviour:
     spine:
       stableId: tree.v3.class.warrior.t06.spine
       logicalSlotId: tree.v3.class.warrior.t06.spine
-      displayName: Warrior Tier 6
-      description: Broad class-route mainline node.
-      branch: 22
+      displayName: Strength
+      description: +10 flat Strength.
+      branch: 26
       size: 1
       kind: 5
       keystone: 0
       effects:
       - kind: 0
-        stat: 74
+        stat: 92
         mechanicId: 
-        value: 2.25
+        value: 10
       iconMode: 0
       iconOverride: {fileID: 0}
     right:
       a:
         stableId: tree.v3.class.warrior.t06.right.a
         logicalSlotId: tree.v3.class.warrior.t06.right.a
-        displayName: Mana
+        displayName: Multistrike Chance
         description: 
-        branch: 2
+        branch: 17
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 71
+          stat: 83
           mechanicId: 
-          value: 10
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 5
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: 4628009dc15d25f44a8b9c896bfeb7e1, type: 3}
       b:
         stableId: tree.v3.class.warrior.t06.right.b
         logicalSlotId: tree.v3.class.warrior.t06.right.b
+        displayName: Increased Bleed Damage
+        description: 
+        branch: 36
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 28
+          mechanicId: 
+          value: 42
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: eca8f101f8442774384ebedb7cb9ec3e, type: 3}
+      c:
+        stableId: tree.v3.class.warrior.t06.right.c
+        logicalSlotId: tree.v3.class.warrior.t06.right.c
         displayName: Mana On Hit
         description: 
         branch: 23
@@ -982,25 +994,9 @@ MonoBehaviour:
         - kind: 0
           stat: 75
           mechanicId: 
-          value: 4
-        iconMode: 0
-        iconOverride: {fileID: 0}
-      c:
-        stableId: tree.v3.class.warrior.t06.right.c
-        logicalSlotId: tree.v3.class.warrior.t06.right.c
-        displayName: Cooldown Reduction
-        description: 
-        branch: 29
-        size: 0
-        kind: 6
-        keystone: 0
-        effects:
-        - kind: 0
-          stat: 126
-          mechanicId: 
-          value: 10
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 18.5
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: c18c48bd216ff3d40b4a764c152ce0c0, type: 3}
       subclassA:
         stableId: tree.v3.class.warrior.t06.right.subclass.variant.warrior-bleed
         logicalSlotId: tree.v3.class.warrior.t06.right.subclass
@@ -1037,51 +1033,51 @@ MonoBehaviour:
       a:
         stableId: tree.v3.class.warrior.t06.left.a
         logicalSlotId: tree.v3.class.warrior.t06.left.a
-        displayName: Life Regeneration
+        displayName: Increased Armour
         description: 
-        branch: 18
+        branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 72
+          stat: 52
           mechanicId: 
-          value: 4
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 100
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: 188d5588f3b2ca240a4654298013b3ba, type: 3}
       b:
         stableId: tree.v3.class.warrior.t06.left.b
         logicalSlotId: tree.v3.class.warrior.t06.left.b
-        displayName: Life On Hit
-        description: 
-        branch: 22
+        displayName: All Elemental Resistance
+        description: Fire, Cold and Lightning resistance only. Does not include Void.
+        branch: 42
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 74
+          stat: 57
           mechanicId: 
-          value: 4
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 6
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: a0e7f3f66170c7a40a9c86fac84ee4e3, type: 3}
       c:
         stableId: tree.v3.class.warrior.t06.left.c
         logicalSlotId: tree.v3.class.warrior.t06.left.c
-        displayName: Bleed Chance
+        displayName: Cooldown Reduction
         description: 
-        branch: 12
+        branch: 29
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 34
+          stat: 126
           mechanicId: 
           value: 10
-        iconMode: 0
-        iconOverride: {fileID: 0}
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: ef8b4bc4f5c24914a901b1a305362e7d, type: 3}
       subclassA:
         stableId: tree.v3.class.warrior.t06.left.subclass.variant.warrior-bleed
         logicalSlotId: tree.v3.class.warrior.t06.left.subclass
@@ -1118,60 +1114,40 @@ MonoBehaviour:
     spine:
       stableId: tree.v3.class.warrior.t07.spine
       logicalSlotId: tree.v3.class.warrior.t07.spine
-      displayName: Warrior Tier 7
-      description: Broad class-route mainline node.
-      branch: 12
+      displayName: Strength
+      description: +10 flat Strength.
+      branch: 26
       size: 1
       kind: 5
       keystone: 0
       effects:
       - kind: 0
-        stat: 34
+        stat: 92
         mechanicId: 
-        value: 5.75
-      - kind: 0
-        stat: 28
-        mechanicId: 
-        value: 5
+        value: 10
       iconMode: 0
       iconOverride: {fileID: 0}
     right:
       a:
         stableId: tree.v3.class.warrior.t07.right.a
         logicalSlotId: tree.v3.class.warrior.t07.right.a
-        displayName: Critical Chance
+        displayName: Bleed Chance
         description: 
-        branch: 20
+        branch: 12
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 11
+          stat: 34
           mechanicId: 
-          value: 10.2
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 63
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: 97cbeb42289d11448a85161073ae5dc9, type: 3}
       b:
         stableId: tree.v3.class.warrior.t07.right.b
         logicalSlotId: tree.v3.class.warrior.t07.right.b
-        displayName: Attack Speed
-        description: 
-        branch: 11
-        size: 0
-        kind: 6
-        keystone: 0
-        effects:
-        - kind: 0
-          stat: 81
-          mechanicId: 
-          value: 10.2
-        iconMode: 0
-        iconOverride: {fileID: 0}
-      c:
-        stableId: tree.v3.class.warrior.t07.right.c
-        logicalSlotId: tree.v3.class.warrior.t07.right.c
-        displayName: Hit Twice
+        displayName: Multistrike Chance
         description: 
         branch: 17
         size: 0
@@ -1181,9 +1157,25 @@ MonoBehaviour:
         - kind: 0
           stat: 83
           mechanicId: 
-          value: 6.12
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 5
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: 4628009dc15d25f44a8b9c896bfeb7e1, type: 3}
+      c:
+        stableId: tree.v3.class.warrior.t07.right.c
+        logicalSlotId: tree.v3.class.warrior.t07.right.c
+        displayName: Cooldown Reduction
+        description: 
+        branch: 29
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 126
+          mechanicId: 
+          value: 10
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: ef8b4bc4f5c24914a901b1a305362e7d, type: 3}
       subclassA:
         stableId: tree.v3.class.warrior.t07.right.subclass.variant.warrior-bleed
         logicalSlotId: tree.v3.class.warrior.t07.right.subclass
@@ -1220,7 +1212,7 @@ MonoBehaviour:
       a:
         stableId: tree.v3.class.warrior.t07.left.a
         logicalSlotId: tree.v3.class.warrior.t07.left.a
-        displayName: Life
+        displayName: Maximum Life
         description: 
         branch: 1
         size: 0
@@ -1230,13 +1222,13 @@ MonoBehaviour:
         - kind: 0
           stat: 70
           mechanicId: 
-          value: 10.2
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 15
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: 8a993350bdd739c4c8299b39e51a8eb6, type: 3}
       b:
         stableId: tree.v3.class.warrior.t07.left.b
         logicalSlotId: tree.v3.class.warrior.t07.left.b
-        displayName: Defense
+        displayName: Increased Armour
         description: 
         branch: 0
         size: 0
@@ -1246,25 +1238,25 @@ MonoBehaviour:
         - kind: 0
           stat: 52
           mechanicId: 
-          value: 10.2
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 100
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: 188d5588f3b2ca240a4654298013b3ba, type: 3}
       c:
         stableId: tree.v3.class.warrior.t07.left.c
         logicalSlotId: tree.v3.class.warrior.t07.left.c
-        displayName: Physical
+        displayName: Mana On Hit
         description: 
-        branch: 8
+        branch: 23
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 14
+          stat: 75
           mechanicId: 
-          value: 10.2
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 18.5
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: c18c48bd216ff3d40b4a764c152ce0c0, type: 3}
       subclassA:
         stableId: tree.v3.class.warrior.t07.left.subclass.variant.warrior-bleed
         logicalSlotId: tree.v3.class.warrior.t07.left.subclass
@@ -1301,68 +1293,68 @@ MonoBehaviour:
     spine:
       stableId: tree.v3.class.warrior.t08.spine
       logicalSlotId: tree.v3.class.warrior.t08.spine
-      displayName: Warrior Tier 8
-      description: Broad class-route mainline node.
-      branch: 20
+      displayName: Strength
+      description: +10 flat Strength.
+      branch: 26
       size: 1
       kind: 5
       keystone: 0
       effects:
       - kind: 0
-        stat: 11
+        stat: 92
         mechanicId: 
-        value: 5.875
+        value: 10
       iconMode: 0
       iconOverride: {fileID: 0}
     right:
       a:
         stableId: tree.v3.class.warrior.t08.right.a
         logicalSlotId: tree.v3.class.warrior.t08.right.a
-        displayName: Mana
+        displayName: Increased Bleed Damage
         description: 
-        branch: 2
+        branch: 36
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 71
+          stat: 28
           mechanicId: 
-          value: 10.4
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 42
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: eca8f101f8442774384ebedb7cb9ec3e, type: 3}
       b:
         stableId: tree.v3.class.warrior.t08.right.b
         logicalSlotId: tree.v3.class.warrior.t08.right.b
-        displayName: Mana On Hit
+        displayName: Attack Speed
         description: 
-        branch: 23
+        branch: 11
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 75
+          stat: 81
           mechanicId: 
-          value: 4.16
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 10
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: 9278976e849afd64692e2014ebb004f4, type: 3}
       c:
         stableId: tree.v3.class.warrior.t08.right.c
         logicalSlotId: tree.v3.class.warrior.t08.right.c
-        displayName: Cooldown Reduction
+        displayName: Increased Strength
         description: 
-        branch: 29
+        branch: 26
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 126
+          stat: 95
           mechanicId: 
-          value: 10.4
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 7.5
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: 5b1377a9703037e48a81f69dd6f5abd0, type: 3}
       subclassA:
         stableId: tree.v3.class.warrior.t08.right.subclass.variant.warrior-bleed
         logicalSlotId: tree.v3.class.warrior.t08.right.subclass
@@ -1399,19 +1391,19 @@ MonoBehaviour:
       a:
         stableId: tree.v3.class.warrior.t08.left.a
         logicalSlotId: tree.v3.class.warrior.t08.left.a
-        displayName: Life Regeneration
-        description: 
-        branch: 18
+        displayName: All Elemental Resistance
+        description: Fire, Cold and Lightning resistance only. Does not include Void.
+        branch: 42
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 72
+          stat: 57
           mechanicId: 
-          value: 4.16
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 6
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: a0e7f3f66170c7a40a9c86fac84ee4e3, type: 3}
       b:
         stableId: tree.v3.class.warrior.t08.left.b
         logicalSlotId: tree.v3.class.warrior.t08.left.b
@@ -1425,25 +1417,25 @@ MonoBehaviour:
         - kind: 0
           stat: 74
           mechanicId: 
-          value: 4.16
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 37
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: b935a26a71a8a8d43acc296f12855637, type: 3}
       c:
         stableId: tree.v3.class.warrior.t08.left.c
         logicalSlotId: tree.v3.class.warrior.t08.left.c
-        displayName: Bleed Chance
+        displayName: Increased Critical Chance
         description: 
-        branch: 12
+        branch: 20
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 34
+          stat: 11
           mechanicId: 
-          value: 10.4
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 42
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: 9a8398eb01579964aa1ec1892920d26c, type: 3}
       subclassA:
         stableId: tree.v3.class.warrior.t08.left.subclass.variant.warrior-bleed
         logicalSlotId: tree.v3.class.warrior.t08.left.subclass
@@ -1480,24 +1472,56 @@ MonoBehaviour:
     spine:
       stableId: tree.v3.class.warrior.t09.spine
       logicalSlotId: tree.v3.class.warrior.t09.spine
-      displayName: Warrior Tier 9
-      description: Broad class-route mainline node.
-      branch: 11
+      displayName: Strength
+      description: +10 flat Strength.
+      branch: 26
       size: 1
       kind: 5
       keystone: 0
       effects:
       - kind: 0
-        stat: 81
+        stat: 92
         mechanicId: 
-        value: 6
+        value: 10
       iconMode: 0
       iconOverride: {fileID: 0}
     right:
       a:
         stableId: tree.v3.class.warrior.t09.right.a
         logicalSlotId: tree.v3.class.warrior.t09.right.a
-        displayName: Critical Chance
+        displayName: Bleed Chance
+        description: 
+        branch: 12
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 34
+          mechanicId: 
+          value: 63
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: 97cbeb42289d11448a85161073ae5dc9, type: 3}
+      b:
+        stableId: tree.v3.class.warrior.t09.right.b
+        logicalSlotId: tree.v3.class.warrior.t09.right.b
+        displayName: Increased Bleed Damage
+        description: 
+        branch: 36
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 28
+          mechanicId: 
+          value: 42
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: eca8f101f8442774384ebedb7cb9ec3e, type: 3}
+      c:
+        stableId: tree.v3.class.warrior.t09.right.c
+        logicalSlotId: tree.v3.class.warrior.t09.right.c
+        displayName: Increased Critical Chance
         description: 
         branch: 20
         size: 0
@@ -1507,41 +1531,9 @@ MonoBehaviour:
         - kind: 0
           stat: 11
           mechanicId: 
-          value: 10.599999
-        iconMode: 0
-        iconOverride: {fileID: 0}
-      b:
-        stableId: tree.v3.class.warrior.t09.right.b
-        logicalSlotId: tree.v3.class.warrior.t09.right.b
-        displayName: Attack Speed
-        description: 
-        branch: 11
-        size: 0
-        kind: 6
-        keystone: 0
-        effects:
-        - kind: 0
-          stat: 81
-          mechanicId: 
-          value: 10.599999
-        iconMode: 0
-        iconOverride: {fileID: 0}
-      c:
-        stableId: tree.v3.class.warrior.t09.right.c
-        logicalSlotId: tree.v3.class.warrior.t09.right.c
-        displayName: Hit Twice
-        description: 
-        branch: 17
-        size: 0
-        kind: 6
-        keystone: 0
-        effects:
-        - kind: 0
-          stat: 83
-          mechanicId: 
-          value: 6.3599997
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 42
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: 9a8398eb01579964aa1ec1892920d26c, type: 3}
       subclassA:
         stableId: tree.v3.class.warrior.t09.right.subclass.variant.warrior-bleed
         logicalSlotId: tree.v3.class.warrior.t09.right.subclass
@@ -1578,7 +1570,7 @@ MonoBehaviour:
       a:
         stableId: tree.v3.class.warrior.t09.left.a
         logicalSlotId: tree.v3.class.warrior.t09.left.a
-        displayName: Life
+        displayName: Maximum Life
         description: 
         branch: 1
         size: 0
@@ -1588,41 +1580,41 @@ MonoBehaviour:
         - kind: 0
           stat: 70
           mechanicId: 
-          value: 10.599999
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 15
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: 8a993350bdd739c4c8299b39e51a8eb6, type: 3}
       b:
         stableId: tree.v3.class.warrior.t09.left.b
         logicalSlotId: tree.v3.class.warrior.t09.left.b
-        displayName: Defense
-        description: 
-        branch: 0
+        displayName: All Elemental Resistance
+        description: Fire, Cold and Lightning resistance only. Does not include Void.
+        branch: 42
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 52
+          stat: 57
           mechanicId: 
-          value: 10.599999
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 6
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: a0e7f3f66170c7a40a9c86fac84ee4e3, type: 3}
       c:
         stableId: tree.v3.class.warrior.t09.left.c
         logicalSlotId: tree.v3.class.warrior.t09.left.c
-        displayName: Physical
+        displayName: Cooldown Reduction
         description: 
-        branch: 8
+        branch: 29
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 14
+          stat: 126
           mechanicId: 
-          value: 10.599999
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 10
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: ef8b4bc4f5c24914a901b1a305362e7d, type: 3}
       subclassA:
         stableId: tree.v3.class.warrior.t09.left.subclass.variant.warrior-bleed
         logicalSlotId: tree.v3.class.warrior.t09.left.subclass
@@ -1659,72 +1651,68 @@ MonoBehaviour:
     spine:
       stableId: tree.v3.class.warrior.t10.spine
       logicalSlotId: tree.v3.class.warrior.t10.spine
-      displayName: Warrior Tier 10
-      description: Broad class-route mainline node.
-      branch: 8
+      displayName: Strength
+      description: +10 flat Strength.
+      branch: 26
       size: 1
       kind: 5
       keystone: 0
       effects:
       - kind: 0
-        stat: 14
+        stat: 92
         mechanicId: 
-        value: 6.125
-      - kind: 0
-        stat: 22
-        mechanicId: 
-        value: 5
+        value: 10
       iconMode: 0
       iconOverride: {fileID: 0}
     right:
       a:
         stableId: tree.v3.class.warrior.t10.right.a
         logicalSlotId: tree.v3.class.warrior.t10.right.a
-        displayName: Mana
+        displayName: Multistrike Chance
         description: 
-        branch: 2
+        branch: 17
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 71
+          stat: 83
           mechanicId: 
-          value: 10.8
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 5
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: 4628009dc15d25f44a8b9c896bfeb7e1, type: 3}
       b:
         stableId: tree.v3.class.warrior.t10.right.b
         logicalSlotId: tree.v3.class.warrior.t10.right.b
-        displayName: Mana On Hit
+        displayName: Attack Speed
         description: 
-        branch: 23
+        branch: 11
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 75
+          stat: 81
           mechanicId: 
-          value: 4.3199997
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 10
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: 9278976e849afd64692e2014ebb004f4, type: 3}
       c:
         stableId: tree.v3.class.warrior.t10.right.c
         logicalSlotId: tree.v3.class.warrior.t10.right.c
-        displayName: Cooldown Reduction
+        displayName: Increased Strength
         description: 
-        branch: 29
+        branch: 26
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 126
+          stat: 95
           mechanicId: 
-          value: 10.8
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 7.5
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: 5b1377a9703037e48a81f69dd6f5abd0, type: 3}
       subclassA:
         stableId: tree.v3.class.warrior.t10.right.subclass.variant.warrior-bleed
         logicalSlotId: tree.v3.class.warrior.t10.right.subclass
@@ -1761,19 +1749,19 @@ MonoBehaviour:
       a:
         stableId: tree.v3.class.warrior.t10.left.a
         logicalSlotId: tree.v3.class.warrior.t10.left.a
-        displayName: Life Regeneration
+        displayName: Increased Armour
         description: 
-        branch: 18
+        branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 72
+          stat: 52
           mechanicId: 
-          value: 4.3199997
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 100
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: 188d5588f3b2ca240a4654298013b3ba, type: 3}
       b:
         stableId: tree.v3.class.warrior.t10.left.b
         logicalSlotId: tree.v3.class.warrior.t10.left.b
@@ -1787,25 +1775,25 @@ MonoBehaviour:
         - kind: 0
           stat: 74
           mechanicId: 
-          value: 4.3199997
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 37
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: b935a26a71a8a8d43acc296f12855637, type: 3}
       c:
         stableId: tree.v3.class.warrior.t10.left.c
         logicalSlotId: tree.v3.class.warrior.t10.left.c
-        displayName: Bleed Chance
+        displayName: Mana On Hit
         description: 
-        branch: 12
+        branch: 23
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 34
+          stat: 75
           mechanicId: 
-          value: 10.8
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 18.5
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: c18c48bd216ff3d40b4a764c152ce0c0, type: 3}
       subclassA:
         stableId: tree.v3.class.warrior.t10.left.subclass.variant.warrior-bleed
         logicalSlotId: tree.v3.class.warrior.t10.left.subclass

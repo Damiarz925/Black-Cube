@@ -9,6 +9,9 @@ public static class StatDisplayFormatting
     private static readonly Dictionary<StatTypes, string> Overrides = new()
     {
         { StatTypes.Life, "Maximum HP" },
+        { StatTypes.LifePercent, "Increased Maximum Life" },
+        { StatTypes.ArmourPercent, "Increased Armour" },
+        { StatTypes.StrengthPercent, "Increased Strength" },
         { StatTypes.UnarmedDamage, "Unarmed Damage" },
         { StatTypes.FlatPhys, "Flat Physical Damage" },
         { StatTypes.FlatFire, "Flat Fire Damage" },
@@ -24,7 +27,7 @@ public static class StatDisplayFormatting
         { StatTypes.AllRes, "All Elemental Resist" },
         { StatTypes.AllAilmentRes, "All Ailment Resist" },
         { StatTypes.ManaCost, "Mana Cost" },
-        { StatTypes.ChanceToHitTwice, "Chance to Hit Twice" },
+        { StatTypes.ChanceToHitTwice, "Multistrike Chance" },
         { StatTypes.PhysDmg, "Increased Physical Damage" },
         { StatTypes.MagicDmg, "Increased Magic-tagged Damage" },
         { StatTypes.ProjectileDmg, "Increased Projectile-tagged Damage" },
@@ -80,6 +83,8 @@ public static class StatDisplayFormatting
 
         return name;
     }
+
+    public static string PlayerFacingText(string text) => (text ?? string.Empty).Replace("Chance to Hit Twice", "Multistrike Chance").Replace("Hit Twice Chance", "Multistrike Chance").Replace("Hit Twice", "Multistrike");
 
     /// <summary>
     /// Uses RAW values so percent stats show as 0-100 numbers

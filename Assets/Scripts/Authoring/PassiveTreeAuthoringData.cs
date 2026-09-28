@@ -49,6 +49,7 @@ public sealed class PassiveAuthoredNode
     public IReadOnlyList<PassiveAuthoredEffect> Effects => effects;
     public PassiveIconMode IconMode => iconMode;
     public Sprite IconOverride => iconOverride;
+    public void SetIcon(Sprite sprite) { iconMode = sprite != null ? PassiveIconMode.Custom : PassiveIconMode.Auto; iconOverride = sprite; }
 
     public void Configure(string id, string label, string tooltip, PassiveBranch authoredBranch, PassiveNodeSize authoredSize, PassiveNodeKind authoredKind, PassiveKeystone authoredKeystone, IEnumerable<PassiveEffect> authoredEffects, string slotId = null)
     {

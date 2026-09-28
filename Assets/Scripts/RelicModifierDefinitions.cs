@@ -41,7 +41,7 @@ public static class RelicModifierDefinitions
         new(RelicModifierType.AllResistances,"All Resistances",12,true,T(5,3,5),T(4,4,7),T(3,5,10),T(2,8,13),T(1,11,16)),
         new(RelicModifierType.IncreasedVoidDamage,"Increased Void Damage",12,true,T(5,9,15),T(4,12,21),T(3,15,30),T(2,24,38),T(1,32,46)),
         new(RelicModifierType.IncreasedAilmentDamage,"Increased Ailment Damage",12,true,T(5,9,15),T(4,12,21),T(3,15,30),T(2,24,38),T(1,32,46)),
-        new(RelicModifierType.ChanceToHitTwice,"Chance to Hit Twice",3,true,T(5,3,5),T(4,4,7),T(3,5,10),T(2,8,13),T(1,11,16)),
+        new(RelicModifierType.ChanceToHitTwice,"Multistrike Chance",3,true,T(5,3,5),T(4,4,7),T(3,5,10),T(2,8,13),T(1,11,16)),
         new(RelicModifierType.ProjectileAmount,"Projectile Amount",2,false,One(1)),
         new(RelicModifierType.MaximumBleedStacks,"Maximum Bleed Stacks",2,false,One(1)),
         new(RelicModifierType.MaximumIgniteStacks,"Maximum Ignite Stacks",2,false,One(1)),

@@ -25,4 +25,5 @@ public sealed class PassiveTierViewBinding
     [Range(1, 10)] public int tier = 1;
     public PassiveNodeBinding spine;
     public PassiveChoiceGroupBinding left = new(), right = new();
+    public PassiveChoiceSlotView leftSlot, rightSlot;
 }

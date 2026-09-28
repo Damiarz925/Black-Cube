@@ -1,6 +1,6 @@
 # Black-Cube UI Authoring Report
 
-Generated: 2026-09-21T19:59:56.1271432Z
+Generated: 2026-09-28T01:34:11.1883961Z
 
 ## Production scenes
 
@@ -56,7 +56,6 @@ Generated: 2026-09-21T19:59:56.1271432Z
 - Passive connection-line RectTransforms derive from assigned node/junction RectTransforms in edit mode and play mode.
 - Pointer-following authored tooltip instances and the crafting cursor change temporary screen position.
 - Variable inventory, stat, mod, relic, and active-status entries instantiate authored row/slot presentation as data requires.
-- Item/equipment marker, rarity/corruption-border, filter-highlight, and corruption button-frame children are state-dependent overlays inside authored hosts.
 - Floating combat text, projectiles, enemies, and world drops are transient prefab instances.
 
 ## Validation

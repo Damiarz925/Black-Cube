@@ -13,6 +13,10 @@ public sealed class PassiveTreeView : MonoBehaviour
     public TMP_Text refundAllLabel;
     public List<PassiveBranchBinding> branches = new();
     public List<PassiveConnectionBinding> connections = new();
+    public PassiveTreeLayoutSO layout;
+    public RectTransform playerHub;
+    public List<Image> classBadges = new();
+    public PassiveChoicePopupView choicePopup;
     public IEnumerable<PassiveNodeBinding> AllNodes { get { foreach (var branch in branches) if (branch != null) foreach (var node in branch.AllNodes()) if (node != null) yield return node; } }
     public void Configure(GameObject panelRoot, ScrollRect scrollView, RectTransform contentRoot, TMP_Text pointLabel, TMP_Text progressionLabel, TMP_Text detailLabel, Button close, Button refund, TMP_Text refundLabel, List<PassiveBranchBinding> branchViews, List<PassiveConnectionBinding> lineViews)
     { panel = panelRoot; scroll = scrollView; content = contentRoot; points = pointLabel; progression = progressionLabel; details = detailLabel; closeButton = close; refundAllButton = refund; refundAllLabel = refundLabel; branches = branchViews ?? new(); connections = lineViews ?? new(); }

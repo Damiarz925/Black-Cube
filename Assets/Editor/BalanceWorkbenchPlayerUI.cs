@@ -167,7 +167,7 @@ namespace BlackCube.BalanceWorkbench
             MetricRow("Attribute / level increased",$"{m.weaponAttributeIncreased:P2} / {m.playerLevelIncreased:P2}");
             MetricRow("Generic / Physical increased",$"{m.genericIncreased:P2} / {m.physicalIncreased:P2}");
             MetricRow("Generic / Physical more",$"{m.genericMore:P2} / {m.physicalMore:P2}");
-            MetricRow("Crit / Hit Twice expectation",$"{m.critContribution:0.###} / {m.hitTwiceContribution:0.###}");
+            MetricRow("Crit / Multistrike expectation",$"{m.critContribution:0.###} / {m.hitTwiceContribution:0.###}");
             if(contributions.Count>0)
             {
                 Heading("MARGINAL / ABLATION CONTRIBUTION");

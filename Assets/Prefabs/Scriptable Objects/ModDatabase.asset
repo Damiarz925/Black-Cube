@@ -455,7 +455,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 8
     displayName: Increased Damage
-    allowedSlots: 03000000000000000200000004000000050000000100000007000000i
+    allowedSlots: 07000000010000000600000003000000050000000000000002000000i
     allowedWeaponTypeIds: []
     groups: []
     side: 0
@@ -510,7 +510,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 9
     displayName: More Damage
-    allowedSlots: 03000000000000000200000004000000050000000100000007000000i
+    allowedSlots: 
     allowedWeaponTypeIds: []
     groups: []
     side: 0
@@ -565,10 +565,10 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 10
     displayName: Damage Over Time Multiplier
-    allowedSlots: 03000000000000000200000004000000050000000100000007000000i
+    allowedSlots: 070000000100000003000000050000000000000002000000i
     allowedWeaponTypeIds: []
     groups: []
-    side: 0
+    side: 1
     tiers:
     - tierIndex: 5
       minValue: 3
@@ -620,7 +620,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 11
     displayName: Increased Critical Strike Chance
-    allowedSlots: 030000000000000004000000050000000100000007000000i
+    allowedSlots: 070000000100000003000000050000000000000004000000i
     allowedWeaponTypeIds: []
     groups: []
     side: 1
@@ -675,7 +675,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 12
     displayName: Critical Strike Multiplier
-    allowedSlots: 030000000100000007000000i
+    allowedSlots: 07000000010000000300000005000000i
     allowedWeaponTypeIds: []
     groups: []
     side: 1
@@ -730,10 +730,10 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 13
     displayName: Added Base Critical Chance
-    allowedSlots: 030000000100000007000000i
+    allowedSlots: 070000000100000003000000i
     allowedWeaponTypeIds: []
     groups: []
-    side: 0
+    side: 1
     tiers:
     - tierIndex: 5
       minValue: 1
@@ -785,7 +785,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 14
     displayName: Increased Physical Damage
-    allowedSlots: 03000000000000000100000007000000i
+    allowedSlots: 070000000100000003000000050000000000000002000000i
     allowedWeaponTypeIds: []
     groups: []
     side: 0
@@ -840,7 +840,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 15
     displayName: Increased Cold Damage
-    allowedSlots: 0300000004000000050000000100000007000000i
+    allowedSlots: 07000000010000000300000005000000000000000400000002000000i
     allowedWeaponTypeIds: []
     groups: []
     side: 0
@@ -895,7 +895,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 16
     displayName: Increased Lightning Damage
-    allowedSlots: 04000000050000000100000007000000i
+    allowedSlots: 07000000010000000300000005000000000000000400000002000000i
     allowedWeaponTypeIds: []
     groups: []
     side: 0
@@ -950,7 +950,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 17
     displayName: Increased Fire Damage
-    allowedSlots: 00000000050000000100000007000000i
+    allowedSlots: 070000000100000003000000050000000000000002000000i
     allowedWeaponTypeIds: []
     groups: []
     side: 0
@@ -1005,7 +1005,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 18
     displayName: More Physical Damage
-    allowedSlots: 03000000000000000100000007000000i
+    allowedSlots: 
     allowedWeaponTypeIds: []
     groups: []
     side: 0
@@ -1060,7 +1060,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 19
     displayName: More Cold Damage
-    allowedSlots: 0300000004000000050000000100000007000000i
+    allowedSlots: 
     allowedWeaponTypeIds: []
     groups: []
     side: 0
@@ -1115,7 +1115,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 20
     displayName: More Lightning Damage
-    allowedSlots: 04000000050000000100000007000000i
+    allowedSlots: 
     allowedWeaponTypeIds: []
     groups: []
     side: 0
@@ -1170,7 +1170,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 21
     displayName: More Fire Damage
-    allowedSlots: 00000000050000000100000007000000i
+    allowedSlots: 
     allowedWeaponTypeIds: []
     groups: []
     side: 0
@@ -1225,7 +1225,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 22
     displayName: Physical Penetration
-    allowedSlots: 03000000000000000100000007000000i
+    allowedSlots: 0700000001000000030000000500000000000000i
     allowedWeaponTypeIds: []
     groups: []
     side: 0
@@ -1280,7 +1280,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 23
     displayName: Cold Penetration
-    allowedSlots: 0300000004000000050000000100000007000000i
+    allowedSlots: 0700000001000000030000000500000000000000i
     allowedWeaponTypeIds: []
     groups: []
     side: 0
@@ -1335,7 +1335,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 24
     displayName: Lightning Penetration
-    allowedSlots: 04000000050000000100000007000000i
+    allowedSlots: 0700000001000000030000000500000000000000i
     allowedWeaponTypeIds: []
     groups: []
     side: 0
@@ -1390,7 +1390,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 25
     displayName: Fire Penetration
-    allowedSlots: 00000000050000000100000007000000i
+    allowedSlots: 0700000001000000030000000500000000000000i
     allowedWeaponTypeIds: []
     groups: []
     side: 0
@@ -1445,7 +1445,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 26
     displayName: Increased Poison Damage
-    allowedSlots: 03000000040000000100000007000000i
+    allowedSlots: 0700000001000000030000000000000004000000i
     allowedWeaponTypeIds: []
     groups: []
     side: 0
@@ -1500,7 +1500,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 27
     displayName: Increased Ignite Damage
-    allowedSlots: 000000000100000007000000i
+    allowedSlots: 07000000010000000300000000000000i
     allowedWeaponTypeIds: []
     groups: []
     side: 0
@@ -1555,7 +1555,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 28
     displayName: Increased Bleed Damage
-    allowedSlots: 03000000000000000100000007000000i
+    allowedSlots: 07000000010000000300000000000000i
     allowedWeaponTypeIds: []
     groups: []
     side: 0
@@ -1610,7 +1610,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 29
     displayName: More Poison Damage
-    allowedSlots: 03000000040000000100000007000000i
+    allowedSlots: 
     allowedWeaponTypeIds: []
     groups: []
     side: 0
@@ -1665,7 +1665,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 30
     displayName: More Ignite Damage
-    allowedSlots: 000000000100000007000000i
+    allowedSlots: 
     allowedWeaponTypeIds: []
     groups: []
     side: 0
@@ -1720,7 +1720,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 31
     displayName: More Bleed Damage
-    allowedSlots: 03000000000000000100000007000000i
+    allowedSlots: 
     allowedWeaponTypeIds: []
     groups: []
     side: 0
@@ -1775,7 +1775,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 32
     displayName: Chance to Poison
-    allowedSlots: 03000000040000000100000007000000i
+    allowedSlots: 0700000001000000030000000000000004000000i
     allowedWeaponTypeIds: []
     groups: []
     side: 1
@@ -1830,7 +1830,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 33
     displayName: Chance to Ignite
-    allowedSlots: 000000000100000007000000i
+    allowedSlots: 070000000100000003000000050000000000000004000000i
     allowedWeaponTypeIds: []
     groups: []
     side: 1
@@ -1885,7 +1885,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 34
     displayName: Chance to Bleed
-    allowedSlots: 03000000000000000100000007000000i
+    allowedSlots: 0700000001000000030000000000000004000000i
     allowedWeaponTypeIds: []
     groups: []
     side: 1
@@ -1940,10 +1940,10 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 35
     displayName: Poison Speed
-    allowedSlots: 03000000040000000100000007000000i
+    allowedSlots: 07000000010000000300000000000000i
     allowedWeaponTypeIds: []
     groups: []
-    side: 0
+    side: 1
     tiers:
     - tierIndex: 5
       minValue: 1
@@ -1995,10 +1995,10 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 36
     displayName: Ignite Speed
-    allowedSlots: 000000000100000007000000i
+    allowedSlots: 07000000010000000300000000000000i
     allowedWeaponTypeIds: []
     groups: []
-    side: 0
+    side: 1
     tiers:
     - tierIndex: 5
       minValue: 1
@@ -2050,10 +2050,10 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 37
     displayName: Bleed Speed
-    allowedSlots: 03000000000000000100000007000000i
+    allowedSlots: 07000000010000000300000000000000i
     allowedWeaponTypeIds: []
     groups: []
-    side: 0
+    side: 1
     tiers:
     - tierIndex: 5
       minValue: 1
@@ -2105,7 +2105,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 38
     displayName: Poison Duration
-    allowedSlots: 03000000040000000100000007000000i
+    allowedSlots: 070000000100000003000000i
     allowedWeaponTypeIds: []
     groups: []
     side: 1
@@ -2160,7 +2160,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 39
     displayName: Ignite Duration
-    allowedSlots: 000000000100000007000000i
+    allowedSlots: 070000000100000003000000i
     allowedWeaponTypeIds: []
     groups: []
     side: 1
@@ -2215,7 +2215,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 40
     displayName: Bleed Duration
-    allowedSlots: 03000000000000000100000007000000i
+    allowedSlots: 070000000100000003000000i
     allowedWeaponTypeIds: []
     groups: []
     side: 1
@@ -2270,7 +2270,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 41
     displayName: Poison Penetration
-    allowedSlots: 03000000040000000100000007000000i
+    allowedSlots: 
     allowedWeaponTypeIds: []
     groups: []
     side: 0
@@ -2325,7 +2325,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 42
     displayName: Ignite Penetration
-    allowedSlots: 000000000100000007000000i
+    allowedSlots: 
     allowedWeaponTypeIds: []
     groups: []
     side: 0
@@ -2380,7 +2380,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 43
     displayName: Bleed Penetration
-    allowedSlots: 03000000000000000100000007000000i
+    allowedSlots: 
     allowedWeaponTypeIds: []
     groups: []
     side: 0
@@ -2435,7 +2435,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 44
     displayName: Chance to Shock
-    allowedSlots: 040000000500000007000000i
+    allowedSlots: 070000000100000003000000050000000000000004000000i
     allowedWeaponTypeIds: []
     groups: []
     side: 1
@@ -2490,7 +2490,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 45
     displayName: Chance to Chill
-    allowedSlots: 040000000500000007000000i
+    allowedSlots: 070000000100000003000000050000000000000004000000i
     allowedWeaponTypeIds: []
     groups: []
     side: 1
@@ -2545,10 +2545,10 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 46
     displayName: Shock Effect
-    allowedSlots: 040000000500000007000000i
+    allowedSlots: 070000000100000003000000050000000000000004000000i
     allowedWeaponTypeIds: []
     groups: []
-    side: 0
+    side: 1
     tiers:
     - tierIndex: 5
       minValue: 3
@@ -2600,10 +2600,10 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 47
     displayName: Chill Effect
-    allowedSlots: 040000000500000007000000i
+    allowedSlots: 070000000100000003000000050000000000000004000000i
     allowedWeaponTypeIds: []
     groups: []
-    side: 0
+    side: 1
     tiers:
     - tierIndex: 5
       minValue: 3
@@ -2655,7 +2655,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 48
     displayName: Shock Duration
-    allowedSlots: 040000000500000007000000i
+    allowedSlots: 07000000i
     allowedWeaponTypeIds: []
     groups: []
     side: 1
@@ -2710,7 +2710,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 49
     displayName: Chill Duration
-    allowedSlots: 040000000500000007000000i
+    allowedSlots: 07000000i
     allowedWeaponTypeIds: []
     groups: []
     side: 1
@@ -2765,7 +2765,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 50
     displayName: Added Armour
-    allowedSlots: 03000000000000000200000004000000i
+    allowedSlots: 03000000000000000400000002000000i
     allowedWeaponTypeIds: []
     groups: []
     side: 0
@@ -2875,7 +2875,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 52
     displayName: Increased Armour
-    allowedSlots: 03000000000000000200000004000000i
+    allowedSlots: 03000000000000000400000002000000i
     allowedWeaponTypeIds: []
     groups: []
     side: 0
@@ -2985,7 +2985,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 54
     displayName: Cold Resistance
-    allowedSlots: 03000000000000000200000004000000050000000100000006000000i
+    allowedSlots: 01000000060000000300000005000000000000000400000002000000i
     allowedWeaponTypeIds: []
     groups: []
     side: 1
@@ -3040,7 +3040,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 55
     displayName: Lightning Resistance
-    allowedSlots: 03000000000000000200000004000000050000000100000006000000i
+    allowedSlots: 01000000060000000300000005000000000000000400000002000000i
     allowedWeaponTypeIds: []
     groups: []
     side: 1
@@ -3095,7 +3095,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 56
     displayName: Fire Resistance
-    allowedSlots: 03000000000000000200000004000000050000000100000006000000i
+    allowedSlots: 01000000060000000300000005000000000000000400000002000000i
     allowedWeaponTypeIds: []
     groups: []
     side: 1
@@ -3150,7 +3150,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 57
     displayName: All Elemental Resistance
-    allowedSlots: 00000000020000000500000006000000i
+    allowedSlots: 06000000050000000000000002000000i
     allowedWeaponTypeIds: []
     groups: []
     side: 1
@@ -3208,7 +3208,7 @@ MonoBehaviour:
     allowedSlots: 0000000002000000i
     allowedWeaponTypeIds: []
     groups: []
-    side: 0
+    side: 1
     tiers:
     - tierIndex: 5
       minValue: 1
@@ -3263,7 +3263,7 @@ MonoBehaviour:
     allowedSlots: 0000000002000000i
     allowedWeaponTypeIds: []
     groups: []
-    side: 0
+    side: 1
     tiers:
     - tierIndex: 5
       minValue: 1
@@ -3318,7 +3318,7 @@ MonoBehaviour:
     allowedSlots: 0000000002000000i
     allowedWeaponTypeIds: []
     groups: []
-    side: 0
+    side: 1
     tiers:
     - tierIndex: 5
       minValue: 1
@@ -3370,10 +3370,10 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 61
     displayName: Maximum All Resistance
-    allowedSlots: 0200000006000000i
+    allowedSlots: 0600000002000000i
     allowedWeaponTypeIds: []
     groups: []
-    side: 0
+    side: 1
     tiers:
     - tierIndex: 5
       minValue: 1
@@ -3425,7 +3425,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 62
     displayName: Poison Resistance
-    allowedSlots: 000000000200000004000000i
+    allowedSlots: 
     allowedWeaponTypeIds: []
     groups: []
     side: 0
@@ -3480,7 +3480,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 63
     displayName: Ignite Resistance
-    allowedSlots: 000000000200000004000000i
+    allowedSlots: 
     allowedWeaponTypeIds: []
     groups: []
     side: 0
@@ -3535,7 +3535,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 64
     displayName: Bleed Resistance
-    allowedSlots: 000000000200000004000000i
+    allowedSlots: 
     allowedWeaponTypeIds: []
     groups: []
     side: 0
@@ -3590,7 +3590,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 65
     displayName: Shock Resistance
-    allowedSlots: 000000000200000004000000i
+    allowedSlots: 
     allowedWeaponTypeIds: []
     groups: []
     side: 0
@@ -3645,7 +3645,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 66
     displayName: Chill Resistance
-    allowedSlots: 000000000200000004000000i
+    allowedSlots: 
     allowedWeaponTypeIds: []
     groups: []
     side: 0
@@ -3700,7 +3700,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 67
     displayName: All Ailment Resistance
-    allowedSlots: 02000000i
+    allowedSlots: 
     allowedWeaponTypeIds: []
     groups: []
     side: 0
@@ -3755,7 +3755,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 68
     displayName: Added Life
-    allowedSlots: 03000000000000000200000004000000050000000100000006000000i
+    allowedSlots: 01000000060000000300000005000000000000000400000002000000i
     allowedWeaponTypeIds: []
     groups: []
     side: 0
@@ -3810,7 +3810,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 69
     displayName: Added Mana
-    allowedSlots: 03000000000000000200000004000000050000000100000006000000i
+    allowedSlots: 01000000060000000300000005000000000000000400000002000000i
     allowedWeaponTypeIds: []
     groups: []
     side: 0
@@ -3920,7 +3920,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 71
     displayName: Increased Mana
-    allowedSlots: 0200000004000000i
+    allowedSlots: 0400000002000000i
     allowedWeaponTypeIds: []
     groups: []
     side: 0
@@ -3975,7 +3975,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 72
     displayName: Life Regeneration
-    allowedSlots: 0000000002000000i
+    allowedSlots: 060000000000000002000000i
     allowedWeaponTypeIds: []
     groups: []
     side: 1
@@ -4030,10 +4030,10 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 73
     displayName: Mana Regeneration
-    allowedSlots: 000000000200000004000000i
+    allowedSlots: 06000000000000000400000002000000i
     allowedWeaponTypeIds: []
     groups: []
-    side: 0
+    side: 1
     tiers:
     - tierIndex: 5
       minValue: 2
@@ -4085,7 +4085,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 74
     displayName: Life on Hit
-    allowedSlots: 02000000i
+    allowedSlots: 06000000i
     allowedWeaponTypeIds: []
     groups: []
     side: 1
@@ -4140,7 +4140,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 75
     displayName: Mana on Hit
-    allowedSlots: 0200000004000000i
+    allowedSlots: 0600000004000000i
     allowedWeaponTypeIds: []
     groups: []
     side: 1
@@ -4195,7 +4195,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 76
     displayName: Life on Kill
-    allowedSlots: 02000000i
+    allowedSlots: 
     allowedWeaponTypeIds: []
     groups: []
     side: 1
@@ -4250,7 +4250,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 77
     displayName: Mana on Kill
-    allowedSlots: 0200000004000000i
+    allowedSlots: 04000000i
     allowedWeaponTypeIds: []
     groups: []
     side: 1
@@ -4430,7 +4430,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 81
     displayName: Increased Attack Speed
-    allowedSlots: 03000000050000000100000007000000i
+    allowedSlots: 0700000001000000060000000300000005000000i
     allowedWeaponTypeIds: []
     groups: []
     side: 1
@@ -4540,7 +4540,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 83
     displayName: Chance to Hit Twice
-    allowedSlots: 010000000600000007000000i
+    allowedSlots: 0700000001000000060000000300000005000000i
     allowedWeaponTypeIds: []
     groups: []
     side: 1
@@ -4610,7 +4610,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 85
     displayName: +1 Physical Skill Level
-    allowedSlots: 01000000i
+    allowedSlots: 
     allowedWeaponTypeIds: []
     groups: []
     side: 0
@@ -4633,7 +4633,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 86
     displayName: +1 Fire Skill Level
-    allowedSlots: 01000000i
+    allowedSlots: 
     allowedWeaponTypeIds: []
     groups: []
     side: 0
@@ -4656,7 +4656,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 87
     displayName: +1 Cold Skill Level
-    allowedSlots: 01000000i
+    allowedSlots: 
     allowedWeaponTypeIds: []
     groups: []
     side: 0
@@ -4679,7 +4679,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 88
     displayName: +1 Lightning Skill Level
-    allowedSlots: 01000000i
+    allowedSlots: 
     allowedWeaponTypeIds: []
     groups: []
     side: 0
@@ -4702,7 +4702,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 89
     displayName: +1 Poison Skill Level
-    allowedSlots: 01000000i
+    allowedSlots: 
     allowedWeaponTypeIds: []
     groups: []
     side: 0
@@ -4725,7 +4725,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 90
     displayName: +1 Bleed Skill Level
-    allowedSlots: 01000000i
+    allowedSlots: 
     allowedWeaponTypeIds: []
     groups: []
     side: 0
@@ -4748,7 +4748,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 91
     displayName: +1 Ignite Skill Level
-    allowedSlots: 01000000i
+    allowedSlots: 
     allowedWeaponTypeIds: []
     groups: []
     side: 0
@@ -4771,7 +4771,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 92
     displayName: Strength
-    allowedSlots: 03000000000000000200000004000000050000000100000006000000i
+    allowedSlots: 01000000060000000300000005000000000000000400000002000000i
     allowedWeaponTypeIds: []
     groups: []
     side: 1
@@ -4826,7 +4826,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 93
     displayName: Intelligence
-    allowedSlots: 03000000000000000200000004000000050000000100000006000000i
+    allowedSlots: 01000000060000000300000005000000000000000400000002000000i
     allowedWeaponTypeIds: []
     groups: []
     side: 1
@@ -4881,7 +4881,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 94
     displayName: Dexterity
-    allowedSlots: 03000000000000000200000004000000050000000100000006000000i
+    allowedSlots: 01000000060000000300000005000000000000000400000002000000i
     allowedWeaponTypeIds: []
     groups: []
     side: 1
@@ -4936,10 +4936,10 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 95
     displayName: Increased Strength
-    allowedSlots: 000000000200000006000000i
+    allowedSlots: 01000000060000000000000002000000i
     allowedWeaponTypeIds: []
     groups: []
-    side: 0
+    side: 1
     tiers:
     - tierIndex: 5
       minValue: 2
@@ -4991,10 +4991,10 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 96
     displayName: Increased Intelligence
-    allowedSlots: 020000000400000006000000i
+    allowedSlots: 01000000060000000400000002000000i
     allowedWeaponTypeIds: []
     groups: []
-    side: 0
+    side: 1
     tiers:
     - tierIndex: 5
       minValue: 2
@@ -5046,10 +5046,10 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 97
     displayName: Increased Dexterity
-    allowedSlots: 030000000200000006000000i
+    allowedSlots: 01000000060000000300000002000000i
     allowedWeaponTypeIds: []
     groups: []
-    side: 0
+    side: 1
     tiers:
     - tierIndex: 5
       minValue: 2
@@ -5101,7 +5101,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 98
     displayName: Life per Strength
-    allowedSlots: 000000000200000006000000i
+    allowedSlots: 010000000600000000000000i
     allowedWeaponTypeIds: []
     groups: []
     side: 0
@@ -5156,7 +5156,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 99
     displayName: Damage per Strength
-    allowedSlots: 000000000200000006000000i
+    allowedSlots: 01000000060000000500000000000000i
     allowedWeaponTypeIds: []
     groups: []
     side: 0
@@ -5211,7 +5211,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 100
     displayName: Mana per Intelligence
-    allowedSlots: 020000000400000006000000i
+    allowedSlots: 010000000600000004000000i
     allowedWeaponTypeIds: []
     groups: []
     side: 0
@@ -5266,7 +5266,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 101
     displayName: DoT Multiplier per Intelligence
-    allowedSlots: 020000000400000006000000i
+    allowedSlots: 01000000060000000500000004000000i
     allowedWeaponTypeIds: []
     groups: []
     side: 0
@@ -5321,7 +5321,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 102
     displayName: Attack Speed per Dexterity
-    allowedSlots: 030000000200000006000000i
+    allowedSlots: 01000000060000000300000005000000i
     allowedWeaponTypeIds: []
     groups: []
     side: 0
@@ -5431,7 +5431,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 104
     displayName: Added Fire Damage per Strength
-    allowedSlots: 06000000i
+    allowedSlots: 01000000060000000500000000000000i
     allowedWeaponTypeIds: []
     groups: []
     side: 0
@@ -5486,7 +5486,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 105
     displayName: Added Lightning Damage per Intelligence
-    allowedSlots: 06000000i
+    allowedSlots: 01000000060000000500000004000000i
     allowedWeaponTypeIds: []
     groups: []
     side: 0
@@ -5541,7 +5541,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 106
     displayName: Added Cold Damage per Dexterity
-    allowedSlots: 06000000i
+    allowedSlots: 01000000060000000300000005000000i
     allowedWeaponTypeIds: []
     groups: []
     side: 0
@@ -5596,7 +5596,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 107
     displayName: Damage per Lowest Attribute
-    allowedSlots: 06000000i
+    allowedSlots: 0100000006000000i
     allowedWeaponTypeIds: []
     groups: []
     side: 0
@@ -5796,7 +5796,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 115
     displayName: Increased Void Damage
-    allowedSlots: 00000000050000000100000007000000i
+    allowedSlots: 07000000010000000300000005000000000000000400000002000000i
     allowedWeaponTypeIds: []
     groups: []
     side: 0
@@ -5851,7 +5851,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 116
     displayName: More Void Damage
-    allowedSlots: 00000000050000000100000007000000i
+    allowedSlots: 
     allowedWeaponTypeIds: []
     groups: []
     side: 0
@@ -5906,7 +5906,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 117
     displayName: Void Penetration
-    allowedSlots: 00000000050000000100000007000000i
+    allowedSlots: 0700000001000000030000000500000000000000i
     allowedWeaponTypeIds: []
     groups: []
     side: 0
@@ -5961,7 +5961,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 118
     displayName: Void Resistance
-    allowedSlots: 03000000000000000200000004000000050000000100000006000000i
+    allowedSlots: 01000000060000000300000005000000000000000400000002000000i
     allowedWeaponTypeIds: []
     groups: []
     side: 1
@@ -6019,7 +6019,7 @@ MonoBehaviour:
     allowedSlots: 0000000002000000i
     allowedWeaponTypeIds: []
     groups: []
-    side: 0
+    side: 1
     tiers:
     - tierIndex: 5
       minValue: 1
@@ -6211,11 +6211,46 @@ MonoBehaviour:
     groups: []
     side: 0
     tiers:
-    - {tierIndex: 5, minValue: 0.01, maxValue: 0.02, minItemLevel: 1, weight: 50, pairedDamage: 0, minHighValue: 0, maxHighValue: 0}
-    - {tierIndex: 4, minValue: 0.02, maxValue: 0.04, minItemLevel: 20, weight: 35, pairedDamage: 0, minHighValue: 0, maxHighValue: 0}
-    - {tierIndex: 3, minValue: 0.04, maxValue: 0.06, minItemLevel: 40, weight: 20, pairedDamage: 0, minHighValue: 0, maxHighValue: 0}
-    - {tierIndex: 2, minValue: 0.06, maxValue: 0.08, minItemLevel: 60, weight: 10, pairedDamage: 0, minHighValue: 0, maxHighValue: 0}
-    - {tierIndex: 1, minValue: 0.08, maxValue: 0.1, minItemLevel: 80, weight: 5, pairedDamage: 0, minHighValue: 0, maxHighValue: 0}
+    - tierIndex: 5
+      minValue: 0.01
+      maxValue: 0.02
+      minItemLevel: 1
+      weight: 50
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
+      minValue: 0.02
+      maxValue: 0.04
+      minItemLevel: 20
+      weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 3
+      minValue: 0.04
+      maxValue: 0.06
+      minItemLevel: 40
+      weight: 20
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
+      minValue: 0.06
+      maxValue: 0.08
+      minItemLevel: 60
+      weight: 10
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
+      minValue: 0.08
+      maxValue: 0.1
+      minItemLevel: 80
+      weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     empowerable: 1
     hasCustomEmpoweredRange: 0
     empoweredMin: 0
@@ -6226,16 +6261,51 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 130
     displayName: Reduced Shock Effect
-    allowedSlots: 000000000200000004000000i
+    allowedSlots: 000000000400000002000000i
     allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
-    - {tierIndex: 5, minValue: 0.04, maxValue: 0.06, minItemLevel: 1, weight: 50, pairedDamage: 0, minHighValue: 0, maxHighValue: 0}
-    - {tierIndex: 4, minValue: 0.07, maxValue: 0.1, minItemLevel: 20, weight: 35, pairedDamage: 0, minHighValue: 0, maxHighValue: 0}
-    - {tierIndex: 3, minValue: 0.11, maxValue: 0.15, minItemLevel: 40, weight: 20, pairedDamage: 0, minHighValue: 0, maxHighValue: 0}
-    - {tierIndex: 2, minValue: 0.16, maxValue: 0.2, minItemLevel: 60, weight: 10, pairedDamage: 0, minHighValue: 0, maxHighValue: 0}
-    - {tierIndex: 1, minValue: 0.21, maxValue: 0.25, minItemLevel: 80, weight: 5, pairedDamage: 0, minHighValue: 0, maxHighValue: 0}
+    - tierIndex: 5
+      minValue: 0.04
+      maxValue: 0.06
+      minItemLevel: 1
+      weight: 50
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
+      minValue: 0.07
+      maxValue: 0.1
+      minItemLevel: 20
+      weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 3
+      minValue: 0.11
+      maxValue: 0.15
+      minItemLevel: 40
+      weight: 20
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
+      minValue: 0.16
+      maxValue: 0.2
+      minItemLevel: 60
+      weight: 10
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
+      minValue: 0.21
+      maxValue: 0.25
+      minItemLevel: 80
+      weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     empowerable: 1
     hasCustomEmpoweredRange: 0
     empoweredMin: 0
@@ -6246,16 +6316,51 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 131
     displayName: Reduced Chill Effect
-    allowedSlots: 000000000200000004000000i
+    allowedSlots: 000000000400000002000000i
     allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
-    - {tierIndex: 5, minValue: 0.04, maxValue: 0.06, minItemLevel: 1, weight: 50, pairedDamage: 0, minHighValue: 0, maxHighValue: 0}
-    - {tierIndex: 4, minValue: 0.07, maxValue: 0.1, minItemLevel: 20, weight: 35, pairedDamage: 0, minHighValue: 0, maxHighValue: 0}
-    - {tierIndex: 3, minValue: 0.11, maxValue: 0.15, minItemLevel: 40, weight: 20, pairedDamage: 0, minHighValue: 0, maxHighValue: 0}
-    - {tierIndex: 2, minValue: 0.16, maxValue: 0.2, minItemLevel: 60, weight: 10, pairedDamage: 0, minHighValue: 0, maxHighValue: 0}
-    - {tierIndex: 1, minValue: 0.21, maxValue: 0.25, minItemLevel: 80, weight: 5, pairedDamage: 0, minHighValue: 0, maxHighValue: 0}
+    - tierIndex: 5
+      minValue: 0.04
+      maxValue: 0.06
+      minItemLevel: 1
+      weight: 50
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
+      minValue: 0.07
+      maxValue: 0.1
+      minItemLevel: 20
+      weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 3
+      minValue: 0.11
+      maxValue: 0.15
+      minItemLevel: 40
+      weight: 20
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
+      minValue: 0.16
+      maxValue: 0.2
+      minItemLevel: 60
+      weight: 10
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
+      minValue: 0.21
+      maxValue: 0.25
+      minItemLevel: 80
+      weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     empowerable: 1
     hasCustomEmpoweredRange: 0
     empoweredMin: 0
@@ -6271,11 +6376,46 @@ MonoBehaviour:
     groups: []
     side: 0
     tiers:
-    - {tierIndex: 5, minValue: 1, maxValue: 1, minItemLevel: 1, weight: 50, pairedDamage: 0, minHighValue: 0, maxHighValue: 0}
-    - {tierIndex: 4, minValue: 2, maxValue: 2, minItemLevel: 30, weight: 35, pairedDamage: 0, minHighValue: 0, maxHighValue: 0}
-    - {tierIndex: 3, minValue: 3, maxValue: 3, minItemLevel: 50, weight: 20, pairedDamage: 0, minHighValue: 0, maxHighValue: 0}
-    - {tierIndex: 2, minValue: 4, maxValue: 4, minItemLevel: 70, weight: 10, pairedDamage: 0, minHighValue: 0, maxHighValue: 0}
-    - {tierIndex: 1, minValue: 5, maxValue: 5, minItemLevel: 90, weight: 5, pairedDamage: 0, minHighValue: 0, maxHighValue: 0}
+    - tierIndex: 5
+      minValue: 1
+      maxValue: 1
+      minItemLevel: 1
+      weight: 50
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
+      minValue: 2
+      maxValue: 2
+      minItemLevel: 30
+      weight: 35
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 3
+      minValue: 3
+      maxValue: 3
+      minItemLevel: 50
+      weight: 20
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
+      minValue: 4
+      maxValue: 4
+      minItemLevel: 70
+      weight: 10
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
+      minValue: 5
+      maxValue: 5
+      minItemLevel: 90
+      weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
     empowerable: 1
     hasCustomEmpoweredRange: 0
     empoweredMin: 0
