@@ -51,6 +51,7 @@ namespace BlackCube.CombatSimulation
         public float reducedShockEffect,reducedChillEffect;
         public float projectileTravelTime=1,precisionChance,precisionMultiplier=1.5f,rageGeneration,rageEffect,rageDecayReduction,auraEffect;
         public float revengeEffect,poisonLifeLeech,lifeRecoveryEffect;
+        public float spellEchoChance;
         public float wouldBeLifeRegenerationFraction,baseCritBeforeIncreased,increasedCrit,localCritMultiplier=1,cullingStrike;
         public List<PassiveKeystone> classKeystones=new();
         public bool Has(PassiveKeystone key)=>classKeystones!=null&&classKeystones.Contains(key);
@@ -96,6 +97,7 @@ namespace BlackCube.CombatSimulation
         public CombatantSnapshot data;public float life,mana,rage,rageDecayEligibleAt,chill,chillExpiresAt,phaseStartedAt;public bool frozen,enemyHasActed,finisherArmed,disableLifeRecovery;public int combo,alternate;public string phase;
         public readonly List<Dot> dots=new();public readonly List<(float strength,float expires)> shocks=new();public readonly FiveAuraState auras=new();public float revengeFraction,eventRevengeMultiplier=1;public EnemyBehaviorRuntimeState behavior=new();
         public bool fractured,fractureOnThaw,stealth;
+        public readonly Dictionary<int,float> nextSkillReady=new();
     }
 
     public static class HeadlessCombatSimulator
@@ -164,8 +166,19 @@ namespace BlackCube.CombatSimulation
         static void PlayerAttack(State p,State e,float now,DeterministicCombatRandom rng,CombatSimulationResult r,CombatSimulationConfig c,Action<float,CombatEventType,bool,int,int,Dot> add)
         {
             p.auras.Tick();e.auras.Tick();p.eventRevengeMultiplier=p.data.revengeEffect>0?GenericPassiveMechanics.RevengeMultiplier(p.revengeFraction,p.data.revengeEffect):1;p.revengeFraction=0;
-            int skill=ChooseSkill(p,e,c);r.playerAttacks++;if(skill>=0&&p.data.skills[skill].castMode==PlayerSkillCastMode.QueuedAttackReplacement){var s=p.data.skills[skill];if(!SpendMana(p,s,r,now,c)){skill=-1;}else Metric(r.skills,s.id).activations++;}
-            LaunchOrHit(p,e,skill,now,rng,r,c,add);p.eventRevengeMultiplier=1;if(skill>=0)RecordResolve(Metric(r.skills,p.data.skills[skill].id),now);
+            int skill=ChooseSkill(p,e,c,now);r.playerAttacks++;if(skill>=0&&(p.data.skills[skill].castMode==PlayerSkillCastMode.QueuedAttackReplacement||p.data.skills[skill].castMode==PlayerSkillCastMode.AutoQueuedReplacement)){var s=p.data.skills[skill];if(!SpendMana(p,s,r,now,c)){skill=-1;}else Metric(r.skills,s.id).activations++;}
+            LaunchOrEcho(p,e,skill,now,rng,r,c,add);
+            if(skill>=0)
+            {
+                var s=p.data.skills[skill];RecordResolve(Metric(r.skills,s.id),now);
+                if(s.castMode==PlayerSkillCastMode.AutoQueuedReplacement)
+                {
+                    bool bypass=p.data.subclassId==SubclassIds.MageCooldown&&rng.Value()<SubclassBalanceProfile.CooldownIgnoreChance;
+                    p.nextSkillReady[skill]=now+(bypass?0:s.cooldown);
+                    if(bypass)Metric(r.skills,s.id).cooldownBypasses++;
+                }
+            }
+            p.eventRevengeMultiplier=1;
         }
         static void EnemyAttack(State e,State p,float now,DeterministicCombatRandom rng,CombatSimulationResult r,CombatSimulationConfig c,Action<float,CombatEventType,bool,int,int,Dot> add)
         {
@@ -176,16 +189,32 @@ namespace BlackCube.CombatSimulation
             if(e.data.behavior!=null&&e.data.enemySkills.Count>0){e.behavior.completedAttacks=r.enemyAttacks-1;e.behavior.selfLifeFraction=e.life/e.data.maximumLife;e.behavior.playerLifeFraction=p.life/p.data.maximumLife;e.behavior.bossPhaseId=e.phase;e.behavior.random01=rng.Value();var decision=EnemyBehaviorResolver.Resolve(e.data.behavior,e.behavior,id=>e.data.enemySkills.Any(x=>x.id==id));skill=e.data.enemySkills.FindIndex(x=>x.id==decision.selectedSkillId);Trace(r,c,now,CombatEventType.BehaviorDecision,CombatTraceFilter.Behavior,e,p,decision.selectedSkillId,decision.reason,decision.selectedRuleId,e.phase,e.behavior.random01);}
             ResolveHit(e,p,skill,now,rng,r,c);e.enemyHasActed=true;p.enemyHasActed=true;if(p.combo>0)r.comboResets++;p.combo=0;
         }
-        static int ChooseSkill(State p,State e,CombatSimulationConfig c)
+        static int ChooseSkill(State p,State e,CombatSimulationConfig c,float now)
         {
-            var candidates=p.data.skills.Select((x,i)=>(x,i)).Where(x=>(x.i==0?c.enableSkill1:c.enableSkill2)&&x.x.castMode==PlayerSkillCastMode.QueuedAttackReplacement&&p.mana+Epsilon>=x.x.manaCost).ToList();if(c.actionPolicy==PlayerActionPolicy.BasicOnly||candidates.Count==0)return-1;if(c.actionPolicy==PlayerActionPolicy.ManaConservative)candidates=candidates.Where(x=>p.mana-x.x.manaCost>=p.data.maximumMana*c.manaReserve).ToList();if(candidates.Count==0)return-1;if(c.actionPolicy==PlayerActionPolicy.Skill2Priority)return candidates.OrderByDescending(x=>x.i).First().i;if(c.actionPolicy==PlayerActionPolicy.AlternateSkills){int x=candidates[p.alternate++%candidates.Count].i;return x;}return candidates.OrderBy(x=>x.i).First().i;
+            var candidates=p.data.skills.Select((x,i)=>(x,i)).Where(x=>(x.i==0?c.enableSkill1:c.enableSkill2)&&(x.x.castMode==PlayerSkillCastMode.QueuedAttackReplacement||(x.x.castMode==PlayerSkillCastMode.AutoQueuedReplacement&&(!p.nextSkillReady.TryGetValue(x.i,out float ready)||ready<=now)))&&p.mana+Epsilon>=x.x.manaCost).ToList();if(c.actionPolicy==PlayerActionPolicy.BasicOnly||candidates.Count==0)return-1;if(c.actionPolicy==PlayerActionPolicy.ManaConservative)candidates=candidates.Where(x=>p.mana-x.x.manaCost>=p.data.maximumMana*c.manaReserve).ToList();if(candidates.Count==0)return-1;if(c.actionPolicy==PlayerActionPolicy.Skill2Priority)return candidates.OrderByDescending(x=>x.i).First().i;if(c.actionPolicy==PlayerActionPolicy.AlternateSkills){int x=candidates[p.alternate++%candidates.Count].i;return x;}return candidates.OrderBy(x=>x.i).First().i;
         }
         static void ResolveCooldownSkill(State p,State e,int index,float now,DeterministicCombatRandom rng,CombatSimulationResult r,CombatSimulationConfig c,Action<float,CombatEventType,bool,int,int,Dot> add)
         {
-            if(index<0||index>=p.data.skills.Count)return;var s=p.data.skills[index];var metric=Metric(r.skills,s.id);metric.activations++;if(!SpendMana(p,s,r,now,c)){metric.manaFailures++;metric.readyStarvedTime+=.1;add(now+.1f,CombatEventType.SkillReady,true,index,0,null);return;}LaunchOrHit(p,e,index,now,rng,r,c,add);RecordResolve(metric,now);bool bypass=p.data.subclassId==SubclassIds.MageCooldown&&rng.Value()<SubclassBalanceProfile.CooldownIgnoreChance;if(bypass)metric.cooldownBypasses++;add(now+(bypass ? .01f : Mathf.Max(.01f,s.cooldown)),CombatEventType.SkillReady,true,index,0,null);
+            if(index<0||index>=p.data.skills.Count)return;var s=p.data.skills[index];var metric=Metric(r.skills,s.id);metric.activations++;if(!SpendMana(p,s,r,now,c)){metric.manaFailures++;metric.readyStarvedTime+=.1;add(now+.1f,CombatEventType.SkillReady,true,index,0,null);return;}LaunchOrEcho(p,e,index,now,rng,r,c,add);RecordResolve(metric,now);bool bypass=p.data.subclassId==SubclassIds.MageCooldown&&rng.Value()<SubclassBalanceProfile.CooldownIgnoreChance;if(bypass)metric.cooldownBypasses++;add(now+(bypass ? .01f : Mathf.Max(.01f,s.cooldown)),CombatEventType.SkillReady,true,index,0,null);
         }
         static bool SpendMana(State p,CombatSkillSnapshot s,CombatSimulationResult r,float now,CombatSimulationConfig c)
         {if(p.mana+Epsilon<s.manaCost){Trace(r,c,now,CombatEventType.Mana,CombatTraceFilter.Mana,p,null,s.name,"Insufficient Mana",amount:s.manaCost);return false;}float before=p.mana;p.mana-=s.manaCost;r.manaSpent+=s.manaCost;r.minMana=Mathf.Min(r.minMana,p.mana);Trace(r,c,now,CombatEventType.Mana,CombatTraceFilter.Mana,p,null,s.name,"Mana spent",amount:s.manaCost,manaBefore:before,manaAfter:p.mana);return true;}
+        static void LaunchOrEcho(State s,State t,int skill,float now,DeterministicCombatRandom rng,CombatSimulationResult r,CombatSimulationConfig c,Action<float,CombatEventType,bool,int,int,Dot> add)
+        {
+            LaunchOrHit(s,t,skill,now,rng,r,c,add);
+            if(skill<0||!s.data.skills[skill].magic)return;
+            var definition=s.data.skills[skill];float chance=SpellEchoRules.EffectiveChance(s.data.spellEchoChance);
+            int echo=0;
+            SpellEchoRules.CastEchoes(chance,definition.manaCost,rng.Value,cost=>
+            {
+                if(t.life<=0||s.mana+Epsilon<cost)return false;
+                s.mana-=cost;r.manaSpent+=cost;r.minMana=Mathf.Min(r.minMana,s.mana);
+                echo++;
+                Trace(r,c,now,CombatEventType.Mana,CombatTraceFilter.Mana,s,t,definition.name,"Spell Echo "+echo,amount:cost);
+                LaunchOrHit(s,t,skill,now,rng,r,c,add);
+                return true;
+            });
+        }
         static void LaunchOrHit(State s,State t,int skill,float now,DeterministicCombatRandom rng,CombatSimulationResult r,CombatSimulationConfig c,Action<float,CombatEventType,bool,int,int,Dot> add)
         {
             if(skill>=0&&s.data.Has(PassiveKeystone.MageSelfBolt)&&s.data.skills[skill].magic)ResolveSpellBolts(s,t,s.data.skills[skill],now,rng,r,c);

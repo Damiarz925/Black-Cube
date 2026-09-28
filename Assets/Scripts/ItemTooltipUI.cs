@@ -68,14 +68,15 @@ public static class ItemTooltipFormatter
         string range=TierRange(item,mod,percent);
         if(mod.statType==StatTypes.AxePhysicalRage)
             rolled=$"{mod.value:0.##}% MORE Local Physical Damage; {mod.secondaryValue:0.##}% increased Rage Generation";
-        string color=implicitLine?"#9FC8BC":mod.isEmpowered?"#73D8EE":mod.isBossSpecial?"#D88BFF":"#E4C979";
+        string color=mod.tierIndex==1&&!mod.isEmpowered&&!mod.isBossSpecial?"#FFD38A":implicitLine?"#9FC8BC":mod.isEmpowered?"#73D8EE":mod.isBossSpecial?"#D88BFF":"#E4C979";
         // Reserve a compact space for the runtime-built padlock Image. TMP's
         // shipped font does not contain the Unicode lock emoji.
         string prefix=implicitLine?"   ":"";
         string local=item.IsLocalAffix(mod.statType)?"  <color=#85898F>LOCAL</color>":"";
         if(mod.statType==StatTypes.AxePhysicalRage)local="  <color=#85898F>Physical multiplier LOCAL; Rage GLOBAL</color>";
         string rank=mod.isEmpowered?"EMPOWERED":mod.isBossSpecial?$"APEX — {BossSpecialCatalog.SourceName(mod.specialPoolId)}":$"T{mod.tierIndex}";
-        s.AppendLine($"<color={color}>{prefix}<b>{rolled}</b></color>  <color=#85898F>{range} {rank}</color>{local}");
+        string rankColor=mod.tierIndex==1&&!mod.isEmpowered&&!mod.isBossSpecial?color:"#85898F";
+        s.AppendLine($"<color={color}>{prefix}<b>{rolled}</b></color>  <color=#85898F>{range}</color> <color={rankColor}>{rank}</color>{local}");
     }
 
     static string TierRange(Gear item,RolledMod mod,bool percent)
@@ -166,6 +167,7 @@ public class ItemTooltipUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
     bool equipped;
     bool validatePlayerEquipment;
     [SerializeField] TMP_Text heading, body, actionLabel;
+    [SerializeField] TMP_Text estimatedDps;
     [SerializeField] Image implicitLockIcon;
     [SerializeField] Button scrapButton;
     [SerializeField] ScrollRect scroll;
@@ -261,6 +263,7 @@ public class ItemTooltipUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
         bool same=owner==anchor && item==gear && gameObject.activeSelf;
         owner=anchor;item=gear;equipped=isEquipped;validatePlayerEquipment=requirePlayerEquipment;pointer=data;gameObject.SetActive(true);
         RefreshVisibleContent();
+        ShowEstimatedDps();
         if(!same)
         {
             scroll.verticalNormalizedPosition=1;
@@ -280,6 +283,32 @@ public class ItemTooltipUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
         }
     }
     void OnEnable(){CurrencyInventory.GearChanged+=OnGearChanged;if(Inventory.Instance!=null)Inventory.Instance.OnInventoryChanged+=ValidateTarget;}
+    void ShowEstimatedDps()
+    {
+        if(estimatedDps==null)
+        {
+            estimatedDps=Label(transform,14);estimatedDps.name="Estimated DPS comparison";
+            Place(estimatedDps.rectTransform,.64f,.87f,1,1,12);estimatedDps.alignment=TextAlignmentOptions.TopRight;
+            estimatedDps.raycastTarget=false;
+        }
+        float? change=!equipped&&owner!=null?owner.GetComponentInParent<InventoryUI>()?.EstimatedUpgrade(item):null;
+        estimatedDps.gameObject.SetActive(change.HasValue);
+        if(!change.HasValue)return;
+        estimatedDps.text=$"{(change.Value>=0?"▲":"▼")} {change.Value:+0.#;-0.#;0}%";
+        estimatedDps.color=change.Value>=0?new Color(.3f,1,.4f):new Color(1,.35f,.35f);
+    }
+#if UNITY_EDITOR
+    public void AuthorEstimatedDps()
+    {
+        if(estimatedDps==null)
+        {
+            estimatedDps=Label(transform,14);estimatedDps.name="Estimated DPS comparison";
+            Place(estimatedDps.rectTransform,.65f,.87f,1,1,12);
+            estimatedDps.alignment=TextAlignmentOptions.TopRight;estimatedDps.raycastTarget=false;
+        }
+        heading.rectTransform.anchorMax=new Vector2(.65f,heading.rectTransform.anchorMax.y);
+    }
+#endif
     void OnDisable(){CurrencyInventory.GearChanged-=OnGearChanged;if(Inventory.Instance!=null)Inventory.Instance.OnInventoryChanged-=ValidateTarget;}
     void OnGearChanged(Gear changed){if(item!=changed)return;if(!TargetExists()){Hide();return;}RefreshVisibleContent();ResizeInPlace();}
     void ValidateTarget(){if(item!=null&&!TargetExists())Hide();}

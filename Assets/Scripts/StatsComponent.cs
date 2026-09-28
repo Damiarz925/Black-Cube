@@ -167,6 +167,7 @@ public class StatsComponent : MonoBehaviour
             case StatTypes.RageEffect:
             case StatTypes.RageDecayReduction:
             case StatTypes.CooldownReduction:
+            case StatTypes.SpellEchoChance:
             case StatTypes.AuraEffect:
             case StatTypes.RevengeEffect:
             case StatTypes.PoisonLifeLeech:

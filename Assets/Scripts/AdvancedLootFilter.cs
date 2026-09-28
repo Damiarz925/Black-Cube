@@ -40,6 +40,7 @@ using UnityEngine;
 {
     const string Key = "BlackCube.AdvancedLootFilter.V1";
     public bool enabled;
+    public bool autoDismantleFilteredItems=true;
     public int keptRarities = 15, keptElements = 47, keptWeapons = 63;
     public List<ItemTypeLootFilter> itemTypes = new();
     public static readonly string[] Weapons = {WeaponTypeIds.Sword,WeaponTypeIds.TwoHandedAxe,WeaponTypeIds.Bow,WeaponTypeIds.Staff,WeaponTypeIds.Sceptre,WeaponTypeIds.Dagger};

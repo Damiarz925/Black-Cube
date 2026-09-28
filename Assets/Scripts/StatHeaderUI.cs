@@ -9,7 +9,7 @@ public class StatHeaderUI : MonoBehaviour
 
     public void SetText(string s)
     {
-        if (headerText != null)
+        if (headerText != null && headerText.text != s)
             headerText.text = s;
     }
 }

@@ -237,19 +237,19 @@ MonoBehaviour:
       a:
         stableId: tree.v3.class.mage.t02.right.a
         logicalSlotId: tree.v3.class.mage.t02.right.a
-        displayName: Cold Damage
-        description: 
+        displayName: Spell Echo Chance
+        description: Magic casts can echo at full strength, paying progressively more Mana. Effective chance is capped at 60%.
         branch: 9
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 15
+          stat: 144
           mechanicId: 
-          value: 42
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 06c8620781e36ce45805e288b6c2f4da, type: 3}
+          value: 2
+        iconMode: 0
+        iconOverride: {fileID: 0}
       b:
         stableId: tree.v3.class.mage.t02.right.b
         logicalSlotId: tree.v3.class.mage.t02.right.b
@@ -319,7 +319,7 @@ MonoBehaviour:
         stableId: tree.v3.class.mage.t02.left.a
         logicalSlotId: tree.v3.class.mage.t02.left.a
         displayName: Reduced Shock Effect
-        description: 
+        description: Reduces incoming ailment effectiveness.
         branch: 0
         size: 0
         kind: 6
@@ -328,14 +328,14 @@ MonoBehaviour:
         - kind: 0
           stat: 130
           mechanicId: 
-          value: 0
+          value: 8
         iconMode: 1
         iconOverride: {fileID: 21300000, guid: 515daee52d8470c4da2c894c21392536, type: 3}
       b:
         stableId: tree.v3.class.mage.t02.left.b
         logicalSlotId: tree.v3.class.mage.t02.left.b
         displayName: Reduced Chill Effect
-        description: 
+        description: Reduces incoming ailment effectiveness.
         branch: 0
         size: 0
         kind: 6
@@ -344,7 +344,7 @@ MonoBehaviour:
         - kind: 0
           stat: 131
           mechanicId: 
-          value: 0
+          value: 8
         iconMode: 1
         iconOverride: {fileID: 21300000, guid: 515daee52d8470c4da2c894c21392536, type: 3}
       c:
@@ -432,19 +432,19 @@ MonoBehaviour:
       b:
         stableId: tree.v3.class.mage.t03.right.b
         logicalSlotId: tree.v3.class.mage.t03.right.b
-        displayName: Cold Damage
-        description: 
+        displayName: Spell Echo Chance
+        description: Magic casts can echo at full strength, paying progressively more Mana. Effective chance is capped at 60%.
         branch: 9
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 15
+          stat: 144
           mechanicId: 
-          value: 42
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 06c8620781e36ce45805e288b6c2f4da, type: 3}
+          value: 2
+        iconMode: 0
+        iconOverride: {fileID: 0}
       c:
         stableId: tree.v3.class.mage.t03.right.c
         logicalSlotId: tree.v3.class.mage.t03.right.c
@@ -514,7 +514,7 @@ MonoBehaviour:
         stableId: tree.v3.class.mage.t03.left.b
         logicalSlotId: tree.v3.class.mage.t03.left.b
         displayName: Reduced Shock Effect
-        description: 
+        description: Reduces incoming ailment effectiveness.
         branch: 0
         size: 0
         kind: 6
@@ -523,7 +523,7 @@ MonoBehaviour:
         - kind: 0
           stat: 130
           mechanicId: 
-          value: 0
+          value: 8
         iconMode: 1
         iconOverride: {fileID: 21300000, guid: 515daee52d8470c4da2c894c21392536, type: 3}
       c:
@@ -693,7 +693,7 @@ MonoBehaviour:
         stableId: tree.v3.class.mage.t04.left.b
         logicalSlotId: tree.v3.class.mage.t04.left.b
         displayName: Reduced Chill Effect
-        description: 
+        description: Reduces incoming ailment effectiveness.
         branch: 0
         size: 0
         kind: 6
@@ -702,7 +702,7 @@ MonoBehaviour:
         - kind: 0
           stat: 131
           mechanicId: 
-          value: 0
+          value: 8
         iconMode: 1
         iconOverride: {fileID: 21300000, guid: 515daee52d8470c4da2c894c21392536, type: 3}
       c:
@@ -872,7 +872,7 @@ MonoBehaviour:
         stableId: tree.v3.class.mage.t05.left.b
         logicalSlotId: tree.v3.class.mage.t05.left.b
         displayName: Reduced Chill Effect
-        description: 
+        description: Reduces incoming ailment effectiveness.
         branch: 0
         size: 0
         kind: 6
@@ -881,7 +881,7 @@ MonoBehaviour:
         - kind: 0
           stat: 131
           mechanicId: 
-          value: 0
+          value: 8
         iconMode: 1
         iconOverride: {fileID: 21300000, guid: 515daee52d8470c4da2c894c21392536, type: 3}
       c:
@@ -953,19 +953,19 @@ MonoBehaviour:
       a:
         stableId: tree.v3.class.mage.t06.right.a
         logicalSlotId: tree.v3.class.mage.t06.right.a
-        displayName: Cold Damage
-        description: 
+        displayName: Spell Echo Chance
+        description: Magic casts can echo at full strength, paying progressively more Mana. Effective chance is capped at 60%.
         branch: 9
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 15
+          stat: 144
           mechanicId: 
-          value: 42
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 06c8620781e36ce45805e288b6c2f4da, type: 3}
+          value: 2
+        iconMode: 0
+        iconOverride: {fileID: 0}
       b:
         stableId: tree.v3.class.mage.t06.right.b
         logicalSlotId: tree.v3.class.mage.t06.right.b
@@ -1051,7 +1051,7 @@ MonoBehaviour:
         stableId: tree.v3.class.mage.t06.left.b
         logicalSlotId: tree.v3.class.mage.t06.left.b
         displayName: Reduced Shock Effect
-        description: 
+        description: Reduces incoming ailment effectiveness.
         branch: 0
         size: 0
         kind: 6
@@ -1060,7 +1060,7 @@ MonoBehaviour:
         - kind: 0
           stat: 130
           mechanicId: 
-          value: 0
+          value: 8
         iconMode: 1
         iconOverride: {fileID: 21300000, guid: 515daee52d8470c4da2c894c21392536, type: 3}
       c:
@@ -1311,19 +1311,19 @@ MonoBehaviour:
       a:
         stableId: tree.v3.class.mage.t08.right.a
         logicalSlotId: tree.v3.class.mage.t08.right.a
-        displayName: Cold Damage
-        description: 
+        displayName: Spell Echo Chance
+        description: Magic casts can echo at full strength, paying progressively more Mana. Effective chance is capped at 60%.
         branch: 9
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 15
+          stat: 144
           mechanicId: 
-          value: 42
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 06c8620781e36ce45805e288b6c2f4da, type: 3}
+          value: 2
+        iconMode: 0
+        iconOverride: {fileID: 0}
       b:
         stableId: tree.v3.class.mage.t08.right.b
         logicalSlotId: tree.v3.class.mage.t08.right.b
@@ -1393,7 +1393,7 @@ MonoBehaviour:
         stableId: tree.v3.class.mage.t08.left.a
         logicalSlotId: tree.v3.class.mage.t08.left.a
         displayName: Reduced Shock Effect
-        description: 
+        description: Reduces incoming ailment effectiveness.
         branch: 0
         size: 0
         kind: 6
@@ -1402,14 +1402,14 @@ MonoBehaviour:
         - kind: 0
           stat: 130
           mechanicId: 
-          value: 0
+          value: 8
         iconMode: 1
         iconOverride: {fileID: 21300000, guid: 515daee52d8470c4da2c894c21392536, type: 3}
       b:
         stableId: tree.v3.class.mage.t08.left.b
         logicalSlotId: tree.v3.class.mage.t08.left.b
         displayName: Reduced Chill Effect
-        description: 
+        description: Reduces incoming ailment effectiveness.
         branch: 0
         size: 0
         kind: 6
@@ -1418,7 +1418,7 @@ MonoBehaviour:
         - kind: 0
           stat: 131
           mechanicId: 
-          value: 0
+          value: 8
         iconMode: 1
         iconOverride: {fileID: 21300000, guid: 515daee52d8470c4da2c894c21392536, type: 3}
       c:
@@ -1506,19 +1506,19 @@ MonoBehaviour:
       b:
         stableId: tree.v3.class.mage.t09.right.b
         logicalSlotId: tree.v3.class.mage.t09.right.b
-        displayName: Cold Damage
-        description: 
+        displayName: Spell Echo Chance
+        description: Magic casts can echo at full strength, paying progressively more Mana. Effective chance is capped at 60%.
         branch: 9
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 15
+          stat: 144
           mechanicId: 
-          value: 42
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 06c8620781e36ce45805e288b6c2f4da, type: 3}
+          value: 2
+        iconMode: 0
+        iconOverride: {fileID: 0}
       c:
         stableId: tree.v3.class.mage.t09.right.c
         logicalSlotId: tree.v3.class.mage.t09.right.c
@@ -1588,7 +1588,7 @@ MonoBehaviour:
         stableId: tree.v3.class.mage.t09.left.b
         logicalSlotId: tree.v3.class.mage.t09.left.b
         displayName: Reduced Shock Effect
-        description: 
+        description: Reduces incoming ailment effectiveness.
         branch: 0
         size: 0
         kind: 6
@@ -1597,7 +1597,7 @@ MonoBehaviour:
         - kind: 0
           stat: 130
           mechanicId: 
-          value: 0
+          value: 8
         iconMode: 1
         iconOverride: {fileID: 21300000, guid: 515daee52d8470c4da2c894c21392536, type: 3}
       c:
@@ -1767,7 +1767,7 @@ MonoBehaviour:
         stableId: tree.v3.class.mage.t10.left.b
         logicalSlotId: tree.v3.class.mage.t10.left.b
         displayName: Reduced Chill Effect
-        description: 
+        description: Reduces incoming ailment effectiveness.
         branch: 0
         size: 0
         kind: 6
@@ -1776,7 +1776,7 @@ MonoBehaviour:
         - kind: 0
           stat: 131
           mechanicId: 
-          value: 0
+          value: 8
         iconMode: 1
         iconOverride: {fileID: 21300000, guid: 515daee52d8470c4da2c894c21392536, type: 3}
       c:

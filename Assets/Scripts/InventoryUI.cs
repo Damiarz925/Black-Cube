@@ -45,6 +45,14 @@ public class InventoryUI : MonoBehaviour
         if(previewStats!=null&&previewStats.GetRawStat(StatTypes.DmgPerCurrentMana)!=0)InvalidateDpsCache();
     }
     public void InvalidateDpsCache(){dpsCache.Clear();dpsDirty=true;}
+    public float? EstimatedUpgrade(Gear item)
+    {
+        if(item==null||item.IsScrap)return null;
+        previewPlayer??=FindFirstObjectByType<PlayerController>();if(previewPlayer==null)return null;
+        if(dpsCache.Count==0)dpsBaseline=CharacterDamageEstimate.Calculate(previewPlayer);
+        if(!dpsCache.TryGetValue(item,out float estimate))dpsCache[item]=estimate=CharacterDamageEstimate.Replacement(previewPlayer,item);
+        return dpsBaseline>0?(estimate/dpsBaseline-1)*100:estimate>0?100:0;
+    }
     void RefreshDps()
     {
         if(!isActiveAndEnabled||!dpsDirty||Time.unscaledTime<nextDpsRefresh)return;
@@ -260,12 +268,11 @@ public class InventoryUI : MonoBehaviour
 
     public void RefreshModHighlights()
     {
-        InventoryModFilter filter = Inventory.Instance != null ? Inventory.Instance.ModHighlightFilter : null;
+        AdvancedLootFilter filter = Inventory.Instance != null ? Inventory.Instance.AdvancedFilter : null;
         foreach (var pair in slots)
         {
             if (pair.Value == null) continue;
-            int matches = filter != null ? filter.CountMatches(pair.Key) : 0;
-            pair.Value.SetModHighlight(filter != null && filter.HasSelection && matches >= filter.RequiredMatches, matches);
+            pair.Value.SetModHighlight(filter != null && filter.enabled && filter.Keeps(pair.Key), 0);
         }
     }
 

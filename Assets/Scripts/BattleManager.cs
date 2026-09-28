@@ -332,6 +332,7 @@ public class BattleManager : MonoBehaviour
         if (enemyHealth != originalTarget || originalTarget.CurrentLife <= 0f) return;
 
         var skillController = player != null ? player.GetComponent<PlayerSkillController>() : null;
+        skillController?.PrepareAutomaticReplacement();
         specialEffects??=player!=null?player.GetComponent<BossSpecialEffectRuntime>()??player.AddComponent<BossSpecialEffectRuntime>():null;specialEffects?.BeginAttackEvent();currentAttackEventMultiplier=(playerRage!=null?playerRage.BeginAttackEventMultiplier():1f)*(player!=null?player.GetComponent<RevengeState>()?.ConsumeAttack()??1:1);bool resolved=false;
         try{if (skillController != null && skillController.TryConsumeQueuedForAttack(out var queued, out float manaSpent))
         {
@@ -515,6 +516,22 @@ playerDamageReceiver.TakeDamage(damageTaken, ctx, attacker:enemyStats);     //ca
     }
 
     public bool TryCastPlayerSkill(PlayerSkillDefinition skill)
+    {
+        if(!CastPlayerSkillOnce(skill))return false;
+        if(!skill.magic)return true;
+        var controller=player.GetComponent<PlayerSkillController>();
+        float chance=SpellEchoRules.EffectiveChance(playerStats.GetStat(StatTypes.SpellEchoChance));
+        SpellEchoRules.CastEchoes(chance,controller.ManaCost(skill),()=>Random.value,cost=>
+        {
+            if(!CanCastPlayerSkill||!controller.Mana.TrySpend(cost))return false;
+            if(!CastPlayerSkillOnce(skill)){controller.Mana.Restore(cost);return false;}
+            return true;
+        });
+        return true;
+    }
+
+    // Echo invokes this primitive directly, never the whole attack/proc scheduler.
+    bool CastPlayerSkillOnce(PlayerSkillDefinition skill)
     {
         if (skill == null || !CanCastPlayerSkill) return false;
         playerSprite?.Strike(); // One presentation event per cast, never per impact.

@@ -59,6 +59,7 @@ namespace BlackCube.BalanceWorkbench
             p.igniteExtraTicks=Mathf.RoundToInt(stats.GetRawStat(StatTypes.IgniteDuration));
             p.reducedShockEffect=stats.GetStat(StatTypes.ReducedShockEffect);
             p.reducedChillEffect=stats.GetStat(StatTypes.ReducedChillEffect);
+            p.spellEchoChance=stats.GetStat(StatTypes.SpellEchoChance);
             p.basicDamage=Damage(hit);
             p.basicScopeMultiplier=CombatCalculator.ScopedDamageMultiplier(hit.Scopes,stats);
             p.maximumFireResistance=CombatCalculator.GetMaximumResistance(Element.Fire,stats);

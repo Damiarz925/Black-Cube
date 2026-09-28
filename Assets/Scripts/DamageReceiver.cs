@@ -36,7 +36,7 @@ public class DamageReceiver : MonoBehaviour
         if (health != null)
         {
             float before = health.CurrentLife;
-            RecordIncoming(Mathf.Min(damage,before),new DamageContext(1),null,element);
+            RecordIncoming(Mathf.Min(damage,before),new DamageContext(1),null,element,effect);
             health.LoseLife(damage);
             actualLifeLoss = Mathf.Max(0f, before - health.CurrentLife);
             if(GetComponent<PlayerController>()!=null)
@@ -66,7 +66,9 @@ public class DamageReceiver : MonoBehaviour
         if (keystones != null) damage = keystones.RedirectDamageToMana(damage);
         if (damage <= 0f) return;
         float before = health != null ? health.CurrentLife : damage;
-        RecordIncoming(Mathf.Min(damage,before),components.Hits.Count>0?components:context,attacker);
+        var recap=components.Hits.Count>0?components:context;
+        recap.IsCrit=context.IsCrit;recap.EventTags=context.EventTags;
+        RecordIncoming(Mathf.Min(damage,before),recap,attacker,GetPrimaryElement(context),effect);
         health?.LoseLife(damage);
         float actualLifeLoss = health != null ? Mathf.Max(0f, before - health.CurrentLife) : damage;
         if(health!=null&&GetComponent<PlayerController>()!=null)
@@ -95,11 +97,11 @@ public class DamageReceiver : MonoBehaviour
             damagePopup.Spawn(damage, PopupTarget, element, critical);
     }
 
-    void RecordIncoming(float amount,DamageContext context,StatsComponent attacker,Element fallback=Element.Phys)
+    void RecordIncoming(float amount,DamageContext context,StatsComponent attacker,Element fallback=Element.Phys,StatusEffects ailment=null)
     {
         if(GetComponent<PlayerController>()==null)return;
         if(context.Hits.Count==0)context.AddDamage(fallback,amount);
-        (GetComponent<IncomingDamageHistory>()??gameObject.AddComponent<IncomingDamageHistory>()).Record(amount,context,attacker,GetComponent<StatsComponent>());
+        (GetComponent<IncomingDamageHistory>()??gameObject.AddComponent<IncomingDamageHistory>()).Record(amount,context,attacker,GetComponent<StatsComponent>(),ailment);
     }
 
     private Element GetPrimaryElement(DamageContext context)

@@ -9,6 +9,27 @@ public sealed class PlayerSkillController : MonoBehaviour
     [SerializeField] private List<PlayerSkillDefinition> skills = new();
     private readonly List<PlayerSkillDefinition> weaponSkills = new(2);
     readonly float[] autoCooldownRemaining={0f,0f};
+    readonly bool[] autoCastEnabled={true,true};
+    public bool AutocastEnabled(int slot)=>slot>=0&&slot<2&&autoCastEnabled[slot];
+    public bool ToggleAutocast(int slot)
+    {
+        if(slot<0||slot>=weaponSkills.Count||weaponSkills[slot].castMode!=PlayerSkillCastMode.AutoQueuedReplacement)return false;
+        autoCastEnabled[slot]=!autoCastEnabled[slot];
+        if(!autoCastEnabled[slot]&&QueuedSkill==weaponSkills[slot])ClearQueuedSkill();
+        CooldownsChanged?.Invoke();GamePersistence.MarkDirty();return true;
+    }
+    public void RestoreAutocast(bool first,bool second)
+    {autoCastEnabled[0]=first;autoCastEnabled[1]=second;CooldownsChanged?.Invoke();}
+    public void PrepareAutomaticReplacement()
+    {
+        if(QueuedSkill!=null||Mana==null)return;
+        for(int i=0;i<weaponSkills.Count&&i<2;i++)
+        {
+            var skill=weaponSkills[i];
+            if(skill.castMode!=PlayerSkillCastMode.AutoQueuedReplacement||!autoCastEnabled[i]||CooldownRemaining(i)>0||!Mana.CanSpend(ManaCost(skill)))continue;
+            QueuedSkill=skill;QueueChanged?.Invoke();break;
+        }
+    }
     public IReadOnlyList<PlayerSkillDefinition> Skills => skills;
     public IReadOnlyList<PlayerSkillDefinition> WeaponSkills => weaponSkills;
     public PlayerSkillDefinition SelectedSkill { get; private set; }
@@ -81,6 +102,7 @@ public sealed class PlayerSkillController : MonoBehaviour
         }
         SelectedSkill = next;
         ClearQueuedSkill();
+        ResetCooldowns();
         SelectionChanged?.Invoke();
         return true;
     }
@@ -149,6 +171,7 @@ public sealed class PlayerSkillController : MonoBehaviour
     {
         if(index<0||index>=weaponSkills.Count||BattleManager.Instance==null)return false;
         PlayerSkillDefinition skill=weaponSkills[index];float cost=ManaCost(skill);
+        if(skill.castMode==PlayerSkillCastMode.AutoQueuedReplacement)return ToggleAutocast(index);
         if(skill.castMode==PlayerSkillCastMode.ImmediateCooldown)return TryCastImmediate(index);
         if(skill.castMode!=PlayerSkillCastMode.QueuedAttackReplacement)return false;
         if(!BattleManager.Instance.CanCastPlayerSkill||!Mana.CanSpend(cost))return false;
@@ -174,6 +197,12 @@ public sealed class PlayerSkillController : MonoBehaviour
 
     public void NotifyQueuedSkillResolved(PlayerSkillDefinition skill)
     {
+        if(skill!=null&&skill.castMode==PlayerSkillCastMode.AutoQueuedReplacement)
+        {
+            int slot=weaponSkills.IndexOf(skill);
+            if(slot>=0&&slot<2)autoCooldownRemaining[slot]=GetComponent<SubclassCombatState>()?.RollCooldownBypass()==true?0f:EffectiveCooldown(skill);
+            CooldownsChanged?.Invoke();return;
+        }
         if(skill==null||skill.castMode!=PlayerSkillCastMode.QueuedAttackReplacement)return;
         var subclass=GetComponent<SubclassCombatState>();
         if(subclass!=null&&subclass.TryQueueRepeat()){QueuedSkill=skill;QueueChanged?.Invoke();}
@@ -184,6 +213,13 @@ public sealed class PlayerSkillController : MonoBehaviour
         if (QueuedSkill == null) return;
         QueuedSkill = null;
         QueueChanged?.Invoke();
+    }
+
+    public void ResetCooldowns()
+    {
+        for(int i=0;i<autoCooldownRemaining.Length;i++)
+            autoCooldownRemaining[i]=i<weaponSkills.Count&&weaponSkills[i].castMode==PlayerSkillCastMode.AutoCooldown?EffectiveCooldown(weaponSkills[i]):0;
+        CooldownsChanged?.Invoke();
     }
 
     public const float MinimumAutoCooldown=.20f;
@@ -210,6 +246,7 @@ public sealed class PlayerSkillController : MonoBehaviour
         {
             var skill=weaponSkills[i];if(skill==null||skill.castMode==PlayerSkillCastMode.QueuedAttackReplacement)continue;
             if(autoCooldownRemaining[i]>0f){autoCooldownRemaining[i]=Mathf.Max(0f,autoCooldownRemaining[i]-deltaTime);changed=true;}
+            if(skill.castMode==PlayerSkillCastMode.AutoQueuedReplacement)continue;
             if(skill.castMode==PlayerSkillCastMode.ImmediateCooldown)continue;
             if(autoCooldownRemaining[i]>0f)continue;
             float cost=ManaCost(skill);if(!Mana.TrySpend(cost))continue;

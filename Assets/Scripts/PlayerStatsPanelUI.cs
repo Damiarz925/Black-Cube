@@ -21,6 +21,9 @@ public class PlayerStatsPanelUI : MonoBehaviour
     [SerializeField] private float autoRefreshInterval = 0f;
 
     private float _timer;
+    readonly List<StatRowUI> rowPool=new();
+    readonly List<StatHeaderUI> headerPool=new();
+    int rowCursor,headerCursor,siblingCursor;
     bool initializedAdvancedCollapse;
 
     private readonly List<GameObject> _spawned = new();
@@ -79,11 +82,13 @@ public class PlayerStatsPanelUI : MonoBehaviour
         if (contentRoot == null || headerPrefab == null || rowPrefab == null)
             return;
 
-        Clear();
+        BeginRefresh();
+        try
+        {
         if (playerStats == null)
         {
             AddHeader("Stats");
-            var empty = Instantiate(rowPrefab, contentRoot);
+            var empty = RentRow();
             empty.Set("No current target", "");
             _spawned.Add(empty.gameObject);
             return;
@@ -93,7 +98,7 @@ public class PlayerStatsPanelUI : MonoBehaviour
         if(player!=null){BuildCompactPlayerStats(player);return;}
         if (player != null)
         {
-            var header = Instantiate(headerPrefab, contentRoot);
+            var header = RentHeader();
             header.SetText("Basic Attack / Before Defenses"); _spawned.Add(header.gameObject);
             var lowContext = player.BuildNonCriticalAttackContextAtRangeEnd(false);
             var highContext = player.BuildNonCriticalAttackContextAtRangeEnd(true);
@@ -101,21 +106,21 @@ public class PlayerStatsPanelUI : MonoBehaviour
             {
                 var hit = lowContext.Hits[i];
                 if (hit.Amount <= 0f) continue;
-                var damage = Instantiate(rowPrefab, contentRoot);
+                var damage = RentRow();
                 float high = i < highContext.Hits.Count ? highContext.Hits[i].Amount : hit.Amount;
                 damage.Set($"{ItemTooltipUI.ElementName(hit.Element)} / Hit (Noncritical)",
                     $"{hit.Amount:0.##}-{high:0.##} (Average {(hit.Amount+high)*.5f:0.##})");
                 _spawned.Add(damage.gameObject);
             }
-            var crit = Instantiate(rowPrefab, contentRoot);
+            var crit = RentRow();
             crit.Set("Critical Chance (Final)", (player.GetFinalCritChance() * 100f).ToString("0.##") + "%");
             _spawned.Add(crit.gameObject);
-            var speed = Instantiate(rowPrefab, contentRoot);
+            var speed = RentRow();
             speed.Set("Attacks / Second (Final)", player.GetFinalAttackSpeed().ToString("0.##"));
             _spawned.Add(speed.gameObject);
             if (player.EquippedWeaponBaseDamage != 0)
             {
-                var weapon = Instantiate(rowPrefab, contentRoot);
+                var weapon = RentRow();
                 player.EquippedWeapon.GetEffectiveBaseDamageRange(out float low, out float high);
                 weapon.Set($"Weapon Base {ItemTooltipUI.ElementName(player.EquippedWeaponElement)}",
                     $"{low:0.##}-{high:0.##} (Average {(low+high)*.5f:0.##})");
@@ -132,7 +137,7 @@ public class PlayerStatsPanelUI : MonoBehaviour
             AddInspectionRow("Intelligence",DerivedStatCalculator.Intelligence(playerStats).ToString("0.##"));
             if (StatDisplayFormatting.ShouldDisplay(playerStats, StatTypes.UnarmedDamage))
             {
-                var unarmed = Instantiate(rowPrefab, contentRoot);
+                var unarmed = RentRow();
                 unarmed.Set("Unarmed Damage", playerStats.GetStat(StatTypes.UnarmedDamage).ToString("0.##"));
                 _spawned.Add(unarmed.gameObject);
             }
@@ -149,21 +154,21 @@ public class PlayerStatsPanelUI : MonoBehaviour
                 {
                     var hit = lowContext.Hits[i];
                     if (hit.Amount <= 0f) continue;
-                    var damage = Instantiate(rowPrefab, contentRoot);
+                    var damage = RentRow();
                     float high = i < highContext.Hits.Count ? highContext.Hits[i].Amount : hit.Amount;
                     damage.Set($"{ItemTooltipUI.ElementName(hit.Element)} / Hit (Noncritical)",
                         $"{hit.Amount:0.##}-{high:0.##} (Average {(hit.Amount+high)*.5f:0.##})");
                     _spawned.Add(damage.gameObject);
                 }
-                var crit = Instantiate(rowPrefab, contentRoot);
+                var crit = RentRow();
                 crit.Set("Critical Chance (Final)", (enemy.GetFinalCritChance() * 100f).ToString("0.##") + "%");
                 _spawned.Add(crit.gameObject);
-                var speed = Instantiate(rowPrefab, contentRoot);
+                var speed = RentRow();
                 speed.Set("Attacks / Second (Final)", enemy.GetFinalAttackSpeed().ToString("0.##"));
                 _spawned.Add(speed.gameObject);
                 if (enemy.EquippedWeaponBaseDamage != 0f)
                 {
-                    var weapon = Instantiate(rowPrefab, contentRoot);
+                    var weapon = RentRow();
                     enemy.EquippedWeapon.GetEffectiveBaseDamageRange(out float low, out float high);
                     weapon.Set($"Weapon Base {ItemTooltipUI.ElementName(enemy.WeaponMainElement)}",
                         $"{low:0.##}-{high:0.##} (Average {(low+high)*.5f:0.##})");
@@ -182,11 +187,11 @@ public class PlayerStatsPanelUI : MonoBehaviour
         if (tracked.Count == 0)
         {
             // Show a single header that says "No Stats"
-            var h = Instantiate(headerPrefab, contentRoot);
+            var h = RentHeader();
             h.SetText("Stats");
             _spawned.Add(h.gameObject);
 
-            var r = Instantiate(rowPrefab, contentRoot);
+            var r = RentRow();
             r.Set("No active stats", "");
             _spawned.Add(r.gameObject);
             return;
@@ -201,9 +206,10 @@ public class PlayerStatsPanelUI : MonoBehaviour
             if (background == null) background = h.gameObject.AddComponent<Image>();
             background.color = new Color(.10f,.12f,.15f,1); background.raycastTarget = true;
             foreach(var text in h.GetComponentsInChildren<TMP_Text>()) text.raycastTarget = false;
-            var button = h.gameObject.AddComponent<Button>(); button.targetGraphic = background;
+            var button = h.GetComponent<Button>() ?? h.gameObject.AddComponent<Button>(); button.targetGraphic = background;
             CorruptionUIButtonSkin.Ensure(button)?.SetSelected(IsSectionExpanded(section));
             sectionButtons[section] = button;
+            button.onClick.RemoveAllListeners();
             button.onClick.AddListener(() =>
             {
                 if (!collapsed.Add(section)) collapsed.Remove(section);
@@ -222,10 +228,13 @@ public class PlayerStatsPanelUI : MonoBehaviour
             }
             else foreach (var type in values) AddStat(type);
         }
+
+        }
+        finally { EndRefresh(); }
     }
 
     private StatHeaderUI AddHeader(string title)
-    { var h = Instantiate(headerPrefab, contentRoot); h.SetText(title); _spawned.Add(h.gameObject); return h; }
+    { var h = RentHeader(); h.SetText(title); _spawned.Add(h.gameObject); return h; }
     void BuildCompactPlayerStats(PlayerController player)
     {
         var hit=CharacterDamageEstimate.SearchHit(player.BuildNonCriticalAttackContext(),playerStats);
@@ -249,13 +258,14 @@ public class PlayerStatsPanelUI : MonoBehaviour
         AddHeader("RESOURCES");AddInspectionRow("Maximum Mana",(player.GetComponent<ManaComponent>()?.MaxMana??0).ToString("0"));
         AddInspectionRow("Life Regeneration / sec",(playerStats.GetStat(StatTypes.LifeRegeneration)*(player.GetComponent<PassiveKeystoneState>()?.LifeRegenerationMultiplier??1)).ToString("P2")+" Max Life");
         foreach(var stat in new[]{StatTypes.ManaRegeneration,StatTypes.LifeOnHit,StatTypes.ManaOnHit,StatTypes.LifeOnKill,StatTypes.ManaOnKill})AddStat(stat);
-        AddHeader("SPECIAL");foreach(var stat in new[]{StatTypes.CooldownReduction,StatTypes.AuraEffect,StatTypes.ProjectileSpeed,StatTypes.ProjectileAmount,StatTypes.ProjectilePrecisionChance,StatTypes.ProjectilePrecisionMultiplier})if(StatDisplayFormatting.ShouldDisplay(playerStats,stat))AddStat(stat);
+        AddHeader("SPECIAL");foreach(var stat in new[]{StatTypes.CooldownReduction,StatTypes.SpellEchoChance,StatTypes.AuraEffect,StatTypes.ProjectileSpeed,StatTypes.ProjectileAmount,StatTypes.ProjectilePrecisionChance,StatTypes.ProjectilePrecisionMultiplier})if(StatDisplayFormatting.ShouldDisplay(playerStats,stat))AddStat(stat);
         const string details="Advanced Sources";
         if(!initializedAdvancedCollapse){collapsed.Add(details);initializedAdvancedCollapse=true;}
         var header=AddHeader((collapsed.Contains(details)?"[+] ":"[-] ")+details);var image=header.GetComponent<Image>()??header.gameObject.AddComponent<Image>();image.raycastTarget=true;
         foreach(var text in header.GetComponentsInChildren<TMP_Text>())text.raycastTarget=false;
-        var button=header.gameObject.AddComponent<Button>();button.targetGraphic=image;sectionButtons[details]=button;
-        button.onClick.AddListener(()=>{if(!collapsed.Add(details))collapsed.Remove(details);Refresh();});
+        var button=header.GetComponent<Button>()??header.gameObject.AddComponent<Button>();button.targetGraphic=image;sectionButtons[details]=button;
+        button.onClick.RemoveAllListeners();
+            button.onClick.AddListener(()=>{if(!collapsed.Add(details))collapsed.Remove(details);Refresh();});
         if(!collapsed.Contains(details))
         {
             var gear=EquipmentManager.Instance?.EquippedItems.Values;
@@ -266,10 +276,10 @@ public class PlayerStatsPanelUI : MonoBehaviour
         }
     }
     private void AddInspectionRow(string label,string value)
-    {var row=Instantiate(rowPrefab,contentRoot);row.Set(label,value);_spawned.Add(row.gameObject);}
+    {var row=RentRow();row.Set(label,value);_spawned.Add(row.gameObject);}
     private void AddStat(StatTypes type)
     {
-        var row = Instantiate(rowPrefab, contentRoot);
+        var row = RentRow();
         row.Set(StatDisplayFormatting.ToFriendlyName(type), StatDisplayFormatting.FormatValue(playerStats,type));
         _spawned.Add(row.gameObject);
     }
@@ -303,17 +313,31 @@ public class PlayerStatsPanelUI : MonoBehaviour
         _ => "Other Status Modifiers"
     };
 
-    private void Clear()
+    void BeginRefresh()
     {
-        sectionButtons.Clear();
-        for (int i = 0; i < _spawned.Count; i++)
-        {
-            if (_spawned[i] != null)
-            {
-                _spawned[i].SetActive(false);
-                Destroy(_spawned[i]);
-            }
-        }
-        _spawned.Clear();
+        sectionButtons.Clear();_spawned.Clear();rowCursor=headerCursor=siblingCursor=0;
+    }
+    StatRowUI RentRow()
+    {
+        if(rowCursor==rowPool.Count)rowPool.Add(Instantiate(rowPrefab,contentRoot));
+        var row=rowPool[rowCursor++];Use(row.gameObject);return row;
+    }
+    StatHeaderUI RentHeader()
+    {
+        if(headerCursor==headerPool.Count)headerPool.Add(Instantiate(headerPrefab,contentRoot));
+        var header=headerPool[headerCursor++];
+        var button=header.GetComponent<Button>();if(button!=null)button.onClick.RemoveAllListeners();
+        Use(header.gameObject);return header;
+    }
+    void Use(GameObject go)
+    {
+        if(!go.activeSelf)go.SetActive(true);
+        if(go.transform.GetSiblingIndex()!=siblingCursor)go.transform.SetSiblingIndex(siblingCursor);
+        siblingCursor++;
+    }
+    void EndRefresh()
+    {
+        for(int i=rowCursor;i<rowPool.Count;i++)if(rowPool[i].gameObject.activeSelf)rowPool[i].gameObject.SetActive(false);
+        for(int i=headerCursor;i<headerPool.Count;i++)if(headerPool[i].gameObject.activeSelf)headerPool[i].gameObject.SetActive(false);
     }
 }

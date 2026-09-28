@@ -48,7 +48,7 @@ public class Inventory : MonoBehaviour
         if (item.IsScrap) return MigrateLegacyScrap(item);
         RetainForRun(item);
         items.Add(item);
-        if (MatchesFilter(item) && TryDismantle(item)) return true;
+        if (AdvancedFilter.autoDismantleFilteredItems && MatchesFilter(item) && TryDismantle(item)) return true;
         OnInventoryChanged?.Invoke();
         GamePersistence.MarkDirty();
         return true;

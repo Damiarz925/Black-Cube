@@ -138,6 +138,7 @@ public static class StatCategoryMapping
             case StatTypes.ProjectileAmount:
             case StatTypes.ProjectileSpeed:
             case StatTypes.CastSpeed:
+            case StatTypes.SpellEchoChance:
             case StatTypes.ProjectilePrecisionChance:
             case StatTypes.ProjectilePrecisionMultiplier:
             case StatTypes.RageGeneration:

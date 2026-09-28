@@ -74,6 +74,7 @@ public static class StatDisplayFormatting
         { StatTypes.DmgPerLowestStat, "Damage per 10 Lowest Attribute" },
         { StatTypes.PhysicalDamageReduction, "Physical Damage Reduction" },
         { StatTypes.ReducedShockEffect, "Reduced Shock Effect" },
+        { StatTypes.SpellEchoChance, "Spell Echo Chance" },
         { StatTypes.ReducedChillEffect, "Reduced Chill Effect" },
         { StatTypes.PlusAllSkills, "+Level of All Skills" },
     };

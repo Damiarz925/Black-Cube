@@ -6,10 +6,12 @@ using UnityEngine;
 public sealed class IncomingDamageHistory : MonoBehaviour
 {
     readonly Queue<string> events = new();
-    public void Record(float damage,DamageContext context,StatsComponent attacker,StatsComponent defender)
+    public void Record(float damage,DamageContext context,StatsComponent attacker,StatsComponent defender,StatusEffects ailment=null)
     {
         if(damage<=0)return;
         string source=attacker!=null?attacker.gameObject.name.Replace("(Clone)","").Trim():"Effect / self-hit";
+        if(ailment!=null)source=ailment.name;
+        string tags=(context.IsCrit?" — CRIT":"")+(ailment!=null||(context.EventTags&CombatEventTags.Ailment)!=0?" — AILMENT":"");
         var components=new StringBuilder();float total=0;
         foreach(var hit in context.Hits)total+=Mathf.Max(0,hit.Amount);
         foreach(var hit in context.Hits)
@@ -32,7 +34,7 @@ public sealed class IncomingDamageHistory : MonoBehaviour
                 }
             }
         }
-        events.Enqueue($"{source}: {damage:0.#} — {components}");while(events.Count>5)events.Dequeue();
+        events.Enqueue($"{source}: {damage:0.#}{tags} — {components}");while(events.Count>5)events.Dequeue();
     }
     public string Describe()=>string.Join("\n",events);
     public void Clear()=>events.Clear();

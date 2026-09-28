@@ -13,12 +13,19 @@ public sealed class AdvancedLootFilterUI : MonoBehaviour
         public StatTypes stat;
         public GameObject root;
         public Button selected, tier, implicitOnly, implicitTier;
+        public Slider tierSlider;
+        public TMP_Text tierLabel;
     }
     [SerializeField] GameObject panel;
     [SerializeField] Button open, master, scope, logic, minimum;
     [SerializeField] List<Button> rarities = new(), weapons = new(), elements = new();
     [SerializeField] List<ModRow> rows = new();
+    [SerializeField] TMP_Dropdown itemTypeDropdown;
+    [SerializeField] Button autoDismantle,help;
+    [SerializeField] Button legacyRules;
+    [SerializeField] GameObject helpPanel;
     int scopeIndex;
+    bool refreshing;
     static readonly Element[] Elements = {Element.Phys,Element.Fire,Element.Cold,Element.Light,Element.Void};
     static readonly LootManager.GearType[] Slots = {LootManager.GearType.Helmets,LootManager.GearType.BodyArmours,LootManager.GearType.Gloves,LootManager.GearType.Boots,LootManager.GearType.Rings,LootManager.GearType.Amulets,LootManager.GearType.Belts};
     AdvancedLootFilter Policy => Inventory.Instance?.AdvancedFilter;
@@ -33,12 +40,19 @@ public sealed class AdvancedLootFilterUI : MonoBehaviour
             foreach(var stat in InventoryModFilter.SelectableStats.Where(s=>s!=template.stat))
             {
                 var clone=Instantiate(template.root,template.root.transform.parent);clone.name=stat.ToString();var controls=clone.GetComponentsInChildren<Button>(true);
-                rows.Add(new ModRow{stat=stat,root=clone,selected=controls[0],tier=controls[1],implicitOnly=controls[2],implicitTier=controls[3]});
+                rows.Add(new ModRow{stat=stat,root=clone,selected=controls[0],implicitOnly=controls[1],tierSlider=clone.GetComponentInChildren<Slider>(true),tierLabel=clone.GetComponentsInChildren<TMP_Text>(true).First(t=>t.name=="Minimum Tier")});
             }
         }
         Wire(open,()=>{panel.SetActive(!panel.activeSelf);Refresh();});
         Wire(master,()=>{Policy.enabled=!Policy.enabled;Changed();});
-        Wire(scope,()=>{scopeIndex=(scopeIndex+1)%(Slots.Length+6);Refresh();});
+        if(itemTypeDropdown!=null)
+        {
+            itemTypeDropdown.ClearOptions();itemTypeDropdown.AddOptions(Slots.Select(ItemSlotUI.DisplayType).Concat(AdvancedLootFilter.Weapons.Select(w=>WeaponTypeCatalog.Get(w).DisplayName)).ToList());
+            itemTypeDropdown.onValueChanged.AddListener(i=>{scopeIndex=i;Refresh();});
+        }
+        Wire(autoDismantle,()=>{Policy.autoDismantleFilteredItems=!Policy.autoDismantleFilteredItems;Changed();});
+        Wire(help,()=>helpPanel.SetActive(!helpPanel.activeSelf));
+        Wire(legacyRules,()=>{var inv=Inventory.Instance;inv.FilterLevelEnabled=false;inv.FilterRarityEnabled=false;inv.FilterModMismatchEnabled=false;Changed();});
         Wire(logic,()=>{Current.all=!Current.all;Current.enabled=true;Changed();});
         Wire(minimum,()=>{Current.minimumMatches=Current.minimumMatches%Math.Max(1,Current.requirements.Count)+1;Changed();});
         for(int i=0;i<rarities.Count;i++){int k=i;Wire(rarities[i],()=>{Policy.keptRarities^=1<<k;Changed();});}
@@ -48,39 +62,94 @@ public sealed class AdvancedLootFilterUI : MonoBehaviour
         {
             var r=row;
             Wire(r.selected,()=>{var requirement=Current.requirements.Find(x=>x.stat==r.stat);if(requirement==null)Current.requirements.Add(new LootModRequirement{stat=r.stat});else Current.requirements.Remove(requirement);Current.enabled=true;Changed();});
-            Wire(r.tier,()=>{var requirement=Require(r.stat);requirement.minimumTier=NextTier(requirement.minimumTier);Changed();});
+
             Wire(r.implicitOnly,()=>{var requirement=Require(r.stat);requirement.requireImplicit=!requirement.requireImplicit;Changed();});
-            Wire(r.implicitTier,()=>{var requirement=Require(r.stat);requirement.minimumImplicitTier=NextTier(requirement.minimumImplicitTier);Changed();});
+            if(r.tierSlider!=null)r.tierSlider.onValueChanged.AddListener(value=>
+            {
+                if(refreshing)return;
+                var requirement=Require(r.stat);var tiers=LegalTiers(r.stat);int index=Mathf.Clamp(Mathf.RoundToInt(value),0,tiers.Length-1);
+                if(requirement.requireImplicit)requirement.minimumImplicitTier=tiers[index];else requirement.minimumTier=tiers[index];Changed();
+            });
         }
         if(panel!=null)panel.SetActive(false);
     }
     static int NextTier(int tier) => tier >= 99 ? 1 : tier >= 15 ? 99 : tier+1;
     LootModRequirement Require(StatTypes stat){var r=Current.requirements.Find(x=>x.stat==stat);if(r==null){r=new LootModRequirement{stat=stat};Current.requirements.Add(r);}Current.enabled=true;return r;}
-    void Changed(){Policy.Save();Refresh();}
+    void Changed(){Policy.Save();GetComponent<InventoryUI>()?.RefreshModHighlights();Refresh();}
     static void Wire(Button b,UnityEngine.Events.UnityAction action){if(b==null)return;b.onClick.RemoveAllListeners();b.onClick.AddListener(action);}
     static void Label(Button button,string value){if(button!=null)button.GetComponentInChildren<TMP_Text>().text=value;}
     void Refresh()
     {
         if(Policy==null||panel==null)return;
+        refreshing=true;
+        var inventory=Inventory.Instance;
+        if(legacyRules!=null)
+        {
+            bool legacy=inventory.FilterLevelEnabled||inventory.FilterRarityEnabled||inventory.FilterModMismatchEnabled;
+            legacyRules.gameObject.SetActive(legacy);
+            Label(legacyRules,"CLEAR SAVED LEGACY RULES: "+(inventory.FilterLevelEnabled?$"LEVEL ≤{inventory.FilterLevel} ":"")+(inventory.FilterRarityEnabled?$"RARITY ≤{inventory.FilterRarity} ":"")+(inventory.FilterModMismatchEnabled?"HIGHLIGHT MISMATCH":""));
+        }
+        Label(autoDismantle,"AUTO-DISMANTLE FILTERED ITEMS: "+(Policy.autoDismantleFilteredItems?"ON":"OFF"));
         Label(master,"ADVANCED PICKUP POLICY: "+(Policy.enabled?"ON":"OFF"));
         Label(scope,"ITEM TYPE: "+(scopeIndex<Slots.Length?ItemSlotUI.DisplayType(Slots[scopeIndex]):WeaponTypeCatalog.Get(Current.weaponTypeId).DisplayName)+"  ›");
         Label(logic,"MOD LOGIC: "+(Current.all?"ALL":"ANY"));Label(minimum,"MINIMUM MATCHES: "+Current.minimumMatches);
         for(int i=0;i<rarities.Count;i++)Label(rarities[i],((Policy.keptRarities&(1<<i))!=0?"KEEP ":"DISCARD ")+((LootManager.GearRarity)i));
-        for(int i=0;i<weapons.Count;i++)Label(weapons[i],((Policy.keptWeapons&(1<<i))!=0?"✓ ":"× ")+WeaponTypeCatalog.Get(AdvancedLootFilter.Weapons[i]).DisplayName);
-        for(int i=0;i<elements.Count;i++)Label(elements[i],((Policy.keptElements&(1<<(int)Elements[i]))!=0?"✓ ":"× ")+ItemTooltipUI.ElementName(Elements[i]));
+        for(int i=0;i<weapons.Count;i++)Select(weapons[i],WeaponTypeCatalog.Get(AdvancedLootFilter.Weapons[i]).DisplayName,(Policy.keptWeapons&(1<<i))!=0);
+        for(int i=0;i<elements.Count;i++)Select(elements[i],ItemTooltipUI.ElementName(Elements[i]),(Policy.keptElements&(1<<(int)Elements[i]))!=0);
         var legal=AdvancedLootFilter.LegalStats(Current.itemType,Current.weaponTypeId);
         foreach(var r in rows)
         {
             r.root.SetActive(legal.Contains(r.stat));
             var requirement=Current.requirements.Find(x=>x.stat==r.stat);
             Label(r.selected,(requirement!=null?"✓ ":"+ ")+StatDisplayFormatting.ToFriendlyName(r.stat));
-            Label(r.tier,"Explicit ≥ "+Tier(requirement?.minimumTier??99));
+
             Label(r.implicitOnly,requirement?.requireImplicit==true?"IMPLICIT REQUIRED":"EXPLICIT");
-            Label(r.implicitTier,"Implicit ≥ "+Tier(requirement?.minimumImplicitTier??99));
+            var tiers=LegalTiers(r.stat);int value=requirement?.requireImplicit==true?requirement.minimumImplicitTier:requirement?.minimumTier??99;
+            if(r.tierSlider!=null){r.tierSlider.minValue=0;r.tierSlider.maxValue=tiers.Length-1;r.tierSlider.wholeNumbers=true;r.tierSlider.SetValueWithoutNotify(Mathf.Max(0,Array.IndexOf(tiers,value)));}
+            if(r.tierLabel!=null)r.tierLabel.text="Minimum Tier: "+Tier(value);
         }
+        refreshing=false;
+    }
+    static void Select(Button button,string name,bool selected)
+    {Label(button,name);CorruptionUIButtonSkin.Ensure(button)?.SetSelected(selected);}
+    int[] LegalTiers(StatTypes stat)
+    {
+        var tiers=ModManager.ApplicableTiers(ModManager.Instance?.Database?.GetDefinition(stat),Current.itemType,Current.weaponTypeId);
+        return new[]{99}.Concat(tiers.Select(t=>t.tierIndex).Distinct().OrderByDescending(t=>t)).ToArray();
     }
     static string Tier(int value)=>value>=99?"ANY":$"T{value}";
 #if UNITY_EDITOR
+    public void UpgradeAuthoring()
+    {
+        if(panel==null)BuildAuthoring();
+        if(legacyRules==null)legacyRules=MakeButton(panel.transform,"CLEAR SAVED LEGACY RULES",new(.02f,.405f),new(.98f,.45f));
+        var existingViewport=panel.transform.Find("Legal modifier viewport") as RectTransform;
+        if(existingViewport!=null)Place(existingViewport,new(.02f,.02f),new(.98f,.40f));
+        if(itemTypeDropdown!=null)return;
+        CompactAuthoring();
+        if(scope!=null)scope.gameObject.SetActive(false);
+        var dropdown=TMP_DefaultControls.CreateDropdown(new TMP_DefaultControls.Resources());
+        dropdown.name="Item Type Dropdown";dropdown.transform.SetParent(panel.transform,false);
+        Place((RectTransform)dropdown.transform,new(.02f,.60f),new(.98f,.66f));itemTypeDropdown=dropdown.GetComponent<TMP_Dropdown>();
+        foreach(var text in dropdown.GetComponentsInChildren<TMP_Text>(true)){text.fontSize=13;text.raycastTarget=false;}
+        autoDismantle=MakeButton(panel.transform,"AUTO-DISMANTLE FILTERED ITEMS",new(.02f,.46f),new(.78f,.51f));
+        help=MakeButton(panel.transform,"HELP",new(.80f,.46f),new(.98f,.51f));
+        var viewport=panel.transform.Find("Legal modifier viewport") as RectTransform;Place(viewport,new(.02f,.02f),new(.98f,.40f));
+        var content=viewport.Find("Legal modifier rows");var layout=content.GetComponent<VerticalLayoutGroup>();layout.childControlWidth=true;layout.childForceExpandWidth=true;
+        var row=rows[0];foreach(var control in new[]{row.selected,row.tier,row.implicitOnly,row.implicitTier})if(control!=null)DestroyImmediate(control.gameObject);
+        row.root.GetComponent<LayoutElement>().preferredHeight=46;
+        row.selected=MakeButton(row.root.transform,"Modifier Name",new(.18f,0),new(.65f,1));
+        row.implicitOnly=MakeButton(row.root.transform,"Explicit",new(0,0),new(.17f,1));row.tier=row.implicitTier=null;
+        var slider=DefaultControls.CreateSlider(new DefaultControls.Resources());slider.name="Minimum Tier Slider";slider.transform.SetParent(row.root.transform,false);
+        Place((RectTransform)slider.transform,new(.68f,.05f),new(.98f,.45f));row.tierSlider=slider.GetComponent<Slider>();row.tierSlider.wholeNumbers=true;
+        var label=new GameObject("Minimum Tier",typeof(RectTransform),typeof(TextMeshProUGUI));label.transform.SetParent(row.root.transform,false);
+        Place((RectTransform)label.transform,new(.65f,.50f),new(1,1));row.tierLabel=label.GetComponent<TextMeshProUGUI>();row.tierLabel.fontSize=12;row.tierLabel.alignment=TextAlignmentOptions.Center;row.tierLabel.raycastTarget=false;
+        helpPanel=Box(panel.transform,"Advanced Loot Help");Place((RectTransform)helpPanel.transform,new(.04f,.06f),new(.96f,.88f));
+        var body=new GameObject("Legend",typeof(RectTransform),typeof(TextMeshProUGUI));body.transform.SetParent(helpPanel.transform,false);
+        Place((RectTransform)body.transform,new(.04f,.10f),new(.96f,.96f));var textBody=body.GetComponent<TextMeshProUGUI>();textBody.fontSize=15;textBody.enableAutoSizing=true;textBody.fontSizeMin=11;textBody.fontSizeMax=15;textBody.raycastTarget=false;
+        textBody.text="ADVANCED LOOT\\n\\nRarity always takes precedence. Highlighted buttons retain that rarity/type/element.\\n\\nWeapon Type means the actual weapon class. Weapon Element means its BASE/PRIMARY element, not an affix. These only restrict weapons.\\n\\nItem Type selects a separate legal modifier policy. Click a modifier to require it. Explicit matches ordinary affixes; Implicit requires the permanent implicit. Minimum Tier accepts that tier or better; Any accepts every tier.\\n\\nALL requires every selected modifier. If more explicit mods are selected than the item's capacity, its full explicit set must belong to the selected pool. ANY requires Minimum Matches.\\n\\nAuto-Dismantle ON destroys rejected pickups for normal fragments. OFF retains them. Locked items always survive. Manual right-click dismantling remains available.";
+        var close=MakeButton(helpPanel.transform,"CLOSE HELP",new(.3f,.01f),new(.7f,.08f));UnityEditor.Events.UnityEventTools.AddPersistentListener(close.onClick,CloseHelp);helpPanel.SetActive(false);
+    }
     public void CompactAuthoring()
     {
         for(int i=rows.Count-1;i>0;i--){DestroyImmediate(rows[i].root);rows.RemoveAt(i);}
@@ -122,6 +191,7 @@ public sealed class AdvancedLootFilterUI : MonoBehaviour
         var t=text.GetComponent<TextMeshProUGUI>();t.text=label;t.fontSize=12;t.enableAutoSizing=true;t.fontSizeMin=9;t.fontSizeMax=12;t.alignment=TextAlignmentOptions.Center;t.raycastTarget=false;return b;
     }
 #endif
-    public void Close(){if(panel!=null)panel.SetActive(false);}
+    public void CloseHelp(){if(helpPanel!=null)helpPanel.SetActive(false);}
+    public void Close(){CloseHelp();if(panel!=null)panel.SetActive(false);}
     void OnDisable()=>Close();
 }

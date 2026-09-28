@@ -30,13 +30,8 @@ public class ItemSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     private TMP_Text dpsLabel;
     public void SetDpsUpgrade(float percent)
     {
-        if(dpsLabel==null)
-        {
-            var go=new GameObject("Estimated DPS Upgrade",typeof(RectTransform),typeof(TextMeshProUGUI));go.transform.SetParent(transform,false);
-            dpsLabel=go.GetComponent<TextMeshProUGUI>();dpsLabel.fontSize=10;dpsLabel.alignment=TextAlignmentOptions.BottomRight;dpsLabel.raycastTarget=false;Place(dpsLabel.rectTransform,.20f,.02f,.98f,.25f);
-        }
-        dpsLabel.text=Mathf.Abs(percent)<.05f?"—":$"{(percent>0?"▲":"▼")} {Mathf.Abs(percent):0.#}%";
-        dpsLabel.color=Mathf.Abs(percent)<.05f?Color.gray:percent>0?new Color(.3f,1,.4f):new Color(1,.35f,.35f);
+        // Comparison belongs to the hover card, never the inventory grid.
+        if(dpsLabel!=null)dpsLabel.gameObject.SetActive(false);
     }
     void Update()
     {

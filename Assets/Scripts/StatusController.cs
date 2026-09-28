@@ -39,12 +39,14 @@ public partial class StatusController : MonoBehaviour
         public float Strength;
         public StatusEffects Effect;
         public StatsComponent Source;
+        public bool Critical;
 
-        public PendingEffect(float strength, StatusEffects effect,StatsComponent source=null)
+        public PendingEffect(float strength, StatusEffects effect,StatsComponent source=null,bool critical=false)
         {
             Strength = strength;
             Effect = effect;
             Source = source;
+            Critical = critical;
         }
     }
 
@@ -365,16 +367,16 @@ public partial class StatusController : MonoBehaviour
         if (pendingEffects.Count == 0)  //If pendingeffects is empty, return
             return;
 
-        var strengthByEffect = new Dictionary<(StatusEffects Effect,StatsComponent Source),float>();
+        var strengthByEffect = new Dictionary<(StatusEffects Effect,StatsComponent Source,bool Critical),float>();
 
         foreach (var pe in pendingEffects)      //for each pending effect in pendingeffects list
         {
             if (pe.Effect == null) continue;    //if the effect is null, continue
 
-            if (strengthByEffect.TryGetValue((pe.Effect,pe.Source), out float current))
-                strengthByEffect[(pe.Effect,pe.Source)] = current + pe.Strength;
+            if (strengthByEffect.TryGetValue((pe.Effect,pe.Source,pe.Critical), out float current))
+                strengthByEffect[(pe.Effect,pe.Source,pe.Critical)] = current + pe.Strength;
             else
-                strengthByEffect[(pe.Effect,pe.Source)] = pe.Strength;
+                strengthByEffect[(pe.Effect,pe.Source,pe.Critical)] = pe.Strength;
         }
 
         foreach (var kvp in strengthByEffect)   //Loop through every pair in strengthbyeffect, effect is the key, totalStrength is the value
@@ -391,7 +393,7 @@ public partial class StatusController : MonoBehaviour
             {
                 var targetHealth=GetComponent<HealthComponent>();
                 float before=targetHealth!=null?targetHealth.CurrentLife:0;
-                ApplyDotDamage(totalStrength, effect,kvp.Key.Source);
+                ApplyDotDamage(totalStrength, effect,kvp.Key.Source,kvp.Key.Critical);
                 // Death callbacks may destroy the target synchronously. Preserve
                 // the capped actual loss for recovery even on a killing DOT.
                 float loss=targetHealth!=null?Mathf.Max(0,before-targetHealth.CurrentLife):Mathf.Min(before,totalStrength);
@@ -477,7 +479,7 @@ public partial class StatusController : MonoBehaviour
             float finalTick = CombatCalculator.CalculateAilmentTickDamage(baseTick, effect, instance.sourceStats, stats);
 
             if (finalTick > 0f) //if the final tick damage is greater than 0, add it to pending effects
-                pendingEffects.Add(new PendingEffect(finalTick, effect,instance.sourceStats));
+                pendingEffects.Add(new PendingEffect(finalTick, effect,instance.sourceStats,instance.CriticalAilment));
         }
         else
         {
@@ -488,14 +490,14 @@ public partial class StatusController : MonoBehaviour
         }
     }
 
-    private void ApplyDotDamage(float damage, StatusEffects effect,StatsComponent source)
+    private void ApplyDotDamage(float damage, StatusEffects effect,StatsComponent source,bool critical=false)
     {
         var receiver=GetComponent<DamageReceiver>();
         if(receiver!=null)
         {
             Element element=effect.Ailment==StatusEffects.AilmentKind.Bleed?Element.Phys:
                 effect.Ailment==StatusEffects.AilmentKind.Ignite?Element.Fire:Element.Void;
-            var context=new DamageContext(1);context.AddDamage(element,damage);
+            var context=new DamageContext(1){IsCrit=critical,EventTags=CombatEventTags.Ailment};context.AddDamage(element,damage);
             receiver.TakeDamage(damage,context,effect,source);return;
         }
         if (damage <= 0f) return;   //if the passed in damage is less than 0, return

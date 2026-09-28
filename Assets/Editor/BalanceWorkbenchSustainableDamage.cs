@@ -44,7 +44,7 @@ namespace BlackCube.BalanceWorkbench
             for(int i=0;i<skills.Count;i++)
             {
                 autoMode[i]=string.Equals(skills[i].castMode,AutoMode,StringComparison.Ordinal);
-                queuedMode[i]=string.Equals(skills[i].castMode,QueuedMode,StringComparison.Ordinal);
+                queuedMode[i]=string.Equals(skills[i].castMode,QueuedMode,StringComparison.Ordinal)||skills[i].castMode==PlayerSkillCastMode.AutoQueuedReplacement.ToString();
             }
             bool chosen(int index)=>index>=0&&index<skills.Count&&(index==first||index==second);
             string policy=first<0?"No Skills":second<0?$"Skill {first+1} Only":
@@ -97,7 +97,7 @@ namespace BlackCube.BalanceWorkbench
                     nextAttack=t+period;
                     int queued=-1;
                     foreach(int i in priority)
-                        if(chosen(i)&&queuedMode[i]
+                        if(chosen(i)&&queuedMode[i]&&ready[i]<=t+Epsilon
                             &&mana+Epsilon>=Math.Max(0,skills[i].manaCost)){queued=i;break;}
                     if(queued<0)
                     {
@@ -107,6 +107,7 @@ namespace BlackCube.BalanceWorkbench
                     else
                     {
                         var skill=skills[queued];mana=Math.Max(0,mana-Math.Max(0,skill.manaCost));
+                        if(skill.castMode==PlayerSkillCastMode.AutoQueuedReplacement.ToString())ready[queued]=t+skill.effectiveCooldown;
                         double dealt=Math.Max(0,skill.averageDamagePerUse)*critFactor*hitTwiceFactor;
                         if(t>=Warmup){total+=dealt;skillDamage+=dealt;}
                         mana=Math.Min(manaCap,mana+onHit*Math.Max(1,skill.expectedHits));

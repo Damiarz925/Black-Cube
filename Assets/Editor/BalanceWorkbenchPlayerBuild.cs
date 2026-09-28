@@ -54,6 +54,7 @@ namespace BlackCube.BalanceWorkbench
         public double ehpPhysical,ehpFire,ehpCold,ehpLightning,ehpVoid,recoveryPerSecond;
         public double baseWeaponAverage,weaponAttributeIncreased,playerLevelIncreased,genericIncreased,physicalIncreased,genericMore,physicalMore;
         public double totalSustainableDps,sustainableSkillDps,manaStarvationFraction;
+        public double spellEchoChance;
         public string selectedSkillPolicy;
         public List<SkillAnalyticalMetrics> skills=new();public List<string> assumptions=new();
         public PlayerBuildMetrics Clone(){var copy=(PlayerBuildMetrics)MemberwiseClone();copy.skills=skills.Select(x=>x.Clone()).ToList();copy.assumptions=new List<string>(assumptions);return copy;}
@@ -195,6 +196,7 @@ namespace BlackCube.BalanceWorkbench
         }
         void AddSkills(PlayerBuildMetrics m,PlayerBuildSnapshot b)
         {
+            m.spellEchoChance=SpellEchoRules.EffectiveChance(Stats.GetStat(StatTypes.SpellEchoChance));
             foreach(var sid in boundSkills)
             {
                 if(!skillDefinitions.TryGetValue(sid,out var s))continue;
@@ -225,6 +227,13 @@ namespace BlackCube.BalanceWorkbench
                 double cd=s.castMode==PlayerSkillCastMode.QueuedAttackReplacement?0:Math.Max(PlayerSkillController.MinimumAutoCooldown,s.baseCooldown/(1+Math.Max(0,m.cooldownReduction)));
                 if(b.subclassId==SubclassIds.MageCooldown&&cd>0)cd=Math.Max(PlayerSkillController.MinimumAutoCooldown,cd*(1-SubclassBalanceProfile.CooldownIgnoreChance));
                 double cost=Math.Round(Math.Max(0,s.manaCost)*PlayerSkillController.ManaCostLevelFactor(level));
+                if(s.magic&&m.spellEchoChance>0)
+                {
+                    double q=m.spellEchoChance,casts=1/(1-q);
+                    use*=casts;hits*=casts;
+                    cost*=casts+SpellEchoRules.AdditionalManaPerEcho*q/((1-q)*(1-q));
+                    m.assumptions.Add(s.displayName+": Spell Echo uses expected chain output and escalating expected Mana cost; actual Mana truncation and RNG require Combat Lab validation.");
+                }
                 var x=new SkillAnalyticalMetrics{name=s.displayName,castMode=s.castMode.ToString(),averageDirectHit=direct,expectedHits=hits,averageDamagePerUse=use,effectiveCooldown=cd,idealCooldownDps=cd>0?use/cd:0,manaCost=cost,sustainable=cd<=0||m.manaRegen*cd>=cost,assumption=cd>0?"Ideal cooldown DPS assumes sufficient Mana and uninterrupted eligible casts.":"Damage per use only; queued attack timing is not modeled as a rotation."};m.skills.Add(x);m.assumptions.Add(s.displayName+": "+x.assumption);
             }
         }

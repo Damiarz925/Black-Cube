@@ -123,6 +123,7 @@ public class GameManager : MonoBehaviour
         GetComponent<PlayerIdentityState>()?.BeginNewGame(GameLaunchSelection.ConsumeOrDefault());
         var player = FindAnyObjectByType<PlayerController>();
         player?.GetComponent<PlayerSkillController>()?.RestoreSelection(false, default);
+        player?.GetComponent<PlayerSkillController>()?.RestoreAutocast(true,true);
         player?.GetComponent<StatusController>()?.ClearStatuses();
         player?.EnsureStarterWeapon();
         StartNewRun();
