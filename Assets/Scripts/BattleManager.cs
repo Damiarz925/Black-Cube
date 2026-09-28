@@ -347,9 +347,21 @@ public class BattleManager : MonoBehaviour
             else {resolved=true;skillController.NotifyQueuedSkillResolved(queued);}
         }
         else {playerSprite?.Strike();ResolveBasicPlayerAttack(originalTarget, originalStatuses);resolved=true;}}
-        finally{playerRage?.CompleteAttackEvent(resolved);currentAttackEventMultiplier=1f;}
+        finally{playerRage?.CompleteAttackEvent(resolved);currentAttackEventMultiplier=1f;
+            if(resolved&&IsSameLivingEnemyAttacker(originalTarget))ResolveRelicSkillTriggers(skillController);}
     }
 
+    void ResolveRelicSkillTriggers(PlayerSkillController controller)
+    {
+        if(controller==null||RelicInventory.Instance==null)return;
+        foreach(var id in RelicInventory.Instance.TriggeredSkills())
+        {
+            PlayerSkillDefinition definition=null;foreach(var candidate in controller.Skills)if(candidate.id==id){definition=candidate;break;}
+            if(definition==null||enemyHealth==null||enemyHealth.CurrentLife<=0||playerHealth.CurrentLife<=0)continue;
+            float cost=controller.ManaCost(definition);if(!controller.Mana.TrySpend(cost))continue;
+            if(!TryCastPlayerSkill(definition))controller.Mana.Restore(cost);
+        }
+    }
     private void ResolveBasicPlayerAttack(HealthComponent target, StatusController statuses)
     {
         if(playerController?.EquippedWeapon!=null&&WeaponTypeCatalog.TryGet(playerController.EquippedWeapon.WeaponTypeId,out var profile)&&profile.IsRanged)
@@ -520,7 +532,7 @@ playerDamageReceiver.TakeDamage(damageTaken, ctx, attacker:enemyStats);     //ca
         if(!CastPlayerSkillOnce(skill))return false;
         if(!skill.magic)return true;
         var controller=player.GetComponent<PlayerSkillController>();
-        float chance=SpellEchoRules.EffectiveChance(playerStats.GetStat(StatTypes.SpellEchoChance));
+        float chance=SpellEchoRules.EffectiveChance(playerStats.GetStat(StatTypes.SpellEchoChance)+(RelicInventory.Instance?.SkillEchoChance(skill.id)??0));
         SpellEchoRules.CastEchoes(chance,controller.ManaCost(skill),()=>Random.value,cost=>
         {
             if(!CanCastPlayerSkill||!controller.Mana.TrySpend(cost))return false;
@@ -972,7 +984,7 @@ playerDamageReceiver.TakeDamage(damageTaken, ctx, attacker:enemyStats);     //ca
             threshold=Mathf.Max(3,threshold-RelicInventory.Instance.ShockThresholdReduction);
         int duration = Mathf.Max(1, 5 + Mathf.RoundToInt(attacker.GetRawStat(StatTypes.ShockDuration)));
         float auraShock=subclassState!=null?subclassState.AuraSecondary(3,.20f):0f;
-        float coefficient = Mathf.Min(1f, .5f * (1f + attacker.GetStat(StatTypes.ShockEffect)+auraShock)
+        float coefficient = Mathf.Min(1f+(attacker.GetComponent<PlayerController>()!=null?RelicInventory.Instance?.MaximumShockEffectIncrease??0:0), .5f * (1f + attacker.GetStat(StatTypes.ShockEffect)+auraShock)
             * (keystones != null ? keystones.ShockTriggeredHitMultiplier : 1f))
             * (1f - Mathf.Clamp01(defender != null ? defender.GetStat(StatTypes.ReducedShockEffect) : 0f));
         target.AddShockInstance(coefficient,duration,subclassState!=null?subclassState.MaximumShockInstances:1);

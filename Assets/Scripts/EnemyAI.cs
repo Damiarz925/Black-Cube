@@ -247,25 +247,15 @@ public class EnemyAI : MonoBehaviour
 
     public EnemyRarity RollEnemyRarity()        //roll the enemy rarity
     {
+        if(EnemyLevel>=341&&EnemyLevel<=350)return EnemyRarity.Legendary;
+        float bias=1+Mathf.Max(0,RelicInventory.Instance?.EnemyRarityIncrease??0),total=0;
+        var weights=new List<(EnemyRarity rarity,float weight)>();
         if(contentDatabase?.enemyRarityProfiles?.Count>0)
-        {
-            int authoredTotal=0;foreach(var profile in contentDatabase.enemyRarityProfiles)authoredTotal+=Mathf.Max(0,profile.spawnWeight);
-            if(authoredTotal>0){int authoredRoll=Random.Range(0,authoredTotal);foreach(var profile in contentDatabase.enemyRarityProfiles){int weight=Mathf.Max(0,profile.spawnWeight);if(authoredRoll<weight)return profile.rarity;authoredRoll-=weight;}}
-        }
-        int roll = Random.Range(0, totalEnemyRarityWeight);     //roll is a value between 0 and the total enemy rarity weight calculated in initrarityweights
-
-        foreach (var pair in enemyRarityWeights)        //for each pair in enemyrarityweights
-        {
-            EnemyRarity rarity = pair.Key;      //rarity is the key
-            int weight = pair.Value;        //weight is the value
-
-            if (roll < weight)      //if the roll is less than the weight, return the current rarity
-                return rarity;
-
-            roll -= weight;     //subtract the weight from the roll and loop
-        }
-
-        return EnemyRarity.Normal;      //if no weight chosen in loop, return
+        {foreach(var profile in contentDatabase.enemyRarityProfiles)weights.Add((profile.rarity,Mathf.Max(0,profile.spawnWeight)*Mathf.Pow(bias,(int)profile.rarity)));}
+        else foreach(var pair in enemyRarityWeights)weights.Add((pair.Key,pair.Value*Mathf.Pow(bias,(int)pair.Key)));
+        foreach(var pair in weights)total+=pair.weight;float roll=Random.value*total;
+        foreach(var pair in weights){roll-=pair.weight;if(roll<0)return pair.rarity;}
+        return EnemyRarity.Normal;
     }
 
     private LootManager.GearRarity MapEnemyRarityToGearRarity(EnemyRarity rarity)       //maps the enemy rarity to gear rarity with a switch statement setting each rarity to the same rarity for gear. Default to normal

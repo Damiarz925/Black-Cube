@@ -98,14 +98,14 @@ public static class EnemyLootProfile
         var profile=LootDropBalanceProfileSO.Current;
         var result=new EnemyDropResult{power=legacySnapshot};
         result.gearBudget=profile.EvaluateGear(context);
-        result.gearCount=LootDropBalanceProfileSO.RollCopies(result.gearBudget.finalBudget,random);
+        result.gearCount=LootDropBalanceProfileSO.RollCopies(result.gearBudget.finalBudget*(RelicInventory.Instance?.MoreEnemyDropsMultiplier??1f),random);
         result.equipment=result.gearCount>0;
         var aggregate=new Dictionary<CraftingCurrencyType,int>();
         foreach(var rule in profile.currencies)
         {
             if(rule==null||rule.useLegacyWeightedRoll||context.level<rule.minimumCombatLevel)continue;
             int copies=LootDropBalanceProfileSO.RollCopies(
-                profile.EvaluateCurrency(rule.currency,context).finalBudget,random);
+                profile.EvaluateCurrency(rule.currency,context).finalBudget*(RelicInventory.Instance?.MoreEnemyDropsMultiplier??1f),random);
             if(copies>0)aggregate[rule.currency]=copies;
         }
         // Unlisted currencies explicitly retain their old weighted-roll path.
@@ -113,7 +113,7 @@ public static class EnemyLootProfile
         float legacyPower=legacySnapshot.LevelLootFactor*legacySnapshot.RarityMultiplier*
             legacySnapshot.GearQualityFactor;
         int legacyRolls=StochasticRound(LootBalanceProfileSO.Current.currencyRollCoefficient*
-            legacyPower,MaximumCurrencyRolls,random);
+            legacyPower*(RelicInventory.Instance?.MoreEnemyDropsMultiplier??1f),MaximumCurrencyRolls,random);
         for(int i=0;i<legacyRolls;i++)
         {
             var entry=CurrencyLootTable.Choose(context.level,context.rarity,context.boss,

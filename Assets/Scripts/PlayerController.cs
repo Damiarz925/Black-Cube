@@ -82,12 +82,13 @@ public class PlayerController : MonoBehaviour
     private Gear CreateStarterWeapon(ModManager roller)  //Creates starter weapon
     {
         PlayerIdentityState identity=GameManager.Instance!=null?GameManager.Instance.GetComponent<PlayerIdentityState>():null;
-        string weaponTypeId=identity?.ClassDefinition?.SignatureWeaponTypeId??WeaponTypeCatalog.HistoricalDefaultId;
+        string weaponTypeId=RebirthManager.Instance?.SelectedStartingWeaponType??identity?.ClassDefinition?.SignatureWeaponTypeId??WeaponTypeCatalog.HistoricalDefaultId;
         WeaponTypeDefinition weaponProfile=WeaponTypeCatalog.Get(weaponTypeId);
         var relics=ignoreRelicsForIsolatedBaseline?null:RelicInventory.Instance;
         int itemLevel=Mathf.Clamp(1+(relics?.StarterItemLevelBonus??0),1,100);
-        Element element=relics?.StarterElement??Element.Phys;
-        float baseMultiplier=1f+(relics?.StarterBaseDamagePercent??0f)/100f;
+        Element classElement=RelicProgressionRules.ClassElement(identity?.ClassDefinition?.Id);
+        Element element=relics?.ResolveStarterElement(classElement)??classElement;
+        float baseMultiplier=1.12f*(1f+(relics?.StarterBaseDamagePercent??0f)/100f);
         float legendaryChance=relics?.StarterLegendaryChance??0f;
         bool legendary=false;
         var oldRandom=Random.state;

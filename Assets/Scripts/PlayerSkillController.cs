@@ -130,7 +130,7 @@ public sealed class PlayerSkillController : MonoBehaviour
         float added=stats != null
             ? stats.GetRawStat(SkillLevelStat(skill.id)) + stats.GetRawStat(StatTypes.PlusAllSkills)
             : 0f;
-        if(skill==SelectedSkill)added+=RelicInventory.Instance?.EquippedSkillLevelBonus??0;
+        if(skill==SelectedSkill||weaponSkills.Contains(skill))added+=RelicInventory.Instance?.EquippedSkillLevelBonus??0;
         return CalculateEffectiveSkillLevel(added);
     }
 

@@ -57,6 +57,7 @@ public static class SystemsRedesignAuthoring
             foreach(var inventory in root.GetComponentsInChildren<InventoryUI>(true))
             {
                 var filter=inventory.GetComponent<AdvancedLootFilterUI>();filter.UpgradeAuthoring();
+                (inventory.GetComponent<RelicFusionUI>()??inventory.gameObject.AddComponent<RelicFusionUI>()).BuildAuthoring();
                 var old=inventory.GetComponent<InventoryModHighlightUI>();
                 if(old!=null)
                 {
@@ -82,6 +83,8 @@ public static class SystemsRedesignAuthoring
                 }
                 var view=inventory.GetComponent<InventoryView>();view.filterRoot=null;view.modFilterRoot=null;
             }
+            foreach(var strip in root.GetComponentsInChildren<RelicEquipmentUI>(true))strip.Build();
+            foreach(var rebirth in root.GetComponentsInChildren<RebirthConfirmationUI>(true))rebirth.AuthorSystemsSetup();
             PrefabUtility.SaveAsPrefabAsset(root,path);
         }
         finally{PrefabUtility.UnloadPrefabContents(root);}

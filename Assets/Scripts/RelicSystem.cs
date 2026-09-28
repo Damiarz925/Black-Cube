@@ -16,7 +16,13 @@ public enum RelicModifierType
     EquippedSkillLevel=12, ShockThresholdReduction=13, MaximumChillSlow=14,
     StarterWeaponFire=15, StarterWeaponCold=16, StarterWeaponLightning=17,
     StarterWeaponVoid=18, StarterWeaponBaseDamage=19, StarterWeaponItemLevel=20,
-    StarterWeaponLegendaryChance=21
+    StarterWeaponLegendaryChance=21,
+    MaximumShockEffect=22, MoreEnemyDrops=23, IncreasedEnemyRarity=24, IncreasedItemRarity=25, RebirthItemReturn=26,
+    StarterSword=27, StarterAxe=28, StarterBow=29, StarterStaff=30, StarterSceptre=31, StarterDagger=32,
+    TriggerRapidFlurry=33, TriggerArmourStrike=34, TriggerRageStrike=35, TriggerHemorrhage=36,
+    TriggerVenomShot=37, TriggerDoubleVolley=38, TriggerFireball=39, TriggerShockBarrage=40,
+    TriggerRestorativeStrike=41, TriggerFrostJudgment=42, TriggerBackstab=43, TriggerQuickStrike=44,
+    FireballEchoChance=45, ShockBarrageEchoChance=46
 }
 
 [Serializable]
@@ -37,6 +43,8 @@ public sealed class RelicData
     public LootManager.GearRarity rarity;
     public bool craftableThisCycle;
     public int relicLevel=1;
+    public bool crafted; // Permanent: any successful Ancient mutation disqualifies fusion.
+    public bool Pristine=>!crafted;
     public List<RelicModifier> modifiers = new();
     public int ModifierCount => modifiers?.Count ?? 0;
 }
@@ -63,16 +71,16 @@ public static class RelicRolls
     }
 }
 
-public sealed class RelicInventory : MonoBehaviour
+public sealed partial class RelicInventory : MonoBehaviour
 {
     public static RelicInventory Instance { get; private set; }
     [SerializeField] List<RelicData> relics=new();
-    [SerializeField] int[] activeIndices={-1,-1,-1,-1};
+    [SerializeField] int[] activeIndices={-1,-1,-1,-1,-1,-1,-1,-1};
     [SerializeField] int currentCycle;
     public event Action Changed;
     public IReadOnlyList<RelicData> Relics=>relics;
     public int CurrentCycle=>currentCycle;
-    public const int ActiveSlotCount=4;
+    public const int ActiveSlotCount=8;
 
     void Awake(){if(Instance!=null&&Instance!=this){Destroy(this);return;}Instance=this;DontDestroyOnLoad(gameObject);NormalizeSlots();}
     void OnDestroy(){if(Instance==this)Instance=null;}
@@ -93,29 +101,40 @@ public sealed class RelicInventory : MonoBehaviour
         for(int slot=0;slot<ActiveSlotCount;slot++)if(activeIndices[slot]<0){Equip(relic,slot);feedback="Relic equipped";return true;}
         feedback="Relic slots full";return false;
     }
-    public static int LevelForZone(int zoneLevel)=>Mathf.Clamp(1+Mathf.FloorToInt((zoneLevel-60)*99f/300f),1,100);
+    public static int LevelForZone(int zoneLevel)=>Mathf.Clamp(1+Mathf.FloorToInt((zoneLevel-60)*99f/280f),1,100);
     public RelicData BeginNewCycle(int zoneLevel=60)
     {
         foreach(var relic in relics) relic.craftableThisCycle=false;
         currentCycle++;
-        var created=new RelicData{id=Guid.NewGuid().ToString("N"),cycle=currentCycle,rarity=LootManager.GearRarity.Normal,craftableThisCycle=true,relicLevel=LevelForZone(zoneLevel)};
-        created.modifiers.Add(RelicRolls.Roll(created.relicLevel,true));relics.Add(created);PublishChanged();return created;
+        RelicData first=null;
+        for(int i=0;i<RelicProgressionRules.RewardCount(zoneLevel);i++)
+        {
+            var rarity=zoneLevel>=340&&i==0?LootManager.GearRarity.Legendary:RelicProgressionRules.RollRarity(zoneLevel,UnityEngine.Random.value);
+            var created=RelicProgressionRules.Generate(rarity,LevelForZone(zoneLevel),currentCycle);
+            relics.Add(created);first??=created;
+        }
+        PublishChanged();return first;
     }
     public bool IsCurrentCraftable(RelicData relic)=>relic!=null&&relic.craftableThisCycle&&relic.cycle==currentCycle&&relics.Contains(relic);
     public float DamageMultiplier=>Product(RelicModifierType.MoreDamage);
     public float AttackSpeedMultiplier=>Product(RelicModifierType.MoreAttackSpeed);
     public float ExperienceMultiplier=>1f+Sum(RelicModifierType.IncreasedExperience)/100f;
-    public float MaximumLifePercent=>Sum(RelicModifierType.IncreasedMaximumLife);
-    public float MaximumManaPercent=>Sum(RelicModifierType.IncreasedMaximumMana);
+    public float MaximumLifePercent=>0;
+    public float MaximumManaPercent=>0;
     public float AllResistancePoints=>Sum(RelicModifierType.AllResistances);
-    public float VoidDamagePercent=>Sum(RelicModifierType.IncreasedVoidDamage);
-    public float AilmentDamagePercent=>Sum(RelicModifierType.IncreasedAilmentDamage);
+    public float VoidDamagePercent=>0;
+    public float AilmentDamagePercent=>0;
     public float HitTwicePoints=>Sum(RelicModifierType.ChanceToHitTwice);
     public int ProjectileBonus=>Mathf.RoundToInt(Sum(RelicModifierType.ProjectileAmount));
     public int MaximumBleedStackBonus=>Mathf.RoundToInt(Sum(RelicModifierType.MaximumBleedStacks));
     public int MaximumIgniteStackBonus=>Mathf.RoundToInt(Sum(RelicModifierType.MaximumIgniteStacks));
     public int EquippedSkillLevelBonus=>Mathf.RoundToInt(Sum(RelicModifierType.EquippedSkillLevel));
-    public int ShockThresholdReduction=>Mathf.Min(2,Mathf.RoundToInt(Sum(RelicModifierType.ShockThresholdReduction)));
+    public int ShockThresholdReduction=>0; // Legacy consumer is inert; new mods raise effect cap.
+    public float MaximumShockEffectIncrease=>Sum(RelicModifierType.MaximumShockEffect)/100f;
+    public float MoreEnemyDropsMultiplier=>Product(RelicModifierType.MoreEnemyDrops);
+    public float EnemyRarityIncrease=>Sum(RelicModifierType.IncreasedEnemyRarity)/100f;
+    public float ItemRarityIncrease=>Sum(RelicModifierType.IncreasedItemRarity)/100f;
+    public float SkillEchoChance(PlayerSkillId id)=>Sum(id==PlayerSkillId.StaffFireball?RelicModifierType.FireballEchoChance:id==PlayerSkillId.StaffShockBarrage?RelicModifierType.ShockBarrageEchoChance:(RelicModifierType)(-1))/100f;
     public float MaximumChillSlowIncrease=>Sum(RelicModifierType.MaximumChillSlow)/100f;
     public float StarterBaseDamagePercent=>Sum(RelicModifierType.StarterWeaponBaseDamage);
     public int StarterItemLevelBonus=>Mathf.RoundToInt(Sum(RelicModifierType.StarterWeaponItemLevel));
@@ -197,6 +216,7 @@ public static class AncientRelicCrafting
                 var remove=Unlocked(relic);relic.modifiers.Remove(remove[UnityEngine.Random.Range(0,remove.Count)]);break;
             default:return false;
         }
+        relic.crafted=true;
         if(notify)inventory.NotifyChanged();return true;
     }
     static void FillToMinimum(RelicData relic){while(relic.ModifierCount<Minimum(relic.rarity))Add(relic);}
@@ -211,14 +231,42 @@ public sealed class RebirthManager : MonoBehaviour
     public const int RequiredZone=60;
     public static RebirthManager Instance{get;private set;}
     public bool ConfirmationPending{get;private set;}
+    public string SelectedStartingWeaponType{get;private set;}
+    readonly List<Gear> returningItems=new();
+    public IReadOnlyList<Gear> ReturningItems=>returningItems;
+    public bool SelectStartingWeapon(string id)
+    {
+        var identity=GameManager.Instance?.GetComponent<PlayerIdentityState>();
+        string defaultId=identity?.ClassDefinition?.SignatureWeaponTypeId??WeaponTypeCatalog.HistoricalDefaultId;
+        var choices=RelicInventory.Instance?.StartingWeaponChoices(defaultId);
+        if(id!=defaultId&&(choices==null||!System.Linq.Enumerable.Contains(choices,id)))return false;
+        SelectedStartingWeaponType=id;return true;
+    }
+    public bool SelectReturnItem(int slot,Gear item)
+    {
+        var limits=RelicInventory.Instance?.ReturnItemLevelLimits();if(limits==null||slot<0||slot>=limits.Count)return false;
+        if(item!=null&&(!Owns(item)||item.ItemLevel>limits[slot]||returningItems.Contains(item)))return false;
+        while(returningItems.Count<=slot)returningItems.Add(null);returningItems[slot]=item;return true;
+    }
+    static bool Owns(Gear item)=>Inventory.Instance?.Items!=null&&System.Linq.Enumerable.Contains(Inventory.Instance.Items,item)
+        ||EquipmentManager.Instance?.GetEquipped(item.ItemType)==item;
+    bool ValidateReturnItems()
+    {
+        var limits=RelicInventory.Instance?.ReturnItemLevelLimits();
+        for(int i=0;i<returningItems.Count;i++)if(returningItems[i]!=null&&(limits==null||i>=limits.Count||!Owns(returningItems[i])||returningItems[i].ItemLevel>limits[i]))return false;
+        return true;
+    }
     public bool Eligible=>GameManager.Instance!=null&&GameManager.Instance.CurrentCombatLevel>=RequiredZone;
     void Awake(){if(Instance!=null&&Instance!=this){Destroy(this);return;}Instance=this;}
     void OnDestroy(){if(Instance==this)Instance=null;}
-    public bool RequestRebirth(){if(!Eligible)return false;ConfirmationPending=true;return true;}
-    public void Cancel(){ConfirmationPending=false;}
+    public bool RequestRebirth(){if(!Eligible)return false;ConfirmationPending=true;returningItems.Clear();SelectedStartingWeaponType=null;return true;}
+    public void Cancel(){ConfirmationPending=false;returningItems.Clear();SelectedStartingWeaponType=null;}
     public bool ConfirmRebirth()
     {
-        if(!ConfirmationPending||!Eligible)return false;ConfirmationPending=false;
+        if(!ConfirmationPending||!Eligible||!ValidateReturnItems())return false;
+        if(SelectedStartingWeaponType!=null&&!SelectStartingWeapon(SelectedStartingWeaponType))return false;
+        var savedReturns=new List<GearSnapshotData>();foreach(var item in returningItems)if(item!=null)savedReturns.Add(GearSnapshotData.Capture(item));
+        ConfirmationPending=false;
         EquipmentManager.Instance?.ResetForRebirth();
         Inventory.Instance?.ResetForRebirth();
         int catalysts=CurrencyInventory.Instance?.Count(CraftingCurrencyType.EmpowermentCatalyst)??0;
@@ -230,7 +278,8 @@ public sealed class RebirthManager : MonoBehaviour
         foreach(CraftingCurrencyType type in Enum.GetValues(typeof(CraftingCurrencyType)))if(CurrencyInventory.IsAncient(type))CurrencyInventory.Instance?.Add(type);
         var player=FindAnyObjectByType<PlayerController>();
         if(player!=null){player.GetComponent<StatusController>()?.ClearStatuses();player.GetComponent<HealthComponent>()?.ReviveToFullLife();player.GetComponent<ManaComponent>()?.RestoreFull();}
-        player?.EnsureStarterWeapon();
+        foreach(var saved in savedReturns)Inventory.Instance?.Add(saved.Create("Returned Item"));
+        player?.EnsureStarterWeapon();SelectedStartingWeaponType=null;returningItems.Clear();
         GetComponent<GameManager>()?.StartNewRun();
         GamePersistence.Save();
         return true;
@@ -244,13 +293,14 @@ public sealed partial class RelicEquipmentUI : MonoBehaviour
 #if UNITY_EDITOR
     public void Build()
     {
-        if(slots.Count>0)return;
+        if(slots.Count==RelicInventory.ActiveSlotCount)return;
+        if(slots.Count>0){foreach(var existing in slots)if(existing!=null)DestroyImmediate(existing.gameObject);slots.Clear();}
         var root=new GameObject("Active Relics",typeof(RectTransform));root.transform.SetParent(transform,false);
         var rect=(RectTransform)root.transform;rect.anchorMin=Vector2.zero;rect.anchorMax=Vector2.one;rect.offsetMin=rect.offsetMax=Vector2.zero;
         for(int i=0;i<RelicInventory.ActiveSlotCount;i++)
         {
             var go=new GameObject("Active Relic Slot "+(i+1),typeof(RectTransform),typeof(Image),typeof(RectMask2D),typeof(Button),typeof(ActiveRelicSlotUI));go.transform.SetParent(root.transform,false);go.GetComponent<Image>().color=new Color(1,1,1,.001f);
-            InventoryArtLayout.Apply((RectTransform)go.transform,InventoryArtLayout.RelicSlots[i]);
+            InventoryArtLayout.Apply((RectTransform)go.transform,InventoryArtLayout.P(72+i*103,529,164+i*103,615));
             var labelGo=new GameObject("Label",typeof(RectTransform),typeof(TextMeshProUGUI));labelGo.transform.SetParent(go.transform,false);var lr=(RectTransform)labelGo.transform;lr.anchorMin=Vector2.zero;lr.anchorMax=Vector2.one;lr.offsetMin=new Vector2(5,5);lr.offsetMax=new Vector2(-5,-5);
             var label=labelGo.GetComponent<TextMeshProUGUI>();label.alignment=TextAlignmentOptions.Center;label.fontSize=11;label.raycastTarget=false;
             var slot=go.GetComponent<ActiveRelicSlotUI>();slot.Initialize(i,label);go.GetComponent<Button>().onClick.AddListener(slot.Activate);slots.Add(slot);
@@ -328,7 +378,7 @@ public sealed partial class RebirthConfirmationUI:MonoBehaviour
     }
 #endif
     void Update(){Build();bool eligible=RebirthManager.Instance!=null&&RebirthManager.Instance.Eligible;openButton.gameObject.SetActive(true);openButton.interactable=eligible;if(openLabel!=null)openLabel.text=eligible?"REBIRTH / ZONE 60+":"REBIRTH LOCKED / REACH ZONE 60";}
-    void Open(){if(RebirthManager.Instance!=null&&RebirthManager.Instance.RequestRebirth())confirmation.SetActive(true);}
+    void Open(){if(RebirthManager.Instance!=null&&RebirthManager.Instance.RequestRebirth()){RefreshSetup();confirmation.SetActive(true);}}
     void Confirm(){if(RebirthManager.Instance!=null&&RebirthManager.Instance.ConfirmRebirth())confirmation.SetActive(false);}
     void Cancel(){RebirthManager.Instance?.Cancel();confirmation.SetActive(false);}
     static Button Button(Transform parent,string name,Vector2 min,Vector2 max,UnityEngine.Events.UnityAction action,out TMP_Text label)

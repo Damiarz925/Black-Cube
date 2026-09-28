@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
-public class ItemSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
+public class ItemSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
     [Header("UI References")]   //References to UI elements owned by this UI slot
     [SerializeField] private TextMeshProUGUI nameText;  //Reference for the Name of the Item
@@ -15,6 +15,9 @@ public class ItemSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     [SerializeField] private Image backgroundImage;     //Image for the item background
     [SerializeField] private Image rarityOverlay;       //Image used for the rarity overlay
 
+    public void OnBeginDrag(PointerEventData data){}
+    public void OnDrag(PointerEventData data){}
+    public void OnEndDrag(PointerEventData data){}
     private Gear gear;
     public Gear Item => gear;
     public Image IconImage => iconImage;

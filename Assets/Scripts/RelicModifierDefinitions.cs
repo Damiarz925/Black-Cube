@@ -43,7 +43,7 @@ public static class RelicModifierDefinitions
         new(RelicModifierType.IncreasedAilmentDamage,"Increased Ailment Damage",12,true,T(5,9,15),T(4,12,21),T(3,15,30),T(2,24,38),T(1,32,46)),
         new(RelicModifierType.ChanceToHitTwice,"Multistrike Chance",3,true,T(5,3,5),T(4,4,7),T(3,5,10),T(2,8,13),T(1,11,16)),
         new(RelicModifierType.ProjectileAmount,"Projectile Amount",2,false,One(1)),
-        new(RelicModifierType.MaximumBleedStacks,"Maximum Bleed Stacks",2,false,One(1)),
+        new(RelicModifierType.MaximumBleedStacks,"Maximum Bleed Stacks",2,false,T(5,1,1),T(4,2,2),T(3,3,3),T(2,4,4),T(1,5,5)),
         new(RelicModifierType.MaximumIgniteStacks,"Maximum Ignite Stacks",2,false,One(1)),
         new(RelicModifierType.EquippedSkillLevel,"Equipped Active Skill Level",2,false,One(1)),
         new(RelicModifierType.ShockThresholdReduction,"Fewer Shock Stacks for Trigger",2,false,One(1)),
@@ -54,10 +54,37 @@ public static class RelicModifierDefinitions
         new(RelicModifierType.StarterWeaponVoid,"Starting Weapon Becomes Void",4,false,One(1)),
         new(RelicModifierType.StarterWeaponBaseDamage,"Starting Weapon Base Damage",8,true,T(5,5,10),T(4,10,18),T(3,18,28),T(2,28,40),T(1,40,55)),
         new(RelicModifierType.StarterWeaponItemLevel,"Starting Weapon Item Level",6,false,T(5,5,5),T(4,10,10),T(3,20,20),T(2,35,35),T(1,50,50)),
-        new(RelicModifierType.StarterWeaponLegendaryChance,"Starting Weapon Legendary Chance",5,true,T(5,5,5),T(4,10,10),T(3,15,15),T(2,20,20),T(1,30,30))
+        new(RelicModifierType.StarterWeaponLegendaryChance,"Starting Weapon Legendary Chance",5,true,T(5,5,5),T(4,10,10),T(3,15,15),T(2,20,20),T(1,30,30)),
+        new(RelicModifierType.MaximumShockEffect,"Maximum Shock Effect",2,true,T(5,5,10),T(4,10,15),T(3,15,20),T(2,20,30),T(1,30,40)),
+        new(RelicModifierType.MoreEnemyDrops,"More Enemy Drops",5,true,T(5,5,10),T(4,10,15),T(3,15,25),T(2,25,35),T(1,35,50)),
+        new(RelicModifierType.IncreasedEnemyRarity,"Increased Enemy Rarity",5,true,T(5,10,20),T(4,20,35),T(3,35,50),T(2,50,75),T(1,75,100)),
+        new(RelicModifierType.IncreasedItemRarity,"Increased Item Rarity",5,true,T(5,10,20),T(4,20,35),T(3,35,50),T(2,50,75),T(1,75,100)),
+        new(RelicModifierType.RebirthItemReturn,"Carry One Item Up To Item Level",3,false,T(5,1,20),T(4,20,40),T(3,40,70),T(2,70,100),T(1,100,350)),
+        new(RelicModifierType.StarterSword,"Starting Weapon: Sword",3,false,One(1)),
+        new(RelicModifierType.StarterAxe,"Starting Weapon: Axe",3,false,One(1)),
+        new(RelicModifierType.StarterBow,"Starting Weapon: Bow",3,false,One(1)),
+        new(RelicModifierType.StarterStaff,"Starting Weapon: Staff",3,false,One(1)),
+        new(RelicModifierType.StarterSceptre,"Starting Weapon: Sceptre",3,false,One(1)),
+        new(RelicModifierType.StarterDagger,"Starting Weapon: Dagger",3,false,One(1)),
+        new(RelicModifierType.TriggerRapidFlurry,"RapidFlurry On Every Attack",1,false,One(1)),
+        new(RelicModifierType.TriggerArmourStrike,"ArmourStrike On Every Attack",1,false,One(1)),
+        new(RelicModifierType.TriggerRageStrike,"RageStrike On Every Attack",1,false,One(1)),
+        new(RelicModifierType.TriggerHemorrhage,"Hemorrhage On Every Attack",1,false,One(1)),
+        new(RelicModifierType.TriggerVenomShot,"VenomShot On Every Attack",1,false,One(1)),
+        new(RelicModifierType.TriggerDoubleVolley,"DoubleVolley On Every Attack",1,false,One(1)),
+        new(RelicModifierType.TriggerFireball,"Fireball On Every Attack",1,false,One(1)),
+        new(RelicModifierType.TriggerShockBarrage,"ShockBarrage On Every Attack",1,false,One(1)),
+        new(RelicModifierType.TriggerRestorativeStrike,"RestorativeStrike On Every Attack",1,false,One(1)),
+        new(RelicModifierType.TriggerFrostJudgment,"FrostJudgment On Every Attack",1,false,One(1)),
+        new(RelicModifierType.TriggerBackstab,"Backstab On Every Attack",1,false,One(1)),
+        new(RelicModifierType.TriggerQuickStrike,"QuickStrike On Every Attack",1,false,One(1)),
+        new(RelicModifierType.FireballEchoChance,"Fireball Echo Chance",2,true,T(5,5,8),T(4,8,12),T(3,12,16),T(2,16,22),T(1,22,30)),
+        new(RelicModifierType.ShockBarrageEchoChance,"Shock Barrage Echo Chance",2,true,T(5,5,8),T(4,8,12),T(3,12,16),T(2,16,22),T(1,22,30))
     };
     static readonly Dictionary<RelicModifierType,RelicModifierDefinition> ById=BuildLookup();
-    public static IReadOnlyList<RelicModifierDefinition> All=>Definitions;
+    public static bool IsRetired(RelicModifierType id)=>id is RelicModifierType.IncreasedMaximumLife or RelicModifierType.IncreasedMaximumMana or RelicModifierType.IncreasedVoidDamage or RelicModifierType.IncreasedAilmentDamage or RelicModifierType.ShockThresholdReduction;
+    static readonly RelicModifierDefinition[] Rollable=Definitions.Where(d=>!IsRetired(d.Id)).ToArray();
+    public static IReadOnlyList<RelicModifierDefinition> All=>Rollable;
     public static RelicModifierDefinition Get(RelicModifierType id)=>ById.TryGetValue(id,out var definition)?definition:null;
     static Dictionary<RelicModifierType,RelicModifierDefinition> BuildLookup(){var lookup=new Dictionary<RelicModifierType,RelicModifierDefinition>();foreach(var definition in Definitions)if(!lookup.TryAdd(definition.Id,definition))throw new InvalidOperationException("Duplicate relic modifier ID: "+definition.Id);foreach(RelicModifierType id in Enum.GetValues(typeof(RelicModifierType)))if(!lookup.ContainsKey(id))throw new InvalidOperationException("Missing relic modifier ID: "+id);return lookup;}
 }

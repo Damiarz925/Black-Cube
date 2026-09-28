@@ -190,7 +190,9 @@ public class LootManager : MonoBehaviour
     public GearRarity RollItemRarity(int itemLevel,ILootRandomSource random)
     {
         Vector4 rates=RarityRatesForLevel(itemLevel);
-        float roll=random.Value()*100f;
+        float bias=1+Mathf.Max(0,RelicInventory.Instance?.ItemRarityIncrease??0);
+        float total=0;for(int i=0;i<4;i++){rates[i]*=Mathf.Pow(bias,i);total+=rates[i];}
+        float roll=random.Value()*total;
         if(roll<rates.x)return GearRarity.Normal;
         if(roll<rates.x+rates.y)return GearRarity.Magic;
         if(roll<rates.x+rates.y+rates.z)return GearRarity.Rare;
