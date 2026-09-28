@@ -40,8 +40,8 @@ MonoBehaviour:
     spine:
       stableId: tree.v3.class.mage.t01.spine
       logicalSlotId: tree.v3.class.mage.t01.spine
-      displayName: Mage Tier 1
-      description: Broad class-route mainline node.
+      displayName: Intelligence
+      description: Uniform class attribute travel.
       branch: 28
       size: 1
       kind: 5
@@ -50,14 +50,14 @@ MonoBehaviour:
       - kind: 0
         stat: 93
         mechanicId: 
-        value: 5
+        value: 10
       iconMode: 0
       iconOverride: {fileID: 0}
     right:
       a:
         stableId: tree.v3.class.mage.t01.right.a
         logicalSlotId: tree.v3.class.mage.t01.right.a
-        displayName: Fire
+        displayName: Fire Damage
         description: 
         branch: 5
         size: 0
@@ -67,41 +67,41 @@ MonoBehaviour:
         - kind: 0
           stat: 17
           mechanicId: 
-          value: 9
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 42
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: e6b8a1d2052624f42aa8c4dcd3e9500e, type: 3}
       b:
         stableId: tree.v3.class.mage.t01.right.b
         logicalSlotId: tree.v3.class.mage.t01.right.b
-        displayName: Cold
+        displayName: Cooldown Reduction
         description: 
-        branch: 9
+        branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 15
+          stat: 126
           mechanicId: 
-          value: 9
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 10
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: fa072607bac6ec3408c501f90c3312f9, type: 3}
       c:
         stableId: tree.v3.class.mage.t01.right.c
         logicalSlotId: tree.v3.class.mage.t01.right.c
-        displayName: Lightning
+        displayName: Increased Critical Chance
         description: 
-        branch: 4
+        branch: 20
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 16
+          stat: 11
           mechanicId: 
-          value: 9
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 42
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: 9a8398eb01579964aa1ec1892920d26c, type: 3}
       subclassA:
         stableId: tree.v3.class.mage.t01.right.subclass.variant.mage-cooldown
         logicalSlotId: tree.v3.class.mage.t01.right.subclass
@@ -138,7 +138,7 @@ MonoBehaviour:
       a:
         stableId: tree.v3.class.mage.t01.left.a
         logicalSlotId: tree.v3.class.mage.t01.left.a
-        displayName: Mana
+        displayName: Mana Percent
         description: 
         branch: 2
         size: 0
@@ -148,15 +148,15 @@ MonoBehaviour:
         - kind: 0
           stat: 71
           mechanicId: 
-          value: 9
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 16.5
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: 983033848563a9c4ea154a5ea0833c8b, type: 3}
       b:
         stableId: tree.v3.class.mage.t01.left.b
         logicalSlotId: tree.v3.class.mage.t01.left.b
         displayName: Mana Regeneration
         description: 
-        branch: 19
+        branch: 0
         size: 0
         kind: 6
         keystone: 0
@@ -164,25 +164,25 @@ MonoBehaviour:
         - kind: 0
           stat: 73
           mechanicId: 
-          value: 3.6
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 9.5
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: ab7da3d106a7057468686ec3be7d8dd5, type: 3}
       c:
         stableId: tree.v3.class.mage.t01.left.c
         logicalSlotId: tree.v3.class.mage.t01.left.c
-        displayName: Mana On Hit
+        displayName: Intelligence Percent
         description: 
-        branch: 23
+        branch: 28
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 75
+          stat: 96
           mechanicId: 
-          value: 3.6
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 7.5
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: 515daee52d8470c4da2c894c21392536, type: 3}
       subclassA:
         stableId: tree.v3.class.mage.t01.left.subclass.variant.mage-cooldown
         logicalSlotId: tree.v3.class.mage.t01.left.subclass
@@ -219,40 +219,56 @@ MonoBehaviour:
     spine:
       stableId: tree.v3.class.mage.t02.spine
       logicalSlotId: tree.v3.class.mage.t02.spine
-      displayName: Mage Tier 2
-      description: Broad class-route mainline node.
-      branch: 2
+      displayName: Intelligence
+      description: Uniform class attribute travel.
+      branch: 28
       size: 1
       kind: 5
       keystone: 0
       effects:
       - kind: 0
-        stat: 71
+        stat: 93
         mechanicId: 
-        value: 5.125
+        value: 10
       iconMode: 0
       iconOverride: {fileID: 0}
     right:
       a:
         stableId: tree.v3.class.mage.t02.right.a
         logicalSlotId: tree.v3.class.mage.t02.right.a
-        displayName: Cooldown Reduction
+        displayName: Cold Damage
         description: 
-        branch: 29
+        branch: 9
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 126
+          stat: 15
           mechanicId: 
-          value: 9.2
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 42
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: 06c8620781e36ce45805e288b6c2f4da, type: 3}
       b:
         stableId: tree.v3.class.mage.t02.right.b
         logicalSlotId: tree.v3.class.mage.t02.right.b
-        displayName: Critical Multiplier
+        displayName: Lightning Damage
+        description: 
+        branch: 4
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 16
+          mechanicId: 
+          value: 42
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: 9ce532dc7b08c704b89cfe531879cab7, type: 3}
+      c:
+        stableId: tree.v3.class.mage.t02.right.c
+        logicalSlotId: tree.v3.class.mage.t02.right.c
+        displayName: Critical Damage Multiplier
         description: 
         branch: 21
         size: 0
@@ -262,25 +278,9 @@ MonoBehaviour:
         - kind: 0
           stat: 12
           mechanicId: 
-          value: 14.719999
-        iconMode: 0
-        iconOverride: {fileID: 0}
-      c:
-        stableId: tree.v3.class.mage.t02.right.c
-        logicalSlotId: tree.v3.class.mage.t02.right.c
-        displayName: Defense
-        description: 
-        branch: 0
-        size: 0
-        kind: 6
-        keystone: 0
-        effects:
-        - kind: 0
-          stat: 52
-          mechanicId: 
-          value: 9.2
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 37.5
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: 9a8398eb01579964aa1ec1892920d26c, type: 3}
       subclassA:
         stableId: tree.v3.class.mage.t02.right.subclass.variant.mage-cooldown
         logicalSlotId: tree.v3.class.mage.t02.right.subclass
@@ -317,51 +317,51 @@ MonoBehaviour:
       a:
         stableId: tree.v3.class.mage.t02.left.a
         logicalSlotId: tree.v3.class.mage.t02.left.a
-        displayName: Shock Chance
+        displayName: Reduced Shock Effect
         description: 
-        branch: 16
+        branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 44
+          stat: 130
           mechanicId: 
-          value: 9.2
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 0
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: 515daee52d8470c4da2c894c21392536, type: 3}
       b:
         stableId: tree.v3.class.mage.t02.left.b
         logicalSlotId: tree.v3.class.mage.t02.left.b
-        displayName: Fire
+        displayName: Reduced Chill Effect
         description: 
-        branch: 5
+        branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 17
+          stat: 131
           mechanicId: 
-          value: 9.2
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 0
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: 515daee52d8470c4da2c894c21392536, type: 3}
       c:
         stableId: tree.v3.class.mage.t02.left.c
         logicalSlotId: tree.v3.class.mage.t02.left.c
-        displayName: Critical Chance
-        description: 
-        branch: 20
+        displayName: All Elemental Resist
+        description: Fire, Cold and Lightning resistance only; excludes Void.
+        branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 11
+          stat: 57
           mechanicId: 
-          value: 9.2
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 6
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: 515daee52d8470c4da2c894c21392536, type: 3}
       subclassA:
         stableId: tree.v3.class.mage.t02.left.subclass.variant.mage-cooldown
         logicalSlotId: tree.v3.class.mage.t02.left.subclass
@@ -398,24 +398,24 @@ MonoBehaviour:
     spine:
       stableId: tree.v3.class.mage.t03.spine
       logicalSlotId: tree.v3.class.mage.t03.spine
-      displayName: Mage Tier 3
-      description: Broad class-route mainline node.
-      branch: 29
+      displayName: Intelligence
+      description: Uniform class attribute travel.
+      branch: 28
       size: 1
       kind: 5
       keystone: 0
       effects:
       - kind: 0
-        stat: 126
+        stat: 93
         mechanicId: 
-        value: 5.25
+        value: 10
       iconMode: 0
       iconOverride: {fileID: 0}
     right:
       a:
         stableId: tree.v3.class.mage.t03.right.a
         logicalSlotId: tree.v3.class.mage.t03.right.a
-        displayName: Fire
+        displayName: Fire Damage
         description: 
         branch: 5
         size: 0
@@ -425,13 +425,13 @@ MonoBehaviour:
         - kind: 0
           stat: 17
           mechanicId: 
-          value: 9.4
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 42
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: e6b8a1d2052624f42aa8c4dcd3e9500e, type: 3}
       b:
         stableId: tree.v3.class.mage.t03.right.b
         logicalSlotId: tree.v3.class.mage.t03.right.b
-        displayName: Cold
+        displayName: Cold Damage
         description: 
         branch: 9
         size: 0
@@ -441,25 +441,25 @@ MonoBehaviour:
         - kind: 0
           stat: 15
           mechanicId: 
-          value: 9.4
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 42
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: 06c8620781e36ce45805e288b6c2f4da, type: 3}
       c:
         stableId: tree.v3.class.mage.t03.right.c
         logicalSlotId: tree.v3.class.mage.t03.right.c
-        displayName: Lightning
+        displayName: Intelligence Percent
         description: 
-        branch: 4
+        branch: 28
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 16
+          stat: 96
           mechanicId: 
-          value: 9.4
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 7.5
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: 515daee52d8470c4da2c894c21392536, type: 3}
       subclassA:
         stableId: tree.v3.class.mage.t03.right.subclass.variant.mage-cooldown
         logicalSlotId: tree.v3.class.mage.t03.right.subclass
@@ -496,7 +496,7 @@ MonoBehaviour:
       a:
         stableId: tree.v3.class.mage.t03.left.a
         logicalSlotId: tree.v3.class.mage.t03.left.a
-        displayName: Mana
+        displayName: Mana Percent
         description: 
         branch: 2
         size: 0
@@ -506,41 +506,41 @@ MonoBehaviour:
         - kind: 0
           stat: 71
           mechanicId: 
-          value: 9.4
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 16.5
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: 983033848563a9c4ea154a5ea0833c8b, type: 3}
       b:
         stableId: tree.v3.class.mage.t03.left.b
         logicalSlotId: tree.v3.class.mage.t03.left.b
-        displayName: Mana Regeneration
+        displayName: Reduced Shock Effect
         description: 
-        branch: 19
+        branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 73
+          stat: 130
           mechanicId: 
-          value: 3.76
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 0
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: 515daee52d8470c4da2c894c21392536, type: 3}
       c:
         stableId: tree.v3.class.mage.t03.left.c
         logicalSlotId: tree.v3.class.mage.t03.left.c
-        displayName: Mana On Hit
+        displayName: Increased Critical Chance
         description: 
-        branch: 23
+        branch: 20
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 75
+          stat: 11
           mechanicId: 
-          value: 3.76
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 42
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: 9a8398eb01579964aa1ec1892920d26c, type: 3}
       subclassA:
         stableId: tree.v3.class.mage.t03.left.subclass.variant.mage-cooldown
         logicalSlotId: tree.v3.class.mage.t03.left.subclass
@@ -577,56 +577,40 @@ MonoBehaviour:
     spine:
       stableId: tree.v3.class.mage.t04.spine
       logicalSlotId: tree.v3.class.mage.t04.spine
-      displayName: Mage Tier 4
-      description: Broad class-route mainline node.
-      branch: 19
+      displayName: Intelligence
+      description: Uniform class attribute travel.
+      branch: 28
       size: 1
       kind: 5
       keystone: 0
       effects:
       - kind: 0
-        stat: 73
+        stat: 93
         mechanicId: 
-        value: 2.15
+        value: 10
       iconMode: 0
       iconOverride: {fileID: 0}
     right:
       a:
         stableId: tree.v3.class.mage.t04.right.a
         logicalSlotId: tree.v3.class.mage.t04.right.a
-        displayName: Cooldown Reduction
+        displayName: Lightning Damage
         description: 
-        branch: 29
+        branch: 4
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 126
+          stat: 16
           mechanicId: 
-          value: 9.599999
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 42
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: 9ce532dc7b08c704b89cfe531879cab7, type: 3}
       b:
         stableId: tree.v3.class.mage.t04.right.b
         logicalSlotId: tree.v3.class.mage.t04.right.b
-        displayName: Critical Multiplier
-        description: 
-        branch: 21
-        size: 0
-        kind: 6
-        keystone: 0
-        effects:
-        - kind: 0
-          stat: 12
-          mechanicId: 
-          value: 15.36
-        iconMode: 0
-        iconOverride: {fileID: 0}
-      c:
-        stableId: tree.v3.class.mage.t04.right.c
-        logicalSlotId: tree.v3.class.mage.t04.right.c
-        displayName: Defense
+        displayName: Cooldown Reduction
         description: 
         branch: 0
         size: 0
@@ -634,11 +618,27 @@ MonoBehaviour:
         keystone: 0
         effects:
         - kind: 0
-          stat: 52
+          stat: 126
           mechanicId: 
-          value: 9.599999
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 10
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: fa072607bac6ec3408c501f90c3312f9, type: 3}
+      c:
+        stableId: tree.v3.class.mage.t04.right.c
+        logicalSlotId: tree.v3.class.mage.t04.right.c
+        displayName: All Elemental Resist
+        description: Fire, Cold and Lightning resistance only; excludes Void.
+        branch: 0
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 57
+          mechanicId: 
+          value: 6
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: 515daee52d8470c4da2c894c21392536, type: 3}
       subclassA:
         stableId: tree.v3.class.mage.t04.right.subclass.variant.mage-cooldown
         logicalSlotId: tree.v3.class.mage.t04.right.subclass
@@ -675,51 +675,51 @@ MonoBehaviour:
       a:
         stableId: tree.v3.class.mage.t04.left.a
         logicalSlotId: tree.v3.class.mage.t04.left.a
-        displayName: Shock Chance
+        displayName: Mana Regeneration
         description: 
-        branch: 16
+        branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 44
+          stat: 73
           mechanicId: 
-          value: 9.599999
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 9.5
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: ab7da3d106a7057468686ec3be7d8dd5, type: 3}
       b:
         stableId: tree.v3.class.mage.t04.left.b
         logicalSlotId: tree.v3.class.mage.t04.left.b
-        displayName: Fire
+        displayName: Reduced Chill Effect
         description: 
-        branch: 5
+        branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 17
+          stat: 131
           mechanicId: 
-          value: 9.599999
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 0
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: 515daee52d8470c4da2c894c21392536, type: 3}
       c:
         stableId: tree.v3.class.mage.t04.left.c
         logicalSlotId: tree.v3.class.mage.t04.left.c
-        displayName: Critical Chance
+        displayName: Critical Damage Multiplier
         description: 
-        branch: 20
+        branch: 21
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 11
+          stat: 12
           mechanicId: 
-          value: 9.599999
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 37.5
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: 9a8398eb01579964aa1ec1892920d26c, type: 3}
       subclassA:
         stableId: tree.v3.class.mage.t04.left.subclass.variant.mage-cooldown
         logicalSlotId: tree.v3.class.mage.t04.left.subclass
@@ -756,24 +756,24 @@ MonoBehaviour:
     spine:
       stableId: tree.v3.class.mage.t05.spine
       logicalSlotId: tree.v3.class.mage.t05.spine
-      displayName: Mage Tier 5
-      description: Broad class-route mainline node.
-      branch: 3
+      displayName: Intelligence
+      description: Uniform class attribute travel.
+      branch: 28
       size: 1
       kind: 5
       keystone: 0
       effects:
       - kind: 0
-        stat: 127
+        stat: 93
         mechanicId: 
-        value: 5.5
+        value: 10
       iconMode: 0
       iconOverride: {fileID: 0}
     right:
       a:
         stableId: tree.v3.class.mage.t05.right.a
         logicalSlotId: tree.v3.class.mage.t05.right.a
-        displayName: Fire
+        displayName: Fire Damage
         description: 
         branch: 5
         size: 0
@@ -783,29 +783,13 @@ MonoBehaviour:
         - kind: 0
           stat: 17
           mechanicId: 
-          value: 9.8
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 42
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: e6b8a1d2052624f42aa8c4dcd3e9500e, type: 3}
       b:
         stableId: tree.v3.class.mage.t05.right.b
         logicalSlotId: tree.v3.class.mage.t05.right.b
-        displayName: Cold
-        description: 
-        branch: 9
-        size: 0
-        kind: 6
-        keystone: 0
-        effects:
-        - kind: 0
-          stat: 15
-          mechanicId: 
-          value: 9.8
-        iconMode: 0
-        iconOverride: {fileID: 0}
-      c:
-        stableId: tree.v3.class.mage.t05.right.c
-        logicalSlotId: tree.v3.class.mage.t05.right.c
-        displayName: Lightning
+        displayName: Lightning Damage
         description: 
         branch: 4
         size: 0
@@ -815,9 +799,25 @@ MonoBehaviour:
         - kind: 0
           stat: 16
           mechanicId: 
-          value: 9.8
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 42
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: 9ce532dc7b08c704b89cfe531879cab7, type: 3}
+      c:
+        stableId: tree.v3.class.mage.t05.right.c
+        logicalSlotId: tree.v3.class.mage.t05.right.c
+        displayName: Increased Critical Chance
+        description: 
+        branch: 20
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 11
+          mechanicId: 
+          value: 42
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: 9a8398eb01579964aa1ec1892920d26c, type: 3}
       subclassA:
         stableId: tree.v3.class.mage.t05.right.subclass.variant.mage-cooldown
         logicalSlotId: tree.v3.class.mage.t05.right.subclass
@@ -854,7 +854,7 @@ MonoBehaviour:
       a:
         stableId: tree.v3.class.mage.t05.left.a
         logicalSlotId: tree.v3.class.mage.t05.left.a
-        displayName: Mana
+        displayName: Mana Percent
         description: 
         branch: 2
         size: 0
@@ -864,41 +864,41 @@ MonoBehaviour:
         - kind: 0
           stat: 71
           mechanicId: 
-          value: 9.8
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 16.5
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: 983033848563a9c4ea154a5ea0833c8b, type: 3}
       b:
         stableId: tree.v3.class.mage.t05.left.b
         logicalSlotId: tree.v3.class.mage.t05.left.b
-        displayName: Mana Regeneration
+        displayName: Reduced Chill Effect
         description: 
-        branch: 19
+        branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 73
+          stat: 131
           mechanicId: 
-          value: 3.9199998
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 0
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: 515daee52d8470c4da2c894c21392536, type: 3}
       c:
         stableId: tree.v3.class.mage.t05.left.c
         logicalSlotId: tree.v3.class.mage.t05.left.c
-        displayName: Mana On Hit
+        displayName: Intelligence Percent
         description: 
-        branch: 23
+        branch: 28
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 75
+          stat: 96
           mechanicId: 
-          value: 3.9199998
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 7.5
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: 515daee52d8470c4da2c894c21392536, type: 3}
       subclassA:
         stableId: tree.v3.class.mage.t05.left.subclass.variant.mage-cooldown
         logicalSlotId: tree.v3.class.mage.t05.left.subclass
@@ -935,30 +935,42 @@ MonoBehaviour:
     spine:
       stableId: tree.v3.class.mage.t06.spine
       logicalSlotId: tree.v3.class.mage.t06.spine
-      displayName: Mage Tier 6
-      description: Broad class-route mainline node.
-      branch: 16
+      displayName: Intelligence
+      description: Uniform class attribute travel.
+      branch: 28
       size: 1
       kind: 5
       keystone: 0
       effects:
       - kind: 0
-        stat: 44
+        stat: 93
         mechanicId: 
-        value: 5.625
-      - kind: 0
-        stat: 46
-        mechanicId: 
-        value: 5
+        value: 10
       iconMode: 0
       iconOverride: {fileID: 0}
     right:
       a:
         stableId: tree.v3.class.mage.t06.right.a
         logicalSlotId: tree.v3.class.mage.t06.right.a
+        displayName: Cold Damage
+        description: 
+        branch: 9
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 15
+          mechanicId: 
+          value: 42
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: 06c8620781e36ce45805e288b6c2f4da, type: 3}
+      b:
+        stableId: tree.v3.class.mage.t06.right.b
+        logicalSlotId: tree.v3.class.mage.t06.right.b
         displayName: Cooldown Reduction
         description: 
-        branch: 29
+        branch: 0
         size: 0
         kind: 6
         keystone: 0
@@ -967,12 +979,12 @@ MonoBehaviour:
           stat: 126
           mechanicId: 
           value: 10
-        iconMode: 0
-        iconOverride: {fileID: 0}
-      b:
-        stableId: tree.v3.class.mage.t06.right.b
-        logicalSlotId: tree.v3.class.mage.t06.right.b
-        displayName: Critical Multiplier
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: fa072607bac6ec3408c501f90c3312f9, type: 3}
+      c:
+        stableId: tree.v3.class.mage.t06.right.c
+        logicalSlotId: tree.v3.class.mage.t06.right.c
+        displayName: Critical Damage Multiplier
         description: 
         branch: 21
         size: 0
@@ -982,25 +994,9 @@ MonoBehaviour:
         - kind: 0
           stat: 12
           mechanicId: 
-          value: 16
-        iconMode: 0
-        iconOverride: {fileID: 0}
-      c:
-        stableId: tree.v3.class.mage.t06.right.c
-        logicalSlotId: tree.v3.class.mage.t06.right.c
-        displayName: Defense
-        description: 
-        branch: 0
-        size: 0
-        kind: 6
-        keystone: 0
-        effects:
-        - kind: 0
-          stat: 52
-          mechanicId: 
-          value: 10
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 37.5
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: 9a8398eb01579964aa1ec1892920d26c, type: 3}
       subclassA:
         stableId: tree.v3.class.mage.t06.right.subclass.variant.mage-cooldown
         logicalSlotId: tree.v3.class.mage.t06.right.subclass
@@ -1037,51 +1033,51 @@ MonoBehaviour:
       a:
         stableId: tree.v3.class.mage.t06.left.a
         logicalSlotId: tree.v3.class.mage.t06.left.a
-        displayName: Shock Chance
+        displayName: Mana Regeneration
         description: 
-        branch: 16
+        branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 44
+          stat: 73
           mechanicId: 
-          value: 10
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 9.5
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: ab7da3d106a7057468686ec3be7d8dd5, type: 3}
       b:
         stableId: tree.v3.class.mage.t06.left.b
         logicalSlotId: tree.v3.class.mage.t06.left.b
-        displayName: Fire
+        displayName: Reduced Shock Effect
         description: 
-        branch: 5
+        branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 17
+          stat: 130
           mechanicId: 
-          value: 10
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 0
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: 515daee52d8470c4da2c894c21392536, type: 3}
       c:
         stableId: tree.v3.class.mage.t06.left.c
         logicalSlotId: tree.v3.class.mage.t06.left.c
-        displayName: Critical Chance
-        description: 
-        branch: 20
+        displayName: All Elemental Resist
+        description: Fire, Cold and Lightning resistance only; excludes Void.
+        branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 11
+          stat: 57
           mechanicId: 
-          value: 10
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 6
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: 515daee52d8470c4da2c894c21392536, type: 3}
       subclassA:
         stableId: tree.v3.class.mage.t06.left.subclass.variant.mage-cooldown
         logicalSlotId: tree.v3.class.mage.t06.left.subclass
@@ -1118,28 +1114,24 @@ MonoBehaviour:
     spine:
       stableId: tree.v3.class.mage.t07.spine
       logicalSlotId: tree.v3.class.mage.t07.spine
-      displayName: Mage Tier 7
-      description: Broad class-route mainline node.
-      branch: 14
+      displayName: Intelligence
+      description: Uniform class attribute travel.
+      branch: 28
       size: 1
       kind: 5
       keystone: 0
       effects:
       - kind: 0
-        stat: 45
+        stat: 93
         mechanicId: 
-        value: 5.75
-      - kind: 0
-        stat: 47
-        mechanicId: 
-        value: 5
+        value: 10
       iconMode: 0
       iconOverride: {fileID: 0}
     right:
       a:
         stableId: tree.v3.class.mage.t07.right.a
         logicalSlotId: tree.v3.class.mage.t07.right.a
-        displayName: Fire
+        displayName: Fire Damage
         description: 
         branch: 5
         size: 0
@@ -1149,41 +1141,41 @@ MonoBehaviour:
         - kind: 0
           stat: 17
           mechanicId: 
-          value: 10.2
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 42
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: e6b8a1d2052624f42aa8c4dcd3e9500e, type: 3}
       b:
         stableId: tree.v3.class.mage.t07.right.b
         logicalSlotId: tree.v3.class.mage.t07.right.b
-        displayName: Cold
+        displayName: Cooldown Reduction
         description: 
-        branch: 9
+        branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 15
+          stat: 126
           mechanicId: 
-          value: 10.2
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 10
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: fa072607bac6ec3408c501f90c3312f9, type: 3}
       c:
         stableId: tree.v3.class.mage.t07.right.c
         logicalSlotId: tree.v3.class.mage.t07.right.c
-        displayName: Lightning
+        displayName: Intelligence Percent
         description: 
-        branch: 4
+        branch: 28
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 16
+          stat: 96
           mechanicId: 
-          value: 10.2
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 7.5
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: 515daee52d8470c4da2c894c21392536, type: 3}
       subclassA:
         stableId: tree.v3.class.mage.t07.right.subclass.variant.mage-cooldown
         logicalSlotId: tree.v3.class.mage.t07.right.subclass
@@ -1220,7 +1212,7 @@ MonoBehaviour:
       a:
         stableId: tree.v3.class.mage.t07.left.a
         logicalSlotId: tree.v3.class.mage.t07.left.a
-        displayName: Mana
+        displayName: Mana Percent
         description: 
         branch: 2
         size: 0
@@ -1230,15 +1222,15 @@ MonoBehaviour:
         - kind: 0
           stat: 71
           mechanicId: 
-          value: 10.2
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 16.5
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: 983033848563a9c4ea154a5ea0833c8b, type: 3}
       b:
         stableId: tree.v3.class.mage.t07.left.b
         logicalSlotId: tree.v3.class.mage.t07.left.b
         displayName: Mana Regeneration
         description: 
-        branch: 19
+        branch: 0
         size: 0
         kind: 6
         keystone: 0
@@ -1246,25 +1238,25 @@ MonoBehaviour:
         - kind: 0
           stat: 73
           mechanicId: 
-          value: 4.08
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 9.5
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: ab7da3d106a7057468686ec3be7d8dd5, type: 3}
       c:
         stableId: tree.v3.class.mage.t07.left.c
         logicalSlotId: tree.v3.class.mage.t07.left.c
-        displayName: Mana On Hit
+        displayName: Increased Critical Chance
         description: 
-        branch: 23
+        branch: 20
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 75
+          stat: 11
           mechanicId: 
-          value: 4.08
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 42
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: 9a8398eb01579964aa1ec1892920d26c, type: 3}
       subclassA:
         stableId: tree.v3.class.mage.t07.left.subclass.variant.mage-cooldown
         logicalSlotId: tree.v3.class.mage.t07.left.subclass
@@ -1301,68 +1293,68 @@ MonoBehaviour:
     spine:
       stableId: tree.v3.class.mage.t08.spine
       logicalSlotId: tree.v3.class.mage.t08.spine
-      displayName: Mage Tier 8
-      description: Broad class-route mainline node.
-      branch: 20
+      displayName: Intelligence
+      description: Uniform class attribute travel.
+      branch: 28
       size: 1
       kind: 5
       keystone: 0
       effects:
       - kind: 0
-        stat: 11
+        stat: 93
         mechanicId: 
-        value: 5.875
+        value: 10
       iconMode: 0
       iconOverride: {fileID: 0}
     right:
       a:
         stableId: tree.v3.class.mage.t08.right.a
         logicalSlotId: tree.v3.class.mage.t08.right.a
-        displayName: Cooldown Reduction
+        displayName: Cold Damage
         description: 
-        branch: 29
+        branch: 9
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 126
+          stat: 15
           mechanicId: 
-          value: 10.4
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 42
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: 06c8620781e36ce45805e288b6c2f4da, type: 3}
       b:
         stableId: tree.v3.class.mage.t08.right.b
         logicalSlotId: tree.v3.class.mage.t08.right.b
-        displayName: Critical Multiplier
+        displayName: Lightning Damage
         description: 
-        branch: 21
+        branch: 4
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 12
+          stat: 16
           mechanicId: 
-          value: 16.64
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 42
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: 9ce532dc7b08c704b89cfe531879cab7, type: 3}
       c:
         stableId: tree.v3.class.mage.t08.right.c
         logicalSlotId: tree.v3.class.mage.t08.right.c
-        displayName: Defense
-        description: 
+        displayName: All Elemental Resist
+        description: Fire, Cold and Lightning resistance only; excludes Void.
         branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 52
+          stat: 57
           mechanicId: 
-          value: 10.4
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 6
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: 515daee52d8470c4da2c894c21392536, type: 3}
       subclassA:
         stableId: tree.v3.class.mage.t08.right.subclass.variant.mage-cooldown
         logicalSlotId: tree.v3.class.mage.t08.right.subclass
@@ -1399,51 +1391,51 @@ MonoBehaviour:
       a:
         stableId: tree.v3.class.mage.t08.left.a
         logicalSlotId: tree.v3.class.mage.t08.left.a
-        displayName: Shock Chance
+        displayName: Reduced Shock Effect
         description: 
-        branch: 16
+        branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 44
+          stat: 130
           mechanicId: 
-          value: 10.4
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 0
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: 515daee52d8470c4da2c894c21392536, type: 3}
       b:
         stableId: tree.v3.class.mage.t08.left.b
         logicalSlotId: tree.v3.class.mage.t08.left.b
-        displayName: Fire
+        displayName: Reduced Chill Effect
         description: 
-        branch: 5
+        branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 17
+          stat: 131
           mechanicId: 
-          value: 10.4
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 0
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: 515daee52d8470c4da2c894c21392536, type: 3}
       c:
         stableId: tree.v3.class.mage.t08.left.c
         logicalSlotId: tree.v3.class.mage.t08.left.c
-        displayName: Critical Chance
+        displayName: Critical Damage Multiplier
         description: 
-        branch: 20
+        branch: 21
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 11
+          stat: 12
           mechanicId: 
-          value: 10.4
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 37.5
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: 9a8398eb01579964aa1ec1892920d26c, type: 3}
       subclassA:
         stableId: tree.v3.class.mage.t08.left.subclass.variant.mage-cooldown
         logicalSlotId: tree.v3.class.mage.t08.left.subclass
@@ -1480,24 +1472,24 @@ MonoBehaviour:
     spine:
       stableId: tree.v3.class.mage.t09.spine
       logicalSlotId: tree.v3.class.mage.t09.spine
-      displayName: Mage Tier 9
-      description: Broad class-route mainline node.
-      branch: 6
+      displayName: Intelligence
+      description: Uniform class attribute travel.
+      branch: 28
       size: 1
       kind: 5
       keystone: 0
       effects:
       - kind: 0
-        stat: 115
+        stat: 93
         mechanicId: 
-        value: 6
+        value: 10
       iconMode: 0
       iconOverride: {fileID: 0}
     right:
       a:
         stableId: tree.v3.class.mage.t09.right.a
         logicalSlotId: tree.v3.class.mage.t09.right.a
-        displayName: Fire
+        displayName: Fire Damage
         description: 
         branch: 5
         size: 0
@@ -1507,13 +1499,13 @@ MonoBehaviour:
         - kind: 0
           stat: 17
           mechanicId: 
-          value: 10.599999
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 42
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: e6b8a1d2052624f42aa8c4dcd3e9500e, type: 3}
       b:
         stableId: tree.v3.class.mage.t09.right.b
         logicalSlotId: tree.v3.class.mage.t09.right.b
-        displayName: Cold
+        displayName: Cold Damage
         description: 
         branch: 9
         size: 0
@@ -1523,25 +1515,25 @@ MonoBehaviour:
         - kind: 0
           stat: 15
           mechanicId: 
-          value: 10.599999
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 42
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: 06c8620781e36ce45805e288b6c2f4da, type: 3}
       c:
         stableId: tree.v3.class.mage.t09.right.c
         logicalSlotId: tree.v3.class.mage.t09.right.c
-        displayName: Lightning
+        displayName: Increased Critical Chance
         description: 
-        branch: 4
+        branch: 20
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 16
+          stat: 11
           mechanicId: 
-          value: 10.599999
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 42
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: 9a8398eb01579964aa1ec1892920d26c, type: 3}
       subclassA:
         stableId: tree.v3.class.mage.t09.right.subclass.variant.mage-cooldown
         logicalSlotId: tree.v3.class.mage.t09.right.subclass
@@ -1578,7 +1570,7 @@ MonoBehaviour:
       a:
         stableId: tree.v3.class.mage.t09.left.a
         logicalSlotId: tree.v3.class.mage.t09.left.a
-        displayName: Mana
+        displayName: Mana Percent
         description: 
         branch: 2
         size: 0
@@ -1588,41 +1580,41 @@ MonoBehaviour:
         - kind: 0
           stat: 71
           mechanicId: 
-          value: 10.599999
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 16.5
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: 983033848563a9c4ea154a5ea0833c8b, type: 3}
       b:
         stableId: tree.v3.class.mage.t09.left.b
         logicalSlotId: tree.v3.class.mage.t09.left.b
-        displayName: Mana Regeneration
+        displayName: Reduced Shock Effect
         description: 
-        branch: 19
+        branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 73
+          stat: 130
           mechanicId: 
-          value: 4.24
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 0
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: 515daee52d8470c4da2c894c21392536, type: 3}
       c:
         stableId: tree.v3.class.mage.t09.left.c
         logicalSlotId: tree.v3.class.mage.t09.left.c
-        displayName: Mana On Hit
+        displayName: Intelligence Percent
         description: 
-        branch: 23
+        branch: 28
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 75
+          stat: 96
           mechanicId: 
-          value: 4.24
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 7.5
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: 515daee52d8470c4da2c894c21392536, type: 3}
       subclassA:
         stableId: tree.v3.class.mage.t09.left.subclass.variant.mage-cooldown
         logicalSlotId: tree.v3.class.mage.t09.left.subclass
@@ -1659,26 +1651,42 @@ MonoBehaviour:
     spine:
       stableId: tree.v3.class.mage.t10.spine
       logicalSlotId: tree.v3.class.mage.t10.spine
-      displayName: Mage Tier 10
-      description: Broad class-route mainline node.
-      branch: 29
+      displayName: Intelligence
+      description: Uniform class attribute travel.
+      branch: 28
       size: 1
       kind: 5
       keystone: 0
       effects:
       - kind: 0
-        stat: 126
+        stat: 93
         mechanicId: 
-        value: 6.125
+        value: 10
       iconMode: 0
       iconOverride: {fileID: 0}
     right:
       a:
         stableId: tree.v3.class.mage.t10.right.a
         logicalSlotId: tree.v3.class.mage.t10.right.a
+        displayName: Lightning Damage
+        description: 
+        branch: 4
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 16
+          mechanicId: 
+          value: 42
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: 9ce532dc7b08c704b89cfe531879cab7, type: 3}
+      b:
+        stableId: tree.v3.class.mage.t10.right.b
+        logicalSlotId: tree.v3.class.mage.t10.right.b
         displayName: Cooldown Reduction
         description: 
-        branch: 29
+        branch: 0
         size: 0
         kind: 6
         keystone: 0
@@ -1686,13 +1694,13 @@ MonoBehaviour:
         - kind: 0
           stat: 126
           mechanicId: 
-          value: 10.8
-        iconMode: 0
-        iconOverride: {fileID: 0}
-      b:
-        stableId: tree.v3.class.mage.t10.right.b
-        logicalSlotId: tree.v3.class.mage.t10.right.b
-        displayName: Critical Multiplier
+          value: 10
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: fa072607bac6ec3408c501f90c3312f9, type: 3}
+      c:
+        stableId: tree.v3.class.mage.t10.right.c
+        logicalSlotId: tree.v3.class.mage.t10.right.c
+        displayName: Critical Damage Multiplier
         description: 
         branch: 21
         size: 0
@@ -1702,25 +1710,9 @@ MonoBehaviour:
         - kind: 0
           stat: 12
           mechanicId: 
-          value: 17.279999
-        iconMode: 0
-        iconOverride: {fileID: 0}
-      c:
-        stableId: tree.v3.class.mage.t10.right.c
-        logicalSlotId: tree.v3.class.mage.t10.right.c
-        displayName: Defense
-        description: 
-        branch: 0
-        size: 0
-        kind: 6
-        keystone: 0
-        effects:
-        - kind: 0
-          stat: 52
-          mechanicId: 
-          value: 10.8
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 37.5
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: 9a8398eb01579964aa1ec1892920d26c, type: 3}
       subclassA:
         stableId: tree.v3.class.mage.t10.right.subclass.variant.mage-cooldown
         logicalSlotId: tree.v3.class.mage.t10.right.subclass
@@ -1757,51 +1749,51 @@ MonoBehaviour:
       a:
         stableId: tree.v3.class.mage.t10.left.a
         logicalSlotId: tree.v3.class.mage.t10.left.a
-        displayName: Shock Chance
+        displayName: Mana Regeneration
         description: 
-        branch: 16
+        branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 44
+          stat: 73
           mechanicId: 
-          value: 10.8
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 9.5
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: ab7da3d106a7057468686ec3be7d8dd5, type: 3}
       b:
         stableId: tree.v3.class.mage.t10.left.b
         logicalSlotId: tree.v3.class.mage.t10.left.b
-        displayName: Fire
+        displayName: Reduced Chill Effect
         description: 
-        branch: 5
+        branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 17
+          stat: 131
           mechanicId: 
-          value: 10.8
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 0
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: 515daee52d8470c4da2c894c21392536, type: 3}
       c:
         stableId: tree.v3.class.mage.t10.left.c
         logicalSlotId: tree.v3.class.mage.t10.left.c
-        displayName: Critical Chance
-        description: 
-        branch: 20
+        displayName: All Elemental Resist
+        description: Fire, Cold and Lightning resistance only; excludes Void.
+        branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 11
+          stat: 57
           mechanicId: 
-          value: 10.8
-        iconMode: 0
-        iconOverride: {fileID: 0}
+          value: 6
+        iconMode: 1
+        iconOverride: {fileID: 21300000, guid: 515daee52d8470c4da2c894c21392536, type: 3}
       subclassA:
         stableId: tree.v3.class.mage.t10.left.subclass.variant.mage-cooldown
         logicalSlotId: tree.v3.class.mage.t10.left.subclass
@@ -1834,3 +1826,37 @@ MonoBehaviour:
           value: 10.8
         iconMode: 0
         iconOverride: {fileID: 0}
+  keystones:
+  - stableId: tree.v3.class.mage.keystone.magefire
+    logicalSlotId: tree.v3.class.mage.keystone.magefire
+    displayName: Fire Commitment
+    description: Discard non-Fire outgoing damage at resolution; 50% MORE Fire Damage.
+    branch: 8
+    size: 2
+    kind: 4
+    keystone: 31
+    effects: []
+    iconMode: 1
+    iconOverride: {fileID: 21300000, guid: 515daee52d8470c4da2c894c21392536, type: 3}
+  - stableId: tree.v3.class.mage.keystone.mageselfbolt
+    logicalSlotId: tree.v3.class.mage.keystone.mageselfbolt
+    displayName: Storm's Price
+    description: 'Once per spell cast: enemy and incoming self Lightning bolts at 35% of the primary single-hit basis. No Crit or recursion; self-hit grants no offensive on-hit effects.'
+    branch: 8
+    size: 2
+    kind: 4
+    keystone: 32
+    effects: []
+    iconMode: 1
+    iconOverride: {fileID: 21300000, guid: 515daee52d8470c4da2c894c21392536, type: 3}
+  - stableId: tree.v3.class.mage.keystone.mageshatter
+    logicalSlotId: tree.v3.class.mage.keystone.mageshatter
+    displayName: Stormglass
+    description: Freeze at 75% Chill Effect. Lightning against Frozen targets deals 1.5x Lightning damage, consumes Freeze and Shatters for 10% target max Life as Cold.
+    branch: 8
+    size: 2
+    kind: 4
+    keystone: 33
+    effects: []
+    iconMode: 1
+    iconOverride: {fileID: 21300000, guid: 515daee52d8470c4da2c894c21392536, type: 3}

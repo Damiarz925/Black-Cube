@@ -47,7 +47,7 @@ public static class AilmentEligibilityResolver
         if(effect==null||context.Hits==null)return 0f;
         ElementMask mask=ResolveMask(effect,context,attacker);float total=0f;
         foreach(ElementalHit hit in context.Hits)
-            if(hit.Amount>0f&&(mask&Mask(hit.Element))!=0)total+=hit.Amount;
+            if(hit.Amount>0f&&(mask&Mask(EligibilityElement(effect,hit.Element,attacker)))!=0)total+=hit.Amount;
         return total;
     }
 
@@ -55,9 +55,12 @@ public static class AilmentEligibilityResolver
     {
         var result=new DamageContext(source.Hits?.Count??0){IsCrit=source.IsCrit,CritMultiplier=source.CritMultiplier,Scopes=source.Scopes,IsPrecision=source.IsPrecision,PrecisionMultiplier=source.PrecisionMultiplier,WeaponMechanicsApplied=source.WeaponMechanicsApplied,EventTags=source.EventTags};
         if(source.Hits==null)return result;ElementMask mask=ResolveMask(effect,source,attacker);
-        foreach(ElementalHit hit in source.Hits)if(hit.Amount>0f&&(mask&Mask(hit.Element))!=0)result.AddDamage(hit.Element,hit.Amount);
+        foreach(ElementalHit hit in source.Hits)if(hit.Amount>0f&&(mask&Mask(EligibilityElement(effect,hit.Element,attacker)))!=0)result.AddDamage(hit.Element,hit.Amount);
         return result;
     }
 
     static ElementMask Mask(Element element)=>element==Element.Poison?ElementMask.Void:(ElementMask)(1<<(int)element);
+    // Preserve Physical source scaling/Bleed basis, but converted Physical may Ignite.
+    static Element EligibilityElement(StatusEffects effect,Element source,StatsComponent attacker)
+        =>effect?.Ailment==StatusEffects.AilmentKind.Ignite?CombatCalculator.ResolvedElement(source,attacker):source;
 }

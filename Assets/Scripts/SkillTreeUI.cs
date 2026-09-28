@@ -96,6 +96,7 @@ public sealed class SkillTreeUI : MonoBehaviour
                 BindGroup(tier.left, native, tier.spine);
                 BindGroup(tier.right, native, tier.spine);
             }
+            if(branch.keystoneSlot!=null)BindSlot(branch.keystoneSlot);
         }
         foreach (PassiveConnectionBinding line in authoredView.connections)
         {
@@ -264,11 +265,9 @@ public sealed class SkillTreeUI : MonoBehaviour
             return;
         }
         var effects=node.IsSubclassChoice?PassiveTreeDefinition.SubclassEffects(Identity != null ? Identity.SelectedSubclassId : null,node):node.Effects;
-        string bonus = effects.Length==0
-            ? "NO STAT BONUS"
-            : $"+{effects[0].Amount:0.##}{(StatsComponent.IsPercentStat(effects[0].Stat)?"%":"")} {StatDisplayFormatting.ToFriendlyName(effects[0].Stat)}";
+        string bonus = effects.Length==0 ? "NO STAT BONUS" : string.Join(" / ",System.Array.ConvertAll(effects,e=>$"{StatsComponent.ToDisplayedValue(e.Stat,e.Amount):+0.##;-0.##;0}{(StatsComponent.IsPercentStat(e.Stat)?"%":"")} {StatDisplayFormatting.ToFriendlyName(e.Stat)}"));
         string title=node.IsSubclassChoice?(Identity != null ? Identity.SelectedSubclassId : "SUBCLASS CHOICE"):node.DisplayName;
-        details.text = $"<b>{StatDisplayFormatting.PlayerFacingText(title).ToUpperInvariant()} / TIER {node.Tier}</b>     {bonus}\n<size=13>{state}</size>";
+        details.text = $"<b>{StatDisplayFormatting.PlayerFacingText(title).ToUpperInvariant()} / TIER {node.Tier}</b>     {bonus}\n<size=13>{state}\n{node.Description}</size>";
     }
 
     bool HasAllocatedConnection(int nodeId)
@@ -291,7 +290,7 @@ public sealed class SkillTreeUI : MonoBehaviour
         return branch switch
         {
             PassiveBranch.IncreasedProjectileAmount => $"+{number} PROJECTILES",
-            PassiveBranch.LifeRegeneration => $"+{number} LIFE/SECOND",
+            PassiveBranch.LifeRegeneration => $"+{number} % MAX LIFE/SECOND",
             PassiveBranch.ManaRegeneration => $"+{number} MANA/SECOND",
             PassiveBranch.EmptyTravel => "NO STAT BONUS",
             _ => $"+{number}%"
@@ -397,15 +396,17 @@ public sealed class SkillTreeUI : MonoBehaviour
     int Chosen(PassiveChoiceSlotView slot){if(progression!=null)foreach(int id in PassiveTreeDefinition.ChoiceNodes(slot.choiceGroupId))if(progression.IsAllocated(id))return id;return -1;}
     void RefreshSlot(PassiveChoiceSlotView slot)
     {
-        int chosen=Chosen(slot);bool visible=slot.choiceGroupId.Contains(".class."+progression.ActiveClassId.Replace("class.","")+".");slot.gameObject.SetActive(visible);if(!visible)return;
+        int chosen=Chosen(slot);var choices=new List<int>(PassiveTreeDefinition.ChoiceNodes(slot.choiceGroupId));bool visible=choices.Count>0&&presentation.Visible(PassiveTreeDefinition.Node(choices[0]));slot.gameObject.SetActive(visible);if(!visible)return;
         var authored=chosen>=0?PassiveTreeDefinition.AuthoredNode(PassiveTreeDefinition.Node(chosen),Identity != null ? Identity.SelectedSubclassId : null):null;
         slot.icon.sprite=authored!=null?PassiveTreeDefinition.Database.IconLibrary.Resolve(authored,PassiveNodeVisualState.Allocated):slot.emptyIcon;
+        bool keystone=slot.choiceGroupId.EndsWith(".keystone",System.StringComparison.Ordinal);bool eligible=!keystone||ClassPassiveProgressionRules.KeystoneEligible(PassiveTreeDefinition.Node(choices[0]).RouteClassId,progression.IsAllocated);
         slot.icon.enabled=chosen>=0; if(slot.emptyGlow!=null)slot.emptyGlow.gameObject.SetActive(chosen<0);
-        slot.icon.color=chosen>=0?Color.white:new Color(1f,.65f,.2f);slot.label.text=chosen>=0?StatDisplayFormatting.PlayerFacingText(authored.DisplayName):"CHOOSE";
-        slot.button.interactable=true;
+        if(slot.emptyGlow!=null)slot.emptyGlow.color=eligible?new Color(1,.65f,.2f):new Color(.25f,.25f,.25f);
+        slot.icon.color=chosen>=0?Color.white:new Color(1f,.65f,.2f);slot.label.text=chosen>=0?StatDisplayFormatting.PlayerFacingText(authored.DisplayName):keystone?(eligible?"CHOOSE KEYSTONE":"KEYSTONE — LOCKED"):"CHOOSE";
+        slot.button.interactable=chosen>=0||eligible;
     }
     public void DescribeSlot(PassiveChoiceSlotView slot)
-    {if(slot==null||!slot.gameObject.activeInHierarchy)return;int chosen=Chosen(slot);if(chosen>=0)ShowDetails(chosen);else if(details!=null)details.text="CHOOSE A PASSIVE — allocate this tier's Strength spine first. One point buys one alternative. Right-click an allocated slot to refund.";}
+    {if(slot==null||!slot.gameObject.activeInHierarchy)return;int chosen=Chosen(slot);if(chosen>=0)ShowDetails(chosen);else if(details!=null)details.text="CHOOSE A PASSIVE — allocate this tier's attribute spine first. One point buys one alternative. Right-click an allocated slot to refund.";}
     public void RefundSlot(PassiveChoiceSlotView slot){if(slot==null||!slot.gameObject.activeInHierarchy)return;int chosen=Chosen(slot);if(chosen>=0)Refund(chosen);}
     void OpenSlot(PassiveChoiceSlotView slot)
     {
@@ -417,9 +418,10 @@ public sealed class SkillTreeUI : MonoBehaviour
             var button=popup.options[i];button.gameObject.SetActive(i<choices.Count);if(i>=choices.Count)continue;int id=choices[i];var node=PassiveTreeDefinition.Node(id);
             var identity=Identity;var authored=PassiveTreeDefinition.AuthoredNode(node,identity != null ? identity.SelectedSubclassId : null);
             bool locked=node.IsSubclassChoice&&(identity?.SubclassChoiceUnlocked!=true||string.IsNullOrEmpty(identity.SelectedSubclassId));
+            button.gameObject.SetActive(!locked);
             string text=locked?"SUBCLASS — LOCKED":authored.DisplayName;
-            if(!locked)foreach(var effect in authored.Effects)text+=$"\n+{effect.Value:0.##}{(StatsComponent.IsPercentStat(effect.Stat)?"%":"")} {StatDisplayFormatting.ToFriendlyName(effect.Stat)}";
-            button.GetComponentInChildren<TMP_Text>().text=text;button.interactable=progression.CanSpend(id);button.onClick.RemoveAllListeners();button.onClick.AddListener(()=>{if(progression.TrySpend(id)){popup.gameObject.SetActive(false);Refresh();ShowDetails(id);}});
+            if(!locked){foreach(var effect in authored.Effects)text+=$"\n{StatsComponent.ToDisplayedValue(effect.Stat,effect.Value):+0.##;-0.##;0}{(StatsComponent.IsPercentStat(effect.Stat)?"%":"")} {StatDisplayFormatting.ToFriendlyName(effect.Stat)}";if(!string.IsNullOrEmpty(authored.Description))text+="\n"+authored.Description;}
+            var optionLabel=button.GetComponentInChildren<TMP_Text>();optionLabel.text=text;optionLabel.enableAutoSizing=true;optionLabel.fontSizeMin=10;optionLabel.fontSizeMax=16;button.interactable=progression.CanSpend(id);button.onClick.RemoveAllListeners();button.onClick.AddListener(()=>{if(progression.TrySpend(id)){popup.gameObject.SetActive(false);Refresh();ShowDetails(id);}});
             if(i<popup.icons.Count){popup.icons[i].sprite=locked?slot.emptyIcon:PassiveTreeDefinition.Database.IconLibrary.Resolve(authored);popup.icons[i].enabled=popup.icons[i].sprite!=null;popup.icons[i].preserveAspect=true;}
         }
         popup.close.onClick.RemoveAllListeners();popup.close.onClick.AddListener(()=>popup.gameObject.SetActive(false));popup.gameObject.SetActive(true);popup.transform.SetAsLastSibling();
@@ -430,6 +432,8 @@ public sealed class SkillTreeUI : MonoBehaviour
         if (!IsOpen || presentation == null || scroll?.viewport == null) return;
         Vector2 size=scroll.viewport.rect.size;if(size==lastViewportSize)return;lastViewportSize=size;presentation.RecalculateFit();treeZoom=Mathf.Clamp(treeZoom,presentation.FitZoom,presentation.MaximumZoom);scroll.content.localScale=Vector3.one*treeZoom;
     }
+    public void SyncPresentationZoom(float value){treeZoom=value;}
+    public void RefreshPresentation()=>Refresh();
 }
 
 public enum PassiveNodeVisualState

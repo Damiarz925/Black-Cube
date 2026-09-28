@@ -226,6 +226,8 @@ public class PlayerController : MonoBehaviour
 
     public DamageContext BuildNonCriticalConvertedAttackContext(Element conversionElement, float nonMatchingConversion)
         => ApplyKeystones(BuildNonCriticalConvertedRaw(conversionElement, nonMatchingConversion, false));
+    public DamageContext BuildNonCriticalAttackContext(Element conversionElement,float conversion,DamageScope scopes)
+    {var ctx=BuildNonCriticalConvertedAttackContext(conversionElement,conversion);ctx.Scopes=scopes;return ctx;}
 
     DamageContext BuildNonCriticalConvertedRaw(Element conversionElement, float nonMatchingConversion, bool rollWeapon)
     {
@@ -371,7 +373,13 @@ public class PlayerController : MonoBehaviour
     {
         if (equippedWeapon == null) return 0f;  //If equipped weapon is null return
 
-        float weaponCrit = equippedWeapon.GetEffectiveBaseCrit(stats.GetStat(StatTypes.BaseCritChance));
+        float additionalBase=0;
+        if(GetComponent<PassiveKeystoneState>()?.Has(PassiveKeystone.ThiefAilmentCrit)==true)
+        {
+            var target=FindFirstObjectByType<BattleManager>()?.CurrentEnemyTransform?.GetComponent<StatusController>();
+            additionalBase=ClassKeystoneMechanics.AilmentBaseCrit(target?.DistinctAilmentCount()??0);
+        }
+        float weaponCrit = equippedWeapon.GetEffectiveBaseCrit(stats.GetStat(StatTypes.BaseCritChance)+additionalBase);
         float incCritGlobal = stats.GetStat(StatTypes.CritChance);        // 0.5 for +50% increased crit
         // ALL flat base points precede local and global increased buckets.
         float final = weaponCrit * (1f + incCritGlobal);
@@ -389,7 +397,7 @@ public class PlayerController : MonoBehaviour
         float weaponAS = equippedWeapon.GetEffectiveAttackSpeed();  //Grabs the weapon's base attack speed (base speed * local weapon attack speed modifier)
         float incASGlobal = stats.GetStat(StatTypes.AttackSpeed) + DerivedStatCalculator.AttackSpeedIncreased(stats); //Gets the player's global attack speed modifier
 
-        var subclass=GetComponent<SubclassCombatState>();if(subclass?.Has(SubclassIds.PriestLight)==true)incASGlobal+=subclass.AuraSecondary(0,.10f);
+        var subclass=GetComponent<SubclassCombatState>();if(subclass!=null)incASGlobal+=subclass.AuraSecondary(0,.10f);
         return weaponAS * (1f + incASGlobal) * KeystoneAttackSpeedMultiplier() * RelicAttackSpeedMultiplier();
     }
 

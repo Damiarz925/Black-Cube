@@ -9,6 +9,9 @@ public sealed class PassiveClassBranchSO : PassiveBranchDataSO
     [SerializeField] string subclassAId = string.Empty;
     [SerializeField] string subclassBId = string.Empty;
     [SerializeField] List<PassiveClassTierData> tiers = new();
+    [SerializeField] List<PassiveAuthoredNode> keystones = new();
+    public IReadOnlyList<PassiveAuthoredNode> Keystones => keystones;
+    public void ConfigureKeystones(List<PassiveAuthoredNode> choices) => keystones = choices ?? new();
     public string ClassId => classId ?? string.Empty;
     public string SignatureWeaponId => signatureWeaponId ?? string.Empty;
     public string SubclassAId => subclassAId ?? string.Empty;
@@ -19,6 +22,7 @@ public sealed class PassiveClassBranchSO : PassiveBranchDataSO
     public override IEnumerable<PassiveAuthoredNode> AllAuthoredNodes()
     {
         foreach (var tier in tiers) { yield return tier.Spine; foreach (var node in tier.Left.GenericNodes) yield return node; yield return tier.Left.SubclassA; yield return tier.Left.SubclassB; foreach (var node in tier.Right.GenericNodes) yield return node; yield return tier.Right.SubclassA; yield return tier.Right.SubclassB; }
+        foreach (var node in keystones) yield return node;
     }
     public void Configure(string id, string weaponId, string firstSubclassId, string secondSubclassId, List<PassiveClassTierData> authoredTiers)
     { classId = id ?? string.Empty; signatureWeaponId = weaponId ?? string.Empty; subclassAId = firstSubclassId ?? string.Empty; subclassBId = secondSubclassId ?? string.Empty; tiers = authoredTiers ?? new(); }

@@ -25,7 +25,7 @@ public static class UIAuthoringValidation
     public static string[] ValidatePassiveBranch(PassiveBranchDataSO branch)
     {
         var errors = new List<string>(); if (branch == null) return new[] { "Branch asset is missing." };
-        int expected = branch is PassiveClassBranchSO ? 10 : 5; if (branch.TierCount != expected) errors.Add($"{branch.name}: expected {expected} tiers, found {branch.TierCount}.");
+        int expected = branch is PassiveClassBranchSO ? 10 : 7; if (branch.TierCount != expected) errors.Add($"{branch.name}: expected {expected} tiers, found {branch.TierCount}.");
         if (string.IsNullOrWhiteSpace(branch.RouteId)) errors.Add(branch.name + ": route ID is missing.");
         var ids = new HashSet<string>(StringComparer.Ordinal);
         foreach (PassiveAuthoredNode node in branch.AllAuthoredNodes())
@@ -95,7 +95,7 @@ public static class UIAuthoringValidation
                     if (tier.leftSlot != null || tier.rightSlot != null)
                     {
                         foreach (var slot in new[] { tier.leftSlot, tier.rightSlot })
-                            if (slot == null || slot.button == null || slot.icon == null || PassiveTreeDefinition.ChoiceNodes(slot.choiceGroupId).Count() != 4)
+                            if (slot == null || slot.button == null || slot.icon == null || PassiveTreeDefinition.ChoiceNodes(slot.choiceGroupId).Count() != (branch.Data is PassiveClassBranchSO?4:3))
                                 errors.Add(path + ": invalid collapsed passive choice slot.");
                         continue;
                     }

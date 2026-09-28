@@ -12,6 +12,7 @@ public sealed class PassiveBranchBinding : MonoBehaviour
     public string RouteId => routeId ?? string.Empty;
     public PassiveBranchDataSO Data => data;
     public IReadOnlyList<PassiveTierViewBinding> Tiers => tiers;
+    public PassiveChoiceSlotView keystoneSlot;
     public bool ShowAuthoringLabels { get => showAuthoringLabels; set { showAuthoringLabels = value; RefreshAuthoringPreview(); } }
     public IEnumerable<PassiveNodeBinding> AllNodes() { foreach (var tier in tiers) { if (tier?.spine != null) yield return tier.spine; if (tier?.left != null) foreach (var node in tier.left.Nodes) if (node != null) yield return node; if (tier?.right != null) foreach (var node in tier.right.Nodes) if (node != null) yield return node; } }
     public PassiveNodeBinding Find(string logicalSlotId) { foreach (var node in AllNodes()) if (node.LogicalSlotId == logicalSlotId) return node; return null; }

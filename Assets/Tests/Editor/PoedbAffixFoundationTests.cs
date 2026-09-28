@@ -121,12 +121,12 @@ public sealed class PoedbAffixFoundationTests
             LootManager.GearType.Helmets,out var helmet),Is.True);
         Assert.That(helmet.Count,Is.EqualTo(9));
         Assert.That((helmet[0].minItemLevel,helmet[0].minValue,
-            helmet[8].minItemLevel,helmet[8].maxValue),Is.EqualTo((1,1f,78,128f)));
+            helmet[8].minItemLevel,helmet[8].maxValue),Is.EqualTo((1,.01f,78,1.28f)));
         Assert.That(PoedbAffixCatalog.TryGet(StatTypes.LifeRegeneration,
             LootManager.GearType.BodyArmours,out var body),Is.True);
         Assert.That(body.Count,Is.EqualTo(11));
         Assert.That((body[10].minItemLevel,body[10].minValue,body[10].maxValue),
-            Is.EqualTo((86,152.1f,176f)));
+            Is.EqualTo((86,1.521f,1.76f)));
         Assert.That(AffixPolicy.Side(StatTypes.LifeRegeneration),Is.EqualTo(AffixSide.Suffix));
         Assert.That(PoedbAffixCatalog.TryGet(StatTypes.ManaRegeneration,
             LootManager.GearType.BodyArmours,out _),Is.False,

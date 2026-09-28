@@ -124,8 +124,7 @@ public static class AilmentCalculator
         if(effect.Ailment==StatusEffects.AilmentKind.Ignite)
         {
             var light=attacker.GetComponent<SubclassCombatState>();
-            if(light?.Has(SubclassIds.PriestLight)==true)
-                tickCount=Mathf.Max(1,Mathf.CeilToInt(tickCount*(1f+light.AuraSecondary(1,.25f))));
+            tickCount+=light?.AuraIgniteTicks??0;
         }
 
         // Preserve the configured base-duration coefficient. Extra duration adds

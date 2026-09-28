@@ -12,7 +12,7 @@ public sealed class UIAuthoringTests
     [Test] public void PassiveAssetsLoadWithExpectedTiersAndUniqueIds()
     {
         PassiveTreeDatabaseSO database=AssetDatabase.LoadAssetAtPath<PassiveTreeDatabaseSO>(PassiveTreeAuthoringMigration.DatabasePath);Assert.That(database,Is.Not.Null);Assert.That(database.ClassBranches.Count,Is.EqualTo(6));Assert.That(database.WeaponBranches.Count,Is.EqualTo(6));
-        Assert.That(database.ClassBranches.All(x=>x!=null&&x.TierCount==10),Is.True);Assert.That(database.WeaponBranches.All(x=>x!=null&&x.TierCount==5),Is.True);
+        Assert.That(database.ClassBranches.All(x=>x!=null&&x.TierCount==10),Is.True);Assert.That(database.WeaponBranches.All(x=>x!=null&&x.TierCount==7),Is.True);
         string[] ids=database.ClassBranches.Cast<PassiveBranchDataSO>().Concat(database.WeaponBranches).SelectMany(x=>x.AllAuthoredNodes()).Where(x=>x!=null&&!string.IsNullOrEmpty(x.StableId)).Select(x=>x.StableId).ToArray();Assert.That(ids.Distinct().Count(),Is.EqualTo(ids.Length));Assert.That(UIAuthoringValidation.ValidateAll(),Is.Empty);
     }
 
@@ -40,7 +40,7 @@ public sealed class UIAuthoringTests
     [Test] public void ProductionPrefabsContainRequiredSerializedViews()
     {
         GameObject battle=AssetDatabase.LoadAssetAtPath<GameObject>(PersistentUIAuthoringInstaller.GameplayPrefabPath);Assert.That(battle,Is.Not.Null);PaperBattleHUD hud=battle.GetComponentInChildren<PaperBattleHUD>(true);Assert.That(hud,Is.Not.Null);Assert.That(hud.GetComponent<GameplayHUDView>(),Is.Not.Null);Assert.That(hud.GetComponent<SkillTreeUI>(),Is.Not.Null);Assert.That(battle.GetComponentInChildren<PassiveTreeView>(true),Is.Not.Null);
-        GameObject tree=AssetDatabase.LoadAssetAtPath<GameObject>(PassiveTreePrefabBuilder.PrefabPath);PassiveTreeView view=tree.GetComponent<PassiveTreeView>();Assert.That(view,Is.Not.Null);Assert.That(view.scroll,Is.Not.Null);Assert.That(view.closeButton,Is.Not.Null);Assert.That(view.AllNodes.Count(),Is.GreaterThan(750));
+        GameObject tree=AssetDatabase.LoadAssetAtPath<GameObject>(PassiveTreePrefabBuilder.PrefabPath);PassiveTreeView view=tree.GetComponent<PassiveTreeView>();Assert.That(view,Is.Not.Null);Assert.That(view.scroll,Is.Not.Null);Assert.That(view.closeButton,Is.Not.Null);Assert.That(view.AllNodes.Count(),Is.EqualTo(102));Assert.That(tree.GetComponentsInChildren<PassiveChoiceSlotView>(true).Length,Is.EqualTo(210));
     }
 
     [Test] public void InventoryPrefabContainsAuthoredFixedLayoutAndBindings()

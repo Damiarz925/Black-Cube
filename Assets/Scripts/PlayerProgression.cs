@@ -2,6 +2,7 @@
 // Allocations replace stat modifiers by this component as source; encounter restart retains them.
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 /// <summary>Session progression lives with GameManager; encounter restart never resets it.</summary>
@@ -15,6 +16,23 @@ public sealed class PlayerProgression : MonoBehaviour
     [SerializeField] double experience;
     [SerializeField] int availablePoints = 1;
     [SerializeField] int[] ranks = new int[PassiveTreeDefinition.NodeCount];
+    [SerializeField] List<string> selectedClassRoutes = new();
+    [SerializeField] string selectedWeaponTreeId = string.Empty;
+    public IReadOnlyList<string> SelectedClassRoutes => selectedClassRoutes;
+    public string SelectedWeaponTreeId => selectedWeaponTreeId;
+    public bool NativeClassComplete => ClassPassiveProgressionRules.ClassComplete(ActiveClassId,IsAllocated);
+    public bool CanSelectAdditionalClass => ClassPassiveProgressionRules.CanSelectRoute(ActiveClassId,selectedClassRoutes,IsAllocated);
+    public bool CanSelectWeaponTree => NativeClassComplete&&string.IsNullOrEmpty(selectedWeaponTreeId);
+    public bool TrySelectClassRoute(string classId)
+    {
+        if(!CanSelectAdditionalClass||!PlayerClassCatalog.IsValid(classId)||classId==ActiveClassId||selectedClassRoutes.Contains(classId))return false;
+        selectedClassRoutes.Add(classId);Changed?.Invoke();GamePersistence.MarkDirty();return true;
+    }
+    public bool TrySelectWeaponTree(string weaponId)
+    {
+        if(!CanSelectWeaponTree||!WeaponTypeCatalog.IsValid(weaponId))return false;
+        selectedWeaponTreeId=weaponId;Changed?.Invoke();GamePersistence.MarkDirty();return true;
+    }
 
     const double ReqAtLevel10Xp = 300d;
     const double ReqAtLevel16Xp = 619d;
@@ -54,7 +72,6 @@ public sealed class PlayerProgression : MonoBehaviour
     public bool HasKeystone(PassiveKeystone keystone)
     {
         if (keystone == PassiveKeystone.None) return false;
-        if(keystone==PassiveKeystone.RageFinisher)return IsAllocated(PassiveTreeDefinition.RageFinisherNodeId);
         foreach(var node in PassiveTreeDefinition.Nodes)
             if(node.Keystone==keystone&&IsAllocated(node.Id))return true;
         return false;
@@ -66,10 +83,12 @@ public sealed class PlayerProgression : MonoBehaviour
     {
         if(node<0||node>=PassiveTreeDefinition.NodeCount||availablePoints<1||IsAllocated(node))return false;
         var n=PassiveTreeDefinition.Node(node);
+        if(n.IsClassRoute&&n.RouteClassId!=ActiveClassId&&!selectedClassRoutes.Contains(n.RouteClassId))return false;
+        if(n.IsWeaponRoute&&(!NativeClassComplete||n.RouteWeaponId!=selectedWeaponTreeId))return false;
         if(n.IsSubclassChoice){var state=identity??=GetComponent<PlayerIdentityState>();if(n.RouteClassId!=ActiveClassId||state?.SubclassChoiceUnlocked!=true||string.IsNullOrEmpty(state.SelectedSubclassId))return false;}
-        if(n.IsChoice){if(!IsAllocated(n.PrerequisiteId))return false;foreach(int sibling in PassiveTreeDefinition.ChoiceNodes(n.ChoiceGroupId))if(IsAllocated(sibling))return false;return true;}
-        if(n.Kind==PassiveNodeKind.Spine){if(n.Tier==1)return n.RouteClassId==ActiveClassId||NativeSpineComplete;return IsAllocated(PassiveTreeDefinition.ClassSpineNode(n.RouteClassId,n.Tier-1));}
-        if(n.Kind==PassiveNodeKind.WeaponSpine){if(n.Tier==1)return PassiveTreeDefinition.IsClassSpineComplete(PassiveTreeDefinition.WeaponClass(n.RouteWeaponId),IsAllocated);return IsAllocated(PassiveTreeDefinition.WeaponSpineNode(n.RouteWeaponId,n.Tier-1));}
+        if(n.IsChoice){if(n.Kind==PassiveNodeKind.Keystone){if(!ClassPassiveProgressionRules.KeystoneEligible(n.RouteClassId,IsAllocated))return false;}else if(!IsAllocated(n.PrerequisiteId))return false;foreach(int sibling in PassiveTreeDefinition.ChoiceNodes(n.ChoiceGroupId))if(IsAllocated(sibling))return false;return true;}
+        if(n.Kind==PassiveNodeKind.Spine){if(n.Tier==1)return true;return IsAllocated(PassiveTreeDefinition.ClassSpineNode(n.RouteClassId,n.Tier-1));}
+        if(n.Kind==PassiveNodeKind.WeaponSpine){if(n.Tier==1)return true;return IsAllocated(PassiveTreeDefinition.WeaponSpineNode(n.RouteWeaponId,n.Tier-1));}
         return false;
     }
 
@@ -88,17 +107,8 @@ public sealed class PlayerProgression : MonoBehaviour
     public bool CanRefund(int node)
     {
         if (!IsAllocated(node)) return false;
-        var n=PassiveTreeDefinition.Node(node);if(n.IsChoice)return true;
-        if(n.Kind==PassiveNodeKind.Spine)
-        {
-            for(int t=n.Tier+1;t<=10;t++)if(IsAllocated(PassiveTreeDefinition.ClassSpineNode(n.RouteClassId,t)))return false;
-            foreach(int id in PassiveTreeDefinition.RouteNodes(n.RouteClassId))if(id!=node&&IsAllocated(id)&&PassiveTreeDefinition.Node(id).Tier>=n.Tier)return false;
-            string weapon=PassiveTreeDefinition.SignatureWeapon(n.RouteClassId);foreach(int id in PassiveTreeDefinition.RouteNodes(null,weapon))if(IsAllocated(id))return false;
-            if(n.RouteClassId==ActiveClassId)foreach(var other in PassiveTreeDefinition.ClassIds)if(other!=ActiveClassId)foreach(int id in PassiveTreeDefinition.RouteNodes(other))if(IsAllocated(id))return false;
-            return true;
-        }
-        if(n.Kind==PassiveNodeKind.WeaponSpine){for(int t=n.Tier+1;t<=5;t++)if(IsAllocated(PassiveTreeDefinition.WeaponSpineNode(n.RouteWeaponId,t)))return false;foreach(int id in PassiveTreeDefinition.RouteNodes(null,n.RouteWeaponId))if(id!=node&&IsAllocated(id)&&PassiveTreeDefinition.Node(id).Tier>=n.Tier)return false;return true;}
-        return false;
+        var copy=CopyRanks();copy[node]=0;
+        return ClassPassiveProgressionRules.Validate(copy,ActiveClassId,(identity??=GetComponent<PlayerIdentityState>())?.SelectedSubclassId,selectedClassRoutes,selectedWeaponTreeId);
     }
 
     public bool TryRefund(int node)
@@ -116,6 +126,7 @@ public sealed class PlayerProgression : MonoBehaviour
     public void RefundAll()
     {
         int refunded=0;for(int i=0;i<ranks.Length;i++)if(ranks[i]!=0){ranks[i]=0;refunded++;}
+        selectedClassRoutes.Clear();selectedWeaponTreeId=string.Empty;
         availablePoints+=refunded;BindStats();ApplySkills();Changed?.Invoke();GamePersistence.MarkDirty();
     }
 
@@ -166,12 +177,13 @@ public sealed class PlayerProgression : MonoBehaviour
         experience = 0;
         availablePoints = 1;
         ranks = new int[PassiveTreeDefinition.NodeCount];
+        selectedClassRoutes.Clear();selectedWeaponTreeId=string.Empty;
         BindStats();
         ApplySkills();
         Changed?.Invoke();
     }
 
-    public bool RestoreProgression(int restoredLevel, double restoredExperience, int restoredAvailablePoints, int[] restoredRanks)
+    public bool RestoreProgression(int restoredLevel, double restoredExperience, int restoredAvailablePoints, int[] restoredRanks, IReadOnlyList<string> routes = null, string weapon = null)
     {
         if (restoredLevel < 1 || restoredLevel > Mathf.Max(1, maxLevel) || double.IsNaN(restoredExperience)
             || double.IsInfinity(restoredExperience) || restoredExperience < 0d || restoredAvailablePoints < 0
@@ -185,11 +197,13 @@ public sealed class PlayerProgression : MonoBehaviour
             allocated += restoredRanks[i];
         }
         if (allocated + restoredAvailablePoints != restoredLevel) return false;
-        if(!ValidateAllocationState(restoredRanks,ActiveClassId,(identity??=GetComponent<PlayerIdentityState>())?.SelectedSubclassId))return false;
+        routes??=Array.Empty<string>();weapon??=string.Empty;
+        if(!ClassPassiveProgressionRules.Validate(restoredRanks,ActiveClassId,(identity??=GetComponent<PlayerIdentityState>())?.SelectedSubclassId,routes,weapon))return false;
         level = restoredLevel;
         experience = restoredExperience;
         availablePoints = restoredAvailablePoints;
         ranks = (int[])restoredRanks.Clone();
+        selectedClassRoutes=new List<string>(routes);selectedWeaponTreeId=weapon;
         BindStats();
         ApplySkills();
         Changed?.Invoke();
@@ -255,20 +269,10 @@ public sealed class PlayerProgression : MonoBehaviour
     void OnIdentityChanged(){if(boundStats==null)return;ApplySkills();Changed?.Invoke();}
 
     public int RefundSubclassChoiceNodes()
-    {int count=0;for(int i=0;i<ranks.Length;i++)if(ranks[i]!=0&&PassiveTreeDefinition.Node(i).IsSubclassChoice){ranks[i]=0;availablePoints++;count++;}if(count>0){ApplySkills();Changed?.Invoke();GamePersistence.MarkDirty();}return count;}
-    public static bool ValidateAllocationState(int[] values,string homeClass,string selectedSubclass)
+    {int count=ranks.Where((rank,id)=>rank!=0&&PassiveTreeDefinition.Node(id).IsSubclassChoice).Count();if(count>0){var copy=CopyRanks();for(int i=0;i<copy.Length;i++)if(PassiveTreeDefinition.Node(i).IsSubclassChoice)copy[i]=0;if(!ClassPassiveProgressionRules.Validate(copy,ActiveClassId,null,selectedClassRoutes,selectedWeaponTreeId)){RefundAll();return count;}ranks=copy;availablePoints+=count;ApplySkills();Changed?.Invoke();GamePersistence.MarkDirty();}return count;}
+    public static bool ValidateAllocationState(int[] values,string homeClass,string selectedSubclass,IReadOnlyList<string> routes=null,string weapon=null)
     {
-        if(values==null||values.Length!=PassiveTreeDefinition.NodeCount||!PlayerClassCatalog.IsValid(homeClass))return false;
-        bool A(int id)=>id>=0&&id<values.Length&&values[id]!=0;bool nativeComplete=PassiveTreeDefinition.IsClassSpineComplete(homeClass,A);
-        foreach(var n in PassiveTreeDefinition.Nodes)if(A(n.Id))
-        {
-            if(values[n.Id]!=1)return false;
-            if(n.IsChoice){if(!A(n.PrerequisiteId)||n.IsSubclassChoice&&(n.RouteClassId!=homeClass||string.IsNullOrEmpty(selectedSubclass)))return false;int chosen=0;foreach(int id in PassiveTreeDefinition.ChoiceNodes(n.ChoiceGroupId))if(A(id))chosen++;if(chosen>1)return false;}
-            else if(n.Kind==PassiveNodeKind.Spine){if(n.Tier==1){if(n.RouteClassId!=homeClass&&!nativeComplete)return false;}else if(!A(PassiveTreeDefinition.ClassSpineNode(n.RouteClassId,n.Tier-1)))return false;}
-            else if(n.Kind==PassiveNodeKind.WeaponSpine){if(n.Tier==1){if(!PassiveTreeDefinition.IsClassSpineComplete(PassiveTreeDefinition.WeaponClass(n.RouteWeaponId),A))return false;}else if(!A(PassiveTreeDefinition.WeaponSpineNode(n.RouteWeaponId,n.Tier-1)))return false;}
-            else return false;
-        }
-        return true;
+        return ClassPassiveProgressionRules.Validate(values,homeClass,selectedSubclass,routes??Array.Empty<string>(),weapon??string.Empty);
     }
 
     void AddPercent(StatTypes stat, PassiveBranch branch)

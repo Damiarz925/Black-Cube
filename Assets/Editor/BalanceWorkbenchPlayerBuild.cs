@@ -33,6 +33,7 @@ namespace BlackCube.BalanceWorkbench
     [Serializable] public sealed class PlayerBuildSnapshot
     {
         public int playerLevel=50,combatLevel=50;public string classId=PlayerClassIds.Warrior,subclassId="",weaponTypeId=WeaponTypeIds.Sword;public SubclassProjectileMode projectileMode;
+        public List<string> selectedClassRoutes=new();public string selectedWeaponTreeId="";
         public List<GearSnapshot> equipment=new();public List<string> passiveStableIds=new();public List<AnalysisStatDelta> analysisDeltas=new();public long seed=41001;public string dataFingerprint,gearProfileGuid;public int gearProfileVersion;
         public PlayerBuildSnapshot Clone()=>JsonUtility.FromJson<PlayerBuildSnapshot>(JsonUtility.ToJson(this));
         public int[] AllocationRanks(){var r=new int[PassiveTreeDefinition.NodeCount];foreach(string id in passiveStableIds??new())if(PassiveTreeDefinition.TryNode(id,out var n))r[n.Id]=1;return r;}
@@ -72,6 +73,7 @@ namespace BlackCube.BalanceWorkbench
             var definitions=catalog?.skills??PlayerSkillDefinition.CreateProductionDefaults();
             if(!boundSkills.All(id=>definitions.Any(x=>x!=null&&x.id==id)))
                 definitions=PlayerSkillDefinition.CreateProductionDefaults();
+            definitions=PlayerSkillDefinition.UpgradeProjectileDefinitions(definitions);
             foreach(var definition in definitions)
                 if(definition!=null&&!skillDefinitions.ContainsKey(definition.id))
                     skillDefinitions.Add(definition.id,definition);
@@ -85,6 +87,7 @@ namespace BlackCube.BalanceWorkbench
                 foreach(var delta in build.analysisDeltas??new())Stats.AddModifier(new StatModifier(delta.stat,StatOp.Flat,delta.amount,this));
                 foreach(var snapshot in build.equipment??new()){var g=snapshot.Materialize(root.transform,"Workbench "+snapshot.slot);gear.Add(g);foreach(var m in g.globalRolledMods)Stats.AddModifier(new StatModifier(m.statType,StatMappings.GetRolledModifierOperation(m.statType),m.value,g));if(g.ItemType==LootManager.GearType.Weapons)Player.EquipWeapon(g);}
             }finally{Stats.EndUpdate();}
+            var authoredRanks=build.AllocationRanks();root.AddComponent<PassiveKeystoneState>().ApplyAllocatedNodes(PassiveTreeDefinition.Nodes.Where(n=>authoredRanks[n.Id]!=0));
             Metrics=Capture(build);
         }
         // Passive searches keep level, class, weapon and gear fixed. Reapply only
@@ -93,6 +96,7 @@ namespace BlackCube.BalanceWorkbench
         public PlayerBuildMetrics ReevaluatePassives(PlayerBuildSnapshot build)
         {
             ReusedEvaluationCount++;
+            var ranks=build.AllocationRanks();root.GetComponent<PassiveKeystoneState>().ApplyAllocatedNodes(PassiveTreeDefinition.Nodes.Where(n=>ranks[n.Id]!=0));
             Stats.BeginUpdate();try
             {
                 Stats.RemoveModifiersFromSource(this);
@@ -107,15 +111,32 @@ namespace BlackCube.BalanceWorkbench
         }
         PlayerBuildMetrics Capture(PlayerBuildSnapshot b)
         {
-            var m=new PlayerBuildMetrics();var avg=Player.BuildNonCriticalAttackContext();var lo=Player.BuildNonCriticalAttackContextAtRangeEnd(false);var hi=Player.BuildNonCriticalAttackContextAtRangeEnd(true);m.averageHit=Sum(avg);m.minimumHit=Sum(lo);m.maximumHit=Sum(hi);m.attacksPerSecond=Player.GetFinalAttackSpeed();m.critChance=Player.GetFinalCritChance();m.critMultiplier=CombatCalculator.BaseCriticalMultiplier+Stats.GetStat(StatTypes.CritMult);m.critContribution=m.averageHit*m.critChance*(m.critMultiplier-1);m.hitTwiceChance=Mathf.Clamp01(Stats.GetStat(StatTypes.ChanceToHitTwice));m.hitTwiceContribution=m.averageHit*m.hitTwiceChance;m.basicDps=(m.averageHit+m.critContribution+m.hitTwiceContribution)*m.attacksPerSecond;
+            var keys=Stats.GetComponent<PassiveKeystoneState>();
+            DamageContext SearchHit(DamageContext source)
+            {
+                var result=new DamageContext(source.Hits.Count);
+                float more=(keys?.GenericMoreMultiplier??1)*CombatCalculator.ScopedDamageMultiplier(source.Scopes,Stats);
+                // Sustained search uses the injured-target condition, not the
+                // one-time opening bonus. Combat Lab resolves the actual sequence.
+                if(keys?.Has(PassiveKeystone.ThiefOpener)==true)more*=ClassKeystoneMechanics.TargetLifeMultiplier(false);
+                foreach(var hit in source.Hits)
+                {
+                    Element element=CombatCalculator.ResolvedElement(hit.Element,Stats);
+                    if(keys?.Has(PassiveKeystone.MageFire)==true&&element!=Element.Fire)continue;
+                    float factor=keys?.Has(PassiveKeystone.MageFire)==true?PassiveKeystoneState.Value(PassiveKeystone.MageFire):1;
+                    result.AddDamage(element,hit.Amount*more*factor);
+                }
+                return result;
+            }
+            var m=new PlayerBuildMetrics();var avg=SearchHit(Player.BuildNonCriticalAttackContext());var lo=SearchHit(Player.BuildNonCriticalAttackContextAtRangeEnd(false));var hi=SearchHit(Player.BuildNonCriticalAttackContextAtRangeEnd(true));m.averageHit=Sum(avg);m.minimumHit=Sum(lo);m.maximumHit=Sum(hi);m.attacksPerSecond=Player.GetFinalAttackSpeed();m.critChance=Player.GetFinalCritChance();m.critMultiplier=CombatCalculator.BaseCriticalMultiplier+Stats.GetStat(StatTypes.CritMult);m.critContribution=m.averageHit*m.critChance*(m.critMultiplier-1);m.hitTwiceChance=GenericPassiveMechanics.SupportsMultistrike(b.weaponTypeId)?Mathf.Clamp01(Stats.GetStat(StatTypes.ChanceToHitTwice)):0;double repeatFactor=keys?.Has(PassiveKeystone.WarriorConsolidation)==true?1.05:1;m.hitTwiceContribution=(m.averageHit+m.critContribution)*m.hitTwiceChance*repeatFactor;m.basicDps=(m.averageHit+m.critContribution+m.hitTwiceContribution)*m.attacksPerSecond;
             var weapon=gear.FirstOrDefault(x=>x.ItemType==LootManager.GearType.Weapons);m.baseWeaponAverage=weapon?.GetEffectiveBaseDamage()??0;m.weaponAttributeIncreased=Player.WeaponAttributeDamageBonus;m.playerLevelIncreased=Player.LevelDamageBonus;m.genericIncreased=Stats.GetStat(StatTypes.GenericDmg);m.physicalIncreased=Stats.GetStat(StatTypes.PhysDmg);m.genericMore=Stats.GetStat(StatTypes.GenericMult);m.physicalMore=Stats.GetStat(StatTypes.PhysMult);
-            foreach(var h in avg.Hits){double expected=h.Amount*(1+m.critChance*(m.critMultiplier-1))*(1+m.hitTwiceChance)*m.attacksPerSecond;switch(h.Element){case Element.Phys:m.physicalOutput+=expected;break;case Element.Fire:m.fireOutput+=expected;break;case Element.Cold:m.coldOutput+=expected;break;case Element.Light:m.lightningOutput+=expected;break;case Element.Void:case Element.Poison:m.voidOutput+=expected;break;}}
+            foreach(var h in avg.Hits){double expected=h.Amount*(1+m.critChance*(m.critMultiplier-1))*(1+m.hitTwiceChance*(keys?.Has(PassiveKeystone.WarriorConsolidation)==true?1.05:1))*m.attacksPerSecond;switch(h.Element){case Element.Phys:m.physicalOutput+=expected;break;case Element.Fire:m.fireOutput+=expected;break;case Element.Cold:m.coldOutput+=expected;break;case Element.Light:m.lightningOutput+=expected;break;case Element.Void:case Element.Poison:m.voidOutput+=expected;break;}}
             m.projectileCount=BattleManager.CalculateProjectileCount(Stats.GetRawStat(StatTypes.ProjectileAmount),0);m.projectileTravelTime=WeaponMechanicProfile.ProjectileTravelTime(Stats.GetStat(StatTypes.ProjectileSpeed));m.precisionChance=WeaponMechanicProfile.PrecisionChance(Stats.GetStat(StatTypes.ProjectilePrecisionChance));m.precisionMultiplier=WeaponMechanicProfile.PrecisionMultiplier(Stats.GetStat(StatTypes.ProjectilePrecisionMultiplier));m.cooldownReduction=Stats.GetStat(StatTypes.CooldownReduction);
             if(b.weaponTypeId==WeaponTypeIds.Bow)
             {
                 double projectileFactor=b.subclassId==SubclassIds.RangerProjectile&&b.projectileMode==SubclassProjectileMode.Focused?
                     SubclassBalanceProfile.FocusedMultiplier((int)m.projectileCount):m.projectileCount;
-                double precisionFactor=1+m.precisionChance*(m.precisionMultiplier-1);
+                double precisionFactor=keys?.Has(PassiveKeystone.RangerPrecision)==true?.85*m.precisionMultiplier*1.15:1+m.precisionChance*(m.precisionMultiplier-1);if(keys?.Has(PassiveKeystone.RangerSplit)==true){m.projectileCount*=3;projectileFactor*=3*.33*1.15;}
                 double factor=projectileFactor*precisionFactor;
                 m.basicDps*=factor;m.physicalOutput*=factor;m.fireOutput*=factor;
                 m.coldOutput*=factor;m.lightningOutput*=factor;m.voidOutput*=factor;
@@ -154,7 +175,7 @@ namespace BlackCube.BalanceWorkbench
                 m.poisonDps*=factor;m.bleedDps*=factor;m.igniteDps*=factor;
                 m.assumptions.Add("Ailment Assassin expected critical ailment factor is applied once at creation; stack replacement remains Combat Lab-only.");
             }
-            m.life=Health.MaxLife;m.mana=Mana.MaxMana;m.armour=Stats.GetStat(StatTypes.FlatArmour)*(1+Stats.GetStat(StatTypes.ArmourPercent));m.fireResistance=Resistance(StatTypes.FireRes);m.coldResistance=Resistance(StatTypes.ColdRes);m.lightningResistance=Resistance(StatTypes.LightRes);m.voidResistance=Resistance(StatTypes.VoidRes);m.lifeRegen=Stats.GetStat(StatTypes.LifeRegeneration);m.lifeOnHit=Stats.GetStat(StatTypes.LifeOnHit);m.lifeOnKill=Stats.GetStat(StatTypes.LifeOnKill);m.manaRegen=Stats.GetStat(StatTypes.ManaRegeneration);m.manaOnHit=Stats.GetStat(StatTypes.ManaOnHit);m.manaOnKill=Stats.GetStat(StatTypes.ManaOnKill);m.strength=DerivedStatCalculator.Strength(Stats);m.dexterity=DerivedStatCalculator.Dexterity(Stats);m.intelligence=DerivedStatCalculator.Intelligence(Stats);m.auraEffect=Stats.GetStat(StatTypes.AuraEffect);m.rageGeneration=Stats.GetStat(StatTypes.RageGeneration);m.rageEffect=Stats.GetStat(StatTypes.RageEffect);m.recoveryPerSecond=m.lifeRegen+m.lifeOnHit*m.attacksPerSecond;
+            m.life=Health.MaxLife;m.mana=Mana.MaxMana;m.armour=Stats.GetStat(StatTypes.FlatArmour)*(1+Stats.GetStat(StatTypes.ArmourPercent));m.fireResistance=Resistance(StatTypes.FireRes);m.coldResistance=Resistance(StatTypes.ColdRes);m.lightningResistance=Resistance(StatTypes.LightRes);m.voidResistance=Resistance(StatTypes.VoidRes);m.lifeRegen=m.life*Stats.GetStat(StatTypes.LifeRegeneration)*(Stats.GetComponent<PassiveKeystoneState>()?.LifeRegenerationMultiplier??1f);m.lifeOnHit=Stats.GetStat(StatTypes.LifeOnHit);m.lifeOnKill=Stats.GetStat(StatTypes.LifeOnKill);m.manaRegen=Stats.GetStat(StatTypes.ManaRegeneration);m.manaOnHit=Stats.GetStat(StatTypes.ManaOnHit);m.manaOnKill=Stats.GetStat(StatTypes.ManaOnKill);m.strength=DerivedStatCalculator.Strength(Stats);m.dexterity=DerivedStatCalculator.Dexterity(Stats);m.intelligence=DerivedStatCalculator.Intelligence(Stats);m.auraEffect=Stats.GetStat(StatTypes.AuraEffect);m.rageGeneration=Stats.GetStat(StatTypes.RageGeneration);m.rageEffect=Stats.GetStat(StatTypes.RageEffect);m.recoveryPerSecond=m.lifeRegen+m.lifeOnHit*m.attacksPerSecond;
             m.physicalDamageReduction=Stats.GetStat(StatTypes.PhysicalDamageReduction);
             m.ehpPhysical=m.life/Math.Max(.01,CombatCalculator.ApplyArmourValue(100,(float)m.armour,(float)m.physicalDamageReduction,0)/100);m.ehpFire=Ehp(m.life,m.fireResistance);m.ehpCold=Ehp(m.life,m.coldResistance);m.ehpLightning=Ehp(m.life,m.lightningResistance);m.ehpVoid=Ehp(m.life,m.voidResistance);m.totalGearScore=gear.Sum(x=>x.ItemType==LootManager.GearType.Weapons?x.GetAverageWeaponDps():x.rolledMods.Sum(y=>Math.Abs(y.value)+(y.hasSecondaryValue?Math.Abs(y.secondaryValue):0)));
             AddSkills(m,b);

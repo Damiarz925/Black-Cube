@@ -14,7 +14,12 @@ public sealed class PassiveKeystoneState : MonoBehaviour
     }
 
     public bool Has(PassiveKeystone keystone) => keystone != PassiveKeystone.None && active[(int)keystone];
-
+    public void ApplyAllocatedNodes(System.Collections.Generic.IEnumerable<PassiveNodeDefinition> nodes)
+    {
+        System.Array.Clear(active,0,active.Length);
+        if(nodes==null)return;
+        foreach(var node in nodes)if(node.Keystone!=PassiveKeystone.None)active[(int)node.Keystone]=true;
+    }
     public float MaximumLifeMultiplier
     {
         get
@@ -35,7 +40,8 @@ public sealed class PassiveKeystoneState : MonoBehaviour
     }
 
     public float MaximumManaMultiplier => 1f;
-    public float AttackSpeedMultiplier => Has(PassiveKeystone.BruteForce) ? .75f : 1f;
+    public float AttackSpeedMultiplier => (Has(PassiveKeystone.BruteForce) ? .75f : 1f)
+        * (Has(PassiveKeystone.WarriorTempo) ? Value(PassiveKeystone.WarriorTempo) : 1f);
     public float ManaCostMultiplier => 1f;
     public bool TransmutesHitsToPoison => Has(PassiveKeystone.VenomousTransmutation);
     // Deep Freeze is the finalized +10 percentage-point slow-cap specialization.
@@ -43,18 +49,33 @@ public sealed class PassiveKeystoneState : MonoBehaviour
     public float ChillEffectMultiplier => 1f;
     public float ShockStackRequirementMultiplier => 1f;
     public float ShockTriggeredHitMultiplier => 1f;
-    public float LifeRegenerationMultiplier => 1f;
+    public float LifeRegenerationMultiplier => Has(PassiveKeystone.BarbarianRecovery) ? 0f : 1f;
     public float ManaRegenerationMultiplier => 1f;
     public int ProjectileAmountBonus => 0;
 
     public float ChanceMultiplier(StatTypes stat) => 1f;
 
-    public float AilmentDamageMultiplier(StatusEffects.AilmentKind ailment) => 1f;
+    public float AilmentDamageMultiplier(StatusEffects.AilmentKind ailment)
+    {
+        if(ailment==StatusEffects.AilmentKind.Bleed&&Has(PassiveKeystone.WarriorBleed))return Value(PassiveKeystone.WarriorBleed);
+        if(ailment==StatusEffects.AilmentKind.Poison&&Has(PassiveKeystone.RangerEndlessPoison))
+            return Value(PassiveKeystone.RangerEndlessPoison)*(1+Mathf.Max(0,Mathf.RoundToInt(GetComponent<StatsComponent>().GetRawStat(StatTypes.PoisonDuration)))*ClassKeystoneCatalog.Get(PassiveKeystone.RangerEndlessPoison).secondary);
+        return 1f;
+    }
+
+    public static float Value(PassiveKeystone key) => ClassKeystoneCatalog.Get(key)?.primary ?? 1f;
+    public float DamageRecoveryFraction => Has(PassiveKeystone.BarbarianRecovery)
+        ? Mathf.Max(0,GetComponent<StatsComponent>().GetStat(StatTypes.LifeRegeneration))*Value(PassiveKeystone.BarbarianRecovery) : 0;
+    public float GenericMoreMultiplier => (Has(PassiveKeystone.BarbarianRecovery)?ClassKeystoneCatalog.Get(PassiveKeystone.BarbarianRecovery).secondary:1)
+        *(Has(PassiveKeystone.ThiefStealth)?Value(PassiveKeystone.ThiefStealth):1);
 
     public int EffectiveAilmentStackCap(StatusEffects effect)
     {
-        if (effect == null || effect.MaxStacks <= 0) return effect != null ? effect.MaxStacks : 0;
-        return effect.MaxStacks;
+        if(effect==null)return 0;
+        if(effect.Ailment==StatusEffects.AilmentKind.Ignite)return Has(PassiveKeystone.BarbarianFire)?2:1;
+        if(effect.MaxStacks<=0)return effect.MaxStacks;
+        return effect.Ailment==StatusEffects.AilmentKind.Bleed&&Has(PassiveKeystone.WarriorBleed)
+            ? effect.MaxStacks*Mathf.RoundToInt(ClassKeystoneCatalog.Get(PassiveKeystone.WarriorBleed).secondary):effect.MaxStacks;
     }
 
     public DamageContext TransformOutgoing(DamageContext source)

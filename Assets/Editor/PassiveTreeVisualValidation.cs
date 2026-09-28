@@ -15,9 +15,9 @@ public static class PassiveTreeV3Validation
   }
   foreach(string w in PassiveTreeDefinition.WeaponIds)
   {
-   var route=PassiveTreeDefinition.RouteNodes(null,w).Select(PassiveTreeDefinition.Node).ToArray();if(route.Count(x=>x.Kind==PassiveNodeKind.WeaponSpine)!=5||route.Count(x=>x.Kind==PassiveNodeKind.Choice)!=30)errors.Add(w+" route structure invalid.");if(route.Any(x=>x.IsSubclassChoice||x.WeaponTypeRestriction!=w))errors.Add(w+" restriction/subclass metadata invalid.");
+   var route=PassiveTreeDefinition.RouteNodes(null,w).Select(PassiveTreeDefinition.Node).ToArray();if(route.Count(x=>x.Kind==PassiveNodeKind.WeaponSpine)!=7||route.Count(x=>x.Kind==PassiveNodeKind.Choice)!=42)errors.Add(w+" route structure invalid.");if(route.Any(x=>x.IsSubclassChoice||x.WeaponTypeRestriction!=w))errors.Add(w+" restriction/subclass metadata invalid.");
   }
-  if(PassiveTreeDefinition.Edges.Count!=PassiveTreeDefinition.NodeCount-6)errors.Add("V3 route edge count invalid.");
+  if(PassiveTreeDefinition.Edges.Count!=PassiveTreeDefinition.NodeCount-12)errors.Add("V3 route edge count invalid.");
   // Presentation coordinates are authored by PassiveTreePanel.prefab. LayoutPosition is retained
   // only as legacy/default-layout metadata and must not be treated as production geometry.
   return errors;

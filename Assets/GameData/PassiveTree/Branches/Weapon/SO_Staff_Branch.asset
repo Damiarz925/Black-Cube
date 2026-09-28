@@ -38,26 +38,26 @@ MonoBehaviour:
     spine:
       stableId: tree.v3.weapon.staff.t01.spine
       logicalSlotId: tree.v3.weapon.staff.t01.spine
-      displayName: Staff Tier 1
-      description: Weapon specialization mainline node.
-      branch: 29
+      displayName: Increased Weapon Damage
+      description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE"
+      branch: 8
       size: 1
       kind: 8
       keystone: 0
       effects:
       - kind: 0
-        stat: 126
+        stat: 8
         mechanicId: 
-        value: 14.400001
+        value: 4
       iconMode: 0
       iconOverride: {fileID: 0}
     right:
       a:
         stableId: tree.v3.weapon.staff.t01.right.a
         logicalSlotId: tree.v3.weapon.staff.t01.right.a
-        displayName: Staff Fire
-        description: 
-        branch: 5
+        displayName: Offense 1
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only offensive package; final-tier MORE damage is multiplicative."
+        branch: 8
         size: 0
         kind: 6
         keystone: 0
@@ -65,31 +65,15 @@ MonoBehaviour:
         - kind: 0
           stat: 17
           mechanicId: 
-          value: 14.400001
+          value: 12
         iconMode: 0
         iconOverride: {fileID: 0}
       b:
         stableId: tree.v3.weapon.staff.t01.right.b
         logicalSlotId: tree.v3.weapon.staff.t01.right.b
-        displayName: Staff Lightning
-        description: 
-        branch: 4
-        size: 0
-        kind: 6
-        keystone: 0
-        effects:
-        - kind: 0
-          stat: 16
-          mechanicId: 
-          value: 14.400001
-        iconMode: 0
-        iconOverride: {fileID: 0}
-      c:
-        stableId: tree.v3.weapon.staff.t01.right.c
-        logicalSlotId: tree.v3.weapon.staff.t01.right.c
-        displayName: Staff Cold
-        description: 
-        branch: 9
+        displayName: Offense 2
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only offensive package; final-tier MORE damage is multiplicative."
+        branch: 8
         size: 0
         kind: 6
         keystone: 0
@@ -97,7 +81,27 @@ MonoBehaviour:
         - kind: 0
           stat: 15
           mechanicId: 
-          value: 14.400001
+          value: 12
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      c:
+        stableId: tree.v3.weapon.staff.t01.right.c
+        logicalSlotId: tree.v3.weapon.staff.t01.right.c
+        displayName: Offense 3
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only offensive package; final-tier MORE damage is multiplicative."
+        branch: 8
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 16
+          mechanicId: 
+          value: 12
+        - kind: 0
+          stat: 73
+          mechanicId: 
+          value: 0.90000004
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassA:
@@ -128,49 +132,53 @@ MonoBehaviour:
       a:
         stableId: tree.v3.weapon.staff.t01.left.a
         logicalSlotId: tree.v3.weapon.staff.t01.left.a
-        displayName: Staff Cooldown Reduction
-        description: 
-        branch: 29
+        displayName: Sustain 1
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only sustain/utility package."
+        branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 126
+          stat: 70
           mechanicId: 
-          value: 14.400001
+          value: 4.8
         iconMode: 0
         iconOverride: {fileID: 0}
       b:
         stableId: tree.v3.weapon.staff.t01.left.b
         logicalSlotId: tree.v3.weapon.staff.t01.left.b
-        displayName: Staff Mana
-        description: 
-        branch: 2
+        displayName: Sustain 2
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only sustain/utility package."
+        branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 71
+          stat: 57
           mechanicId: 
-          value: 14.400001
+          value: 3.6000001
         iconMode: 0
         iconOverride: {fileID: 0}
       c:
         stableId: tree.v3.weapon.staff.t01.left.c
         logicalSlotId: tree.v3.weapon.staff.t01.left.c
-        displayName: Staff Mana Regeneration
-        description: 
-        branch: 19
+        displayName: Sustain 3
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only sustain/utility package."
+        branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
+          stat: 52
+          mechanicId: 
+          value: 7.2000003
+        - kind: 0
           stat: 73
           mechanicId: 
-          value: 5.7599998
+          value: 1.35
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassA:
@@ -201,66 +209,70 @@ MonoBehaviour:
     spine:
       stableId: tree.v3.weapon.staff.t02.spine
       logicalSlotId: tree.v3.weapon.staff.t02.spine
-      displayName: Staff Tier 2
-      description: Weapon specialization mainline node.
-      branch: 5
+      displayName: Increased Weapon Damage
+      description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE"
+      branch: 8
       size: 1
       kind: 8
       keystone: 0
       effects:
       - kind: 0
-        stat: 17
+        stat: 8
         mechanicId: 
-        value: 14.72
+        value: 6
       iconMode: 0
       iconOverride: {fileID: 0}
     right:
       a:
         stableId: tree.v3.weapon.staff.t02.right.a
         logicalSlotId: tree.v3.weapon.staff.t02.right.a
-        displayName: Staff Mana On Hit
-        description: 
-        branch: 23
+        displayName: Offense 1
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only offensive package; final-tier MORE damage is multiplicative."
+        branch: 8
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 75
+          stat: 15
           mechanicId: 
-          value: 5.888
+          value: 16
         iconMode: 0
         iconOverride: {fileID: 0}
       b:
         stableId: tree.v3.weapon.staff.t02.right.b
         logicalSlotId: tree.v3.weapon.staff.t02.right.b
-        displayName: Staff Critical Multiplier
-        description: 
-        branch: 21
+        displayName: Offense 2
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only offensive package; final-tier MORE damage is multiplicative."
+        branch: 8
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 12
+          stat: 16
           mechanicId: 
-          value: 23.552
+          value: 16
         iconMode: 0
         iconOverride: {fileID: 0}
       c:
         stableId: tree.v3.weapon.staff.t02.right.c
         logicalSlotId: tree.v3.weapon.staff.t02.right.c
-        displayName: Staff Cooldown Reduction
-        description: 
-        branch: 29
+        displayName: Offense 3
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only offensive package; final-tier MORE damage is multiplicative."
+        branch: 8
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 126
+          stat: 115
           mechanicId: 
-          value: 14.72
+          value: 16
+        - kind: 0
+          stat: 75
+          mechanicId: 
+          value: 1.2
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassA:
@@ -291,49 +303,53 @@ MonoBehaviour:
       a:
         stableId: tree.v3.weapon.staff.t02.left.a
         logicalSlotId: tree.v3.weapon.staff.t02.left.a
-        displayName: Staff Critical Chance
-        description: 
-        branch: 20
+        displayName: Sustain 1
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only sustain/utility package."
+        branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 11
+          stat: 57
           mechanicId: 
-          value: 14.72
+          value: 4.8
         iconMode: 0
         iconOverride: {fileID: 0}
       b:
         stableId: tree.v3.weapon.staff.t02.left.b
         logicalSlotId: tree.v3.weapon.staff.t02.left.b
-        displayName: Staff Fire
-        description: 
-        branch: 5
+        displayName: Sustain 2
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only sustain/utility package."
+        branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 17
+          stat: 52
           mechanicId: 
-          value: 14.72
+          value: 9.6
         iconMode: 0
         iconOverride: {fileID: 0}
       c:
         stableId: tree.v3.weapon.staff.t02.left.c
         logicalSlotId: tree.v3.weapon.staff.t02.left.c
-        displayName: Staff Lightning
-        description: 
-        branch: 4
+        displayName: Sustain 3
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only sustain/utility package."
+        branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 16
+          stat: 135
           mechanicId: 
-          value: 14.72
+          value: 6.4
+        - kind: 0
+          stat: 75
+          mechanicId: 
+          value: 1.8000001
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassA:
@@ -364,42 +380,26 @@ MonoBehaviour:
     spine:
       stableId: tree.v3.weapon.staff.t03.spine
       logicalSlotId: tree.v3.weapon.staff.t03.spine
-      displayName: Staff Tier 3
-      description: Weapon specialization mainline node.
-      branch: 19
+      displayName: Increased Weapon Damage
+      description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE"
+      branch: 8
       size: 1
       kind: 8
       keystone: 0
       effects:
       - kind: 0
-        stat: 73
+        stat: 8
         mechanicId: 
-        value: 6.0160003
+        value: 8
       iconMode: 0
       iconOverride: {fileID: 0}
     right:
       a:
         stableId: tree.v3.weapon.staff.t03.right.a
         logicalSlotId: tree.v3.weapon.staff.t03.right.a
-        displayName: Staff Fire
-        description: 
-        branch: 5
-        size: 0
-        kind: 6
-        keystone: 0
-        effects:
-        - kind: 0
-          stat: 17
-          mechanicId: 
-          value: 15.04
-        iconMode: 0
-        iconOverride: {fileID: 0}
-      b:
-        stableId: tree.v3.weapon.staff.t03.right.b
-        logicalSlotId: tree.v3.weapon.staff.t03.right.b
-        displayName: Staff Lightning
-        description: 
-        branch: 4
+        displayName: Offense 1
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only offensive package; final-tier MORE damage is multiplicative."
+        branch: 8
         size: 0
         kind: 6
         keystone: 0
@@ -407,23 +407,43 @@ MonoBehaviour:
         - kind: 0
           stat: 16
           mechanicId: 
-          value: 15.04
+          value: 20
         iconMode: 0
         iconOverride: {fileID: 0}
-      c:
-        stableId: tree.v3.weapon.staff.t03.right.c
-        logicalSlotId: tree.v3.weapon.staff.t03.right.c
-        displayName: Staff Cold
-        description: 
-        branch: 9
+      b:
+        stableId: tree.v3.weapon.staff.t03.right.b
+        logicalSlotId: tree.v3.weapon.staff.t03.right.b
+        displayName: Offense 2
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only offensive package; final-tier MORE damage is multiplicative."
+        branch: 8
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 15
+          stat: 115
           mechanicId: 
-          value: 15.04
+          value: 20
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      c:
+        stableId: tree.v3.weapon.staff.t03.right.c
+        logicalSlotId: tree.v3.weapon.staff.t03.right.c
+        displayName: Offense 3
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only offensive package; final-tier MORE damage is multiplicative."
+        branch: 8
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 17
+          mechanicId: 
+          value: 20
+        - kind: 0
+          stat: 126
+          mechanicId: 
+          value: 5
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassA:
@@ -454,49 +474,53 @@ MonoBehaviour:
       a:
         stableId: tree.v3.weapon.staff.t03.left.a
         logicalSlotId: tree.v3.weapon.staff.t03.left.a
-        displayName: Staff Cooldown Reduction
-        description: 
-        branch: 29
+        displayName: Sustain 1
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only sustain/utility package."
+        branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 126
+          stat: 52
           mechanicId: 
-          value: 15.04
+          value: 12
         iconMode: 0
         iconOverride: {fileID: 0}
       b:
         stableId: tree.v3.weapon.staff.t03.left.b
         logicalSlotId: tree.v3.weapon.staff.t03.left.b
-        displayName: Staff Mana
-        description: 
-        branch: 2
+        displayName: Sustain 2
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only sustain/utility package."
+        branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 71
+          stat: 135
           mechanicId: 
-          value: 15.04
+          value: 8
         iconMode: 0
         iconOverride: {fileID: 0}
       c:
         stableId: tree.v3.weapon.staff.t03.left.c
         logicalSlotId: tree.v3.weapon.staff.t03.left.c
-        displayName: Staff Mana Regeneration
-        description: 
-        branch: 19
+        displayName: Sustain 3
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only sustain/utility package."
+        branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 73
+          stat: 70
           mechanicId: 
-          value: 6.0160003
+          value: 8
+        - kind: 0
+          stat: 126
+          mechanicId: 
+          value: 7.5
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassA:
@@ -527,66 +551,70 @@ MonoBehaviour:
     spine:
       stableId: tree.v3.weapon.staff.t04.spine
       logicalSlotId: tree.v3.weapon.staff.t04.spine
-      displayName: Staff Tier 4
-      description: Weapon specialization mainline node.
-      branch: 20
+      displayName: Increased Weapon Damage
+      description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE"
+      branch: 8
       size: 1
       kind: 8
       keystone: 0
       effects:
       - kind: 0
-        stat: 11
+        stat: 8
         mechanicId: 
-        value: 15.36
+        value: 10
       iconMode: 0
       iconOverride: {fileID: 0}
     right:
       a:
         stableId: tree.v3.weapon.staff.t04.right.a
         logicalSlotId: tree.v3.weapon.staff.t04.right.a
-        displayName: Staff Mana On Hit
-        description: 
-        branch: 23
+        displayName: Offense 1
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only offensive package; final-tier MORE damage is multiplicative."
+        branch: 8
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 75
+          stat: 115
           mechanicId: 
-          value: 6.144
+          value: 25
         iconMode: 0
         iconOverride: {fileID: 0}
       b:
         stableId: tree.v3.weapon.staff.t04.right.b
         logicalSlotId: tree.v3.weapon.staff.t04.right.b
-        displayName: Staff Critical Multiplier
-        description: 
-        branch: 21
+        displayName: Offense 2
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only offensive package; final-tier MORE damage is multiplicative."
+        branch: 8
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 12
+          stat: 17
           mechanicId: 
-          value: 24.576
+          value: 25
         iconMode: 0
         iconOverride: {fileID: 0}
       c:
         stableId: tree.v3.weapon.staff.t04.right.c
         logicalSlotId: tree.v3.weapon.staff.t04.right.c
-        displayName: Staff Cooldown Reduction
-        description: 
-        branch: 29
+        displayName: Offense 3
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only offensive package; final-tier MORE damage is multiplicative."
+        branch: 8
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 126
+          stat: 15
           mechanicId: 
-          value: 15.36
+          value: 25
+        - kind: 0
+          stat: 71
+          mechanicId: 
+          value: 6.25
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassA:
@@ -617,49 +645,53 @@ MonoBehaviour:
       a:
         stableId: tree.v3.weapon.staff.t04.left.a
         logicalSlotId: tree.v3.weapon.staff.t04.left.a
-        displayName: Staff Critical Chance
-        description: 
-        branch: 20
+        displayName: Sustain 1
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only sustain/utility package."
+        branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 11
+          stat: 135
           mechanicId: 
-          value: 15.36
+          value: 10
         iconMode: 0
         iconOverride: {fileID: 0}
       b:
         stableId: tree.v3.weapon.staff.t04.left.b
         logicalSlotId: tree.v3.weapon.staff.t04.left.b
-        displayName: Staff Fire
-        description: 
-        branch: 5
+        displayName: Sustain 2
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only sustain/utility package."
+        branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 17
+          stat: 70
           mechanicId: 
-          value: 15.36
+          value: 10
         iconMode: 0
         iconOverride: {fileID: 0}
       c:
         stableId: tree.v3.weapon.staff.t04.left.c
         logicalSlotId: tree.v3.weapon.staff.t04.left.c
-        displayName: Staff Lightning
-        description: 
-        branch: 4
+        displayName: Sustain 3
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only sustain/utility package."
+        branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 16
+          stat: 57
           mechanicId: 
-          value: 15.36
+          value: 7.5
+        - kind: 0
+          stat: 71
+          mechanicId: 
+          value: 9.375
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassA:
@@ -690,26 +722,26 @@ MonoBehaviour:
     spine:
       stableId: tree.v3.weapon.staff.t05.spine
       logicalSlotId: tree.v3.weapon.staff.t05.spine
-      displayName: Staff Tier 5
-      description: Weapon specialization mainline node.
-      branch: 2
+      displayName: Increased Weapon Damage
+      description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE"
+      branch: 8
       size: 1
       kind: 8
       keystone: 0
       effects:
       - kind: 0
-        stat: 71
+        stat: 8
         mechanicId: 
-        value: 15.68
+        value: 12
       iconMode: 0
       iconOverride: {fileID: 0}
     right:
       a:
         stableId: tree.v3.weapon.staff.t05.right.a
         logicalSlotId: tree.v3.weapon.staff.t05.right.a
-        displayName: Staff Fire
-        description: 
-        branch: 5
+        displayName: Offense 1
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only offensive package; final-tier MORE damage is multiplicative."
+        branch: 8
         size: 0
         kind: 6
         keystone: 0
@@ -717,31 +749,15 @@ MonoBehaviour:
         - kind: 0
           stat: 17
           mechanicId: 
-          value: 15.68
+          value: 30
         iconMode: 0
         iconOverride: {fileID: 0}
       b:
         stableId: tree.v3.weapon.staff.t05.right.b
         logicalSlotId: tree.v3.weapon.staff.t05.right.b
-        displayName: Staff Lightning
-        description: 
-        branch: 4
-        size: 0
-        kind: 6
-        keystone: 0
-        effects:
-        - kind: 0
-          stat: 16
-          mechanicId: 
-          value: 15.68
-        iconMode: 0
-        iconOverride: {fileID: 0}
-      c:
-        stableId: tree.v3.weapon.staff.t05.right.c
-        logicalSlotId: tree.v3.weapon.staff.t05.right.c
-        displayName: Staff Cold
-        description: 
-        branch: 9
+        displayName: Offense 2
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only offensive package; final-tier MORE damage is multiplicative."
+        branch: 8
         size: 0
         kind: 6
         keystone: 0
@@ -749,7 +765,27 @@ MonoBehaviour:
         - kind: 0
           stat: 15
           mechanicId: 
-          value: 15.68
+          value: 30
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      c:
+        stableId: tree.v3.weapon.staff.t05.right.c
+        logicalSlotId: tree.v3.weapon.staff.t05.right.c
+        displayName: Offense 3
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only offensive package; final-tier MORE damage is multiplicative."
+        branch: 8
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 16
+          mechanicId: 
+          value: 30
+        - kind: 0
+          stat: 73
+          mechanicId: 
+          value: 2.25
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassA:
@@ -780,49 +816,423 @@ MonoBehaviour:
       a:
         stableId: tree.v3.weapon.staff.t05.left.a
         logicalSlotId: tree.v3.weapon.staff.t05.left.a
-        displayName: Staff Cooldown Reduction
-        description: 
-        branch: 29
+        displayName: Sustain 1
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only sustain/utility package."
+        branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 126
+          stat: 70
           mechanicId: 
-          value: 15.68
+          value: 12
         iconMode: 0
         iconOverride: {fileID: 0}
       b:
         stableId: tree.v3.weapon.staff.t05.left.b
         logicalSlotId: tree.v3.weapon.staff.t05.left.b
-        displayName: Staff Mana
-        description: 
-        branch: 2
+        displayName: Sustain 2
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only sustain/utility package."
+        branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 71
+          stat: 57
           mechanicId: 
-          value: 15.68
+          value: 9
         iconMode: 0
         iconOverride: {fileID: 0}
       c:
         stableId: tree.v3.weapon.staff.t05.left.c
         logicalSlotId: tree.v3.weapon.staff.t05.left.c
-        displayName: Staff Mana Regeneration
-        description: 
-        branch: 19
+        displayName: Sustain 3
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only sustain/utility package."
+        branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
+          stat: 52
+          mechanicId: 
+          value: 18
+        - kind: 0
           stat: 73
           mechanicId: 
-          value: 6.272
+          value: 3.375
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      subclassA:
+        stableId: 
+        logicalSlotId: 
+        displayName: 
+        description: 
+        branch: 0
+        size: 0
+        kind: 6
+        keystone: 0
+        effects: []
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      subclassB:
+        stableId: 
+        logicalSlotId: 
+        displayName: 
+        description: 
+        branch: 0
+        size: 0
+        kind: 6
+        keystone: 0
+        effects: []
+        iconMode: 0
+        iconOverride: {fileID: 0}
+  - tier: 6
+    spine:
+      stableId: tree.v3.weapon.staff.t06.spine
+      logicalSlotId: tree.v3.weapon.staff.t06.spine
+      displayName: Increased Weapon Damage
+      description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE"
+      branch: 8
+      size: 1
+      kind: 8
+      keystone: 0
+      effects:
+      - kind: 0
+        stat: 8
+        mechanicId: 
+        value: 15
+      iconMode: 0
+      iconOverride: {fileID: 0}
+    right:
+      a:
+        stableId: tree.v3.weapon.staff.t06.right.a
+        logicalSlotId: tree.v3.weapon.staff.t06.right.a
+        displayName: Offense 1
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only offensive package; final-tier MORE damage is multiplicative."
+        branch: 8
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 15
+          mechanicId: 
+          value: 60
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      b:
+        stableId: tree.v3.weapon.staff.t06.right.b
+        logicalSlotId: tree.v3.weapon.staff.t06.right.b
+        displayName: Offense 2
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only offensive package; final-tier MORE damage is multiplicative."
+        branch: 8
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 16
+          mechanicId: 
+          value: 60
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      c:
+        stableId: tree.v3.weapon.staff.t06.right.c
+        logicalSlotId: tree.v3.weapon.staff.t06.right.c
+        displayName: Offense 3
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only offensive package; final-tier MORE damage is multiplicative."
+        branch: 8
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 115
+          mechanicId: 
+          value: 60
+        - kind: 0
+          stat: 75
+          mechanicId: 
+          value: 4.5
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      subclassA:
+        stableId: 
+        logicalSlotId: 
+        displayName: 
+        description: 
+        branch: 0
+        size: 0
+        kind: 6
+        keystone: 0
+        effects: []
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      subclassB:
+        stableId: 
+        logicalSlotId: 
+        displayName: 
+        description: 
+        branch: 0
+        size: 0
+        kind: 6
+        keystone: 0
+        effects: []
+        iconMode: 0
+        iconOverride: {fileID: 0}
+    left:
+      a:
+        stableId: tree.v3.weapon.staff.t06.left.a
+        logicalSlotId: tree.v3.weapon.staff.t06.left.a
+        displayName: Sustain 1
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only sustain/utility package."
+        branch: 0
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 57
+          mechanicId: 
+          value: 18
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      b:
+        stableId: tree.v3.weapon.staff.t06.left.b
+        logicalSlotId: tree.v3.weapon.staff.t06.left.b
+        displayName: Sustain 2
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only sustain/utility package."
+        branch: 0
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 52
+          mechanicId: 
+          value: 36
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      c:
+        stableId: tree.v3.weapon.staff.t06.left.c
+        logicalSlotId: tree.v3.weapon.staff.t06.left.c
+        displayName: Sustain 3
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only sustain/utility package."
+        branch: 0
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 135
+          mechanicId: 
+          value: 24
+        - kind: 0
+          stat: 75
+          mechanicId: 
+          value: 6.75
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      subclassA:
+        stableId: 
+        logicalSlotId: 
+        displayName: 
+        description: 
+        branch: 0
+        size: 0
+        kind: 6
+        keystone: 0
+        effects: []
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      subclassB:
+        stableId: 
+        logicalSlotId: 
+        displayName: 
+        description: 
+        branch: 0
+        size: 0
+        kind: 6
+        keystone: 0
+        effects: []
+        iconMode: 0
+        iconOverride: {fileID: 0}
+  - tier: 7
+    spine:
+      stableId: tree.v3.weapon.staff.t07.spine
+      logicalSlotId: tree.v3.weapon.staff.t07.spine
+      displayName: Increased Weapon Damage
+      description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE"
+      branch: 8
+      size: 1
+      kind: 8
+      keystone: 0
+      effects:
+      - kind: 0
+        stat: 8
+        mechanicId: 
+        value: 20
+      iconMode: 0
+      iconOverride: {fileID: 0}
+    right:
+      a:
+        stableId: tree.v3.weapon.staff.t07.right.a
+        logicalSlotId: tree.v3.weapon.staff.t07.right.a
+        displayName: Mastery 1
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only offensive package; final-tier MORE damage is multiplicative."
+        branch: 8
+        size: 2
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 16
+          mechanicId: 
+          value: 120
+        - kind: 0
+          stat: 9
+          mechanicId: 
+          value: 30
+        - kind: 0
+          stat: 115
+          mechanicId: 
+          value: 60
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      b:
+        stableId: tree.v3.weapon.staff.t07.right.b
+        logicalSlotId: tree.v3.weapon.staff.t07.right.b
+        displayName: Mastery 2
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only offensive package; final-tier MORE damage is multiplicative."
+        branch: 8
+        size: 2
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 115
+          mechanicId: 
+          value: 120
+        - kind: 0
+          stat: 9
+          mechanicId: 
+          value: 20
+        - kind: 0
+          stat: 17
+          mechanicId: 
+          value: 60
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      c:
+        stableId: tree.v3.weapon.staff.t07.right.c
+        logicalSlotId: tree.v3.weapon.staff.t07.right.c
+        displayName: Mastery 3
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only offensive package; final-tier MORE damage is multiplicative."
+        branch: 8
+        size: 2
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 17
+          mechanicId: 
+          value: 120
+        - kind: 0
+          stat: 9
+          mechanicId: 
+          value: 15
+        - kind: 0
+          stat: 15
+          mechanicId: 
+          value: 60
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      subclassA:
+        stableId: 
+        logicalSlotId: 
+        displayName: 
+        description: 
+        branch: 0
+        size: 0
+        kind: 6
+        keystone: 0
+        effects: []
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      subclassB:
+        stableId: 
+        logicalSlotId: 
+        displayName: 
+        description: 
+        branch: 0
+        size: 0
+        kind: 6
+        keystone: 0
+        effects: []
+        iconMode: 0
+        iconOverride: {fileID: 0}
+    left:
+      a:
+        stableId: tree.v3.weapon.staff.t07.left.a
+        logicalSlotId: tree.v3.weapon.staff.t07.left.a
+        displayName: Bulwark 1
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only sustain/utility package."
+        branch: 0
+        size: 2
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 52
+          mechanicId: 
+          value: 72
+        - kind: 0
+          stat: 73
+          mechanicId: 
+          value: 13.5
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      b:
+        stableId: tree.v3.weapon.staff.t07.left.b
+        logicalSlotId: tree.v3.weapon.staff.t07.left.b
+        displayName: Bulwark 2
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only sustain/utility package."
+        branch: 0
+        size: 2
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 135
+          mechanicId: 
+          value: 48
+        - kind: 0
+          stat: 75
+          mechanicId: 
+          value: 13.5
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      c:
+        stableId: tree.v3.weapon.staff.t07.left.c
+        logicalSlotId: tree.v3.weapon.staff.t07.left.c
+        displayName: Bulwark 3
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only sustain/utility package."
+        branch: 0
+        size: 2
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 70
+          mechanicId: 
+          value: 48
+        - kind: 0
+          stat: 126
+          mechanicId: 
+          value: 45
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassA:

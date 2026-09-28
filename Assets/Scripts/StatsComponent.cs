@@ -29,7 +29,10 @@ public class StatsComponent : MonoBehaviour
     /// </summary>
     public float GetStat(StatTypes type)
     {
-        return ToGameplayValue(type, GetRawStat(type));
+        float value = ToGameplayValue(type, GetRawStat(type));
+        if(type is StatTypes.BleedChance or StatTypes.IgniteChance or StatTypes.PoisonChance)
+            value += ToGameplayValue(StatTypes.AllDamagingAilmentChance,GetRawStat(StatTypes.AllDamagingAilmentChance))+(GetComponent<SubclassCombatState>()?.AuraSecondary(4,.2f)??0);
+        return value;
     }
 
     // Physical Damage Reduction affixes were authored and serialized as fractions
@@ -160,6 +163,10 @@ public class StatsComponent : MonoBehaviour
             case StatTypes.RageDecayReduction:
             case StatTypes.CooldownReduction:
             case StatTypes.AuraEffect:
+            case StatTypes.RevengeEffect:
+            case StatTypes.PoisonLifeLeech:
+            case StatTypes.LifeRecoveryEffect:
+            case StatTypes.AllDamagingAilmentChance:
             case StatTypes.PoisonSpeed:
 
             // Penetration
@@ -195,8 +202,9 @@ public class StatsComponent : MonoBehaviour
             case StatTypes.ReducedShockEffect:
             case StatTypes.ReducedChillEffect:
 
-            // Life / mana % increases. Both regeneration stats remain flat units
-            // per second and are therefore intentionally excluded here.
+            // Life regeneration is % maximum Life/sec; Mana regeneration stays flat/sec.
+            case StatTypes.LifeRegeneration:
+            case StatTypes.CullingStrike:
             case StatTypes.LifePercent:
             case StatTypes.ManaPercent:
 

@@ -64,11 +64,14 @@ public static class ItemTooltipFormatter
         string rolled=special!=null?$"{special.displayName}: {special.description}":paired?$"Adds {mod.value:0.##}–{mod.HighValue:0.##} {ItemTooltipUI.ElementName(item.BaseElement)} Damage"
             :$"{StatDisplayFormatting.ToFriendlyName(mod.statType)}: {StatsComponent.ToDisplayedValue(mod.statType,mod.value):+0.##;-0.##;0}{unit}";
         string range=TierRange(item,mod,percent);
+        if(mod.statType==StatTypes.AxePhysicalRage)
+            rolled=$"{mod.value:0.##}% MORE Local Physical Damage; {mod.secondaryValue:0.##}% increased Rage Generation";
         string color=implicitLine?"#9FC8BC":mod.isEmpowered?"#73D8EE":mod.isBossSpecial?"#D88BFF":"#E4C979";
         // Reserve a compact space for the runtime-built padlock Image. TMP's
         // shipped font does not contain the Unicode lock emoji.
         string prefix=implicitLine?"   ":"";
         string local=item.IsLocalAffix(mod.statType)?"  <color=#85898F>LOCAL</color>":"";
+        if(mod.statType==StatTypes.AxePhysicalRage)local="  <color=#85898F>Physical multiplier LOCAL; Rage GLOBAL</color>";
         string rank=mod.isEmpowered?"EMPOWERED":mod.isBossSpecial?$"APEX — {BossSpecialCatalog.SourceName(mod.specialPoolId)}":$"T{mod.tierIndex}";
         s.AppendLine($"<color={color}>{prefix}<b>{rolled}</b></color>  <color=#85898F>{range} {rank}</color>{local}");
     }
@@ -91,6 +94,7 @@ public static class ItemTooltipFormatter
                 && mod.HighValue<=maxHigh+.011f);
         if(!valid)return "(historical roll / current range differs)";
         string unit=percent?"%":"";
+        if(mod.statType==StatTypes.AxePhysicalRage)return $"(Physical {min:0.##}–{max:0.##}%; Rage {minHigh:0.##}–{maxHigh:0.##}%)";
         return tier.pairedDamage?$"(min {min:0.##}–{max:0.##}, max {minHigh:0.##}–{maxHigh:0.##})"
             :$"({StatsComponent.ToDisplayedValue(mod.statType,min):0.##}–{StatsComponent.ToDisplayedValue(mod.statType,max):0.##}{unit})";
     }

@@ -55,7 +55,7 @@ public sealed class Step18ProductionTests
     }
 
     [Test] public void PassiveTreePatchPreservesTopologyAndProvidesNewStats()
-    {Assert.That(PassiveTreeDefinition.NodeCount,Is.EqualTo(750));Assert.That(PassiveTreeDefinition.Nodes.SelectMany(x=>x.Effects).Any(x=>x.Stat==StatTypes.CooldownReduction),Is.True);Assert.That(PassiveTreeDefinition.Nodes.SelectMany(x=>x.Effects).Any(x=>x.Stat==StatTypes.ShockEffect),Is.True);Assert.That(PassiveTreeDefinition.Nodes.SelectMany(x=>x.Effects).Any(x=>x.Stat==StatTypes.ChillEffect),Is.True);Assert.That(PassiveTreeDefinition.Nodes.SelectMany(x=>x.Effects).Any(x=>x.Stat==StatTypes.AuraEffect),Is.True);}
+    {Assert.That(PassiveTreeDefinition.NodeCount,Is.EqualTo(852));Assert.That(PassiveTreeDefinition.Nodes.SelectMany(x=>x.Effects).Any(x=>x.Stat==StatTypes.CooldownReduction),Is.True);Assert.That(PassiveTreeDefinition.Nodes.SelectMany(x=>x.Effects).Any(x=>x.Stat==StatTypes.AllDamagingAilmentChance),Is.True);Assert.That(PassiveTreeDefinition.Nodes.SelectMany(x=>x.Effects).Any(x=>x.Stat==StatTypes.LifeRecoveryEffect),Is.True);Assert.That(PassiveTreeDefinition.Nodes.SelectMany(x=>x.Effects).Any(x=>x.Stat==StatTypes.AuraEffect),Is.True);}
 
     [Test] public void SchemaNineMigratesToTenWithEmptyPermanentConfiguration()
     {

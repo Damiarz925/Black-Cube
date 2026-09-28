@@ -52,7 +52,7 @@ public static class WarriorPassiveReauthoring
         var db=AssetDatabase.LoadAssetAtPath<ModDatabase>("Assets/Prefabs/Scriptable Objects/ModDatabase.asset");var branch=AssetDatabase.LoadAssetAtPath<PassiveClassBranchSO>(BranchPath);Undo.RecordObject(branch,"Reauthor Warrior generic passives");
         for(int i=0;i<10;i++)
         {
-            var tier=branch.Tiers[i];tier.Spine.Configure(tier.Spine.StableId,"Strength","+10 flat Strength.",PassiveBranch.Strength,PassiveNodeSize.Medium,PassiveNodeKind.Spine,PassiveKeystone.None,new[]{new PassiveEffect(StatTypes.Strength,10)},tier.Spine.LogicalSlotId);tier.Spine.SetIcon(null);
+            var tier=branch.Tiers[i];tier.Spine.Configure(tier.Spine.StableId,"Strength and Dexterity","+5 flat Strength; +5 flat Dexterity.",PassiveBranch.Strength,PassiveNodeSize.Medium,PassiveNodeKind.Spine,PassiveKeystone.None,new[]{new PassiveEffect(StatTypes.Strength,5),new PassiveEffect(StatTypes.Dexterity,5)},tier.Spine.LogicalSlotId);tier.Spine.SetIcon(null);
             var nodes=tier.Left.GenericNodes.Concat(tier.Right.GenericNodes).ToArray();for(int n=0;n<6;n++){var node=nodes[n];StatTypes stat=Choices[i,n];node.Configure(node.StableId,Name(stat),stat==StatTypes.AllRes?"Fire, Cold and Lightning resistance only. Does not include Void.":string.Empty,Branch(stat),PassiveNodeSize.Small,PassiveNodeKind.Choice,PassiveKeystone.None,new[]{new PassiveEffect(stat,Value(db,stat))},node.LogicalSlotId);node.SetIcon(Sprite(Icons[stat]));}
         }
         EditorUtility.SetDirty(branch);AssetDatabase.SaveAssetIfDirty(branch);

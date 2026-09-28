@@ -190,5 +190,17 @@ public enum StatTypes
     PhysicalDamageReduction = 129,
     ReducedShockEffect = 130,
     ReducedChillEffect = 131,
-    PlusAllSkills = 132
+    PlusAllSkills = 132,
+    // Generic-class rework: append only; item saves retain all earlier IDs.
+    RevengeEffect = 133,
+    PoisonLifeLeech = 134,
+    LifeRecoveryEffect = 135,
+    AllDamagingAilmentChance = 136,
+    GrantsPhysicalAura = 137,
+    GrantsFireAura = 138,
+    GrantsColdAura = 139,
+    GrantsLightningAura = 140,
+    GrantsVoidAura = 141,
+    AxePhysicalRage = 142,
+    CullingStrike = 143
 }

@@ -61,6 +61,7 @@ public class Gear : MonoBehaviour
     public float LocalBaseCrit;
     public float LocalIncCrit;
     public float LocalIncAttackSpeed;
+    public float LocalMorePhysical;
 
     //These 4 lines define getters for the private variables, itemType, itemRarity, itemLevel, and modNumber
     public LootManager.GearType ItemType => itemType;
@@ -104,7 +105,7 @@ public class Gear : MonoBehaviour
         EnsurePersistentId();
         rolledMods.Clear();globalRolledMods.Clear();
         BaseDamage=BaseDamageMin=BaseDamageMax=BaseAttackSpeed=BaseCritChance=0f;
-        LocalFlatDamage=LocalFlatDamageMax=LocalIncDamage=LocalBaseCrit=LocalIncCrit=LocalIncAttackSpeed=0f;
+        LocalFlatDamage=LocalFlatDamageMax=LocalIncDamage=LocalBaseCrit=LocalIncCrit=LocalIncAttackSpeed=LocalMorePhysical=0f;
         itemType = type;
         weaponTypeId = type == LootManager.GearType.Weapons && WeaponTypeCatalog.IsValid(stableWeaponTypeId)
             ? stableWeaponTypeId : type == LootManager.GearType.Weapons ? WeaponTypeCatalog.HistoricalDefaultId : string.Empty;
@@ -171,7 +172,7 @@ public class Gear : MonoBehaviour
         bool hasSpeedBase = copy.Exists(m => m != null && m.statType == StatTypes.WeaponBaseAttackSpeed);
         bool hasCritBase = copy.Exists(m => m != null && m.statType == StatTypes.WeaponBaseCrit);
         BaseDamage = BaseDamageMin = BaseDamageMax = BaseAttackSpeed = BaseCritChance = 0f;
-        LocalFlatDamage = LocalFlatDamageMax = LocalIncDamage = LocalBaseCrit = LocalIncCrit = LocalIncAttackSpeed = 0f;
+        LocalFlatDamage = LocalFlatDamageMax = LocalIncDamage = LocalBaseCrit = LocalIncCrit = LocalIncAttackSpeed = LocalMorePhysical = 0f;
         globalRolledMods.Clear();
         ApplyMods(copy);
         // Weapon type profiles may intentionally override the generic intrinsic
@@ -251,6 +252,10 @@ public class Gear : MonoBehaviour
             if (mod == null) continue;
             switch (mod.statType)
             {
+                case StatTypes.AxePhysicalRage:
+                    if(ItemType==LootManager.GearType.Weapons&&WeaponTypeId==WeaponTypeIds.TwoHandedAxe)
+                    {LocalMorePhysical=mod.value/100f;globalRolledMods.Add(new RolledMod(StatTypes.RageGeneration,mod.tierIndex,mod.secondaryValue));}
+                    break;
 
                 //Base Damage Stats
                 case StatTypes.WeaponBaseDmg:
@@ -349,6 +354,7 @@ public class Gear : MonoBehaviour
         float baseMax = BaseDamageMin > 0f || BaseDamageMax > 0f ? BaseDamageMax : BaseDamage;
         minimum = Mathf.Max(0f, (baseMin + LocalFlatDamage) * (1f + LocalIncDamage));
         maximum = Mathf.Max(minimum, (baseMax + LocalFlatDamageMax) * (1f + LocalIncDamage));
+        if(BaseElement==Element.Phys){minimum*=1+LocalMorePhysical;maximum*=1+LocalMorePhysical;}
     }
 
     public float RollEffectiveBaseDamage()

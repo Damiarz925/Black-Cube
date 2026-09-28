@@ -28,6 +28,7 @@ public sealed class PlayerSkillController : MonoBehaviour
         if (catalog != null && catalog.skills != null && catalog.skills.Count > 0)
             skills = catalog.skills;
         if (skills == null || skills.Count == 0 || !ContainsProductionSkills(skills)) skills = PlayerSkillDefinition.CreateProductionDefaults();
+        skills = PlayerSkillDefinition.UpgradeProjectileDefinitions(skills);
         player=GetComponent<PlayerController>();
         if(player!=null)player.AttackChanged+=RefreshWeaponSkills;
         RefreshWeaponSkills();

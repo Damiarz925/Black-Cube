@@ -40,8 +40,8 @@ MonoBehaviour:
     spine:
       stableId: tree.v3.class.warrior.t01.spine
       logicalSlotId: tree.v3.class.warrior.t01.spine
-      displayName: Strength
-      description: +10 flat Strength.
+      displayName: Strength and Dexterity
+      description: +5 flat Strength; +5 flat Dexterity.
       branch: 26
       size: 1
       kind: 5
@@ -50,7 +50,11 @@ MonoBehaviour:
       - kind: 0
         stat: 92
         mechanicId: 
-        value: 10
+        value: 5
+      - kind: 0
+        stat: 94
+        mechanicId: 
+        value: 5
       iconMode: 0
       iconOverride: {fileID: 0}
     right:
@@ -219,8 +223,8 @@ MonoBehaviour:
     spine:
       stableId: tree.v3.class.warrior.t02.spine
       logicalSlotId: tree.v3.class.warrior.t02.spine
-      displayName: Strength
-      description: +10 flat Strength.
+      displayName: Strength and Dexterity
+      description: +5 flat Strength; +5 flat Dexterity.
       branch: 26
       size: 1
       kind: 5
@@ -229,7 +233,11 @@ MonoBehaviour:
       - kind: 0
         stat: 92
         mechanicId: 
-        value: 10
+        value: 5
+      - kind: 0
+        stat: 94
+        mechanicId: 
+        value: 5
       iconMode: 0
       iconOverride: {fileID: 0}
     right:
@@ -398,8 +406,8 @@ MonoBehaviour:
     spine:
       stableId: tree.v3.class.warrior.t03.spine
       logicalSlotId: tree.v3.class.warrior.t03.spine
-      displayName: Strength
-      description: +10 flat Strength.
+      displayName: Strength and Dexterity
+      description: +5 flat Strength; +5 flat Dexterity.
       branch: 26
       size: 1
       kind: 5
@@ -408,7 +416,11 @@ MonoBehaviour:
       - kind: 0
         stat: 92
         mechanicId: 
-        value: 10
+        value: 5
+      - kind: 0
+        stat: 94
+        mechanicId: 
+        value: 5
       iconMode: 0
       iconOverride: {fileID: 0}
     right:
@@ -577,8 +589,8 @@ MonoBehaviour:
     spine:
       stableId: tree.v3.class.warrior.t04.spine
       logicalSlotId: tree.v3.class.warrior.t04.spine
-      displayName: Strength
-      description: +10 flat Strength.
+      displayName: Strength and Dexterity
+      description: +5 flat Strength; +5 flat Dexterity.
       branch: 26
       size: 1
       kind: 5
@@ -587,7 +599,11 @@ MonoBehaviour:
       - kind: 0
         stat: 92
         mechanicId: 
-        value: 10
+        value: 5
+      - kind: 0
+        stat: 94
+        mechanicId: 
+        value: 5
       iconMode: 0
       iconOverride: {fileID: 0}
     right:
@@ -756,8 +772,8 @@ MonoBehaviour:
     spine:
       stableId: tree.v3.class.warrior.t05.spine
       logicalSlotId: tree.v3.class.warrior.t05.spine
-      displayName: Strength
-      description: +10 flat Strength.
+      displayName: Strength and Dexterity
+      description: +5 flat Strength; +5 flat Dexterity.
       branch: 26
       size: 1
       kind: 5
@@ -766,7 +782,11 @@ MonoBehaviour:
       - kind: 0
         stat: 92
         mechanicId: 
-        value: 10
+        value: 5
+      - kind: 0
+        stat: 94
+        mechanicId: 
+        value: 5
       iconMode: 0
       iconOverride: {fileID: 0}
     right:
@@ -935,8 +955,8 @@ MonoBehaviour:
     spine:
       stableId: tree.v3.class.warrior.t06.spine
       logicalSlotId: tree.v3.class.warrior.t06.spine
-      displayName: Strength
-      description: +10 flat Strength.
+      displayName: Strength and Dexterity
+      description: +5 flat Strength; +5 flat Dexterity.
       branch: 26
       size: 1
       kind: 5
@@ -945,7 +965,11 @@ MonoBehaviour:
       - kind: 0
         stat: 92
         mechanicId: 
-        value: 10
+        value: 5
+      - kind: 0
+        stat: 94
+        mechanicId: 
+        value: 5
       iconMode: 0
       iconOverride: {fileID: 0}
     right:
@@ -1114,8 +1138,8 @@ MonoBehaviour:
     spine:
       stableId: tree.v3.class.warrior.t07.spine
       logicalSlotId: tree.v3.class.warrior.t07.spine
-      displayName: Strength
-      description: +10 flat Strength.
+      displayName: Strength and Dexterity
+      description: +5 flat Strength; +5 flat Dexterity.
       branch: 26
       size: 1
       kind: 5
@@ -1124,7 +1148,11 @@ MonoBehaviour:
       - kind: 0
         stat: 92
         mechanicId: 
-        value: 10
+        value: 5
+      - kind: 0
+        stat: 94
+        mechanicId: 
+        value: 5
       iconMode: 0
       iconOverride: {fileID: 0}
     right:
@@ -1293,8 +1321,8 @@ MonoBehaviour:
     spine:
       stableId: tree.v3.class.warrior.t08.spine
       logicalSlotId: tree.v3.class.warrior.t08.spine
-      displayName: Strength
-      description: +10 flat Strength.
+      displayName: Strength and Dexterity
+      description: +5 flat Strength; +5 flat Dexterity.
       branch: 26
       size: 1
       kind: 5
@@ -1303,7 +1331,11 @@ MonoBehaviour:
       - kind: 0
         stat: 92
         mechanicId: 
-        value: 10
+        value: 5
+      - kind: 0
+        stat: 94
+        mechanicId: 
+        value: 5
       iconMode: 0
       iconOverride: {fileID: 0}
     right:
@@ -1472,8 +1504,8 @@ MonoBehaviour:
     spine:
       stableId: tree.v3.class.warrior.t09.spine
       logicalSlotId: tree.v3.class.warrior.t09.spine
-      displayName: Strength
-      description: +10 flat Strength.
+      displayName: Strength and Dexterity
+      description: +5 flat Strength; +5 flat Dexterity.
       branch: 26
       size: 1
       kind: 5
@@ -1482,7 +1514,11 @@ MonoBehaviour:
       - kind: 0
         stat: 92
         mechanicId: 
-        value: 10
+        value: 5
+      - kind: 0
+        stat: 94
+        mechanicId: 
+        value: 5
       iconMode: 0
       iconOverride: {fileID: 0}
     right:
@@ -1651,8 +1687,8 @@ MonoBehaviour:
     spine:
       stableId: tree.v3.class.warrior.t10.spine
       logicalSlotId: tree.v3.class.warrior.t10.spine
-      displayName: Strength
-      description: +10 flat Strength.
+      displayName: Strength and Dexterity
+      description: +5 flat Strength; +5 flat Dexterity.
       branch: 26
       size: 1
       kind: 5
@@ -1661,7 +1697,11 @@ MonoBehaviour:
       - kind: 0
         stat: 92
         mechanicId: 
-        value: 10
+        value: 5
+      - kind: 0
+        stat: 94
+        mechanicId: 
+        value: 5
       iconMode: 0
       iconOverride: {fileID: 0}
     right:
@@ -1826,3 +1866,37 @@ MonoBehaviour:
           value: 6.48
         iconMode: 0
         iconOverride: {fileID: 0}
+  keystones:
+  - stableId: tree.v3.class.warrior.keystone.warriorbleed
+    logicalSlotId: tree.v3.class.warrior.keystone.warriorbleed
+    displayName: Blood Reservoir
+    description: 35% less Bleed Damage; double maximum Bleed stack cap, not applications.
+    branch: 8
+    size: 2
+    kind: 4
+    keystone: 22
+    effects: []
+    iconMode: 1
+    iconOverride: {fileID: 21300000, guid: 515daee52d8470c4da2c894c21392536, type: 3}
+  - stableId: tree.v3.class.warrior.keystone.warriortempo
+    logicalSlotId: tree.v3.class.warrior.keystone.warriortempo
+    displayName: Unbroken Tempo
+    description: 15% MORE Attack Speed; multiplicative after increased Attack Speed.
+    branch: 8
+    size: 2
+    kind: 4
+    keystone: 23
+    effects: []
+    iconMode: 1
+    iconOverride: {fileID: 21300000, guid: 515daee52d8470c4da2c894c21392536, type: 3}
+  - stableId: tree.v3.class.warrior.keystone.warriorconsolidation
+    logicalSlotId: tree.v3.class.warrior.keystone.warriorconsolidation
+    displayName: One Decisive Strike
+    description: Consolidate rolled melee Multistrikes into the original hit at 105% extra-strike damage each. No repeated triggers.
+    branch: 8
+    size: 2
+    kind: 4
+    keystone: 24
+    effects: []
+    iconMode: 1
+    iconOverride: {fileID: 21300000, guid: 515daee52d8470c4da2c894c21392536, type: 3}

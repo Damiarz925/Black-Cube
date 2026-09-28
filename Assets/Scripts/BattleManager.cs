@@ -121,6 +121,7 @@ public class BattleManager : MonoBehaviour
     public void BeginZone(int zoneLevel, bool startWithBoss = false)    //debug log and calls spawnnextenemy function, passing in startwithboss (defaulted to false)
     {
         Debug.Log($"BattleManager: BeginZone(level={zoneLevel}, startWithBoss={startWithBoss})");
+        stealthReady=false;
         SpawnNextEnemy(startWithBoss);
     }
 
@@ -323,6 +324,7 @@ public class BattleManager : MonoBehaviour
         var originalTarget = enemyHealth;
         var originalStatuses = enemyStatusCont;
         globalTurnCounter++;        //increment global turn counter
+        subclassState?.TickAuras();
 
         TickStatusController(playerStatusCont,true); // Player's afflicted-actor turn.
         if (playerHealth.CurrentLife <= 0f) return;
@@ -330,7 +332,7 @@ public class BattleManager : MonoBehaviour
         if (enemyHealth != originalTarget || originalTarget.CurrentLife <= 0f) return;
 
         var skillController = player != null ? player.GetComponent<PlayerSkillController>() : null;
-        specialEffects??=player!=null?player.GetComponent<BossSpecialEffectRuntime>()??player.AddComponent<BossSpecialEffectRuntime>():null;specialEffects?.BeginAttackEvent();currentAttackEventMultiplier=playerRage!=null?playerRage.BeginAttackEventMultiplier():1f;bool resolved=false;
+        specialEffects??=player!=null?player.GetComponent<BossSpecialEffectRuntime>()??player.AddComponent<BossSpecialEffectRuntime>():null;specialEffects?.BeginAttackEvent();currentAttackEventMultiplier=(playerRage!=null?playerRage.BeginAttackEventMultiplier():1f)*(player!=null?player.GetComponent<RevengeState>()?.ConsumeAttack()??1:1);bool resolved=false;
         try{if (skillController != null && skillController.TryConsumeQueuedForAttack(out var queued, out float manaSpent))
         {
             // Resolve against the enemy that exists at the scheduled attack event,
@@ -350,29 +352,37 @@ public class BattleManager : MonoBehaviour
     {
         if(playerController?.EquippedWeapon!=null&&WeaponTypeCatalog.TryGet(playerController.EquippedWeapon.WeaponTypeId,out var profile)&&profile.IsRanged)
         {
-            int count=CalculateProjectileCount(playerStats.GetRawStat(StatTypes.ProjectileAmount),0);float travel=WeaponMechanicProfile.ProjectileTravelTime(playerStats.GetStat(StatTypes.ProjectileSpeed));
+            int count=SplitProjectileCount(CalculateProjectileCount(playerStats.GetRawStat(StatTypes.ProjectileAmount),0));float travel=WeaponMechanicProfile.ProjectileTravelTime(playerStats.GetStat(StatTypes.ProjectileSpeed));
             for(int i=0;i<count;i++){DamageContext snapshot=ApplyPrecision(ApplyWeaponMechanics(playerController.BuildAttackContext()),profile.SupportsPrecision);int index=i;SkillProjectile.Launch(player.transform,currentEnemy.transform,playerController.EquippedWeaponElement,()=>ResolvePlayerProjectile(null,target,statuses,snapshot,null),(i-(count-1)*.5f)*.18f,travel,index*WeaponMechanicProfile.ProjectileBarrageSpacing);}return;
         }
         ResolvePlayerLogicalHit(null, target, statuses, showImpact: true);
         // Hit Twice is one independent bonus hit, and deliberately does not recurse.
-        if (IsSameLivingEnemy(target) && Random.value < Mathf.Clamp01(AdjustedChance(playerStats, StatTypes.ChanceToHitTwice)))
+        if (CanPlayerMultistrike && !HasClassKeystone(PassiveKeystone.WarriorConsolidation) && IsSameLivingEnemy(target) && Random.value < Mathf.Clamp01(AdjustedChance(playerStats, StatTypes.ChanceToHitTwice)))
             ResolvePlayerLogicalHit(null, target, statuses, showImpact: true);
     }
+
+    bool CanPlayerMultistrike => playerController?.EquippedWeapon!=null&&GenericPassiveMechanics.SupportsMultistrike(playerController.EquippedWeapon.WeaponTypeId);
+    bool HasClassKeystone(PassiveKeystone key)=>player!=null&&player.GetComponent<PassiveKeystoneState>()?.Has(key)==true;
+    bool stealthReady;
 
     private void ResolveEnemyTurn()
     {
         if (currentEnemy == null || enemyHealth == null || enemyHealth.CurrentLife <= 0f) return;       //if enemy, or their health is null or less than or equal to 0, return
         if (playerHealth == null || playerStatusCont == null || playerHealth.CurrentLife <= 0f) return;     //if player health is null or less than or equal to 0, return
 
-        if(enemyStatusCont!=null&&enemyStatusCont.ConsumeFrozenAttackSkip()){specialEffects?.OnFreezeConsumed(playerHealth,GetPlayerMana());return;}
         var originalAttacker = enemyHealth;
         var originalTarget = playerHealth;
         globalTurnCounter++;        //increment global turn counter
+        subclassState?.TickAuras();
 
         TickStatusController(playerStatusCont,false);
         if (playerHealth.CurrentLife <= 0f) return;
         TickStatusController(enemyStatusCont,true); // Enemy's afflicted-actor turn.
         if (enemyHealth != originalAttacker || originalAttacker.CurrentLife <= 0f) return;
+
+        // A dodged attack still advances global turns, aura lifetimes and DOTs.
+        if(enemyStatusCont!=null&&enemyStatusCont.ConsumeFrozenAttackSkip()){specialEffects?.OnFreezeConsumed(playerHealth,GetPlayerMana());return;}
+        if(stealthReady){stealthReady=false;if(Random.value<ClassKeystoneCatalog.Get(PassiveKeystone.ThiefStealth).secondary)return;}
 
         EnemySkillDefinition authoredSkill=enemyAI.BeginAuthoredTurn();
         int authoredHits=enemyAI.CurrentAuthoredHitCount;
@@ -448,6 +458,7 @@ public class BattleManager : MonoBehaviour
         // A restart restores a clean encounter boundary. Queued attacks are
         // transient combat intent and must never survive that boundary.
         player.GetComponent<PlayerSkillController>()?.ClearQueuedSkill();
+        stealthReady=false;
 
         if (playerSpawnPoint != null)
         {
@@ -507,12 +518,15 @@ public class BattleManager : MonoBehaviour
         if (skill == null || !CanCastPlayerSkill) return false;
         HealthComponent target = enemyHealth;
         StatusController statuses = enemyStatusCont;
+        DamageContext boltBasis=HasClassKeystone(PassiveKeystone.MageSelfBolt)&&(skill.DamageScopes&DamageScope.Magic)!=0
+            ?ApplyWeaponMechanics(playerController.BuildNonCriticalAttackContext(skill.conversionElement,skill.nonMatchingConversion,skill.DamageScopes)):default;
 
         if (skill.projectile)
         {
             int projectileCount = GetPlayerProjectileCount(skill);
             if(skill.effect==WeaponSkillEffect.DoubleProjectiles)projectileCount*=2;
             float focusedMultiplier=1f;if(subclassState!=null)projectileCount=subclassState.FinalProjectileCount(projectileCount,out focusedMultiplier);
+            projectileCount=SplitProjectileCount(projectileCount);
             for (int i = 0; i < projectileCount; i++)
             {
                 float offset = (i - (projectileCount - 1) * .5f) * .18f;
@@ -521,19 +535,43 @@ public class BattleManager : MonoBehaviour
                 DamageContext snapshot = ApplyPrecision(ApplyWeaponMechanics(playerController.BuildAttackContext(
                     skill.conversionElement, skill.nonMatchingConversion, skill.DamageScopes)),CanPrecision(skill));
                 if(!Mathf.Approximately(focusedMultiplier,1f))snapshot=TransformContext(snapshot,focusedMultiplier,Element.Phys,0);
-                bool hitTwice = Random.value < Mathf.Clamp01(AdjustedChance(playerStats, StatTypes.ChanceToHitTwice));
-                DamageContext? bonusSnapshot = hitTwice ? ApplyPrecision(ApplyWeaponMechanics(playerController.BuildAttackContext(
-                    skill.conversionElement, skill.nonMatchingConversion, skill.DamageScopes)),CanPrecision(skill)) : null;
+                // A thrown Dagger is a projectile, not a melee event. Equipped weapon
+                // classification alone must never grant projectile Multistrikes.
+                DamageContext? bonusSnapshot = null;
                 SkillProjectile.Launch(player.transform, currentEnemy.transform, skill.conversionElement,
                     () => ResolvePlayerProjectile(skill, target, statuses, snapshot, bonusSnapshot), offset,
-                    WeaponMechanicProfile.ProjectileTravelTime(playerStats.GetStat(StatTypes.ProjectileSpeed)),i*WeaponMechanicProfile.ProjectileBarrageSpacing);
+                    WeaponMechanicProfile.ProjectileTravelTime(playerStats.GetStat(StatTypes.ProjectileSpeed),skill.baseProjectileSpeed),i*WeaponMechanicProfile.ProjectileBarrageSpacing);
             }
         }
         else
         {
             ResolvePlayerSkill(skill, target, statuses);
         }
+        if(boltBasis.Hits!=null)ResolveKeystoneSpellBolt(skill,target,statuses,boltBasis);
         return true;
+    }
+
+    int SplitProjectileCount(int count)=>HasClassKeystone(PassiveKeystone.RangerSplit)?count*Mathf.RoundToInt(PassiveKeystoneState.Value(PassiveKeystone.RangerSplit)):count;
+    void ResolveKeystoneSpellBolt(PlayerSkillDefinition skill,HealthComponent target,StatusController statuses,DamageContext basis)
+    {
+        int level=player.GetComponent<PlayerSkillController>()?.EffectiveSkillLevel(skill)??1;
+        float amount=SumDamage(basis)*skill.hitDamageMultiplier*PlayerSkillController.SkillDamageLevelFactor(level)*PassiveKeystoneState.Value(PassiveKeystone.MageSelfBolt);
+        var bolt=new DamageContext(1){EventTags=CombatEventTags.TriggeredDamage|CombatEventTags.NoSecondaryTriggers};bolt.AddDamage(Element.Light,amount);
+        if(IsSameLivingEnemy(target))
+        {
+            float dealt=CombatCalculator.CalculateFinalDamage(bolt,playerStats,enemyStats);
+            float actual=Mathf.Min(target.CurrentLife,dealt);
+            enemyDamageReceiver.TakeDamage(dealt,bolt);
+            if(actual>0)playerHealth.RestoreLife(actual*(player.GetComponent<PassiveKeystoneState>()?.DamageRecoveryFraction??0),HealingSource.SubclassDamage);
+            if(dealt>0){playerHealth.RestoreLife(playerStats.GetStat(StatTypes.LifeOnHit),HealingSource.LifeOnHit);GetPlayerMana()?.Restore(playerStats.GetStat(StatTypes.ManaOnHit));}
+            if(IsSameLivingEnemy(target))ApplyOnHitEffects(bolt,playerStats,statuses);
+        }
+        // Incoming, not an offensive player hit: no player penetration or on-hit rewards.
+        var incoming=new DamageContext(1){IncomingSelfHit=true,EventTags=CombatEventTags.TriggeredDamage|CombatEventTags.NoSecondaryTriggers};incoming.AddDamage(Element.Light,amount);
+        float selfDamage=CombatCalculator.CalculateFinalDamage(incoming,null,playerStats)*(playerRage?.IncomingDamageMultiplier??1f);
+        playerDamageReceiver??=GetOrAddDamageReceiver(player);playerDamageReceiver.TakeDamage(selfDamage,incoming);
+        playerRage?.GainFromDamageTaken(selfDamage,playerHealth.MaxLife);
+        if(selfDamage>0){specialEffects?.NotifyPlayerTookDirectHit();if(RollOverflowApplications(AdjustedChance(playerStats,StatTypes.ShockChance))>0)playerStatusCont.AddShockInstance(.5f*(1+playerStats.GetStat(StatTypes.ShockEffect))*(1-Mathf.Clamp01(playerStats.GetStat(StatTypes.ReducedShockEffect))),5);}
     }
 
     public bool TryCastImmediatePlayerSkill(PlayerSkillDefinition skill)
@@ -546,6 +584,7 @@ public class BattleManager : MonoBehaviour
         StatusController statuses, DamageContext snapshot, DamageContext? bonusSnapshot)
     {
         if (!IsSameLivingEnemy(target)) return;
+        if(HasClassKeystone(PassiveKeystone.RangerPrecision)&&Random.value<PassiveKeystoneState.Value(PassiveKeystone.RangerPrecision))return;
         ResolvePlayerLogicalHit(skill, target, statuses, showImpact: true, normalSnapshot: snapshot);
         if (IsSameLivingEnemy(target) && bonusSnapshot.HasValue)
             ResolvePlayerLogicalHit(skill, target, statuses, showImpact: true, normalSnapshot: bonusSnapshot.Value);
@@ -583,7 +622,7 @@ public class BattleManager : MonoBehaviour
         {
             ResolvePlayerLogicalHit(skill, target, statuses, showImpact: true, shockTriggered: i >= baseHits);
             if (IsSameLivingEnemy(target)
-                && Random.value < Mathf.Clamp01(AdjustedChance(playerStats, StatTypes.ChanceToHitTwice)))
+                && CanPlayerMultistrike && !HasClassKeystone(PassiveKeystone.WarriorConsolidation) && Random.value < Mathf.Clamp01(AdjustedChance(playerStats, StatTypes.ChanceToHitTwice)))
                 ResolvePlayerLogicalHit(skill, target, statuses, showImpact: true, shockTriggered: i >= baseHits);
         }
     }
@@ -613,6 +652,13 @@ public class BattleManager : MonoBehaviour
             : skill == null ? normal : TransformContext(normal, skillMultiplier * skillLevelFactor, skill.conversionElement, 0f);
         direct.EventTags|=skill==null?CombatEventTags.NormalAttack:CombatEventTags.WeaponSkill;
         if(skill?.projectile==true)direct.EventTags|=CombatEventTags.Projectile;
+        bool projectile=skill?.projectile==true||(skill==null&&playerController?.EquippedWeapon?.WeaponTypeId==WeaponTypeIds.Bow);
+        if(!projectile&&CanPlayerMultistrike&&HasClassKeystone(PassiveKeystone.WarriorConsolidation))
+        {int extra=Random.value<Mathf.Clamp01(AdjustedChance(playerStats,StatTypes.ChanceToHitTwice))?1:0;direct=TransformContext(direct,ClassKeystoneMechanics.ConsolidatedMultiplier(extra),Element.Phys,0);}
+        if(HasClassKeystone(PassiveKeystone.PriestAura)&&direct.Hits.Count>2)
+        {direct=TransformContext(direct,1,Element.Phys,0);while(direct.Hits.Count>2)direct.Hits.RemoveAt(Random.Range(0,direct.Hits.Count));}
+        bool lightningShatter=HasClassKeystone(PassiveKeystone.MageShatter)&&statuses?.IsFrozen==true&&!statuses.IsFractured&&direct.Hits.Exists(h=>h.Element==Element.Light&&h.Amount>0);
+        if(lightningShatter){direct=TransformContext(direct,1,Element.Phys,0);for(int i=0;i<direct.Hits.Count;i++){var h=direct.Hits[i];if(h.Element==Element.Light)h.Amount*=ClassKeystoneCatalog.Get(PassiveKeystone.MageShatter).secondary;direct.Hits[i]=h;}}
         specialEffects??=player!=null?player.GetComponent<BossSpecialEffectRuntime>()??player.AddComponent<BossSpecialEffectRuntime>():null;
         direct=specialEffects!=null?specialEffects.BeforeHit(direct,statuses,target):direct;
 
@@ -640,22 +686,29 @@ public class BattleManager : MonoBehaviour
         if (skill != null && skill.id == PlayerSkillId.HeavyStrike) PlayHeavyStrikeFeedback();
         if (damageTaken > 0f && enemyDamageReceiver != null)
         {
+            float actualDamage=Mathf.Min(target.CurrentLife,damageTaken);
+            var auraDefender=enemyStats;
+            float auraMaximum=target.MaxLife;
+            subclassState?.RecordMitigatedTypedDamage(direct,auraDefender,auraMaximum);
             enemyDamageReceiver.TakeDamage(damageTaken, direct);
             playerRage?.GainFromDamageDealt(damageTaken,target.MaxLife,skill?.effect==WeaponSkillEffect.RageStrike?1.5f:1f);
             playerHealth.RestoreLife(playerStats.GetStat(StatTypes.LifeOnHit),HealingSource.LifeOnHit);
             GetPlayerMana()?.Restore(playerStats.GetStat(StatTypes.ManaOnHit));
-            if(skill?.effect==WeaponSkillEffect.HealFromDamage)playerHealth.RestoreLife(damageTaken*skill.secondaryMultiplier,HealingSource.WeaponSkill);
+            if(skill?.effect==WeaponSkillEffect.HealFromDamage)playerHealth.RestoreLife(actualDamage*skill.secondaryMultiplier,HealingSource.WeaponSkill);
+            if(keystones!=null)playerHealth.RestoreLife(actualDamage*keystones.DamageRecoveryFraction,HealingSource.SubclassDamage);
             if(subclassState?.Has(SubclassIds.PriestLight)==true)playerHealth.RestoreLife(damageTaken*.10f,HealingSource.SubclassDamage);
-            subclassState?.RecordTypedDamage(direct,damageTaken,target.MaxLife);subclassState?.PlayerHit();
+            subclassState?.PlayerHit();
             specialEffects?.AfterHit(direct,rawTotal,statuses,target,enemyDamageReceiver,playerStats,enemyStats);
             if(subclassState?.Has(SubclassIds.BarbarianFire)==true&&Random.value<SubclassBalanceProfile.EruptionChance&&IsSameLivingEnemy(target))
             {
-                var eruption=new DamageContext(1){EventTags=CombatEventTags.TriggeredDamage|CombatEventTags.SubclassProc|CombatEventTags.Eruption};eruption.AddDamage(Element.Fire,rawTotal*SubclassBalanceProfile.EruptionMagnitude);float eruptionDamage=CombatCalculator.CalculateFinalDamage(eruption,playerStats,enemyStats);if(eruptionDamage>0)enemyDamageReceiver.TakeDamage(eruptionDamage,eruption);if(IsSameLivingEnemy(target))ApplyConfiguredStatus(igniteEffect,StatTypes.IgniteChance,eruption,playerStats,statuses);
+                var eruption=new DamageContext(1){EventTags=CombatEventTags.TriggeredDamage|CombatEventTags.SubclassProc|CombatEventTags.Eruption};eruption.AddDamage(Element.Fire,rawTotal*SubclassBalanceProfile.EruptionMagnitude);float eruptionDamage=CombatCalculator.CalculateFinalDamage(eruption,playerStats,enemyStats);if(eruptionDamage>0){float lost=Mathf.Min(target.CurrentLife,eruptionDamage);enemyDamageReceiver.TakeDamage(eruptionDamage,eruption);playerHealth.RestoreLife(lost*(keystones?.DamageRecoveryFraction??0),HealingSource.SubclassDamage);}if(IsSameLivingEnemy(target))ApplyConfiguredStatus(igniteEffect,StatTypes.IgniteChance,eruption,playerStats,statuses);
             }
         }
 
         if (IsSameLivingEnemy(target))
         {
+            if(lightningShatter&&statuses.TryConsumeFreeze(out _))
+            {var shatter=new DamageContext(1){EventTags=CombatEventTags.TriggeredDamage|CombatEventTags.Shatter|CombatEventTags.NoSecondaryTriggers};shatter.AddDamage(Element.Cold,target.MaxLife*ClassKeystoneCatalog.Get(PassiveKeystone.MageShatter).tertiary);float burst=CombatCalculator.CalculateFinalDamage(shatter,playerStats,enemyStats);float lost=Mathf.Min(target.CurrentLife,burst);enemyDamageReceiver.TakeDamage(burst,shatter);playerHealth.RestoreLife(lost*(keystones?.DamageRecoveryFraction??0),HealingSource.SubclassDamage);if(!IsSameLivingEnemy(target))return;}
             DamageContext poisonTransmutationBasis = poisonTransmutation
                 ? TransformContext(PassiveKeystoneState.AsPoisonBasis(normal), skillLevelFactor, Element.Phys, 0f)
                 : specialized;
@@ -669,14 +722,15 @@ public class BattleManager : MonoBehaviour
                     var shatter=TransformContext(normal,WeaponMechanicProfile.ShatterMultiplier(frozenStrength)*fracture,Element.Cold,1f);
                     shatter.EventTags=CombatEventTags.TriggeredDamage|CombatEventTags.Shatter|CombatEventTags.NoSecondaryTriggers;
                     float burst=CombatCalculator.CalculateFinalDamage(shatter,playerStats,enemyStats);
-                    if(burst>0&&enemyDamageReceiver!=null)enemyDamageReceiver.TakeDamage(burst,shatter);
+                    if(burst>0&&enemyDamageReceiver!=null){float lost=Mathf.Min(target.CurrentLife,burst);enemyDamageReceiver.TakeDamage(burst,shatter);playerHealth.RestoreLife(lost*(keystones?.DamageRecoveryFraction??0),HealingSource.SubclassDamage);}
                 }
-                else if(statuses.CurrentChillSlow>0&&Random.value<Mathf.Clamp01(statuses.CurrentChillSlow))statuses.ApplyFreeze(statuses.CurrentChillSlow);
+                else if(!HasClassKeystone(PassiveKeystone.PriestFracture)&&statuses.CurrentChillSlow>0&&Random.value<Mathf.Clamp01(statuses.CurrentChillSlow))statuses.ApplyFreeze(statuses.CurrentChillSlow);
             }
             if(appliedBleed&&subclassState?.Has(SubclassIds.WarriorBleed)==true&&Random.value<SubclassBalanceProfile.RuptureChance)
-            {float rupture=statuses.ConsumeRemainingAilmentDamage(StatusEffects.AilmentKind.Bleed);if(rupture>0){var ruptureEvent=new DamageContext(1){EventTags=CombatEventTags.TriggeredDamage|CombatEventTags.Rupture|CombatEventTags.NoSecondaryTriggers};ruptureEvent.AddDamage(Element.Phys,rupture);enemyDamageReceiver?.TakeDamage(rupture,ruptureEvent);}}
+            {float rupture=statuses.ConsumeRemainingAilmentDamage(StatusEffects.AilmentKind.Bleed);if(rupture>0){var ruptureEvent=new DamageContext(1){EventTags=CombatEventTags.TriggeredDamage|CombatEventTags.Rupture|CombatEventTags.NoSecondaryTriggers};ruptureEvent.AddDamage(Element.Phys,rupture);float lost=Mathf.Min(target.CurrentLife,rupture);enemyDamageReceiver?.TakeDamage(rupture,ruptureEvent);playerHealth.RestoreLife(lost*(keystones?.DamageRecoveryFraction??0),HealingSource.SubclassDamage);}}
             if(subclassState?.Has(SubclassIds.ThiefAssassin)==true&&target.CurrentLife>0&&target.CurrentLife<=target.MaxLife*.10f)
             {if(!target.IsBoss)target.LoseLife(target.CurrentLife);}
+            if(ClassKeystoneMechanics.Cull(target.CurrentLife,target.MaxLife,playerStats.GetStat(StatTypes.CullingStrike)))target.LoseLife(target.CurrentLife);
         }
     }
 
@@ -744,8 +798,9 @@ public class BattleManager : MonoBehaviour
     }
     DamageContext ApplyPrecision(DamageContext source,bool capable)
     {
-        if(!capable)return source;float chance=WeaponMechanicProfile.PrecisionChance(playerStats.GetStat(StatTypes.ProjectilePrecisionChance));if(Random.value>=chance)return source;
-        float multiplier=WeaponMechanicProfile.PrecisionMultiplier(playerStats.GetStat(StatTypes.ProjectilePrecisionMultiplier));var result=TransformContext(source,multiplier,Element.Phys,0);result.IsPrecision=true;result.PrecisionMultiplier=multiplier;return result;
+        if(HasClassKeystone(PassiveKeystone.RangerSplit)){var split=ClassKeystoneCatalog.Get(PassiveKeystone.RangerSplit);source=TransformContext(source,split.secondary*split.tertiary,Element.Phys,0);}
+        if(!capable)return source;float chance=HasClassKeystone(PassiveKeystone.RangerPrecision)?1:WeaponMechanicProfile.PrecisionChance(playerStats.GetStat(StatTypes.ProjectilePrecisionChance));if(Random.value>=chance)return source;
+        float multiplier=WeaponMechanicProfile.PrecisionMultiplier(playerStats.GetStat(StatTypes.ProjectilePrecisionMultiplier))*(HasClassKeystone(PassiveKeystone.RangerPrecision)?ClassKeystoneCatalog.Get(PassiveKeystone.RangerPrecision).secondary:1);var result=TransformContext(source,multiplier,Element.Phys,0);result.IsPrecision=true;result.PrecisionMultiplier=multiplier;return result;
     }
     DamageContext ApplyWeaponMechanics(DamageContext source)
     {
@@ -808,6 +863,7 @@ public class BattleManager : MonoBehaviour
     {
         if (enemyHealthComponent == enemyHealth)
         {
+            if(HasClassKeystone(PassiveKeystone.ThiefStealth))stealthReady=true;
             Debug.Log("BattleManager: Current enemy died.");
             currentEnemy = null;
             enemyAI = null;
@@ -845,13 +901,26 @@ public class BattleManager : MonoBehaviour
         {poisonBasis.EventTags|=CombatEventTags.TriggeredDamage|CombatEventTags.ToxicEcho|CombatEventTags.NoSecondaryTriggers;targetStatusCont.ApplyAilmentFromHit(poisonEffect,poisonBasis,attackerStats,1,.05f);}
         int bleedApplications=ApplyConfiguredStatus(bleedEffect, StatTypes.BleedChance, bleedBasis, attackerStats, targetStatusCont,
             skill!=null&&skill.specializedAilment==StatusEffects.AilmentKind.Bleed?specializedGuarantee:0);
-        ApplyConfiguredStatus(igniteEffect, StatTypes.IgniteChance, igniteBasis, attackerStats, targetStatusCont,
+        int igniteApplications=ApplyConfiguredStatus(igniteEffect, StatTypes.IgniteChance, igniteBasis, attackerStats, targetStatusCont,
             skill!=null&&skill.specializedAilment==StatusEffects.AilmentKind.Ignite?specializedGuarantee:0,
             skill != null && skill.specializedAilment == StatusEffects.AilmentKind.Ignite
                 ? skill.absoluteAilmentCoefficient : -1f);
+        if(attackerStats.GetComponent<PassiveKeystoneState>()?.Has(PassiveKeystone.PriestSacrifice)==true)
+        {
+            int distinct=(poisonApplications>0?1:0)+(bleedApplications>0?1:0)+(igniteApplications>0?1:0);
+            var health=targetStatusCont.GetComponent<HealthComponent>();
+            if(distinct>0&&health!=null&&health.CurrentLife>0)
+            {
+                float lost=Mathf.Min(health.CurrentLife,health.MaxLife*distinct*PassiveKeystoneState.Value(PassiveKeystone.PriestSacrifice));health.LoseLife(lost);
+                if(skill?.effect==WeaponSkillEffect.HealFromDamage)attackerStats.GetComponent<HealthComponent>()?.RestoreLife(lost*skill.secondaryMultiplier,HealingSource.WeaponSkill);
+                var keys=attackerStats.GetComponent<PassiveKeystoneState>();attackerStats.GetComponent<HealthComponent>()?.RestoreLife(lost*keys.DamageRecoveryFraction,HealingSource.SubclassDamage);
+            }
+            poisonApplications=bleedApplications=igniteApplications=0;
+        }
         ApplyChillFromHit(ctx, attackerStats, targetStatusCont,
             skill != null ? skill.guaranteedAdditionalChill : 0);
         ApplyShockFromHit(ctx, attackerStats, targetStatusCont);
+        attackerStats.GetComponent<SubclassCombatState>()?.RecordDamagingAilments(bleedApplications>0,igniteApplications>0,poisonApplications>0);
         return bleedApplications>0;
     }
 
@@ -874,7 +943,7 @@ public class BattleManager : MonoBehaviour
         if(attacker.GetComponent<PlayerController>()!=null&&RelicInventory.Instance!=null)
             threshold=Mathf.Max(3,threshold-RelicInventory.Instance.ShockThresholdReduction);
         int duration = Mathf.Max(1, 5 + Mathf.RoundToInt(attacker.GetRawStat(StatTypes.ShockDuration)));
-        float auraShock=subclassState?.Has(SubclassIds.PriestLight)==true?subclassState.AuraSecondary(3,.20f):0f;
+        float auraShock=subclassState!=null?subclassState.AuraSecondary(3,.20f):0f;
         float coefficient = Mathf.Min(1f, .5f * (1f + attacker.GetStat(StatTypes.ShockEffect)+auraShock)
             * (keystones != null ? keystones.ShockTriggeredHitMultiplier : 1f))
             * (1f - Mathf.Clamp01(defender != null ? defender.GetStat(StatTypes.ReducedShockEffect) : 0f));
@@ -911,12 +980,15 @@ public class BattleManager : MonoBehaviour
         float effectiveness = keystones != null ? keystones.ChillEffectMultiplier : 1f;
         float cap = .3f + (keystones != null ? keystones.DeepFreezeMaximumEffectIncrease : 0f)
             + (attacker.GetComponent<PlayerController>()!=null?RelicInventory.Instance?.MaximumChillSlowIncrease??0f:0f);
-        float auraChill=subclass?.Has(SubclassIds.PriestLight)==true?subclass.AuraSecondary(2,.20f):0f;
+        float auraChill=subclass!=null?subclass.AuraSecondary(2,.20f):0f;
         float slow = CalculateChillSlow(coldDealt, targetHealth.MaxLife,
             attacker.GetStat(StatTypes.ChillEffect)+auraChill, effectiveness, cap) * effectFactor;
         int duration = Mathf.Max(1, Mathf.RoundToInt(4f
             + attacker.GetRawStat(StatTypes.ChillDuration)));
         target.ApplyChill(chillEffect, Mathf.Min(cap, slow), duration,cap);
+        float uncapped=ClassKeystoneMechanics.UncappedChill(coldDealt,targetHealth.MaxLife,attacker.GetStat(StatTypes.ChillEffect)+auraChill,effectiveness)*effectFactor;
+        if(keystones?.Has(PassiveKeystone.PriestFracture)==true)target.ApplyKeystoneFreeze(uncapped,PassiveKeystone.PriestFracture);
+        else if(keystones?.Has(PassiveKeystone.MageShatter)==true)target.ApplyKeystoneFreeze(uncapped,PassiveKeystone.MageShatter);
     }
 
     public static float CalculateChillSlow(float coldDamageDealt, float targetMaximumLife,
@@ -939,7 +1011,7 @@ public class BattleManager : MonoBehaviour
         adjustedChance = AdjustForApplicationResistance(effect, adjustedChance, attacker, defender);
         int applications = guaranteedApplications
             + (guaranteedOnly ? 0 : RollOverflowApplications(adjustedChance));
-        if (applications > 0)
+        if (applications > 0 && attacker?.GetComponent<PassiveKeystoneState>()?.Has(PassiveKeystone.PriestSacrifice)!=true)
             target.ApplyAilmentFromHit(effect, ctx, attacker, applications, magnitudeOverride);
         return applications;
     }

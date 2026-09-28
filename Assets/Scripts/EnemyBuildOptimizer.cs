@@ -501,7 +501,7 @@ public static class EnemyBuildOptimizer
             + lightMultiplier + voidMultiplier + poisonApplicationMultiplier * voidMultiplier
             + bleedMultiplier + igniteMultiplier) / 8f);
         float effectiveLife = life / averageTaken;
-        float recovery = (Mathf.Max(0f, stats.Get(StatTypes.LifeRegeneration))
+        float recovery = (life*Mathf.Max(0f, stats.Get(StatTypes.LifeRegeneration))
             + Mathf.Max(0f, stats.Get(StatTypes.LifeOnHit)) * Mathf.Max(0f, attacksPerSecond))
             * CombatHorizonSeconds;
         return effectiveLife + recovery;

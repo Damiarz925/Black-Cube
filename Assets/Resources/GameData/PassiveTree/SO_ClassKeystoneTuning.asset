@@ -1,0 +1,142 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 04f90b7b21f8b874a9efd2ef7d4a2d28, type: 3}
+  m_Name: SO_ClassKeystoneTuning
+  m_EditorClassIdentifier: Assembly-CSharp::ClassKeystoneTuningSO
+  definitions:
+  - id: 22
+    classId: class.warrior
+    name: Blood Reservoir
+    description: 35% less Bleed Damage; double maximum Bleed stack cap, not applications.
+    primary: 0.65
+    secondary: 2
+    tertiary: 0
+  - id: 23
+    classId: class.warrior
+    name: Unbroken Tempo
+    description: 15% MORE Attack Speed; multiplicative after increased Attack Speed.
+    primary: 1.15
+    secondary: 0
+    tertiary: 0
+  - id: 24
+    classId: class.warrior
+    name: One Decisive Strike
+    description: Consolidate rolled melee Multistrikes into the original hit at 105% extra-strike damage each. No repeated triggers.
+    primary: 1.05
+    secondary: 0
+    tertiary: 0
+  - id: 25
+    classId: class.barbarian
+    name: Crown of Fury
+    description: Continuous Rage decay; no offensive benefit below full Rage. Full-Rage damage is 40% more than ordinary capped Rage.
+    primary: 1.4
+    secondary: 0
+    tertiary: 0
+  - id: 26
+    classId: class.barbarian
+    name: Molten Edge
+    description: Resolve scaled Physical hit damage as Fire; +1 maximum Ignite stack. Eruption remains separate.
+    primary: 1
+    secondary: 0
+    tertiary: 0
+  - id: 27
+    classId: class.barbarian
+    name: Blood Engine
+    description: No Life Regeneration. Recover half the would-be max-Life/sec regeneration percentage from actual damage dealt; 20% MORE Damage.
+    primary: 0.5
+    secondary: 1.2
+    tertiary: 0
+  - id: 28
+    classId: class.ranger
+    name: Threefold Flight
+    description: Each projectile is replaced once by three independent projectiles dealing 33% each; 15% MORE Projectile Damage.
+    primary: 3
+    secondary: 0.33
+    tertiary: 1.15
+  - id: 29
+    classId: class.ranger
+    name: Endless Venom
+    description: 40% less Poison Damage; Poison lasts until target death. Each duration-derived additional tick grants 5% MORE Poison Damage.
+    primary: 0.6
+    secondary: 0.05
+    tertiary: 0
+  - id: 30
+    classId: class.ranger
+    name: Risky Precision
+    description: Projectiles always Precision hit if they land; independent 15% miss chance; 15% MORE Precision Hit Damage.
+    primary: 0.15
+    secondary: 1.15
+    tertiary: 0
+  - id: 31
+    classId: class.mage
+    name: Fire Commitment
+    description: Discard non-Fire outgoing damage at resolution; 50% MORE Fire Damage.
+    primary: 1.5
+    secondary: 0
+    tertiary: 0
+  - id: 32
+    classId: class.mage
+    name: Storm's Price
+    description: 'Once per spell cast: enemy and incoming self Lightning bolts at 35% of the primary single-hit basis. No Crit or recursion; self-hit grants no offensive on-hit effects.'
+    primary: 0.35
+    secondary: 0
+    tertiary: 0
+  - id: 33
+    classId: class.mage
+    name: Stormglass
+    description: Freeze at 75% Chill Effect. Lightning against Frozen targets deals 1.5x Lightning damage, consumes Freeze and Shatters for 10% target max Life as Cold.
+    primary: 0.75
+    secondary: 1.5
+    tertiary: 0.1
+  - id: 34
+    classId: class.priest
+    name: Ailment Sacrifice
+    description: Cannot apply Poison, Bleed or Ignite. Each distinct type a hit successfully would apply loses 5% target maximum Life; at most 15% per hit. Counts for damage-based healing.
+    primary: 0.05
+    secondary: 0
+    tertiary: 0
+  - id: 35
+    classId: class.priest
+    name: Prismatic Discipline
+    description: 20% Aura Effect per active aura. Hits with more than two damage types randomly retain only two types, independently each hit.
+    primary: 0.2
+    secondary: 2
+    tertiary: 0
+  - id: 36
+    classId: class.priest
+    name: Deep Fracture
+    description: 'Freeze only at 200% Chill Effect for one attack opportunity, then permanently Fracture: 25% more damage taken, no further Freeze or Shatter.'
+    primary: 2
+    secondary: 1.25
+    tertiary: 0
+  - id: 37
+    classId: class.thief
+    name: First Blood
+    description: 40% MORE Damage against full-health enemies; 30% LESS against any injured enemy.
+    primary: 1.4
+    secondary: 0.7
+    tertiary: 0
+  - id: 38
+    classId: class.thief
+    name: Marked Weakness
+    description: +5 percentage points base Crit per unique Poison, Bleed, Ignite, Shock or Chill on the target, before increased Crit scaling.
+    primary: 0.05
+    secondary: 0
+    tertiary: 0
+  - id: 39
+    classId: class.thief
+    name: Vanishing Blade
+    description: '15% MORE generic damage. Kill grants non-stacking Stealth: next enemy''s first attack has 30% miss chance, consumed whether it hits or misses.'
+    primary: 1.15
+    secondary: 0.3
+    tertiary: 0
+  percentageRegenerationAuthored: 1

@@ -78,7 +78,8 @@ public class ModifierTierDataTests
         Expect(db, S(StatTypes.Mana), "58,122;115,239;227,471;446,926;878,1822");
         Expect(db, S(StatTypes.LifePercent), "3,7;5,11;8,17;12,26;20,40");
         Expect(db, S(StatTypes.ManaPercent), "4,8;6,13;9,19;14,29;21,44");
-        Expect(db, S(StatTypes.LifeRegeneration, StatTypes.ManaRegeneration), "2,4;3,7;5,10;8,16;12,25");
+        Expect(db, S(StatTypes.LifeRegeneration), ".02,.04;.03,.07;.05,.10;.08,.16;.12,.25");
+        Expect(db, S(StatTypes.ManaRegeneration), "2,4;3,7;5,10;8,16;12,25");
         Expect(db, S(StatTypes.LifeOnHit), "8,17;13,26;20,41;31,64;48,100");
         Expect(db, S(StatTypes.ManaOnHit), "4,8;6,13;10,21;16,32;24,50");
         Expect(db, S(StatTypes.LifeOnKill), "15,31;24,49;38,79;59,123;93,193");
@@ -111,6 +112,10 @@ public class ModifierTierDataTests
             bool newDefense = stat is StatTypes.PhysicalDamageReduction or StatTypes.ReducedShockEffect or StatTypes.ReducedChillEffect;
             Assert.That(def, Is.Not.Null, stat.ToString());
             Assert.That(def.displayName, Is.Not.Empty, stat.ToString());
+            if(WeaponExclusiveAffixRules.Weapon(stat)!=null)
+            {Assert.That(WeaponExclusiveAffixRules.TryGet(stat,LootManager.GearType.Weapons,WeaponExclusiveAffixRules.Weapon(stat),out var exclusive),Is.True);Assert.That(exclusive.Count,Is.EqualTo(5));Assert.That(exclusive[0].minItemLevel,Is.EqualTo(50));Assert.That(exclusive[4].minItemLevel,Is.EqualTo(90));continue;}
+            if(stat is >= StatTypes.GrantsPhysicalAura and <= StatTypes.GrantsVoidAura)
+            {Assert.That(def.tiers.Count,Is.EqualTo(1));Assert.That(def.tiers[0].minItemLevel,Is.EqualTo(70));Assert.That(AvailableTierCount(def,69),Is.Zero);Assert.That(AvailableTierCount(def,70),Is.EqualTo(1));Assert.That(def.allowedSlots,Is.EqualTo(new[]{LootManager.GearType.Amulets}));continue;}
             Assert.That(def.tiers.Count, Is.EqualTo(specialSkillTier ? 1 : 5), stat.ToString());
             Assert.That(def.allowedSlots, Is.Not.Empty, stat.ToString());
             Assert.That(pools.Any(p => p.Value.Contains(stat)), Is.True, stat + " is not generation-eligible in any slot");
@@ -176,7 +181,7 @@ public class ModifierTierDataTests
     }
 
     [Test]
-    public void RegenerationStats_UseFlatUnitsPerSecond()
+    public void LifeRegenerationUsesPercentMaximumLifeAndManaRemainsFlatPerSecond()
     {
         var playerObject = new GameObject("life-regeneration-player");
         var enemyObject = new GameObject("life-regeneration-enemy");
@@ -188,9 +193,9 @@ public class ModifierTierDataTests
             enemyStats.AddModifier(new StatModifier(StatTypes.LifeRegeneration, StatOp.Additive, 3.34f));
 
             Assert.That(playerStats.GetRawStat(StatTypes.LifeRegeneration), Is.EqualTo(3.34f).Within(.0001f));
-            Assert.That(playerStats.GetStat(StatTypes.LifeRegeneration), Is.EqualTo(3.34f).Within(.0001f));
-            Assert.That(enemyStats.GetStat(StatTypes.LifeRegeneration), Is.EqualTo(3.34f).Within(.0001f));
-            Assert.That(StatsComponent.IsPercentStat(StatTypes.LifeRegeneration), Is.False);
+            Assert.That(playerStats.GetStat(StatTypes.LifeRegeneration), Is.EqualTo(.0334f).Within(.0001f));
+            Assert.That(enemyStats.GetStat(StatTypes.LifeRegeneration), Is.EqualTo(.0334f).Within(.0001f));
+            Assert.That(StatsComponent.IsPercentStat(StatTypes.LifeRegeneration), Is.True);
             Assert.That(StatsComponent.IsPercentStat(StatTypes.ManaRegeneration), Is.False);
         }
         finally

@@ -24,6 +24,7 @@ public class StatusInstance
     public float AilmentCritMultiplier{get;private set;}=1f;
     public float TickRateMultiplier{get;private set;}=1f;
     public float TickProgress;
+    public bool InfiniteDuration { get; private set; }
 
     //This is the constructor for the StatusInstance
     public StatusInstance(
@@ -44,6 +45,9 @@ public class StatusInstance
         this.effectiveInterval = effectiveInterval;
         this.turnsUntilNextTick = effectiveInterval > 0 ? effectiveInterval : 1;
         this.remainingDurationTurns = totalTicks * Mathf.Max(1,effectiveInterval);
+        InfiniteDuration=effect!=null&&effect.Ailment==StatusEffects.AilmentKind.Poison
+            &&sourceStats!=null&&sourceStats.GetComponent<PassiveKeystoneState>()?.Has(PassiveKeystone.RangerEndlessPoison)==true;
+        if(InfiniteDuration){remainingTicks=int.MaxValue;remainingDurationTurns=int.MaxValue;}
         if(sourceStats!=null&&effect!=null&&effect.Ailment is StatusEffects.AilmentKind.Poison or StatusEffects.AilmentKind.Bleed or StatusEffects.AilmentKind.Ignite
             &&sourceStats.GetComponent<SubclassCombatState>()?.Has(SubclassIds.ThiefAilmentCrit)==true)
         {

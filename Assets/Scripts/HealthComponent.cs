@@ -70,8 +70,8 @@ public class HealthComponent : MonoBehaviour
         if (healingStats == null || isDead || SkillTreeUI.PausesGameplay)
             return;
 
-        // Life regeneration is stored and consumed as flat life per second.
-        float regenerationRate = healingStats.GetStat(StatTypes.LifeRegeneration);
+        // GetStat returns the fraction of maximum Life regenerated each second.
+        float regenerationRate = MaxLife * healingStats.GetStat(StatTypes.LifeRegeneration);
         if(isEnemy&&UnityEngine.Object.FindAnyObjectByType<SubclassCombatState>()?.Has(SubclassIds.PriestLight)==true)regenerationRate*=.5f;
         var keystones = GetComponent<PassiveKeystoneState>();
         if (keystones != null) regenerationRate *= keystones.LifeRegenerationMultiplier;
@@ -113,6 +113,8 @@ public class HealthComponent : MonoBehaviour
     {
         if (isDead || amount <= 0f || float.IsNaN(amount))
             return;
+
+        amount=GenericPassiveMechanics.Recovery(amount,healingStats!=null?healingStats.GetStat(StatTypes.LifeRecoveryEffect):0);
 
         if(source!=HealingSource.Regeneration&&GetComponent<PlayerController>()!=null)
         {

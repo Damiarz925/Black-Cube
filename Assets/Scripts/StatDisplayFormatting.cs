@@ -9,6 +9,18 @@ public static class StatDisplayFormatting
     private static readonly Dictionary<StatTypes, string> Overrides = new()
     {
         { StatTypes.Life, "Maximum HP" },
+        { StatTypes.AxePhysicalRage, "Local More Physical Damage / Rage Generation" },
+        { StatTypes.CullingStrike, "Culling Strike Life Threshold" },
+        { StatTypes.LifeRegeneration, "Maximum Life Regenerated per Second" },
+        { StatTypes.RevengeEffect, "Increased Revenge Effect" },
+        { StatTypes.PoisonLifeLeech, "Poison Damage Leeched as Life" },
+        { StatTypes.LifeRecoveryEffect, "Increased Life Recovery Effect" },
+        { StatTypes.AllDamagingAilmentChance, "All Damaging Ailment Chance" },
+        { StatTypes.GrantsPhysicalAura, "Grants Physical Aura" },
+        { StatTypes.GrantsFireAura, "Grants Fire Aura" },
+        { StatTypes.GrantsColdAura, "Grants Cold Aura" },
+        { StatTypes.GrantsLightningAura, "Grants Lightning Aura" },
+        { StatTypes.GrantsVoidAura, "Grants Void Aura" },
         { StatTypes.LifePercent, "Increased Maximum Life" },
         { StatTypes.ArmourPercent, "Increased Armour" },
         { StatTypes.StrengthPercent, "Increased Strength" },

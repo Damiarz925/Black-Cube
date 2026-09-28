@@ -37,6 +37,8 @@ public class DamageReceiver : MonoBehaviour
             float before = health.CurrentLife;
             health.LoseLife(damage);
             actualLifeLoss = Mathf.Max(0f, before - health.CurrentLife);
+            if(effect==null&&GetComponent<PlayerController>()!=null)
+                (GetComponent<RevengeState>()??gameObject.AddComponent<RevengeState>()).RecordHit(actualLifeLoss,health.MaxLife);
             // Presentation-only notification after damage resolves. Lethal hits
             // skip the flinch so death/replacement always supersedes it.
             if (health.CurrentLife > 0f)
@@ -55,6 +57,8 @@ public class DamageReceiver : MonoBehaviour
         float before = health != null ? health.CurrentLife : damage;
         health?.LoseLife(damage);
         float actualLifeLoss = health != null ? Mathf.Max(0f, before - health.CurrentLife) : damage;
+        if(effect==null&&health!=null&&GetComponent<PlayerController>()!=null)
+            (GetComponent<RevengeState>()??gameObject.AddComponent<RevengeState>()).RecordHit(actualLifeLoss,health.MaxLife);
         if (health != null && health.CurrentLife > 0f) paperSprite?.PlayHitReaction();
         SpawnDamagePopup(actualLifeLoss, GetPrimaryElement(context), effect, context.IsCrit);
     }

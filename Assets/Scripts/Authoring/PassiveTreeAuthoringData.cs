@@ -96,7 +96,7 @@ public sealed class PassiveClassTierData
 [Serializable]
 public sealed class PassiveWeaponTierData
 {
-    [SerializeField, Range(1, 5)] int tier = 1;
+    [SerializeField, Range(1, 7)] int tier = 1;
     [SerializeField] PassiveAuthoredNode spine = new();
     [SerializeField] PassiveChoiceSideData right = new();
     [SerializeField] PassiveChoiceSideData left = new();
@@ -104,7 +104,7 @@ public sealed class PassiveWeaponTierData
     public PassiveAuthoredNode Spine => spine;
     public PassiveChoiceSideData Right => right;
     public PassiveChoiceSideData Left => left;
-    public void SetTier(int value) => tier = Mathf.Clamp(value, 1, 5);
+    public void SetTier(int value) => tier = Mathf.Clamp(value, 1, 7);
 }
 
 [Serializable]

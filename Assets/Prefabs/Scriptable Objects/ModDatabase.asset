@@ -3981,40 +3981,40 @@ MonoBehaviour:
     side: 1
     tiers:
     - tierIndex: 5
-      minValue: 2
-      maxValue: 4
+      minValue: 0.02
+      maxValue: 0.04
       minItemLevel: 1
       weight: 50
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
     - tierIndex: 4
-      minValue: 3
-      maxValue: 7
+      minValue: 0.03
+      maxValue: 0.07
       minItemLevel: 20
       weight: 35
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
     - tierIndex: 3
-      minValue: 5
-      maxValue: 10
+      minValue: 0.049999997
+      maxValue: 0.099999994
       minItemLevel: 40
       weight: 20
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
     - tierIndex: 2
-      minValue: 8
-      maxValue: 16
+      minValue: 0.08
+      maxValue: 0.16
       minItemLevel: 60
       weight: 10
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
     - tierIndex: 1
-      minValue: 12
-      maxValue: 25
+      minValue: 0.12
+      maxValue: 0.25
       minItemLevel: 75
       weight: 5
       pairedDamage: 0
@@ -4539,7 +4539,7 @@ MonoBehaviour:
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 83
-    displayName: Chance to Hit Twice
+    displayName: Multistrike Chance
     allowedSlots: 0700000001000000060000000300000005000000i
     allowedWeaponTypeIds: []
     groups: []
@@ -5710,11 +5710,11 @@ MonoBehaviour:
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 112
-    displayName: 
-    allowedSlots: 
+    displayName: Additional Projectile Amount
+    allowedSlots: 07000000i
     allowedWeaponTypeIds: []
     groups: []
-    side: 0
+    side: 1
     tiers: []
     empowerable: 1
     hasCustomEmpoweredRange: 0
@@ -6160,11 +6160,11 @@ MonoBehaviour:
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 126
-    displayName: 
-    allowedSlots: 
+    displayName: Cooldown Reduction
+    allowedSlots: 07000000i
     allowedWeaponTypeIds: []
     groups: []
-    side: 0
+    side: 1
     tiers: []
     empowerable: 1
     hasCustomEmpoweredRange: 0
@@ -6175,11 +6175,11 @@ MonoBehaviour:
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 127
-    displayName: 
-    allowedSlots: 
+    displayName: Aura Effect
+    allowedSlots: 07000000i
     allowedWeaponTypeIds: []
     groups: []
-    side: 0
+    side: 1
     tiers: []
     empowerable: 1
     hasCustomEmpoweredRange: 0
@@ -6417,6 +6417,296 @@ MonoBehaviour:
       minHighValue: 0
       maxHighValue: 0
     empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 133
+    displayName: 
+    allowedSlots: 
+    allowedWeaponTypeIds: []
+    groups: []
+    side: 0
+    tiers: []
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 134
+    displayName: 
+    allowedSlots: 
+    allowedWeaponTypeIds: []
+    groups: []
+    side: 0
+    tiers: []
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 135
+    displayName: 
+    allowedSlots: 
+    allowedWeaponTypeIds: []
+    groups: []
+    side: 0
+    tiers: []
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 136
+    displayName: 
+    allowedSlots: 
+    allowedWeaponTypeIds: []
+    groups: []
+    side: 0
+    tiers: []
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 137
+    displayName: Grants Physical Aura
+    allowedSlots: 01000000i
+    allowedWeaponTypeIds: []
+    groups:
+    - grant.aura.0
+    side: 0
+    tiers:
+    - tierIndex: 1
+      minValue: 1
+      maxValue: 1
+      minItemLevel: 70
+      weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    empowerable: 0
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 138
+    displayName: Grants Fire Aura
+    allowedSlots: 01000000i
+    allowedWeaponTypeIds: []
+    groups:
+    - grant.aura.1
+    side: 0
+    tiers:
+    - tierIndex: 1
+      minValue: 1
+      maxValue: 1
+      minItemLevel: 70
+      weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    empowerable: 0
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 139
+    displayName: Grants Cold Aura
+    allowedSlots: 01000000i
+    allowedWeaponTypeIds: []
+    groups:
+    - grant.aura.2
+    side: 0
+    tiers:
+    - tierIndex: 1
+      minValue: 1
+      maxValue: 1
+      minItemLevel: 70
+      weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    empowerable: 0
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 140
+    displayName: Grants Lightning Aura
+    allowedSlots: 01000000i
+    allowedWeaponTypeIds: []
+    groups:
+    - grant.aura.3
+    side: 0
+    tiers:
+    - tierIndex: 1
+      minValue: 1
+      maxValue: 1
+      minItemLevel: 70
+      weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    empowerable: 0
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 141
+    displayName: Grants Void Aura
+    allowedSlots: 01000000i
+    allowedWeaponTypeIds: []
+    groups:
+    - grant.aura.4
+    side: 0
+    tiers:
+    - tierIndex: 1
+      minValue: 1
+      maxValue: 1
+      minItemLevel: 70
+      weight: 5
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    empowerable: 0
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 142
+    displayName: Local More Physical Damage / Rage Generation
+    allowedSlots: 07000000i
+    allowedWeaponTypeIds: []
+    groups: []
+    side: 1
+    tiers:
+    - tierIndex: 5
+      minValue: 4
+      maxValue: 5
+      minItemLevel: 50
+      weight: 100
+      pairedDamage: 1
+      minHighValue: 8
+      maxHighValue: 10
+    - tierIndex: 4
+      minValue: 6
+      maxValue: 7.5
+      minItemLevel: 60
+      weight: 100
+      pairedDamage: 1
+      minHighValue: 12
+      maxHighValue: 15
+    - tierIndex: 3
+      minValue: 8
+      maxValue: 10
+      minItemLevel: 70
+      weight: 100
+      pairedDamage: 1
+      minHighValue: 16
+      maxHighValue: 20
+    - tierIndex: 2
+      minValue: 10
+      maxValue: 12.5
+      minItemLevel: 80
+      weight: 100
+      pairedDamage: 1
+      minHighValue: 20
+      maxHighValue: 25
+    - tierIndex: 1
+      minValue: 12
+      maxValue: 15
+      minItemLevel: 90
+      weight: 100
+      pairedDamage: 1
+      minHighValue: 24
+      maxHighValue: 30
+    empowerable: 0
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 143
+    displayName: Culling Strike Life Threshold
+    allowedSlots: 07000000i
+    allowedWeaponTypeIds: []
+    groups: []
+    side: 1
+    tiers:
+    - tierIndex: 5
+      minValue: 4
+      maxValue: 5
+      minItemLevel: 50
+      weight: 100
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 4
+      minValue: 6
+      maxValue: 7.5
+      minItemLevel: 60
+      weight: 100
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 3
+      minValue: 8
+      maxValue: 10
+      minItemLevel: 70
+      weight: 100
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 2
+      minValue: 10
+      maxValue: 12.5
+      minItemLevel: 80
+      weight: 100
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    - tierIndex: 1
+      minValue: 12
+      maxValue: 15
+      minItemLevel: 90
+      weight: 100
+      pairedDamage: 0
+      minHighValue: 0
+      maxHighValue: 0
+    empowerable: 0
     hasCustomEmpoweredRange: 0
     empoweredMin: 0
     empoweredMax: 0

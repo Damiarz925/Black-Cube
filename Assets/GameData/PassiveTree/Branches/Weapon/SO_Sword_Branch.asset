@@ -38,42 +38,58 @@ MonoBehaviour:
     spine:
       stableId: tree.v3.weapon.sword.t01.spine
       logicalSlotId: tree.v3.weapon.sword.t01.spine
-      displayName: Sword Tier 1
-      description: Weapon specialization mainline node.
+      displayName: Increased Weapon Damage
+      description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE"
       branch: 8
       size: 1
       kind: 8
       keystone: 0
       effects:
       - kind: 0
-        stat: 14
+        stat: 8
         mechanicId: 
-        value: 14.400001
+        value: 4
       iconMode: 0
       iconOverride: {fileID: 0}
     right:
       a:
         stableId: tree.v3.weapon.sword.t01.right.a
         logicalSlotId: tree.v3.weapon.sword.t01.right.a
-        displayName: Sword Life On Hit
-        description: 
-        branch: 22
+        displayName: Offense 1
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only offensive package; final-tier MORE damage is multiplicative."
+        branch: 8
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 74
+          stat: 14
           mechanicId: 
-          value: 5.7599998
+          value: 12
         iconMode: 0
         iconOverride: {fileID: 0}
       b:
         stableId: tree.v3.weapon.sword.t01.right.b
         logicalSlotId: tree.v3.weapon.sword.t01.right.b
-        displayName: Sword Hit Twice
-        description: 
-        branch: 17
+        displayName: Offense 2
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only offensive package; final-tier MORE damage is multiplicative."
+        branch: 8
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 81
+          mechanicId: 
+          value: 3.6000001
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      c:
+        stableId: tree.v3.weapon.sword.t01.right.c
+        logicalSlotId: tree.v3.weapon.sword.t01.right.c
+        displayName: Offense 3
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only offensive package; final-tier MORE damage is multiplicative."
+        branch: 8
         size: 0
         kind: 6
         keystone: 0
@@ -81,23 +97,11 @@ MonoBehaviour:
         - kind: 0
           stat: 83
           mechanicId: 
-          value: 8.639999
-        iconMode: 0
-        iconOverride: {fileID: 0}
-      c:
-        stableId: tree.v3.weapon.sword.t01.right.c
-        logicalSlotId: tree.v3.weapon.sword.t01.right.c
-        displayName: Sword Defense
-        description: 
-        branch: 0
-        size: 0
-        kind: 6
-        keystone: 0
-        effects:
+          value: 3.6000001
         - kind: 0
-          stat: 52
+          stat: 92
           mechanicId: 
-          value: 14.400001
+          value: 1.5
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassA:
@@ -128,49 +132,53 @@ MonoBehaviour:
       a:
         stableId: tree.v3.weapon.sword.t01.left.a
         logicalSlotId: tree.v3.weapon.sword.t01.left.a
-        displayName: Sword Physical
-        description: 
-        branch: 8
+        displayName: Sustain 1
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only sustain/utility package."
+        branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 14
+          stat: 70
           mechanicId: 
-          value: 14.400001
+          value: 4.8
         iconMode: 0
         iconOverride: {fileID: 0}
       b:
         stableId: tree.v3.weapon.sword.t01.left.b
         logicalSlotId: tree.v3.weapon.sword.t01.left.b
-        displayName: Sword Attack Speed
-        description: 
-        branch: 11
+        displayName: Sustain 2
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only sustain/utility package."
+        branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 81
+          stat: 52
           mechanicId: 
-          value: 14.400001
+          value: 7.2000003
         iconMode: 0
         iconOverride: {fileID: 0}
       c:
         stableId: tree.v3.weapon.sword.t01.left.c
         logicalSlotId: tree.v3.weapon.sword.t01.left.c
-        displayName: Sword Critical Chance
-        description: 
-        branch: 20
+        displayName: Sustain 3
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only sustain/utility package."
+        branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 11
+          stat: 74
           mechanicId: 
-          value: 14.400001
+          value: 4.8
+        - kind: 0
+          stat: 92
+          mechanicId: 
+          value: 2.25
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassA:
@@ -201,66 +209,70 @@ MonoBehaviour:
     spine:
       stableId: tree.v3.weapon.sword.t02.spine
       logicalSlotId: tree.v3.weapon.sword.t02.spine
-      displayName: Sword Tier 2
-      description: Weapon specialization mainline node.
-      branch: 12
+      displayName: Increased Weapon Damage
+      description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE"
+      branch: 8
       size: 1
       kind: 8
       keystone: 0
       effects:
       - kind: 0
-        stat: 34
+        stat: 8
         mechanicId: 
-        value: 14.72
+        value: 6
       iconMode: 0
       iconOverride: {fileID: 0}
     right:
       a:
         stableId: tree.v3.weapon.sword.t02.right.a
         logicalSlotId: tree.v3.weapon.sword.t02.right.a
-        displayName: Sword Life
-        description: 
-        branch: 1
+        displayName: Offense 1
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only offensive package; final-tier MORE damage is multiplicative."
+        branch: 8
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 70
+          stat: 81
           mechanicId: 
-          value: 14.72
+          value: 4.8
         iconMode: 0
         iconOverride: {fileID: 0}
       b:
         stableId: tree.v3.weapon.sword.t02.right.b
         logicalSlotId: tree.v3.weapon.sword.t02.right.b
-        displayName: Sword Mana On Hit
-        description: 
-        branch: 23
+        displayName: Offense 2
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only offensive package; final-tier MORE damage is multiplicative."
+        branch: 8
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 75
+          stat: 83
           mechanicId: 
-          value: 5.888
+          value: 4.8
         iconMode: 0
         iconOverride: {fileID: 0}
       c:
         stableId: tree.v3.weapon.sword.t02.right.c
         logicalSlotId: tree.v3.weapon.sword.t02.right.c
-        displayName: Sword Cooldown Reduction
-        description: 
-        branch: 29
+        displayName: Offense 3
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only offensive package; final-tier MORE damage is multiplicative."
+        branch: 8
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 126
+          stat: 11
           mechanicId: 
-          value: 14.72
+          value: 8
+        - kind: 0
+          stat: 94
+          mechanicId: 
+          value: 2
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassA:
@@ -291,49 +303,53 @@ MonoBehaviour:
       a:
         stableId: tree.v3.weapon.sword.t02.left.a
         logicalSlotId: tree.v3.weapon.sword.t02.left.a
-        displayName: Sword Critical Multiplier
-        description: 
-        branch: 21
+        displayName: Sustain 1
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only sustain/utility package."
+        branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 12
+          stat: 52
           mechanicId: 
-          value: 23.552
+          value: 9.6
         iconMode: 0
         iconOverride: {fileID: 0}
       b:
         stableId: tree.v3.weapon.sword.t02.left.b
         logicalSlotId: tree.v3.weapon.sword.t02.left.b
-        displayName: Sword Bleed Chance
-        description: 
-        branch: 12
+        displayName: Sustain 2
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only sustain/utility package."
+        branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 34
+          stat: 74
           mechanicId: 
-          value: 14.72
+          value: 6.4
         iconMode: 0
         iconOverride: {fileID: 0}
       c:
         stableId: tree.v3.weapon.sword.t02.left.c
         logicalSlotId: tree.v3.weapon.sword.t02.left.c
-        displayName: Sword Hit Twice
-        description: 
-        branch: 17
+        displayName: Sustain 3
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only sustain/utility package."
+        branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 83
+          stat: 135
           mechanicId: 
-          value: 8.832
+          value: 6.4
+        - kind: 0
+          stat: 94
+          mechanicId: 
+          value: 3
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassA:
@@ -364,42 +380,26 @@ MonoBehaviour:
     spine:
       stableId: tree.v3.weapon.sword.t03.spine
       logicalSlotId: tree.v3.weapon.sword.t03.spine
-      displayName: Sword Tier 3
-      description: Weapon specialization mainline node.
-      branch: 20
+      displayName: Increased Weapon Damage
+      description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE"
+      branch: 8
       size: 1
       kind: 8
       keystone: 0
       effects:
       - kind: 0
-        stat: 11
+        stat: 8
         mechanicId: 
-        value: 15.04
+        value: 8
       iconMode: 0
       iconOverride: {fileID: 0}
     right:
       a:
         stableId: tree.v3.weapon.sword.t03.right.a
         logicalSlotId: tree.v3.weapon.sword.t03.right.a
-        displayName: Sword Life On Hit
-        description: 
-        branch: 22
-        size: 0
-        kind: 6
-        keystone: 0
-        effects:
-        - kind: 0
-          stat: 74
-          mechanicId: 
-          value: 6.0160003
-        iconMode: 0
-        iconOverride: {fileID: 0}
-      b:
-        stableId: tree.v3.weapon.sword.t03.right.b
-        logicalSlotId: tree.v3.weapon.sword.t03.right.b
-        displayName: Sword Hit Twice
-        description: 
-        branch: 17
+        displayName: Offense 1
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only offensive package; final-tier MORE damage is multiplicative."
+        branch: 8
         size: 0
         kind: 6
         keystone: 0
@@ -407,23 +407,43 @@ MonoBehaviour:
         - kind: 0
           stat: 83
           mechanicId: 
-          value: 9.024
+          value: 6
         iconMode: 0
         iconOverride: {fileID: 0}
-      c:
-        stableId: tree.v3.weapon.sword.t03.right.c
-        logicalSlotId: tree.v3.weapon.sword.t03.right.c
-        displayName: Sword Defense
-        description: 
-        branch: 0
+      b:
+        stableId: tree.v3.weapon.sword.t03.right.b
+        logicalSlotId: tree.v3.weapon.sword.t03.right.b
+        displayName: Offense 2
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only offensive package; final-tier MORE damage is multiplicative."
+        branch: 8
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 52
+          stat: 11
           mechanicId: 
-          value: 15.04
+          value: 10
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      c:
+        stableId: tree.v3.weapon.sword.t03.right.c
+        logicalSlotId: tree.v3.weapon.sword.t03.right.c
+        displayName: Offense 3
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only offensive package; final-tier MORE damage is multiplicative."
+        branch: 8
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 14
+          mechanicId: 
+          value: 20
+        - kind: 0
+          stat: 75
+          mechanicId: 
+          value: 1.5
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassA:
@@ -454,49 +474,53 @@ MonoBehaviour:
       a:
         stableId: tree.v3.weapon.sword.t03.left.a
         logicalSlotId: tree.v3.weapon.sword.t03.left.a
-        displayName: Sword Physical
-        description: 
-        branch: 8
+        displayName: Sustain 1
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only sustain/utility package."
+        branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 14
+          stat: 74
           mechanicId: 
-          value: 15.04
+          value: 8
         iconMode: 0
         iconOverride: {fileID: 0}
       b:
         stableId: tree.v3.weapon.sword.t03.left.b
         logicalSlotId: tree.v3.weapon.sword.t03.left.b
-        displayName: Sword Attack Speed
-        description: 
-        branch: 11
+        displayName: Sustain 2
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only sustain/utility package."
+        branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 81
+          stat: 135
           mechanicId: 
-          value: 15.04
+          value: 8
         iconMode: 0
         iconOverride: {fileID: 0}
       c:
         stableId: tree.v3.weapon.sword.t03.left.c
         logicalSlotId: tree.v3.weapon.sword.t03.left.c
-        displayName: Sword Critical Chance
-        description: 
-        branch: 20
+        displayName: Sustain 3
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only sustain/utility package."
+        branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 11
+          stat: 70
           mechanicId: 
-          value: 15.04
+          value: 8
+        - kind: 0
+          stat: 75
+          mechanicId: 
+          value: 2.25
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassA:
@@ -527,66 +551,70 @@ MonoBehaviour:
     spine:
       stableId: tree.v3.weapon.sword.t04.spine
       logicalSlotId: tree.v3.weapon.sword.t04.spine
-      displayName: Sword Tier 4
-      description: Weapon specialization mainline node.
-      branch: 21
+      displayName: Increased Weapon Damage
+      description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE"
+      branch: 8
       size: 1
       kind: 8
       keystone: 0
       effects:
       - kind: 0
-        stat: 12
+        stat: 8
         mechanicId: 
-        value: 24.576
+        value: 10
       iconMode: 0
       iconOverride: {fileID: 0}
     right:
       a:
         stableId: tree.v3.weapon.sword.t04.right.a
         logicalSlotId: tree.v3.weapon.sword.t04.right.a
-        displayName: Sword Life
-        description: 
-        branch: 1
+        displayName: Offense 1
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only offensive package; final-tier MORE damage is multiplicative."
+        branch: 8
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 70
+          stat: 11
           mechanicId: 
-          value: 15.36
+          value: 12.5
         iconMode: 0
         iconOverride: {fileID: 0}
       b:
         stableId: tree.v3.weapon.sword.t04.right.b
         logicalSlotId: tree.v3.weapon.sword.t04.right.b
-        displayName: Sword Mana On Hit
-        description: 
-        branch: 23
+        displayName: Offense 2
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only offensive package; final-tier MORE damage is multiplicative."
+        branch: 8
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 75
+          stat: 14
           mechanicId: 
-          value: 6.144
+          value: 25
         iconMode: 0
         iconOverride: {fileID: 0}
       c:
         stableId: tree.v3.weapon.sword.t04.right.c
         logicalSlotId: tree.v3.weapon.sword.t04.right.c
-        displayName: Sword Cooldown Reduction
-        description: 
-        branch: 29
+        displayName: Offense 3
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only offensive package; final-tier MORE damage is multiplicative."
+        branch: 8
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 126
+          stat: 81
           mechanicId: 
-          value: 15.36
+          value: 7.5
+        - kind: 0
+          stat: 133
+          mechanicId: 
+          value: 6.25
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassA:
@@ -617,49 +645,53 @@ MonoBehaviour:
       a:
         stableId: tree.v3.weapon.sword.t04.left.a
         logicalSlotId: tree.v3.weapon.sword.t04.left.a
-        displayName: Sword Critical Multiplier
-        description: 
-        branch: 21
+        displayName: Sustain 1
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only sustain/utility package."
+        branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 12
+          stat: 135
           mechanicId: 
-          value: 24.576
+          value: 10
         iconMode: 0
         iconOverride: {fileID: 0}
       b:
         stableId: tree.v3.weapon.sword.t04.left.b
         logicalSlotId: tree.v3.weapon.sword.t04.left.b
-        displayName: Sword Bleed Chance
-        description: 
-        branch: 12
+        displayName: Sustain 2
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only sustain/utility package."
+        branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 34
+          stat: 70
           mechanicId: 
-          value: 15.36
+          value: 10
         iconMode: 0
         iconOverride: {fileID: 0}
       c:
         stableId: tree.v3.weapon.sword.t04.left.c
         logicalSlotId: tree.v3.weapon.sword.t04.left.c
-        displayName: Sword Hit Twice
-        description: 
-        branch: 17
+        displayName: Sustain 3
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only sustain/utility package."
+        branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 83
+          stat: 52
           mechanicId: 
-          value: 9.216
+          value: 15
+        - kind: 0
+          stat: 133
+          mechanicId: 
+          value: 9.375
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassA:
@@ -690,42 +722,58 @@ MonoBehaviour:
     spine:
       stableId: tree.v3.weapon.sword.t05.spine
       logicalSlotId: tree.v3.weapon.sword.t05.spine
-      displayName: Sword Tier 5
-      description: Weapon specialization mainline node.
-      branch: 11
+      displayName: Increased Weapon Damage
+      description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE"
+      branch: 8
       size: 1
       kind: 8
       keystone: 0
       effects:
       - kind: 0
-        stat: 81
+        stat: 8
         mechanicId: 
-        value: 15.68
+        value: 12
       iconMode: 0
       iconOverride: {fileID: 0}
     right:
       a:
         stableId: tree.v3.weapon.sword.t05.right.a
         logicalSlotId: tree.v3.weapon.sword.t05.right.a
-        displayName: Sword Life On Hit
-        description: 
-        branch: 22
+        displayName: Offense 1
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only offensive package; final-tier MORE damage is multiplicative."
+        branch: 8
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 74
+          stat: 14
           mechanicId: 
-          value: 6.272
+          value: 30
         iconMode: 0
         iconOverride: {fileID: 0}
       b:
         stableId: tree.v3.weapon.sword.t05.right.b
         logicalSlotId: tree.v3.weapon.sword.t05.right.b
-        displayName: Sword Hit Twice
-        description: 
-        branch: 17
+        displayName: Offense 2
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only offensive package; final-tier MORE damage is multiplicative."
+        branch: 8
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 81
+          mechanicId: 
+          value: 9
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      c:
+        stableId: tree.v3.weapon.sword.t05.right.c
+        logicalSlotId: tree.v3.weapon.sword.t05.right.c
+        displayName: Offense 3
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only offensive package; final-tier MORE damage is multiplicative."
+        branch: 8
         size: 0
         kind: 6
         keystone: 0
@@ -733,23 +781,11 @@ MonoBehaviour:
         - kind: 0
           stat: 83
           mechanicId: 
-          value: 9.408
-        iconMode: 0
-        iconOverride: {fileID: 0}
-      c:
-        stableId: tree.v3.weapon.sword.t05.right.c
-        logicalSlotId: tree.v3.weapon.sword.t05.right.c
-        displayName: Sword Defense
-        description: 
-        branch: 0
-        size: 0
-        kind: 6
-        keystone: 0
-        effects:
+          value: 9
         - kind: 0
-          stat: 52
+          stat: 92
           mechanicId: 
-          value: 15.68
+          value: 3.75
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassA:
@@ -780,25 +816,103 @@ MonoBehaviour:
       a:
         stableId: tree.v3.weapon.sword.t05.left.a
         logicalSlotId: tree.v3.weapon.sword.t05.left.a
-        displayName: Sword Physical
-        description: 
-        branch: 8
+        displayName: Sustain 1
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only sustain/utility package."
+        branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 14
+          stat: 70
           mechanicId: 
-          value: 15.68
+          value: 12
         iconMode: 0
         iconOverride: {fileID: 0}
       b:
         stableId: tree.v3.weapon.sword.t05.left.b
         logicalSlotId: tree.v3.weapon.sword.t05.left.b
-        displayName: Sword Attack Speed
+        displayName: Sustain 2
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only sustain/utility package."
+        branch: 0
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 52
+          mechanicId: 
+          value: 18
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      c:
+        stableId: tree.v3.weapon.sword.t05.left.c
+        logicalSlotId: tree.v3.weapon.sword.t05.left.c
+        displayName: Sustain 3
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only sustain/utility package."
+        branch: 0
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 74
+          mechanicId: 
+          value: 12
+        - kind: 0
+          stat: 92
+          mechanicId: 
+          value: 5.625
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      subclassA:
+        stableId: 
+        logicalSlotId: 
+        displayName: 
         description: 
-        branch: 11
+        branch: 0
+        size: 0
+        kind: 6
+        keystone: 0
+        effects: []
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      subclassB:
+        stableId: 
+        logicalSlotId: 
+        displayName: 
+        description: 
+        branch: 0
+        size: 0
+        kind: 6
+        keystone: 0
+        effects: []
+        iconMode: 0
+        iconOverride: {fileID: 0}
+  - tier: 6
+    spine:
+      stableId: tree.v3.weapon.sword.t06.spine
+      logicalSlotId: tree.v3.weapon.sword.t06.spine
+      displayName: Increased Weapon Damage
+      description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE"
+      branch: 8
+      size: 1
+      kind: 8
+      keystone: 0
+      effects:
+      - kind: 0
+        stat: 8
+        mechanicId: 
+        value: 15
+      iconMode: 0
+      iconOverride: {fileID: 0}
+    right:
+      a:
+        stableId: tree.v3.weapon.sword.t06.right.a
+        logicalSlotId: tree.v3.weapon.sword.t06.right.a
+        displayName: Offense 1
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only offensive package; final-tier MORE damage is multiplicative."
+        branch: 8
         size: 0
         kind: 6
         keystone: 0
@@ -806,15 +920,31 @@ MonoBehaviour:
         - kind: 0
           stat: 81
           mechanicId: 
-          value: 15.68
+          value: 18
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      b:
+        stableId: tree.v3.weapon.sword.t06.right.b
+        logicalSlotId: tree.v3.weapon.sword.t06.right.b
+        displayName: Offense 2
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only offensive package; final-tier MORE damage is multiplicative."
+        branch: 8
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 83
+          mechanicId: 
+          value: 18
         iconMode: 0
         iconOverride: {fileID: 0}
       c:
-        stableId: tree.v3.weapon.sword.t05.left.c
-        logicalSlotId: tree.v3.weapon.sword.t05.left.c
-        displayName: Sword Critical Chance
-        description: 
-        branch: 20
+        stableId: tree.v3.weapon.sword.t06.right.c
+        logicalSlotId: tree.v3.weapon.sword.t06.right.c
+        displayName: Offense 3
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only offensive package; final-tier MORE damage is multiplicative."
+        branch: 8
         size: 0
         kind: 6
         keystone: 0
@@ -822,7 +952,287 @@ MonoBehaviour:
         - kind: 0
           stat: 11
           mechanicId: 
-          value: 15.68
+          value: 30
+        - kind: 0
+          stat: 94
+          mechanicId: 
+          value: 7.5
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      subclassA:
+        stableId: 
+        logicalSlotId: 
+        displayName: 
+        description: 
+        branch: 0
+        size: 0
+        kind: 6
+        keystone: 0
+        effects: []
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      subclassB:
+        stableId: 
+        logicalSlotId: 
+        displayName: 
+        description: 
+        branch: 0
+        size: 0
+        kind: 6
+        keystone: 0
+        effects: []
+        iconMode: 0
+        iconOverride: {fileID: 0}
+    left:
+      a:
+        stableId: tree.v3.weapon.sword.t06.left.a
+        logicalSlotId: tree.v3.weapon.sword.t06.left.a
+        displayName: Sustain 1
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only sustain/utility package."
+        branch: 0
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 52
+          mechanicId: 
+          value: 36
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      b:
+        stableId: tree.v3.weapon.sword.t06.left.b
+        logicalSlotId: tree.v3.weapon.sword.t06.left.b
+        displayName: Sustain 2
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only sustain/utility package."
+        branch: 0
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 74
+          mechanicId: 
+          value: 24
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      c:
+        stableId: tree.v3.weapon.sword.t06.left.c
+        logicalSlotId: tree.v3.weapon.sword.t06.left.c
+        displayName: Sustain 3
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only sustain/utility package."
+        branch: 0
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 135
+          mechanicId: 
+          value: 24
+        - kind: 0
+          stat: 94
+          mechanicId: 
+          value: 11.25
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      subclassA:
+        stableId: 
+        logicalSlotId: 
+        displayName: 
+        description: 
+        branch: 0
+        size: 0
+        kind: 6
+        keystone: 0
+        effects: []
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      subclassB:
+        stableId: 
+        logicalSlotId: 
+        displayName: 
+        description: 
+        branch: 0
+        size: 0
+        kind: 6
+        keystone: 0
+        effects: []
+        iconMode: 0
+        iconOverride: {fileID: 0}
+  - tier: 7
+    spine:
+      stableId: tree.v3.weapon.sword.t07.spine
+      logicalSlotId: tree.v3.weapon.sword.t07.spine
+      displayName: Increased Weapon Damage
+      description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE"
+      branch: 8
+      size: 1
+      kind: 8
+      keystone: 0
+      effects:
+      - kind: 0
+        stat: 8
+        mechanicId: 
+        value: 20
+      iconMode: 0
+      iconOverride: {fileID: 0}
+    right:
+      a:
+        stableId: tree.v3.weapon.sword.t07.right.a
+        logicalSlotId: tree.v3.weapon.sword.t07.right.a
+        displayName: Mastery 1
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only offensive package; final-tier MORE damage is multiplicative."
+        branch: 8
+        size: 2
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 83
+          mechanicId: 
+          value: 36
+        - kind: 0
+          stat: 9
+          mechanicId: 
+          value: 30
+        - kind: 0
+          stat: 11
+          mechanicId: 
+          value: 30
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      b:
+        stableId: tree.v3.weapon.sword.t07.right.b
+        logicalSlotId: tree.v3.weapon.sword.t07.right.b
+        displayName: Mastery 2
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only offensive package; final-tier MORE damage is multiplicative."
+        branch: 8
+        size: 2
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 11
+          mechanicId: 
+          value: 60
+        - kind: 0
+          stat: 9
+          mechanicId: 
+          value: 20
+        - kind: 0
+          stat: 14
+          mechanicId: 
+          value: 60
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      c:
+        stableId: tree.v3.weapon.sword.t07.right.c
+        logicalSlotId: tree.v3.weapon.sword.t07.right.c
+        displayName: Mastery 3
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only offensive package; final-tier MORE damage is multiplicative."
+        branch: 8
+        size: 2
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 14
+          mechanicId: 
+          value: 120
+        - kind: 0
+          stat: 9
+          mechanicId: 
+          value: 15
+        - kind: 0
+          stat: 81
+          mechanicId: 
+          value: 18
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      subclassA:
+        stableId: 
+        logicalSlotId: 
+        displayName: 
+        description: 
+        branch: 0
+        size: 0
+        kind: 6
+        keystone: 0
+        effects: []
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      subclassB:
+        stableId: 
+        logicalSlotId: 
+        displayName: 
+        description: 
+        branch: 0
+        size: 0
+        kind: 6
+        keystone: 0
+        effects: []
+        iconMode: 0
+        iconOverride: {fileID: 0}
+    left:
+      a:
+        stableId: tree.v3.weapon.sword.t07.left.a
+        logicalSlotId: tree.v3.weapon.sword.t07.left.a
+        displayName: Bulwark 1
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only sustain/utility package."
+        branch: 0
+        size: 2
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 74
+          mechanicId: 
+          value: 48
+        - kind: 0
+          stat: 92
+          mechanicId: 
+          value: 22.5
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      b:
+        stableId: tree.v3.weapon.sword.t07.left.b
+        logicalSlotId: tree.v3.weapon.sword.t07.left.b
+        displayName: Bulwark 2
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only sustain/utility package."
+        branch: 0
+        size: 2
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 135
+          mechanicId: 
+          value: 48
+        - kind: 0
+          stat: 94
+          mechanicId: 
+          value: 22.5
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      c:
+        stableId: tree.v3.weapon.sword.t07.left.c
+        logicalSlotId: tree.v3.weapon.sword.t07.left.c
+        displayName: Bulwark 3
+        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only sustain/utility package."
+        branch: 0
+        size: 2
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 70
+          mechanicId: 
+          value: 48
+        - kind: 0
+          stat: 75
+          mechanicId: 
+          value: 13.5
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassA:

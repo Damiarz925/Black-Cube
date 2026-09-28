@@ -52,7 +52,7 @@ public static class ItemizationValidator
 
     public static void ValidateRolledMods(LootManager.GearType slot, LootManager.GearRarity rarity,
         int itemLevel, IReadOnlyList<RolledMod> mods, ModDatabase database, IList<string> errors,
-        bool requireImplicit = false, bool enforceCapacity = true)
+        bool requireImplicit = false, bool enforceCapacity = true, string weaponId = WeaponTypeIds.Sword)
     {
         if (mods == null) { errors.Add("Item modifiers are missing."); return; }
         if (database == null) { errors.Add("Missing ModDatabase."); return; }
@@ -99,7 +99,9 @@ public static class ItemizationValidator
             if (definition == null) continue;
             if (definition.side != AffixPolicy.Side(mod.statType))
                 errors.Add($"{slot}: {mod.statType} side is invalid.");
-            var tier = Tiers(definition, slot).FirstOrDefault(t => t != null && t.tierIndex == mod.tierIndex);
+            if(slot==LootManager.GearType.Weapons&&!WeaponExclusiveAffixRules.Allows(mod.statType,weaponId))
+            { errors.Add($"{weaponId}: illegal weapon family {mod.statType}."); continue; }
+            var tier = Tiers(definition, slot, weaponId).FirstOrDefault(t => t != null && t.tierIndex == mod.tierIndex);
             if (tier == null || tier.minItemLevel > itemLevel)
             { errors.Add($"{slot}: {mod.statType} T{mod.tierIndex} is illegal at ilvl {itemLevel}."); continue; }
             float minimum=tier.minValue,maximum=tier.maxValue,minimumHigh=tier.minHighValue,maximumHigh=tier.maxHighValue;
@@ -122,9 +124,10 @@ public static class ItemizationValidator
             errors.Add($"{slot}: {rarity} Prefix/Suffix or total capacity violated.");
     }
 
-    static IReadOnlyList<AffixTier> Tiers(AffixDefinitions definition, LootManager.GearType slot)
+    static IReadOnlyList<AffixTier> Tiers(AffixDefinitions definition, LootManager.GearType slot, string weaponId = null)
     {
         if (definition == null) return Array.Empty<AffixTier>();
+        if (WeaponExclusiveAffixRules.TryGet(definition.statType,slot,weaponId??WeaponExclusiveAffixRules.Weapon(definition.statType),out var exclusive)) return exclusive;
         if (PoedbAffixCatalog.TryGet(definition.statType, slot, out var direct)) return direct;
         return definition.tiers != null ? definition.tiers : Array.Empty<AffixTier>();
     }

@@ -36,8 +36,9 @@ public sealed class BalanceWorkbenchTooling2Tests
     {
         var build=Build();int target=PassiveTreeDefinition.ClassSpineNode(PlayerClassIds.Mage,1);var package=PassiveTreeOptimizer.MinimumLegalPackage(build.AllocationRanks(),target,build.classId,build.subclassId);
         Assert.That(package,Is.Not.Null);var ranks=build.AllocationRanks();foreach(int id in package)ranks[id]=1;
-        Assert.That(PlayerProgression.ValidateAllocationState(ranks,build.classId,build.subclassId),Is.True);
-        Assert.That(package.Count,Is.EqualTo(11));
+        Assert.That(PlayerProgression.ValidateAllocationState(ranks,build.classId,build.subclassId,new[]{PlayerClassIds.Mage},null),Is.True);
+        Assert.That(PlayerProgression.ValidateAllocationState(ranks,build.classId,build.subclassId),Is.False,"Off-class allocations require an explicit selected route.");
+        Assert.That(package.Count,Is.EqualTo(32));
     }
 
     [Test] public void GearOptimizer_IsDeterministicAndUsesLegalGeneratedItems()
@@ -48,6 +49,6 @@ public sealed class BalanceWorkbenchTooling2Tests
     [Test] public void AuthoredProfilesAndTreeLayout_AreAvailable()
     {
         foreach(string name in new[]{"Low","Mid","Optimized"}){var p=AssetDatabase.LoadAssetAtPath<PlayerGearProfileSO>($"Assets/Balance/Profiles/SO_PlayerGearProfile_{name}.asset");Assert.That(p,Is.Not.Null);Assert.That(p.allowLegalCrafting,Is.False);Assert.That(p.simulationNotice,Does.Contain("NOT GAME BALANCE"));}
-        Assert.That(PassiveTreeDefinition.Nodes.Count,Is.EqualTo(750));Assert.That(PassiveTreeDefinition.Nodes.Select(x=>x.LayoutPosition).Distinct().Count(),Is.EqualTo(750));
+        Assert.That(PassiveTreeDefinition.Nodes.Count,Is.EqualTo(852));Assert.That(PassiveTreeDefinition.Nodes.Select(x=>x.LayoutPosition).Distinct().Count(),Is.EqualTo(834),"Three logical keystones share each class's single physical slot.");
     }
 }

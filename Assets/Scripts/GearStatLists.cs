@@ -35,6 +35,8 @@ public class GearStatLists : MonoBehaviour
             StatTypes.GenericDmg, StatTypes.PlusAllSkills,
             StatTypes.GenericDotMult, StatTypes.BaseCritChance, StatTypes.CritChance,
             StatTypes.CritMult, StatTypes.AttackSpeed, StatTypes.ChanceToHitTwice,
+            StatTypes.ProjectileAmount,StatTypes.CooldownReduction,StatTypes.AuraEffect,
+            StatTypes.AxePhysicalRage,StatTypes.CullingStrike,
             // Element-specific additions are filtered by ModManager.
             StatTypes.FlatPhys, StatTypes.PhysDmg, StatTypes.PhysPenetration, StatTypes.BleedDmg,
             StatTypes.BleedChance, StatTypes.BleedDuration, StatTypes.BleedTickRate,
@@ -50,6 +52,8 @@ public class GearStatLists : MonoBehaviour
             StatTypes.WeaponBaseDmg, StatTypes.WeaponBaseAttackSpeed, StatTypes.WeaponBaseCrit),
 
         [LootManager.GearType.Amulets] = Pool(
+            StatTypes.GrantsPhysicalAura, StatTypes.GrantsFireAura, StatTypes.GrantsColdAura,
+            StatTypes.GrantsLightningAura, StatTypes.GrantsVoidAura,
             StatTypes.GenericDmg, StatTypes.PhysDmg, StatTypes.FireDmg, StatTypes.ColdDmg,
             StatTypes.LightDmg, StatTypes.VoidDmg,
             StatTypes.PhysPenetration, StatTypes.FirePenetration, StatTypes.ColdPenetration,

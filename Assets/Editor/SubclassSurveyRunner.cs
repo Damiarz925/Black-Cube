@@ -194,7 +194,7 @@ namespace BlackCube.BalanceWorkbench
             return shared;
         }
 
-        static void SetDefenseTargets(SubclassSurveyLevel shared)
+        public static void SetDefenseTargets(SubclassSurveyLevel shared)
         {
             using var session=new WorkbenchSession();var db=session.Roller.Database;
             var pressure=ResistancePressureAnalyzer.Analyze(db);
@@ -284,7 +284,7 @@ namespace BlackCube.BalanceWorkbench
             return run;
         }
 
-        static CombatLabRequest Request(SubclassSurveyLevel shared,PlayerBuildSnapshot build,
+        public static CombatLabRequest Request(SubclassSurveyLevel shared,PlayerBuildSnapshot build,
             PlayerBuildMetrics metrics,int fights)
         {
             var request=new CombatLabRequest

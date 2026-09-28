@@ -34,6 +34,7 @@ public static class AffixPolicy
 
     public static AffixSide Side(StatTypes stat)
     {
+        if(stat is StatTypes.ProjectileAmount or StatTypes.CooldownReduction or StatTypes.AuraEffect or StatTypes.AxePhysicalRage or StatTypes.CullingStrike)return AffixSide.Suffix;
         if (stat is StatTypes.ColdRes or StatTypes.FireRes or StatTypes.LightRes or StatTypes.VoidRes
             or StatTypes.AllRes or StatTypes.MaxColdRes or StatTypes.MaxFireRes
             or StatTypes.MaxLightRes or StatTypes.MaxVoidRes or StatTypes.MaxAllRes

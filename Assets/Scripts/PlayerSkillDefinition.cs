@@ -52,6 +52,8 @@ public sealed class PlayerSkillDefinition
     [Min(1)] public int baseHitCount = 1;
     public bool additionalHitsFromShockChance;
     public bool projectile;
+    [Min(.01f), Tooltip("Authored projectile speed relative to the canonical one-second travel profile.")]
+    public float baseProjectileSpeed = 1f;
     [Tooltip("Explicit damage tag. Elemental damage is not automatically Magic.")]
     public bool magic;
     public Element conversionElement = Element.Phys;
@@ -101,12 +103,31 @@ public sealed class PlayerSkillDefinition
         result.Add(Production(PlayerSkillId.AxeHemorrhage,"skill.axe.hemorrhage",WeaponTypeIds.TwoHandedAxe,"Hemorrhage","60% hit with a guaranteed Bleed at 300% normal basis.",35,.6f,PlayerSkillCastMode.QueuedAttackReplacement,WeaponSkillEffect.EmpoweredBleed,3));
         result.Add(Production(PlayerSkillId.BowVenomShot,"skill.bow.venom_shot",WeaponTypeIds.Bow,"Venom Shot","Deals no direct damage; guaranteed Poison uses 300% of its would-be hit.",35,0,PlayerSkillCastMode.QueuedAttackReplacement,WeaponSkillEffect.VirtualPoison,3,projectile:true));
         result.Add(Production(PlayerSkillId.BowDoubleVolley,"skill.bow.double_volley",WeaponTypeIds.Bow,"Double Volley","Fires twice the final projectile count.",40,1,PlayerSkillCastMode.QueuedAttackReplacement,WeaponSkillEffect.DoubleProjectiles,2,projectile:true));
-        result.Add(Production(PlayerSkillId.StaffFireball,"skill.staff.fireball",WeaponTypeIds.Staff,"Fireball","Automatic 250% Fire attack.",60,2.5f,PlayerSkillCastMode.AutoCooldown,WeaponSkillEffect.None,0,cooldown:5,element:Element.Fire,conversion:1,magic:true));
+        result.Add(Production(PlayerSkillId.StaffFireball,"skill.staff.fireball",WeaponTypeIds.Staff,"Fireball","Automatic 250% Fire projectile; travel time scales with Projectile Speed.",60,2.5f,PlayerSkillCastMode.AutoCooldown,WeaponSkillEffect.None,0,cooldown:5,projectile:true,element:Element.Fire,conversion:1,magic:true));
         result.Add(Production(PlayerSkillId.StaffShockBarrage,"skill.staff.shock_barrage",WeaponTypeIds.Staff,"Shock Lightning","Automatic Lightning hits scale from target Shock effectiveness.",50,1,PlayerSkillCastMode.AutoCooldown,WeaponSkillEffect.ShockBarrage,20,6,cooldown:5,element:Element.Light,conversion:1,magic:true));
         result.Add(Production(PlayerSkillId.SceptreRestorativeStrike,"skill.sceptre.restorative_strike",WeaponTypeIds.Sceptre,"Restorative Strike","Heals for 35% of actual post-mitigation damage.",30,1,PlayerSkillCastMode.QueuedAttackReplacement,WeaponSkillEffect.HealFromDamage,.35f));
         result.Add(Production(PlayerSkillId.SceptreFrostJudgment,"skill.sceptre.frost_judgment",WeaponTypeIds.Sceptre,"Frost Judgment","Chilled targets may Freeze; Frozen targets Shatter.",40,1,PlayerSkillCastMode.QueuedAttackReplacement,WeaponSkillEffect.FrostJudgment,0,0,element:Element.Cold,conversion:1,magic:true));
         result.Add(Production(PlayerSkillId.DaggerBackstab,"skill.dagger.backstab",WeaponTypeIds.Dagger,"Backstab","150% hit with independent Bleed and Poison rolls.",25,1.5f,PlayerSkillCastMode.QueuedAttackReplacement,WeaponSkillEffect.Backstab));
-        result.Add(Production(PlayerSkillId.DaggerQuickStrike,"skill.dagger.quick_strike",WeaponTypeIds.Dagger,"Quick Strike","Immediate off-gauge attack.",25,1,PlayerSkillCastMode.ImmediateCooldown,WeaponSkillEffect.None,0,0,cooldown:4));
+        result.Add(Production(PlayerSkillId.DaggerQuickStrike,"skill.dagger.quick_strike",WeaponTypeIds.Dagger,"Quick Strike","Off-gauge thrown Dagger projectile for 100% damage; travel scales with Projectile Speed.",25,1,PlayerSkillCastMode.ImmediateCooldown,WeaponSkillEffect.None,0,0,cooldown:4,projectile:true));
+        return result;
+    }
+
+    // Upgrade older serialized catalogs without editing a shared ScriptableObject at runtime.
+    public static List<PlayerSkillDefinition> UpgradeProjectileDefinitions(IEnumerable<PlayerSkillDefinition> source)
+    {
+        var result = new List<PlayerSkillDefinition>();
+        foreach (var original in source)
+        {
+            if (original == null) { result.Add(null); continue; }
+            var definition = JsonUtility.FromJson<PlayerSkillDefinition>(JsonUtility.ToJson(original));
+            if (definition.id is PlayerSkillId.StaffFireball or PlayerSkillId.DaggerQuickStrike)
+            {
+                definition.projectile = true;
+                definition.supportsPrecision = true;
+            }
+            if (definition.baseProjectileSpeed <= 0) definition.baseProjectileSpeed = 1;
+            result.Add(definition);
+        }
         return result;
     }
 

@@ -70,15 +70,15 @@ MonoBehaviour:
     allocated: {fileID: 21300000, guid: 3ee9bcd46d877774286fd08dd8b8c3c9, type: 3}
     unavailable: {fileID: 21300000, guid: 9f3f4d63281008949ab81f1ec9836c9f, type: 3}
   - effect: 11
-    normal: {fileID: 21300000, guid: 62f12498be06fb6469719ebf00232d36, type: 3}
-    hovered: {fileID: 21300000, guid: 0978c6d96b9e9e94b8cac16160651a76, type: 3}
-    allocated: {fileID: 21300000, guid: a1ab2caeed4d59f468db292bc9265fb3, type: 3}
-    unavailable: {fileID: 21300000, guid: cb1f370866f70e440812cc3476822c2d, type: 3}
+    normal: {fileID: 21300000, guid: 9a8398eb01579964aa1ec1892920d26c, type: 3}
+    hovered: {fileID: 21300000, guid: 9a8398eb01579964aa1ec1892920d26c, type: 3}
+    allocated: {fileID: 21300000, guid: 9a8398eb01579964aa1ec1892920d26c, type: 3}
+    unavailable: {fileID: 21300000, guid: 9a8398eb01579964aa1ec1892920d26c, type: 3}
   - effect: 12
-    normal: {fileID: 21300000, guid: 8e88d13405993274f95ab86e74288a29, type: 3}
-    hovered: {fileID: 21300000, guid: 378a247680a9a94438f0913aad2efabc, type: 3}
-    allocated: {fileID: 21300000, guid: 2c189c96cc11c2f4d815cf8a881e7ccb, type: 3}
-    unavailable: {fileID: 21300000, guid: 894f1288492e28f4dbfdee90895b2d95, type: 3}
+    normal: {fileID: 21300000, guid: 9a8398eb01579964aa1ec1892920d26c, type: 3}
+    hovered: {fileID: 21300000, guid: 9a8398eb01579964aa1ec1892920d26c, type: 3}
+    allocated: {fileID: 21300000, guid: 9a8398eb01579964aa1ec1892920d26c, type: 3}
+    unavailable: {fileID: 21300000, guid: 9a8398eb01579964aa1ec1892920d26c, type: 3}
   - effect: 94
     normal: {fileID: 21300000, guid: 9e5077d6619e6a44aa597bfccc234dc2, type: 3}
     hovered: {fileID: 21300000, guid: 9b9d5d3ad8e37354391da1d87fd3a221, type: 3}

@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.IO;
 using System.Collections.Generic;
 using System.Reflection;
@@ -60,7 +61,7 @@ public sealed class Step17FoundationTests
         {
             var identity=manager.AddComponent<PlayerIdentityState>();identity.BeginNewGame(PlayerClassIds.Barbarian);var progression=manager.AddComponent<PlayerProgression>();
             actor.AddComponent<StatsComponent>();var player=actor.AddComponent<PlayerController>();var rage=actor.AddComponent<RageState>();InvokeAwake(rage);var axe=axeObject.AddComponent<Gear>();axe.Initialize(LootManager.GearType.Weapons,LootManager.GearRarity.Normal,1,Element.Phys,WeaponTypeIds.TwoHandedAxe);player.EquipWeapon(axe);
-            int target=PassiveTreeDefinition.FindIndexForTest(PassiveKeystone.RageFinisher);var ranks=new int[PassiveTreeDefinition.NodeCount];for(int tier=1;tier<=10;tier++)ranks[PassiveTreeDefinition.ClassSpineNode(PlayerClassIds.Barbarian,tier)]=1;for(int tier=1;tier<=5;tier++)ranks[PassiveTreeDefinition.WeaponSpineNode(WeaponTypeIds.TwoHandedAxe,tier)]=1;ranks[target]=1;Assert.That(progression.RestoreProgression(100,0,84,ranks),Is.True);
+            Assert.That(progression.RestoreProgression(100,0,100,new int[PassiveTreeDefinition.NodeCount]),Is.True);ClassKeystoneProgressionTests.AllocateThirty(progression,PlayerClassIds.Barbarian);Assert.That(progression.TrySpend(ClassPassiveProgressionRules.Keystones(PlayerClassIds.Barbarian).First()),Is.True);Assert.That(progression.TrySelectWeaponTree(WeaponTypeIds.TwoHandedAxe),Is.True);for(int tier=1;tier<=7;tier++)Assert.That(progression.TrySpend(PassiveTreeDefinition.WeaponSpineNode(WeaponTypeIds.TwoHandedAxe,tier)),Is.True);int target=PassiveTreeDefinition.FindIndexForTest(PassiveKeystone.RageFinisher);Assert.That(progression.TrySpend(target),Is.True);
             Assert.That(rage.FinisherAvailable,Is.False);for(int i=0;i<7;i++)rage.GainFromDamageDealt(20,100);Assert.That(rage.Rage,Is.EqualTo(100));Assert.That(rage.FinisherArmed,Is.False);Assert.That(rage.FinisherAvailable,Is.True);Assert.That(rage.TryArmFinisher(),Is.True);Assert.That(rage.BeginAttackEventMultiplier(),Is.EqualTo(WeaponMechanicProfile.RageFinisherMoreMultiplier));rage.CompleteAttackEvent(false);Assert.That(rage.Rage,Is.EqualTo(100));Assert.That(rage.FinisherArmed,Is.True);rage.CompleteAttackEvent(true);Assert.That(rage.Rage,Is.Zero);Assert.That(rage.FinisherArmed,Is.False);
         }finally{UnityEngine.Object.DestroyImmediate(manager);UnityEngine.Object.DestroyImmediate(actor);UnityEngine.Object.DestroyImmediate(axeObject);}
     }

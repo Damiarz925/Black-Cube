@@ -36,6 +36,7 @@ public struct DamageContext
     public float PrecisionMultiplier;
     public bool WeaponMechanicsApplied;
     public CombatEventTags EventTags;
+    public bool IncomingSelfHit;
 
     public DamageContext(int initialCapacity = 4)   //Pass in the initial capacity of the hit list, or it defaults to 4. (DamageContext constructor)
     {
@@ -47,6 +48,7 @@ public struct DamageContext
         PrecisionMultiplier=1f;
         WeaponMechanicsApplied=false;
         EventTags=CombatEventTags.None;
+        IncomingSelfHit=false;
     }
 
     //AddDamage function is used to actually add the damage amount for each hit to the hit list. (Called for each element type, pass in element and damage amount)

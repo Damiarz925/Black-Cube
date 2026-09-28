@@ -55,6 +55,11 @@ public class ModManager : MonoBehaviour
         {StatTypes.Plus1Bleed, 5 },
         {StatTypes.Plus1Ignite, 5 },
         {StatTypes.PlusAllSkills, 5 },
+        {StatTypes.GrantsPhysicalAura, 1 },
+        {StatTypes.GrantsFireAura, 1 },
+        {StatTypes.GrantsColdAura, 1 },
+        {StatTypes.GrantsLightningAura, 1 },
+        {StatTypes.GrantsVoidAura, 1 },
     };
 
     private void Awake()
@@ -266,6 +271,7 @@ public class ModManager : MonoBehaviour
         {
             if (usedStats.Contains(stat)) continue; //if it's in used stats, skip it
             if (forEnemy && IsPlayerOnlyAffix(stat)) continue;
+            if(stat is >= StatTypes.GrantsPhysicalAura and <= StatTypes.GrantsVoidAura && rarity is LootManager.GearRarity.Normal or LootManager.GearRarity.Magic)continue;
             if (itemType == LootManager.GearType.Weapons && !IsWeaponAffixEligible(stat, weaponElement))
                 continue;
 
@@ -308,7 +314,7 @@ public class ModManager : MonoBehaviour
             or StatTypes.DmgPerCurrentMana or StatTypes.ManaPerIntelligence
             or StatTypes.LifeOnKill
             or >= StatTypes.Plus1Phys and <= StatTypes.Plus1Ignite
-            or StatTypes.PlusAllSkills;
+            or StatTypes.PlusAllSkills or >= StatTypes.GrantsPhysicalAura and <= StatTypes.GrantsVoidAura;
     }
 
     public static bool IsWeaponAffixEligible(StatTypes stat, Element weaponElement)
@@ -400,6 +406,7 @@ public class ModManager : MonoBehaviour
     public static List<AffixTier> ApplicableTiers(AffixDefinitions def,LootManager.GearType slot,string weaponTypeId)
     {
         if(def==null||(slot==LootManager.GearType.Weapons&&!def.AllowsWeaponType(weaponTypeId)))return new List<AffixTier>();
+        if(WeaponExclusiveAffixRules.TryGet(def.statType,slot,weaponTypeId,out var exclusive))return exclusive;
         return PoedbAffixCatalog.TryGet(def.statType,slot,out var direct)
             ? direct : def.tiers ?? new List<AffixTier>();
     }

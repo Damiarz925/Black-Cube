@@ -9,8 +9,13 @@ using UnityEngine;
 public sealed class WarriorPassiveReauthoringTests
 {
     PassiveClassBranchSO Warrior=>AssetDatabase.LoadAssetAtPath<PassiveClassBranchSO>(WarriorPassiveReauthoring.BranchPath);
-    [Test] public void SpineIsExactlyOneHundredStrength()
-    {Assert.That(Warrior.Tiers.Count,Is.EqualTo(10));foreach(var t in Warrior.Tiers){Assert.That(t.Spine.Effects.Count,Is.EqualTo(1));Assert.That(t.Spine.Effects[0].Stat,Is.EqualTo(StatTypes.Strength));Assert.That(t.Spine.Effects[0].Value,Is.EqualTo(10));}Assert.That(Warrior.Tiers.Sum(x=>x.Spine.Effects[0].Value),Is.EqualTo(100));}
+    [Test] public void SpineIsExactlyFiftyStrengthAndFiftyDexterity()
+    {
+        Assert.That(Warrior.Tiers.Count,Is.EqualTo(10));
+        foreach(var tier in Warrior.Tiers){Assert.That(tier.Spine.Effects.Count,Is.EqualTo(2));Assert.That(tier.Spine.Effects.Single(x=>x.Stat==StatTypes.Strength).Value,Is.EqualTo(5));Assert.That(tier.Spine.Effects.Single(x=>x.Stat==StatTypes.Dexterity).Value,Is.EqualTo(5));}
+        Assert.That(Warrior.Tiers.SelectMany(x=>x.Spine.Effects).Where(x=>x.Stat==StatTypes.Strength).Sum(x=>x.Value),Is.EqualTo(50));
+        Assert.That(Warrior.Tiers.SelectMany(x=>x.Spine.Effects).Where(x=>x.Stat==StatTypes.Dexterity).Sum(x=>x.Value),Is.EqualTo(50));
+    }
     [Test] public void AllSixtyChoicesMatchAuthoritativeRotationAndT1Values()
     {
         var db=AssetDatabase.LoadAssetAtPath<ModDatabase>("Assets/Prefabs/Scriptable Objects/ModDatabase.asset");
@@ -38,13 +43,13 @@ public sealed class WarriorPassiveReauthoringTests
     [Test] public void PrefabHasThirtyWarriorPositionsAndNoOldChoiceObjects()
     {
         var view=AssetDatabase.LoadAssetAtPath<GameObject>(PassiveTreePrefabBuilder.PrefabPath).GetComponent<PassiveTreeView>();var branch=view.branches.First(x=>x.RouteId==PlayerClassIds.Warrior);
-        Assert.That(branch.AllNodes().Count(),Is.EqualTo(10));Assert.That(branch.GetComponentsInChildren<PassiveChoiceSlotView>(true).Length,Is.EqualTo(20));Assert.That(branch.GetComponentsInChildren<PassiveNodeBinding>(true).Length,Is.EqualTo(10));
+        Assert.That(branch.AllNodes().Count(),Is.EqualTo(10));Assert.That(branch.GetComponentsInChildren<PassiveChoiceSlotView>(true).Length,Is.EqualTo(21));Assert.That(branch.GetComponentsInChildren<PassiveNodeBinding>(true).Length,Is.EqualTo(10));
         foreach(var tier in branch.Tiers){Assert.That(tier.leftSlot.choiceGroupId,Does.EndWith(".left"));Assert.That(tier.rightSlot.choiceGroupId,Does.EndWith(".right"));Assert.That(PassiveTreeDefinition.ChoiceNodes(tier.leftSlot.choiceGroupId).Count(),Is.EqualTo(4));foreach(var slot in new[]{tier.leftSlot,tier.rightSlot}){Assert.That(view.connections.Any(x=>x.To==slot.transform),Is.True);Assert.That(slot.emptyGlow,Is.Not.Null);}}
         Assert.That(view.choicePopup.options.Count,Is.EqualTo(4));Assert.That(view.playerHub.GetComponent<UnityEngine.UI.Image>().sprite,Is.EqualTo(WarriorPassiveReauthoring.Sprite("PlayerHub")));Assert.That(view.layout.Badge(PlayerClassIds.Warrior),Is.EqualTo(WarriorPassiveReauthoring.Sprite("ClassBadge")));Assert.That(PassiveTreeV3Validation.Validate(),Is.Empty);Assert.That(UIAuthoringValidation.ValidateAll(),Is.Empty);
     }
     [Test] public void OneClassBoundsIgnoreHiddenBranchesAndWeaponUnlockIsPreserved()
     {
-        WithView((view,p,presentation)=>{Assert.That(presentation.Refresh(),Is.True);Assert.That(view.branches.Count(x=>x.gameObject.activeSelf),Is.EqualTo(1));Assert.That(view.content.sizeDelta.x,Is.LessThan(1100));Assert.That(view.content.sizeDelta.y,Is.LessThan(2700));foreach(string id in PassiveTreeDefinition.ClassIds)Assert.That(view.branches.First(x=>x.RouteId==id).gameObject.activeSelf,Is.EqualTo(id==PlayerClassIds.Warrior));for(int t=1;t<=10;t++)Assert.That(p.TrySpend(PassiveTreeDefinition.ClassSpineNode(PlayerClassIds.Warrior,t)),Is.True);Assert.That(presentation.Refresh(),Is.True);Assert.That(view.branches.First(x=>x.RouteId==WeaponTypeIds.Sword).gameObject.activeSelf,Is.True);Assert.That(view.branches.Count(x=>x.gameObject.activeSelf),Is.EqualTo(2));Assert.That(view.content.sizeDelta.y,Is.GreaterThan(2700));});
+        WithView((view,p,presentation)=>{Assert.That(presentation.Refresh(),Is.True);Assert.That(view.branches.Count(x=>x.gameObject.activeSelf),Is.EqualTo(1));Assert.That(view.content.sizeDelta.x,Is.LessThan(1100));Assert.That(view.content.sizeDelta.y,Is.LessThan(2700));foreach(string id in PassiveTreeDefinition.ClassIds)Assert.That(view.branches.First(x=>x.RouteId==id).gameObject.activeSelf,Is.EqualTo(id==PlayerClassIds.Warrior));ClassKeystoneProgressionTests.AllocateThirty(p,PlayerClassIds.Warrior);Assert.That(p.TrySpend(ClassPassiveProgressionRules.Keystones(PlayerClassIds.Warrior).First()),Is.True);Assert.That(p.TrySelectWeaponTree(WeaponTypeIds.Sword),Is.True);Assert.That(presentation.Refresh(),Is.True);Assert.That(view.branches.First(x=>x.RouteId==WeaponTypeIds.Sword).gameObject.activeSelf,Is.True);Assert.That(view.branches.Count(x=>x.gameObject.activeSelf),Is.EqualTo(2));Assert.That(presentation.WeaponFocused,Is.False);});
     }
     [Test] public void FitZoomDependsOnVisibleBounds()
     {Assert.That(PassiveTreePresentation.CalculateFit(new Vector2(1000,600),new Vector2(900,2200),1.35f),Is.EqualTo(600f/2200).Within(.0001f));Assert.That(PassiveTreePresentation.CalculateFit(new Vector2(1000,600),new Vector2(900,4000),1.35f),Is.LessThan(600f/2200));}
@@ -54,7 +59,7 @@ public sealed class WarriorPassiveReauthoringTests
     }
     [Test] public void ExistingSaveAllocationsRoundTripWithoutSchemaChange()
     {
-        string path=Path.Combine(Path.GetTempPath(),"WarriorSave-"+Guid.NewGuid().ToString("N")+".json");try{var payload=new GameStatePayload{playerLevel=20,availablePassivePoints=9,encounterStartLife=100,encounterStartMana=100};for(int t=1;t<=10;t++)payload.passiveRanks.Add(new PassiveRankData(PassiveTreeDefinition.ClassSpineNode(PlayerClassIds.Warrior,t),1));payload.passiveRanks.Add(new PassiveRankData(PassiveTreeDefinition.ClassSpineNode(PlayerClassIds.Mage,1),1));for(int i=0;i<RelicInventory.ActiveSlotCount;i++)payload.activeRelicIds.Add(string.Empty);var e=new SaveEnvelope{runId="warrior",runSeed=17,savedAtUtc=DateTime.UtcNow.ToString("O"),payload=payload};File.WriteAllText(path,JsonUtility.ToJson(e));Assert.That(GamePersistence.TryReadFile(path,out var loaded,out var error),Is.True,error);Assert.That(loaded.schemaVersion,Is.EqualTo(12));Assert.That(loaded.payload.passiveRanks.Select(x=>x.stableNodeId),Is.EqualTo(payload.passiveRanks.Select(x=>x.stableNodeId)));}finally{if(File.Exists(path))File.Delete(path);}
+        string path=Path.Combine(Path.GetTempPath(),"WarriorSave-"+Guid.NewGuid().ToString("N")+".json");try{var payload=new GameStatePayload{playerLevel=20,availablePassivePoints=10,encounterStartLife=100,encounterStartMana=100};for(int t=1;t<=10;t++)payload.passiveRanks.Add(new PassiveRankData(PassiveTreeDefinition.ClassSpineNode(PlayerClassIds.Warrior,t),1));for(int i=0;i<RelicInventory.ActiveSlotCount;i++)payload.activeRelicIds.Add(string.Empty);var e=new SaveEnvelope{runId="warrior",runSeed=17,savedAtUtc=DateTime.UtcNow.ToString("O"),payload=payload};File.WriteAllText(path,JsonUtility.ToJson(e));Assert.That(GamePersistence.TryReadFile(path,out var loaded,out var error),Is.True,error);Assert.That(loaded.schemaVersion,Is.EqualTo(13));Assert.That(loaded.payload.passiveRanks.Select(x=>x.stableNodeId),Is.EqualTo(payload.passiveRanks.Select(x=>x.stableNodeId)));}finally{if(File.Exists(path))File.Delete(path);}
     }
     [Test] public void ActualPopupAllocatesFillsAndRefundsSlot()
     {
@@ -89,5 +94,5 @@ public sealed class WarriorPassiveReauthoringTests
         }finally{PrefabUtility.UnloadPrefabContents(root);}
     }
     static void WithView(Action<PassiveTreeView,PlayerProgression,PassiveTreePresentation> body)
-    {var root=UnityEngine.Object.Instantiate(AssetDatabase.LoadAssetAtPath<GameObject>(PassiveTreePrefabBuilder.PrefabPath));var player=new GameObject("Warrior state");try{root.SetActive(true);var identity=player.AddComponent<PlayerIdentityState>();identity.BeginNewGame(PlayerClassIds.Warrior);var p=player.AddComponent<PlayerProgression>();Assert.That(p.RestoreProgression(30,0,30,new int[PassiveTreeDefinition.NodeCount]),Is.True);var view=root.GetComponent<PassiveTreeView>();var presentation=root.AddComponent<PassiveTreePresentation>();presentation.Initialize(view,p);body(view,p,presentation);}finally{UnityEngine.Object.DestroyImmediate(root);UnityEngine.Object.DestroyImmediate(player);}}
+    {var root=UnityEngine.Object.Instantiate(AssetDatabase.LoadAssetAtPath<GameObject>(PassiveTreePrefabBuilder.PrefabPath));var player=new GameObject("Warrior state");try{root.SetActive(true);var identity=player.AddComponent<PlayerIdentityState>();identity.BeginNewGame(PlayerClassIds.Warrior);var p=player.AddComponent<PlayerProgression>();Assert.That(p.RestoreProgression(100,0,100,new int[PassiveTreeDefinition.NodeCount]),Is.True);var view=root.GetComponent<PassiveTreeView>();var presentation=root.AddComponent<PassiveTreePresentation>();presentation.Initialize(view,p);body(view,p,presentation);}finally{UnityEngine.Object.DestroyImmediate(root);UnityEngine.Object.DestroyImmediate(player);}}
 }

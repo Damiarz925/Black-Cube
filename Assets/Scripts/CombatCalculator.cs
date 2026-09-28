@@ -83,7 +83,7 @@ public static class CombatCalculator
         float total = 0f;
         if (ctx.Hits == null) return total;
         foreach (ElementalHit hit in ctx.Hits)
-            if (hit.Element == element)
+            if (ResolvedElement(hit.Element,attacker) == element)
                 total += Mathf.Max(0f, CalculateFinalHitComponent(hit, ctx.Scopes, attacker, defender));
         return total;
     }
@@ -92,10 +92,26 @@ public static class CombatCalculator
         StatsComponent attacker, StatsComponent defender)
     {
         float damage = hit.Amount * ScopedDamageMultiplier(scopes, attacker);
-        return hit.Element == Element.Phys
+        if(attacker!=null)damage*=attacker.GetComponent<SubclassCombatState>()?.AuraDamageMultiplier(hit.Element)??1;
+        var keys=attacker!=null?attacker.GetComponent<PassiveKeystoneState>():null;
+        Element resolved=ResolvedElement(hit.Element,attacker);
+        if(keys!=null)
+        {
+            if(keys.Has(PassiveKeystone.MageFire))
+            {if(resolved!=Element.Fire)return 0;damage*=PassiveKeystoneState.Value(PassiveKeystone.MageFire);}
+            damage*=keys.GenericMoreMultiplier;
+            if(keys.Has(PassiveKeystone.ThiefOpener))
+            {var health=defender!=null?defender.GetComponent<HealthComponent>():null;if(health!=null)damage*=ClassKeystoneMechanics.TargetLifeMultiplier(health.CurrentLife>=health.MaxLife);}
+        }
+        if(defender!=null&&defender.GetComponent<StatusController>()?.IsFractured==true)
+            damage*=ClassKeystoneCatalog.Get(PassiveKeystone.PriestFracture).secondary;
+        return resolved == Element.Phys
             ? ApplyArmourAndPenetration(damage, attacker, defender)
-            : ApplyResistancesAndPenetration(damage, hit.Element, attacker, defender);
+            : ApplyResistancesAndPenetration(damage, resolved, attacker, defender);
     }
+
+    public static Element ResolvedElement(Element source,StatsComponent attacker)
+        =>source==Element.Phys&&attacker!=null&&attacker.GetComponent<PassiveKeystoneState>()?.Has(PassiveKeystone.BarbarianFire)==true?Element.Fire:source;
 
     /// <summary>One additive increased-damage bucket for every explicit scope on the source.</summary>
     public static float ScopedDamageMultiplier(DamageScope scopes, StatsComponent attacker)
@@ -166,6 +182,14 @@ public static class CombatCalculator
     {
         if (baseTickDamage <= 0f || effect == null || defender == null)     //If effect has no dmg, is null, or defender is null, return
             return 0f;
+
+        var keys=attacker!=null?attacker.GetComponent<PassiveKeystoneState>():null;
+        if(keys?.Has(PassiveKeystone.MageFire)==true)
+        {if(effect.Ailment!=StatusEffects.AilmentKind.Ignite)return 0;baseTickDamage*=PassiveKeystoneState.Value(PassiveKeystone.MageFire);}
+        if(keys!=null)baseTickDamage*=keys.GenericMoreMultiplier;
+        if(defender.GetComponent<StatusController>()?.IsFractured==true)baseTickDamage*=ClassKeystoneCatalog.Get(PassiveKeystone.PriestFracture).secondary;
+        if(keys?.Has(PassiveKeystone.ThiefOpener)==true)
+        {var health=defender.GetComponent<HealthComponent>();if(health!=null)baseTickDamage*=ClassKeystoneMechanics.TargetLifeMultiplier(health.CurrentLife>=health.MaxLife);}
 
         return effect.Ailment switch
         {
