@@ -12,6 +12,8 @@ public sealed class SubclassCombatState:MonoBehaviour
     public int QueuedRepeats{get;private set;}
     readonly FiveAuraState auras=new();
     readonly HashSet<string> externallyGrantedEffects=new();
+    SubclassCombatState previewSource;
+    public void CopyPreviewFrom(SubclassCombatState source)=>previewSource=source;
     PlayerIdentityState Identity=>GameManager.Instance!=null?GameManager.Instance.GetComponent<PlayerIdentityState>():null;
     public string SelectedSubclassId=>Identity?.SelectedSubclassId??string.Empty;
     public bool Has(string id)=>SelectedSubclassId==id;
@@ -57,8 +59,8 @@ public sealed class SubclassCombatState:MonoBehaviour
     public int ActiveAuraCount { get { int count=0;for(int i=0;i<5;i++)if(auras.Intensity(i)>0)count++;return count; } }
     public float EffectiveAuraEffect => GetComponent<StatsComponent>().GetStat(StatTypes.AuraEffect)
         +(GetComponent<PassiveKeystoneState>()?.Has(PassiveKeystone.PriestAura)==true?ActiveAuraCount*PassiveKeystoneState.Value(PassiveKeystone.PriestAura):0);
-    public float AuraDamageMultiplier(Element element)=>auras.DamageMultiplier(element,EffectiveAuraEffect);
-    public float AuraSecondary(int index,float baseValue)=>auras.Bonus(index,baseValue,EffectiveAuraEffect);
+    public float AuraDamageMultiplier(Element element)=>previewSource!=null?previewSource.AuraDamageMultiplier(element):auras.DamageMultiplier(element,EffectiveAuraEffect);
+    public float AuraSecondary(int index,float baseValue)=>previewSource!=null?previewSource.AuraSecondary(index,baseValue):auras.Bonus(index,baseValue,EffectiveAuraEffect);
     public int AuraIgniteTicks=>auras.ExtraIgniteTicks(EffectiveAuraEffect);
     public int FinalProjectileCount(int wouldBeCount,out float damageMultiplier)
     {

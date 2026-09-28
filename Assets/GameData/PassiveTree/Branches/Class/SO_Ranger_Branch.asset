@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 345e8e0c4e602db4682dd17f77769029, type: 3}
   m_Name: SO_Ranger_Branch
   m_EditorClassIdentifier: Assembly-CSharp::PassiveClassBranchSO
+  playtestSustainRevision: 1
   visualStyle:
     spineNormal: {fileID: 0}
     spineHover: {fileID: 0}
@@ -180,7 +181,7 @@ MonoBehaviour:
         - kind: 0
           stat: 75
           mechanicId: 
-          value: 18.5
+          value: 2.775
         iconMode: 1
         iconOverride: {fileID: 21300000, guid: 636c4f7991f3bc3499cbeb4fd6231820, type: 3}
       subclassA:
@@ -457,7 +458,7 @@ MonoBehaviour:
         - kind: 0
           stat: 75
           mechanicId: 
-          value: 18.5
+          value: 2.775
         iconMode: 1
         iconOverride: {fileID: 21300000, guid: 636c4f7991f3bc3499cbeb4fd6231820, type: 3}
       subclassA:
@@ -896,7 +897,7 @@ MonoBehaviour:
         - kind: 0
           stat: 75
           mechanicId: 
-          value: 18.5
+          value: 2.775
         iconMode: 1
         iconOverride: {fileID: 21300000, guid: 636c4f7991f3bc3499cbeb4fd6231820, type: 3}
       subclassA:
@@ -1173,7 +1174,7 @@ MonoBehaviour:
         - kind: 0
           stat: 75
           mechanicId: 
-          value: 18.5
+          value: 2.775
         iconMode: 1
         iconOverride: {fileID: 21300000, guid: 636c4f7991f3bc3499cbeb4fd6231820, type: 3}
       subclassA:
@@ -1612,7 +1613,7 @@ MonoBehaviour:
         - kind: 0
           stat: 75
           mechanicId: 
-          value: 18.5
+          value: 2.775
         iconMode: 1
         iconOverride: {fileID: 21300000, guid: 636c4f7991f3bc3499cbeb4fd6231820, type: 3}
       subclassA:

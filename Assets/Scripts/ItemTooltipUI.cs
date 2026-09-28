@@ -18,7 +18,9 @@ public static class ItemTooltipFormatter
         if (item == null) return string.Empty;
         if (item.IsScrap) return $"<color=#BFA86A><b>MATERIAL</b></color>\n\nStack Count: {item.StackCount}\nCannot be equipped or crafted.";
         var s = new StringBuilder();
+        s.AppendLine(item.IsLocked ? "<color=#FFD060>ITEM LOCKED — protected from dismantling/crafting. [L] Unlock</color>" : "<color=#85898F>[L] Lock item</color>");
         s.AppendLine($"<color=#85898F>{ItemSlotUI.DisplayType(item.ItemType).ToUpperInvariant()}  •  ITEM LEVEL {item.ItemLevel}</color>");
+        if(ItemArmourProfile.IsArmour(item.ItemType))s.AppendLine($"<b>Item Armour:</b> {item.FinalItemArmour:0}");
         s.AppendLine($"<color=#8DC9D8><b>CRAFTING POTENTIAL: {item.CurrentCraftingPotential} / {item.MaximumCraftingPotential}</b></color>  <color=#85898F>ORIGIN {item.OriginRarity.ToString().ToUpperInvariant()}</color>");
         if (item.ItemType == LootManager.GearType.Weapons)
         {
@@ -168,6 +170,8 @@ public class ItemTooltipUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
     [SerializeField] Button scrapButton;
     [SerializeField] ScrollRect scroll;
     PointerEventData pointer;
+    ItemTooltipUI comparison;
+    bool comparisonCard;
     public Button ScrapButton => scrapButton;
     public string BodyText => body.text;
     public Image ImplicitLockIcon => implicitLockIcon;
@@ -327,6 +331,21 @@ public class ItemTooltipUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
     { pointer=data; if(owner==null || !Contains(owner,data)) Hide(); }
     void LateUpdate()
     {
+        if(comparisonCard)return;
+        bool alt=UnityEngine.InputSystem.Keyboard.current?.altKey.isPressed==true;
+        var counterpart=!equipped&&alt&&item!=null?EquipmentManager.Instance?.GetEquipped(item.ItemType):null;
+        if(counterpart!=null&&counterpart!=item)
+        {
+            if(comparison==null){comparison=Instantiate(this,transform.parent);comparison.comparisonCard=true;comparison.comparison=null;comparison.name="Equipped item comparison";}
+            comparison.Show(counterpart,owner,true,null,true);
+            var parent=(RectTransform)transform.parent;var main=(RectTransform)transform;var other=(RectTransform)comparison.transform;
+            float width=Mathf.Min(440,(parent.rect.width-36)/2);main.sizeDelta=new Vector2(width,main.sizeDelta.y);other.sizeDelta=new Vector2(width,other.sizeDelta.y);
+            float x=main.localPosition.x;
+            if(x+width*2+12>parent.rect.xMax)x-=width+12;
+            x=Mathf.Clamp(x,parent.rect.xMin+12,parent.rect.xMax-width*2-24);
+            main.localPosition=new Vector3(x,main.localPosition.y,0);other.localPosition=new Vector3(x+width+12,main.localPosition.y,0);
+        }
+        else if(comparison!=null)comparison.Hide();
         if(owner==null || !owner.gameObject.activeInHierarchy || item==null
             || (equipped && validatePlayerEquipment && EquipmentManager.Instance?.GetEquipped(item.ItemType)!=item)) { Hide(); return; }
         // EventSystem updates this same pointer object. Recheck after scrolling/layout changes.
@@ -338,7 +357,8 @@ public class ItemTooltipUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
         if(!equipped && Inventory.Instance != null) Inventory.Instance.TryDismantle(item);
         Hide();
     }
-    public void Hide(){owner=null;item=null;pointer=null;gameObject.SetActive(false);}
+    public void Hide(){if(comparison!=null)comparison.Hide();owner=null;item=null;pointer=null;gameObject.SetActive(false);}
+    void OnDestroy(){if(comparison!=null)Destroy(comparison.gameObject);}
     static GameObject Box(Transform parent,string name,Color tint)
     {var go=new GameObject(name,typeof(RectTransform),typeof(Image));go.transform.SetParent(parent,false);go.GetComponent<Image>().color=tint;return go;}
     static TMP_Text Label(Transform parent,int size)

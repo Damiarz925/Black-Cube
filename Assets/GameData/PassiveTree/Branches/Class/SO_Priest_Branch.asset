@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 345e8e0c4e602db4682dd17f77769029, type: 3}
   m_Name: SO_Priest_Branch
   m_EditorClassIdentifier: Assembly-CSharp::PassiveClassBranchSO
+  playtestSustainRevision: 1
   visualStyle:
     spineNormal: {fileID: 0}
     spineHover: {fileID: 0}
@@ -135,7 +136,7 @@ MonoBehaviour:
         - kind: 0
           stat: 74
           mechanicId: 
-          value: 3.6
+          value: 0.35999998
         iconMode: 0
         iconOverride: {fileID: 0}
     left:
@@ -216,7 +217,7 @@ MonoBehaviour:
         - kind: 0
           stat: 74
           mechanicId: 
-          value: 3.6
+          value: 0.35999998
         iconMode: 0
         iconOverride: {fileID: 0}
   - tier: 2
@@ -684,7 +685,7 @@ MonoBehaviour:
         - kind: 0
           stat: 74
           mechanicId: 
-          value: 3.84
+          value: 0.384
         iconMode: 0
         iconOverride: {fileID: 0}
     left:
@@ -765,7 +766,7 @@ MonoBehaviour:
         - kind: 0
           stat: 74
           mechanicId: 
-          value: 3.84
+          value: 0.384
         iconMode: 0
         iconOverride: {fileID: 0}
   - tier: 5
@@ -1233,7 +1234,7 @@ MonoBehaviour:
         - kind: 0
           stat: 74
           mechanicId: 
-          value: 4.08
+          value: 0.408
         iconMode: 0
         iconOverride: {fileID: 0}
     left:
@@ -1314,7 +1315,7 @@ MonoBehaviour:
         - kind: 0
           stat: 74
           mechanicId: 
-          value: 4.08
+          value: 0.408
         iconMode: 0
         iconOverride: {fileID: 0}
   - tier: 8
@@ -1782,7 +1783,7 @@ MonoBehaviour:
         - kind: 0
           stat: 74
           mechanicId: 
-          value: 4.3199997
+          value: 0.43199998
         iconMode: 0
         iconOverride: {fileID: 0}
     left:
@@ -1863,7 +1864,7 @@ MonoBehaviour:
         - kind: 0
           stat: 74
           mechanicId: 
-          value: 4.3199997
+          value: 0.43199998
         iconMode: 0
         iconOverride: {fileID: 0}
   keystones:

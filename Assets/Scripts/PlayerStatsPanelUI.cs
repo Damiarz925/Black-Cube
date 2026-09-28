@@ -21,6 +21,7 @@ public class PlayerStatsPanelUI : MonoBehaviour
     [SerializeField] private float autoRefreshInterval = 0f;
 
     private float _timer;
+    bool initializedAdvancedCollapse;
 
     private readonly List<GameObject> _spawned = new();
     private StatsComponent subscribedStats;
@@ -89,6 +90,7 @@ public class PlayerStatsPanelUI : MonoBehaviour
         }
 
         var player = playerStats.GetComponent<PlayerController>();
+        if(player!=null){BuildCompactPlayerStats(player);return;}
         if (player != null)
         {
             var header = Instantiate(headerPrefab, contentRoot);
@@ -224,6 +226,45 @@ public class PlayerStatsPanelUI : MonoBehaviour
 
     private StatHeaderUI AddHeader(string title)
     { var h = Instantiate(headerPrefab, contentRoot); h.SetText(title); _spawned.Add(h.gameObject); return h; }
+    void BuildCompactPlayerStats(PlayerController player)
+    {
+        var hit=CharacterDamageEstimate.SearchHit(player.BuildNonCriticalAttackContext(),playerStats);
+        AddHeader("OFFENSE");AddInspectionRow("Average Hit",hit.Hits.Sum(h=>h.Amount).ToString("0.#"));
+        AddInspectionRow("Basic DPS (before defenses)",CharacterDamageEstimate.Calculate(player,false).ToString("0.#"));
+        AddInspectionRow("Attacks / Second",player.GetFinalAttackSpeed().ToString("0.##"));
+        AddInspectionRow("Critical Chance",player.GetFinalCritChance().ToString("P1"));
+        AddInspectionRow("Critical Multiplier",(CombatCalculator.BaseCriticalMultiplier+playerStats.GetStat(StatTypes.CritMult)).ToString("0.##")+"×");
+        AddStat(StatTypes.ChanceToHitTwice);
+        AddHeader("DAMAGE TYPES / AVERAGE HIT");
+        foreach(var element in new[]{Element.Phys,Element.Fire,Element.Cold,Element.Light,Element.Void})
+            AddInspectionRow(ItemTooltipUI.ElementName(element),hit.Hits.Where(h=>h.Element==element).Sum(h=>h.Amount).ToString("0.#"));
+        AddHeader("DEFENSE");AddInspectionRow("Maximum Life",(player.GetComponent<HealthComponent>()?.MaxLife??0).ToString("0"));
+        float armour=ItemArmourProfile.Final(playerStats),explicitPdr=playerStats.GetStat(StatTypes.PhysicalDamageReduction);
+        AddInspectionRow("Armour",armour.ToString("0"));AddInspectionRow("PDR vs L100 reference",Mathf.Clamp(ItemArmourProfile.RawReduction(armour,ItemArmourProfile.ReferenceHit,explicitPdr),-.9f,.9f).ToString("P1"));
+        foreach(var element in new[]{Element.Fire,Element.Cold,Element.Light,Element.Void})
+        {
+            var stat=element switch{Element.Fire=>StatTypes.FireRes,Element.Cold=>StatTypes.ColdRes,Element.Light=>StatTypes.LightRes,_=>StatTypes.VoidRes};
+            AddInspectionRow(ItemTooltipUI.ElementName(element)+" Resistance",Mathf.Min(CombatCalculator.GetMaximumResistance(element,playerStats),playerStats.GetStat(stat)+(element==Element.Void?0:playerStats.GetStat(StatTypes.AllRes))).ToString("P0"));
+        }
+        AddHeader("RESOURCES");AddInspectionRow("Maximum Mana",(player.GetComponent<ManaComponent>()?.MaxMana??0).ToString("0"));
+        AddInspectionRow("Life Regeneration / sec",(playerStats.GetStat(StatTypes.LifeRegeneration)*(player.GetComponent<PassiveKeystoneState>()?.LifeRegenerationMultiplier??1)).ToString("P2")+" Max Life");
+        foreach(var stat in new[]{StatTypes.ManaRegeneration,StatTypes.LifeOnHit,StatTypes.ManaOnHit,StatTypes.LifeOnKill,StatTypes.ManaOnKill})AddStat(stat);
+        AddHeader("SPECIAL");foreach(var stat in new[]{StatTypes.CooldownReduction,StatTypes.AuraEffect,StatTypes.ProjectileSpeed,StatTypes.ProjectileAmount,StatTypes.ProjectilePrecisionChance,StatTypes.ProjectilePrecisionMultiplier})if(StatDisplayFormatting.ShouldDisplay(playerStats,stat))AddStat(stat);
+        const string details="Advanced Sources";
+        if(!initializedAdvancedCollapse){collapsed.Add(details);initializedAdvancedCollapse=true;}
+        var header=AddHeader((collapsed.Contains(details)?"[+] ":"[-] ")+details);var image=header.GetComponent<Image>()??header.gameObject.AddComponent<Image>();image.raycastTarget=true;
+        foreach(var text in header.GetComponentsInChildren<TMP_Text>())text.raycastTarget=false;
+        var button=header.gameObject.AddComponent<Button>();button.targetGraphic=image;sectionButtons[details]=button;
+        button.onClick.AddListener(()=>{if(!collapsed.Add(details))collapsed.Remove(details);Refresh();});
+        if(!collapsed.Contains(details))
+        {
+            var gear=EquipmentManager.Instance?.EquippedItems.Values;
+            if(gear!=null)foreach(var item in gear)if(ItemArmourProfile.IsArmour(item.ItemType))AddInspectionRow(ItemSlotUI.DisplayType(item.ItemType),ItemArmourProfile.Diagnose(item));
+            AddInspectionRow("Global Increased Armour",playerStats.GetStat(StatTypes.ArmourPercent).ToString("P1"));
+            AddInspectionRow("Raw PDR vs reference",ItemArmourProfile.RawReduction(armour,ItemArmourProfile.ReferenceHit,explicitPdr).ToString("P2"));
+            foreach(var stat in playerStats.GetTrackedStats().Where(s=>!Gear.IsWeaponBaseStat(s)&&StatDisplayFormatting.ShouldDisplay(playerStats,s)))AddStat(stat);
+        }
+    }
     private void AddInspectionRow(string label,string value)
     {var row=Instantiate(rowPrefab,contentRoot);row.Set(label,value);_spawned.Add(row.gameObject);}
     private void AddStat(StatTypes type)

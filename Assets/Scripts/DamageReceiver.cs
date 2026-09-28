@@ -36,9 +36,10 @@ public class DamageReceiver : MonoBehaviour
         if (health != null)
         {
             float before = health.CurrentLife;
+            RecordIncoming(Mathf.Min(damage,before),new DamageContext(1),null,element);
             health.LoseLife(damage);
             actualLifeLoss = Mathf.Max(0f, before - health.CurrentLife);
-            if(effect==null&&GetComponent<PlayerController>()!=null)
+            if(GetComponent<PlayerController>()!=null)
                 (GetComponent<RevengeState>()??gameObject.AddComponent<RevengeState>()).RecordHit(actualLifeLoss,health.MaxLife);
             // Presentation-only notification after damage resolves. Lethal hits
             // skip the flinch so death/replacement always supersedes it.
@@ -65,9 +66,10 @@ public class DamageReceiver : MonoBehaviour
         if (keystones != null) damage = keystones.RedirectDamageToMana(damage);
         if (damage <= 0f) return;
         float before = health != null ? health.CurrentLife : damage;
+        RecordIncoming(Mathf.Min(damage,before),components.Hits.Count>0?components:context,attacker);
         health?.LoseLife(damage);
         float actualLifeLoss = health != null ? Mathf.Max(0f, before - health.CurrentLife) : damage;
-        if(effect==null&&health!=null&&GetComponent<PlayerController>()!=null)
+        if(health!=null&&GetComponent<PlayerController>()!=null)
             (GetComponent<RevengeState>()??gameObject.AddComponent<RevengeState>()).RecordHit(actualLifeLoss,health.MaxLife);
         if (health != null && health.CurrentLife > 0f) paperSprite?.PlayHitReaction();
         if(effect!=null||components.Hits.Count==0)SpawnDamagePopup(actualLifeLoss, GetPrimaryElement(context), effect, context.IsCrit);
@@ -91,6 +93,13 @@ public class DamageReceiver : MonoBehaviour
             damagePopup.Spawn(damage, PopupTarget, effect);
         else
             damagePopup.Spawn(damage, PopupTarget, element, critical);
+    }
+
+    void RecordIncoming(float amount,DamageContext context,StatsComponent attacker,Element fallback=Element.Phys)
+    {
+        if(GetComponent<PlayerController>()==null)return;
+        if(context.Hits.Count==0)context.AddDamage(fallback,amount);
+        (GetComponent<IncomingDamageHistory>()??gameObject.AddComponent<IncomingDamageHistory>()).Record(amount,context,attacker,GetComponent<StatsComponent>());
     }
 
     private Element GetPrimaryElement(DamageContext context)

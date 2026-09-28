@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0ad3ea9fe88bc6d4fabe5ba1960759b9, type: 3}
   m_Name: ModDatabase
   m_EditorClassIdentifier: Assembly-CSharp::ModDatabase
+  playtestSustainRevision: 1
   allAffixes:
   - statType: 0
     displayName: Weapon Damage
@@ -3981,40 +3982,40 @@ MonoBehaviour:
     side: 1
     tiers:
     - tierIndex: 5
-      minValue: 0.02
-      maxValue: 0.04
+      minValue: 0.06
+      maxValue: 0.12
       minItemLevel: 1
       weight: 50
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
     - tierIndex: 4
-      minValue: 0.03
-      maxValue: 0.07
+      minValue: 0.089999996
+      maxValue: 0.21000001
       minItemLevel: 20
       weight: 35
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
     - tierIndex: 3
-      minValue: 0.049999997
-      maxValue: 0.099999994
+      minValue: 0.14999999
+      maxValue: 0.29999998
       minItemLevel: 40
       weight: 20
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
     - tierIndex: 2
-      minValue: 0.08
-      maxValue: 0.16
+      minValue: 0.24
+      maxValue: 0.48
       minItemLevel: 60
       weight: 10
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
     - tierIndex: 1
-      minValue: 0.12
-      maxValue: 0.25
+      minValue: 0.35999998
+      maxValue: 0.75
       minItemLevel: 75
       weight: 5
       pairedDamage: 0

@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d29b1df66ebd188438176e8b8578ce14, type: 3}
   m_Name: SO_Sceptre_Branch
   m_EditorClassIdentifier: Assembly-CSharp::PassiveWeaponBranchSO
+  playtestSustainRevision: 1
   visualStyle:
     spineNormal: {fileID: 0}
     spineHover: {fileID: 0}
@@ -101,7 +102,7 @@ MonoBehaviour:
         - kind: 0
           stat: 75
           mechanicId: 
-          value: 0.90000004
+          value: 0.135
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassA:
@@ -142,7 +143,7 @@ MonoBehaviour:
         - kind: 0
           stat: 72
           mechanicId: 
-          value: 0.3
+          value: 0.90000004
         iconMode: 0
         iconOverride: {fileID: 0}
       b:
@@ -178,7 +179,7 @@ MonoBehaviour:
         - kind: 0
           stat: 75
           mechanicId: 
-          value: 1.35
+          value: 0.20250002
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassA:
@@ -272,7 +273,7 @@ MonoBehaviour:
         - kind: 0
           stat: 74
           mechanicId: 
-          value: 3.2
+          value: 0.32000002
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassA:
@@ -349,7 +350,7 @@ MonoBehaviour:
         - kind: 0
           stat: 74
           mechanicId: 
-          value: 4.8
+          value: 0.48000002
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassA:
@@ -516,7 +517,7 @@ MonoBehaviour:
         - kind: 0
           stat: 72
           mechanicId: 
-          value: 0.5
+          value: 1.5
         - kind: 0
           stat: 73
           mechanicId: 
@@ -671,7 +672,7 @@ MonoBehaviour:
         - kind: 0
           stat: 72
           mechanicId: 
-          value: 0.625
+          value: 1.875
         iconMode: 0
         iconOverride: {fileID: 0}
       c:
@@ -785,7 +786,7 @@ MonoBehaviour:
         - kind: 0
           stat: 75
           mechanicId: 
-          value: 2.25
+          value: 0.3375
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassA:
@@ -826,7 +827,7 @@ MonoBehaviour:
         - kind: 0
           stat: 72
           mechanicId: 
-          value: 0.75
+          value: 2.25
         iconMode: 0
         iconOverride: {fileID: 0}
       b:
@@ -862,7 +863,7 @@ MonoBehaviour:
         - kind: 0
           stat: 75
           mechanicId: 
-          value: 3.375
+          value: 0.50625
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassA:
@@ -956,7 +957,7 @@ MonoBehaviour:
         - kind: 0
           stat: 74
           mechanicId: 
-          value: 12
+          value: 1.2
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassA:
@@ -1033,7 +1034,7 @@ MonoBehaviour:
         - kind: 0
           stat: 74
           mechanicId: 
-          value: 18
+          value: 1.8000001
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassA:
@@ -1192,7 +1193,7 @@ MonoBehaviour:
         - kind: 0
           stat: 75
           mechanicId: 
-          value: 13.5
+          value: 2.025
         iconMode: 0
         iconOverride: {fileID: 0}
       b:
@@ -1212,7 +1213,7 @@ MonoBehaviour:
         - kind: 0
           stat: 74
           mechanicId: 
-          value: 36
+          value: 3.6000001
         iconMode: 0
         iconOverride: {fileID: 0}
       c:
@@ -1228,7 +1229,7 @@ MonoBehaviour:
         - kind: 0
           stat: 72
           mechanicId: 
-          value: 3
+          value: 9
         - kind: 0
           stat: 73
           mechanicId: 

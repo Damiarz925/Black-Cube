@@ -113,10 +113,7 @@ public sealed class InventoryEquipmentPanelUI : MonoBehaviour
         foreach (var text in panel.GetComponentsInChildren<TMP_Text>(true))
         {
             if (text.text == "EQUIPPED GEAR") text.gameObject.SetActive(false);
-            if (text.text == "ACTIVE STATS") Place(text.rectTransform, .05f, .84f, .8f, .89f);
         }
-        Transform scroll = panel.transform.Find("Stats scroll");
-        if (scroll is RectTransform rect) Place(rect, .05f, .055f, .95f, .83f);
     }
 
     EquipmentStatsUI.Slot CreateEquipmentSlot(Transform parent, LootManager.GearType type, Rect artworkRect)

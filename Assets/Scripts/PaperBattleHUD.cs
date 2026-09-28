@@ -101,7 +101,7 @@ public class PaperBattleHUD : MonoBehaviour
     public void ToggleStats(){if(!CanOpenGameplayPanel()||statsPanel==null)return;bool open=!statsPanel.activeSelf;enemyInspection?.Close();GetComponent<SkillTreeUI>()?.Close();statsPanel.SetActive(open);RefreshMenuStates();}
     public void ToggleEnemyInspection(){if(!CanOpenGameplayPanel())return;bool open=!IsEnemyInspectionOpen;if(statsPanel!=null)statsPanel.SetActive(false);GetComponent<SkillTreeUI>()?.Close();if(open)enemyInspection?.Open();else enemyInspection?.Close();RefreshMenuStates();}
     public void CloseEnemyInspection(){enemyInspection?.Close();RefreshMenuStates();}
-    public void PauseGameplay(){if(!CanOpenPanel())return;CloseGameplayPanels();Time.timeScale=0f;pauseMenu?.Open();RefreshPlaybackControls();}
+    public void PauseGameplay(){if(!CanOpenPanel())return;Time.timeScale=0f;RefreshPlaybackControls();}
     public void PlayGameplay(){if(!CanOpenPanel())return;pauseMenu?.Close();Time.timeScale=1f;RefreshPlaybackControls();}
 
     public void PositionBelowArtwork(RectTransform target,float left,float topGap,float width,float height)

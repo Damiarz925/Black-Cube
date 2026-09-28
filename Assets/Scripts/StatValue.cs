@@ -98,4 +98,10 @@ public class StatValue
         //Return the result
         return result;
     }
+    public StatValue CopyExcluding(object first,object second)
+    {
+        var copy=new StatValue(BaseValue,compoundMorePercent);
+        foreach(var modifier in _modifiers)if((first==null||modifier.Source!=first)&&(second==null||modifier.Source!=second))copy.AddModifier(modifier);
+        return copy;
+    }
 }

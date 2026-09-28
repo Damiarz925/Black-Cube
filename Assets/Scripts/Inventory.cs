@@ -14,6 +14,7 @@ public class Inventory : MonoBehaviour
     public event Action OnInventoryChanged; //Declares an action for other classes to subscribe to so that we can invoke when adding and removing items
     public event Action OnModFilterChanged;
     public InventoryModFilter ModHighlightFilter { get; } = new();
+    public AdvancedLootFilter AdvancedFilter { get; private set; } = new();
     private bool filterLevelEnabled, filterRarityEnabled, restoringFilterPreferences;
     private int filterLevel = 10;
     private LootManager.GearRarity filterRarity = LootManager.GearRarity.Magic;
@@ -33,8 +34,8 @@ public class Inventory : MonoBehaviour
     }
     public int FilterLevel { get => filterLevel; set { int next=Mathf.Max(1,value);if(filterLevel==next)return;filterLevel=next;SaveFilterPreferences(); } }
     public LootManager.GearRarity FilterRarity { get => filterRarity; set { if(filterRarity==value)return;filterRarity=value;SaveFilterPreferences(); } }
-    public bool MatchesFilter(Gear item) => item != null && !item.IsScrap &&
-        ((FilterLevelEnabled && item.ItemLevel <= Mathf.Max(1, FilterLevel)) ||
+    public bool MatchesFilter(Gear item) => item != null && !item.IsScrap && !item.IsLocked &&
+        ((!AdvancedFilter.Keeps(item)) || (FilterLevelEnabled && item.ItemLevel <= Mathf.Max(1, FilterLevel)) ||
          (FilterRarityEnabled && item.ItemRarity <= FilterRarity) ||
          (FilterModMismatchEnabled && ModHighlightFilter.HasSelection && !ModHighlightFilter.Matches(item)));
 
@@ -65,6 +66,7 @@ public class Inventory : MonoBehaviour
         DontDestroyOnLoad(gameObject);
         if (GetComponent<CurrencyInventory>() == null) gameObject.AddComponent<CurrencyInventory>();
         LoadFilterPreferences();
+        AdvancedFilter = AdvancedLootFilter.Load();
         ModHighlightFilter.Changed += HandleModFilterChanged;
     }
 
@@ -167,7 +169,7 @@ public class Inventory : MonoBehaviour
         _ => 0
     };
 
-    public bool CanDismantle(Gear item) => item != null && !item.IsScrap && !item.Dismantled && items.Contains(item)
+    public bool CanDismantle(Gear item) => item != null && !item.IsScrap && !item.IsLocked && !item.Dismantled && items.Contains(item)
         && (EquipmentManager.Instance == null || EquipmentManager.Instance.GetEquipped(item.ItemType) != item);
 
     public bool TryDismantle(Gear item)

@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d29b1df66ebd188438176e8b8578ce14, type: 3}
   m_Name: SO_Sword_Branch
   m_EditorClassIdentifier: Assembly-CSharp::PassiveWeaponBranchSO
+  playtestSustainRevision: 1
   visualStyle:
     spineNormal: {fileID: 0}
     spineHover: {fileID: 0}
@@ -174,7 +175,7 @@ MonoBehaviour:
         - kind: 0
           stat: 74
           mechanicId: 
-          value: 4.8
+          value: 0.48000002
         - kind: 0
           stat: 92
           mechanicId: 
@@ -329,7 +330,7 @@ MonoBehaviour:
         - kind: 0
           stat: 74
           mechanicId: 
-          value: 6.4
+          value: 0.64000005
         iconMode: 0
         iconOverride: {fileID: 0}
       c:
@@ -443,7 +444,7 @@ MonoBehaviour:
         - kind: 0
           stat: 75
           mechanicId: 
-          value: 1.5
+          value: 0.22500001
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassA:
@@ -484,7 +485,7 @@ MonoBehaviour:
         - kind: 0
           stat: 74
           mechanicId: 
-          value: 8
+          value: 0.8
         iconMode: 0
         iconOverride: {fileID: 0}
       b:
@@ -520,7 +521,7 @@ MonoBehaviour:
         - kind: 0
           stat: 75
           mechanicId: 
-          value: 2.25
+          value: 0.3375
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassA:
@@ -858,7 +859,7 @@ MonoBehaviour:
         - kind: 0
           stat: 74
           mechanicId: 
-          value: 12
+          value: 1.2
         - kind: 0
           stat: 92
           mechanicId: 
@@ -1013,7 +1014,7 @@ MonoBehaviour:
         - kind: 0
           stat: 74
           mechanicId: 
-          value: 24
+          value: 2.4
         iconMode: 0
         iconOverride: {fileID: 0}
       c:
@@ -1188,7 +1189,7 @@ MonoBehaviour:
         - kind: 0
           stat: 74
           mechanicId: 
-          value: 48
+          value: 4.8
         - kind: 0
           stat: 92
           mechanicId: 
@@ -1232,7 +1233,7 @@ MonoBehaviour:
         - kind: 0
           stat: 75
           mechanicId: 
-          value: 13.5
+          value: 2.025
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassA:

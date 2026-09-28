@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d29b1df66ebd188438176e8b8578ce14, type: 3}
   m_Name: SO_Bow_Branch
   m_EditorClassIdentifier: Assembly-CSharp::PassiveWeaponBranchSO
+  playtestSustainRevision: 1
   visualStyle:
     spineNormal: {fileID: 0}
     spineHover: {fileID: 0}
@@ -272,7 +273,7 @@ MonoBehaviour:
         - kind: 0
           stat: 75
           mechanicId: 
-          value: 1.2
+          value: 0.18
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassA:
@@ -349,7 +350,7 @@ MonoBehaviour:
         - kind: 0
           stat: 75
           mechanicId: 
-          value: 1.8000001
+          value: 0.27
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassA:
@@ -956,7 +957,7 @@ MonoBehaviour:
         - kind: 0
           stat: 75
           mechanicId: 
-          value: 4.5
+          value: 0.675
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassA:
@@ -1033,7 +1034,7 @@ MonoBehaviour:
         - kind: 0
           stat: 75
           mechanicId: 
-          value: 6.75
+          value: 1.0125
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassA:
@@ -1212,7 +1213,7 @@ MonoBehaviour:
         - kind: 0
           stat: 75
           mechanicId: 
-          value: 13.5
+          value: 2.025
         iconMode: 0
         iconOverride: {fileID: 0}
       c:

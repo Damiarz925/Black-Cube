@@ -10,6 +10,11 @@ public class StatsComponent : MonoBehaviour
     private int updateDepth;
     private bool pendingChange;
     public void BeginUpdate() { updateDepth++; }
+    public void CopyToPreview(StatsComponent target,object excludedGear,object excludedProgression)
+    {
+        target._stats.Clear();
+        foreach(var pair in _stats)target._stats[pair.Key]=pair.Value.CopyExcluding(excludedGear,excludedProgression);
+    }
     public void EndUpdate()
     {
         if (updateDepth <= 0) throw new System.InvalidOperationException("Unbalanced stat update");

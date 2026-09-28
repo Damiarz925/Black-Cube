@@ -118,7 +118,7 @@ public static class PoedbAffixCatalog
                 var lifeRegen=ScalarFloat(1,1,2,7,2.1f,8,19,8.1f,16,31,16.1f,24,
                     44,24.1f,32,55,32.1f,48,68,48.1f,64,74,64.1f,96,
                     78,96.1f,128,83,128.1f,152,86,152.1f,176);
-                foreach(var tier in lifeRegen){tier.minValue*=.01f;tier.maxValue*=.01f;}
+                foreach(var tier in lifeRegen){tier.minValue*=.03f;tier.maxValue*=.03f;}
                 tiers=slot==B?lifeRegen:Through(lifeRegen,78);return true;
             case StatTypes.PhysDmg:
                 if(slot!=W)return false; // existing nonweapon identity keeps its authored values

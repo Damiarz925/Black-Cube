@@ -46,7 +46,8 @@ public static class GenericClassPassiveReauthoring
         var tier=db.GetDefinition(stat)?.tiers.FirstOrDefault(x=>x.tierIndex==1);
         if(tier==null)throw new InvalidOperationException("No T1 source or explicit custom value for "+stat);
         float value=(tier.minValue+tier.maxValue)*.5f*factor;
-        return stat==StatTypes.LifeRegeneration?Round(value*100f)*.01f:Round(value);
+        return stat==StatTypes.LifeRegeneration?Round(value*100f)*.01f:
+            Round(value)*(stat==StatTypes.LifeOnHit?.1f:stat==StatTypes.ManaOnHit?.15f:1);
     }
     public static PassiveEffect[] Effects(ModDatabase db,string key)
     {

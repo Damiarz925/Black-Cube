@@ -123,6 +123,7 @@ public sealed class PassiveBranchVisualStyle
 
 public abstract class PassiveBranchDataSO : ScriptableObject
 {
+    public int playtestSustainRevision;
     [SerializeField] PassiveBranchVisualStyle visualStyle = new();
     public PassiveBranchVisualStyle VisualStyle => visualStyle;
     public abstract string RouteId { get; }

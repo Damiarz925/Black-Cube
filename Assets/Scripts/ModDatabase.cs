@@ -11,6 +11,7 @@ using System.Collections.Generic;
 [CreateAssetMenu(fileName = "ModDatabase", menuName = "Scriptable Objects/ModDatabase")]
 public class ModDatabase : ScriptableObject
 {
+    public int playtestSustainRevision;
     [SerializeField] private List<AffixDefinitions> allAffixes = new(); //New list of affix definitions
 
     private Dictionary<StatTypes, AffixDefinitions> lookupByEnum;       //Dictionary where key is stat types, and value is affix definitions

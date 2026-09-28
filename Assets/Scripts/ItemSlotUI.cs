@@ -25,6 +25,28 @@ public class ItemSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     private Image slotInterior;
     private GameObject areaCorruptionBorder;
     private GameObject modHighlight;
+    private bool hovered;
+    private TMP_Text lockLabel;
+    private TMP_Text dpsLabel;
+    public void SetDpsUpgrade(float percent)
+    {
+        if(dpsLabel==null)
+        {
+            var go=new GameObject("Estimated DPS Upgrade",typeof(RectTransform),typeof(TextMeshProUGUI));go.transform.SetParent(transform,false);
+            dpsLabel=go.GetComponent<TextMeshProUGUI>();dpsLabel.fontSize=10;dpsLabel.alignment=TextAlignmentOptions.BottomRight;dpsLabel.raycastTarget=false;Place(dpsLabel.rectTransform,.20f,.02f,.98f,.25f);
+        }
+        dpsLabel.text=Mathf.Abs(percent)<.05f?"—":$"{(percent>0?"▲":"▼")} {Mathf.Abs(percent):0.#}%";
+        dpsLabel.color=Mathf.Abs(percent)<.05f?Color.gray:percent>0?new Color(.3f,1,.4f):new Color(1,.35f,.35f);
+    }
+    void Update()
+    {
+        if (hovered && gear != null && UnityEngine.InputSystem.Keyboard.current?.lKey.wasPressedThisFrame == true)
+        {
+            gear.ToggleLock();
+            GetComponentInParent<InventoryUI>()?.Tooltip?.Hide();
+        }
+        if (lockLabel != null) lockLabel.gameObject.SetActive(gear != null && gear.IsLocked);
+    }
     public void OnPointerClick(PointerEventData data)
     {
         if (CurrencyInventory.Instance != null && CurrencyInventory.Instance.ArmedCurrency.HasValue && data.button == PointerEventData.InputButton.Right)
@@ -33,10 +55,14 @@ public class ItemSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
             return;
         }
         if (data.button == PointerEventData.InputButton.Right && gear != null)
+        {
+            if (gear.IsLocked) { GetComponentInParent<InventoryUI>()?.ShowTooltip(gear, (RectTransform)transform, false, data); return; }
             Inventory.Instance?.TryDismantle(gear);
+        }
     }
-    public void OnPointerEnter(PointerEventData data) => GetComponentInParent<InventoryUI>()?.ShowTooltip(gear, (RectTransform)transform, false, data);
-    public void OnPointerExit(PointerEventData data) => GetComponentInParent<InventoryUI>()?.Tooltip?.Leave((RectTransform)transform, data);
+    public void OnPointerEnter(PointerEventData data) { hovered = true; GetComponentInParent<InventoryUI>()?.ShowTooltip(gear, (RectTransform)transform, false, data); }
+    public void OnPointerExit(PointerEventData data) { hovered = false; GetComponentInParent<InventoryUI>()?.Tooltip?.Leave((RectTransform)transform, data); }
+    void OnDisable() => hovered = false;
 
     public void Setup(Gear gear)    //Calls setup with just gear and no sprite
     {
@@ -46,6 +72,15 @@ public class ItemSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     public void Setup(Gear gear, Sprite icon) //Populates the item slot UI with gear data and click behavior
     {
         this.gear = gear; //Sets the private gear object of the class to the passed in gear object
+        if (lockLabel == null)
+        {
+            var go = new GameObject("Item lock", typeof(RectTransform), typeof(TextMeshProUGUI));
+            go.transform.SetParent(transform, false);
+            lockLabel = go.GetComponent<TextMeshProUGUI>(); lockLabel.text = "L";
+            lockLabel.fontSize = 13; lockLabel.color = new Color(1,.8f,.25f); lockLabel.raycastTarget = false;
+            Place(lockLabel.rectTransform, .02f,.65f,.25f,.95f);
+        }
+        lockLabel.gameObject.SetActive(gear.IsLocked);
         var glyph = GetComponentInChildren<EquipmentGlyph>(true);
         if (GetComponent<RectMask2D>() == null) gameObject.AddComponent<RectMask2D>();
         if (backgroundImage != null)
@@ -65,6 +100,7 @@ public class ItemSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         {
             var iconObject = new GameObject("Themed item icon", typeof(RectTransform), typeof(Image));
             iconObject.transform.SetParent(transform, false);
+            Place((RectTransform)iconObject.transform,.15f,.24f,.85f,.92f);
             iconImage = iconObject.GetComponent<Image>();
             iconImage.raycastTarget = false;
         }
@@ -76,10 +112,7 @@ public class ItemSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         {
             detailText.text = gear.IsScrap ? $"x{gear.StackCount}" : $"LV {gear.ItemLevel}";
             detailText.fontSize = 12; detailText.alignment = TextAlignmentOptions.Center;
-            Place(detailText.rectTransform, .05f, .02f, .78f, .2f);
         }
-        if (backgroundImage != null && backgroundImage.transform != transform) Place(backgroundImage.rectTransform, .1f, .12f, .9f, .9f);
-        if (iconImage != null) Place(iconImage.rectTransform, .13f, .19f, .87f, .89f);
 
         if(elementBadge == null)
         {

@@ -21,6 +21,8 @@ public sealed class PauseMenuUI : MonoBehaviour
     Func<bool> saveAction;
     Action<string> loadSceneAction;
     Action quitAction;
+    bool standaloneOptions;
+    float optionsPreviousScale;
 
     public bool IsOpen => root != null && root.activeSelf;
     public bool IsOptionsOpen => IsOpen && optionsPanel != null && optionsPanel.activeSelf;
@@ -69,6 +71,7 @@ public sealed class PauseMenuUI : MonoBehaviour
 
     public void Close()
     {
+        if(standaloneOptions){Time.timeScale=optionsPreviousScale;standaloneOptions=false;}
         if (root != null) root.SetActive(false);
         if (optionsPanel != null) optionsPanel.SetActive(false);
         codex?.Hide();
@@ -79,7 +82,8 @@ public sealed class PauseMenuUI : MonoBehaviour
 
     public void OpenOptions()
     {
-        if (!IsOpen) return;
+        if(root==null)return;
+        if(!IsOpen){standaloneOptions=true;optionsPreviousScale=Time.timeScale;root.SetActive(true);root.transform.SetAsLastSibling();}
         RefreshOptions();
         menuPanel.SetActive(false);
         optionsPanel.SetActive(true);
@@ -106,6 +110,7 @@ public sealed class PauseMenuUI : MonoBehaviour
     public void ReturnFromOptions()
     {
         if (!IsOpen) return;
+        if(standaloneOptions){Close();return;}
         optionsPanel.SetActive(false);
         menuPanel.SetActive(true);
         Time.timeScale = 0f;
@@ -117,6 +122,12 @@ public sealed class PauseMenuUI : MonoBehaviour
         Close();
         Time.timeScale = 1f;
         loadSceneAction(GameSceneNames.MainMenu);
+    }
+
+    public void ShowGameMenu()
+    {
+        standaloneOptions=false;
+        menuPanel.SetActive(true);optionsPanel.SetActive(false);
     }
 
     public void SaveAndQuit()
@@ -145,10 +156,33 @@ public sealed class PauseMenuUI : MonoBehaviour
         ResumeButton=authoredView.resumeButton;OptionsButton=authoredView.optionsButton;CodexButton=authoredView.codexButton;SaveAndMainMenuButton=authoredView.saveAndMainMenuButton;SaveAndQuitButton=authoredView.saveAndQuitButton;OptionsBackButton=authoredView.optionsBackButton;PausePassiveTreeButton=authoredView.pausePassiveTreeButton;
         codex?.Initialize(root.transform,ReturnFromCodex);RefreshOptions();root.SetActive(false);
     }
-    void WireButtons(){Wire(ResumeButton,Resume);Wire(OptionsButton,OpenOptions);Wire(CodexButton,OpenCodex);Wire(SaveAndMainMenuButton,SaveAndMainMenu);Wire(SaveAndQuitButton,SaveAndQuit);Wire(OptionsBackButton,ReturnFromOptions);Wire(PausePassiveTreeButton,TogglePausePassiveTree);}
+void WireButtons(){Wire(authoredView.gameMenuButton,ShowGameMenu);Wire(authoredView.hudOptionsButton,OpenOptions);Wire(authoredView.runUnfocusedButton,()=>{GameplayOptions.ContinueRunningWhileUnfocused=!GameplayOptions.ContinueRunningWhileUnfocused;RefreshOptions();});Wire(authoredView.skillTooltipButton,()=>{GameplayOptions.WeaponSkillTooltips=!GameplayOptions.WeaponSkillTooltips;RefreshOptions();});Wire(ResumeButton,Resume);Wire(OptionsButton,OpenOptions);Wire(CodexButton,OpenCodex);Wire(SaveAndMainMenuButton,SaveAndMainMenu);Wire(SaveAndQuitButton,SaveAndQuit);Wire(OptionsBackButton,ReturnFromOptions);Wire(PausePassiveTreeButton,TogglePausePassiveTree);}
     static void Wire(Button button,Action action){if(button==null)return;button.onClick.RemoveAllListeners();button.onClick.AddListener(()=>action());}
 
 #if UNITY_EDITOR
+    public void AddPlaytestSettingsAuthoring(PaperBattleHUD owner)
+    {
+        authoredView=GetComponent<PauseMenuView>();if(authoredView==null)return;
+        optionsPanel=authoredView.optionsPanel;
+        if(authoredView.runUnfocusedButton==null)
+        {
+            ((RectTransform)optionsPanel.transform).sizeDelta=new Vector2(760,530);
+            authoredView.runUnfocusedButton=MenuButton(optionsPanel.transform,"Run Unfocused Toggle","",-40,()=>{},680);
+            authoredView.skillTooltipButton=MenuButton(optionsPanel.transform,"Weapon Skill Tooltip Toggle","",-115,()=>{},680);
+            ((RectTransform)authoredView.optionsBackButton.transform).anchoredPosition=new Vector2(0,-205);
+        }
+        if(authoredView.hudOptionsButton==null)
+        {
+            authoredView.hudOptionsButton=MenuButton(owner.transform,"HUD Options Button","OPTIONS",0,()=>{},150);
+            var rect=(RectTransform)authoredView.hudOptionsButton.transform;rect.anchorMin=rect.anchorMax=Vector2.one;rect.pivot=Vector2.one;rect.anchoredPosition=new Vector2(-24,-110);rect.sizeDelta=new Vector2(150,40);
+        }
+        if(authoredView.gameMenuButton==null)
+        {
+            ((RectTransform)optionsPanel.transform).sizeDelta=new Vector2(760,650);
+            authoredView.gameMenuButton=MenuButton(optionsPanel.transform,"Game Menu Button","SAVE / CODEX / EXIT",-195,()=>{},680);
+            ((RectTransform)authoredView.optionsBackButton.transform).anchoredPosition=new Vector2(0,-280);
+        }
+    }
     public void BuildAuthoring(PaperBattleHUD owner)
     {
         hud=owner;
@@ -195,6 +229,12 @@ public sealed class PauseMenuUI : MonoBehaviour
 
     void RefreshOptions()
     {
+        if(OptionsBackButton!=null)OptionsBackButton.GetComponentInChildren<TMP_Text>().text=standaloneOptions?"CLOSE OPTIONS":"BACK TO GAME MENU";
+        if(authoredView!=null)
+        {
+            if(authoredView.runUnfocusedButton!=null)authoredView.runUnfocusedButton.GetComponentInChildren<TMP_Text>().text="CONTINUE RUNNING WHILE UNFOCUSED: "+(GameplayOptions.ContinueRunningWhileUnfocused?"ON":"OFF");
+            if(authoredView.skillTooltipButton!=null)authoredView.skillTooltipButton.GetComponentInChildren<TMP_Text>().text="WEAPON SKILL TOOLTIPS: "+(GameplayOptions.WeaponSkillTooltips?"ON":"OFF");
+        }
         if (pausePassiveTreeLabel != null)
             pausePassiveTreeLabel.text = "PAUSE GAMEPLAY WHILE PASSIVE TREE IS OPEN: " + (GameplayOptions.PausePassiveTree ? "ON" : "OFF");
     }

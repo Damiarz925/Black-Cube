@@ -31,6 +31,36 @@ public class InventoryUI : MonoBehaviour
     private int displayedCorruptionStage = -1;
     public ItemTooltipUI Tooltip { get; private set; }
     private CurrencyInventoryPanel currencyPanel;
+    readonly Dictionary<Gear,float> dpsCache = new();
+    PlayerController previewPlayer;
+    StatsComponent previewStats;
+    bool dpsDirty=true;
+    float nextDpsRefresh;
+    float dpsBaseline;
+    int auraFingerprint;
+    float nextAuraCheck;
+    void ManaPreviewChanged()
+    {
+        // Regen normally changes Mana every frame; only invalidate if Mana is a damage input.
+        if(previewStats!=null&&previewStats.GetRawStat(StatTypes.DmgPerCurrentMana)!=0)InvalidateDpsCache();
+    }
+    public void InvalidateDpsCache(){dpsCache.Clear();dpsDirty=true;}
+    void RefreshDps()
+    {
+        if(!isActiveAndEnabled||!dpsDirty||Time.unscaledTime<nextDpsRefresh)return;
+        nextDpsRefresh=Time.unscaledTime+.02f;
+        previewPlayer??=FindFirstObjectByType<PlayerController>();if(previewPlayer==null)return;
+        if(dpsCache.Count==0)dpsBaseline=CharacterDamageEstimate.Calculate(previewPlayer);
+        int budget=4;
+        foreach(var pair in slots)
+        {
+            if(dpsCache.ContainsKey(pair.Key))continue;
+            float estimate=CharacterDamageEstimate.Replacement(previewPlayer,pair.Key);dpsCache[pair.Key]=estimate;
+            pair.Value.SetDpsUpgrade(dpsBaseline>0?(estimate/dpsBaseline-1)*100:estimate>0?100:0);
+            if(--budget==0)break;
+        }
+        dpsDirty=dpsCache.Count<slots.Count;
+    }
     public void ShowEquipmentView() => currencyPanel?.ShowEquipment();
     public void ShowCurrencyView() => currencyPanel?.ShowCurrency();
     public void ShowRelicView() => currencyPanel?.ShowRelics();
@@ -114,6 +144,19 @@ public class InventoryUI : MonoBehaviour
 
     private void LateUpdate()
     {
+        if(Time.unscaledTime>=nextAuraCheck&&previewPlayer!=null)
+        {
+            nextAuraCheck=Time.unscaledTime+.5f;
+            var aura=previewPlayer.GetComponent<SubclassCombatState>();int fingerprint=0;
+            if(aura!=null)
+            {
+                foreach(var element in new[]{Element.Phys,Element.Fire,Element.Cold,Element.Light})fingerprint=unchecked(fingerprint*31+Mathf.RoundToInt(aura.AuraDamageMultiplier(element)*50));
+                fingerprint=unchecked(fingerprint*31+Mathf.RoundToInt(aura.AuraSecondary(0,.1f)*50));
+                fingerprint=unchecked(fingerprint*31+Mathf.RoundToInt(aura.AuraSecondary(4,.2f)*50));
+            }
+            if(fingerprint!=auraFingerprint){auraFingerprint=fingerprint;InvalidateDpsCache();}
+        }
+        RefreshDps();
         if (contentParent == null) return;
         var grid = contentParent.GetComponent<GridLayoutGroup>();
         // Grid cell size, spacing and column count belong to the authored layout.
@@ -164,6 +207,10 @@ public class InventoryUI : MonoBehaviour
 
     private void OnEnable()
     {
+        previewPlayer=FindFirstObjectByType<PlayerController>();previewStats=previewPlayer?.GetComponent<StatsComponent>();
+        if(previewStats!=null)previewStats.StatsChanged+=InvalidateDpsCache;
+        if(previewPlayer!=null){previewPlayer.AttackChanged+=InvalidateDpsCache;if(previewPlayer.GetComponent<ManaComponent>()!=null)previewPlayer.GetComponent<ManaComponent>().ManaChanged+=ManaPreviewChanged;}
+        InvalidateDpsCache();
         if (Inventory.Instance != null)
         {
             Inventory.Instance.OnInventoryChanged += Refresh;
@@ -175,6 +222,8 @@ public class InventoryUI : MonoBehaviour
 
     private void OnDisable()
     {
+        if(previewStats!=null)previewStats.StatsChanged-=InvalidateDpsCache;
+        if(previewPlayer!=null){previewPlayer.AttackChanged-=InvalidateDpsCache;if(previewPlayer.GetComponent<ManaComponent>()!=null)previewPlayer.GetComponent<ManaComponent>().ManaChanged-=ManaPreviewChanged;}
         if (Tooltip != null) Tooltip.Hide();
         if (Inventory.Instance != null)
         {
@@ -185,6 +234,7 @@ public class InventoryUI : MonoBehaviour
 
     private void Refresh()
     {
+        InvalidateDpsCache();
         if (contentParent == null || itemSlotPrefab == null || Inventory.Instance == null)
             return;
 

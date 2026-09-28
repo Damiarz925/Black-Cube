@@ -69,6 +69,8 @@ public class DeathMenuUI : MonoBehaviour
         if (detailsText != null)
         {
             detailsText.text = $"Killed by Level {enemyLevel} {enemyRarity}\nWeapon Element: {weaponElement}";
+            var history=FindFirstObjectByType<PlayerController>()?.GetComponent<IncomingDamageHistory>();
+            if(history!=null)detailsText.text+="\nLAST INCOMING EVENTS (last is killing event)\n"+history.Describe();
         }
 
         Debug.Log($"DeathMenuUI: Show -> enemyLevel={enemyLevel}, enemyRarity={enemyRarity}, weaponElement={weaponElement}");

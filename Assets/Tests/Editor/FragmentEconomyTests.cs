@@ -72,6 +72,11 @@ public sealed class FragmentEconomyTests
         Assert.That(currency.NormalToMagicFragments, Is.EqualTo(1));
         Assert.That(inventory.TryDismantle(magic), Is.False);
 
+        Gear manualRare = Gear(LootManager.GearRarity.Rare);
+        inventory.Add(manualRare);ExpectEditModeDestroy();
+        Assert.That(inventory.TryDismantle(manualRare), Is.True);
+        Assert.That(currency.MagicToRareFragments, Is.EqualTo(1));
+
         inventory.FilterRarity = LootManager.GearRarity.Legendary;
         inventory.FilterRarityEnabled = true;
         Gear rare = Gear(LootManager.GearRarity.Rare);
@@ -82,7 +87,7 @@ public sealed class FragmentEconomyTests
         Assert.That(inventory.Pickup(legendary), Is.True);
         Assert.That(inventory.Pickup(legendary), Is.False);
         Assert.That(inventory.Items, Is.Empty);
-        Assert.That(currency.MagicToRareFragments, Is.EqualTo(3));
+        Assert.That(currency.MagicToRareFragments, Is.EqualTo(4));
         Assert.That(currency.Count(CraftingCurrencyType.RerollMagic), Is.Zero);
     }
 

@@ -11,6 +11,15 @@ public class Gear : MonoBehaviour
     // Historical schema-2/PlayerPrefs rolls retain their exact values and
     // tier numbering; new items are validated against the current catalog.
     public bool LegacyAffixRules { get; private set; }
+    [SerializeField] private bool isLocked;
+    public bool IsLocked => isLocked;
+    public void RestoreLock(bool value) => isLocked = value;
+    public void ToggleLock()
+    {
+        isLocked = !isLocked;
+        Inventory.Instance?.NotifyItemChanged(this);
+        GamePersistence.MarkDirty();
+    }
     public void RestoreLegacyAffixRules(bool value) => LegacyAffixRules=value;
     private void Awake() => EnsurePersistentId();
     public string EnsurePersistentId()
@@ -62,6 +71,10 @@ public class Gear : MonoBehaviour
     public float LocalIncCrit;
     public float LocalIncAttackSpeed;
     public float LocalMorePhysical;
+    public float BaseArmour => ItemArmourProfile.Base(ItemType,ItemLevel);
+    public float LocalFlatArmour { get; private set; }
+    public float LocalArmourPercent { get; private set; }
+    public float FinalItemArmour => ItemArmourProfile.Item(BaseArmour,LocalFlatArmour,LocalArmourPercent);
 
     //These 4 lines define getters for the private variables, itemType, itemRarity, itemLevel, and modNumber
     public LootManager.GearType ItemType => itemType;
@@ -116,6 +129,8 @@ public class Gear : MonoBehaviour
         itemLevel = Mathf.Clamp(level,1,100);
         modNumber = RollModNumber();
         BaseElement = element == Element.Poison ? Element.Void : element;
+        LocalFlatArmour=LocalArmourPercent=0;
+        if(BaseArmour>0)globalRolledMods.Add(new RolledMod(StatTypes.FlatArmour,0,BaseArmour));
     }
 
     public bool SetWeaponType(string stableId)
@@ -243,6 +258,8 @@ public class Gear : MonoBehaviour
         // affixes are applied locally and therefore never enter globalRolledMods.
         // Copy first in case a caller passes this instance's own list.
         var incomingMods = new List<RolledMod>(rolledMods);
+        LocalFlatArmour=LocalArmourPercent=0;
+        globalRolledMods.Clear();
         this.rolledMods.Clear();
         this.rolledMods.AddRange(incomingMods);
         EnsureOriginalModifierLocked();
@@ -252,6 +269,14 @@ public class Gear : MonoBehaviour
             if (mod == null) continue;
             switch (mod.statType)
             {
+                case StatTypes.FlatArmour:
+                    if(ItemArmourProfile.IsArmour(ItemType))LocalFlatArmour+=mod.value;
+                    else globalRolledMods.Add(mod);
+                    break;
+                case StatTypes.ArmourPercent:
+                    if(ItemArmourProfile.IsArmour(ItemType))LocalArmourPercent+=mod.value/100f;
+                    else globalRolledMods.Add(mod);
+                    break;
                 case StatTypes.AxePhysicalRage:
                     if(ItemType==LootManager.GearType.Weapons&&WeaponTypeId==WeaponTypeIds.TwoHandedAxe)
                     {LocalMorePhysical=mod.value/100f;globalRolledMods.Add(new RolledMod(StatTypes.RageGeneration,mod.tierIndex,mod.secondaryValue));}
@@ -335,6 +360,7 @@ public class Gear : MonoBehaviour
                     break;
             }
         }
+        if(ItemArmourProfile.IsArmour(ItemType))globalRolledMods.Add(new RolledMod(StatTypes.FlatArmour,0,FinalItemArmour));
     }
 
     //Finds the effective base damage by adding the local flat to the base damage and multiplying it by  1 + the local increased damage (local inc dmg should be stored as a decimal)
@@ -344,7 +370,8 @@ public class Gear : MonoBehaviour
         return (minimum + maximum) * .5f;
     }
 
-    public bool IsLocalAffix(StatTypes stat) => itemType == LootManager.GearType.Weapons
+    public bool IsLocalAffix(StatTypes stat) => ItemArmourProfile.IsArmour(itemType) && (stat is StatTypes.FlatArmour or StatTypes.ArmourPercent)
+        || itemType == LootManager.GearType.Weapons
         && (MatchesBaseElement(stat) || stat is StatTypes.AttackSpeed or StatTypes.CritChance
             or StatTypes.BaseCritChance);
 

@@ -46,7 +46,7 @@ public static class EmpowermentCrafting
 {
     public static bool IsEligible(Gear gear,RolledMod mod,int combatLevel,ModDatabase database=null)
     {
-        if(gear==null||mod==null||!gear.rolledMods.Contains(mod)||gear.EmpoweredModifierCount>=EmpowermentProgressionProfile.MaximumEmpoweredModifiers(combatLevel)
+        if(gear==null||gear.IsLocked||mod==null||!gear.rolledMods.Contains(mod)||gear.EmpoweredModifierCount>=EmpowermentProgressionProfile.MaximumEmpoweredModifiers(combatLevel)
             ||mod.lockedOriginal||mod.isEmpowered||mod.isBossSpecial||Gear.IsWeaponBaseStat(mod.statType)||mod.tierIndex!=1)return false;
         var definition=(database??ModManager.Instance?.Database)?.GetDefinition(mod.statType);return IsEmpowerable(definition,mod.statType)
             &&ModManager.ApplicableTiers(definition,gear.ItemType,gear.WeaponTypeId).Exists(x=>x.tierIndex==1);
@@ -62,7 +62,7 @@ public static class EmpowermentCrafting
     }
     public static bool TryApply(Gear gear,int combatLevel,float candidateRoll=-1f,float valueRoll=-1f,float highRoll=-1f)
     {
-        if(gear==null||gear.EmpoweredModifierCount>=EmpowermentProgressionProfile.MaximumEmpoweredModifiers(combatLevel))return false;
+        if(gear==null||gear.IsLocked||gear.EmpoweredModifierCount>=EmpowermentProgressionProfile.MaximumEmpoweredModifiers(combatLevel))return false;
         var candidates=new List<(RolledMod mod,AffixTier tier,AffixDefinitions definition)>();
         foreach(var mod in gear.rolledMods)
         {
@@ -157,7 +157,7 @@ public static class BossSpecialCrafting
     public static bool TryReplace(Gear gear,SpecialAffixPoolDefinition pool,int combatLevel,
         float definitionRoll=-1f,float replacementRoll=-1f,float valueRoll=-1f,float highRoll=-1f)
     {
-        if(gear==null||pool==null||gear.ItemRarity!=LootManager.GearRarity.Legendary
+        if(gear==null||gear.IsLocked||pool==null||gear.ItemRarity!=LootManager.GearRarity.Legendary
             ||gear.CurrentCraftingPotential<CraftingPotentialProfile.BossSpecialReplacementCost)return false;
         var definitions=new List<SpecialAffixDefinition>();
         foreach(var definition in pool.modifiers)if(definition!=null&&!string.IsNullOrWhiteSpace(definition.stableId)
@@ -193,7 +193,7 @@ public static class BossSpecialCrafting
         ILootRandomSource random=null)
     {
         random??=LootRandomSourceFactory.CreateProduction();
-        if(gear==null||target==null||!gear.rolledMods.Contains(target)||!IsReplaceable(target)||target.isBossSpecial
+        if(gear==null||gear.IsLocked||target==null||!gear.rolledMods.Contains(target)||!IsReplaceable(target)||target.isBossSpecial
             ||pool==null||gear.ItemRarity!=LootManager.GearRarity.Legendary||gear.CurrentCraftingPotential<CraftingPotentialProfile.BossSpecialReplacementCost)return false;
         var candidates=new List<SpecialAffixDefinition>();var existing=new HashSet<string>();
         var existingStats=new HashSet<StatTypes>();

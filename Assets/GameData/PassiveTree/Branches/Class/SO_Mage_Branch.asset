@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 345e8e0c4e602db4682dd17f77769029, type: 3}
   m_Name: SO_Mage_Branch
   m_EditorClassIdentifier: Assembly-CSharp::PassiveClassBranchSO
+  playtestSustainRevision: 1
   visualStyle:
     spineNormal: {fileID: 0}
     spineHover: {fileID: 0}
@@ -294,7 +295,7 @@ MonoBehaviour:
         - kind: 0
           stat: 75
           mechanicId: 
-          value: 3.6799998
+          value: 0.552
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
@@ -375,7 +376,7 @@ MonoBehaviour:
         - kind: 0
           stat: 75
           mechanicId: 
-          value: 3.6799998
+          value: 0.552
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
@@ -831,7 +832,7 @@ MonoBehaviour:
         - kind: 0
           stat: 75
           mechanicId: 
-          value: 3.9199998
+          value: 0.588
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
@@ -912,7 +913,7 @@ MonoBehaviour:
         - kind: 0
           stat: 75
           mechanicId: 
-          value: 3.9199998
+          value: 0.588
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
@@ -1368,7 +1369,7 @@ MonoBehaviour:
         - kind: 0
           stat: 75
           mechanicId: 
-          value: 4.16
+          value: 0.624
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
@@ -1449,7 +1450,7 @@ MonoBehaviour:
         - kind: 0
           stat: 75
           mechanicId: 
-          value: 4.16
+          value: 0.624
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:

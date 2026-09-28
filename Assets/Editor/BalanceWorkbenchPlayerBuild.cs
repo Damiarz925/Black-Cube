@@ -112,22 +112,7 @@ namespace BlackCube.BalanceWorkbench
         PlayerBuildMetrics Capture(PlayerBuildSnapshot b)
         {
             var keys=Stats.GetComponent<PassiveKeystoneState>();
-            DamageContext SearchHit(DamageContext source)
-            {
-                var result=new DamageContext(source.Hits.Count);
-                float more=(keys?.GenericMoreMultiplier??1)*CombatCalculator.ScopedDamageMultiplier(source.Scopes,Stats);
-                // Sustained search uses the injured-target condition, not the
-                // one-time opening bonus. Combat Lab resolves the actual sequence.
-                if(keys?.Has(PassiveKeystone.ThiefOpener)==true)more*=ClassKeystoneMechanics.TargetLifeMultiplier(false);
-                foreach(var hit in source.Hits)
-                {
-                    Element element=CombatCalculator.ResolvedElement(hit.Element,Stats);
-                    if(keys?.Has(PassiveKeystone.MageFire)==true&&element!=Element.Fire)continue;
-                    float factor=keys?.Has(PassiveKeystone.MageFire)==true?PassiveKeystoneState.Value(PassiveKeystone.MageFire):1;
-                    result.AddDamage(element,hit.Amount*more*factor);
-                }
-                return result;
-            }
+            DamageContext SearchHit(DamageContext source) => CharacterDamageEstimate.SearchHit(source,Stats);
             var m=new PlayerBuildMetrics();var avg=SearchHit(Player.BuildNonCriticalAttackContext());var lo=SearchHit(Player.BuildNonCriticalAttackContextAtRangeEnd(false));var hi=SearchHit(Player.BuildNonCriticalAttackContextAtRangeEnd(true));m.averageHit=Sum(avg);m.minimumHit=Sum(lo);m.maximumHit=Sum(hi);m.attacksPerSecond=Player.GetFinalAttackSpeed();m.critChance=Player.GetFinalCritChance();m.critMultiplier=CombatCalculator.BaseCriticalMultiplier+Stats.GetStat(StatTypes.CritMult);m.critContribution=m.averageHit*m.critChance*(m.critMultiplier-1);m.hitTwiceChance=GenericPassiveMechanics.SupportsMultistrike(b.weaponTypeId)?Mathf.Clamp01(Stats.GetStat(StatTypes.ChanceToHitTwice)):0;double repeatFactor=keys?.Has(PassiveKeystone.WarriorConsolidation)==true?1.05:1;m.hitTwiceContribution=(m.averageHit+m.critContribution)*m.hitTwiceChance*repeatFactor;m.basicDps=(m.averageHit+m.critContribution+m.hitTwiceContribution)*m.attacksPerSecond;
             var weapon=gear.FirstOrDefault(x=>x.ItemType==LootManager.GearType.Weapons);m.baseWeaponAverage=weapon?.GetEffectiveBaseDamage()??0;m.weaponAttributeIncreased=Player.WeaponAttributeDamageBonus;m.playerLevelIncreased=Player.LevelDamageBonus;m.genericIncreased=Stats.GetStat(StatTypes.GenericDmg);m.physicalIncreased=Stats.GetStat(StatTypes.PhysDmg);m.genericMore=Stats.GetStat(StatTypes.GenericMult);m.physicalMore=Stats.GetStat(StatTypes.PhysMult);
             foreach(var h in avg.Hits){double expected=h.Amount*(1+m.critChance*(m.critMultiplier-1))*(1+m.hitTwiceChance*(keys?.Has(PassiveKeystone.WarriorConsolidation)==true?1.05:1))*m.attacksPerSecond;switch(h.Element){case Element.Phys:m.physicalOutput+=expected;break;case Element.Fire:m.fireOutput+=expected;break;case Element.Cold:m.coldOutput+=expected;break;case Element.Light:m.lightningOutput+=expected;break;case Element.Void:case Element.Poison:m.voidOutput+=expected;break;}}
@@ -153,6 +138,13 @@ namespace BlackCube.BalanceWorkbench
             // Neutral, zero-resistance single-hit ailment basis. Combat Lab owns sequence/stack simulation.
             double poisonBasis=b.subclassId==SubclassIds.RangerPoison?m.averageHit:m.voidOutput/Math.Max(.0001,m.attacksPerSecond);
             m.poisonMagnitude=poisonBasis*(1+Stats.GetStat(StatTypes.PoisonDmg))*(1+Stats.GetStat(StatTypes.PoisonMult))*(1+Stats.GetStat(StatTypes.GenericDotMult));m.bleedMagnitude=m.physicalOutput/Math.Max(.0001,m.attacksPerSecond)*(1+Stats.GetStat(StatTypes.BleedDmg))*(1+Stats.GetStat(StatTypes.BleedMult))*(1+Stats.GetStat(StatTypes.GenericDotMult));m.igniteMagnitude=m.fireOutput/Math.Max(.0001,m.attacksPerSecond)*(1+Stats.GetStat(StatTypes.IgniteDmg))*(1+Stats.GetStat(StatTypes.IgniteMult))*(1+Stats.GetStat(StatTypes.GenericDotMult));m.poisonDps=m.poisonMagnitude*m.poisonChance*m.attacksPerSecond;m.bleedDps=m.bleedMagnitude*m.bleedChance*m.attacksPerSecond;m.igniteDps=m.igniteMagnitude*m.igniteChance*m.attacksPerSecond;m.assumptions.Add("Ailment chance includes overflow applications above 100%. Ailment DPS is an uncapped eligible-hit potential at neutral resistance; encounter stack caps, replacement, mitigation and timing are handled by Combat Lab.");
+            // Shared runtime/Workbench neutral-hit ailment formula (inventory arrows use this too).
+            m.poisonMagnitude=CharacterDamageEstimate.AilmentMagnitude(Stats,Element.Void,(float)poisonBasis);
+            m.bleedMagnitude=CharacterDamageEstimate.AilmentMagnitude(Stats,Element.Phys,(float)(m.physicalOutput/Math.Max(.0001,m.attacksPerSecond)));
+            m.igniteMagnitude=CharacterDamageEstimate.AilmentMagnitude(Stats,Element.Fire,(float)(m.fireOutput/Math.Max(.0001,m.attacksPerSecond)));
+            m.poisonDps=m.poisonMagnitude*m.poisonChance*m.attacksPerSecond;
+            m.bleedDps=m.bleedMagnitude*m.bleedChance*m.attacksPerSecond;
+            m.igniteDps=m.igniteMagnitude*m.igniteChance*m.attacksPerSecond;
             if(b.weaponTypeId==WeaponTypeIds.Bow&&b.projectileMode==SubclassProjectileMode.Volley)
             {
                 m.bleedMagnitude/=m.projectileCount;m.igniteMagnitude/=m.projectileCount;
@@ -164,10 +156,9 @@ namespace BlackCube.BalanceWorkbench
                 double hitFactor=b.subclassId==SubclassIds.RangerProjectile&&b.projectileMode==SubclassProjectileMode.Focused?1:m.projectileCount;
                 m.poisonDps*=hitFactor;m.bleedDps*=hitFactor;m.igniteDps*=hitFactor;
             }
-            m.poisonDps*=Math.Max(1,4+Mathf.RoundToInt(Stats.GetRawStat(StatTypes.PoisonDuration)))/4.0*
-                (1+Math.Max(0,Stats.GetStat(StatTypes.PoisonSpeed)));
-            m.bleedDps*=Math.Max(1,5+Mathf.RoundToInt(Stats.GetRawStat(StatTypes.BleedDuration)))/5.0;
-            m.igniteDps*=Math.Max(1,2+Mathf.RoundToInt(Stats.GetRawStat(StatTypes.IgniteDuration)))/2.0;
+            m.poisonDps*=CharacterDamageEstimate.AilmentDurationFactor(Stats,Element.Void);
+            m.bleedDps*=CharacterDamageEstimate.AilmentDurationFactor(Stats,Element.Phys);
+            m.igniteDps*=CharacterDamageEstimate.AilmentDurationFactor(Stats,Element.Fire);
             if(b.subclassId==SubclassIds.ThiefAilmentCrit)
             {
                 double factor=SubclassBalanceProfile.AilmentExtraMore((float)m.critMultiplier)*
@@ -221,6 +212,8 @@ namespace BlackCube.BalanceWorkbench
                 if(s.projectile)direct*=1+m.precisionChance*(m.precisionMultiplier-1);
                 if(s.projectile&&b.subclassId==SubclassIds.RangerProjectile&&b.projectileMode==SubclassProjectileMode.Focused)direct*=SubclassBalanceProfile.FocusedMultiplier((int)m.projectileCount*(s.effect==WeaponSkillEffect.DoubleProjectiles?2:1));
                 if(s.suppressDirectDamage||s.effect==WeaponSkillEffect.VirtualPoison)direct=0;
+                if(s.effect==WeaponSkillEffect.RapidFlurry&&Stats.GetComponent<PassiveKeystoneState>()?.Has(PassiveKeystone.WarriorConsolidation)==true)
+                    hits=ClassKeystoneMechanics.ConsolidatedMultiplier((int)hits-1);
                 double use=direct*hits;
                 if(s.effect==WeaponSkillEffect.VirtualPoison)
                 {

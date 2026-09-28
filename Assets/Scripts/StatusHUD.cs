@@ -24,13 +24,13 @@ public class StatusHUD : MonoBehaviour
     void Start()
     {
         hud=GetComponent<PaperBattleHUD>();
-        if(authoredView==null)authoredView=GetComponentInChildren<StatusHUDView>(true);
+        if(authoredView==null)authoredView=GetComponentInParent<Canvas>()?.GetComponentInChildren<StatusHUDView>(true);
         if(authoredView==null||authoredView.playerStrip==null||authoredView.enemyStrip==null||authoredView.tooltip==null||authoredView.tooltipText==null||authoredView.badgePrefab==null){Debug.LogError("StatusHUD requires an authored StatusHUDView and badge prefab.",this);enabled=false;return;}
         playerStrip=new Strip{Root=authoredView.playerStrip};enemyStrip=new Strip{Root=authoredView.enemyStrip};tooltip=authoredView.tooltip;tooltipText=authoredView.tooltipText;tooltip.gameObject.SetActive(false);
     }
     void Update()
     {
-        if(hud==null)return;
+        if(hud==null||playerStrip==null||enemyStrip==null)return;
         Refresh(playerStrip,hud.player!=null?hud.player.GetComponent<StatusController>():null);
         var enemy=BattleManager.Instance!=null?BattleManager.Instance.CurrentEnemyAI:null;
         Refresh(enemyStrip,enemy!=null?enemy.GetComponent<StatusController>():null);

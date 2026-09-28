@@ -620,6 +620,11 @@ playerDamageReceiver.TakeDamage(damageTaken, ctx, attacker:enemyStats);     //ca
             hits += Mathf.FloorToInt(applications / Mathf.Max(.01f, requirement));
         }
 
+        if(skill.effect == WeaponSkillEffect.RapidFlurry && CanPlayerMultistrike && HasClassKeystone(PassiveKeystone.WarriorConsolidation))
+        {
+            ResolvePlayerLogicalHit(skill,target,statuses,true,consolidatedRepeats:hits-1);
+            return;
+        }
         for (int i = 0; i < hits && IsSameLivingEnemy(target); i++)
         {
             ResolvePlayerLogicalHit(skill, target, statuses, showImpact: true, shockTriggered: i >= baseHits);
@@ -631,7 +636,7 @@ playerDamageReceiver.TakeDamage(damageTaken, ctx, attacker:enemyStats);     //ca
 
     private void ResolvePlayerLogicalHit(PlayerSkillDefinition skill, HealthComponent target,
         StatusController statuses, bool showImpact, bool shockTriggered = false,
-        DamageContext? normalSnapshot = null)
+        DamageContext? normalSnapshot = null, int consolidatedRepeats = 0)
     {
         if (!IsSameLivingEnemy(target)) return;
         DamageContext normal = normalSnapshot ?? (skill == null
@@ -656,7 +661,12 @@ playerDamageReceiver.TakeDamage(damageTaken, ctx, attacker:enemyStats);     //ca
         if(skill?.projectile==true)direct.EventTags|=CombatEventTags.Projectile;
         bool projectile=skill?.projectile==true||(skill==null&&playerController?.EquippedWeapon?.WeaponTypeId==WeaponTypeIds.Bow);
         if(!projectile&&CanPlayerMultistrike&&HasClassKeystone(PassiveKeystone.WarriorConsolidation))
-        {int extra=Random.value<Mathf.Clamp01(AdjustedChance(playerStats,StatTypes.ChanceToHitTwice))?1:0;direct=TransformContext(direct,ClassKeystoneMechanics.ConsolidatedMultiplier(extra),Element.Phys,0);}
+        {
+            int extra=consolidatedRepeats;
+            for(int strike=0;strike<=consolidatedRepeats;strike++)
+                if(Random.value<Mathf.Clamp01(AdjustedChance(playerStats,StatTypes.ChanceToHitTwice)))extra++;
+            direct=TransformContext(direct,ClassKeystoneMechanics.ConsolidatedMultiplier(extra),Element.Phys,0);
+        }
         if(HasClassKeystone(PassiveKeystone.PriestAura)&&direct.Hits.Count>2)
         {direct=TransformContext(direct,1,Element.Phys,0);while(direct.Hits.Count>2)direct.Hits.RemoveAt(Random.Range(0,direct.Hits.Count));}
         bool lightningShatter=HasClassKeystone(PassiveKeystone.MageShatter)&&statuses?.IsFrozen==true&&!statuses.IsFractured&&direct.Hits.Exists(h=>h.Element==Element.Light&&h.Amount>0);

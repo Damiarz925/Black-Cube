@@ -8,6 +8,18 @@ public enum GameplayWindow
 
 public static class GameplayOptions
 {
+    public static bool ContinueRunningWhileUnfocused
+    {
+        get => PlayerPrefs.GetInt("BlackCube.Options.RunUnfocused",0)!=0;
+        set { PlayerPrefs.SetInt("BlackCube.Options.RunUnfocused",value?1:0);PlayerPrefs.Save();Application.runInBackground=value; }
+    }
+    public static bool WeaponSkillTooltips
+    {
+        get => PlayerPrefs.GetInt("BlackCube.Options.SkillTooltips",1)!=0;
+        set { PlayerPrefs.SetInt("BlackCube.Options.SkillTooltips",value?1:0);PlayerPrefs.Save(); }
+    }
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+    static void ApplySettings() => Application.runInBackground=ContinueRunningWhileUnfocused;
     public const string PausePassiveTreeKey = "BlackCube.Options.PausePassiveTree";
 
     public static bool PausePassiveTree

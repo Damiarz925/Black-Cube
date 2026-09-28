@@ -219,6 +219,8 @@ namespace BlackCube.CombatSimulation
             if(ps?.effect==WeaponSkillEffect.RapidFlurry){r.rapidFlurryUses++;r.rapidFlurryHits+=hits;}
             if(ps?.effect==WeaponSkillEffect.ShockBarrage){r.shockBarrageUses++;r.shockBarrageHits+=hits;}
             bool isProjectile=ps?.projectile==true||(ps==null&&s.data.weaponTypeId==WeaponTypeIds.Bow);
+            int flurryRepeats=ps?.effect==WeaponSkillEffect.RapidFlurry&&s.data.Has(PassiveKeystone.WarriorConsolidation)?hits-1:0;
+            if(flurryRepeats>0)hits=1;
             for(int h=0;h<hits&&t.life>0;h++)
             {
                 if(isProjectile&&s.data.Has(PassiveKeystone.RangerPrecision)&&rng.Value()<PassiveKeystoneState.Value(PassiveKeystone.RangerPrecision)){KeyMetric(r,"Projectile misses",1);continue;}
@@ -233,7 +235,12 @@ namespace BlackCube.CombatSimulation
                 if(precision){hit.Scale(s.data.precisionMultiplier*(s.data.Has(PassiveKeystone.RangerPrecision)?ClassKeystoneCatalog.Get(PassiveKeystone.RangerPrecision).secondary:1));r.precisionCount++;}
                 bool canRepeat=!s.data.player||!isProjectile&&GenericPassiveMechanics.SupportsMultistrike(s.data.weaponTypeId);
                 bool extra=canRepeat&&rng.Value()<s.data.hitTwiceChance;
-                if(extra&&s.data.Has(PassiveKeystone.WarriorConsolidation)){float consolidated=ClassKeystoneMechanics.ConsolidatedMultiplier(1);hit.Scale(consolidated);KeyMetric(r,"Multistrikes converted",1);KeyMetric(r,"Consolidated hit multiplier",consolidated);}
+                if(s.data.Has(PassiveKeystone.WarriorConsolidation))
+                {
+                    int repeats=flurryRepeats+(extra?1:0);
+                    for(int strike=0;strike<flurryRepeats;strike++)if(rng.Value()<s.data.hitTwiceChance)repeats++;
+                    if(repeats>0){float consolidated=ClassKeystoneMechanics.ConsolidatedMultiplier(repeats);hit.Scale(consolidated);KeyMetric(r,"Multistrikes converted",repeats);KeyMetric(r,"Consolidated hit multiplier",consolidated);}
+                }
                 ApplyPacket(s,t,hit,action,now,rng,r,c,ps,projectile,crit,precision);
                 if(extra&&!s.data.Has(PassiveKeystone.WarriorConsolidation)&&t.life>0){r.hitTwiceCount++;ApplyPacket(s,t,hit,action+" (Multistrike)",now,rng,r,c,ps,projectile,crit,precision);}
             }
@@ -401,6 +408,7 @@ float damage=phys+fire+cold+light+vd;t.life-=damage;float effective=Mathf.Min(be
             if(source.data.Has(PassiveKeystone.MageFire))more*=dot.id=="Ignite"?PassiveKeystoneState.Value(PassiveKeystone.MageFire):0;
             float damage=MitigateElement(dot.damage*more,element,source.data,target.data);
             float lost=Mathf.Min(before,damage);target.life-=damage;
+            if(target.data.player)target.revengeFraction+=lost/Mathf.Max(1,target.data.maximumLife);
             if(dot.id=="Poison")HealOrConvert(source,target,GenericPassiveMechanics.PoisonLeech(lost,source.data.poisonLifeLeech),"Poison Leech",r);
             if(source.data.Has(PassiveKeystone.BarbarianRecovery))HealOrConvert(source,target,lost*source.data.wouldBeLifeRegenerationFraction*PassiveKeystoneState.Value(PassiveKeystone.BarbarianRecovery),"Damage-based Recovery",r);
             if(!dot.infinite)dot.ticks--;var m=Ailment(r,dot.id);m.damage+=lost;

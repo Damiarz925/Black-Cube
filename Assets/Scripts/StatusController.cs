@@ -391,7 +391,7 @@ public partial class StatusController : MonoBehaviour
             {
                 var targetHealth=GetComponent<HealthComponent>();
                 float before=targetHealth!=null?targetHealth.CurrentLife:0;
-                ApplyDotDamage(totalStrength, effect);
+                ApplyDotDamage(totalStrength, effect,kvp.Key.Source);
                 // Death callbacks may destroy the target synchronously. Preserve
                 // the capped actual loss for recovery even on a killing DOT.
                 float loss=targetHealth!=null?Mathf.Max(0,before-targetHealth.CurrentLife):Mathf.Min(before,totalStrength);
@@ -488,8 +488,16 @@ public partial class StatusController : MonoBehaviour
         }
     }
 
-    private void ApplyDotDamage(float damage, StatusEffects effect)
+    private void ApplyDotDamage(float damage, StatusEffects effect,StatsComponent source)
     {
+        var receiver=GetComponent<DamageReceiver>();
+        if(receiver!=null)
+        {
+            Element element=effect.Ailment==StatusEffects.AilmentKind.Bleed?Element.Phys:
+                effect.Ailment==StatusEffects.AilmentKind.Ignite?Element.Fire:Element.Void;
+            var context=new DamageContext(1);context.AddDamage(element,damage);
+            receiver.TakeDamage(damage,context,effect,source);return;
+        }
         if (damage <= 0f) return;   //if the passed in damage is less than 0, return
 
         // Apply directly to the owning entity.

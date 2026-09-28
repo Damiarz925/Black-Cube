@@ -39,7 +39,8 @@ public static class WarriorPassiveReauthoring
     {
         var tier=db.GetDefinition(stat)?.tiers?.FirstOrDefault(x=>x.tierIndex==1);
         if(tier==null){if(stat==StatTypes.CooldownReduction)return 10;throw new InvalidOperationException("Missing production T1: "+stat);}
-        return (float)(Math.Round((tier.minValue+tier.maxValue)/4*2,MidpointRounding.AwayFromZero)/2);
+        return (float)(Math.Round((tier.minValue+tier.maxValue)/4*2,MidpointRounding.AwayFromZero)/2)
+            *(stat==StatTypes.LifeOnHit?.1f:stat==StatTypes.ManaOnHit?.15f:1);
     }
     public static string Name(StatTypes stat)=>stat switch {StatTypes.LifePercent=>"Maximum Life",StatTypes.ArmourPercent=>"Increased Armour",StatTypes.AllRes=>"All Elemental Resistance",StatTypes.BleedDmg=>"Increased Bleed Damage",StatTypes.StrengthPercent=>"Increased Strength",_=>StatDisplayFormatting.ToFriendlyName(stat)};
     public static Sprite Sprite(string name)=>AssetDatabase.LoadAssetAtPath<Sprite>(ArtPath+"Warrior_"+name+".png");

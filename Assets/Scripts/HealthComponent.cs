@@ -158,6 +158,7 @@ public class HealthComponent : MonoBehaviour
 
     public void ReviveToFullLife()
     {
+        GetComponent<IncomingDamageHistory>()?.Clear();
         isDead = false;
         CurrentLife = MaxLife;
         Changed?.Invoke();
@@ -172,6 +173,7 @@ public class HealthComponent : MonoBehaviour
     public bool RestoreCheckpointLife(float value)
     {
         if (float.IsNaN(value) || float.IsInfinity(value) || value < 0f || value > MaxLife + .001f) return false;
+        GetComponent<IncomingDamageHistory>()?.Clear();
         isDead = false;
         CurrentLife = Mathf.Clamp(value, 0f, MaxLife);
         Changed?.Invoke();

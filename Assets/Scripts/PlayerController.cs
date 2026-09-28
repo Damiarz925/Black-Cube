@@ -23,6 +23,8 @@ public class PlayerController : MonoBehaviour
     public Element EquippedWeaponElement => equippedWeapon != null ? equippedWeapon.BaseElement : Element.Phys;
     public event System.Action AttackChanged;
     public Gear EquippedWeapon => equippedWeapon;
+    public void ConfigureItemPreview(int level,Gear weapon)
+    { isolatedBuildLevel=level;stats=GetComponent<StatsComponent>();equippedWeapon=weapon; }
     public int CurrentPlayerLevel
     {
         get

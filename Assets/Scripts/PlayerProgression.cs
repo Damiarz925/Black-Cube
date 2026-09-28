@@ -248,6 +248,17 @@ public sealed class PlayerProgression : MonoBehaviour
         }
         finally { boundStats.EndUpdate(); }
     }
+    public void PopulateItemPreview(StatsComponent target,string weapon)
+    {
+        target.AddModifier(new StatModifier(StatTypes.Life,StatOp.Flat,LevelLifeBonus(level),this));
+        foreach(var node in PassiveTreeDefinition.Nodes)
+        {
+            if(!IsAllocated(node.Id)||(!string.IsNullOrEmpty(node.WeaponTypeRestriction)&&node.WeaponTypeRestriction!=weapon))continue;
+            var effects=node.IsSubclassChoice?PassiveTreeDefinition.SubclassEffects(identity?.SelectedSubclassId,node):node.Effects;
+            foreach(var effect in effects)target.AddModifier(new StatModifier(effect.Stat,StatOp.Flat,effect.Amount,this));
+        }
+        SubclassStatPackage.Apply(identity?.SelectedSubclassId,(stat,amount)=>target.AddModifier(new StatModifier(stat,StatOp.Flat,amount,this)));
+    }
 
     void ApplySubclassCoreModifiers()
     {

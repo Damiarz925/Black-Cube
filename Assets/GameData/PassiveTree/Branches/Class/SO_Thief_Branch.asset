@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 345e8e0c4e602db4682dd17f77769029, type: 3}
   m_Name: SO_Thief_Branch
   m_EditorClassIdentifier: Assembly-CSharp::PassiveClassBranchSO
+  playtestSustainRevision: 1
   visualStyle:
     spineNormal: {fileID: 0}
     spineHover: {fileID: 0}

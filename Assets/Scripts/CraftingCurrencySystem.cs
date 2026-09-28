@@ -629,7 +629,7 @@ public static class EquipmentCrafting
         CraftingCurrencyType.RerollRareModifier or CraftingCurrencyType.RemoveRareModifier;
     public static bool CanApply(CraftingCurrencyType currency, Gear gear, AffixSide? focusedSide = null)
     {
-        if (gear == null || gear.IsScrap || CurrencyInventory.IsAncient(currency)
+        if (gear == null || gear.IsScrap || gear.IsLocked || CurrencyInventory.IsAncient(currency)
             || currency==CraftingCurrencyType.EmpowermentCatalyst
             || gear.CurrentCraftingPotential<CraftingPotentialProfile.OrdinaryCost(currency)) return false;
         if (focusedSide.HasValue && !SupportsFocus(currency)) return false;
