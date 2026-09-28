@@ -18,8 +18,8 @@ public static class ClassKeystoneCatalog
     {
         new(PassiveKeystone.WarriorBleed,PlayerClassIds.Warrior,"Blood Reservoir","35% less Bleed Damage; double maximum Bleed stack cap, not applications.",.65f,2),
         new(PassiveKeystone.WarriorTempo,PlayerClassIds.Warrior,"Unbroken Tempo","15% MORE Attack Speed; multiplicative after increased Attack Speed.",1.15f),
-        new(PassiveKeystone.WarriorConsolidation,PlayerClassIds.Warrior,"One Decisive Strike","Consolidate rolled melee Multistrikes into the original hit at 105% extra-strike damage each. No repeated triggers.",1.05f),
-        new(PassiveKeystone.BarbarianFullRage,PlayerClassIds.Barbarian,"Crown of Fury","Continuous Rage decay; no offensive benefit below full Rage. Full-Rage damage is 40% more than ordinary capped Rage.",1.4f),
+        new(PassiveKeystone.WarriorConsolidation,PlayerClassIds.Warrior,"One Decisive Strike","Consolidate rolled melee Multistrikes into the original hit at 110% of each would-be extra strike. No repeated triggers.",1.10f),
+        new(PassiveKeystone.BarbarianFullRage,PlayerClassIds.Barbarian,"Crown of Fury","Gain Rage with any weapon. Triple constant decay. At maximum Rage, gain 30% MORE Damage in addition to ordinary Rage bonuses.",1.30f),
         new(PassiveKeystone.BarbarianFire,PlayerClassIds.Barbarian,"Molten Edge","Resolve scaled Physical hit damage as Fire; +1 maximum Ignite stack. Eruption remains separate.",1),
         new(PassiveKeystone.BarbarianRecovery,PlayerClassIds.Barbarian,"Blood Engine","No Life Regeneration. Recover half the would-be max-Life/sec regeneration percentage from actual damage dealt; 20% MORE Damage.",.5f,1.2f),
         new(PassiveKeystone.RangerSplit,PlayerClassIds.Ranger,"Threefold Flight","Each projectile is replaced once by three independent projectiles dealing 33% each; 15% MORE Projectile Damage.",3,.33f,1.15f),

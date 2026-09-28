@@ -21,7 +21,7 @@ public static class ItemTooltipFormatter
         s.AppendLine(item.IsLocked ? "<color=#FFD060>ITEM LOCKED — protected from dismantling/crafting. [L] Unlock</color>" : "<color=#85898F>[L] Lock item</color>");
         s.AppendLine($"<color=#85898F>{ItemSlotUI.DisplayType(item.ItemType).ToUpperInvariant()}  •  ITEM LEVEL {item.ItemLevel}</color>");
         if(ItemArmourProfile.IsArmour(item.ItemType))s.AppendLine($"<b>Item Armour:</b> {item.FinalItemArmour:0}");
-        s.AppendLine($"<color=#8DC9D8><b>CRAFTING POTENTIAL: {item.CurrentCraftingPotential} / {item.MaximumCraftingPotential}</b></color>  <color=#85898F>ORIGIN {item.OriginRarity.ToString().ToUpperInvariant()}</color>");
+        if(item.UniqueData==null)s.AppendLine($"<color=#8DC9D8><b>CRAFTING POTENTIAL: {item.CurrentCraftingPotential} / {item.MaximumCraftingPotential}</b></color>  <color=#85898F>ORIGIN {item.OriginRarity.ToString().ToUpperInvariant()}</color>");
         if (item.ItemType == LootManager.GearType.Weapons)
         {
             s.AppendLine();
@@ -30,6 +30,14 @@ public static class ItemTooltipFormatter
             s.AppendLine($"<b>Crit Chance:</b> {item.GetEffectiveBaseCrit()*100:0.##}%");
             s.AppendLine($"<b>Attacks Per Second:</b> {item.GetEffectiveAttackSpeed():0.0#}");
             s.AppendLine($"<b>Average Weapon DPS:</b> {item.GetAverageWeaponDps():0.##}  <color=#85898F>(local damage × local APS; Crit excluded)</color>");
+        }
+        if(item.UniqueData!=null)
+        {
+            s.AppendLine($"<color=#B86229><b>{UniqueCatalog.Get(item.UniqueData.definitionId)?.name} — UNIQUE</b></color>");
+            s.AppendLine("Immutable drop rolls. Cannot be modified with ordinary crafting.");
+            foreach(var mod in item.rolledMods)s.AppendLine($"{StatDisplayFormatting.ToFriendlyName(mod.statType)}: {mod.value:0.##}{(StatsComponent.IsPercentStat(mod.statType)?"%":"")}");
+            foreach(var power in item.UniqueData.powers)s.AppendLine(UniqueCatalog.Describe(power));
+            return s.ToString().TrimEnd();
         }
         var mods = new List<RolledMod>();
         foreach (var mod in item.rolledMods)
@@ -106,6 +114,8 @@ public static class ItemTooltipFormatter
     {
         if (relic == null) return string.Empty;
         var s = new StringBuilder($"<b>{relic.rarity} RELIC</b>  <color=#85898F>•  RELIC LEVEL {relic.relicLevel}  •  CYCLE {relic.cycle}</color>\n");
+        if(relic.uniqueRelic){s.AppendLine("<b>UNIQUE RELIC — only one equipped; immutable.</b>");foreach(var power in relic.forgedPowers)s.AppendLine(UniqueCatalog.Describe(power));foreach(var stat in relic.forgedStats)s.AppendLine($"{StatDisplayFormatting.ToFriendlyName(stat.statType)}: {stat.value:0.##}");return s.ToString();}
+        s.AppendLine(relic.Pristine?"PRISTINE — eligible for same-rarity fusion":"CRAFTED — cannot be fused");
         s.AppendLine(relic.craftableThisCycle ? "<color=#B88AE0>CURRENT CYCLE / CRAFTABLE</color>" : "<color=#85898F>PAST CYCLE / LOCKED</color>");
         s.AppendLine($"<color=#555A63>{Divider}</color>");
         s.AppendLine("<b>RELIC MODIFIERS</b>");
@@ -120,7 +130,7 @@ public static class ItemTooltipFormatter
             var tier=definition?.Tier(mod.tierIndex);
             string range=tier==null?"LEGACY / preserved":tier.FixedValue?$"{tier.Minimum:0.##}{unit}":$"{tier.Minimum:0.##}–{tier.Maximum:0.##}{unit}";
             string tierText=tier==null?"LEGACY":$"T{tier.TierIndex}";
-            s.AppendLine($"{label}: <b>{mod.value:+0.##;-0.##;0}{unit}</b>  ({range}) {tierText}  {(mod.lockedOriginal ? "[LOCKED]" : "[CRAFTABLE]")}");
+            s.AppendLine($"{label}: <b>{mod.value:+0.##;-0.##;0}{unit}</b>  ({range}) {tierText}  {(mod.lockedOriginal ? "[IMPLICIT / LOCKED]" : "[EXPLICIT]")}");
         }
         return s.ToString().TrimEnd();
     }
@@ -310,7 +320,7 @@ public class ItemTooltipUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
     }
 #endif
     void OnDisable(){CurrencyInventory.GearChanged-=OnGearChanged;if(Inventory.Instance!=null)Inventory.Instance.OnInventoryChanged-=ValidateTarget;}
-    void OnGearChanged(Gear changed){if(item!=changed)return;if(!TargetExists()){Hide();return;}RefreshVisibleContent();ResizeInPlace();}
+    void OnGearChanged(Gear changed){if(item!=changed)return;if(!TargetExists()){Hide();return;}RefreshVisibleContent();ShowEstimatedDps();ResizeInPlace();}
     void ValidateTarget(){if(item!=null&&!TargetExists())Hide();}
     bool TargetExists()
     {

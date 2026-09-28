@@ -150,7 +150,7 @@ public sealed class PlayerProgression : MonoBehaviour
     public void AddExperience(double amount)
     {
         if (double.IsNaN(amount) || double.IsInfinity(amount) || amount <= 0 || AtCap) return;
-        experience += amount * (RelicInventory.Instance != null ? RelicInventory.Instance.ExperienceMultiplier : 1f);
+        experience += amount * DevelopmentOverrides.Experience * (RelicInventory.Instance != null ? RelicInventory.Instance.ExperienceMultiplier : 1f);
         var player = FindFirstObjectByType<PlayerController>();
         var health = player != null ? player.GetComponent<HealthComponent>() : null;
         bool leveled=false;

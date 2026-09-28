@@ -75,6 +75,13 @@ public static class StatDisplayFormatting
         { StatTypes.PhysicalDamageReduction, "Physical Damage Reduction" },
         { StatTypes.ReducedShockEffect, "Reduced Shock Effect" },
         { StatTypes.SpellEchoChance, "Spell Echo Chance" },
+        { StatTypes.CullingStrikeChance, "Culling Strike Chance" },
+        { StatTypes.PoisonDuration, "Increased Poison Duration" },
+        { StatTypes.BleedDuration, "Increased Bleed Duration" },
+        { StatTypes.IgniteDuration, "Increased Ignite Duration" },
+        { StatTypes.PoisonTickRate, "Increased Poison Tick Speed" },
+        { StatTypes.BleedTickRate, "Increased Bleed Tick Speed" },
+        { StatTypes.IgniteTickRate, "Increased Ignite Tick Speed" },
         { StatTypes.ReducedChillEffect, "Reduced Chill Effect" },
         { StatTypes.PlusAllSkills, "+Level of All Skills" },
     };

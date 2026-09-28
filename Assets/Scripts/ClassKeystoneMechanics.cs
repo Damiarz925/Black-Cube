@@ -6,11 +6,8 @@ public static class ClassKeystoneMechanics
     public static float FullRageMultiplier(float rage,float effect,bool crown)
     {
         float factor=1+Mathf.Max(0,effect);
-        if(crown)return rage>=RageState.MaximumRage
-            ? (1+RageState.MaximumRage*WeaponMechanicProfile.RageDamagePerPoint*factor+WeaponMechanicProfile.FullRageMoreBonus*factor)
-                *PassiveKeystoneState.Value(PassiveKeystone.BarbarianFullRage):1;
-        return 1+Mathf.Max(0,rage)*WeaponMechanicProfile.RageDamagePerPoint*factor
-            +(rage>=RageState.MaximumRage?WeaponMechanicProfile.FullRageMoreBonus*factor:0);
+        return (1+Mathf.Clamp(rage,0,100)*WeaponMechanicProfile.RageDamagePerPoint*factor)
+            *(crown&&rage>=RageState.MaximumRage?PassiveKeystoneState.Value(PassiveKeystone.BarbarianFullRage):1);
     }
     public static float ConsolidatedMultiplier(int extraStrikes)=>1+Mathf.Max(0,extraStrikes)*PassiveKeystoneState.Value(PassiveKeystone.WarriorConsolidation);
     public static float EndlessPoisonMultiplier(int durationTicks)=>PassiveKeystoneState.Value(PassiveKeystone.RangerEndlessPoison)

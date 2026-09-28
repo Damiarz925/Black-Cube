@@ -10,15 +10,16 @@ public partial class StatusController
         public StatusEffects Effect;
         public int Count, MinTurns, MaxTurns, Threshold, MaximumStackCount;
         public float DamagePerTick, DamagePerTurn, Magnitude, RemainingTotalDamage;
+        public float MinSeconds,MaxSeconds,TickSeconds;
         public bool MixedIntervals;
         public int Interval;
         public string DisplayName => Effect._StatusType != StatusEffects.StatusType.DamageOverTime
             ? Effect._StatusType.ToString() : Effect.Ailment == StatusEffects.AilmentKind.Ignite ? "Burn" : Effect.Ailment.ToString();
         public string Tooltip => Effect._StatusType == StatusEffects.StatusType.DamageOverTime
-            ? $"{DisplayName} / {(Effect.Ailment==StatusEffects.AilmentKind.Poison?Count.ToString():Count+"/"+MaximumStackCount)} stacks\n"+
+            ? $"{DisplayName} / {(MaximumStackCount>0?Count+"/"+MaximumStackCount:Count+" / uncapped")} stacks\n"+
               $"{DamagePerTick:0.##} average damage per active stack tick\n{RemainingTotalDamage:0.##} approximate remaining total damage\n"+
-              (MixedIntervals ? "Mixed tick speeds.\n" : Interval > 0 ? $"Ticks every {Interval} {(Effect.Ailment==StatusEffects.AilmentKind.Poison?"global":"afflicted-actor")} turn(s).\n" : $"{1-Interval} ticks per qualifying turn.\n") +
-              $"Remaining duration: {MinTurns}-{MaxTurns} qualifying turns.\nDamage includes current ailment resistance."
+              (MixedIntervals ? "Mixed tick speeds.\n" : $"Ticks every {TickSeconds:0.###} game seconds.\n") +
+              $"Remaining duration: {MinSeconds:0.##}–{MaxSeconds:0.##} game seconds.\nDamage includes current mitigation."
             : Effect._StatusType == StatusEffects.StatusType.Shock
                 ? $"Shock / {Count}/{Threshold} stacks\nTriggered Lightning coefficient: {Magnitude:P0}\nExpires in {MinTurns}-{MaxTurns} global turns."
                 : $"Chill / {Magnitude:P1} attack-speed slow\nExpires in {MinTurns}-{MaxTurns} global turns.";
@@ -40,14 +41,15 @@ public partial class StatusController
         foreach (var pair in groups)
         {
             if (pair.Key == null) continue;
-            var s = new Summary { Effect=pair.Key, MinTurns=int.MaxValue };
+            var s = new Summary { Effect=pair.Key, MinTurns=int.MaxValue,MinSeconds=float.PositiveInfinity };
             float frequency=0, magnitude=0;
             foreach (var instance in pair.Value)
             {
-                if (instance.stacks<=0 || instance.remainingTicks<=0) continue;
+                if (instance.stacks<=0 || (instance.Realtime?instance.RemainingSeconds<=0:instance.remainingTicks<=0)) continue;
                 if (s.Count==0) s.Interval=instance.effectiveInterval;
                 else if(s.Interval!=instance.effectiveInterval) s.MixedIntervals=true;
-                float rate=instance.effectiveInterval>0 ? 1f/instance.effectiveInterval : 1-instance.effectiveInterval;
+                if(instance.Realtime){if(s.Count==0)s.TickSeconds=instance.IntervalSeconds;else if(!Mathf.Approximately(s.TickSeconds,instance.IntervalSeconds))s.MixedIntervals=true;s.MinSeconds=Mathf.Min(s.MinSeconds,instance.RemainingSeconds);s.MaxSeconds=Mathf.Max(s.MaxSeconds,instance.RemainingSeconds);}
+                float rate=instance.Realtime?1/instance.IntervalSeconds:instance.effectiveInterval>0 ? 1f/instance.effectiveInterval : 1-instance.effectiveInterval;
                 float damage=pair.Key._StatusType == StatusEffects.StatusType.DamageOverTime
                     ? CombatCalculator.CalculateAilmentTickDamage(instance.damagePerTick,pair.Key,instance.sourceStats,stats)
                     : 0f;

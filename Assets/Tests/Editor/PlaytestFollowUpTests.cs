@@ -81,7 +81,7 @@ public sealed class PlaytestFollowUpTests
     {
         var skill=PlayerSkillDefinition.CreateProductionDefaults().First(s=>s.id==PlayerSkillId.SwordRapidFlurry);
         Assert.That(skill.manaCost,Is.EqualTo(25));Assert.That(WeaponMechanicProfile.RapidFlurryHits(0),Is.EqualTo(3));
-        Assert.That(ClassKeystoneMechanics.ConsolidatedMultiplier(2),Is.EqualTo(3.1f).Within(.0001f));
+        Assert.That(ClassKeystoneMechanics.ConsolidatedMultiplier(2),Is.EqualTo(3.2f).Within(.0001f));
     }
     [Test] public void EveryWeaponImplicitUsesElementAndExclusiveWeaponLegality()
     {
@@ -154,7 +154,7 @@ public sealed class PlaytestFollowUpTests
         var enemy=new CombatantSnapshot{id="enemy",name="Enemy",maximumLife=10000,attackSpeed=.01f,basicDamage=new(){physical=1}};
         var result=HeadlessCombatSimulator.Run(player,enemy,new(){maximumDuration=.51f,startingPlayerLife=500});
         Assert.That(result.outcome,Is.Not.EqualTo(CombatOutcome.SimulationError),result.error);
-        Assert.That(result.damage.Single(x=>x.id=="Player/Rapid Flurry").total,Is.EqualTo(62).Within(.01));
+        Assert.That(result.damage.Single(x=>x.id=="Player/Rapid Flurry").total,Is.EqualTo(64).Within(.01));
         Assert.That(result.manaSpent,Is.EqualTo(25));
     }
     [Test] public void ProductionUiBindingsAndInventoryOverflowAreAuthored()

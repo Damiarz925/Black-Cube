@@ -1,6 +1,8 @@
-// Developer map: Target-owned stacks with global-turn ticking and pending effect aggregation. Mutation is separated from application because damage/death callbacks can clear statuses or replace targets.
+// Developer map: Target-owned real-time damaging ailments and turn-based Shock/Chill. Each pending tick remains a distinct damage event. Mutation is separated from application because damage/death callbacks can clear statuses or replace targets.
 // See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using System.Collections.Generic;
+using System.Linq;
+using System;
 using UnityEngine;
 
 //StatusController is used to manage all of the statuses on the GameObject that the controller is on. Contains code for managing stacks and applying Status Damage/Effects
@@ -26,7 +28,7 @@ public partial class StatusController : MonoBehaviour
     }
     public bool ConsumeFrozenAttackSkip(){if(!frozen)return false;frozen=false;frozenChillStrength=0;if(fractureOnThaw){IsFractured=true;fractureOnThaw=false;}return true;}
     public bool TryConsumeFreeze(out float chillStrength){chillStrength=frozenChillStrength;if(!frozen||fractureOnThaw||IsFractured)return false;frozen=false;frozenChillStrength=0;return true;}
-    public void AddShockInstance(float strength,int duration=1,int maximum=1){strength=Mathf.Max(0,strength);if(strength<=0)return;maximum=Mathf.Max(1,maximum);if(shockInstances.Count>=maximum){shockInstances.RemoveAt(0);shockDurations.RemoveAt(0);}shockInstances.Add(strength);shockDurations.Add(Mathf.Max(1,duration));}
+    public void AddShockInstance(float strength,int duration=1,int maximum=1){strength=Mathf.Max(0,strength)*Mathf.Max(1,UniqueCatalog.Power(GetComponent<StatsComponent>(),UniquePower.SelfShockEffect));if(strength<=0)return;maximum=Mathf.Max(1,maximum);if(shockInstances.Count>=maximum){shockInstances.RemoveAt(0);shockDurations.RemoveAt(0);}shockInstances.Add(strength);shockDurations.Add(Mathf.Max(1,Mathf.CeilToInt(duration*Mathf.Max(1,UniqueCatalog.Power(GetComponent<StatsComponent>(),UniquePower.SelfShockDuration)))));}
     private PlayerController playerCont;
     private EnemyAI enemyCont;
     private StatsComponent stats;
@@ -73,8 +75,6 @@ public partial class StatusController : MonoBehaviour
     {
         if (effect == null || attackerStats == null || context.Hits == null || context.Hits.Count == 0)     //If effect, attacker's stats, or context's hits is null, return
             return;
-        if(effect.Ailment is StatusEffects.AilmentKind.Poison or StatusEffects.AilmentKind.Bleed or StatusEffects.AilmentKind.Ignite
-            &&attackerStats.GetComponent<PassiveKeystoneState>()?.Has(PassiveKeystone.PriestSacrifice)==true)return;
         if(effect.Ailment is StatusEffects.AilmentKind.Poison or StatusEffects.AilmentKind.Bleed or StatusEffects.AilmentKind.Ignite
             &&attackerStats.GetComponent<PassiveKeystoneState>()?.Has(PassiveKeystone.PriestSacrifice)==true)return;
 
@@ -177,9 +177,18 @@ public partial class StatusController : MonoBehaviour
     }
     public bool HasAilment(StatusEffects.AilmentKind kind)
     {
-        foreach(var pair in StatusDictionary)if(pair.Key!=null&&pair.Key.Ailment==kind&&pair.Value.remainingTicks>0&&pair.Value.stacks>0)return true;
-        foreach(var pair in IndependentDictionary)if(pair.Key!=null&&pair.Key.Ailment==kind)foreach(var instance in pair.Value)if(instance!=null&&instance.remainingTicks>0&&instance.stacks>0)return true;
+        foreach(var pair in StatusDictionary)if(pair.Key!=null&&pair.Key.Ailment==kind&&(pair.Value.Realtime?pair.Value.RemainingSeconds>0:pair.Value.remainingTicks>0)&&pair.Value.stacks>0)return true;
+        foreach(var pair in IndependentDictionary)if(pair.Key!=null&&pair.Key.Ailment==kind)foreach(var instance in pair.Value)if(instance!=null&&(instance.Realtime?instance.RemainingSeconds>0:instance.remainingTicks>0)&&instance.stacks>0)return true;
         return false;
+    }
+    public int AilmentStackCount(StatusEffects.AilmentKind kind)=>IndependentDictionary.Where(x=>x.Key!=null&&x.Key.Ailment==kind).Sum(x=>x.Value.Where(i=>i.RemainingSeconds>0&&i.stacks>0).Sum(i=>i.stacks));
+    public List<StatusInstance> HighestRemainingPoison(int count)=>IndependentDictionary.Where(x=>x.Key!=null&&x.Key.Ailment==StatusEffects.AilmentKind.Poison).SelectMany(x=>x.Value).Where(x=>x.RemainingSeconds>0&&x.remainingTicks>0).OrderByDescending(RemainingMitigatedDamage).Take(count).Select(x=>x.Copy()).ToList();
+    public void RestorePreservedPoison(StatusInstance source)
+    {
+        if(source?.effect==null||source.RemainingSeconds<=0||source.remainingTicks<=0)return;
+        var instance=source.Copy();var effect=instance.effect;
+        if(!IndependentDictionary.TryGetValue(effect,out var list))IndependentDictionary[effect]=list=new();
+        int cap=EffectiveStackCap(effect,instance.sourceStats);if(cap>0&&list.Count>=cap)return;list.Add(instance);
     }
     public int DistinctAilmentCount()
     {int count=0;foreach(StatusEffects.AilmentKind kind in new[]{StatusEffects.AilmentKind.Poison,StatusEffects.AilmentKind.Bleed,StatusEffects.AilmentKind.Ignite})if(HasAilment(kind))count++;if(CurrentChillSlow>0)count++;if(CombinedShockEffect>0)count++;return count;}
@@ -226,14 +235,14 @@ public partial class StatusController : MonoBehaviour
     static int EffectiveStackCap(StatusEffects effect, StatsComponent sourceStats)
     {
         if(effect==null)return 0;
-        if(effect.Ailment==StatusEffects.AilmentKind.Poison)return 0;
+        if(effect.Ailment==StatusEffects.AilmentKind.Poison)return sourceStats?.GetComponent<PassiveKeystoneState>()?.Has(PassiveKeystone.RangerEndlessPoison)==true?0:20;
         var keystones=sourceStats!=null?sourceStats.GetComponent<PassiveKeystoneState>():null;
         bool playerSource=sourceStats!=null&&sourceStats.GetComponent<PlayerController>()!=null;
         var relics=playerSource?RelicInventory.Instance:null;
         if(effect.Ailment==StatusEffects.AilmentKind.Bleed)
         {
-            int cap=keystones!=null&&(keystones.Has(PassiveKeystone.OpenWounds)||keystones.Has(PassiveKeystone.WarriorBleed))?10:5;
-            return cap+(relics?.MaximumBleedStackBonus??0);
+            int cap=5+(relics?.MaximumBleedStackBonus??0);
+            return keystones!=null&&(keystones.Has(PassiveKeystone.OpenWounds)||keystones.Has(PassiveKeystone.WarriorBleed))?cap*2:cap;
         }
         if(effect.Ailment==StatusEffects.AilmentKind.Ignite)
         {
@@ -265,7 +274,7 @@ public partial class StatusController : MonoBehaviour
         }
     }
     float RemainingMitigatedDamage(StatusInstance instance)=>instance.remainingTicks
-        * CombatCalculator.CalculateAilmentTickDamage(instance.damagePerTick,instance.effect,instance.sourceStats,stats);
+        * CombatCalculator.CalculateAilmentTickDamage(instance.damagePerTick,instance.effect,instance.sourceStats,stats!=null?stats:GetComponent<StatsComponent>());
 
     // Used especially for Ignite: keep the instance with highest total damage over its lifetime.
     private void ReplaceIfStronger(StatusEffects effect, int stacksPerHit, float damagePerTick, int tickCount, StatsComponent sourceStats, int effectiveInterval)
@@ -344,6 +353,7 @@ public partial class StatusController : MonoBehaviour
             for (int i = 0; i < list.Count; i++)        //Loop through the length of list
             {
                 var instance = list[i];     //instance is list at i
+                if(instance.Realtime)continue;
 
                 if (instance.remainingTicks <= 0 || instance.stacks <= 0 || instance.effect == null)
                 {
@@ -363,27 +373,19 @@ public partial class StatusController : MonoBehaviour
                 list.Remove(inst);
         }
 
+        ApplyPending(pendingEffects);
+    }
+    void ApplyPending(List<PendingEffect> pendingEffects)
+    {
         // ----------- Apply pending effects -----------
         if (pendingEffects.Count == 0)  //If pendingeffects is empty, return
             return;
 
-        var strengthByEffect = new Dictionary<(StatusEffects Effect,StatsComponent Source,bool Critical),float>();
-
-        foreach (var pe in pendingEffects)      //for each pending effect in pendingeffects list
+        // Each application/tick is a separate damage event and Cull opportunity.
+        foreach (var pe in pendingEffects)
         {
-            if (pe.Effect == null) continue;    //if the effect is null, continue
-
-            if (strengthByEffect.TryGetValue((pe.Effect,pe.Source,pe.Critical), out float current))
-                strengthByEffect[(pe.Effect,pe.Source,pe.Critical)] = current + pe.Strength;
-            else
-                strengthByEffect[(pe.Effect,pe.Source,pe.Critical)] = pe.Strength;
-        }
-
-        foreach (var kvp in strengthByEffect)   //Loop through every pair in strengthbyeffect, effect is the key, totalStrength is the value
-        {
-            StatusEffects effect = kvp.Key.Effect;
-            float totalStrength = kvp.Value;
-
+            StatusEffects effect = pe.Effect;
+            float totalStrength = pe.Strength;
             if (effect == null || totalStrength <= 0f)  //If key or value is null/0, continue
                 continue;
 
@@ -393,16 +395,42 @@ public partial class StatusController : MonoBehaviour
             {
                 var targetHealth=GetComponent<HealthComponent>();
                 float before=targetHealth!=null?targetHealth.CurrentLife:0;
-                ApplyDotDamage(totalStrength, effect,kvp.Key.Source,kvp.Key.Critical);
+                ApplyDotDamage(totalStrength, effect,pe.Source,pe.Critical);
                 // Death callbacks may destroy the target synchronously. Preserve
                 // the capped actual loss for recovery even on a killing DOT.
                 float loss=targetHealth!=null?Mathf.Max(0,before-targetHealth.CurrentLife):Mathf.Min(before,totalStrength);
-                if(kvp.Key.Source!=null)
-                {var keys=kvp.Key.Source.GetComponent<PassiveKeystoneState>();if(keys!=null)kvp.Key.Source.GetComponent<HealthComponent>()?.RestoreLife(loss*keys.DamageRecoveryFraction,HealingSource.SubclassDamage);}
-                if(effect.Ailment==StatusEffects.AilmentKind.Poison&&kvp.Key.Source!=null)
-                    kvp.Key.Source.GetComponent<HealthComponent>()?.RestoreLife(GenericPassiveMechanics.PoisonLeech(loss,kvp.Key.Source.GetStat(StatTypes.PoisonLifeLeech)));
+                if(pe.Source!=null)
+                {var keys=pe.Source.GetComponent<PassiveKeystoneState>();if(keys!=null)pe.Source.GetComponent<HealthComponent>()?.RestoreLife(loss*keys.DamageRecoveryFraction,HealingSource.SubclassDamage);}
+                if(effect.Ailment==StatusEffects.AilmentKind.Poison&&pe.Source!=null)
+                    pe.Source.GetComponent<HealthComponent>()?.RestoreLife(GenericPassiveMechanics.PoisonLeech(loss,pe.Source.GetStat(StatTypes.PoisonLifeLeech)));
             }
         }
+    }
+
+    public event Action<StatusInstance> AilmentExpired;
+    void Update(){if(!SkillTreeUI.PausesGameplay&&!PlayerSkillMenuUI.IsOpen)TickRealtime(Time.deltaTime);}
+    public void TickRealtime(float delta)
+    {
+        stats ??= GetComponent<StatsComponent>();
+        if(delta<=0||IndependentDictionary.Count==0)return;
+        var health=GetComponent<HealthComponent>();if(health!=null&&health.CurrentLife<=0){ClearStatuses();return;}
+        var pending=new List<PendingEffect>();var expired=new List<StatusInstance>();
+        foreach(var list in IndependentDictionary.Values)
+        {
+            for(int i=list.Count-1;i>=0;i--)
+            {
+                var instance=list[i];if(!instance.Realtime)continue;
+                float elapsed=instance.InfiniteDuration?delta:Mathf.Min(delta,instance.RemainingSeconds);
+                instance.RemainingSeconds-=elapsed;instance.SecondsUntilNextTick-=elapsed;
+                while(instance.SecondsUntilNextTick<=.00001f&&instance.remainingTicks>0)
+                {ApplyTick(instance,pending);instance.SecondsUntilNextTick+=instance.IntervalSeconds;}
+                if(!instance.InfiniteDuration&&instance.RemainingSeconds<=.00001f){list.RemoveAt(i);expired.Add(instance);}
+            }
+        }
+        // Publish after collection mutation: damage/death callbacks may clear this controller.
+        var expirationCallback=AilmentExpired;
+        ApplyPending(pending);
+        foreach(var instance in expired)expirationCallback?.Invoke(instance);
     }
 
     public float ConsumeRemainingAilmentDamage(StatusEffects.AilmentKind ailment)
@@ -418,6 +446,7 @@ public partial class StatusController : MonoBehaviour
 
     private void TickInstance(StatusInstance instance, List<PendingEffect> pendingEffects)
     {
+        if(instance.Realtime)return; // Attack turns never advance production damaging ailments.
         StatusEffects effect = instance.effect; //effect is the instance's effect type
 
         // Decide if we tick this turn, and how many times.

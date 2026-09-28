@@ -7,6 +7,7 @@ public static class CraftingPotentialProfile
 {
     public static int Maximum(LootManager.GearRarity origin) => origin switch
     {
+        LootManager.GearRarity.Unique => 0,
         LootManager.GearRarity.Normal => 6,
         LootManager.GearRarity.Magic => 8,
         LootManager.GearRarity.Rare => 10,
@@ -46,7 +47,7 @@ public static class EmpowermentCrafting
 {
     public static bool IsEligible(Gear gear,RolledMod mod,int combatLevel,ModDatabase database=null)
     {
-        if(gear==null||gear.IsLocked||mod==null||!gear.rolledMods.Contains(mod)||gear.EmpoweredModifierCount>=EmpowermentProgressionProfile.MaximumEmpoweredModifiers(combatLevel)
+        if(gear==null||gear.ItemRarity==LootManager.GearRarity.Unique||gear.IsLocked||mod==null||!gear.rolledMods.Contains(mod)||gear.EmpoweredModifierCount>=EmpowermentProgressionProfile.MaximumEmpoweredModifiers(combatLevel)
             ||mod.lockedOriginal||mod.isEmpowered||mod.isBossSpecial||Gear.IsWeaponBaseStat(mod.statType)||mod.tierIndex!=1)return false;
         var definition=(database??ModManager.Instance?.Database)?.GetDefinition(mod.statType);return IsEmpowerable(definition,mod.statType)
             &&ModManager.ApplicableTiers(definition,gear.ItemType,gear.WeaponTypeId).Exists(x=>x.tierIndex==1);

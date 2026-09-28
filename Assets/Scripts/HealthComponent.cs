@@ -130,6 +130,7 @@ public class HealthComponent : MonoBehaviour
     {
         if (isDead) return;
         isDead = true;
+        if(isEnemy)UniqueCombatRuntime.For(EquipmentManager.Instance?.PlayerStats)?.EnemyDied(GetComponent<StatusController>());
         GetComponent<StatusController>()?.ClearStatuses();
 
         if (isEnemy)

@@ -26,19 +26,19 @@ public sealed class AilmentFoundationTests
     }
 
     [Test]
-    public void IgniteTicksOnSecondAndFourthAfflictedTurnsAndUsesRemainingTotalReplacement()
+    public void IgniteTicksAtTwoAndFourSecondsAndUsesRemainingTotalReplacement()
     {
         var (controller,source)=Actor();var effect=Effect(StatusEffects.AilmentKind.Ignite);
         controller.ApplyStatus(effect,1,100,2,source,2);
         controller.TickStatuses(false);controller.TickStatuses(false);
         Assert.That(Stacks(controller,effect)[0].remainingTicks,Is.EqualTo(2),"Attacker turns cannot age Ignite.");
         controller.TickStatuses(true);Assert.That(Stacks(controller,effect)[0].remainingTicks,Is.EqualTo(2));
-        controller.TickStatuses(true);Assert.That(Stacks(controller,effect)[0].remainingTicks,Is.EqualTo(1));
+        controller.TickRealtime(2);Assert.That(Stacks(controller,effect)[0].remainingTicks,Is.EqualTo(1));
         controller.ApplyStatus(effect,1,70,2,source,2);
         Assert.That(Stacks(controller,effect)[0].damagePerTick,Is.EqualTo(70),"A full-duration 140 Ignite replaces an aged 100 remaining-total Ignite.");
         controller.ApplyStatus(effect,1,50,2,source,2);
         Assert.That(Stacks(controller,effect)[0].damagePerTick,Is.EqualTo(70),"A weaker incoming total cannot replace it.");
-        for(int turn=0;turn<4;turn++)controller.TickStatuses(true);
+        controller.TickRealtime(4);
         Assert.That(Stacks(controller,effect).Count,Is.Zero,"Four afflicted turns give two base ticks and expiration.");
     }
 
@@ -48,7 +48,7 @@ public sealed class AilmentFoundationTests
         var (controller,source)=Actor();var effect=Effect(StatusEffects.AilmentKind.Bleed);
         controller.ApplyStatus(effect,5,100,5,source,2);
         Assert.That(Stacks(controller,effect).Count,Is.EqualTo(5));
-        for(int turn=0;turn<8;turn++)controller.TickStatuses(true);
+        controller.TickRealtime(3);
         Assert.That(Stacks(controller,effect)[0].remainingTicks,Is.EqualTo(1));
         controller.ApplyStatus(effect,1,60,5,source,2);
         Assert.That(Stacks(controller,effect).Count,Is.EqualTo(5));
@@ -59,18 +59,18 @@ public sealed class AilmentFoundationTests
     }
 
     [Test]
-    public void PoisonHasNoCapAndEachStackExpiresIndependentlyEveryTwoGlobalTurns()
+    public void PoisonHasTwentyCapAndEachStackExpiresIndependentlyInSeconds()
     {
         var (controller,source)=Actor();var effect=Effect(StatusEffects.AilmentKind.Poison);
         controller.ApplyStatus(effect,8,10,4,source,2);
         Assert.That(Stacks(controller,effect).Count,Is.EqualTo(8));
-        controller.TickStatuses(false);controller.TickStatuses(false);
-        Assert.That(Stacks(controller,effect)[0].remainingTicks,Is.EqualTo(3));
+        controller.TickRealtime(.5f);
+        Assert.That(Stacks(controller,effect)[0].remainingTicks,Is.EqualTo(1));
         controller.ApplyStatus(effect,1,20,4,source,2);
-        for(int turn=0;turn<6;turn++)controller.TickStatuses(false);
+        controller.TickRealtime(.5f);
         Assert.That(Stacks(controller,effect).Count,Is.EqualTo(1),"Old stacks expired after eight global turns; the later application survived.");
         Assert.That(Stacks(controller,effect)[0].remainingTicks,Is.EqualTo(1));
-        Assert.That(controller.GetStatusSummaries()[0].MaximumStackCount,Is.Zero);
+        Assert.That(controller.GetStatusSummaries()[0].MaximumStackCount,Is.EqualTo(20));
     }
 
     [Test]
@@ -79,7 +79,7 @@ public sealed class AilmentFoundationTests
         var (controller,attacker)=Actor();var effect=Effect(StatusEffects.AilmentKind.Ignite);
         var hit=new DamageContext(1);hit.AddDamage(Element.Fire,100);
         AilmentCalculator.ComputeAilmentFromHit(effect,hit,attacker,out var baseTick,out var ticks,out var interval);
-        Assert.That(baseTick,Is.EqualTo(50).Within(.001));Assert.That(ticks,Is.EqualTo(2));Assert.That(interval,Is.EqualTo(2));
+        Assert.That(baseTick,Is.EqualTo(25).Within(.001));Assert.That(ticks,Is.EqualTo(2));Assert.That(interval,Is.EqualTo(1));
         hit.Hits[0]=new ElementalHit(Element.Fire,200);
         AilmentCalculator.ComputeAilmentFromHit(effect,hit,attacker,out var scaledTick,out _,out _);
         Assert.That(scaledTick,Is.EqualTo(baseTick*2).Within(.001),"A hit increased/More/crit/range result is already in the pre-defense hit context.");

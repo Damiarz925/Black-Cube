@@ -203,5 +203,6 @@ public enum StatTypes
     GrantsVoidAura = 141,
     AxePhysicalRage = 142,
     CullingStrike = 143,
-    SpellEchoChance = 144
+    SpellEchoChance = 144,
+    CullingStrikeChance = 145
 }

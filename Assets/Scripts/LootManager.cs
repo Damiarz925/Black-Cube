@@ -25,7 +25,8 @@ public class LootManager : MonoBehaviour
         Normal,
         Magic,
         Rare,
-        Legendary
+        Legendary,
+        Unique // Appended stable rarity ID; never ordinary-crafted.
     }
 
     [Header("Loot Prefab")]
@@ -90,7 +91,12 @@ public class LootManager : MonoBehaviour
         int zoneLevel = zoneManager != null ? zoneManager.zoneLevel : 1;
         int itemLevel = zoneLevel + enemyRarityMod;     //Calculate item level as the level of the zone + the enemy rarity modifier
 
-        var rarity = RollItemRarity(itemLevel,random);
+        var rarity = RollItemRarity(itemLevel,random,type);
+        if(rarity==GearRarity.Unique)
+        {
+            var eligible=System.Array.FindAll(UniqueCatalog.All,x=>x.minimumLevel<=Mathf.Min(100,itemLevel));
+            return UniqueCatalog.Create(eligible[random.Range(0,eligible.Length)].id,itemLevel,()=>random.Value());
+        }
         string weaponTypeId=type==GearType.Weapons?RollWeaponTypeId(random):null;
 
         Debug.Log($"[Loot] Rolled type={type}, rarity={rarity}, zoneLevel={zoneLevel}, enemyRarity={enemyRarity}");
@@ -187,8 +193,9 @@ public class LootManager : MonoBehaviour
     }
 
     public GearRarity RollItemRarity(int itemLevel)=>RollItemRarity(itemLevel,UnityLootRandomSource.Instance);
-    public GearRarity RollItemRarity(int itemLevel,ILootRandomSource random)
+    public GearRarity RollItemRarity(int itemLevel,ILootRandomSource random,GearType? type=null)
     {
+        if(itemLevel>=20&&random.Value()<Mathf.Min(.05f,.0025f*(1+Mathf.Max(0,(RelicInventory.Instance?.ItemRarityIncrease??0)+DevelopmentOverrides.ItemRarity(type)))))return GearRarity.Unique;
         Vector4 rates=RarityRatesForLevel(itemLevel);
         float bias=1+Mathf.Max(0,RelicInventory.Instance?.ItemRarityIncrease??0);
         float total=0;for(int i=0;i<4;i++){rates[i]*=Mathf.Pow(bias,i);total+=rates[i];}

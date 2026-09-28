@@ -248,7 +248,7 @@ public class EnemyAI : MonoBehaviour
     public EnemyRarity RollEnemyRarity()        //roll the enemy rarity
     {
         if(EnemyLevel>=341&&EnemyLevel<=350)return EnemyRarity.Legendary;
-        float bias=1+Mathf.Max(0,RelicInventory.Instance?.EnemyRarityIncrease??0),total=0;
+        float bias=1+Mathf.Max(0,(RelicInventory.Instance?.EnemyRarityIncrease??0)+DevelopmentOverrides.EnemyRarity(ContentId)),total=0;
         var weights=new List<(EnemyRarity rarity,float weight)>();
         if(contentDatabase?.enemyRarityProfiles?.Count>0)
         {foreach(var profile in contentDatabase.enemyRarityProfiles)weights.Add((profile.rarity,Mathf.Max(0,profile.spawnWeight)*Mathf.Pow(bias,(int)profile.rarity)));}

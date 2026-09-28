@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEngine;
 
 // Cheap neutral-target basic-attack estimate. No fights, RNG, skills scheduler,
@@ -7,7 +8,7 @@ public static class CharacterDamageEstimate
     public static DamageContext SearchHit(DamageContext source,StatsComponent stats)
     {
         var keys=stats.GetComponent<PassiveKeystoneState>();var result=new DamageContext(source.Hits.Count);
-        float more=(keys?.GenericMoreMultiplier??1)*CombatCalculator.ScopedDamageMultiplier(source.Scopes,stats);
+        float more=UniqueCatalog.HitMultiplier(stats)*(keys?.GenericMoreMultiplier??1)*CombatCalculator.ScopedDamageMultiplier(source.Scopes,stats);
         if(keys?.Has(PassiveKeystone.ThiefOpener)==true)more*=ClassKeystoneMechanics.TargetLifeMultiplier(false);
         foreach(var hit in source.Hits)
         {
@@ -18,20 +19,19 @@ public static class CharacterDamageEstimate
         }
         return result;
     }
-    public static float ExpectedDirectFactor(float critChance,float critMultiplier,float multistrikeChance,bool consolidated)
-        => (1+Mathf.Clamp01(critChance)*(critMultiplier-1))*(1+Mathf.Clamp01(multistrikeChance)*(consolidated?1.05f:1));
+    public static float ExpectedDirectFactor(float critChance,float critMultiplier,float multistrikeChance,bool consolidated,float extraStrikeMultiplier=1)
+        => (1+Mathf.Clamp01(critChance)*(critMultiplier-1))*(1+Mathf.Clamp01(multistrikeChance)*(consolidated?1.10f:1)*extraStrikeMultiplier);
     public static float AilmentMagnitude(StatsComponent stats,Element element,float eligibleHit)
     {
         var increased=element==Element.Phys?StatTypes.BleedDmg:element==Element.Fire?StatTypes.IgniteDmg:StatTypes.PoisonDmg;
         var more=element==Element.Phys?StatTypes.BleedMult:element==Element.Fire?StatTypes.IgniteMult:StatTypes.PoisonMult;
-        return eligibleHit*(1+stats.GetStat(increased))*(1+stats.GetStat(more))*(1+stats.GetStat(StatTypes.GenericDotMult));
+        return eligibleHit*(element==Element.Phys?.20f:element==Element.Fire?.50f:.05f)*(1+stats.GetStat(increased))*(1+stats.GetStat(more))*(1+stats.GetStat(StatTypes.GenericDotMult))*UniqueCatalog.AilmentMultiplier(stats);
     }
     public static float AilmentDurationFactor(StatsComponent stats,Element element)
     {
-        int basis=element==Element.Phys?5:element==Element.Fire?2:4;
-        var duration=element==Element.Phys?StatTypes.BleedDuration:element==Element.Fire?StatTypes.IgniteDuration:StatTypes.PoisonDuration;
-        return Mathf.Max(1,basis+Mathf.RoundToInt(stats.GetRawStat(duration)))/(float)basis
-            *(element==Element.Void?1+Mathf.Max(0,stats.GetStat(StatTypes.PoisonSpeed)):1);
+        var kind=element==Element.Phys?StatusEffects.AilmentKind.Bleed:element==Element.Fire?StatusEffects.AilmentKind.Ignite:StatusEffects.AilmentKind.Poison;
+        AilmentTimingRules.Timing(kind,stats,out float duration,out float interval);
+        return AilmentTimingRules.TickCount(duration,interval)/(float)AilmentTimingRules.BaseTicks(kind);
     }
     public static float Calculate(PlayerController player,bool includeDots=true)
     {
@@ -40,7 +40,7 @@ public static class CharacterDamageEstimate
         var context=SearchHit(player.BuildNonCriticalAttackContext(),stats);float speed=player.GetFinalAttackSpeed();
         bool bow=player.EquippedWeapon?.WeaponTypeId==WeaponTypeIds.Bow;
         float repeats=GenericPassiveMechanics.SupportsMultistrike(player.EquippedWeapon?.WeaponTypeId)?stats.GetStat(StatTypes.ChanceToHitTwice):0;
-        float factor=ExpectedDirectFactor(player.GetFinalCritChance(),CombatCalculator.BaseCriticalMultiplier+stats.GetStat(StatTypes.CritMult),repeats,keys?.Has(PassiveKeystone.WarriorConsolidation)==true);
+        float factor=ExpectedDirectFactor(player.GetFinalCritChance(),CombatCalculator.BaseCriticalMultiplier+stats.GetStat(StatTypes.CritMult),repeats,keys?.Has(PassiveKeystone.WarriorConsolidation)==true,1+UniqueCatalog.Power(stats,UniquePower.MultistrikeDamage));
         if(bow)
         {
             int count=BattleManager.CalculateProjectileCount(stats.GetRawStat(StatTypes.ProjectileAmount),0);
@@ -72,6 +72,15 @@ public static class CharacterDamageEstimate
         try
         {
             var stats=actor.AddComponent<StatsComponent>();var player=actor.AddComponent<PlayerController>();
+            var unique=actor.AddComponent<UniqueLoadoutState>();
+            if(EquipmentManager.Instance!=null)
+                foreach(var item in EquipmentManager.Instance.EquippedItems.Values)
+                    if(item!=null&&item.ItemType!=candidate.ItemType&&item.UniqueData!=null)
+                        unique.powers.AddRange(item.UniqueData.powers.Select(x=>x.Copy()));
+            if(candidate.UniqueData!=null)unique.powers.AddRange(candidate.UniqueData.powers.Select(x=>x.Copy()));
+            if(RelicInventory.Instance!=null)
+                foreach(var relic in Enumerable.Range(0,RelicInventory.ActiveSlotCount).Select(RelicInventory.Instance.Active).Where(x=>x!=null))
+                    if(relic.uniqueRelic)unique.powers.AddRange(relic.forgedPowers.Select(x=>x.Copy()));
             // Preserve current aura intensity without ticking or mutating live combat.
             actor.AddComponent<SubclassCombatState>().CopyPreviewFrom(live.GetComponent<SubclassCombatState>());
             var progression=GameManager.Instance?.GetComponent<PlayerProgression>()??live.GetComponent<PlayerProgression>();

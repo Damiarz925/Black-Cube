@@ -226,6 +226,7 @@ public sealed class PlayerSkillController : MonoBehaviour
     public float EffectiveCooldown(PlayerSkillDefinition skill)
     {
         if(skill==null)return 0f;float speed=skill.scalesWithCooldownReduction?Mathf.Max(0f,GetComponent<StatsComponent>().GetStat(StatTypes.CooldownReduction)):skill.scalesWithCastSpeed?Mathf.Max(0f,GetComponent<StatsComponent>().GetStat(StatTypes.CastSpeed)):0f;
+        if(skill.scalesWithCooldownReduction&&GetComponent<StatusController>()?.CombinedShockEffect>0)speed+=UniqueCatalog.Power(GetComponent<StatsComponent>(),UniquePower.ShockedCooldownReduction);
         return Mathf.Max(MinimumAutoCooldown,Mathf.Max(.01f,skill.baseCooldown)/(1f+speed));
     }
     public float CooldownRemaining(int slot)=>slot>=0&&slot<autoCooldownRemaining.Length?autoCooldownRemaining[slot]:0f;

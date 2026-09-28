@@ -30,15 +30,15 @@ MonoBehaviour:
   - id: 24
     classId: class.warrior
     name: One Decisive Strike
-    description: Consolidate rolled melee Multistrikes into the original hit at 105% extra-strike damage each. No repeated triggers.
-    primary: 1.05
+    description: Consolidate independently rolled melee Multistrikes at 110% of each extra strike. No repeated triggers.
+    primary: 1.1
     secondary: 0
     tertiary: 0
   - id: 25
     classId: class.barbarian
     name: Crown of Fury
-    description: Continuous Rage decay; no offensive benefit below full Rage. Full-Rage damage is 40% more than ordinary capped Rage.
-    primary: 1.4
+    description: Gain Rage with any weapon. Triple constant decay. At full Rage gain an additional 30% MORE Damage.
+    primary: 1.3
     secondary: 0
     tertiary: 0
   - id: 26

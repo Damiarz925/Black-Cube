@@ -41,6 +41,7 @@ public sealed class BossSpecialEffectRuntime:MonoBehaviour
     bool Has(string suffix)=>PlayerHas(suffix);
     public static bool PlayerHas(string suffix)
     {
+        if(RelicInventory.Instance!=null)for(int i=0;i<RelicInventory.ActiveSlotCount;i++){var relic=RelicInventory.Instance.Active(i);if(relic?.uniqueRelic==true)foreach(var mod in relic.forgedStats)if(mod?.isBossSpecial==true&&mod.specialModifierId!=null&&mod.specialModifierId.EndsWith("."+suffix,System.StringComparison.Ordinal))return true;}
         if(EquipmentManager.Instance==null)return false;foreach(var pair in EquipmentManager.Instance.EquippedItems)if(pair.Value!=null)foreach(var mod in pair.Value.rolledMods)
             if(mod?.isBossSpecial==true&&mod.specialModifierId!=null&&mod.specialModifierId.EndsWith("."+suffix,System.StringComparison.Ordinal))return true;return false;
     }

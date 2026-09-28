@@ -218,6 +218,7 @@ public class ItemSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
             LootManager.GearRarity.Normal => new Color(1f, 1f, 1f, 1f),
             LootManager.GearRarity.Magic => new Color(0.3f, 0.5f, 1f, 1f),
             LootManager.GearRarity.Rare => new Color(1f, 0.85f, 0.2f, 1f),
+            LootManager.GearRarity.Unique => new Color(.72f,.38f,.16f,1f),
             LootManager.GearRarity.Legendary => new Color(1f, 0.6f, 0.15f, 1f),
             _ => new Color(1f, 1f, 1f, 0.25f)
         };

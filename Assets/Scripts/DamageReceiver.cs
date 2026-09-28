@@ -53,6 +53,7 @@ public class DamageReceiver : MonoBehaviour
     public void TakeDamage(float damage, DamageContext context, StatusEffects effect = null, StatsComponent attacker = null)
     {
         if (damage <= 0f) return;
+        health ??= GetComponent<HealthComponent>();
         // Capture the typed, mitigated proportions before life loss changes target-
         // conditional modifiers (e.g. full-Life bonuses). Deduct life exactly once.
         var components=new DamageContext(5);
@@ -70,6 +71,12 @@ public class DamageReceiver : MonoBehaviour
         recap.IsCrit=context.IsCrit;recap.EventTags=context.EventTags;
         RecordIncoming(Mathf.Min(damage,before),recap,attacker,GetPrimaryElement(context),effect);
         health?.LoseLife(damage);
+        if(attacker!=null&&!context.IncomingSelfHit&&(context.EventTags&CombatEventTags.NoSecondaryTriggers)==0)
+        {
+            float total=0,voidDamage=0;foreach(var hit in (effect==null?components:context).Hits){total+=hit.Amount;if(hit.Element==Element.Void)voidDamage+=hit.Amount;}
+            if(total>0)UniqueCombatRuntime.For(attacker)?.RecordVoidDamage(Mathf.Min(before,damage)*voidDamage/total);
+        }
+        CullingRules.TryExecute(health,attacker);
         float actualLifeLoss = health != null ? Mathf.Max(0f, before - health.CurrentLife) : damage;
         if(health!=null&&GetComponent<PlayerController>()!=null)
             (GetComponent<RevengeState>()??gameObject.AddComponent<RevengeState>()).RecordHit(actualLifeLoss,health.MaxLife);

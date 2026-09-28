@@ -6,6 +6,8 @@ public class StatusInstance
     public StatusEffects effect;    //Public field effect of StatusEffects type
     public int stacks;  //Public field for an int stacks to hold the number of stacks this instance has (stacks >= 1)
     public int remainingTicks;  //Public field for an int remainingTicks to store the number of ticks remaining in the instance
+    public bool Realtime;
+    public float RemainingSeconds,IntervalSeconds,SecondsUntilNextTick;
     public int remainingDurationTurns; // Qualifying turns left, separate from scheduled ticks.
 
     // Damage per *tick* for 1 stack (we multiply by stacks at tick time). (damageperTick >= 0)
@@ -47,7 +49,12 @@ public class StatusInstance
         this.remainingDurationTurns = totalTicks * Mathf.Max(1,effectiveInterval);
         InfiniteDuration=effect!=null&&effect.Ailment==StatusEffects.AilmentKind.Poison
             &&sourceStats!=null&&sourceStats.GetComponent<PassiveKeystoneState>()?.Has(PassiveKeystone.RangerEndlessPoison)==true;
-        if(InfiniteDuration){remainingTicks=int.MaxValue;remainingDurationTurns=int.MaxValue;}
+        if(effect!=null&&AilmentTimingRules.IsDamaging(effect.Ailment))
+        {
+            Realtime=true;AilmentTimingRules.Timing(effect.Ailment,sourceStats,out RemainingSeconds,out IntervalSeconds);
+            SecondsUntilNextTick=IntervalSeconds;remainingTicks=AilmentTimingRules.TickCount(RemainingSeconds,IntervalSeconds);
+        }
+        if(InfiniteDuration){remainingTicks=int.MaxValue;remainingDurationTurns=int.MaxValue;RemainingSeconds=float.PositiveInfinity;}
         if(sourceStats!=null&&effect!=null&&effect.Ailment is StatusEffects.AilmentKind.Poison or StatusEffects.AilmentKind.Bleed or StatusEffects.AilmentKind.Ignite
             &&sourceStats.GetComponent<SubclassCombatState>()?.Has(SubclassIds.ThiefAilmentCrit)==true)
         {
@@ -59,6 +66,8 @@ public class StatusInstance
             if(CriticalAilment){AilmentCritMultiplier=SubclassBalanceProfile.CriticalAilmentMultiplier(critMultiplier);this.damagePerTick*=AilmentCritMultiplier;}
         }
     }
+
+    public StatusInstance Copy()=>(StatusInstance)MemberwiseClone();
 
     //Returns the damage per tick multiplied by the number of stacks for the effective damage of a particular tick
     public float GetTickDamage()

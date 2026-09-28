@@ -12,7 +12,7 @@ public sealed class ClassKeystoneCombatTests
     [Test] public void TempoIsMoreAndRecoverySuppressesRegeneration()
     {var k=Keys(PassiveKeystone.WarriorTempo);Assert.That(k.AttackSpeedMultiplier,Is.EqualTo(1.15f));k.ApplyAllocatedNodes(PassiveTreeDefinition.Nodes.Where(n=>n.Keystone==PassiveKeystone.BarbarianRecovery));root.GetComponent<StatsComponent>().SetBaseStat(StatTypes.LifeRegeneration,30);Assert.That(k.LifeRegenerationMultiplier,Is.Zero);Assert.That(k.DamageRecoveryFraction,Is.EqualTo(.15f).Within(.0001));}
     [Test] public void FullRagePayoffUsesOrdinaryCapAndContinuousDecayMath()
-    {Assert.That(ClassKeystoneMechanics.FullRageMultiplier(99,0,true),Is.EqualTo(1));Assert.That(ClassKeystoneMechanics.FullRageMultiplier(100,0,true),Is.EqualTo(ClassKeystoneMechanics.FullRageMultiplier(100,0,false)*1.4f).Within(.0001));Assert.That(ClassKeystoneMechanics.FullRageMultiplier(100,1,true),Is.EqualTo(ClassKeystoneMechanics.FullRageMultiplier(100,1,false)*1.4f).Within(.0001));}
+    {Assert.That(ClassKeystoneMechanics.FullRageMultiplier(99,0,true),Is.EqualTo(1.198f).Within(.0001));Assert.That(ClassKeystoneMechanics.FullRageMultiplier(100,0,true),Is.EqualTo(ClassKeystoneMechanics.FullRageMultiplier(100,0,false)*1.3f).Within(.0001));Assert.That(ClassKeystoneMechanics.FullRageMultiplier(100,1,true),Is.EqualTo(ClassKeystoneMechanics.FullRageMultiplier(100,1,false)*1.3f).Within(.0001));}
     [Test] public void EndlessPoisonUsesOnlyAdditionalDurationTicks()
     {Assert.That(ClassKeystoneMechanics.EndlessPoisonMultiplier(2),Is.EqualTo(.66f).Within(.0001));Assert.That(ClassKeystoneMechanics.EndlessPoisonMultiplier(-3),Is.EqualTo(.6f));}
     [Test] public void IgniteAndBleedCapsDoNotMultiplyApplications()
@@ -51,7 +51,7 @@ public sealed class ClassKeystoneCombatTests
         var ordinary=Run(PassiveKeystone.None);var consolidated=Run(PassiveKeystone.WarriorConsolidation);
         var a=ordinary.ailments.Single(x=>x.id=="Bleed");var b=consolidated.ailments.Single(x=>x.id=="Bleed");
         Assert.That(b.applications*2,Is.EqualTo(a.applications));
-        Assert.That(b.magnitudeTotal/b.applications,Is.EqualTo(a.magnitudeTotal/a.applications*2.05f).Within(.001));
+        Assert.That(b.magnitudeTotal/b.applications,Is.EqualTo(a.magnitudeTotal/a.applications*2.1f).Within(.001));
     }
     [Test] public void SelfBoltIsSpellTaggedAndIncomingBoltDoesNotGrantOffensiveRecovery()
     {

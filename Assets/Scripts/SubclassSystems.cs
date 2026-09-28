@@ -42,7 +42,7 @@ public static class SubclassBalanceProfile
     public static float ComboMultiplier(int priorHits)=>1+Mathf.Min(ComboMaximum,Mathf.Max(0,priorHits))*ComboMorePerPriorHit;
     public static float FocusedMultiplier(int wouldBeCount)=>1+Mathf.Max(0,wouldBeCount-1)*FocusedMorePerSacrifice;
     public static float AuraIntensity(float damage,float enemyMaxLife)=>enemyMaxLife<=0?0:Mathf.Clamp01((damage/enemyMaxLife)/AuraFullThreshold);
-    public static float FinalAuraBonus(float baseBonus,float intensity,float auraEffect)=>baseBonus*Mathf.Clamp01(intensity)*(1+Mathf.Max(0,auraEffect));
+    public static float FinalAuraBonus(float baseBonus,float intensity,float auraEffect)=>baseBonus*Mathf.Clamp01(intensity)*(Mathf.Max(0,1+auraEffect));
     public static float AilmentExtraMore(float playerCritMultiplier)=>1+Mathf.Max(0,playerCritMultiplier-CombatCalculator.BaseCriticalMultiplier)*.5f;
     public static float CriticalAilmentMultiplier(float playerCritMultiplier)=>1+Mathf.Max(0,playerCritMultiplier-1)*.5f;
     [Obsolete("Use the explicit extra-scaling or critical-ailment formula.")]

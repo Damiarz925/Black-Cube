@@ -124,6 +124,12 @@ public class StatsComponent : MonoBehaviour
         switch (t)
         {
             // Generic & elemental "increased" damage
+            case StatTypes.PoisonDuration:
+            case StatTypes.BleedDuration:
+            case StatTypes.IgniteDuration:
+            case StatTypes.PoisonTickRate:
+            case StatTypes.BleedTickRate:
+            case StatTypes.IgniteTickRate:
             case StatTypes.GenericDmg:
             case StatTypes.PhysDmg:
             case StatTypes.FireDmg:
@@ -167,6 +173,7 @@ public class StatsComponent : MonoBehaviour
             case StatTypes.RageEffect:
             case StatTypes.RageDecayReduction:
             case StatTypes.CooldownReduction:
+            case StatTypes.CullingStrikeChance:
             case StatTypes.SpellEchoChance:
             case StatTypes.AuraEffect:
             case StatTypes.RevengeEffect:

@@ -52,6 +52,7 @@ public class GearStatLists : MonoBehaviour
             StatTypes.WeaponBaseDmg, StatTypes.WeaponBaseAttackSpeed, StatTypes.WeaponBaseCrit),
 
         [LootManager.GearType.Amulets] = Pool(
+            StatTypes.CullingStrikeChance,
             StatTypes.GrantsPhysicalAura, StatTypes.GrantsFireAura, StatTypes.GrantsColdAura,
             StatTypes.GrantsLightningAura, StatTypes.GrantsVoidAura,
             StatTypes.GenericDmg, StatTypes.PhysDmg, StatTypes.FireDmg, StatTypes.ColdDmg,
@@ -76,6 +77,8 @@ public class GearStatLists : MonoBehaviour
             StatTypes.StrengthPercent, StatTypes.IntelligencePercent, StatTypes.DexterityPercent),
 
         [LootManager.GearType.Belts] = Pool(
+            StatTypes.CullingStrikeChance,
+            StatTypes.RageGeneration, StatTypes.RageDecayReduction,
             StatTypes.GenericDmg, StatTypes.Life, StatTypes.Mana,
             StatTypes.FlatFirePerStrength, StatTypes.LifePerStrength, StatTypes.DamagePerStrength,
             StatTypes.FlatLightPerIntelligence, StatTypes.ManaPerIntelligence,
@@ -90,6 +93,7 @@ public class GearStatLists : MonoBehaviour
             StatTypes.LifeOnHit, StatTypes.ManaOnHit),
 
         [LootManager.GearType.Gloves] = Pool(
+            StatTypes.CullingStrikeChance,
             StatTypes.GenericDmg, StatTypes.PhysDmg, StatTypes.FireDmg, StatTypes.ColdDmg,
             StatTypes.LightDmg, StatTypes.VoidDmg,
             StatTypes.PhysPenetration, StatTypes.FirePenetration, StatTypes.ColdPenetration,
@@ -109,6 +113,8 @@ public class GearStatLists : MonoBehaviour
             StatTypes.DexterityPercent),
 
         [LootManager.GearType.Rings] = Pool(
+            StatTypes.CullingStrikeChance,
+            StatTypes.RageGeneration, StatTypes.RageDecayReduction,
             StatTypes.GenericDmg, StatTypes.PhysDmg, StatTypes.FireDmg, StatTypes.ColdDmg,
             StatTypes.LightDmg, StatTypes.VoidDmg,
             StatTypes.PhysPenetration, StatTypes.FirePenetration, StatTypes.ColdPenetration,

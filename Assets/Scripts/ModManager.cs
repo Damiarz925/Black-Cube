@@ -406,6 +406,7 @@ public class ModManager : MonoBehaviour
     public static List<AffixTier> ApplicableTiers(AffixDefinitions def,LootManager.GearType slot,string weaponTypeId)
     {
         if(def==null||(slot==LootManager.GearType.Weapons&&!def.AllowsWeaponType(weaponTypeId)))return new List<AffixTier>();
+        if(SystemsAffixProfile.TryTiers(def.statType,slot,out var systems))return systems;
         if(WeaponExclusiveAffixRules.TryGet(def.statType,slot,weaponTypeId,out var exclusive))return exclusive;
         return PoedbAffixCatalog.TryGet(def.statType,slot,out var direct)
             ? direct : def.tiers ?? new List<AffixTier>();

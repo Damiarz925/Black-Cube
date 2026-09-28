@@ -6,6 +6,9 @@ using UnityEngine;
 
 public class Gear : MonoBehaviour
 {
+    [SerializeField] private UniqueItemData uniqueData;
+    public UniqueItemData UniqueData => uniqueData;
+    public void RestoreUnique(UniqueItemData data) => uniqueData=string.IsNullOrWhiteSpace(data?.definitionId)?null:data.Copy();
     [SerializeField] private string persistentId;
     public string PersistentId => persistentId;
     // Historical schema-2/PlayerPrefs rolls retain their exact values and
@@ -116,6 +119,7 @@ public class Gear : MonoBehaviour
     public void Initialize(LootManager.GearType type, LootManager.GearRarity rarity, int level, Element element, string stableWeaponTypeId = null)
     {
         EnsurePersistentId();
+        uniqueData=null;
         rolledMods.Clear();globalRolledMods.Clear();
         BaseDamage=BaseDamageMin=BaseDamageMax=BaseAttackSpeed=BaseCritChance=0f;
         LocalFlatDamage=LocalFlatDamageMax=LocalIncDamage=LocalBaseCrit=LocalIncCrit=LocalIncAttackSpeed=LocalMorePhysical=0f;

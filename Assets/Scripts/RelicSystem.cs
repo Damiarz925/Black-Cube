@@ -43,6 +43,10 @@ public sealed class RelicData
     public LootManager.GearRarity rarity;
     public bool craftableThisCycle;
     public int relicLevel=1;
+    public bool uniqueRelic;
+    public List<UniqueRoll> forgedPowers=new();
+    public List<RolledMod> forgedStats=new();
+    public List<string> forgeSourceIds=new();
     public bool crafted; // Permanent: any successful Ancient mutation disqualifies fusion.
     public bool Pristine=>!crafted;
     public List<RelicModifier> modifiers = new();
@@ -88,7 +92,8 @@ public sealed partial class RelicInventory : MonoBehaviour
     public RelicData Active(int slot)=>slot>=0&&slot<ActiveSlotCount&&activeIndices[slot]>=0&&activeIndices[slot]<relics.Count?relics[activeIndices[slot]]:null;
     public bool Equip(RelicData relic,int slot)
     {
-        if(relic==null||slot<0||slot>=ActiveSlotCount)return false;int index=relics.IndexOf(relic);if(index<0)return false;
+        if(relic==null||slot<0||slot>=ActiveSlotCount)return false;
+        if(relic.uniqueRelic)for(int i=0;i<ActiveSlotCount;i++)if(i!=slot&&Active(i)?.uniqueRelic==true&&Active(i)!=relic)return false;int index=relics.IndexOf(relic);if(index<0)return false;
         for(int i=0;i<ActiveSlotCount;i++)if(activeIndices[i]==index)activeIndices[i]=-1;
         activeIndices[slot]=index;PublishChanged();return true;
     }
@@ -98,7 +103,7 @@ public sealed partial class RelicInventory : MonoBehaviour
         feedback=null;if(relic==null||!relics.Contains(relic)){feedback="Relic unavailable";return false;}
         int index=relics.IndexOf(relic);
         for(int slot=0;slot<ActiveSlotCount;slot++)if(activeIndices[slot]==index){Unequip(slot);feedback="Relic unequipped";return true;}
-        for(int slot=0;slot<ActiveSlotCount;slot++)if(activeIndices[slot]<0){Equip(relic,slot);feedback="Relic equipped";return true;}
+        for(int slot=0;slot<ActiveSlotCount;slot++)if(activeIndices[slot]<0){if(!Equip(relic,slot)){feedback="Only one Unique Relic may be equipped.";return false;}feedback="Relic equipped";return true;}
         feedback="Relic slots full";return false;
     }
     public static int LevelForZone(int zoneLevel)=>Mathf.Clamp(1+Mathf.FloorToInt((zoneLevel-60)*99f/280f),1,100);
@@ -168,6 +173,11 @@ public sealed partial class RelicInventory : MonoBehaviour
             Add(playerStats,StatTypes.IgniteDmg,AilmentDamagePercent);
             Add(playerStats,StatTypes.ChanceToHitTwice,HitTwicePoints);
             Add(playerStats,StatTypes.ProjectileAmount,ProjectileBonus);
+            foreach(var relic in ActiveRelics())if(relic.uniqueRelic)foreach(var mod in relic.forgedStats)
+            {
+                if(mod.statType==StatTypes.AxePhysicalRage){Add(playerStats,StatTypes.PhysMult,mod.value);Add(playerStats,StatTypes.RageGeneration,mod.HighValue);}
+                else Add(playerStats,mod.statType,mod.hasSecondaryValue?(mod.value+mod.HighValue)*.5f:mod.value);
+            }
         }
         finally{playerStats.EndUpdate();}
     }
@@ -176,7 +186,7 @@ public sealed partial class RelicInventory : MonoBehaviour
     {
         relics=saved??new List<RelicData>();currentCycle=Mathf.Max(0,cycle);activeIndices=slots??new[]{-1,-1};NormalizeSlots();PublishChanged();
     }
-    public void ResetForNewGame()=>Restore(new List<RelicData>(),0,new[]{-1,-1,-1,-1});
+    public void ResetForNewGame(){forgeOpportunities=0;Restore(new List<RelicData>(),0,new[]{-1,-1,-1,-1});}
     public int[] CopyActiveIndices()=>(int[])activeIndices.Clone();
     public void NotifyChanged()=>PublishChanged();
     void PublishChanged(){Changed?.Invoke();FindAnyObjectByType<PlayerController>()?.NotifyRelicChanged();GamePersistence.MarkDirty();}
@@ -188,7 +198,7 @@ public static class AncientRelicCrafting
     public static int Maximum(LootManager.GearRarity rarity)=>rarity switch{LootManager.GearRarity.Normal=>1,LootManager.GearRarity.Magic=>2,LootManager.GearRarity.Rare=>4,_=>6};
     public static bool CanApply(CraftingCurrencyType currency,RelicData relic,RelicInventory inventory)
     {
-        if(inventory==null||!CurrencyInventory.IsAncient(currency)||!inventory.IsCurrentCraftable(relic))return false;
+        if(relic?.uniqueRelic==true||inventory==null||!CurrencyInventory.IsAncient(currency)||!inventory.IsCurrentCraftable(relic))return false;
         int count=relic.ModifierCount;
         return currency switch
         {
@@ -275,6 +285,7 @@ public sealed class RebirthManager : MonoBehaviour
         var relics=RelicInventory.Instance;if(relics==null)relics=gameObject.AddComponent<RelicInventory>();
         int reachedZone=GameManager.Instance!=null?GameManager.Instance.CurrentCombatLevel:RequiredZone;
         relics.BeginNewCycle(reachedZone);
+        if(reachedZone>=350)relics.AwardForgeOpportunity();
         foreach(CraftingCurrencyType type in Enum.GetValues(typeof(CraftingCurrencyType)))if(CurrencyInventory.IsAncient(type))CurrencyInventory.Instance?.Add(type);
         var player=FindAnyObjectByType<PlayerController>();
         if(player!=null){player.GetComponent<StatusController>()?.ClearStatuses();player.GetComponent<HealthComponent>()?.ReviveToFullLife();player.GetComponent<ManaComponent>()?.RestoreFull();}

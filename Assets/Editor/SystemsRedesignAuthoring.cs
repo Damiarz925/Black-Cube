@@ -57,6 +57,7 @@ public static class SystemsRedesignAuthoring
             foreach(var inventory in root.GetComponentsInChildren<InventoryUI>(true))
             {
                 var filter=inventory.GetComponent<AdvancedLootFilterUI>();filter.UpgradeAuthoring();
+                (inventory.GetComponent<UniqueRelicForgeUI>()??inventory.gameObject.AddComponent<UniqueRelicForgeUI>()).BuildAuthoring();
                 (inventory.GetComponent<RelicFusionUI>()??inventory.gameObject.AddComponent<RelicFusionUI>()).BuildAuthoring();
                 var old=inventory.GetComponent<InventoryModHighlightUI>();
                 if(old!=null)

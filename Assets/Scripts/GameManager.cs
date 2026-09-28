@@ -138,6 +138,7 @@ public class GameManager : MonoBehaviour
     public void StartNewRun()   //Starts a fresh run, at zone lvl 1, 0 enemies killed and no boss spawned, debug log for dev feedback, calls start zone passing in the currentzonelevel after resetting the state
     {
         GetComponent<PlayerProgression>().ResetProgression();
+        var player=FindAnyObjectByType<PlayerController>();player?.GetComponent<UniqueCombatRuntime>()?.ResetTransient();player?.GetComponent<RageState>()?.ResetTransient();
         currentZoneLevel = 1;
         enemiesKilledInZone = 0;
         bossSpawned = false;
@@ -170,6 +171,8 @@ public class GameManager : MonoBehaviour
         playerDeathHandled = false;
 
         enemiesToKillBeforeBoss = zoneManager.GetEnemiesToKillBeforeBoss(zoneLevel);
+        bossSpawned=EndgameGauntletRules.IsGauntlet(zoneLevel);
+        if(bossSpawned)enemiesKilledInZone=enemiesToKillBeforeBoss;
         zoneManager.zoneLevel = zoneLevel;
         zoneManager.GenerateZone();     //generate the zone, which will spawn the environment
 
@@ -182,8 +185,8 @@ public class GameManager : MonoBehaviour
         Debug.Log($"GameManager: Generating level with seed {seed}.");
 
         Debug.Log("GameManager: Spawning first enemy for this zone.");
-        GamePersistence.GenerateDeterministicEncounter(currentZoneLevel, enemiesKilledInZone, false,
-            () => BattleManager.Instance.BeginZone(zoneLevel, startWithBoss: false));
+        GamePersistence.GenerateDeterministicEncounter(currentZoneLevel, enemiesKilledInZone, bossSpawned,
+            () => BattleManager.Instance.BeginZone(zoneLevel, startWithBoss: bossSpawned));
     }
 
     public bool RestoreRunState(int zoneLevel, int completedNormalEncounters, bool bossEncounter)
@@ -192,6 +195,8 @@ public class GameManager : MonoBehaviour
         if (zoneManager == null || BattleManager.Instance == null || zoneLevel < 1 || completedNormalEncounters < 0) return false;
         int quota = zoneManager.GetEnemiesToKillBeforeBoss(zoneLevel);
         if (completedNormalEncounters > quota || (bossEncounter && completedNormalEncounters != quota)) return false;
+        // Old saves cannot reintroduce ordinary encounters into the final boss gauntlet.
+        if(EndgameGauntletRules.IsGauntlet(zoneLevel)){completedNormalEncounters=quota;bossEncounter=true;}
         currentZoneLevel = zoneLevel;
         enemiesToKillBeforeBoss = quota;
         enemiesKilledInZone = completedNormalEncounters;

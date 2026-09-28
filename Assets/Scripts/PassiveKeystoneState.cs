@@ -59,7 +59,7 @@ public sealed class PassiveKeystoneState : MonoBehaviour
     {
         if(ailment==StatusEffects.AilmentKind.Bleed&&Has(PassiveKeystone.WarriorBleed))return Value(PassiveKeystone.WarriorBleed);
         if(ailment==StatusEffects.AilmentKind.Poison&&Has(PassiveKeystone.RangerEndlessPoison))
-            return Value(PassiveKeystone.RangerEndlessPoison)*(1+Mathf.Max(0,Mathf.RoundToInt(GetComponent<StatsComponent>().GetRawStat(StatTypes.PoisonDuration)))*ClassKeystoneCatalog.Get(PassiveKeystone.RangerEndlessPoison).secondary);
+            return Value(PassiveKeystone.RangerEndlessPoison)*(1+Mathf.Max(0,GetComponent<StatsComponent>().GetStat(StatTypes.PoisonDuration))*ClassKeystoneCatalog.Get(PassiveKeystone.RangerEndlessPoison).secondary);
         return 1f;
     }
 

@@ -21,12 +21,13 @@ namespace BlackCube.BalanceWorkbench
 
     [Serializable] public sealed class GearSnapshot
     {
+        public UniqueItemData unique;
         public LootManager.GearType slot;public LootManager.GearRarity rarity,originRarity;public int itemLevel,currentPotential,maximumPotential;public Element element;public string weaponTypeId;public float baseMin,baseMax,baseSpeed,baseCrit;public List<RolledModSnapshot> mods=new();
         public string Description=>$"{rarity} {slot} L{itemLevel}"+(slot==LootManager.GearType.Weapons?$" {weaponTypeId}":"")+"\n"+string.Join("\n",mods.Select(x=>$"{x.stat} T{x.tier}: {x.value:0.##}"+(x.paired?$"–{x.high:0.##}":"")));
-        public static GearSnapshot Capture(Gear g)=>new(){slot=g.ItemType,rarity=g.ItemRarity,originRarity=g.OriginRarity,itemLevel=g.ItemLevel,currentPotential=g.CurrentCraftingPotential,maximumPotential=g.MaximumCraftingPotential,element=g.BaseElement,weaponTypeId=g.WeaponTypeId,baseMin=g.BaseDamageMin,baseMax=g.BaseDamageMax,baseSpeed=g.BaseAttackSpeed,baseCrit=g.BaseCritChance,mods=g.rolledMods.Where(x=>x!=null).Select(RolledModSnapshot.Capture).ToList()};
+        public static GearSnapshot Capture(Gear g)=>new(){unique=g.UniqueData?.Copy(),slot=g.ItemType,rarity=g.ItemRarity,originRarity=g.OriginRarity,itemLevel=g.ItemLevel,currentPotential=g.CurrentCraftingPotential,maximumPotential=g.MaximumCraftingPotential,element=g.BaseElement,weaponTypeId=g.WeaponTypeId,baseMin=g.BaseDamageMin,baseMax=g.BaseDamageMax,baseSpeed=g.BaseAttackSpeed,baseCrit=g.BaseCritChance,mods=g.rolledMods.Where(x=>x!=null).Select(RolledModSnapshot.Capture).ToList()};
         public Gear Materialize(Transform parent,string name)
         {
-            var go=new GameObject(name){hideFlags=HideFlags.HideAndDontSave};go.transform.SetParent(parent);var g=go.AddComponent<Gear>();g.Initialize(slot,rarity,itemLevel,element,weaponTypeId);g.ApplyMods(mods.Select(x=>x.Restore()).ToList());if(maximumPotential>0)g.RestoreCraftingState(originRarity,currentPotential,maximumPotential);g.BaseDamageMin=baseMin;g.BaseDamageMax=baseMax;g.BaseDamage=(baseMin+baseMax)*.5f;g.BaseAttackSpeed=baseSpeed;g.BaseCritChance=baseCrit;return g;
+            var go=new GameObject(name){hideFlags=HideFlags.HideAndDontSave};go.transform.SetParent(parent);var g=go.AddComponent<Gear>();g.Initialize(slot,rarity,itemLevel,element,weaponTypeId);g.ApplyMods(mods.Select(x=>x.Restore()).ToList());g.RestoreUnique(unique);if(maximumPotential>0)g.RestoreCraftingState(originRarity,currentPotential,maximumPotential);g.BaseDamageMin=baseMin;g.BaseDamageMax=baseMax;g.BaseDamage=(baseMin+baseMax)*.5f;g.BaseAttackSpeed=baseSpeed;g.BaseCritChance=baseCrit;return g;
         }
     }
 
@@ -34,6 +35,7 @@ namespace BlackCube.BalanceWorkbench
     {
         public int playerLevel=50,combatLevel=50;public string classId=PlayerClassIds.Warrior,subclassId="",weaponTypeId=WeaponTypeIds.Sword;public SubclassProjectileMode projectileMode;
         public List<string> selectedClassRoutes=new();public string selectedWeaponTreeId="";
+        public List<RelicData> activeRelics=new();
         public List<GearSnapshot> equipment=new();public List<string> passiveStableIds=new();public List<AnalysisStatDelta> analysisDeltas=new();public long seed=41001;public string dataFingerprint,gearProfileGuid;public int gearProfileVersion;
         public PlayerBuildSnapshot Clone()=>JsonUtility.FromJson<PlayerBuildSnapshot>(JsonUtility.ToJson(this));
         public int[] AllocationRanks(){var r=new int[PassiveTreeDefinition.NodeCount];foreach(string id in passiveStableIds??new())if(PassiveTreeDefinition.TryNode(id,out var n))r[n.Id]=1;return r;}
@@ -78,13 +80,14 @@ namespace BlackCube.BalanceWorkbench
             foreach(var definition in definitions)
                 if(definition!=null&&!skillDefinitions.ContainsKey(definition.id))
                     skillDefinitions.Add(definition.id,definition);
-            root=new GameObject("Balance Workbench Player"){hideFlags=HideFlags.HideAndDontSave};Stats=root.AddComponent<StatsComponent>();root.AddComponent<PlayerStatSetup>();PlayerStatSetup.ApplyBaseline(Stats);Health=root.AddComponent<HealthComponent>();Health.ConfigureIsolatedStats(Stats);Mana=root.AddComponent<ManaComponent>();Mana.ConfigureIsolatedStats(Stats);Player=root.AddComponent<PlayerController>();Player.ConfigureIsolatedBuildLevel(build.playerLevel);
+            root=new GameObject("Balance Workbench Player"){hideFlags=HideFlags.HideAndDontSave};Stats=root.AddComponent<StatsComponent>();var uniqueState=root.AddComponent<UniqueLoadoutState>();foreach(var item in build.equipment??new())if(!string.IsNullOrWhiteSpace(item.unique?.definitionId))uniqueState.powers.AddRange(item.unique.powers.Select(x=>x.Copy()));foreach(var relic in build.activeRelics??new())if(relic.uniqueRelic)uniqueState.powers.AddRange(relic.forgedPowers.Select(x=>x.Copy()));root.AddComponent<PlayerStatSetup>();PlayerStatSetup.ApplyBaseline(Stats);Health=root.AddComponent<HealthComponent>();Health.ConfigureIsolatedStats(Stats);Mana=root.AddComponent<ManaComponent>();Mana.ConfigureIsolatedStats(Stats);Player=root.AddComponent<PlayerController>();Player.ConfigureIsolatedBuildLevel(build.playerLevel);
             Stats.BeginUpdate();try
             {
                 Stats.AddModifier(new StatModifier(StatTypes.Life,StatOp.Flat,PlayerProgression.LevelLifeBonus(build.playerLevel),this));
                 int[] ranks=build.AllocationRanks();foreach(var node in PassiveTreeDefinition.Nodes)if(ranks[node.Id]!=0&&(string.IsNullOrEmpty(node.WeaponTypeRestriction)||node.WeaponTypeRestriction==build.weaponTypeId))
                 {var effects=node.IsSubclassChoice?PassiveTreeDefinition.SubclassEffects(build.subclassId,node):node.Effects;foreach(var e in effects)Stats.AddModifier(new StatModifier(e.Stat,StatOp.Flat,e.Amount,this));}
                 SubclassStatPackage.Apply(build.subclassId,(s,v)=>Stats.AddModifier(new StatModifier(s,StatOp.Flat,v,this)));
+                RelicLoadoutRules.ApplyStats(build.activeRelics,Stats,this);
                 foreach(var delta in build.analysisDeltas??new())Stats.AddModifier(new StatModifier(delta.stat,StatOp.Flat,delta.amount,this));
                 foreach(var snapshot in build.equipment??new()){var g=snapshot.Materialize(root.transform,"Workbench "+snapshot.slot);gear.Add(g);foreach(var m in g.globalRolledMods)Stats.AddModifier(new StatModifier(m.statType,StatMappings.GetRolledModifierOperation(m.statType),m.value,g));if(g.ItemType==LootManager.GearType.Weapons)Player.EquipWeapon(g);}
             }finally{Stats.EndUpdate();}
@@ -107,16 +110,17 @@ namespace BlackCube.BalanceWorkbench
                 {var effects=node.IsSubclassChoice?PassiveTreeDefinition.SubclassEffects(build.subclassId,node):node.Effects;foreach(var e in effects)Stats.AddModifier(new StatModifier(e.Stat,StatOp.Flat,e.Amount,this));}
                 SubclassStatPackage.Apply(build.subclassId,(s,v)=>Stats.AddModifier(new StatModifier(s,StatOp.Flat,v,this)));
                 foreach(var delta in build.analysisDeltas??new())Stats.AddModifier(new StatModifier(delta.stat,StatOp.Flat,delta.amount,this));
+                RelicLoadoutRules.ApplyStats(build.activeRelics,Stats,this);
             }finally{Stats.EndUpdate();}
             return Capture(build);
         }
         PlayerBuildMetrics Capture(PlayerBuildSnapshot b)
         {
             var keys=Stats.GetComponent<PassiveKeystoneState>();
-            DamageContext SearchHit(DamageContext source) => CharacterDamageEstimate.SearchHit(source,Stats);
-            var m=new PlayerBuildMetrics();var avg=SearchHit(Player.BuildNonCriticalAttackContext());var lo=SearchHit(Player.BuildNonCriticalAttackContextAtRangeEnd(false));var hi=SearchHit(Player.BuildNonCriticalAttackContextAtRangeEnd(true));m.averageHit=Sum(avg);m.minimumHit=Sum(lo);m.maximumHit=Sum(hi);m.attacksPerSecond=Player.GetFinalAttackSpeed();m.critChance=Player.GetFinalCritChance();m.critMultiplier=CombatCalculator.BaseCriticalMultiplier+Stats.GetStat(StatTypes.CritMult);m.critContribution=m.averageHit*m.critChance*(m.critMultiplier-1);m.hitTwiceChance=GenericPassiveMechanics.SupportsMultistrike(b.weaponTypeId)?Mathf.Clamp01(Stats.GetStat(StatTypes.ChanceToHitTwice)):0;double repeatFactor=keys?.Has(PassiveKeystone.WarriorConsolidation)==true?1.05:1;m.hitTwiceContribution=(m.averageHit+m.critContribution)*m.hitTwiceChance*repeatFactor;m.basicDps=(m.averageHit+m.critContribution+m.hitTwiceContribution)*m.attacksPerSecond;
+            DamageContext SearchHit(DamageContext source){for(int i=0;i<source.Hits.Count;i++){var hit=source.Hits[i];hit.Amount*=RelicLoadoutRules.Product(b.activeRelics,RelicModifierType.MoreDamage);source.Hits[i]=hit;}return CharacterDamageEstimate.SearchHit(source,Stats);}
+            var m=new PlayerBuildMetrics();var avg=SearchHit(Player.BuildNonCriticalAttackContext());var lo=SearchHit(Player.BuildNonCriticalAttackContextAtRangeEnd(false));var hi=SearchHit(Player.BuildNonCriticalAttackContextAtRangeEnd(true));m.averageHit=Sum(avg);m.minimumHit=Sum(lo);m.maximumHit=Sum(hi);m.attacksPerSecond=Player.GetFinalAttackSpeed()*RelicLoadoutRules.Product(b.activeRelics,RelicModifierType.MoreAttackSpeed);m.critChance=Player.GetFinalCritChance();m.critMultiplier=CombatCalculator.BaseCriticalMultiplier+Stats.GetStat(StatTypes.CritMult);m.critContribution=m.averageHit*m.critChance*(m.critMultiplier-1);m.hitTwiceChance=GenericPassiveMechanics.SupportsMultistrike(b.weaponTypeId)?Mathf.Clamp01(Stats.GetStat(StatTypes.ChanceToHitTwice)):0;double repeatFactor=(keys?.Has(PassiveKeystone.WarriorConsolidation)==true?1.10:1)*(1+UniqueCatalog.Power(Stats,UniquePower.MultistrikeDamage));m.hitTwiceContribution=(m.averageHit+m.critContribution)*m.hitTwiceChance*repeatFactor;m.basicDps=(m.averageHit+m.critContribution+m.hitTwiceContribution)*m.attacksPerSecond;
             var weapon=gear.FirstOrDefault(x=>x.ItemType==LootManager.GearType.Weapons);m.baseWeaponAverage=weapon?.GetEffectiveBaseDamage()??0;m.weaponAttributeIncreased=Player.WeaponAttributeDamageBonus;m.playerLevelIncreased=Player.LevelDamageBonus;m.genericIncreased=Stats.GetStat(StatTypes.GenericDmg);m.physicalIncreased=Stats.GetStat(StatTypes.PhysDmg);m.genericMore=Stats.GetStat(StatTypes.GenericMult);m.physicalMore=Stats.GetStat(StatTypes.PhysMult);
-            foreach(var h in avg.Hits){double expected=h.Amount*(1+m.critChance*(m.critMultiplier-1))*(1+m.hitTwiceChance*(keys?.Has(PassiveKeystone.WarriorConsolidation)==true?1.05:1))*m.attacksPerSecond;switch(h.Element){case Element.Phys:m.physicalOutput+=expected;break;case Element.Fire:m.fireOutput+=expected;break;case Element.Cold:m.coldOutput+=expected;break;case Element.Light:m.lightningOutput+=expected;break;case Element.Void:case Element.Poison:m.voidOutput+=expected;break;}}
+            foreach(var h in avg.Hits){double expected=h.Amount*(1+m.critChance*(m.critMultiplier-1))*(1+m.hitTwiceChance*repeatFactor)*m.attacksPerSecond;switch(h.Element){case Element.Phys:m.physicalOutput+=expected;break;case Element.Fire:m.fireOutput+=expected;break;case Element.Cold:m.coldOutput+=expected;break;case Element.Light:m.lightningOutput+=expected;break;case Element.Void:case Element.Poison:m.voidOutput+=expected;break;}}
             m.projectileCount=BattleManager.CalculateProjectileCount(Stats.GetRawStat(StatTypes.ProjectileAmount),0);m.projectileTravelTime=WeaponMechanicProfile.ProjectileTravelTime(Stats.GetStat(StatTypes.ProjectileSpeed));m.precisionChance=WeaponMechanicProfile.PrecisionChance(Stats.GetStat(StatTypes.ProjectilePrecisionChance));m.precisionMultiplier=WeaponMechanicProfile.PrecisionMultiplier(Stats.GetStat(StatTypes.ProjectilePrecisionMultiplier));m.cooldownReduction=Stats.GetStat(StatTypes.CooldownReduction);
             if(b.weaponTypeId==WeaponTypeIds.Bow)
             {
@@ -220,8 +224,7 @@ namespace BlackCube.BalanceWorkbench
                 if(s.effect==WeaponSkillEffect.VirtualPoison)
                 {
                     use=m.poisonMagnitude*Math.Max(1,s.ailmentBasisMultiplier)*hits*Math.Max(1,s.guaranteedAilmentApplications)*
-                        Math.Max(1,4+Mathf.RoundToInt(Stats.GetRawStat(StatTypes.PoisonDuration)))/4.0*
-                        (1+Math.Max(0,Stats.GetStat(StatTypes.PoisonSpeed)));
+                        CharacterDamageEstimate.AilmentDurationFactor(Stats,Element.Void);
                     m.assumptions.Add("Venom Shot search value is its virtual Poison basis over full duration; exact stack timing and Void mitigation are Combat Lab-only.");
                 }
                 double cd=s.castMode==PlayerSkillCastMode.QueuedAttackReplacement?0:Math.Max(PlayerSkillController.MinimumAutoCooldown,s.baseCooldown/(1+Math.Max(0,m.cooldownReduction)));

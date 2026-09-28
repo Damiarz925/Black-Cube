@@ -105,6 +105,7 @@ public static class CombatCalculator
         }
         if(defender!=null&&defender.GetComponent<StatusController>()?.IsFractured==true)
             damage*=ClassKeystoneCatalog.Get(PassiveKeystone.PriestFracture).secondary;
+        if(resolved==Element.Fire&&defender?.GetComponent<EnemyAI>()!=null)damage*=attacker?.GetComponent<UniqueCombatRuntime>()?.FireTakenMultiplier??1;
         return resolved == Element.Phys
             ? ApplyArmourAndPenetration(damage, attacker, defender)
             : ApplyResistancesAndPenetration(damage, resolved, attacker, defender);
@@ -191,6 +192,8 @@ public static class CombatCalculator
         if(keys?.Has(PassiveKeystone.ThiefOpener)==true)
         {var health=defender.GetComponent<HealthComponent>();if(health!=null)baseTickDamage*=ClassKeystoneMechanics.TargetLifeMultiplier(health.CurrentLife>=health.MaxLife);}
 
+        if(effect.Ailment==StatusEffects.AilmentKind.Ignite)
+            baseTickDamage*=UniqueCombatRuntime.For(attacker)?.FireTakenMultiplier??1;
         return effect.Ailment switch
         {
             StatusEffects.AilmentKind.Bleed => ApplyArmourAndPenetration(baseTickDamage, attacker, defender),

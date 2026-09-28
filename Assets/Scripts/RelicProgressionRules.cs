@@ -77,7 +77,7 @@ public sealed partial class RelicInventory
     {
         result=null;if(inputs==null||inputs.Count!=5||inputs.Any(r=>r==null)||inputs.Distinct().Count()!=5)return false;
         var rarity=inputs[0].rarity;
-        if(rarity>=LootManager.GearRarity.Legendary||inputs.Any(r=>!relics.Contains(r)||r.rarity!=rarity||!r.Pristine))return false;
+        if(rarity>=LootManager.GearRarity.Legendary||inputs.Any(r=>!relics.Contains(r)||r.uniqueRelic||r.rarity!=rarity||!r.Pristine))return false;
         // Generate before changing ownership; invalid recipes never partially consume materials.
         result=RelicProgressionRules.Generate((LootManager.GearRarity)((int)rarity+1),Mathf.RoundToInt((float)inputs.Average(r=>r.relicLevel)),Mathf.Max(1,currentCycle));
         var active=new RelicData[ActiveSlotCount];for(int i=0;i<active.Length;i++)active[i]=Active(i);

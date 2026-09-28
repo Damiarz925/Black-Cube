@@ -13,6 +13,7 @@ public class EquipmentManager : MonoBehaviour
 
     private readonly Dictionary<LootManager.GearType, Gear> equipped = new(); //Dictionary. Key is GearType enum, Value is Gear object
     public event System.Action EquipmentChanged;
+    public StatsComponent PlayerStats=>playerStats;
     public IReadOnlyDictionary<LootManager.GearType, Gear> EquippedItems => equipped;
     public Gear GetEquipped(LootManager.GearType type) => equipped.TryGetValue(type, out var gear) ? gear : null;
 

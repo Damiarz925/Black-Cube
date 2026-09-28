@@ -32,7 +32,7 @@ public static class AilmentCalculator
             return;
 
         //Calculate the base ailment damage by multiplying source hit by the effect's set magnitude
-        float baseAilmentDamage = sourceHitDamage * (magnitudeOverride >= 0f ? magnitudeOverride : effect.Magnitude);
+        float baseAilmentDamage = sourceHitDamage * (magnitudeOverride >= 0f ? magnitudeOverride : (AilmentTimingRules.IsDamaging(effect.Ailment)?AilmentTimingRules.Coefficient(effect.Ailment):effect.Magnitude));
 
         //Define variable for total increased damage
         float incTotal = 0f;
@@ -90,68 +90,19 @@ public static class AilmentCalculator
 
         // Each more stat compounds its own rolls. Multiply DOT and matching ailment
         // factors only: hit increased/more scaling is already in the source hit.
-        float totalAilmentDamage = baseAilmentDamage * (1f + incTotal) * moreFactor;
+        float totalAilmentDamage = baseAilmentDamage * (1f + incTotal) * moreFactor * UniqueCatalog.AilmentMultiplier(attacker);
         var keystones = attacker.GetComponent<PassiveKeystoneState>();
         if (keystones != null) totalAilmentDamage *= keystones.AilmentDamageMultiplier(effect.Ailment);
 
-        // 5)Grab the base tick duration of the ailment
-        int baseTicks = effect.Ailment switch
+        if(AilmentTimingRules.IsDamaging(effect.Ailment))
         {
-            StatusEffects.AilmentKind.Poison=>4,
-            StatusEffects.AilmentKind.Bleed=>5,
-            StatusEffects.AilmentKind.Ignite=>2,
-            _=>Mathf.Max(1,effect.TickDuration)
-        };
-        int extraTicks = 0;
-
-        //Grab the attacker's duration stat for the ailment
-        switch (effect.Ailment)
-        {
-            case StatusEffects.AilmentKind.Poison:
-                extraTicks += Mathf.RoundToInt(attacker.GetRawStat(StatTypes.PoisonDuration));
-                break;
-            case StatusEffects.AilmentKind.Bleed:
-                extraTicks += Mathf.RoundToInt(attacker.GetRawStat(StatTypes.BleedDuration));
-                break;
-            case StatusEffects.AilmentKind.Ignite:
-                extraTicks += Mathf.RoundToInt(attacker.GetRawStat(StatTypes.IgniteDuration));
-                break;
+            AilmentTimingRules.Timing(effect.Ailment,attacker,out float duration,out float interval);
+            tickCount=AilmentTimingRules.TickCount(duration,interval);
+            damagePerTick=totalAilmentDamage/AilmentTimingRules.BaseTicks(effect.Ailment);
+            effectiveInterval=1; // Legacy signature retained; real-time scheduling owns fractional seconds.
         }
+        else {tickCount=Mathf.Max(1,effect.TickDuration);damagePerTick=totalAilmentDamage/tickCount;effectiveInterval=effect.BaseTurnInterval;}
 
-        //Set the tick count to the largest number between 1 and baseTicks + extraTicks
-        tickCount = Mathf.Max(1, baseTicks + extraTicks);
-        if(effect.Ailment==StatusEffects.AilmentKind.Ignite&&attacker.GetComponent<PlayerController>()!=null&&BossSpecialEffectRuntime.PlayerHas("rapid-burn"))tickCount=Mathf.Max(1,Mathf.RoundToInt(tickCount*.9f));
-        if(effect.Ailment==StatusEffects.AilmentKind.Ignite)
-        {
-            var light=attacker.GetComponent<SubclassCombatState>();
-            tickCount+=light?.AuraIgniteTicks??0;
-        }
-
-        // Preserve the configured base-duration coefficient. Extra duration adds
-        // equally strong ticks; it must not dilute or multiply individual ticks.
-        damagePerTick = totalAilmentDamage / baseTicks;
-
-        //Set base interval to the effects base turn interval (how many turns between the effect applying)
-        int baseInterval = effect.Ailment is StatusEffects.AilmentKind.Poison or StatusEffects.AilmentKind.Bleed or StatusEffects.AilmentKind.Ignite
-            ? 2 : effect.BaseTurnInterval;
-        int tickRateFlat = 0;
-
-        //Grab the attacker's tick rate modifier and add it to tickrateflat
-        switch (effect.Ailment)
-        {
-            case StatusEffects.AilmentKind.Poison:
-                tickRateFlat += Mathf.RoundToInt(attacker.GetRawStat(StatTypes.PoisonTickRate));
-                break;
-            case StatusEffects.AilmentKind.Bleed:
-                tickRateFlat += Mathf.RoundToInt(attacker.GetRawStat(StatTypes.BleedTickRate));
-                break;
-            case StatusEffects.AilmentKind.Ignite:
-                tickRateFlat += Mathf.RoundToInt(attacker.GetRawStat(StatTypes.IgniteTickRate));
-                break;
-        }
-
-        //Calculate effective interval as base interval - tickrateflat. As in, a positive interval is multiple turns between application, 0 would be every turn and a negative number would be multiple per turn.
-        effectiveInterval = baseInterval - tickRateFlat;
     }
 
     /// <summary>

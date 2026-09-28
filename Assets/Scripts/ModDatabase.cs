@@ -48,20 +48,20 @@ public class ModDatabase : ScriptableObject
     public AffixDefinitions GetDefinition(StatTypes stat)
     {
         Initialize();   //Call initialize
-        return lookupByEnum.TryGetValue(stat, out var def) ? def : null;    //use lookupbyenum to try to get the value for the passed in stat, if it isn't found, return null
+        return lookupByEnum.TryGetValue(stat, out var def) && (stat!=StatTypes.CullingStrikeChance||def.tiers.Count>0) ? def : SystemsAffixProfile.Definition(stat);    //use lookupbyenum to try to get the value for the passed in stat, if it isn't found, return null
     }
 
     public bool TryGetDefinition(StatTypes stat, out AffixDefinitions def)
     {
         Initialize();   //Call initialize
-        return lookupByEnum.TryGetValue(stat, out def); //use lookupbyenum to try to get the definition, and store it back in def
+        def=GetDefinition(stat);return def!=null; //use lookupbyenum to try to get the definition, and store it back in def
     }
 
     public AffixDefinitions GetDefinition(int statId)
     {
         Initialize();   //Call initialize
         if (statId < 0 || statId >= lookupById.Length) return null; //If statID is less than 0, or statID is greater than or equal to lookupbyID's length, return null, otherwise return lookupbyID at the passed in int (statID)
-        return lookupById[statId];
+        return GetDefinition((StatTypes)statId);
     }
 
 #if UNITY_EDITOR

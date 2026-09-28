@@ -122,6 +122,7 @@ public sealed class AdvancedLootFilterUI : MonoBehaviour
     public void UpgradeAuthoring()
     {
         if(panel==null)BuildAuthoring();
+        if(rarities.Count<5){rarities.Add(MakeButton(panel.transform,"KEEP UNIQUE",new(.8f,.84f),new(.98f,.90f)));for(int i=0;i<rarities.Count;i++)Place((RectTransform)rarities[i].transform,new(.02f+i*.192f,.84f),new(.20f+i*.192f,.90f));}
         if(legacyRules==null)legacyRules=MakeButton(panel.transform,"CLEAR SAVED LEGACY RULES",new(.02f,.405f),new(.98f,.45f));
         var existingViewport=panel.transform.Find("Legal modifier viewport") as RectTransform;
         if(existingViewport!=null)Place(existingViewport,new(.02f,.02f),new(.98f,.40f));

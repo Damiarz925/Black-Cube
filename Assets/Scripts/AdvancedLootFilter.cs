@@ -39,9 +39,10 @@ using UnityEngine;
 [Serializable] public sealed class AdvancedLootFilter
 {
     const string Key = "BlackCube.AdvancedLootFilter.V1";
+    public int version;
     public bool enabled;
     public bool autoDismantleFilteredItems=true;
-    public int keptRarities = 15, keptElements = 47, keptWeapons = 63;
+    public int keptRarities = 31, keptElements = 47, keptWeapons = 63;
     public List<ItemTypeLootFilter> itemTypes = new();
     public static readonly string[] Weapons = {WeaponTypeIds.Sword,WeaponTypeIds.TwoHandedAxe,WeaponTypeIds.Bow,WeaponTypeIds.Staff,WeaponTypeIds.Sceptre,WeaponTypeIds.Dagger};
     public ItemTypeLootFilter For(LootManager.GearType type, string weapon = null)
@@ -54,7 +55,8 @@ using UnityEngine;
     public bool Keeps(Gear item)
     {
         if (item == null || item.IsScrap || item.IsLocked || !enabled) return true;
-        if ((keptRarities & (1 << (int)item.ItemRarity)) == 0) return false;
+                if ((keptRarities & (1 << (int)item.ItemRarity)) == 0) return false;
+        if(item.ItemRarity==LootManager.GearRarity.Unique)return true; // Unique rarity is decisive; ordinary prefix/suffix rules do not apply.
         if (item.ItemType == LootManager.GearType.Weapons)
         {
             int weapon = Array.IndexOf(Weapons,item.WeaponTypeId);
@@ -70,10 +72,10 @@ using UnityEngine;
             && (db == null || ModManager.ApplicableTiers(db.GetDefinition(s),type,weapon).Count > 0))
             .Distinct().OrderBy(StatDisplayFormatting.ToFriendlyName).ToArray();
     }
-    public void Save() { PlayerPrefs.SetString(Key,JsonUtility.ToJson(this));PlayerPrefs.Save(); }
+    public void Save() { version=2;PlayerPrefs.SetString(Key,JsonUtility.ToJson(this));PlayerPrefs.Save(); }
     public static AdvancedLootFilter Load()
     {
-        try { return PlayerPrefs.HasKey(Key) ? JsonUtility.FromJson<AdvancedLootFilter>(PlayerPrefs.GetString(Key)) ?? new() : new(); }
+        try { var result=PlayerPrefs.HasKey(Key)?JsonUtility.FromJson<AdvancedLootFilter>(PlayerPrefs.GetString(Key))??new():new();if(result.version<2){result.keptRarities|=16;result.version=2;}return result; }
         catch (Exception) { return new(); }
     }
 }
