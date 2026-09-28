@@ -1,6 +1,6 @@
 # Systems redesign: regression checkpoint
 
-This is a partial implementation checkpoint, not completion of the major systems/content brief.
+Historical checkpoint. The completed implementation and current validation are documented in [SYSTEMS_REDESIGN_HANDOFF.md](SYSTEMS_REDESIGN_HANDOFF.md).
 
 User-authored UI changes are preserved in commit `2cf3efc6`.
 
@@ -37,6 +37,6 @@ Native visual/manual gameplay validation has not been performed.
 7. Hover an inventory item: the DPS comparison should appear in the tooltip's upper-right area, never on the grid icon. T1 modifier lines should be gold without recoloring the whole card.
 8. After a death involving a critical hit or damaging ailment, inspect the recap. It should retain five events, mark Crit/Ailment where applicable and leave the killing event last.
 
-## Still outstanding
+## Superseded
 
-Starting weapons and selection, expanded Relic pool/eight slots/save migration/fusion/Item Return, Rebirth rewards, Relic skill triggers, real-time ailment redesign, Rage redesign, production Unique items and their shared runtime/headless consumers, level-350 Unique Relic forge, and lightweight developer tools. The final authoritative tables and complete handoff depend on those systems being implemented and validated.
+The formerly outstanding systems are implemented in the final handoff. This document retains the earlier checkpoint evidence; use the final handoff for current formulas, tables and validation.

@@ -1,0 +1,90 @@
+# Systems redesign file manifest
+
+Implementation commit: 498b6932b055f3ce5394a8552cf4d6527e79cf99. These are task-owned additions/edits; the pre-existing ModDatabase.asset edit is excluded.
+
+- Assets/Editor/BalanceWorkbenchCombatTools.cs
+- Assets/Editor/BalanceWorkbenchPlayerBuild.cs
+- Assets/Editor/SystemsRedesignAuthoring.cs
+- Assets/Prefabs/PaperBattle/PaperBattle.prefab
+- Assets/Prefabs/UI/InventoryPanel.prefab
+- Assets/Resources/GameData/PassiveTree/SO_ClassKeystoneTuning.asset
+- Assets/Scripts/AdvancedLootFilter.cs
+- Assets/Scripts/AdvancedLootFilterUI.cs
+- Assets/Scripts/AffixPolicy.cs
+- Assets/Scripts/AilmentCalculator.cs
+- Assets/Scripts/BattleManager.cs
+- Assets/Scripts/BossSpecialEffectRuntime.cs
+- Assets/Scripts/CharacterDamageEstimate.cs
+- Assets/Scripts/ClassKeystoneCatalog.cs
+- Assets/Scripts/ClassKeystoneMechanics.cs
+- Assets/Scripts/CombatCalculator.cs
+- Assets/Scripts/CombatSimulationCore.cs
+- Assets/Scripts/CraftingCurrencySystem.cs
+- Assets/Scripts/DamageReceiver.cs
+- Assets/Scripts/EndgameItemization.cs
+- Assets/Scripts/EnemyAI.cs
+- Assets/Scripts/EnemyRewardDrops.cs
+- Assets/Scripts/EquipmentManager.cs
+- Assets/Scripts/GameManager.cs
+- Assets/Scripts/GamePersistence.cs
+- Assets/Scripts/Gear.cs
+- Assets/Scripts/GearStatLists.cs
+- Assets/Scripts/GenericPassiveMechanics.cs
+- Assets/Scripts/HealthComponent.cs
+- Assets/Scripts/ItemSlotUI.cs
+- Assets/Scripts/ItemTooltipUI.cs
+- Assets/Scripts/LootManager.cs
+- Assets/Scripts/ModDatabase.cs
+- Assets/Scripts/ModManager.cs
+- Assets/Scripts/PassiveKeystoneState.cs
+- Assets/Scripts/PlayerController.cs
+- Assets/Scripts/PlayerProgression.cs
+- Assets/Scripts/PlayerSkillController.cs
+- Assets/Scripts/RelicProgressionRules.cs
+- Assets/Scripts/RelicSystem.cs
+- Assets/Scripts/StatDisplayFormatting.cs
+- Assets/Scripts/StatTypes.cs
+- Assets/Scripts/StatsComponent.cs
+- Assets/Scripts/StatusController.Display.cs
+- Assets/Scripts/StatusController.cs
+- Assets/Scripts/StatusInstance.cs
+- Assets/Scripts/SubclassCombatState.cs
+- Assets/Scripts/SubclassSystems.cs
+- Assets/Scripts/WeaponMechanics.cs
+- Assets/Tests/Editor/AilmentFoundationTests.cs
+- Assets/Tests/Editor/ClassKeystoneCombatTests.cs
+- Assets/Tests/Editor/PlaytestFollowUpTests.cs
+- Assets/Tests/Editor/RelicRedesignTests.cs
+- Assets/Tests/Editor/Step20EndgameItemizationTests.cs
+- Assets/Editor/SystemsRedesignDevTools.cs
+- Assets/Editor/SystemsRedesignDevTools.cs.meta
+- Assets/Editor/SystemsRedesignPlayCheck.cs
+- Assets/Editor/SystemsRedesignPlayCheck.cs.meta
+- Assets/Scripts/AilmentTimingRules.cs
+- Assets/Scripts/AilmentTimingRules.cs.meta
+- Assets/Scripts/CullingRules.cs
+- Assets/Scripts/CullingRules.cs.meta
+- Assets/Scripts/DevelopmentOverrides.cs
+- Assets/Scripts/DevelopmentOverrides.cs.meta
+- Assets/Scripts/RelicLoadoutRules.cs
+- Assets/Scripts/RelicLoadoutRules.cs.meta
+- Assets/Scripts/SystemsAffixProfile.cs
+- Assets/Scripts/SystemsAffixProfile.cs.meta
+- Assets/Scripts/UniqueCombatRuntime.cs
+- Assets/Scripts/UniqueCombatRuntime.cs.meta
+- Assets/Scripts/UniqueItems.cs
+- Assets/Scripts/UniqueItems.cs.meta
+- Assets/Scripts/UniqueLoadoutState.cs
+- Assets/Scripts/UniqueLoadoutState.cs.meta
+- Assets/Scripts/UniqueRelicForge.cs
+- Assets/Scripts/UniqueRelicForge.cs.meta
+- Assets/Scripts/UniqueRelicForgeUI.cs
+- Assets/Scripts/UniqueRelicForgeUI.cs.meta
+- Assets/Tests/Editor/CombatRedesignTests.cs
+- Assets/Tests/Editor/CombatRedesignTests.cs.meta
+- Assets/Tests/Editor/UniqueRedesignTests.cs
+- Assets/Tests/Editor/UniqueRedesignTests.cs.meta
+
+Documentation: Docs/SYSTEMS_REDESIGN_HANDOFF.md, Docs/SYSTEMS_REDESIGN_CHECKPOINT.md, this manifest.
+
+Ignored build output: Builds/SystemsRedesignWindows/. Validation logs/results: Logs/. Neither is included in the implementation commit.
