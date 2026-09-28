@@ -100,6 +100,9 @@ public class InventoryUI : MonoBehaviour
         go.GetComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
         contentParent = rect;
         if (scroll != null) { scroll.content = rect; scroll.horizontal = false; scroll.scrollSensitivity = 35; scroll.onValueChanged.AddListener(_ => Tooltip?.Hide()); }
+#if UNITY_EDITOR
+        if (scroll != null) UnityEditor.EditorUtility.SetDirty(scroll);
+#endif
         old.gameObject.SetActive(false);
 #if UNITY_EDITOR
         if (!Application.isPlaying) DestroyImmediate(old.gameObject); else Destroy(old.gameObject);
@@ -113,7 +116,8 @@ public class InventoryUI : MonoBehaviour
     {
         if (contentParent == null) return;
         var grid = contentParent.GetComponent<GridLayoutGroup>();
-        if (grid != null) { grid.constraintCount = GridColumnCount; ConfigureGridMetrics(); }
+        // Grid cell size, spacing and column count belong to the authored layout.
+        // Runtime population must not undo manual Editor adjustments each frame.
         int stage = CurrentCorruptionStage();
         if (stage != displayedCorruptionStage) RefreshAreaCorruptionBorders(stage);
     }

@@ -7,6 +7,7 @@ using UnityEngine;
 public class PaperEnemyAnimationSet : ScriptableObject
 {
     public string displayName;
+    public bool playHitReaction = true;
     public Sprite[] idleFrames;
     [Min(0.1f)] public float idleFramesPerSecond = 2f;
     // Exactly eight drawings in cycle order. Index 3 is the damage impact.

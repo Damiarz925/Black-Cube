@@ -21,9 +21,8 @@ public static class ClassPassiveProgressionRules
     {
         if(values==null||values.Length!=PassiveTreeDefinition.NodeCount||!PlayerClassCatalog.IsValid(home)||!ValidSelections(home,routes,weapon))return false;
         bool A(int id)=>id>=0&&id<values.Length&&values[id]==1;
-        bool complete=ClassComplete(home,A);
-        if((routes.Count>0||!string.IsNullOrEmpty(weapon))&&!complete)return false;
-        for(int i=0;i<routes.Count-1;i++)if(!PassiveTreeDefinition.IsClassSpineComplete(routes[i],A))return false;
+        // Selected routes are persistent unlocks. Their original unlock prerequisites
+        // are checked on selection, not required again after a legitimate refund.
         foreach(var n in PassiveTreeDefinition.Nodes)
         {
             if(values[n.Id] is not (0 or 1))return false;if(!A(n.Id))continue;
@@ -37,7 +36,7 @@ public static class ClassPassiveProgressionRules
                 if(PassiveTreeDefinition.ChoiceNodes(n.ChoiceGroupId).Count(A)!=1)return false;
             }
             else if(n.Kind==PassiveNodeKind.Spine){if(n.Tier>1&&!A(PassiveTreeDefinition.ClassSpineNode(n.RouteClassId,n.Tier-1)))return false;}
-            else if(n.Kind==PassiveNodeKind.WeaponSpine){if(!complete||n.Tier>1&&!A(PassiveTreeDefinition.WeaponSpineNode(n.RouteWeaponId,n.Tier-1)))return false;}
+            else if(n.Kind==PassiveNodeKind.WeaponSpine){if(n.Tier>1&&!A(PassiveTreeDefinition.WeaponSpineNode(n.RouteWeaponId,n.Tier-1)))return false;}
             else return false;
         }
         return true;

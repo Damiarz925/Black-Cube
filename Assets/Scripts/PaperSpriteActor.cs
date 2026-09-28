@@ -262,6 +262,7 @@ public class PaperSpriteActor : MonoBehaviour
     }
     public void PlayHitReaction()
     {
+        if(enemyAnimationSet!=null&&!enemyAnimationSet.playHitReaction)return;
         if (!HasHitFrames || body == null || health == null || health.CurrentLife <= 0f) return;
         if (IsHitReacting)
         {

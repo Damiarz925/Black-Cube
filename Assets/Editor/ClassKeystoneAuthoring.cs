@@ -122,6 +122,7 @@ public static class ClassKeystoneAuthoring
         if(navigation.chooseWeapon==null)navigation.chooseWeapon=Button(view.transform,"Choose Weapon","CHOOSE WEAPON TREE",new Vector2(0,-420));
         if(navigation.back==null)navigation.back=Button(view.transform,"Weapon Back","BACK TO CLASS TREES",new Vector2(280,-420));
         navigation.hub=view.playerHub.GetComponent<Button>()??view.playerHub.gameObject.AddComponent<Button>();
+        if(view.playerHub.TryGetComponent<Image>(out var hubImage))hubImage.raycastTarget=true;
         if(navigation.selectionRoot==null){var rect=Rect("Route Selection",view.transform,typeof(Image));rect.sizeDelta=new Vector2(760,480);rect.GetComponent<Image>().color=new Color(.04f,.07f,.09f,.98f);navigation.selectionRoot=rect.gameObject;var text=Rect("Warning",rect,typeof(TextMeshProUGUI));text.anchoredPosition=new Vector2(0,185);text.sizeDelta=new Vector2(700,70);navigation.warning=text.GetComponent<TMP_Text>();navigation.warning.fontSize=20;navigation.warning.alignment=TextAlignmentOptions.Center;for(int i=0;i<6;i++)navigation.options.Add(Button(rect,"Option "+i,"",new Vector2(i%2==0?-170:170,100-i/2*85)));navigation.cancel=Button(rect,"Cancel","CANCEL",new Vector2(0,-175));rect.gameObject.SetActive(false);}
     }
 }

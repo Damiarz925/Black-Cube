@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Goblin Animation
   m_EditorClassIdentifier: Assembly-CSharp::PaperEnemyAnimationSet
   displayName: Goblin
+  playHitReaction: 0
   idleFrames:
   - {fileID: 21300000, guid: be865d5c5aff5c99a6dce2e7cdf82a18, type: 3}
   idleFramesPerSecond: 2

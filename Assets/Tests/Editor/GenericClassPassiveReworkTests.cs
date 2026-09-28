@@ -37,9 +37,9 @@ public sealed class GenericClassPassiveReworkTests
     }
     [TestCase(WeaponTypeIds.Sword,true)] [TestCase(WeaponTypeIds.TwoHandedAxe,true)] [TestCase(WeaponTypeIds.Dagger,true)] [TestCase(WeaponTypeIds.Sceptre,true)] [TestCase(WeaponTypeIds.Bow,false)] [TestCase(WeaponTypeIds.Staff,false)]
     public void MultistrikeIsMeleeOnly(string weapon,bool expected)=>Assert.That(GenericPassiveMechanics.SupportsMultistrike(weapon),Is.EqualTo(expected));
-    [Test] public void RevengeStoresLatestHitAndConsumesOnce()
+    [Test] public void RevengeAccumulatesHitsAndConsumesOnce()
     {
-        var root=new GameObject("Revenge test");try{var stats=root.AddComponent<StatsComponent>();stats.SetBaseStat(StatTypes.RevengeEffect,10);var state=root.AddComponent<RevengeState>();state.RecordHit(30,100);state.RecordHit(10,100);Assert.That(state.StoredFraction,Is.EqualTo(.1f));Assert.That(state.ConsumeAttack(),Is.EqualTo(1.22f).Within(.0001));Assert.That(state.ConsumeAttack(),Is.EqualTo(1));Assert.That(GenericPassiveMechanics.RevengeMultiplier(.5f),Is.EqualTo(2));}finally{UnityEngine.Object.DestroyImmediate(root);}
+        var root=new GameObject("Revenge test");try{var stats=root.AddComponent<StatsComponent>();stats.SetBaseStat(StatTypes.RevengeEffect,10);var state=root.AddComponent<RevengeState>();state.RecordHit(30,100);state.RecordHit(10,100);Assert.That(state.StoredFraction,Is.EqualTo(.4f).Within(.0001));Assert.That(state.ConsumeAttack(),Is.EqualTo(1.88f).Within(.0001));Assert.That(state.ConsumeAttack(),Is.EqualTo(1));Assert.That(GenericPassiveMechanics.RevengeMultiplier(.5f),Is.EqualTo(2));}finally{UnityEngine.Object.DestroyImmediate(root);}
     }
     [Test] public void BundledDamagingChanceDoesNotIncludeShockOrChill()
     {var root=new GameObject("Chance test");try{var stats=root.AddComponent<StatsComponent>();stats.SetBaseStat(StatTypes.AllDamagingAilmentChance,10);foreach(var stat in new[]{StatTypes.PoisonChance,StatTypes.BleedChance,StatTypes.IgniteChance})Assert.That(stats.GetStat(stat),Is.EqualTo(.1f));Assert.That(stats.GetStat(StatTypes.ShockChance),Is.Zero);Assert.That(stats.GetStat(StatTypes.ChillChance),Is.Zero);}finally{UnityEngine.Object.DestroyImmediate(root);}}

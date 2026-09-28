@@ -17,7 +17,7 @@ static class EndgameUIFactory
 
 public sealed partial class ChallengeLauncherUI:MonoBehaviour
 {
-    [SerializeField] ChallengeView authoredView;GameObject root;TMP_Text body;Button open,closeButton;readonly List<Button> entries=new();bool bound;
+    [SerializeField] ChallengeView authoredView;GameObject root;TMP_Text body;Button open,closeButton;readonly List<Button> entries=new();bool bound;float previousTimeScale=1;bool ownsPause;
     public bool IsOpen=>root!=null&&root.activeSelf;
     public void Build()
     {
@@ -35,8 +35,9 @@ public sealed partial class ChallengeLauncherUI:MonoBehaviour
     }
 #endif
     void Update(){Build();var identity=GameManager.Instance?.GetComponent<PlayerIdentityState>();if(open!=null)open.interactable=identity!=null&&identity.SubclassChoiceUnlocked;if(IsOpen)Refresh();}
-    public void Open(){Build();Refresh();root.SetActive(true);root.transform.SetAsLastSibling();Time.timeScale=0;}
-    public void Close(){if(root!=null)root.SetActive(false);if(ChallengeRuntimeService.Instance?.IsActive!=true)Time.timeScale=1;}
+    public void Open(){Build();if(root==null)return;if(!ownsPause){previousTimeScale=Time.timeScale;ownsPause=true;}Refresh();root.SetActive(true);root.transform.SetAsLastSibling();Time.timeScale=0;}
+    public void Close(){if(root!=null)root.SetActive(false);if(ownsPause){Time.timeScale=previousTimeScale;ownsPause=false;}}
+    void OnDisable()=>Close();
     void Enter(int index){var list=WorldContentCatalog.Reference?.challengeEncounters;if(list==null||index>=list.Count)return;if(ChallengeRuntimeService.Instance?.TryLaunch(list[index])==true)Close();else Refresh();}
     void Refresh()
     {
@@ -53,7 +54,7 @@ public sealed partial class ChallengeLauncherUI:MonoBehaviour
 public sealed partial class EndgameItemizationUI:MonoBehaviour
 {
     enum Mode{Empowerment,Infusion,Implicit}
-    [SerializeField] EndgameCraftingView authoredView;GameObject root;TMP_Text body;Button open,apply;Mode mode;int itemIndex,modIndex,poolIndex;Gear selected;RolledMod target;bool bound;
+    [SerializeField] EndgameCraftingView authoredView;GameObject root;TMP_Text body;Button open,apply;Mode mode;int itemIndex,modIndex,poolIndex;Gear selected;RolledMod target;bool bound;float previousTimeScale=1;bool ownsPause;
     public bool IsOpen=>root!=null&&root.activeSelf;
     public void Build()
     {
@@ -72,8 +73,9 @@ public sealed partial class EndgameItemizationUI:MonoBehaviour
     }
 #endif
     void Update(){Build();if(IsOpen)Refresh();}
-    public void Open(){Build();root.SetActive(true);root.transform.SetAsLastSibling();Time.timeScale=0;Refresh();}
-    public void Close(){if(root!=null)root.SetActive(false);Time.timeScale=1;}
+    public void Open(){Build();if(root==null)return;if(!ownsPause){previousTimeScale=Time.timeScale;ownsPause=true;}root.SetActive(true);root.transform.SetAsLastSibling();Time.timeScale=0;Refresh();}
+    public void Close(){if(root!=null)root.SetActive(false);if(ownsPause){Time.timeScale=previousTimeScale;ownsPause=false;}}
+    void OnDisable()=>Close();
     void SetMode(Mode value){mode=value;modIndex=poolIndex=0;Refresh();}
     List<Gear> Items(){var r=new List<Gear>();if(Inventory.Instance!=null)foreach(var g in Inventory.Instance.Items)if(g!=null&&!g.IsScrap)r.Add(g);if(EquipmentManager.Instance!=null)foreach(var p in EquipmentManager.Instance.EquippedItems)if(p.Value!=null&&!r.Contains(p.Value))r.Add(p.Value);return r;}
     List<RolledMod> Targets(Gear gear){var r=new List<RolledMod>();if(gear==null)return r;foreach(var m in gear.rolledMods)if(m!=null&&!Gear.IsWeaponBaseStat(m.statType)&&!m.lockedOriginal)r.Add(m);return r;}

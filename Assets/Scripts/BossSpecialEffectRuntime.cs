@@ -37,7 +37,7 @@ public sealed class BossSpecialEffectRuntime:MonoBehaviour
         if(Has("freezing-edge")&&Sum(source,Element.Cold)>0&&(statuses?.CurrentChillSlow??0)>=.20f&&random.Value()<.10f)statuses.ApplyFreeze(statuses.CurrentChillSlow);
     }
     void Trigger(Element element,float raw,CombatEventTags tag,DamageReceiver receiver,StatsComponent attacker,StatsComponent defender)
-    {if(raw<=0)return;var ctx=new DamageContext(1){EventTags=CombatEventTags.TriggeredDamage|CombatEventTags.SpecialAffixProc|CombatEventTags.NoSecondaryTriggers|tag};ctx.AddDamage(element,raw);float final=CombatCalculator.CalculateFinalDamage(ctx,attacker,defender);if(final>0)receiver.TakeDamage(final,ctx);}
+{if(raw<=0)return;var ctx=new DamageContext(1){EventTags=CombatEventTags.TriggeredDamage|CombatEventTags.SpecialAffixProc|CombatEventTags.NoSecondaryTriggers|tag};ctx.AddDamage(element,raw);float final=CombatCalculator.CalculateFinalDamage(ctx,attacker,defender);if(final>0)receiver.TakeDamage(final,ctx,attacker:attacker);}
     bool Has(string suffix)=>PlayerHas(suffix);
     public static bool PlayerHas(string suffix)
     {

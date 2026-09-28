@@ -1,4 +1,5 @@
-// Developer map: Single entry point for already-mitigated damage and its popup. The strongest raw component chooses a mixed hit color; it does not split the life deduction into multiple hits.
+// Developer map: Deduct each logical hit once, then fan out its mitigated typed
+// components into styled popups. Presentation never generates extra on-hit events.
 // See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using UnityEngine;
 
@@ -48,9 +49,18 @@ public class DamageReceiver : MonoBehaviour
         SpawnDamagePopup(actualLifeLoss, element, effect, false);
     }
 
-    public void TakeDamage(float damage, DamageContext context, StatusEffects effect = null)
+    public void TakeDamage(float damage, DamageContext context, StatusEffects effect = null, StatsComponent attacker = null)
     {
         if (damage <= 0f) return;
+        // Capture the typed, mitigated proportions before life loss changes target-
+        // conditional modifiers (e.g. full-Life bonuses). Deduct life exactly once.
+        var components=new DamageContext(5);
+        if(effect==null)
+            foreach(Element element in new[]{Element.Phys,Element.Fire,Element.Cold,Element.Light,Element.Void})
+            {
+                float amount=CombatCalculator.CalculateFinalElementDamage(context,element,attacker,GetComponent<StatsComponent>());
+                if(amount>0)components.AddDamage(element,amount);
+            }
         var keystones = GetComponent<PassiveKeystoneState>();
         if (keystones != null) damage = keystones.RedirectDamageToMana(damage);
         if (damage <= 0f) return;
@@ -60,7 +70,13 @@ public class DamageReceiver : MonoBehaviour
         if(effect==null&&health!=null&&GetComponent<PlayerController>()!=null)
             (GetComponent<RevengeState>()??gameObject.AddComponent<RevengeState>()).RecordHit(actualLifeLoss,health.MaxLife);
         if (health != null && health.CurrentLife > 0f) paperSprite?.PlayHitReaction();
-        SpawnDamagePopup(actualLifeLoss, GetPrimaryElement(context), effect, context.IsCrit);
+        if(effect!=null||components.Hits.Count==0)SpawnDamagePopup(actualLifeLoss, GetPrimaryElement(context), effect, context.IsCrit);
+        else
+        {
+            if(damagePopup==null)damagePopup=DamagePopup.Instance;
+            float total=0;foreach(var hit in components.Hits)total+=hit.Amount;
+            foreach(var hit in components.Hits)damagePopup?.Spawn(actualLifeLoss*hit.Amount/total,PopupTarget,hit.Element,context.IsCrit,context.IsPrecision);
+        }
     }
 
     private void SpawnDamagePopup(float damage, Element element, StatusEffects effect, bool critical)

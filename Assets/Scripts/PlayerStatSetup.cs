@@ -19,9 +19,9 @@ public class PlayerStatSetup : MonoBehaviour
         if(stats==null)return;
         stats.SetBaseStat(StatTypes.Life, 1000f);
         stats.SetBaseStat(StatTypes.Mana, 100f);
-        // Common skills can be recast after depletion without requiring a
-        // regeneration affix; 7 mana/second keeps Fireball's recast costly.
-        stats.SetBaseStat(StatTypes.ManaRegeneration, 7f);
+        // Recovery must be earned from explicit gear, passives or skill effects.
+        stats.SetBaseStat(StatTypes.ManaRegeneration, 0f);
+        stats.SetBaseStat(StatTypes.LifeRegeneration, 0f);
         stats.SetBaseStat(StatTypes.UnarmedDamage, 0f);
         stats.SetBaseStat(StatTypes.AttackSpeed, 0f);
 

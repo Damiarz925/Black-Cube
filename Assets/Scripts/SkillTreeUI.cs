@@ -416,10 +416,13 @@ public sealed class SkillTreeUI : MonoBehaviour
         for(int i=0;i<popup.options.Count;i++)
         {
             var button=popup.options[i];button.gameObject.SetActive(i<choices.Count);if(i>=choices.Count)continue;int id=choices[i];var node=PassiveTreeDefinition.Node(id);
-            var identity=Identity;var authored=PassiveTreeDefinition.AuthoredNode(node,identity != null ? identity.SelectedSubclassId : null);
-            bool locked=node.IsSubclassChoice&&(identity?.SubclassChoiceUnlocked!=true||string.IsNullOrEmpty(identity.SelectedSubclassId));
+            var identity=Identity;
+            bool locked=node.IsSubclassChoice&&(node.RouteClassId!=progression.ActiveClassId||identity?.SubclassChoiceUnlocked!=true||string.IsNullOrEmpty(identity.SelectedSubclassId));
             button.gameObject.SetActive(!locked);
-            string text=locked?"SUBCLASS — LOCKED":authored.DisplayName;
+            if(locked)continue; // Never resolve another class's subclass with the native subclass ID.
+            var authored=PassiveTreeDefinition.AuthoredNode(node,identity != null ? identity.SelectedSubclassId : null);
+            if(authored==null){button.gameObject.SetActive(false);continue;}
+            string text=authored.DisplayName;
             if(!locked){foreach(var effect in authored.Effects)text+=$"\n{StatsComponent.ToDisplayedValue(effect.Stat,effect.Value):+0.##;-0.##;0}{(StatsComponent.IsPercentStat(effect.Stat)?"%":"")} {StatDisplayFormatting.ToFriendlyName(effect.Stat)}";if(!string.IsNullOrEmpty(authored.Description))text+="\n"+authored.Description;}
             var optionLabel=button.GetComponentInChildren<TMP_Text>();optionLabel.text=text;optionLabel.enableAutoSizing=true;optionLabel.fontSizeMin=10;optionLabel.fontSizeMax=16;button.interactable=progression.CanSpend(id);button.onClick.RemoveAllListeners();button.onClick.AddListener(()=>{if(progression.TrySpend(id)){popup.gameObject.SetActive(false);Refresh();ShowDetails(id);}});
             if(i<popup.icons.Count){popup.icons[i].sprite=locked?slot.emptyIcon:PassiveTreeDefinition.Database.IconLibrary.Resolve(authored);popup.icons[i].enabled=popup.icons[i].sprite!=null;popup.icons[i].preserveAspect=true;}

@@ -31,7 +31,7 @@ public sealed class ClassKeystoneProgressionTests
             Assert.That(ClassPassiveProgressionRules.KeystoneEligible(PlayerClassIds.Warrior,p.IsAllocated),Is.False);Assert.That(p.CanSpend(key),Is.False);
         }finally{UnityEngine.Object.DestroyImmediate(root);}
     }
-    [Test] public void KeystoneUnlocksIndependentWeaponChoiceAndRejectsSecondWeaponUntilFullRespec()
+    [Test] public void KeystoneUnlocksIndependentWeaponChoiceAndRefundsPreserveUnlock()
     {
         var p=Create(100,out var root);try
         {
@@ -40,8 +40,8 @@ public sealed class ClassKeystoneProgressionTests
             Assert.That(p.TrySelectWeaponTree(WeaponTypeIds.Bow),Is.True);Assert.That(p.TrySelectWeaponTree(WeaponTypeIds.Sword),Is.False);
             Assert.That(p.TrySpend(PassiveTreeDefinition.WeaponSpineNode(WeaponTypeIds.Bow,1)),Is.True);
             Assert.That(p.CanSpend(PassiveTreeDefinition.WeaponSpineNode(WeaponTypeIds.Sword,1)),Is.False);
-            Assert.That(p.CanRefund(key),Is.False);Assert.That(p.CanRefund(PassiveTreeDefinition.NodeId("tree.v3.class.warrior.t01.left.a")),Is.False);
-            p.RefundAll();Assert.That(p.AvailablePoints,Is.EqualTo(100));Assert.That(p.SelectedWeaponTreeId,Is.Empty);Assert.That(p.SelectedClassRoutes,Is.Empty);
+            Assert.That(p.TryRefund(key),Is.True);Assert.That(p.CanRefund(PassiveTreeDefinition.NodeId("tree.v3.class.warrior.t01.left.a")),Is.True);
+            p.RefundAll();Assert.That(p.AvailablePoints,Is.EqualTo(100));Assert.That(p.SelectedWeaponTreeId,Is.EqualTo(WeaponTypeIds.Bow));Assert.That(p.SelectedClassRoutes,Is.Empty);
         }finally{UnityEngine.Object.DestroyImmediate(root);}
     }
     [Test] public void OffClassTravelRequiresSpineButItsKeystoneRequiresEverySide()

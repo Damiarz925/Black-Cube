@@ -33,7 +33,7 @@ public sealed class PassiveTreeNavigation:MonoBehaviour
     {
         if(selectionRoot==null||progression==null||(weapon?!progression.CanSelectWeaponTree:!progression.CanSelectAdditionalClass))return;
         var choices=(weapon?PassiveTreeDefinition.WeaponIds:PassiveTreeDefinition.ClassIds).Where(id=>weapon||id!=progression.ActiveClassId&&!progression.SelectedClassRoutes.Contains(id)).ToList();
-        warning.text=weapon?"Only ONE Weapon Tree may be specialized in.\nFull passive respec resets this selection.":"Choose your next class route.\nComplete its ten-node spine to choose another.";
+        warning.text=weapon?"Only ONE Weapon Tree may be specialized in.\nYour unlocked specialization survives passive refunds.":"Choose your next class route.\nComplete its ten-node spine to choose another. Unlocks survive refunds.";
         for(int i=0;i<options.Count;i++){var button=options[i];button.gameObject.SetActive(i<choices.Count);if(i>=choices.Count)continue;string id=choices[i];button.GetComponentInChildren<TMP_Text>().text=id.Replace("weapon.","").Replace("class.","").Replace('_',' ').ToUpperInvariant();Bind(button,()=>{bool selected=weapon?progression.TrySelectWeaponTree(id):progression.TrySelectClassRoute(id);if(selected){selectionRoot.SetActive(false);TreeUI?.RefreshPresentation();Refresh();}});}
         selectionRoot.SetActive(true);selectionRoot.transform.SetAsLastSibling();
     }

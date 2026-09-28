@@ -340,11 +340,12 @@ public class BattleManager : MonoBehaviour
             if (!TryCastPlayerSkill(queued))
             {
                 skillController.Mana.Restore(manaSpent);
+                playerSprite?.Strike();
                 ResolveBasicPlayerAttack(originalTarget, originalStatuses);resolved=true;
             }
             else {resolved=true;skillController.NotifyQueuedSkillResolved(queued);}
         }
-        else {ResolveBasicPlayerAttack(originalTarget, originalStatuses);resolved=true;}}
+        else {playerSprite?.Strike();ResolveBasicPlayerAttack(originalTarget, originalStatuses);resolved=true;}}
         finally{playerRage?.CompleteAttackEvent(resolved);currentAttackEventMultiplier=1f;}
     }
 
@@ -426,7 +427,7 @@ public class BattleManager : MonoBehaviour
             // Status ticks may have killed/replaced the attacker above. Only show
             // impact once this particular enemy is actually applying its hit.
             if (enemySprite != null) enemySprite.Strike();
-            playerDamageReceiver.TakeDamage(damageTaken, ctx);     //call lose life in player script, passing in damage taken
+playerDamageReceiver.TakeDamage(damageTaken, ctx, attacker:enemyStats);     //call lose life in player script, passing in damage taken
             if(damageTaken>0)specialEffects?.NotifyPlayerTookDirectHit();
             playerRage?.GainFromDamageTaken(damageTaken,playerHealth.MaxLife);
 
@@ -516,6 +517,7 @@ public class BattleManager : MonoBehaviour
     public bool TryCastPlayerSkill(PlayerSkillDefinition skill)
     {
         if (skill == null || !CanCastPlayerSkill) return false;
+        playerSprite?.Strike(); // One presentation event per cast, never per impact.
         HealthComponent target = enemyHealth;
         StatusController statuses = enemyStatusCont;
         DamageContext boltBasis=HasClassKeystone(PassiveKeystone.MageSelfBolt)&&(skill.DamageScopes&DamageScope.Magic)!=0
@@ -561,7 +563,7 @@ public class BattleManager : MonoBehaviour
         {
             float dealt=CombatCalculator.CalculateFinalDamage(bolt,playerStats,enemyStats);
             float actual=Mathf.Min(target.CurrentLife,dealt);
-            enemyDamageReceiver.TakeDamage(dealt,bolt);
+            enemyDamageReceiver.TakeDamage(dealt,bolt,attacker:playerStats);
             if(actual>0)playerHealth.RestoreLife(actual*(player.GetComponent<PassiveKeystoneState>()?.DamageRecoveryFraction??0),HealingSource.SubclassDamage);
             if(dealt>0){playerHealth.RestoreLife(playerStats.GetStat(StatTypes.LifeOnHit),HealingSource.LifeOnHit);GetPlayerMana()?.Restore(playerStats.GetStat(StatTypes.ManaOnHit));}
             if(IsSameLivingEnemy(target))ApplyOnHitEffects(bolt,playerStats,statuses);
@@ -682,7 +684,6 @@ public class BattleManager : MonoBehaviour
                   $"Crit={normal.IsCrit}, CritMult={normal.CritMultiplier:F2}");
 
         if (enemyDamageReceiver == null) enemyDamageReceiver = GetOrAddDamageReceiver(currentEnemy);
-        if (showImpact && playerSprite != null) playerSprite.Strike();
         if (skill != null && skill.id == PlayerSkillId.HeavyStrike) PlayHeavyStrikeFeedback();
         if (damageTaken > 0f && enemyDamageReceiver != null)
         {
@@ -690,7 +691,7 @@ public class BattleManager : MonoBehaviour
             var auraDefender=enemyStats;
             float auraMaximum=target.MaxLife;
             subclassState?.RecordMitigatedTypedDamage(direct,auraDefender,auraMaximum);
-            enemyDamageReceiver.TakeDamage(damageTaken, direct);
+            enemyDamageReceiver.TakeDamage(damageTaken, direct,attacker:playerStats);
             playerRage?.GainFromDamageDealt(damageTaken,target.MaxLife,skill?.effect==WeaponSkillEffect.RageStrike?1.5f:1f);
             playerHealth.RestoreLife(playerStats.GetStat(StatTypes.LifeOnHit),HealingSource.LifeOnHit);
             GetPlayerMana()?.Restore(playerStats.GetStat(StatTypes.ManaOnHit));
@@ -701,14 +702,14 @@ public class BattleManager : MonoBehaviour
             specialEffects?.AfterHit(direct,rawTotal,statuses,target,enemyDamageReceiver,playerStats,enemyStats);
             if(subclassState?.Has(SubclassIds.BarbarianFire)==true&&Random.value<SubclassBalanceProfile.EruptionChance&&IsSameLivingEnemy(target))
             {
-                var eruption=new DamageContext(1){EventTags=CombatEventTags.TriggeredDamage|CombatEventTags.SubclassProc|CombatEventTags.Eruption};eruption.AddDamage(Element.Fire,rawTotal*SubclassBalanceProfile.EruptionMagnitude);float eruptionDamage=CombatCalculator.CalculateFinalDamage(eruption,playerStats,enemyStats);if(eruptionDamage>0){float lost=Mathf.Min(target.CurrentLife,eruptionDamage);enemyDamageReceiver.TakeDamage(eruptionDamage,eruption);playerHealth.RestoreLife(lost*(keystones?.DamageRecoveryFraction??0),HealingSource.SubclassDamage);}if(IsSameLivingEnemy(target))ApplyConfiguredStatus(igniteEffect,StatTypes.IgniteChance,eruption,playerStats,statuses);
+                var eruption=new DamageContext(1){EventTags=CombatEventTags.TriggeredDamage|CombatEventTags.SubclassProc|CombatEventTags.Eruption};eruption.AddDamage(Element.Fire,rawTotal*SubclassBalanceProfile.EruptionMagnitude);float eruptionDamage=CombatCalculator.CalculateFinalDamage(eruption,playerStats,enemyStats);if(eruptionDamage>0){float lost=Mathf.Min(target.CurrentLife,eruptionDamage);enemyDamageReceiver.TakeDamage(eruptionDamage,eruption,attacker:playerStats);playerHealth.RestoreLife(lost*(keystones?.DamageRecoveryFraction??0),HealingSource.SubclassDamage);}if(IsSameLivingEnemy(target))ApplyConfiguredStatus(igniteEffect,StatTypes.IgniteChance,eruption,playerStats,statuses);
             }
         }
 
         if (IsSameLivingEnemy(target))
         {
             if(lightningShatter&&statuses.TryConsumeFreeze(out _))
-            {var shatter=new DamageContext(1){EventTags=CombatEventTags.TriggeredDamage|CombatEventTags.Shatter|CombatEventTags.NoSecondaryTriggers};shatter.AddDamage(Element.Cold,target.MaxLife*ClassKeystoneCatalog.Get(PassiveKeystone.MageShatter).tertiary);float burst=CombatCalculator.CalculateFinalDamage(shatter,playerStats,enemyStats);float lost=Mathf.Min(target.CurrentLife,burst);enemyDamageReceiver.TakeDamage(burst,shatter);playerHealth.RestoreLife(lost*(keystones?.DamageRecoveryFraction??0),HealingSource.SubclassDamage);if(!IsSameLivingEnemy(target))return;}
+            {var shatter=new DamageContext(1){EventTags=CombatEventTags.TriggeredDamage|CombatEventTags.Shatter|CombatEventTags.NoSecondaryTriggers};shatter.AddDamage(Element.Cold,target.MaxLife*ClassKeystoneCatalog.Get(PassiveKeystone.MageShatter).tertiary);float burst=CombatCalculator.CalculateFinalDamage(shatter,playerStats,enemyStats);float lost=Mathf.Min(target.CurrentLife,burst);enemyDamageReceiver.TakeDamage(burst,shatter,attacker:playerStats);playerHealth.RestoreLife(lost*(keystones?.DamageRecoveryFraction??0),HealingSource.SubclassDamage);if(!IsSameLivingEnemy(target))return;}
             DamageContext poisonTransmutationBasis = poisonTransmutation
                 ? TransformContext(PassiveKeystoneState.AsPoisonBasis(normal), skillLevelFactor, Element.Phys, 0f)
                 : specialized;
@@ -722,7 +723,7 @@ public class BattleManager : MonoBehaviour
                     var shatter=TransformContext(normal,WeaponMechanicProfile.ShatterMultiplier(frozenStrength)*fracture,Element.Cold,1f);
                     shatter.EventTags=CombatEventTags.TriggeredDamage|CombatEventTags.Shatter|CombatEventTags.NoSecondaryTriggers;
                     float burst=CombatCalculator.CalculateFinalDamage(shatter,playerStats,enemyStats);
-                    if(burst>0&&enemyDamageReceiver!=null){float lost=Mathf.Min(target.CurrentLife,burst);enemyDamageReceiver.TakeDamage(burst,shatter);playerHealth.RestoreLife(lost*(keystones?.DamageRecoveryFraction??0),HealingSource.SubclassDamage);}
+                    if(burst>0&&enemyDamageReceiver!=null){float lost=Mathf.Min(target.CurrentLife,burst);enemyDamageReceiver.TakeDamage(burst,shatter,attacker:playerStats);playerHealth.RestoreLife(lost*(keystones?.DamageRecoveryFraction??0),HealingSource.SubclassDamage);}
                 }
                 else if(!HasClassKeystone(PassiveKeystone.PriestFracture)&&statuses.CurrentChillSlow>0&&Random.value<Mathf.Clamp01(statuses.CurrentChillSlow))statuses.ApplyFreeze(statuses.CurrentChillSlow);
             }
@@ -746,7 +747,7 @@ public class BattleManager : MonoBehaviour
 
     public void ApplyTriggerlessVoidDamage(float amount)
     {
-        if(amount<=0||enemyHealth==null||enemyHealth.CurrentLife<=0||enemyDamageReceiver==null)return;var context=new DamageContext(1){EventTags=CombatEventTags.TriggerlessDamage|CombatEventTags.HealConvertedDamage|CombatEventTags.NoSecondaryTriggers};context.AddDamage(Element.Void,amount);float final=CombatCalculator.CalculateFinalDamage(context,playerStats,enemyStats);if(final>0)enemyDamageReceiver.TakeDamage(final,context);
+        if(amount<=0||enemyHealth==null||enemyHealth.CurrentLife<=0||enemyDamageReceiver==null)return;var context=new DamageContext(1){EventTags=CombatEventTags.TriggerlessDamage|CombatEventTags.HealConvertedDamage|CombatEventTags.NoSecondaryTriggers};context.AddDamage(Element.Void,amount);float final=CombatCalculator.CalculateFinalDamage(context,playerStats,enemyStats);if(final>0)enemyDamageReceiver.TakeDamage(final,context,attacker:playerStats);
     }
 
     private bool IsSameLivingEnemy(HealthComponent target)

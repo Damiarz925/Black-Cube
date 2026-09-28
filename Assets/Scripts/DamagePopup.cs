@@ -66,13 +66,13 @@ public class DamagePopup : MonoBehaviour
         Spawn(damage, target, defaultColor);
     }
 
-    public void Spawn(float damage, Transform target, Element element, bool critical = false)
+    public void Spawn(float damage, Transform target, Element element, bool critical = false, bool precision = false)
     {
         int index=element switch {Element.Phys=>0,Element.Fire=>1,Element.Cold=>2,Element.Light=>3,Element.Poison=>4,Element.Void=>6,_=>-1};
         // Atlas slot 6 remains the authored Ignite digit atlas. Void can use its
         // dedicated material without accidentally borrowing Ignite's atlas.
         int atlasIndex = element == Element.Void ? -1 : index;
-        SpawnStyled(damage, target, GetColorForElement(element), GetMaterial(index),atlasIndex,critical);
+        SpawnStyled(damage, target, GetColorForElement(element), GetMaterial(index),atlasIndex,critical,precision);
     }
 
     public void Spawn(float damage, Transform target, StatusEffects effect)
@@ -90,7 +90,7 @@ public class DamagePopup : MonoBehaviour
     private Material GetMaterial(int index) => numberMaterials!=null && index>=0 && index<numberMaterials.Length ? numberMaterials[index] : null;
     private Texture2D GetAtlas(int index) => numberAtlases!=null && index>=0 && index<numberAtlases.Length ? numberAtlases[index] : null;
 
-    private void SpawnStyled(float damage, Transform target, Color color, Material material,int styleIndex=-1,bool critical=false)
+    private void SpawnStyled(float damage, Transform target, Color color, Material material,int styleIndex=-1,bool critical=false,bool precision=false)
     {
         if (popupPrefab == null || popupRoot == null || canvas == null || target == null)
         {
@@ -134,6 +134,7 @@ public class DamagePopup : MonoBehaviour
                 : text.GetPreferredValues(value).x;
             CritPopupMarker.Attach(go, numberWidth);
         }
+        if(precision)CritPopupMarker.Attach(go,atlas!=null||text==null?((RectTransform)go.transform).rect.width:text.GetPreferredValues(value).x,true);
 
         var instance = go.AddComponent<DamagePopupInstance>();
         instance.Initialize(target, canvas, floatSpeed, lifetime, worldOffset, GetPopupOffset(target));
@@ -151,9 +152,10 @@ public class DamagePopup : MonoBehaviour
         sequence.LastSpawnTime = Time.unscaledTime;
         popupSequences[target] = sequence;
 
-        // Keep hits centered, stacking simultaneous numbers vertically.
-        return new Vector2(0f, index * Mathf.Max(verticalSpacing, 28f));
+        return FanOffset(index,Mathf.Max(verticalSpacing,28f));
     }
+    public static Vector2 FanOffset(int index,float spacing=28f)
+        =>index<=0?Vector2.zero:new Vector2(index%2==1?-48f:48f,((index+1)/2)*spacing);
 
     private Color GetColorForElement(Element element)
     {
@@ -188,18 +190,19 @@ public class DamagePopup : MonoBehaviour
 public static class CritPopupMarker
 {
     static Sprite sprite;
-    public static void Attach(GameObject popup, float numberWidth)
+    public static void Attach(GameObject popup, float numberWidth, bool precision=false)
     {
         if (popup == null || popup.transform is not RectTransform number) return;
-        var marker = new GameObject("Critical hit marker", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+        var marker = new GameObject(precision?"Precision hit marker":"Critical hit marker", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
         marker.transform.SetParent(number, false);
         var rect = (RectTransform)marker.transform;
         rect.anchorMin = rect.anchorMax = new Vector2(.5f, .5f);
         rect.pivot = new Vector2(.5f, .5f);
         rect.sizeDelta = new Vector2(20f, 20f);
-        rect.anchoredPosition = new Vector2(-Mathf.Max(16f,numberWidth) * .5f - 14f, 2f);
+        rect.anchoredPosition = new Vector2((precision?1:-1)*(Mathf.Max(16f,numberWidth) * .5f + 14f), 2f);
         var image = marker.GetComponent<Image>();
         image.sprite = sprite ??= CreateStar();
+        if(precision)image.color=new Color(.2f,1f,.35f);
         image.raycastTarget = false;
     }
 
