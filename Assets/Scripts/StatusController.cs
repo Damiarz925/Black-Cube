@@ -183,7 +183,14 @@ public partial class StatusController : MonoBehaviour
         foreach(var pair in IndependentDictionary)if(pair.Key!=null&&pair.Key.Ailment==kind)foreach(var instance in pair.Value)if(instance!=null&&(instance.Realtime?instance.RemainingSeconds>0:instance.remainingTicks>0)&&instance.stacks>0)return true;
         return false;
     }
-    public int AilmentStackCount(StatusEffects.AilmentKind kind)=>IndependentDictionary.Where(x=>x.Key!=null&&x.Key.Ailment==kind).Sum(x=>x.Value.Where(i=>i.RemainingSeconds>0&&i.stacks>0).Sum(i=>i.stacks));
+    public int AilmentStackCount(StatusEffects.AilmentKind kind)=>IndependentDictionary.Where(x=>x.Key!=null&&x.Key.Ailment==kind).Sum(x=>x.Value.Where(i=>i!=null&&(i.Realtime?i.RemainingSeconds>0:i.remainingTicks>0)&&i.stacks>0).Sum(i=>i.stacks));
+    public int BleedStackCap(StatsComponent source)=>EffectiveBleedStackCap(source);
+    static int EffectiveBleedStackCap(StatsComponent source)
+    {
+        int cap=5+(source!=null&&source.GetComponent<PlayerController>()!=null?RelicInventory.Instance?.MaximumBleedStackBonus??0:0);
+        var keys=source!=null?source.GetComponent<PassiveKeystoneState>():null;
+        return keys!=null&&(keys.Has(PassiveKeystone.OpenWounds)||keys.Has(PassiveKeystone.WarriorBleed))?cap*2:cap;
+    }
     public List<StatusInstance> HighestRemainingPoison(int count)=>IndependentDictionary.Where(x=>x.Key!=null&&x.Key.Ailment==StatusEffects.AilmentKind.Poison).SelectMany(x=>x.Value).Where(x=>x.RemainingSeconds>0&&x.remainingTicks>0).OrderByDescending(RemainingMitigatedDamage).Take(count).Select(x=>x.Copy()).ToList();
     public void RestorePreservedPoison(StatusInstance source)
     {
@@ -243,8 +250,7 @@ public partial class StatusController : MonoBehaviour
         var relics=playerSource?RelicInventory.Instance:null;
         if(effect.Ailment==StatusEffects.AilmentKind.Bleed)
         {
-            int cap=5+(relics?.MaximumBleedStackBonus??0);
-            return keystones!=null&&(keystones.Has(PassiveKeystone.OpenWounds)||keystones.Has(PassiveKeystone.WarriorBleed))?cap*2:cap;
+            return EffectiveBleedStackCap(sourceStats);
         }
         if(effect.Ailment==StatusEffects.AilmentKind.Ignite)
         {
@@ -266,6 +272,7 @@ public partial class StatusController : MonoBehaviour
         {
             var incoming=new StatusInstance(effect,damagePerTick,1,tickCount,sourceStats,interval);
             if(cap<=0||list.Count<cap){list.Add(incoming);continue;}
+            if(effect.Ailment==StatusEffects.AilmentKind.Bleed)break; // Overflow is discarded.
             int weakest=-1;float weakestTotal=float.PositiveInfinity;
             for(int j=0;j<list.Count;j++)
             {

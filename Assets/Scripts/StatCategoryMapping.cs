@@ -13,7 +13,6 @@ public static class StatCategoryMapping
             case StatTypes.WeaponBaseDmg:
             case StatTypes.WeaponBaseAttackSpeed:
             case StatTypes.WeaponBaseCrit:
-            case StatTypes.ChanceToBlock:
                 return StatCategory.WeaponBase;
 
             // Flat elemental damage
@@ -51,6 +50,8 @@ public static class StatCategoryMapping
             case StatTypes.BleedMult:
                 return StatCategory.MoreDamage;
             case StatTypes.GenericDotMult:
+            case StatTypes.WarriorDotMultiplier:
+            case StatTypes.RuptureDamage:
                 return StatCategory.DamageOverTime;
 
             // Penetration
@@ -87,6 +88,9 @@ public static class StatCategoryMapping
 
             // Defenses
             case StatTypes.DamageTakenFromManaBeforeLife:
+            case StatTypes.ChanceToBlock:
+            case StatTypes.DeferredWounds:
+            case StatTypes.ElementalPlating:
             case StatTypes.FlatArmour:
             case StatTypes.FlatEvasion:
             case StatTypes.ArmourPercent:
@@ -120,6 +124,7 @@ public static class StatCategoryMapping
             case StatTypes.LifeRegeneration:
             case StatTypes.ManaRegeneration:
             case StatTypes.LifeOnHit:
+            case StatTypes.LifeOnHitVsBleeding:
             case StatTypes.ManaOnHit:
             case StatTypes.LifeOnKill:
             case StatTypes.ManaOnKill:
@@ -132,6 +137,8 @@ public static class StatCategoryMapping
             case StatTypes.AttackSpeed:
             case StatTypes.Accuracy:
             case StatTypes.ChanceToHitTwice:
+            case StatTypes.EscalatingMultistrike:
+            case StatTypes.UnbrokenAssault:
             case StatTypes.CooldownRecovery:
             case StatTypes.CritChance:
             case StatTypes.CritMult:

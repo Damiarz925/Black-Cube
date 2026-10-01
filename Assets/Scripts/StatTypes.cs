@@ -205,5 +205,13 @@ public enum StatTypes
     CullingStrike = 143,
     SpellEchoChance = 144,
     CullingStrikeChance = 145,
-    DamageTakenFromManaBeforeLife = 146
+    DamageTakenFromManaBeforeLife = 146,
+    // Warrior subclass passives. Append-only serialized identities.
+    RuptureDamage = 147,
+    LifeOnHitVsBleeding = 148,
+    DeferredWounds = 149,
+    EscalatingMultistrike = 150,
+    UnbrokenAssault = 151,
+    ElementalPlating = 152,
+    WarriorDotMultiplier = 153
 }

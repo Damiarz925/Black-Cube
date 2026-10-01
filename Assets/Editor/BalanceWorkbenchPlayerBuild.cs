@@ -204,7 +204,7 @@ namespace BlackCube.BalanceWorkbench
             foreach(var sid in boundSkills)
             {
                 if(!skillDefinitions.TryGetValue(sid,out var s))continue;
-                double hits=Math.Max(1,s.baseHitCount);if(s.effect==WeaponSkillEffect.RapidFlurry)hits=WeaponMechanicProfile.RapidFlurryHits(Stats.GetStat(StatTypes.AttackSpeed));if(s.projectile)hits*=m.projectileCount;if(s.effect==WeaponSkillEffect.DoubleProjectiles)hits*=2;if(s.projectile&&b.subclassId==SubclassIds.RangerProjectile&&b.projectileMode==SubclassProjectileMode.Focused)hits=1;
+                double hits=Math.Max(1,s.baseHitCount);if(s.projectile)hits*=m.projectileCount;if(s.effect==WeaponSkillEffect.DoubleProjectiles)hits*=2;if(s.projectile&&b.subclassId==SubclassIds.RangerProjectile&&b.projectileMode==SubclassProjectileMode.Focused)hits=1;
                 int level=PlayerSkillController.CalculateEffectiveSkillLevel(Stats.GetRawStat(PlayerSkillController.SkillLevelStat(s.id))+Stats.GetRawStat(StatTypes.PlusAllSkills));
                 if(s.effect==WeaponSkillEffect.ShockBarrage)
                 {
@@ -218,8 +218,6 @@ namespace BlackCube.BalanceWorkbench
                 if(s.projectile)direct*=1+m.precisionChance*(m.precisionMultiplier-1);
                 if(s.projectile&&b.subclassId==SubclassIds.RangerProjectile&&b.projectileMode==SubclassProjectileMode.Focused)direct*=SubclassBalanceProfile.FocusedMultiplier((int)m.projectileCount*(s.effect==WeaponSkillEffect.DoubleProjectiles?2:1));
                 if(s.suppressDirectDamage||s.effect==WeaponSkillEffect.VirtualPoison)direct=0;
-                if(s.effect==WeaponSkillEffect.RapidFlurry&&Stats.GetComponent<PassiveKeystoneState>()?.Has(PassiveKeystone.WarriorConsolidation)==true)
-                    hits=ClassKeystoneMechanics.ConsolidatedMultiplier((int)hits-1);
                 double use=direct*hits;
                 if(s.effect==WeaponSkillEffect.VirtualPoison)
                 {
@@ -227,7 +225,7 @@ namespace BlackCube.BalanceWorkbench
                         CharacterDamageEstimate.AilmentDurationFactor(Stats,Element.Void);
                     m.assumptions.Add("Venom Shot search value is its virtual Poison basis over full duration; exact stack timing and Void mitigation are Combat Lab-only.");
                 }
-                double cd=s.castMode==PlayerSkillCastMode.QueuedAttackReplacement?0:Math.Max(PlayerSkillController.MinimumAutoCooldown,s.baseCooldown/(1+Math.Max(0,m.cooldownReduction)));
+                double cd=s.castMode==PlayerSkillCastMode.QueuedAttackReplacement&&!s.queuedCooldownEnabled?0:Math.Max(PlayerSkillController.MinimumAutoCooldown,s.baseCooldown/(1+Math.Max(0,m.cooldownReduction)));
                 if(b.subclassId==SubclassIds.MageCooldown&&cd>0)cd=Math.Max(PlayerSkillController.MinimumAutoCooldown,cd*(1-SubclassBalanceProfile.CooldownIgnoreChance));
                 double cost=Math.Round(Math.Max(0,s.manaCost)*PlayerSkillController.ManaCostLevelFactor(level));
                 if(s.magic&&m.spellEchoChance>0)

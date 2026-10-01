@@ -63,7 +63,7 @@ MonoBehaviour:
         stableId: tree.v3.class.warrior.t01.right.a
         logicalSlotId: tree.v3.class.warrior.t01.right.a
         displayName: Bleed Chance
-        description: 
+        description: +15 percentage points Bleed Chance.
         branch: 12
         size: 0
         kind: 6
@@ -72,14 +72,14 @@ MonoBehaviour:
         - kind: 0
           stat: 34
           mechanicId: 
-          value: 63
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 97cbeb42289d11448a85161073ae5dc9, type: 3}
+          value: 15
+        iconMode: 0
+        iconOverride: {fileID: 0}
       b:
         stableId: tree.v3.class.warrior.t01.right.b
         logicalSlotId: tree.v3.class.warrior.t01.right.b
         displayName: Multistrike Chance
-        description: 
+        description: +5 percentage points Multistrike Chance.
         branch: 17
         size: 0
         kind: 6
@@ -89,78 +89,62 @@ MonoBehaviour:
           stat: 83
           mechanicId: 
           value: 5
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 4628009dc15d25f44a8b9c896bfeb7e1, type: 3}
+        iconMode: 0
+        iconOverride: {fileID: 0}
       c:
         stableId: tree.v3.class.warrior.t01.right.c
         logicalSlotId: tree.v3.class.warrior.t01.right.c
-        displayName: Increased Critical Chance
-        description: 
-        branch: 20
+        displayName: Attack Speed
+        description: +8% increased Attack Speed.
+        branch: 11
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 11
+          stat: 81
           mechanicId: 
-          value: 42
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 9a8398eb01579964aa1ec1892920d26c, type: 3}
+          value: 8
+        iconMode: 0
+        iconOverride: {fileID: 0}
       subclassA:
         stableId: tree.v3.class.warrior.t01.right.subclass.variant.warrior-bleed
         logicalSlotId: tree.v3.class.warrior.t01.right.subclass
-        displayName: Bleed Warrior
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Damage over Time Multiplier
+        description: +5% Damage over Time Multiplier.
+        branch: 36
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 14
+          stat: 153
           mechanicId: 
-          value: 9
+          value: 5
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
         stableId: tree.v3.class.warrior.t01.right.subclass.variant.warrior-multihit
         logicalSlotId: tree.v3.class.warrior.t01.right.subclass
-        displayName: Momentum Warrior
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Escalating Multistrikes
+        description: Each successive Multistrike deals 5% more damage per prior Multistrike in this attack.
+        branch: 17
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 83
+          stat: 150
           mechanicId: 
-          value: 5.3999996
+          value: 5
         iconMode: 0
         iconOverride: {fileID: 0}
     left:
       a:
         stableId: tree.v3.class.warrior.t01.left.a
         logicalSlotId: tree.v3.class.warrior.t01.left.a
-        displayName: Maximum Life
-        description: 
-        branch: 1
-        size: 0
-        kind: 6
-        keystone: 0
-        effects:
-        - kind: 0
-          stat: 70
-          mechanicId: 
-          value: 15
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 8a993350bdd739c4c8299b39e51a8eb6, type: 3}
-      b:
-        stableId: tree.v3.class.warrior.t01.left.b
-        logicalSlotId: tree.v3.class.warrior.t01.left.b
         displayName: Increased Armour
-        description: 
+        description: +30% increased local/global Armour.
         branch: 0
         size: 0
         kind: 6
@@ -169,55 +153,71 @@ MonoBehaviour:
         - kind: 0
           stat: 52
           mechanicId: 
-          value: 100
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 188d5588f3b2ca240a4654298013b3ba, type: 3}
-      c:
-        stableId: tree.v3.class.warrior.t01.left.c
-        logicalSlotId: tree.v3.class.warrior.t01.left.c
-        displayName: Mana On Hit
-        description: 
-        branch: 23
+          value: 30
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      b:
+        stableId: tree.v3.class.warrior.t01.left.b
+        logicalSlotId: tree.v3.class.warrior.t01.left.b
+        displayName: Life on Hit
+        description: Recover 10 Life on a successful hit.
+        branch: 22
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 75
+          stat: 74
           mechanicId: 
-          value: 2.775
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: c18c48bd216ff3d40b4a764c152ce0c0, type: 3}
+          value: 10
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      c:
+        stableId: tree.v3.class.warrior.t01.left.c
+        logicalSlotId: tree.v3.class.warrior.t01.left.c
+        displayName: All Elemental Resistance
+        description: +4% Fire, Cold and Lightning Resistance.
+        branch: 42
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 57
+          mechanicId: 
+          value: 4
+        iconMode: 0
+        iconOverride: {fileID: 0}
       subclassA:
         stableId: tree.v3.class.warrior.t01.left.subclass.variant.warrior-bleed
         logicalSlotId: tree.v3.class.warrior.t01.left.subclass
-        displayName: Bleed Warrior
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Life on Hit vs Bleeding
+        description: Recover 25 additional Life when the enemy is already Bleeding as this hit resolves.
+        branch: 22
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 14
+          stat: 148
           mechanicId: 
-          value: 9
+          value: 25
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
         stableId: tree.v3.class.warrior.t01.left.subclass.variant.warrior-multihit
         logicalSlotId: tree.v3.class.warrior.t01.left.subclass
-        displayName: Momentum Warrior
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Elemental Plating
+        description: 5% of Armour mitigates Fire, Cold and Lightning hits before Resistance; not Void or DoT.
+        branch: 0
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 83
+          stat: 152
           mechanicId: 
-          value: 5.3999996
+          value: 5
         iconMode: 0
         iconOverride: {fileID: 0}
   - tier: 2
@@ -245,24 +245,40 @@ MonoBehaviour:
       a:
         stableId: tree.v3.class.warrior.t02.right.a
         logicalSlotId: tree.v3.class.warrior.t02.right.a
-        displayName: Increased Bleed Damage
-        description: 
-        branch: 36
+        displayName: Bleed Chance
+        description: +15 percentage points Bleed Chance.
+        branch: 12
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 28
+          stat: 34
           mechanicId: 
-          value: 42
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: eca8f101f8442774384ebedb7cb9ec3e, type: 3}
+          value: 15
+        iconMode: 0
+        iconOverride: {fileID: 0}
       b:
         stableId: tree.v3.class.warrior.t02.right.b
         logicalSlotId: tree.v3.class.warrior.t02.right.b
+        displayName: Multistrike Chance
+        description: +5 percentage points Multistrike Chance.
+        branch: 17
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 83
+          mechanicId: 
+          value: 5
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      c:
+        stableId: tree.v3.class.warrior.t02.right.c
+        logicalSlotId: tree.v3.class.warrior.t02.right.c
         displayName: Attack Speed
-        description: 
+        description: +8% increased Attack Speed.
         branch: 11
         size: 0
         kind: 6
@@ -271,79 +287,63 @@ MonoBehaviour:
         - kind: 0
           stat: 81
           mechanicId: 
-          value: 10
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 9278976e849afd64692e2014ebb004f4, type: 3}
-      c:
-        stableId: tree.v3.class.warrior.t02.right.c
-        logicalSlotId: tree.v3.class.warrior.t02.right.c
-        displayName: Cooldown Reduction
-        description: 
-        branch: 29
-        size: 0
-        kind: 6
-        keystone: 0
-        effects:
-        - kind: 0
-          stat: 126
-          mechanicId: 
-          value: 10
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: ef8b4bc4f5c24914a901b1a305362e7d, type: 3}
+          value: 8
+        iconMode: 0
+        iconOverride: {fileID: 0}
       subclassA:
         stableId: tree.v3.class.warrior.t02.right.subclass.variant.warrior-bleed
         logicalSlotId: tree.v3.class.warrior.t02.right.subclass
-        displayName: Bleed Warrior
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Rupture Damage
+        description: Rupture releases 5% more of the remaining damage in the Bleeds it consumes.
+        branch: 36
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 74
+          stat: 147
           mechanicId: 
-          value: 1.2
+          value: 5
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
         stableId: tree.v3.class.warrior.t02.right.subclass.variant.warrior-multihit
         logicalSlotId: tree.v3.class.warrior.t02.right.subclass
-        displayName: Momentum Warrior
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Unbroken Assault
+        description: 10% more damage per prior player attack since the last successful enemy hit; Multistrikes do not count separately.
+        branch: 11
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 12
+          stat: 151
           mechanicId: 
-          value: 14.719999
+          value: 10
         iconMode: 0
         iconOverride: {fileID: 0}
     left:
       a:
         stableId: tree.v3.class.warrior.t02.left.a
         logicalSlotId: tree.v3.class.warrior.t02.left.a
-        displayName: All Elemental Resistance
-        description: Fire, Cold and Lightning resistance only. Does not include Void.
-        branch: 42
+        displayName: Increased Armour
+        description: +30% increased local/global Armour.
+        branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 57
+          stat: 52
           mechanicId: 
-          value: 6
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: a0e7f3f66170c7a40a9c86fac84ee4e3, type: 3}
+          value: 30
+        iconMode: 0
+        iconOverride: {fileID: 0}
       b:
         stableId: tree.v3.class.warrior.t02.left.b
         logicalSlotId: tree.v3.class.warrior.t02.left.b
-        displayName: Life On Hit
-        description: 
+        displayName: Life on Hit
+        description: Recover 10 Life on a successful hit.
         branch: 22
         size: 0
         kind: 6
@@ -352,55 +352,55 @@ MonoBehaviour:
         - kind: 0
           stat: 74
           mechanicId: 
-          value: 3.7
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: b935a26a71a8a8d43acc296f12855637, type: 3}
+          value: 10
+        iconMode: 0
+        iconOverride: {fileID: 0}
       c:
         stableId: tree.v3.class.warrior.t02.left.c
         logicalSlotId: tree.v3.class.warrior.t02.left.c
-        displayName: Increased Critical Chance
-        description: 
-        branch: 20
+        displayName: All Elemental Resistance
+        description: +4% Fire, Cold and Lightning Resistance.
+        branch: 42
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 11
+          stat: 57
           mechanicId: 
-          value: 42
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 9a8398eb01579964aa1ec1892920d26c, type: 3}
+          value: 4
+        iconMode: 0
+        iconOverride: {fileID: 0}
       subclassA:
         stableId: tree.v3.class.warrior.t02.left.subclass.variant.warrior-bleed
         logicalSlotId: tree.v3.class.warrior.t02.left.subclass
-        displayName: Bleed Warrior
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Deferred Wounds
+        description: 8% of post-mitigation damage to Life becomes self-Bleeding over 4 seconds; total damage is unchanged.
+        branch: 0
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 74
+          stat: 149
           mechanicId: 
-          value: 1.2
+          value: 8
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
         stableId: tree.v3.class.warrior.t02.left.subclass.variant.warrior-multihit
         logicalSlotId: tree.v3.class.warrior.t02.left.subclass
-        displayName: Momentum Warrior
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Block Chance
+        description: +8 percentage points Block Chance; a Block halves a hit before Armour and Resistance.
+        branch: 0
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 12
+          stat: 3
           mechanicId: 
-          value: 14.719999
+          value: 8
         iconMode: 0
         iconOverride: {fileID: 0}
   - tier: 3
@@ -429,7 +429,7 @@ MonoBehaviour:
         stableId: tree.v3.class.warrior.t03.right.a
         logicalSlotId: tree.v3.class.warrior.t03.right.a
         displayName: Bleed Chance
-        description: 
+        description: +15 percentage points Bleed Chance.
         branch: 12
         size: 0
         kind: 6
@@ -438,95 +438,111 @@ MonoBehaviour:
         - kind: 0
           stat: 34
           mechanicId: 
-          value: 63
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 97cbeb42289d11448a85161073ae5dc9, type: 3}
+          value: 15
+        iconMode: 0
+        iconOverride: {fileID: 0}
       b:
         stableId: tree.v3.class.warrior.t03.right.b
         logicalSlotId: tree.v3.class.warrior.t03.right.b
-        displayName: Increased Bleed Damage
-        description: 
-        branch: 36
+        displayName: Multistrike Chance
+        description: +5 percentage points Multistrike Chance.
+        branch: 17
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 28
+          stat: 83
           mechanicId: 
-          value: 42
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: eca8f101f8442774384ebedb7cb9ec3e, type: 3}
+          value: 5
+        iconMode: 0
+        iconOverride: {fileID: 0}
       c:
         stableId: tree.v3.class.warrior.t03.right.c
         logicalSlotId: tree.v3.class.warrior.t03.right.c
-        displayName: Increased Strength
-        description: 
-        branch: 26
+        displayName: Attack Speed
+        description: +8% increased Attack Speed.
+        branch: 11
         size: 0
         kind: 6
-        keystone: 0
-        effects:
-        - kind: 0
-          stat: 95
-          mechanicId: 
-          value: 7.5
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 5b1377a9703037e48a81f69dd6f5abd0, type: 3}
-      subclassA:
-        stableId: tree.v3.class.warrior.t03.right.subclass.variant.warrior-bleed
-        logicalSlotId: tree.v3.class.warrior.t03.right.subclass
-        displayName: Bleed Warrior
-        description: Selected-subclass option on the native class route.
-        branch: 3
-        size: 0
-        kind: 7
-        keystone: 0
-        effects:
-        - kind: 0
-          stat: 34
-          mechanicId: 
-          value: 9.4
-        iconMode: 0
-        iconOverride: {fileID: 0}
-      subclassB:
-        stableId: tree.v3.class.warrior.t03.right.subclass.variant.warrior-multihit
-        logicalSlotId: tree.v3.class.warrior.t03.right.subclass
-        displayName: Momentum Warrior
-        description: Selected-subclass option on the native class route.
-        branch: 3
-        size: 0
-        kind: 7
         keystone: 0
         effects:
         - kind: 0
           stat: 81
           mechanicId: 
-          value: 9.4
+          value: 8
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      subclassA:
+        stableId: tree.v3.class.warrior.t03.right.subclass.variant.warrior-bleed
+        logicalSlotId: tree.v3.class.warrior.t03.right.subclass
+        displayName: Damage over Time Multiplier
+        description: +5% Damage over Time Multiplier.
+        branch: 36
+        size: 0
+        kind: 7
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 153
+          mechanicId: 
+          value: 5
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      subclassB:
+        stableId: tree.v3.class.warrior.t03.right.subclass.variant.warrior-multihit
+        logicalSlotId: tree.v3.class.warrior.t03.right.subclass
+        displayName: Escalating Multistrikes
+        description: Each successive Multistrike deals 5% more damage per prior Multistrike in this attack.
+        branch: 17
+        size: 0
+        kind: 7
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 150
+          mechanicId: 
+          value: 5
         iconMode: 0
         iconOverride: {fileID: 0}
     left:
       a:
         stableId: tree.v3.class.warrior.t03.left.a
         logicalSlotId: tree.v3.class.warrior.t03.left.a
-        displayName: Maximum Life
-        description: 
-        branch: 1
+        displayName: Increased Armour
+        description: +30% increased local/global Armour.
+        branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 70
+          stat: 52
           mechanicId: 
-          value: 15
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 8a993350bdd739c4c8299b39e51a8eb6, type: 3}
+          value: 30
+        iconMode: 0
+        iconOverride: {fileID: 0}
       b:
         stableId: tree.v3.class.warrior.t03.left.b
         logicalSlotId: tree.v3.class.warrior.t03.left.b
+        displayName: Life on Hit
+        description: Recover 10 Life on a successful hit.
+        branch: 22
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 74
+          mechanicId: 
+          value: 10
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      c:
+        stableId: tree.v3.class.warrior.t03.left.c
+        logicalSlotId: tree.v3.class.warrior.t03.left.c
         displayName: All Elemental Resistance
-        description: Fire, Cold and Lightning resistance only. Does not include Void.
+        description: +4% Fire, Cold and Lightning Resistance.
         branch: 42
         size: 0
         kind: 6
@@ -535,55 +551,39 @@ MonoBehaviour:
         - kind: 0
           stat: 57
           mechanicId: 
-          value: 6
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: a0e7f3f66170c7a40a9c86fac84ee4e3, type: 3}
-      c:
-        stableId: tree.v3.class.warrior.t03.left.c
-        logicalSlotId: tree.v3.class.warrior.t03.left.c
-        displayName: Cooldown Reduction
-        description: 
-        branch: 29
-        size: 0
-        kind: 6
-        keystone: 0
-        effects:
-        - kind: 0
-          stat: 126
-          mechanicId: 
-          value: 10
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: ef8b4bc4f5c24914a901b1a305362e7d, type: 3}
+          value: 4
+        iconMode: 0
+        iconOverride: {fileID: 0}
       subclassA:
         stableId: tree.v3.class.warrior.t03.left.subclass.variant.warrior-bleed
         logicalSlotId: tree.v3.class.warrior.t03.left.subclass
-        displayName: Bleed Warrior
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Life on Hit vs Bleeding
+        description: Recover 25 additional Life when the enemy is already Bleeding as this hit resolves.
+        branch: 22
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 34
+          stat: 148
           mechanicId: 
-          value: 9.4
+          value: 25
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
         stableId: tree.v3.class.warrior.t03.left.subclass.variant.warrior-multihit
         logicalSlotId: tree.v3.class.warrior.t03.left.subclass
-        displayName: Momentum Warrior
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Elemental Plating
+        description: 5% of Armour mitigates Fire, Cold and Lightning hits before Resistance; not Void or DoT.
+        branch: 0
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 81
+          stat: 152
           mechanicId: 
-          value: 9.4
+          value: 5
         iconMode: 0
         iconOverride: {fileID: 0}
   - tier: 4
@@ -611,8 +611,24 @@ MonoBehaviour:
       a:
         stableId: tree.v3.class.warrior.t04.right.a
         logicalSlotId: tree.v3.class.warrior.t04.right.a
+        displayName: Bleed Chance
+        description: +15 percentage points Bleed Chance.
+        branch: 12
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 34
+          mechanicId: 
+          value: 15
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      b:
+        stableId: tree.v3.class.warrior.t04.right.b
+        logicalSlotId: tree.v3.class.warrior.t04.right.b
         displayName: Multistrike Chance
-        description: 
+        description: +5 percentage points Multistrike Chance.
         branch: 17
         size: 0
         kind: 6
@@ -622,13 +638,13 @@ MonoBehaviour:
           stat: 83
           mechanicId: 
           value: 5
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 4628009dc15d25f44a8b9c896bfeb7e1, type: 3}
-      b:
-        stableId: tree.v3.class.warrior.t04.right.b
-        logicalSlotId: tree.v3.class.warrior.t04.right.b
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      c:
+        stableId: tree.v3.class.warrior.t04.right.c
+        logicalSlotId: tree.v3.class.warrior.t04.right.c
         displayName: Attack Speed
-        description: 
+        description: +8% increased Attack Speed.
         branch: 11
         size: 0
         kind: 6
@@ -637,55 +653,39 @@ MonoBehaviour:
         - kind: 0
           stat: 81
           mechanicId: 
-          value: 10
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 9278976e849afd64692e2014ebb004f4, type: 3}
-      c:
-        stableId: tree.v3.class.warrior.t04.right.c
-        logicalSlotId: tree.v3.class.warrior.t04.right.c
-        displayName: Increased Critical Chance
-        description: 
-        branch: 20
-        size: 0
-        kind: 6
-        keystone: 0
-        effects:
-        - kind: 0
-          stat: 11
-          mechanicId: 
-          value: 42
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 9a8398eb01579964aa1ec1892920d26c, type: 3}
+          value: 8
+        iconMode: 0
+        iconOverride: {fileID: 0}
       subclassA:
         stableId: tree.v3.class.warrior.t04.right.subclass.variant.warrior-bleed
         logicalSlotId: tree.v3.class.warrior.t04.right.subclass
-        displayName: Bleed Warrior
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Rupture Damage
+        description: Rupture releases 5% more of the remaining damage in the Bleeds it consumes.
+        branch: 36
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 14
+          stat: 147
           mechanicId: 
-          value: 9.599999
+          value: 5
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
         stableId: tree.v3.class.warrior.t04.right.subclass.variant.warrior-multihit
         logicalSlotId: tree.v3.class.warrior.t04.right.subclass
-        displayName: Momentum Warrior
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Unbroken Assault
+        description: 10% more damage per prior player attack since the last successful enemy hit; Multistrikes do not count separately.
+        branch: 11
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 83
+          stat: 151
           mechanicId: 
-          value: 5.7599998
+          value: 10
         iconMode: 0
         iconOverride: {fileID: 0}
     left:
@@ -693,7 +693,7 @@ MonoBehaviour:
         stableId: tree.v3.class.warrior.t04.left.a
         logicalSlotId: tree.v3.class.warrior.t04.left.a
         displayName: Increased Armour
-        description: 
+        description: +30% increased local/global Armour.
         branch: 0
         size: 0
         kind: 6
@@ -702,14 +702,14 @@ MonoBehaviour:
         - kind: 0
           stat: 52
           mechanicId: 
-          value: 100
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 188d5588f3b2ca240a4654298013b3ba, type: 3}
+          value: 30
+        iconMode: 0
+        iconOverride: {fileID: 0}
       b:
         stableId: tree.v3.class.warrior.t04.left.b
         logicalSlotId: tree.v3.class.warrior.t04.left.b
-        displayName: Life On Hit
-        description: 
+        displayName: Life on Hit
+        description: Recover 10 Life on a successful hit.
         branch: 22
         size: 0
         kind: 6
@@ -718,55 +718,55 @@ MonoBehaviour:
         - kind: 0
           stat: 74
           mechanicId: 
-          value: 3.7
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: b935a26a71a8a8d43acc296f12855637, type: 3}
+          value: 10
+        iconMode: 0
+        iconOverride: {fileID: 0}
       c:
         stableId: tree.v3.class.warrior.t04.left.c
         logicalSlotId: tree.v3.class.warrior.t04.left.c
-        displayName: Mana On Hit
-        description: 
-        branch: 23
+        displayName: All Elemental Resistance
+        description: +4% Fire, Cold and Lightning Resistance.
+        branch: 42
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 75
+          stat: 57
           mechanicId: 
-          value: 2.775
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: c18c48bd216ff3d40b4a764c152ce0c0, type: 3}
+          value: 4
+        iconMode: 0
+        iconOverride: {fileID: 0}
       subclassA:
         stableId: tree.v3.class.warrior.t04.left.subclass.variant.warrior-bleed
         logicalSlotId: tree.v3.class.warrior.t04.left.subclass
-        displayName: Bleed Warrior
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Deferred Wounds
+        description: 8% of post-mitigation damage to Life becomes self-Bleeding over 4 seconds; total damage is unchanged.
+        branch: 0
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 14
+          stat: 149
           mechanicId: 
-          value: 9.599999
+          value: 8
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
         stableId: tree.v3.class.warrior.t04.left.subclass.variant.warrior-multihit
         logicalSlotId: tree.v3.class.warrior.t04.left.subclass
-        displayName: Momentum Warrior
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Block Chance
+        description: +8 percentage points Block Chance; a Block halves a hit before Armour and Resistance.
+        branch: 0
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 83
+          stat: 3
           mechanicId: 
-          value: 5.7599998
+          value: 8
         iconMode: 0
         iconOverride: {fileID: 0}
   - tier: 5
@@ -795,7 +795,7 @@ MonoBehaviour:
         stableId: tree.v3.class.warrior.t05.right.a
         logicalSlotId: tree.v3.class.warrior.t05.right.a
         displayName: Bleed Chance
-        description: 
+        description: +15 percentage points Bleed Chance.
         branch: 12
         size: 0
         kind: 6
@@ -804,14 +804,30 @@ MonoBehaviour:
         - kind: 0
           stat: 34
           mechanicId: 
-          value: 63
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 97cbeb42289d11448a85161073ae5dc9, type: 3}
+          value: 15
+        iconMode: 0
+        iconOverride: {fileID: 0}
       b:
         stableId: tree.v3.class.warrior.t05.right.b
         logicalSlotId: tree.v3.class.warrior.t05.right.b
+        displayName: Multistrike Chance
+        description: +5 percentage points Multistrike Chance.
+        branch: 17
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 83
+          mechanicId: 
+          value: 5
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      c:
+        stableId: tree.v3.class.warrior.t05.right.c
+        logicalSlotId: tree.v3.class.warrior.t05.right.c
         displayName: Attack Speed
-        description: 
+        description: +8% increased Attack Speed.
         branch: 11
         size: 0
         kind: 6
@@ -820,79 +836,63 @@ MonoBehaviour:
         - kind: 0
           stat: 81
           mechanicId: 
-          value: 10
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 9278976e849afd64692e2014ebb004f4, type: 3}
-      c:
-        stableId: tree.v3.class.warrior.t05.right.c
-        logicalSlotId: tree.v3.class.warrior.t05.right.c
-        displayName: Increased Strength
-        description: 
-        branch: 26
-        size: 0
-        kind: 6
-        keystone: 0
-        effects:
-        - kind: 0
-          stat: 95
-          mechanicId: 
-          value: 7.5
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 5b1377a9703037e48a81f69dd6f5abd0, type: 3}
+          value: 8
+        iconMode: 0
+        iconOverride: {fileID: 0}
       subclassA:
         stableId: tree.v3.class.warrior.t05.right.subclass.variant.warrior-bleed
         logicalSlotId: tree.v3.class.warrior.t05.right.subclass
-        displayName: Bleed Warrior
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Damage over Time Multiplier
+        description: +5% Damage over Time Multiplier.
+        branch: 36
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 74
+          stat: 153
           mechanicId: 
-          value: 1.2800001
+          value: 5
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
         stableId: tree.v3.class.warrior.t05.right.subclass.variant.warrior-multihit
         logicalSlotId: tree.v3.class.warrior.t05.right.subclass
-        displayName: Momentum Warrior
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Escalating Multistrikes
+        description: Each successive Multistrike deals 5% more damage per prior Multistrike in this attack.
+        branch: 17
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 12
+          stat: 150
           mechanicId: 
-          value: 15.679999
+          value: 5
         iconMode: 0
         iconOverride: {fileID: 0}
     left:
       a:
         stableId: tree.v3.class.warrior.t05.left.a
         logicalSlotId: tree.v3.class.warrior.t05.left.a
-        displayName: Maximum Life
-        description: 
-        branch: 1
+        displayName: Increased Armour
+        description: +30% increased local/global Armour.
+        branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 70
+          stat: 52
           mechanicId: 
-          value: 15
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 8a993350bdd739c4c8299b39e51a8eb6, type: 3}
+          value: 30
+        iconMode: 0
+        iconOverride: {fileID: 0}
       b:
         stableId: tree.v3.class.warrior.t05.left.b
         logicalSlotId: tree.v3.class.warrior.t05.left.b
-        displayName: Life On Hit
-        description: 
+        displayName: Life on Hit
+        description: Recover 10 Life on a successful hit.
         branch: 22
         size: 0
         kind: 6
@@ -901,55 +901,55 @@ MonoBehaviour:
         - kind: 0
           stat: 74
           mechanicId: 
-          value: 3.7
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: b935a26a71a8a8d43acc296f12855637, type: 3}
+          value: 10
+        iconMode: 0
+        iconOverride: {fileID: 0}
       c:
         stableId: tree.v3.class.warrior.t05.left.c
         logicalSlotId: tree.v3.class.warrior.t05.left.c
-        displayName: Increased Critical Chance
-        description: 
-        branch: 20
+        displayName: All Elemental Resistance
+        description: +4% Fire, Cold and Lightning Resistance.
+        branch: 42
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 11
+          stat: 57
           mechanicId: 
-          value: 42
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 9a8398eb01579964aa1ec1892920d26c, type: 3}
+          value: 4
+        iconMode: 0
+        iconOverride: {fileID: 0}
       subclassA:
         stableId: tree.v3.class.warrior.t05.left.subclass.variant.warrior-bleed
         logicalSlotId: tree.v3.class.warrior.t05.left.subclass
-        displayName: Bleed Warrior
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Life on Hit vs Bleeding
+        description: Recover 25 additional Life when the enemy is already Bleeding as this hit resolves.
+        branch: 22
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 74
+          stat: 148
           mechanicId: 
-          value: 1.2800001
+          value: 25
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
         stableId: tree.v3.class.warrior.t05.left.subclass.variant.warrior-multihit
         logicalSlotId: tree.v3.class.warrior.t05.left.subclass
-        displayName: Momentum Warrior
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Elemental Plating
+        description: 5% of Armour mitigates Fire, Cold and Lightning hits before Resistance; not Void or DoT.
+        branch: 0
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 12
+          stat: 152
           mechanicId: 
-          value: 15.679999
+          value: 5
         iconMode: 0
         iconOverride: {fileID: 0}
   - tier: 6
@@ -977,8 +977,24 @@ MonoBehaviour:
       a:
         stableId: tree.v3.class.warrior.t06.right.a
         logicalSlotId: tree.v3.class.warrior.t06.right.a
+        displayName: Bleed Chance
+        description: +15 percentage points Bleed Chance.
+        branch: 12
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 34
+          mechanicId: 
+          value: 15
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      b:
+        stableId: tree.v3.class.warrior.t06.right.b
+        logicalSlotId: tree.v3.class.warrior.t06.right.b
         displayName: Multistrike Chance
-        description: 
+        description: +5 percentage points Multistrike Chance.
         branch: 17
         size: 0
         kind: 6
@@ -988,68 +1004,52 @@ MonoBehaviour:
           stat: 83
           mechanicId: 
           value: 5
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 4628009dc15d25f44a8b9c896bfeb7e1, type: 3}
-      b:
-        stableId: tree.v3.class.warrior.t06.right.b
-        logicalSlotId: tree.v3.class.warrior.t06.right.b
-        displayName: Increased Bleed Damage
-        description: 
-        branch: 36
-        size: 0
-        kind: 6
-        keystone: 0
-        effects:
-        - kind: 0
-          stat: 28
-          mechanicId: 
-          value: 42
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: eca8f101f8442774384ebedb7cb9ec3e, type: 3}
+        iconMode: 0
+        iconOverride: {fileID: 0}
       c:
         stableId: tree.v3.class.warrior.t06.right.c
         logicalSlotId: tree.v3.class.warrior.t06.right.c
-        displayName: Mana On Hit
-        description: 
-        branch: 23
+        displayName: Attack Speed
+        description: +8% increased Attack Speed.
+        branch: 11
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 75
+          stat: 81
           mechanicId: 
-          value: 2.775
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: c18c48bd216ff3d40b4a764c152ce0c0, type: 3}
+          value: 8
+        iconMode: 0
+        iconOverride: {fileID: 0}
       subclassA:
         stableId: tree.v3.class.warrior.t06.right.subclass.variant.warrior-bleed
         logicalSlotId: tree.v3.class.warrior.t06.right.subclass
-        displayName: Bleed Warrior
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Rupture Damage
+        description: Rupture releases 5% more of the remaining damage in the Bleeds it consumes.
+        branch: 36
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 34
+          stat: 147
           mechanicId: 
-          value: 10
+          value: 5
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
         stableId: tree.v3.class.warrior.t06.right.subclass.variant.warrior-multihit
         logicalSlotId: tree.v3.class.warrior.t06.right.subclass
-        displayName: Momentum Warrior
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Unbroken Assault
+        description: 10% more damage per prior player attack since the last successful enemy hit; Multistrikes do not count separately.
+        branch: 11
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 81
+          stat: 151
           mechanicId: 
           value: 10
         iconMode: 0
@@ -1059,7 +1059,7 @@ MonoBehaviour:
         stableId: tree.v3.class.warrior.t06.left.a
         logicalSlotId: tree.v3.class.warrior.t06.left.a
         displayName: Increased Armour
-        description: 
+        description: +30% increased local/global Armour.
         branch: 0
         size: 0
         kind: 6
@@ -1068,14 +1068,30 @@ MonoBehaviour:
         - kind: 0
           stat: 52
           mechanicId: 
-          value: 100
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 188d5588f3b2ca240a4654298013b3ba, type: 3}
+          value: 30
+        iconMode: 0
+        iconOverride: {fileID: 0}
       b:
         stableId: tree.v3.class.warrior.t06.left.b
         logicalSlotId: tree.v3.class.warrior.t06.left.b
+        displayName: Life on Hit
+        description: Recover 10 Life on a successful hit.
+        branch: 22
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 74
+          mechanicId: 
+          value: 10
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      c:
+        stableId: tree.v3.class.warrior.t06.left.c
+        logicalSlotId: tree.v3.class.warrior.t06.left.c
         displayName: All Elemental Resistance
-        description: Fire, Cold and Lightning resistance only. Does not include Void.
+        description: +4% Fire, Cold and Lightning Resistance.
         branch: 42
         size: 0
         kind: 6
@@ -1084,55 +1100,39 @@ MonoBehaviour:
         - kind: 0
           stat: 57
           mechanicId: 
-          value: 6
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: a0e7f3f66170c7a40a9c86fac84ee4e3, type: 3}
-      c:
-        stableId: tree.v3.class.warrior.t06.left.c
-        logicalSlotId: tree.v3.class.warrior.t06.left.c
-        displayName: Cooldown Reduction
-        description: 
-        branch: 29
-        size: 0
-        kind: 6
-        keystone: 0
-        effects:
-        - kind: 0
-          stat: 126
-          mechanicId: 
-          value: 10
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: ef8b4bc4f5c24914a901b1a305362e7d, type: 3}
+          value: 4
+        iconMode: 0
+        iconOverride: {fileID: 0}
       subclassA:
         stableId: tree.v3.class.warrior.t06.left.subclass.variant.warrior-bleed
         logicalSlotId: tree.v3.class.warrior.t06.left.subclass
-        displayName: Bleed Warrior
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Deferred Wounds
+        description: 8% of post-mitigation damage to Life becomes self-Bleeding over 4 seconds; total damage is unchanged.
+        branch: 0
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 34
+          stat: 149
           mechanicId: 
-          value: 10
+          value: 8
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
         stableId: tree.v3.class.warrior.t06.left.subclass.variant.warrior-multihit
         logicalSlotId: tree.v3.class.warrior.t06.left.subclass
-        displayName: Momentum Warrior
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Block Chance
+        description: +8 percentage points Block Chance; a Block halves a hit before Armour and Resistance.
+        branch: 0
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 81
+          stat: 3
           mechanicId: 
-          value: 10
+          value: 8
         iconMode: 0
         iconOverride: {fileID: 0}
   - tier: 7
@@ -1161,7 +1161,7 @@ MonoBehaviour:
         stableId: tree.v3.class.warrior.t07.right.a
         logicalSlotId: tree.v3.class.warrior.t07.right.a
         displayName: Bleed Chance
-        description: 
+        description: +15 percentage points Bleed Chance.
         branch: 12
         size: 0
         kind: 6
@@ -1170,14 +1170,14 @@ MonoBehaviour:
         - kind: 0
           stat: 34
           mechanicId: 
-          value: 63
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 97cbeb42289d11448a85161073ae5dc9, type: 3}
+          value: 15
+        iconMode: 0
+        iconOverride: {fileID: 0}
       b:
         stableId: tree.v3.class.warrior.t07.right.b
         logicalSlotId: tree.v3.class.warrior.t07.right.b
         displayName: Multistrike Chance
-        description: 
+        description: +5 percentage points Multistrike Chance.
         branch: 17
         size: 0
         kind: 6
@@ -1187,78 +1187,62 @@ MonoBehaviour:
           stat: 83
           mechanicId: 
           value: 5
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 4628009dc15d25f44a8b9c896bfeb7e1, type: 3}
+        iconMode: 0
+        iconOverride: {fileID: 0}
       c:
         stableId: tree.v3.class.warrior.t07.right.c
         logicalSlotId: tree.v3.class.warrior.t07.right.c
-        displayName: Cooldown Reduction
-        description: 
-        branch: 29
+        displayName: Attack Speed
+        description: +8% increased Attack Speed.
+        branch: 11
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 126
+          stat: 81
           mechanicId: 
-          value: 10
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: ef8b4bc4f5c24914a901b1a305362e7d, type: 3}
+          value: 8
+        iconMode: 0
+        iconOverride: {fileID: 0}
       subclassA:
         stableId: tree.v3.class.warrior.t07.right.subclass.variant.warrior-bleed
         logicalSlotId: tree.v3.class.warrior.t07.right.subclass
-        displayName: Bleed Warrior
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Damage over Time Multiplier
+        description: +5% Damage over Time Multiplier.
+        branch: 36
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 14
+          stat: 153
           mechanicId: 
-          value: 10.2
+          value: 5
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
         stableId: tree.v3.class.warrior.t07.right.subclass.variant.warrior-multihit
         logicalSlotId: tree.v3.class.warrior.t07.right.subclass
-        displayName: Momentum Warrior
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Escalating Multistrikes
+        description: Each successive Multistrike deals 5% more damage per prior Multistrike in this attack.
+        branch: 17
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 83
+          stat: 150
           mechanicId: 
-          value: 6.12
+          value: 5
         iconMode: 0
         iconOverride: {fileID: 0}
     left:
       a:
         stableId: tree.v3.class.warrior.t07.left.a
         logicalSlotId: tree.v3.class.warrior.t07.left.a
-        displayName: Maximum Life
-        description: 
-        branch: 1
-        size: 0
-        kind: 6
-        keystone: 0
-        effects:
-        - kind: 0
-          stat: 70
-          mechanicId: 
-          value: 15
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 8a993350bdd739c4c8299b39e51a8eb6, type: 3}
-      b:
-        stableId: tree.v3.class.warrior.t07.left.b
-        logicalSlotId: tree.v3.class.warrior.t07.left.b
         displayName: Increased Armour
-        description: 
+        description: +30% increased local/global Armour.
         branch: 0
         size: 0
         kind: 6
@@ -1267,55 +1251,71 @@ MonoBehaviour:
         - kind: 0
           stat: 52
           mechanicId: 
-          value: 100
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 188d5588f3b2ca240a4654298013b3ba, type: 3}
-      c:
-        stableId: tree.v3.class.warrior.t07.left.c
-        logicalSlotId: tree.v3.class.warrior.t07.left.c
-        displayName: Mana On Hit
-        description: 
-        branch: 23
+          value: 30
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      b:
+        stableId: tree.v3.class.warrior.t07.left.b
+        logicalSlotId: tree.v3.class.warrior.t07.left.b
+        displayName: Life on Hit
+        description: Recover 10 Life on a successful hit.
+        branch: 22
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 75
+          stat: 74
           mechanicId: 
-          value: 2.775
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: c18c48bd216ff3d40b4a764c152ce0c0, type: 3}
+          value: 10
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      c:
+        stableId: tree.v3.class.warrior.t07.left.c
+        logicalSlotId: tree.v3.class.warrior.t07.left.c
+        displayName: All Elemental Resistance
+        description: +4% Fire, Cold and Lightning Resistance.
+        branch: 42
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 57
+          mechanicId: 
+          value: 4
+        iconMode: 0
+        iconOverride: {fileID: 0}
       subclassA:
         stableId: tree.v3.class.warrior.t07.left.subclass.variant.warrior-bleed
         logicalSlotId: tree.v3.class.warrior.t07.left.subclass
-        displayName: Bleed Warrior
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Life on Hit vs Bleeding
+        description: Recover 25 additional Life when the enemy is already Bleeding as this hit resolves.
+        branch: 22
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 14
+          stat: 148
           mechanicId: 
-          value: 10.2
+          value: 25
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
         stableId: tree.v3.class.warrior.t07.left.subclass.variant.warrior-multihit
         logicalSlotId: tree.v3.class.warrior.t07.left.subclass
-        displayName: Momentum Warrior
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Elemental Plating
+        description: 5% of Armour mitigates Fire, Cold and Lightning hits before Resistance; not Void or DoT.
+        branch: 0
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 83
+          stat: 152
           mechanicId: 
-          value: 6.12
+          value: 5
         iconMode: 0
         iconOverride: {fileID: 0}
   - tier: 8
@@ -1343,24 +1343,40 @@ MonoBehaviour:
       a:
         stableId: tree.v3.class.warrior.t08.right.a
         logicalSlotId: tree.v3.class.warrior.t08.right.a
-        displayName: Increased Bleed Damage
-        description: 
-        branch: 36
+        displayName: Bleed Chance
+        description: +15 percentage points Bleed Chance.
+        branch: 12
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 28
+          stat: 34
           mechanicId: 
-          value: 42
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: eca8f101f8442774384ebedb7cb9ec3e, type: 3}
+          value: 15
+        iconMode: 0
+        iconOverride: {fileID: 0}
       b:
         stableId: tree.v3.class.warrior.t08.right.b
         logicalSlotId: tree.v3.class.warrior.t08.right.b
+        displayName: Multistrike Chance
+        description: +5 percentage points Multistrike Chance.
+        branch: 17
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 83
+          mechanicId: 
+          value: 5
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      c:
+        stableId: tree.v3.class.warrior.t08.right.c
+        logicalSlotId: tree.v3.class.warrior.t08.right.c
         displayName: Attack Speed
-        description: 
+        description: +8% increased Attack Speed.
         branch: 11
         size: 0
         kind: 6
@@ -1369,79 +1385,63 @@ MonoBehaviour:
         - kind: 0
           stat: 81
           mechanicId: 
-          value: 10
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 9278976e849afd64692e2014ebb004f4, type: 3}
-      c:
-        stableId: tree.v3.class.warrior.t08.right.c
-        logicalSlotId: tree.v3.class.warrior.t08.right.c
-        displayName: Increased Strength
-        description: 
-        branch: 26
-        size: 0
-        kind: 6
-        keystone: 0
-        effects:
-        - kind: 0
-          stat: 95
-          mechanicId: 
-          value: 7.5
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 5b1377a9703037e48a81f69dd6f5abd0, type: 3}
+          value: 8
+        iconMode: 0
+        iconOverride: {fileID: 0}
       subclassA:
         stableId: tree.v3.class.warrior.t08.right.subclass.variant.warrior-bleed
         logicalSlotId: tree.v3.class.warrior.t08.right.subclass
-        displayName: Bleed Warrior
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Rupture Damage
+        description: Rupture releases 5% more of the remaining damage in the Bleeds it consumes.
+        branch: 36
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 74
+          stat: 147
           mechanicId: 
-          value: 1.36
+          value: 5
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
         stableId: tree.v3.class.warrior.t08.right.subclass.variant.warrior-multihit
         logicalSlotId: tree.v3.class.warrior.t08.right.subclass
-        displayName: Momentum Warrior
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Unbroken Assault
+        description: 10% more damage per prior player attack since the last successful enemy hit; Multistrikes do not count separately.
+        branch: 11
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 12
+          stat: 151
           mechanicId: 
-          value: 16.64
+          value: 10
         iconMode: 0
         iconOverride: {fileID: 0}
     left:
       a:
         stableId: tree.v3.class.warrior.t08.left.a
         logicalSlotId: tree.v3.class.warrior.t08.left.a
-        displayName: All Elemental Resistance
-        description: Fire, Cold and Lightning resistance only. Does not include Void.
-        branch: 42
+        displayName: Increased Armour
+        description: +30% increased local/global Armour.
+        branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 57
+          stat: 52
           mechanicId: 
-          value: 6
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: a0e7f3f66170c7a40a9c86fac84ee4e3, type: 3}
+          value: 30
+        iconMode: 0
+        iconOverride: {fileID: 0}
       b:
         stableId: tree.v3.class.warrior.t08.left.b
         logicalSlotId: tree.v3.class.warrior.t08.left.b
-        displayName: Life On Hit
-        description: 
+        displayName: Life on Hit
+        description: Recover 10 Life on a successful hit.
         branch: 22
         size: 0
         kind: 6
@@ -1450,55 +1450,55 @@ MonoBehaviour:
         - kind: 0
           stat: 74
           mechanicId: 
-          value: 3.7
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: b935a26a71a8a8d43acc296f12855637, type: 3}
+          value: 10
+        iconMode: 0
+        iconOverride: {fileID: 0}
       c:
         stableId: tree.v3.class.warrior.t08.left.c
         logicalSlotId: tree.v3.class.warrior.t08.left.c
-        displayName: Increased Critical Chance
-        description: 
-        branch: 20
+        displayName: All Elemental Resistance
+        description: +4% Fire, Cold and Lightning Resistance.
+        branch: 42
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 11
+          stat: 57
           mechanicId: 
-          value: 42
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 9a8398eb01579964aa1ec1892920d26c, type: 3}
+          value: 4
+        iconMode: 0
+        iconOverride: {fileID: 0}
       subclassA:
         stableId: tree.v3.class.warrior.t08.left.subclass.variant.warrior-bleed
         logicalSlotId: tree.v3.class.warrior.t08.left.subclass
-        displayName: Bleed Warrior
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Deferred Wounds
+        description: 8% of post-mitigation damage to Life becomes self-Bleeding over 4 seconds; total damage is unchanged.
+        branch: 0
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 74
+          stat: 149
           mechanicId: 
-          value: 1.36
+          value: 8
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
         stableId: tree.v3.class.warrior.t08.left.subclass.variant.warrior-multihit
         logicalSlotId: tree.v3.class.warrior.t08.left.subclass
-        displayName: Momentum Warrior
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Block Chance
+        description: +8 percentage points Block Chance; a Block halves a hit before Armour and Resistance.
+        branch: 0
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 12
+          stat: 3
           mechanicId: 
-          value: 16.64
+          value: 8
         iconMode: 0
         iconOverride: {fileID: 0}
   - tier: 9
@@ -1527,7 +1527,7 @@ MonoBehaviour:
         stableId: tree.v3.class.warrior.t09.right.a
         logicalSlotId: tree.v3.class.warrior.t09.right.a
         displayName: Bleed Chance
-        description: 
+        description: +15 percentage points Bleed Chance.
         branch: 12
         size: 0
         kind: 6
@@ -1536,95 +1536,111 @@ MonoBehaviour:
         - kind: 0
           stat: 34
           mechanicId: 
-          value: 63
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 97cbeb42289d11448a85161073ae5dc9, type: 3}
+          value: 15
+        iconMode: 0
+        iconOverride: {fileID: 0}
       b:
         stableId: tree.v3.class.warrior.t09.right.b
         logicalSlotId: tree.v3.class.warrior.t09.right.b
-        displayName: Increased Bleed Damage
-        description: 
-        branch: 36
+        displayName: Multistrike Chance
+        description: +5 percentage points Multistrike Chance.
+        branch: 17
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 28
+          stat: 83
           mechanicId: 
-          value: 42
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: eca8f101f8442774384ebedb7cb9ec3e, type: 3}
+          value: 5
+        iconMode: 0
+        iconOverride: {fileID: 0}
       c:
         stableId: tree.v3.class.warrior.t09.right.c
         logicalSlotId: tree.v3.class.warrior.t09.right.c
-        displayName: Increased Critical Chance
-        description: 
-        branch: 20
+        displayName: Attack Speed
+        description: +8% increased Attack Speed.
+        branch: 11
         size: 0
         kind: 6
-        keystone: 0
-        effects:
-        - kind: 0
-          stat: 11
-          mechanicId: 
-          value: 42
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 9a8398eb01579964aa1ec1892920d26c, type: 3}
-      subclassA:
-        stableId: tree.v3.class.warrior.t09.right.subclass.variant.warrior-bleed
-        logicalSlotId: tree.v3.class.warrior.t09.right.subclass
-        displayName: Bleed Warrior
-        description: Selected-subclass option on the native class route.
-        branch: 3
-        size: 0
-        kind: 7
-        keystone: 0
-        effects:
-        - kind: 0
-          stat: 34
-          mechanicId: 
-          value: 10.599999
-        iconMode: 0
-        iconOverride: {fileID: 0}
-      subclassB:
-        stableId: tree.v3.class.warrior.t09.right.subclass.variant.warrior-multihit
-        logicalSlotId: tree.v3.class.warrior.t09.right.subclass
-        displayName: Momentum Warrior
-        description: Selected-subclass option on the native class route.
-        branch: 3
-        size: 0
-        kind: 7
         keystone: 0
         effects:
         - kind: 0
           stat: 81
           mechanicId: 
-          value: 10.599999
+          value: 8
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      subclassA:
+        stableId: tree.v3.class.warrior.t09.right.subclass.variant.warrior-bleed
+        logicalSlotId: tree.v3.class.warrior.t09.right.subclass
+        displayName: Damage over Time Multiplier
+        description: +5% Damage over Time Multiplier.
+        branch: 36
+        size: 0
+        kind: 7
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 153
+          mechanicId: 
+          value: 5
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      subclassB:
+        stableId: tree.v3.class.warrior.t09.right.subclass.variant.warrior-multihit
+        logicalSlotId: tree.v3.class.warrior.t09.right.subclass
+        displayName: Escalating Multistrikes
+        description: Each successive Multistrike deals 5% more damage per prior Multistrike in this attack.
+        branch: 17
+        size: 0
+        kind: 7
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 150
+          mechanicId: 
+          value: 5
         iconMode: 0
         iconOverride: {fileID: 0}
     left:
       a:
         stableId: tree.v3.class.warrior.t09.left.a
         logicalSlotId: tree.v3.class.warrior.t09.left.a
-        displayName: Maximum Life
-        description: 
-        branch: 1
+        displayName: Increased Armour
+        description: +30% increased local/global Armour.
+        branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 70
+          stat: 52
           mechanicId: 
-          value: 15
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 8a993350bdd739c4c8299b39e51a8eb6, type: 3}
+          value: 30
+        iconMode: 0
+        iconOverride: {fileID: 0}
       b:
         stableId: tree.v3.class.warrior.t09.left.b
         logicalSlotId: tree.v3.class.warrior.t09.left.b
+        displayName: Life on Hit
+        description: Recover 10 Life on a successful hit.
+        branch: 22
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 74
+          mechanicId: 
+          value: 10
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      c:
+        stableId: tree.v3.class.warrior.t09.left.c
+        logicalSlotId: tree.v3.class.warrior.t09.left.c
         displayName: All Elemental Resistance
-        description: Fire, Cold and Lightning resistance only. Does not include Void.
+        description: +4% Fire, Cold and Lightning Resistance.
         branch: 42
         size: 0
         kind: 6
@@ -1633,55 +1649,39 @@ MonoBehaviour:
         - kind: 0
           stat: 57
           mechanicId: 
-          value: 6
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: a0e7f3f66170c7a40a9c86fac84ee4e3, type: 3}
-      c:
-        stableId: tree.v3.class.warrior.t09.left.c
-        logicalSlotId: tree.v3.class.warrior.t09.left.c
-        displayName: Cooldown Reduction
-        description: 
-        branch: 29
-        size: 0
-        kind: 6
-        keystone: 0
-        effects:
-        - kind: 0
-          stat: 126
-          mechanicId: 
-          value: 10
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: ef8b4bc4f5c24914a901b1a305362e7d, type: 3}
+          value: 4
+        iconMode: 0
+        iconOverride: {fileID: 0}
       subclassA:
         stableId: tree.v3.class.warrior.t09.left.subclass.variant.warrior-bleed
         logicalSlotId: tree.v3.class.warrior.t09.left.subclass
-        displayName: Bleed Warrior
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Life on Hit vs Bleeding
+        description: Recover 25 additional Life when the enemy is already Bleeding as this hit resolves.
+        branch: 22
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 34
+          stat: 148
           mechanicId: 
-          value: 10.599999
+          value: 25
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
         stableId: tree.v3.class.warrior.t09.left.subclass.variant.warrior-multihit
         logicalSlotId: tree.v3.class.warrior.t09.left.subclass
-        displayName: Momentum Warrior
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Elemental Plating
+        description: 5% of Armour mitigates Fire, Cold and Lightning hits before Resistance; not Void or DoT.
+        branch: 0
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 81
+          stat: 152
           mechanicId: 
-          value: 10.599999
+          value: 5
         iconMode: 0
         iconOverride: {fileID: 0}
   - tier: 10
@@ -1709,8 +1709,24 @@ MonoBehaviour:
       a:
         stableId: tree.v3.class.warrior.t10.right.a
         logicalSlotId: tree.v3.class.warrior.t10.right.a
+        displayName: Bleed Chance
+        description: +15 percentage points Bleed Chance.
+        branch: 12
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 34
+          mechanicId: 
+          value: 15
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      b:
+        stableId: tree.v3.class.warrior.t10.right.b
+        logicalSlotId: tree.v3.class.warrior.t10.right.b
         displayName: Multistrike Chance
-        description: 
+        description: +5 percentage points Multistrike Chance.
         branch: 17
         size: 0
         kind: 6
@@ -1720,13 +1736,13 @@ MonoBehaviour:
           stat: 83
           mechanicId: 
           value: 5
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 4628009dc15d25f44a8b9c896bfeb7e1, type: 3}
-      b:
-        stableId: tree.v3.class.warrior.t10.right.b
-        logicalSlotId: tree.v3.class.warrior.t10.right.b
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      c:
+        stableId: tree.v3.class.warrior.t10.right.c
+        logicalSlotId: tree.v3.class.warrior.t10.right.c
         displayName: Attack Speed
-        description: 
+        description: +8% increased Attack Speed.
         branch: 11
         size: 0
         kind: 6
@@ -1735,55 +1751,39 @@ MonoBehaviour:
         - kind: 0
           stat: 81
           mechanicId: 
-          value: 10
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 9278976e849afd64692e2014ebb004f4, type: 3}
-      c:
-        stableId: tree.v3.class.warrior.t10.right.c
-        logicalSlotId: tree.v3.class.warrior.t10.right.c
-        displayName: Increased Strength
-        description: 
-        branch: 26
-        size: 0
-        kind: 6
-        keystone: 0
-        effects:
-        - kind: 0
-          stat: 95
-          mechanicId: 
-          value: 7.5
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 5b1377a9703037e48a81f69dd6f5abd0, type: 3}
+          value: 8
+        iconMode: 0
+        iconOverride: {fileID: 0}
       subclassA:
         stableId: tree.v3.class.warrior.t10.right.subclass.variant.warrior-bleed
         logicalSlotId: tree.v3.class.warrior.t10.right.subclass
-        displayName: Bleed Warrior
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Rupture Damage
+        description: Rupture releases 5% more of the remaining damage in the Bleeds it consumes.
+        branch: 36
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 14
+          stat: 147
           mechanicId: 
-          value: 10.8
+          value: 5
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
         stableId: tree.v3.class.warrior.t10.right.subclass.variant.warrior-multihit
         logicalSlotId: tree.v3.class.warrior.t10.right.subclass
-        displayName: Momentum Warrior
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Unbroken Assault
+        description: 10% more damage per prior player attack since the last successful enemy hit; Multistrikes do not count separately.
+        branch: 11
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 83
+          stat: 151
           mechanicId: 
-          value: 6.48
+          value: 10
         iconMode: 0
         iconOverride: {fileID: 0}
     left:
@@ -1791,7 +1791,7 @@ MonoBehaviour:
         stableId: tree.v3.class.warrior.t10.left.a
         logicalSlotId: tree.v3.class.warrior.t10.left.a
         displayName: Increased Armour
-        description: 
+        description: +30% increased local/global Armour.
         branch: 0
         size: 0
         kind: 6
@@ -1800,14 +1800,14 @@ MonoBehaviour:
         - kind: 0
           stat: 52
           mechanicId: 
-          value: 100
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 188d5588f3b2ca240a4654298013b3ba, type: 3}
+          value: 30
+        iconMode: 0
+        iconOverride: {fileID: 0}
       b:
         stableId: tree.v3.class.warrior.t10.left.b
         logicalSlotId: tree.v3.class.warrior.t10.left.b
-        displayName: Life On Hit
-        description: 
+        displayName: Life on Hit
+        description: Recover 10 Life on a successful hit.
         branch: 22
         size: 0
         kind: 6
@@ -1816,55 +1816,55 @@ MonoBehaviour:
         - kind: 0
           stat: 74
           mechanicId: 
-          value: 3.7
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: b935a26a71a8a8d43acc296f12855637, type: 3}
+          value: 10
+        iconMode: 0
+        iconOverride: {fileID: 0}
       c:
         stableId: tree.v3.class.warrior.t10.left.c
         logicalSlotId: tree.v3.class.warrior.t10.left.c
-        displayName: Mana On Hit
-        description: 
-        branch: 23
+        displayName: All Elemental Resistance
+        description: +4% Fire, Cold and Lightning Resistance.
+        branch: 42
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 75
+          stat: 57
           mechanicId: 
-          value: 2.775
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: c18c48bd216ff3d40b4a764c152ce0c0, type: 3}
+          value: 4
+        iconMode: 0
+        iconOverride: {fileID: 0}
       subclassA:
         stableId: tree.v3.class.warrior.t10.left.subclass.variant.warrior-bleed
         logicalSlotId: tree.v3.class.warrior.t10.left.subclass
-        displayName: Bleed Warrior
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Deferred Wounds
+        description: 8% of post-mitigation damage to Life becomes self-Bleeding over 4 seconds; total damage is unchanged.
+        branch: 0
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 14
+          stat: 149
           mechanicId: 
-          value: 10.8
+          value: 8
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
         stableId: tree.v3.class.warrior.t10.left.subclass.variant.warrior-multihit
         logicalSlotId: tree.v3.class.warrior.t10.left.subclass
-        displayName: Momentum Warrior
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Block Chance
+        description: +8 percentage points Block Chance; a Block halves a hit before Armour and Resistance.
+        branch: 0
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 83
+          stat: 3
           mechanicId: 
-          value: 6.48
+          value: 8
         iconMode: 0
         iconOverride: {fileID: 0}
   keystones:
@@ -1893,7 +1893,7 @@ MonoBehaviour:
   - stableId: tree.v3.class.warrior.keystone.warriorconsolidation
     logicalSlotId: tree.v3.class.warrior.keystone.warriorconsolidation
     displayName: One Decisive Strike
-    description: Consolidate rolled melee Multistrikes into the original hit at 105% extra-strike damage each. No repeated triggers.
+    description: Consolidate rolled melee Multistrikes into the original hit at 110% of each would-be extra strike. No repeated triggers.
     branch: 8
     size: 2
     kind: 4

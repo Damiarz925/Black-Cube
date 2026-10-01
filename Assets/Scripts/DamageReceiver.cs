@@ -30,6 +30,7 @@ public class DamageReceiver : MonoBehaviour
 
         damage = ManaBeforeLifeRules.Apply(this,damage);
         if (damage <= 0f) return;
+        if(effect==null)damage=DeferIncomingLifeHit(damage);
 
         float actualLifeLoss = damage;
         if (health != null)
@@ -64,6 +65,8 @@ public class DamageReceiver : MonoBehaviour
             }
         damage = ManaBeforeLifeRules.Apply(this,damage);
         if (damage <= 0f) return;
+        if(effect==null&&(context.EventTags&CombatEventTags.DeferredWound)==0)
+            damage=DeferIncomingLifeHit(damage);
         float before = health != null ? health.CurrentLife : damage;
         var recap=components.Hits.Count>0?components:context;
         recap.IsCrit=context.IsCrit;recap.EventTags=context.EventTags;
@@ -86,6 +89,28 @@ public class DamageReceiver : MonoBehaviour
             float total=0;foreach(var hit in components.Hits)total+=hit.Amount;
             foreach(var hit in components.Hits)damagePopup?.Spawn(actualLifeLoss*hit.Amount/total,PopupTarget,hit.Element,context.IsCrit,context.IsPrecision);
         }
+    }
+
+    float DeferIncomingLifeHit(float lifeDamage)
+    {
+        if(GetComponent<SubclassCombatState>()?.Has(SubclassIds.WarriorBleed)!=true)return lifeDamage;
+        float fraction=GetComponent<StatsComponent>()?.GetStat(StatTypes.DeferredWounds)??0;
+        float deferred=WarriorSubclassRules.DeferredLifeDamage(lifeDamage,fraction);
+        if(deferred>0)(GetComponent<DeferredWoundState>()??gameObject.AddComponent<DeferredWoundState>()).Add(deferred);
+        return lifeDamage-deferred;
+    }
+
+    public void TakeDeferredWoundDamage(float damage)
+    {
+        if(damage<=0)return;
+        health ??= GetComponent<HealthComponent>();
+        if(health==null||health.CurrentLife<=0)return;
+        var context=new DamageContext(1){EventTags=CombatEventTags.Ailment|CombatEventTags.SubclassProc|CombatEventTags.DeferredWound|CombatEventTags.NoSecondaryTriggers};
+        context.AddDamage(Element.Phys,damage);
+        RecordIncoming(Mathf.Min(damage,health.CurrentLife),context,null,Element.Phys);
+        float before=health.CurrentLife;
+        health.LoseLife(damage);
+        SpawnDamagePopup(Mathf.Max(0,before-health.CurrentLife),Element.Phys,null,false);
     }
 
     private void SpawnDamagePopup(float damage, Element element, StatusEffects effect, bool critical)

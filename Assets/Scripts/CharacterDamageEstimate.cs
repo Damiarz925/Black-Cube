@@ -25,7 +25,7 @@ public static class CharacterDamageEstimate
     {
         var increased=element==Element.Phys?StatTypes.BleedDmg:element==Element.Fire?StatTypes.IgniteDmg:StatTypes.PoisonDmg;
         var more=element==Element.Phys?StatTypes.BleedMult:element==Element.Fire?StatTypes.IgniteMult:StatTypes.PoisonMult;
-        return eligibleHit*(element==Element.Phys?.20f:element==Element.Fire?.50f:.05f)*(1+stats.GetStat(increased))*(1+stats.GetStat(more))*(1+stats.GetStat(StatTypes.GenericDotMult))*UniqueCatalog.AilmentMultiplier(stats);
+        return eligibleHit*(element==Element.Phys?.20f:element==Element.Fire?.50f:.05f)*(1+stats.GetStat(increased))*(1+stats.GetStat(more))*(1+stats.GetStat(StatTypes.GenericDotMult))*(1+stats.GetStat(StatTypes.WarriorDotMultiplier))*UniqueCatalog.AilmentMultiplier(stats);
     }
     public static float AilmentDurationFactor(StatsComponent stats,Element element)
     {

@@ -108,7 +108,7 @@ public sealed class Step18_6GameplayTests
         Assert.That(player.WeaponAttributeDamageBonus,Is.EqualTo(.5f).Within(.0001f));Assert.That(scaled,Is.GreaterThan(baseline));
     }
 
-    [TestCase(WeaponTypeIds.Sword,PlayerSkillId.SwordRapidFlurry)]
+    [TestCase(WeaponTypeIds.Sword,PlayerSkillId.SwordRendingStrike)]
     [TestCase(WeaponTypeIds.TwoHandedAxe,PlayerSkillId.AxeHemorrhage)]
     [TestCase(WeaponTypeIds.Bow,PlayerSkillId.BowVenomShot)]
     [TestCase(WeaponTypeIds.Staff,PlayerSkillId.StaffFireball)]

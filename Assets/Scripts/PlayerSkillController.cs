@@ -33,7 +33,7 @@ public sealed class PlayerSkillController : MonoBehaviour
     readonly HashSet<PlayerSkillId> disabledRelicTriggers=new();
     public bool RelicTriggerEnabled(PlayerSkillId id)=>!disabledRelicTriggers.Contains(id);
     public List<PlayerSkillId> CaptureDisabledRelicTriggers()=>new(disabledRelicTriggers);
-    public void RestoreDisabledRelicTriggers(IEnumerable<PlayerSkillId> ids){disabledRelicTriggers.Clear();if(ids!=null)foreach(var id in ids)disabledRelicTriggers.Add(id);}
+    public void RestoreDisabledRelicTriggers(IEnumerable<PlayerSkillId> ids){disabledRelicTriggers.Clear();if(ids!=null)foreach(var id in ids)disabledRelicTriggers.Add(id==PlayerSkillId.SwordRapidFlurry?PlayerSkillId.SwordRendingStrike:id);}
     public void ToggleRelicTrigger(PlayerSkillId id){if(!disabledRelicTriggers.Remove(id))disabledRelicTriggers.Add(id);GamePersistence.MarkDirty();}
     public IReadOnlyList<PlayerSkillDefinition> Skills => skills;
     public IReadOnlyList<PlayerSkillDefinition> WeaponSkills => weaponSkills;
@@ -99,6 +99,7 @@ public sealed class PlayerSkillController : MonoBehaviour
 
     public bool RestoreSelection(bool hasSelection, PlayerSkillId id)
     {
+        if(id==PlayerSkillId.SwordRapidFlurry)id=PlayerSkillId.SwordRendingStrike;
         PlayerSkillDefinition next = null;
         if (hasSelection)
         {
@@ -179,7 +180,8 @@ public sealed class PlayerSkillController : MonoBehaviour
         if(skill.castMode==PlayerSkillCastMode.AutoQueuedReplacement)return ToggleAutocast(index);
         if(skill.castMode==PlayerSkillCastMode.ImmediateCooldown)return TryCastImmediate(index);
         if(skill.castMode!=PlayerSkillCastMode.QueuedAttackReplacement)return false;
-        if(!BattleManager.Instance.CanCastPlayerSkill||!Mana.CanSpend(cost))return false;
+        if(!BattleManager.Instance.CanCastPlayerSkill||!Mana.CanSpend(cost)
+            ||skill.queuedCooldownEnabled&&CooldownRemaining(index)>0)return false;
         if(QueuedSkill==skill)return true;
         QueuedSkill=skill;GetComponent<SubclassCombatState>()?.ResetQueuedRepeats();QueueChanged?.Invoke();return true;
     }
@@ -210,7 +212,11 @@ public sealed class PlayerSkillController : MonoBehaviour
         }
         if(skill==null||skill.castMode!=PlayerSkillCastMode.QueuedAttackReplacement)return;
         var subclass=GetComponent<SubclassCombatState>();
-        if(subclass!=null&&subclass.TryQueueRepeat()){QueuedSkill=skill;QueueChanged?.Invoke();}
+        bool repeat=subclass!=null&&subclass.TryQueueRepeat();
+        int queuedSlot=weaponSkills.IndexOf(skill);
+        if(queuedSlot>=0&&queuedSlot<2&&skill.queuedCooldownEnabled)
+        {autoCooldownRemaining[queuedSlot]=repeat?0f:EffectiveCooldown(skill);CooldownsChanged?.Invoke();}
+        if(repeat){QueuedSkill=skill;QueueChanged?.Invoke();}
     }
 
     public void ClearQueuedSkill()
@@ -250,8 +256,9 @@ public sealed class PlayerSkillController : MonoBehaviour
         if(deltaTime<=0f||weaponSkills.Count==0||tryCast==null)return;bool changed=false;
         for(int i=0;i<weaponSkills.Count&&i<2;i++)
         {
-            var skill=weaponSkills[i];if(skill==null||skill.castMode==PlayerSkillCastMode.QueuedAttackReplacement)continue;
+            var skill=weaponSkills[i];if(skill==null)continue;
             if(autoCooldownRemaining[i]>0f){autoCooldownRemaining[i]=Mathf.Max(0f,autoCooldownRemaining[i]-deltaTime);changed=true;}
+            if(skill.castMode==PlayerSkillCastMode.QueuedAttackReplacement)continue;
             if(skill.castMode==PlayerSkillCastMode.AutoQueuedReplacement)continue;
             if(skill.castMode==PlayerSkillCastMode.ImmediateCooldown)continue;
             if(autoCooldownRemaining[i]>0f)continue;
@@ -261,7 +268,7 @@ public sealed class PlayerSkillController : MonoBehaviour
         if(changed)CooldownsChanged?.Invoke();
     }
     static bool ContainsProductionSkills(List<PlayerSkillDefinition> source)
-    {foreach(var skill in source)if(skill!=null&&skill.id==PlayerSkillId.SwordRapidFlurry)return true;return false;}
+    {foreach(var skill in source)if(skill!=null&&skill.id is PlayerSkillId.SwordRapidFlurry or PlayerSkillId.SwordRendingStrike)return true;return false;}
 #if UNITY_EDITOR
     public void ConfigureDeveloperAutoSkills(PlayerSkillDefinition first,PlayerSkillDefinition second)
     {

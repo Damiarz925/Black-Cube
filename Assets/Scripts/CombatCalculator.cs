@@ -107,9 +107,17 @@ public static class CombatCalculator
         if(defender!=null&&defender.GetComponent<StatusController>()?.IsFractured==true)
             damage*=ClassKeystoneCatalog.Get(PassiveKeystone.PriestFracture).secondary;
         if(resolved==Element.Fire&&defender?.GetComponent<EnemyAI>()!=null)damage*=attacker?.GetComponent<UniqueCombatRuntime>()?.FireTakenMultiplier??1;
-        float mitigated=resolved == Element.Phys
-            ? ApplyArmourAndPenetration(damage, attacker, defender)
-            : ApplyResistancesAndPenetration(damage, resolved, attacker, defender);
+        float mitigated;
+        if(resolved==Element.Phys)mitigated=ApplyArmourAndPenetration(damage,attacker,defender);
+        else
+        {
+            if(defender!=null&&(resolved is Element.Fire or Element.Cold or Element.Light))
+            {
+                float fraction=defender.GetStat(StatTypes.ElementalPlating);
+                if(fraction>0)damage=ApplyArmourValue(damage,TotalArmour(defender)*Mathf.Clamp01(fraction),0,0);
+            }
+            mitigated=ApplyResistancesAndPenetration(damage,resolved,attacker,defender);
+        }
         return mitigated*(1+(defender?.GetComponent<StatusController>()?.CombinedShockEffect??0));
     }
 
@@ -163,17 +171,21 @@ public static class CombatCalculator
         if (physDamage <= 0f || defender == null)       //If physical damage or defender is 0/null, return
             return 0f;
 
-        float flatArmour = defender.GetStat(StatTypes.FlatArmour);
-        float percentArmour = defender.GetStat(StatTypes.ArmourPercent);
-        float totalArmour = flatArmour * (1f + percentArmour);  //Grab the flat and percent armour values and multiply them for the total armour.
-        var keystones = defender.GetComponent<PassiveKeystoneState>();
-        if (keystones != null) totalArmour *= keystones.DefenseMultiplier;
+        float totalArmour=TotalArmour(defender);
 
         float penetration = attacker != null
             ? attacker.GetStat(StatTypes.PhysPenetration)
             : 0f;
         return ApplyArmourValue(physDamage, totalArmour,
             defender.GetStat(StatTypes.PhysicalDamageReduction), penetration);
+    }
+
+    public static float TotalArmour(StatsComponent defender)
+    {
+        if(defender==null)return 0;
+        float total=defender.GetStat(StatTypes.FlatArmour)*(1f+defender.GetStat(StatTypes.ArmourPercent));
+        var keys=defender.GetComponent<PassiveKeystoneState>();
+        return Mathf.Max(0,total*(keys!=null?keys.DefenseMultiplier:1f));
     }
 
     // ----------------- NEW: DOT DEFENCES -----------------

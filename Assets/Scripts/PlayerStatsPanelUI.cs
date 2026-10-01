@@ -307,7 +307,7 @@ public class PlayerStatsPanelUI : MonoBehaviour
     private static bool IsStatusStat(StatTypes type) =>
         ((int)type >= (int)StatTypes.PoisonDmg && (int)type <= (int)StatTypes.ChillDuration)
         || ((int)type >= (int)StatTypes.PoisonRes && (int)type <= (int)StatTypes.AllAilmentRes)
-        || type == StatTypes.GenericDotMult || type == StatTypes.DoTMultPerIntelligence
+        || type == StatTypes.GenericDotMult || type == StatTypes.WarriorDotMultiplier || type == StatTypes.RuptureDamage || type == StatTypes.DoTMultPerIntelligence
         || type == StatTypes.Plus1Poison || type == StatTypes.Plus1Bleed || type == StatTypes.Plus1Ignite;
     private static string Section(StatTypes type)
     {
@@ -326,7 +326,7 @@ public class PlayerStatsPanelUI : MonoBehaviour
     private static string StatusSubsection(StatTypes type) => type switch
     {
         StatTypes.PoisonChance or StatTypes.BleedChance or StatTypes.IgniteChance or StatTypes.ChillChance or StatTypes.ShockChance => "Application Chances",
-        StatTypes.PoisonDmg or StatTypes.IgniteDmg or StatTypes.BleedDmg or StatTypes.PoisonMult or StatTypes.IgniteMult or StatTypes.BleedMult or StatTypes.GenericDotMult or StatTypes.DoTMultPerIntelligence => "Damage / Increases & Multipliers",
+        StatTypes.PoisonDmg or StatTypes.IgniteDmg or StatTypes.BleedDmg or StatTypes.PoisonMult or StatTypes.IgniteMult or StatTypes.BleedMult or StatTypes.GenericDotMult or StatTypes.WarriorDotMultiplier or StatTypes.RuptureDamage or StatTypes.DoTMultPerIntelligence => "Damage / Increases & Multipliers",
         StatTypes.ShockEffect or StatTypes.ChillEffect => "Effect Strength",
         StatTypes.PoisonDuration or StatTypes.BleedDuration or StatTypes.IgniteDuration or StatTypes.ChillDuration or StatTypes.ShockDuration or StatTypes.PoisonTickRate or StatTypes.BleedTickRate or StatTypes.IgniteTickRate => "Duration & Tick Rate",
         StatTypes.PoisonPenetration or StatTypes.IgnitePenetration or StatTypes.BleedPenetration => "Penetration",

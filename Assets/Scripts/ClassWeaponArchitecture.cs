@@ -92,8 +92,8 @@ public static class SubclassDescriptions
 {
     public static string For(string id)=>id switch
     {
-        SubclassIds.WarriorBleed=>"Rupture and Bleed specialist. Builds sustained physical pressure; less focused on rapid direct hits.",
-        SubclassIds.WarriorMultihit=>"Momentum fighter. Repeated hits build a stronger offense until the enemy lands a hit.",
+        SubclassIds.WarriorBleed=>"Fill an enemy's Bleed limit to Rupture all remaining Bleed damage once per attack opportunity. Invest in DoT, Rupture and recovery while weathering deferred wounds.",
+        SubclassIds.WarriorMultihit=>"Attack Speed and Multistrike grant each other non-recursive bonuses. Trade 20% baseline damage for escalating repeated strikes and uninterrupted attacks, backed by Armour, Block and elemental plating.",
         SubclassIds.BarbarianBigHit=>"Titan heavy hitter. Rewards opening and wounded-state strikes over attack frequency.",
         SubclassIds.BarbarianFire=>"Fire bruiser. Converts physical force into burning eruptions and elemental offense.",
         SubclassIds.RangerPoison=>"Venom archer. Builds Poison from ranged hits and recovers Life through Poison damage.",
@@ -114,7 +114,7 @@ public static class SubclassCatalog
 {
     static readonly SubclassDefinition[] production={
         New(SubclassIds.WarriorBleed,PlayerClassIds.Warrior,"Bleed Warrior","bleed","subclass.warrior.bleed.rupture"),
-        New(SubclassIds.WarriorMultihit,PlayerClassIds.Warrior,"Momentum Warrior","multihit","subclass.warrior.multihit.combo"),
+        New(SubclassIds.WarriorMultihit,PlayerClassIds.Warrior,"Momentum Warrior","multihit","subclass.warrior.multihit.conversion"),
         New(SubclassIds.BarbarianBigHit,PlayerClassIds.Barbarian,"Titan Barbarian","big-hit","subclass.barbarian.big_hit.full_life"),
         New(SubclassIds.BarbarianFire,PlayerClassIds.Barbarian,"Fire Barbarian","fire","subclass.barbarian.fire.eruption"),
         New(SubclassIds.RangerPoison,PlayerClassIds.Ranger,"Venom Ranger","poison","subclass.ranger.poison.all_damage"),
@@ -187,7 +187,7 @@ public sealed class PassiveExtensionMetadata
 public static class WeaponSkillBindings
 {
     static readonly Dictionary<string,PlayerSkillId[]> production=new(){
-        [WeaponTypeIds.Sword]=new[]{PlayerSkillId.SwordRapidFlurry,PlayerSkillId.SwordArmourStrike},
+        [WeaponTypeIds.Sword]=new[]{PlayerSkillId.SwordRendingStrike,PlayerSkillId.SwordArmourStrike},
         [WeaponTypeIds.TwoHandedAxe]=new[]{PlayerSkillId.AxeRageStrike,PlayerSkillId.AxeHemorrhage},
         [WeaponTypeIds.Bow]=new[]{PlayerSkillId.BowVenomShot,PlayerSkillId.BowDoubleVolley},
         [WeaponTypeIds.Staff]=new[]{PlayerSkillId.StaffFireball,PlayerSkillId.StaffShockBarrage},

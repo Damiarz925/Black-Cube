@@ -29,9 +29,6 @@ public static class PlaytestFollowUpAuthoring
                 }
             branch.playtestSustainRevision=1;EditorUtility.SetDirty(branch);
         }
-        var skills=Resources.Load<PlayerSkillCatalog>("PlayerSkills");
-        var flurry=skills.skills.FirstOrDefault(s=>s.id==PlayerSkillId.SwordRapidFlurry);
-        if(flurry!=null){flurry.manaCost=25;EditorUtility.SetDirty(skills);}
         // Historical selected-skill catalog has seven entries. Production weapon
         // skills intentionally come from CreateProductionDefaults in that case.
         Upgrade(PersistentUIAuthoringInstaller.GameplayPrefabPath,true);

@@ -29,7 +29,7 @@ namespace BlackCube.CombatSimulation
     {public float physical,fire,cold,lightning,voidDamage;public float Total=>physical+fire+cold+lightning+voidDamage;public CombatDamageSnapshot Clone()=>new(){physical=physical,fire=fire,cold=cold,lightning=lightning,voidDamage=voidDamage};public void Scale(float x){physical*=x;fire*=x;cold*=x;lightning*=x;voidDamage*=x;}}
     [Serializable] public sealed class CombatSkillSnapshot
     // Scope data is explicit: spell reactions must not depend on equipped weapon.
-    {public string id,name;public PlayerSkillCastMode castMode;public WeaponSkillEffect effect;public float manaCost,cooldown,hitMultiplier=1,secondaryMultiplier,ailmentBasisMultiplier=1,baseProjectileSpeed=1,scopeMultiplier=1;public int hits=1,projectiles=1;public bool projectile,magic,supportsPrecision,suppressDirectDamage;public Element conversionElement;public float conversion;public StatusEffects.AilmentKind specializedAilment;public int guaranteedAilmentApplications,guaranteedAdditionalChill;}
+    {public string id,name;public PlayerSkillCastMode castMode;public WeaponSkillEffect effect;public float manaCost,cooldown,hitMultiplier=1,secondaryMultiplier,ailmentBasisMultiplier=1,baseProjectileSpeed=1,scopeMultiplier=1;public int hits=1,projectiles=1;public bool projectile,magic,supportsPrecision,suppressDirectDamage,queuedCooldownEnabled;public Element conversionElement;public float conversion;public StatusEffects.AilmentKind specializedAilment;public int guaranteedAilmentApplications,guaranteedAdditionalChill;}
     [Serializable] public sealed class CombatEnemySkillSnapshot
     {public string id,name;public EnemySkillKind kind;public Element element;public float damageMultiplier=1;public int hits=1;}
     [Serializable] public sealed class CombatantSnapshot
@@ -40,6 +40,7 @@ namespace BlackCube.CombatSimulation
         public float maximumFireResistance,maximumColdResistance,maximumLightningResistance,maximumVoidResistance,basicScopeMultiplier=1;
         public float physicalPenetration,firePenetration,coldPenetration,lightningPenetration,voidPenetration;
         public float lifeRegeneration,manaRegeneration,lifeOnHit,manaOnHit,lifeOnKill,manaOnKill;
+        public float ruptureDamage,lifeOnHitVsBleeding,deferredWounds,escalatingMultistrike,unbrokenAssault,elementalPlating,blockChance;
         public float poisonChance,bleedChance,igniteChance,shockChance,chillChance,poisonMagnitude,bleedMagnitude,igniteMagnitude,shockEffect,chillEffect;
         // Production adapters supply per-element, per-hit bases. Older laboratory
         // presets retain the fixed-magnitude fallback for serialization compatibility.
@@ -101,7 +102,7 @@ namespace BlackCube.CombatSimulation
     sealed class Dot{public string id,source;public bool playerSource,scheduled,infinite;public float damage;public int ticks,stacks;public float interval,next,expires;}
     sealed class State
     {
-        public CombatantSnapshot data;public float life,mana,rage,rageDecayEligibleAt,rageGenerationRate,chill,chillExpiresAt,phaseStartedAt;public bool frozen,enemyHasActed,finisherArmed,disableLifeRecovery;public int combo,alternate;public string phase;
+        public CombatantSnapshot data;public float life,mana,rage,rageDecayEligibleAt,rageGenerationRate,chill,chillExpiresAt,phaseStartedAt;public bool frozen,enemyHasActed,finisherArmed,disableLifeRecovery,rupturedThisAttack;public int combo,alternate;public string phase;
         public readonly List<Dot> dots=new();public readonly List<(float strength,float expires)> shocks=new();public readonly FiveAuraState auras=new();public float revengeFraction,eventRevengeMultiplier=1;public EnemyBehaviorRuntimeState behavior=new();
         public bool fractured,fractureOnThaw,stealth;public float poolUntil,poolStrength,regenerationUntil,regenerationRate;
         public readonly Dictionary<int,float> nextSkillReady=new();
@@ -178,12 +179,12 @@ namespace BlackCube.CombatSimulation
         static void PlayerAttack(State p,State e,float now,DeterministicCombatRandom rng,CombatSimulationResult r,CombatSimulationConfig c,Action<float,CombatEventType,bool,int,int,Dot> add)
         {
             p.eventRevengeMultiplier=p.data.revengeEffect>0?GenericPassiveMechanics.RevengeMultiplier(p.revengeFraction,p.data.revengeEffect+p.data.Power(UniquePower.RevengeScaling)):1;p.revengeFraction=0;
-            int skill=ChooseSkill(p,e,c,now);r.playerAttacks++;if(skill>=0&&(p.data.skills[skill].castMode==PlayerSkillCastMode.QueuedAttackReplacement||p.data.skills[skill].castMode==PlayerSkillCastMode.AutoQueuedReplacement)){var s=p.data.skills[skill];if(!SpendMana(p,s,r,now,c)){skill=-1;}else Metric(r.skills,s.id).activations++;}
+            int skill=ChooseSkill(p,e,c,now);r.playerAttacks++;p.rupturedThisAttack=false;if(skill>=0&&(p.data.skills[skill].castMode==PlayerSkillCastMode.QueuedAttackReplacement||p.data.skills[skill].castMode==PlayerSkillCastMode.AutoQueuedReplacement)){var s=p.data.skills[skill];if(!SpendMana(p,s,r,now,c)){skill=-1;}else Metric(r.skills,s.id).activations++;}
             LaunchOrEcho(p,e,skill,now,rng,r,c,add);
             if(skill>=0)
             {
                 var s=p.data.skills[skill];RecordResolve(Metric(r.skills,s.id),now);
-                if(s.castMode==PlayerSkillCastMode.AutoQueuedReplacement)
+                if(s.castMode==PlayerSkillCastMode.AutoQueuedReplacement||s.queuedCooldownEnabled)
                 {
                     bool bypass=p.data.subclassId==SubclassIds.MageCooldown&&rng.Value()<SubclassBalanceProfile.CooldownIgnoreChance;
                     p.nextSkillReady[skill]=now+(bypass?0:EffectiveSkillCooldown(p,s));
@@ -191,6 +192,7 @@ namespace BlackCube.CombatSimulation
                 }
             }
             foreach(int index in p.data.relicTriggerIndices.Distinct())if(index>=0&&index<p.data.skills.Count&&e.life>0){var triggered=p.data.skills[index];if(SpendMana(p,triggered,r,now,c)){Metric(r.skills,triggered.id).activations++;LaunchOrEcho(p,e,index,now,rng,r,c,add);RecordResolve(Metric(r.skills,triggered.id),now);}}
+            if(p.data.subclassId==SubclassIds.WarriorMultihit){p.combo++;r.maximumCombo=Mathf.Max(r.maximumCombo,p.combo);}
             p.eventRevengeMultiplier=1;
         }
         static void EnemyAttack(State e,State p,float now,DeterministicCombatRandom rng,CombatSimulationResult r,CombatSimulationConfig c,Action<float,CombatEventType,bool,int,int,Dot> add)
@@ -199,11 +201,11 @@ namespace BlackCube.CombatSimulation
             if(p.stealth){p.stealth=false;if(rng.Value()<ClassKeystoneCatalog.Get(PassiveKeystone.ThiefStealth).secondary){KeyMetric(r,"Stealth first-attack misses",1);return;}}
             r.enemyAttacks++;int skill=-1;
             if(e.data.behavior!=null&&e.data.enemySkills.Count>0){e.behavior.completedAttacks=r.enemyAttacks-1;e.behavior.selfLifeFraction=e.life/e.data.maximumLife;e.behavior.playerLifeFraction=p.life/p.data.maximumLife;e.behavior.bossPhaseId=e.phase;e.behavior.random01=rng.Value();var decision=EnemyBehaviorResolver.Resolve(e.data.behavior,e.behavior,id=>e.data.enemySkills.Any(x=>x.id==id));skill=e.data.enemySkills.FindIndex(x=>x.id==decision.selectedSkillId);Trace(r,c,now,CombatEventType.BehaviorDecision,CombatTraceFilter.Behavior,e,p,decision.selectedSkillId,decision.reason,decision.selectedRuleId,e.phase,e.behavior.random01);}
-            ResolveHit(e,p,skill,now,rng,r,c);e.enemyHasActed=true;p.enemyHasActed=true;if(p.combo>0)r.comboResets++;p.combo=0;
+            float beforeLife=p.life,beforeMana=p.mana;ResolveHit(e,p,skill,now,rng,r,c);e.enemyHasActed=true;p.enemyHasActed=true;if(p.life<beforeLife||p.mana<beforeMana){if(p.combo>0)r.comboResets++;p.combo=0;}
         }
         static int ChooseSkill(State p,State e,CombatSimulationConfig c,float now)
         {
-            var candidates=p.data.skills.Select((x,i)=>(x,i)).Where(x=>!p.data.relicTriggerIndices.Contains(x.i)&&(x.i==0?c.enableSkill1:c.enableSkill2)&&(x.x.castMode==PlayerSkillCastMode.QueuedAttackReplacement||(x.x.castMode==PlayerSkillCastMode.AutoQueuedReplacement&&(!p.nextSkillReady.TryGetValue(x.i,out float ready)||ready<=now)))&&p.mana+Epsilon>=x.x.manaCost).ToList();if(c.actionPolicy==PlayerActionPolicy.BasicOnly||candidates.Count==0)return-1;if(c.actionPolicy==PlayerActionPolicy.ManaConservative)candidates=candidates.Where(x=>p.mana-x.x.manaCost>=p.data.maximumMana*c.manaReserve).ToList();if(candidates.Count==0)return-1;if(c.actionPolicy==PlayerActionPolicy.Skill2Priority)return candidates.OrderByDescending(x=>x.i).First().i;if(c.actionPolicy==PlayerActionPolicy.AlternateSkills){int x=candidates[p.alternate++%candidates.Count].i;return x;}return candidates.OrderBy(x=>x.i).First().i;
+            var candidates=p.data.skills.Select((x,i)=>(x,i)).Where(x=>!p.data.relicTriggerIndices.Contains(x.i)&&(x.i==0?c.enableSkill1:c.enableSkill2)&&(x.x.castMode==PlayerSkillCastMode.QueuedAttackReplacement||x.x.castMode==PlayerSkillCastMode.AutoQueuedReplacement)&&(!x.x.queuedCooldownEnabled&&! (x.x.castMode==PlayerSkillCastMode.AutoQueuedReplacement)||!p.nextSkillReady.TryGetValue(x.i,out float ready)||ready<=now)&&p.mana+Epsilon>=x.x.manaCost).ToList();if(c.actionPolicy==PlayerActionPolicy.BasicOnly||candidates.Count==0)return-1;if(c.actionPolicy==PlayerActionPolicy.ManaConservative)candidates=candidates.Where(x=>p.mana-x.x.manaCost>=p.data.maximumMana*c.manaReserve).ToList();if(candidates.Count==0)return-1;if(c.actionPolicy==PlayerActionPolicy.Skill2Priority)return candidates.OrderByDescending(x=>x.i).First().i;if(c.actionPolicy==PlayerActionPolicy.AlternateSkills){int x=candidates[p.alternate++%candidates.Count].i;return x;}return candidates.OrderBy(x=>x.i).First().i;
         }
         static void ResolveCooldownSkill(State p,State e,int index,float now,DeterministicCombatRandom rng,CombatSimulationResult r,CombatSimulationConfig c,Action<float,CombatEventType,bool,int,int,Dot> add)
         {
@@ -256,20 +258,18 @@ namespace BlackCube.CombatSimulation
         static void ResolveHit(State s,State t,int skill,float now,DeterministicCombatRandom rng,CombatSimulationResult r,CombatSimulationConfig c,int projectile=0)
         {
             var packet=s.data.basicDamage.Clone();string action="Basic Attack";float multiplier=1;int hits=1;CombatSkillSnapshot ps=null;CombatEnemySkillSnapshot es=null;
-            if(s.data.player&&skill>=0){ps=s.data.skills[skill];action=ps.name;multiplier=ps.effect==WeaponSkillEffect.ArmourStrike?WeaponMechanicProfile.ArmourStrikeMultiplier(s.data.armour):ps.hitMultiplier;hits=Mathf.Max(1,ps.hits);if(ps.effect==WeaponSkillEffect.RapidFlurry)hits=WeaponMechanicProfile.RapidFlurryHits(s.data.attackSpeedBonus);if(ps.effect==WeaponSkillEffect.ShockBarrage){hits=ShockRules.BarrageHits(t.shocks.Sum(x=>x.strength));t.shocks.Clear();}Convert(packet,ps.conversionElement,ps.conversion);}
+            if(s.data.player&&skill>=0){ps=s.data.skills[skill];action=ps.name;multiplier=ps.effect==WeaponSkillEffect.ArmourStrike?WeaponMechanicProfile.ArmourStrikeMultiplier(s.data.armour):ps.hitMultiplier;hits=Mathf.Max(1,ps.hits);if(ps.effect==WeaponSkillEffect.ShockBarrage){hits=ShockRules.BarrageHits(t.shocks.Sum(x=>x.strength));t.shocks.Clear();}Convert(packet,ps.conversionElement,ps.conversion);}
             else if(!s.data.player&&skill>=0){es=s.data.enemySkills[skill];action=es.name;multiplier=es.damageMultiplier;hits=Mathf.Max(1,es.hits);Convert(packet,es.element,1);Metric(r.enemySkills,es.id).activations++;}
             if(s.data.player)multiplier*=ps!=null?ps.scopeMultiplier:s.data.basicScopeMultiplier;
             // Virtual Poison suppresses the direct packet at resolution, not
             // the would-be hit used to construct its guaranteed ailment.
             if(ps?.effect==WeaponSkillEffect.VirtualPoison)multiplier=ps.scopeMultiplier;
-            float subclass=1;if(s.data.player){if(s.data.subclassId==SubclassIds.BarbarianBigHit&&t.life>=t.data.maximumLife-Epsilon){subclass*=1+SubclassBalanceProfile.FullLifeMore;r.fullLifeBonusHits++;}if(s.data.subclassId==SubclassIds.BarbarianBigHit&&s.life<=s.data.maximumLife*.5f){subclass*=1+SubclassBalanceProfile.InjuredMore;r.injuredBonusHits++;}if(s.data.subclassId==SubclassIds.ThiefAssassin&&!t.enemyHasActed)subclass*=1.5f;if(s.data.subclassId==SubclassIds.ThiefAssassin&&t.data.boss&&t.life<=t.data.maximumLife*.1f)subclass*=1.5f;if(s.data.subclassId==SubclassIds.BarbarianFire)packet.fire+=packet.physical*SubclassBalanceProfile.AddedFireFromPhysical;if(s.data.subclassId==SubclassIds.PriestDark)packet.voidDamage*=1+s.data.corruption*.002f;if(s.data.subclassId==SubclassIds.PriestLight){packet.voidDamage=0;}int finalProjectiles=skill>=0?ps.projectiles:s.data.projectileCount;if(s.data.subclassId==SubclassIds.RangerProjectile&&s.data.projectileMode==SubclassProjectileMode.Focused&&finalProjectiles>1)subclass*=SubclassBalanceProfile.FocusedMultiplier(finalProjectiles);}
+            float subclass=1;if(s.data.player){if(s.data.subclassId==SubclassIds.WarriorMultihit)subclass*=(1-WarriorSubclassRules.MomentumLessDamage)*WarriorSubclassRules.AssaultMultiplier(s.combo,s.data.unbrokenAssault);if(s.data.subclassId==SubclassIds.BarbarianBigHit&&t.life>=t.data.maximumLife-Epsilon){subclass*=1+SubclassBalanceProfile.FullLifeMore;r.fullLifeBonusHits++;}if(s.data.subclassId==SubclassIds.BarbarianBigHit&&s.life<=s.data.maximumLife*.5f){subclass*=1+SubclassBalanceProfile.InjuredMore;r.injuredBonusHits++;}if(s.data.subclassId==SubclassIds.ThiefAssassin&&!t.enemyHasActed)subclass*=1.5f;if(s.data.subclassId==SubclassIds.ThiefAssassin&&t.data.boss&&t.life<=t.data.maximumLife*.1f)subclass*=1.5f;if(s.data.subclassId==SubclassIds.BarbarianFire)packet.fire+=packet.physical*SubclassBalanceProfile.AddedFireFromPhysical;if(s.data.subclassId==SubclassIds.PriestDark)packet.voidDamage*=1+s.data.corruption*.002f;if(s.data.subclassId==SubclassIds.PriestLight){packet.voidDamage=0;}int finalProjectiles=skill>=0?ps.projectiles:s.data.projectileCount;if(s.data.subclassId==SubclassIds.RangerProjectile&&s.data.projectileMode==SubclassProjectileMode.Focused&&finalProjectiles>1)subclass*=SubclassBalanceProfile.FocusedMultiplier(finalProjectiles);}
             bool useFinisher=ShouldUseFinisher(s,t,skill,c);if(useFinisher){s.finisherArmed=true;multiplier*=WeaponMechanicProfile.RageFinisherMoreMultiplier;r.rageFinisherUses++;}
             float rageMult=s.data.weaponTypeId==WeaponTypeIds.TwoHandedAxe||s.data.Has(PassiveKeystone.BarbarianFullRage)||s.data.Power(UniquePower.AnyWeaponRage)>0?ClassKeystoneMechanics.FullRageMultiplier(s.rage,s.data.rageEffect,s.data.Has(PassiveKeystone.BarbarianFullRage)):1;if(s.data.player){packet.physical*=s.auras.DamageMultiplier(Element.Phys,AuraEffect(s));packet.fire*=s.auras.DamageMultiplier(Element.Fire,AuraEffect(s));packet.cold*=s.auras.DamageMultiplier(Element.Cold,AuraEffect(s));packet.lightning*=s.auras.DamageMultiplier(Element.Light,AuraEffect(s));packet.voidDamage*=s.auras.DamageMultiplier(Element.Void,AuraEffect(s));}packet.Scale(multiplier*subclass*rageMult*(s.data.player?s.eventRevengeMultiplier:1));
-            if(ps?.effect==WeaponSkillEffect.RapidFlurry){r.rapidFlurryUses++;r.rapidFlurryHits+=hits;}
             if(ps?.effect==WeaponSkillEffect.ShockBarrage){r.shockBarrageUses++;r.shockBarrageHits+=hits;}
             bool isProjectile=ps?.projectile==true||(ps==null&&WeaponTypeCatalog.TryGet(s.data.weaponTypeId,out var weaponProfile)&&weaponProfile.IsRanged);
-            int flurryRepeats=ps?.effect==WeaponSkillEffect.RapidFlurry&&s.data.Has(PassiveKeystone.WarriorConsolidation)?hits-1:0;
-            if(flurryRepeats>0)hits=1;
+            int priorMultistrikes=0;
             for(int h=0;h<hits&&t.life>0;h++)
             {
                 if(isProjectile&&s.data.Has(PassiveKeystone.RangerPrecision)&&rng.Value()<PassiveKeystoneState.Value(PassiveKeystone.RangerPrecision)){KeyMetric(r,"Projectile misses",1);continue;}
@@ -286,19 +286,18 @@ namespace BlackCube.CombatSimulation
                 bool extra=canRepeat&&rng.Value()<s.data.hitTwiceChance;
                 if(s.data.Has(PassiveKeystone.WarriorConsolidation))
                 {
-                    int repeats=flurryRepeats+(extra?1:0);
-                    for(int strike=0;strike<flurryRepeats;strike++)if(rng.Value()<s.data.hitTwiceChance)repeats++;
+                    int repeats=extra?1:0;
                     for(int repeat=0;repeat<repeats;repeat++)
                     {
                         var additional=packet.Clone();bool extraCrit=rng.Value()<critChance;
-                        additional.Scale(1.10f*(extraCrit?s.data.critMultiplier:1)*(1+s.data.Power(UniquePower.MultistrikeDamage)));
+                        additional.Scale(ClassKeystoneCatalog.Get(PassiveKeystone.WarriorConsolidation).primary*(extraCrit?s.data.critMultiplier:1)*(1+s.data.Power(UniquePower.MultistrikeDamage))*WarriorSubclassRules.EscalatingMultiplier(++priorMultistrikes,s.data.escalatingMultistrike));
                         hit.physical+=additional.physical;hit.fire+=additional.fire;hit.cold+=additional.cold;hit.lightning+=additional.lightning;hit.voidDamage+=additional.voidDamage;
                         if(extraCrit)r.criticalCount++;
                     }
                     KeyMetric(r,"Multistrikes converted",repeats);
                 }
                 ApplyPacket(s,t,hit,action,now,rng,r,c,ps,projectile,crit,precision);
-                if(extra&&!s.data.Has(PassiveKeystone.WarriorConsolidation)&&t.life>0){r.hitTwiceCount++;var extraHit=packet.Clone();bool extraCrit=rng.Value()<critChance;extraHit.Scale((extraCrit?s.data.critMultiplier:1)*(1+s.data.Power(UniquePower.MultistrikeDamage)));ApplyPacket(s,t,extraHit,action+" (Multistrike)",now,rng,r,c,ps,projectile,extraCrit,precision);}
+                if(extra&&!s.data.Has(PassiveKeystone.WarriorConsolidation)&&t.life>0){r.hitTwiceCount++;var extraHit=packet.Clone();bool extraCrit=rng.Value()<critChance;extraHit.Scale((extraCrit?s.data.critMultiplier:1)*(1+s.data.Power(UniquePower.MultistrikeDamage))*WarriorSubclassRules.EscalatingMultiplier(++priorMultistrikes,s.data.escalatingMultistrike));ApplyPacket(s,t,extraHit,action+" (Multistrike)",now,rng,r,c,ps,projectile,extraCrit,precision);}
             }
             if(s.finisherArmed){r.rageSpent+=s.rage;s.rage=0;s.rageGenerationRate=0;s.rageDecayEligibleAt=0;s.finisherArmed=false;}if(!s.data.player&&es!=null)Metric(r.enemySkills,es.id).resolves++;
         }
@@ -321,12 +320,18 @@ namespace BlackCube.CombatSimulation
             if(s.data.Has(PassiveKeystone.MageFire)){KeyMetric(r,"Discarded non-Fire damage",packet.Total-packet.fire);packet.physical=packet.cold=packet.lightning=packet.voidDamage=0;packet.fire*=PassiveKeystoneState.Value(PassiveKeystone.MageFire);}
             bool detonate=s.data.Has(PassiveKeystone.MageShatter)&&t.frozen&&!t.fractureOnThaw&&!t.fractured&&packet.lightning>0;
             if(detonate)packet.lightning*=ClassKeystoneCatalog.Get(PassiveKeystone.MageShatter).secondary;
-            if(s.data.player&&s.data.subclassId==SubclassIds.WarriorMultihit&&allowEruption)
-                packet.Scale(SubclassBalanceProfile.ComboMultiplier(s.combo));
-            float shock=CombinedShock(t),before=t.life,defense=!s.data.player&&t.data.weaponTypeId==WeaponTypeIds.TwoHandedAxe?1:1;float phys=MitigateElement(packet.physical,Element.Phys,s.data,t.data)*(1+shock)*defense,fire=MitigateElement(packet.fire,Element.Fire,s.data,t.data)*(1+shock)*defense,cold=MitigateElement(packet.cold,Element.Cold,s.data,t.data)*(1+shock)*defense,light=MitigateElement(packet.lightning,Element.Light,s.data,t.data)*(1+shock)*defense,vd=MitigateElement(packet.voidDamage,Element.Void,s.data,t.data)*(1+shock)*defense;
+            if(!s.data.player&&t.data.blockChance>0&&rng.Value()<t.data.blockChance)packet.Scale(WarriorSubclassRules.BlockedHitMultiplier);
+            float shock=CombinedShock(t),before=t.life,defense=1;float phys=MitigateElement(packet.physical,Element.Phys,s.data,t.data)*(1+shock)*defense,fire=MitigateElement(packet.fire,Element.Fire,s.data,t.data,true)*(1+shock)*defense,cold=MitigateElement(packet.cold,Element.Cold,s.data,t.data,true)*(1+shock)*defense,light=MitigateElement(packet.lightning,Element.Light,s.data,t.data,true)*(1+shock)*defense,vd=MitigateElement(packet.voidDamage,Element.Void,s.data,t.data)*(1+shock)*defense;
             if(skill?.effect==WeaponSkillEffect.VirtualPoison||skill?.suppressDirectDamage==true)phys=fire=cold=light=vd=0;
-float packetDamage=phys+fire+cold+light+vd;float damage=AbsorbMana(t,packetDamage,r);float lifeFraction=packetDamage>0?damage/packetDamage:0;t.life-=damage;if(allowEruption&&s.data.Power(UniquePower.VoidToRegeneration)>0&&vd>0){s.regenerationRate=Mathf.Max(s.regenerationUntil>now?s.regenerationRate:0,Mathf.Min(before,damage)*vd/Mathf.Max(.0001f,packetDamage)*s.data.Power(UniquePower.VoidToRegeneration));s.regenerationUntil=now+2;}float effective=Mathf.Min(before,damage);if(t.data.player&&damage>0)t.revengeFraction+=effective/t.data.maximumLife;Contribution(r.damage,(s.data.player?"Player/":"Enemy/")+action).total+=effective;if(s.data.subclassId==SubclassIds.ThiefAssassin&&!t.enemyHasActed)r.openingDamage+=effective;if(action=="Eruption")r.eruptionTriggers++;if(s.finisherArmed&&allowEruption){r.rageFinisherDamage+=effective;if(crit)r.rageFinisherCriticalDamage+=effective;}AddType(r,s.data.player,"Physical",phys*lifeFraction,before,damage);AddType(r,s.data.player,"Fire",fire*lifeFraction,before,damage);AddType(r,s.data.player,"Cold",cold*lifeFraction,before,damage);AddType(r,s.data.player,"Lightning",light*lifeFraction,before,damage);AddType(r,s.data.player,"Void",vd*lifeFraction,before,damage);if(s.data.player&&skill!=null)Metric(r.skills,skill.id).damage+=effective;else if(!s.data.player){var enemySkill=s.data.enemySkills.FirstOrDefault(x=>x.name==action);if(enemySkill!=null)Metric(r.enemySkills,enemySkill.id).damage+=effective;}Trace(r,c,now,s.data.player?CombatEventType.PlayerAttackReady:CombatEventType.EnemyAttackReady,s.data.player?CombatTraceFilter.PlayerAttack|CombatTraceFilter.Damage:CombatTraceFilter.EnemyAttack|CombatTraceFilter.Damage,s,t,action,$"Crit={crit}; Precision={precision}; ShockTaken={shock:0.###}",amount:damage,lifeBefore:before,lifeAfter:t.life,projectile:projectile);
-            if(damage>0){HealOrConvert(s,t,s.data.lifeOnHit,"Life on Hit",r);float restored=Mathf.Min(s.data.maximumMana-s.mana,s.data.manaOnHit);s.mana+=restored;if(s.data.player)r.manaOnHit+=restored;if(s.data.player&&s.data.subclassId==SubclassIds.WarriorMultihit){s.combo++;r.maximumCombo=Mathf.Max(r.maximumCombo,s.combo);}if(s.data.player){bool lightPriest=s.data.subclassId==SubclassIds.PriestLight;s.auras.RecordTypedHit(0,phys,t.data.maximumLife,s.data.physicalAuraAccess||lightPriest);s.auras.RecordTypedHit(1,fire,t.data.maximumLife,s.data.fireAuraAccess||lightPriest);s.auras.RecordTypedHit(2,cold,t.data.maximumLife,s.data.coldAuraAccess||lightPriest);s.auras.RecordTypedHit(3,light,t.data.maximumLife,s.data.lightningAuraAccess||lightPriest);}if(s.data.weaponTypeId==WeaponTypeIds.TwoHandedAxe||s.data.Has(PassiveKeystone.BarbarianFullRage)||s.data.Power(UniquePower.AnyWeaponRage)>0){float gain=WeaponMechanicProfile.RageGainFromDamage(damage,t.data.maximumLife,skill?.effect==WeaponSkillEffect.RageStrike?1.5f:1)*(1+Mathf.Max(0,s.data.rageGeneration));float rb=s.rage;s.rageGenerationRate=Mathf.Max(s.rageDecayEligibleAt>now?s.rageGenerationRate:0,gain);s.rageDecayEligibleAt=now+WeaponMechanicProfile.RageGenerationDuration;r.rageGenerated+=s.rage-rb;Trace(r,c,now,CombatEventType.Rage,CombatTraceFilter.Rage,s,t,"Rage gained","Damage dealt",amount:s.rage-rb,rageBefore:rb,rageAfter:s.rage);}}
+float packetDamage=phys+fire+cold+light+vd;float damage=AbsorbMana(t,packetDamage,r);float lifeFraction=packetDamage>0?damage/packetDamage:0;
+            if(!s.data.player&&t.data.subclassId==SubclassIds.WarriorBleed&&damage>0&&t.data.deferredWounds>0)
+            {
+                float deferred=WarriorSubclassRules.DeferredLifeDamage(damage,t.data.deferredWounds);
+                damage=WarriorSubclassRules.ImmediateLifeDamage(damage,t.data.deferredWounds);
+                t.dots.Add(new Dot{id="Deferred Wound",source="subclass.warrior.bleed",playerSource=false,damage=deferred/4,ticks=4,interval=1,next=now+1,expires=now+4});
+            }
+            t.life-=damage;if(allowEruption&&s.data.Power(UniquePower.VoidToRegeneration)>0&&vd>0){s.regenerationRate=Mathf.Max(s.regenerationUntil>now?s.regenerationRate:0,Mathf.Min(before,damage)*vd/Mathf.Max(.0001f,packetDamage)*s.data.Power(UniquePower.VoidToRegeneration));s.regenerationUntil=now+2;}float effective=Mathf.Min(before,damage);if(t.data.player&&damage>0)t.revengeFraction+=effective/t.data.maximumLife;Contribution(r.damage,(s.data.player?"Player/":"Enemy/")+action).total+=effective;if(s.data.subclassId==SubclassIds.ThiefAssassin&&!t.enemyHasActed)r.openingDamage+=effective;if(action=="Eruption")r.eruptionTriggers++;if(s.finisherArmed&&allowEruption){r.rageFinisherDamage+=effective;if(crit)r.rageFinisherCriticalDamage+=effective;}AddType(r,s.data.player,"Physical",phys*lifeFraction,before,damage);AddType(r,s.data.player,"Fire",fire*lifeFraction,before,damage);AddType(r,s.data.player,"Cold",cold*lifeFraction,before,damage);AddType(r,s.data.player,"Lightning",light*lifeFraction,before,damage);AddType(r,s.data.player,"Void",vd*lifeFraction,before,damage);if(s.data.player&&skill!=null)Metric(r.skills,skill.id).damage+=effective;else if(!s.data.player){var enemySkill=s.data.enemySkills.FirstOrDefault(x=>x.name==action);if(enemySkill!=null)Metric(r.enemySkills,enemySkill.id).damage+=effective;}Trace(r,c,now,s.data.player?CombatEventType.PlayerAttackReady:CombatEventType.EnemyAttackReady,s.data.player?CombatTraceFilter.PlayerAttack|CombatTraceFilter.Damage:CombatTraceFilter.EnemyAttack|CombatTraceFilter.Damage,s,t,action,$"Crit={crit}; Precision={precision}; ShockTaken={shock:0.###}",amount:damage,lifeBefore:before,lifeAfter:t.life,projectile:projectile);
+            if(damage>0){HealOrConvert(s,t,s.data.lifeOnHit,"Life on Hit",r);if(t.dots.Any(x=>x.id=="Bleed"))HealOrConvert(s,t,s.data.lifeOnHitVsBleeding,"Life on Hit vs Bleeding",r);float restored=Mathf.Min(s.data.maximumMana-s.mana,s.data.manaOnHit);s.mana+=restored;if(s.data.player)r.manaOnHit+=restored;if(s.data.player){bool lightPriest=s.data.subclassId==SubclassIds.PriestLight;s.auras.RecordTypedHit(0,phys,t.data.maximumLife,s.data.physicalAuraAccess||lightPriest);s.auras.RecordTypedHit(1,fire,t.data.maximumLife,s.data.fireAuraAccess||lightPriest);s.auras.RecordTypedHit(2,cold,t.data.maximumLife,s.data.coldAuraAccess||lightPriest);s.auras.RecordTypedHit(3,light,t.data.maximumLife,s.data.lightningAuraAccess||lightPriest);}if(s.data.weaponTypeId==WeaponTypeIds.TwoHandedAxe||s.data.Has(PassiveKeystone.BarbarianFullRage)||s.data.Power(UniquePower.AnyWeaponRage)>0){float gain=WeaponMechanicProfile.RageGainFromDamage(damage,t.data.maximumLife,skill?.effect==WeaponSkillEffect.RageStrike?1.5f:1)*(1+Mathf.Max(0,s.data.rageGeneration));float rb=s.rage;s.rageGenerationRate=Mathf.Max(s.rageDecayEligibleAt>now?s.rageGenerationRate:0,gain);s.rageDecayEligibleAt=now+WeaponMechanicProfile.RageGenerationDuration;r.rageGenerated+=s.rage-rb;Trace(r,c,now,CombatEventType.Rage,CombatTraceFilter.Rage,s,t,"Rage gained","Damage dealt",amount:s.rage-rb,rageBefore:rb,rageAfter:s.rage);}}
             if(s.data.player){float lifeBeforeAilments=t.life;ApplyAilments(s,t,ailmentBasis,skill,now,rng,r,c);float sacrificeLoss=Mathf.Max(0,lifeBeforeAilments-t.life);if(s.data.Has(PassiveKeystone.BarbarianRecovery))HealOrConvert(s,t,(effective+sacrificeLoss)*s.data.wouldBeLifeRegenerationFraction*PassiveKeystoneState.Value(PassiveKeystone.BarbarianRecovery),"Damage-based Recovery",r);if(skill?.effect==WeaponSkillEffect.HealFromDamage)HealOrConvert(s,t,(effective+sacrificeLoss)*skill.secondaryMultiplier,"Weapon Skill",r);if(s.data.subclassId==SubclassIds.PriestLight)Heal(s,damage*.1f,"Light Priest",r);if(allowEruption&&s.data.subclassId==SubclassIds.BarbarianFire&&rng.Value()<SubclassBalanceProfile.EruptionChance){var erupt=new CombatDamageSnapshot{fire=packet.Total*SubclassBalanceProfile.EruptionMagnitude};ApplyPacket(s,t,erupt,"Eruption",now,rng,r,c,null,0,false,false,false);}if(s.data.subclassId==SubclassIds.ThiefAssassin&&!t.data.boss&&t.life>0&&t.life<=t.data.maximumLife*.1f){float execution=t.life;t.life=0;r.executionTriggers++;r.executionDamage+=execution;Contribution(r.damage,"Player/Execution").total+=execution;}}
             if(detonate&&t.life>0){t.frozen=false;var burst=new CombatDamageSnapshot{cold=t.data.maximumLife*ClassKeystoneCatalog.Get(PassiveKeystone.MageShatter).tertiary};float burstMore=(s.data.Has(PassiveKeystone.BarbarianRecovery)?ClassKeystoneCatalog.Get(PassiveKeystone.BarbarianRecovery).secondary:1)*(s.data.Has(PassiveKeystone.ThiefStealth)?PassiveKeystoneState.Value(PassiveKeystone.ThiefStealth):1)*(s.data.Has(PassiveKeystone.ThiefOpener)?ClassKeystoneMechanics.TargetLifeMultiplier(t.life>=t.data.maximumLife):1)*(t.fractured?ClassKeystoneCatalog.Get(PassiveKeystone.PriestFracture).secondary:1);float final=s.data.Has(PassiveKeystone.MageFire)?0:Mitigate(burst,s.data,t.data)*burstMore*s.auras.DamageMultiplier(Element.Cold,AuraEffect(s))*(1+CombinedShock(t));final=AbsorbMana(t,final,r);float lost=Mathf.Min(t.life,final);t.life-=final;r.shatters++;KeyMetric(r,"Lightning detonations",1);KeyMetric(r,"Cold Max-Life Shatter damage",lost);Contribution(r.damage,"Player/Keystone Shatter").total+=lost;if(s.data.Has(PassiveKeystone.BarbarianRecovery))HealOrConvert(s,t,lost*s.data.wouldBeLifeRegenerationFraction*PassiveKeystoneState.Value(PassiveKeystone.BarbarianRecovery),"Damage-based Recovery",r);}
             if(s.data.Power(UniquePower.Rupture)>0&&t.life>0){float burst=0;foreach(var bleed in t.dots.Where(x=>x.id=="Bleed").ToArray()){burst+=MitigateElement(bleed.damage*bleed.ticks,Element.Phys,s.data,t.data);t.dots.Remove(bleed);}burst=AbsorbMana(t,burst*(1+CombinedShock(t)),r);float lost=Mathf.Min(t.life,burst);t.life-=burst;if(lost>0){r.ruptureTriggers++;Contribution(r.damage,"Player/Unique Rupture").total+=lost;}}
@@ -365,15 +370,17 @@ float packetDamage=phys+fire+cold+light+vd;float damage=AbsorbMana(t,packetDamag
             int bleed=0;
             if(packet.physical>0||darkVoid)
                 bleed=ApplyDot("Bleed",s.data.bleedChance+voidChance,skill?.specializedAilment==StatusEffects.AilmentKind.Bleed?skill.guaranteedAilmentApplications:0,
-                    DotMagnitude(s.data,packet,"Bleed")*(skill?.specializedAilment==StatusEffects.AilmentKind.Bleed?Mathf.Max(1,skill.ailmentBasisMultiplier):1),5,s.data.bleedExtraTicks,2,s.data.maximumBleedStacks,s,t,now,rng,r,c);
-            if(bleed>0&&s.data.subclassId==SubclassIds.WarriorBleed&&rng.Value()<SubclassBalanceProfile.RuptureChance)
+                    DotMagnitude(s.data,packet,"Bleed")*(skill?.specializedAilment==StatusEffects.AilmentKind.Bleed?Mathf.Max(1,skill.ailmentBasisMultiplier):1),5,s.data.bleedExtraTicks,2,s.data.maximumBleedStacks,s,t,now,rng,r,c,skill?.effect==WeaponSkillEffect.RendingStrike?2:1);
+            int bleedCap=s.data.maximumBleedStacks*(s.data.Has(PassiveKeystone.WarriorBleed)?2:1);
+            if(s.data.subclassId==SubclassIds.WarriorBleed&&WarriorSubclassRules.CanRupture(t.dots.Count(x=>x.id=="Bleed"),bleedCap,s.rupturedThisAttack))
             {
+                s.rupturedThisAttack=true;
                 float remaining=0;
                 foreach(var dot in t.dots.Where(x=>x.id=="Bleed").ToArray())
                 {remaining+=MitigateElement(dot.damage,Element.Phys,s.data,t.data)*dot.ticks;t.dots.Remove(dot);}
                 if(remaining>0)
                 {
-                    remaining=AbsorbMana(t,remaining*(1+CombinedShock(t)),r);float effective=Mathf.Min(t.life,remaining);t.life-=remaining;
+                    remaining=AbsorbMana(t,WarriorSubclassRules.RuptureTotal(remaining*(1+CombinedShock(t)),s.data.ruptureDamage),r);float effective=Mathf.Min(t.life,remaining);t.life-=remaining;
                     Contribution(r.damage,"Player/Rupture").total+=effective;
                     if(s.data.Has(PassiveKeystone.BarbarianRecovery))HealOrConvert(s,t,effective*s.data.wouldBeLifeRegenerationFraction*PassiveKeystoneState.Value(PassiveKeystone.BarbarianRecovery),"Damage-based Recovery",r);
                     Ailment(r,"Rupture").damage+=effective;r.ruptureTriggers++;
@@ -417,7 +424,7 @@ float packetDamage=phys+fire+cold+light+vd;float damage=AbsorbMana(t,packetDamag
             if(factors==null||factors.Length!=5)return id=="Poison"?data.poisonMagnitude:id=="Bleed"?data.bleedMagnitude:data.igniteMagnitude;
             return factors[0]*hit.physical+factors[1]*hit.fire+factors[2]*hit.cold+factors[3]*hit.lightning+factors[4]*hit.voidDamage;
         }
-        static int ApplyDot(string id,float chance,int guaranteed,float magnitude,int baseTicks,int extraTicks,float interval,int cap,State s,State t,float now,DeterministicCombatRandom rng,CombatSimulationResult r,CombatSimulationConfig c)
+        static int ApplyDot(string id,float chance,int guaranteed,float magnitude,int baseTicks,int extraTicks,float interval,int cap,State s,State t,float now,DeterministicCombatRandom rng,CombatSimulationResult r,CombatSimulationConfig c,int applicationMultiplier=1)
         {
             var kind=id=="Poison"?StatusEffects.AilmentKind.Poison:id=="Bleed"?StatusEffects.AilmentKind.Bleed:StatusEffects.AilmentKind.Ignite;
             baseTicks=AilmentTimingRules.BaseTicks(kind);
@@ -428,7 +435,7 @@ float packetDamage=phys+fire+cold+light+vd;float damage=AbsorbMana(t,packetDamag
             magnitude*=s.data.UniqueAilmentMultiplier;
             if(id=="Bleed"&&s.data.Power(UniquePower.Rupture)>0)duration*=.5f;
             if(id=="Poison"&&!s.data.Has(PassiveKeystone.RangerEndlessPoison))cap=20;
-            int apps=guaranteed+CombatDeterministicRules.RollOverflowApplications(chance,rng.Value),applied=0;
+            int apps=(guaranteed+CombatDeterministicRules.RollOverflowApplications(chance,rng.Value))*Mathf.Max(1,applicationMultiplier),applied=0;
             if(apps<=0||magnitude<=0)return 0;
             if(s.data.Has(PassiveKeystone.PriestSacrifice))
             {
@@ -453,7 +460,7 @@ float packetDamage=phys+fire+cold+light+vd;float damage=AbsorbMana(t,packetDamag
                 float lifetime=duration+(id=="Ignite"?s.auras.ExtraIgniteTicks(AuraEffect(s))*2:0);int ticks=AilmentTimingRules.TickCount(lifetime,interval);if(ticks<=0)continue;
                 var d=new Dot{id=id,source=s.data.id,playerSource=s.data.player,damage=amount/baseTicks,ticks=infinite?int.MaxValue:ticks,infinite=infinite,stacks=1,interval=interval,next=now+interval,expires=infinite?float.PositiveInfinity:now+lifetime};
                 var same=t.dots.Where(x=>x.id==id).ToList();
-                if(same.Count>=cap){var weakest=same.OrderBy(x=>x.damage*x.ticks).First();if(weakest.damage*weakest.ticks>=d.damage*d.ticks)continue;t.dots.Remove(weakest);}
+                if(same.Count>=cap){if(id=="Bleed")continue;var weakest=same.OrderBy(x=>x.damage*x.ticks).First();if(weakest.damage*weakest.ticks>=d.damage*d.ticks)continue;t.dots.Remove(weakest);}
                 t.dots.Add(d);applied++;var metric=Ailment(r,id);metric.applications++;
                 if(criticalAilment)metric.criticalApplications++;
                 metric.magnitudeTotal+=amount;metric.maxStacks=Math.Max(metric.maxStacks,t.dots.Count(x=>x.id==id));
@@ -467,6 +474,13 @@ float packetDamage=phys+fire+cold+light+vd;float damage=AbsorbMana(t,packetDamag
             State target=dot.playerSource?e:p,source=dot.playerSource?p:e;
             if(!target.dots.Contains(dot)||target.life<=0)return;
             dot.scheduled=false;float before=target.life;
+            if(dot.id=="Deferred Wound")
+            {
+                float deferredLost=Mathf.Min(before,dot.damage);target.life-=dot.damage;dot.ticks--;
+                Contribution(r.damage,"Enemy/Deferred Wound").total+=deferredLost;
+                Trace(r,c,now,CombatEventType.AilmentTick,CombatTraceFilter.Damage,source,target,"Deferred Wound tick","Previously mitigated Life damage",amount:deferredLost,lifeBefore:before,lifeAfter:target.life);
+                if(dot.ticks<=0)target.dots.Remove(dot);else{dot.next=now+dot.interval;dot.scheduled=true;add(dot.next,CombatEventType.AilmentTick,dot.playerSource,-1,0,dot);}return;
+            }
             Element element=dot.id=="Bleed"?Element.Phys:dot.id=="Ignite"?Element.Fire:Element.Void;
             float more=(source.data.Has(PassiveKeystone.BarbarianRecovery)?ClassKeystoneCatalog.Get(PassiveKeystone.BarbarianRecovery).secondary:1)
                 *(source.data.Has(PassiveKeystone.ThiefStealth)?PassiveKeystoneState.Value(PassiveKeystone.ThiefStealth):1);
@@ -505,7 +519,7 @@ float packetDamage=phys+fire+cold+light+vd;float damage=AbsorbMana(t,packetDamag
         static float Mitigate(CombatDamageSnapshot x,CombatantSnapshot a,CombatantSnapshot d)=>MitigateElement(x.physical,Element.Phys,a,d)+MitigateElement(x.fire,Element.Fire,a,d)+MitigateElement(x.cold,Element.Cold,a,d)+MitigateElement(x.lightning,Element.Light,a,d)+MitigateElement(x.voidDamage,Element.Void,a,d);
         static float ResistanceCap(Element element,CombatantSnapshot d)
         {float cap=element switch{Element.Fire=>d.maximumFireResistance,Element.Cold=>d.maximumColdResistance,Element.Light=>d.maximumLightningResistance,_=>d.maximumVoidResistance};return cap>0?cap:d.maximumResistance;}
-        static float MitigateElement(float value,Element element,CombatantSnapshot a,CombatantSnapshot d){if(value<=0)return 0;if(element==Element.Phys)return CombatCalculator.ApplyArmourValue(value,d.armour,d.physicalDamageReduction,a.physicalPenetration);float resistance=element switch{Element.Fire=>d.fireResistance,Element.Cold=>d.coldResistance,Element.Light=>d.lightningResistance,_=>d.voidResistance};float pen=element switch{Element.Fire=>a.firePenetration,Element.Cold=>a.coldPenetration,Element.Light=>a.lightningPenetration,_=>a.voidPenetration};return CombatCalculator.ApplyResistanceValue(value,resistance,pen,ResistanceCap(element,d));}
+        static float MitigateElement(float value,Element element,CombatantSnapshot a,CombatantSnapshot d,bool hit=false){if(value<=0)return 0;if(element==Element.Phys)return CombatCalculator.ApplyArmourValue(value,d.armour,d.physicalDamageReduction,a.physicalPenetration);if(hit&&(element==Element.Fire||element==Element.Cold||element==Element.Light)&&d.elementalPlating>0)value=CombatCalculator.ApplyArmourValue(value,d.armour*Mathf.Clamp01(d.elementalPlating),0,0);float resistance=element switch{Element.Fire=>d.fireResistance,Element.Cold=>d.coldResistance,Element.Light=>d.lightningResistance,_=>d.voidResistance};float pen=element switch{Element.Fire=>a.firePenetration,Element.Cold=>a.coldPenetration,Element.Light=>a.lightningPenetration,_=>a.voidPenetration};return CombatCalculator.ApplyResistanceValue(value,resistance,pen,ResistanceCap(element,d));}
         static void Convert(CombatDamageSnapshot p,Element to,float amount){if(amount<=0)return;float phys=p.physical,fire=p.fire,cold=p.cold,light=p.lightning,vd=p.voidDamage;p.physical*=1-amount;p.fire*=1-amount;p.cold*=1-amount;p.lightning*=1-amount;p.voidDamage*=1-amount;float add=(phys+fire+cold+light+vd)*amount;switch(to){case Element.Phys:p.physical+=add;break;case Element.Fire:p.fire+=add;break;case Element.Cold:p.cold+=add;break;case Element.Light:p.lightning+=add;break;default:p.voidDamage+=add;break;}}
         static float CombinedShock(State s){float product=1;foreach(var x in s.shocks)product*=1+Mathf.Max(0,x.strength);return Mathf.Max(0,product-1);}
         static float PlayerAttackInterval(State source,State target)

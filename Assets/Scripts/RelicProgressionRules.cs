@@ -34,7 +34,7 @@ public static class RelicProgressionRules
      RelicModifierType.StarterBow=>WeaponTypeIds.Bow,RelicModifierType.StarterStaff=>WeaponTypeIds.Staff,
      RelicModifierType.StarterSceptre=>WeaponTypeIds.Sceptre,RelicModifierType.StarterDagger=>WeaponTypeIds.Dagger,_=>null};
     public static PlayerSkillId? TriggerSkill(RelicModifierType type)=>type switch
-    {RelicModifierType.TriggerRapidFlurry=>PlayerSkillId.SwordRapidFlurry,RelicModifierType.TriggerArmourStrike=>PlayerSkillId.SwordArmourStrike,
+    {RelicModifierType.TriggerRapidFlurry=>PlayerSkillId.SwordRendingStrike,RelicModifierType.TriggerArmourStrike=>PlayerSkillId.SwordArmourStrike,
      RelicModifierType.TriggerRageStrike=>PlayerSkillId.AxeRageStrike,RelicModifierType.TriggerHemorrhage=>PlayerSkillId.AxeHemorrhage,
      RelicModifierType.TriggerVenomShot=>PlayerSkillId.BowVenomShot,RelicModifierType.TriggerDoubleVolley=>PlayerSkillId.BowDoubleVolley,
      RelicModifierType.TriggerFireball=>PlayerSkillId.StaffFireball,RelicModifierType.TriggerShockBarrage=>PlayerSkillId.StaffShockBarrage,

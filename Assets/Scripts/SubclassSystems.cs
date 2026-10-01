@@ -14,8 +14,8 @@ public sealed class SubclassEffectDefinition
 public static class SubclassEffectCatalog
 {
     static readonly SubclassEffectDefinition[] all={
-        E("subclass.warrior.bleed.core",SubclassIds.WarriorBleed,"+20pp Bleed Chance and +40% Bleed damage"),E("subclass.warrior.bleed.rupture",SubclassIds.WarriorBleed,"15% Bleed rupture"),
-        E("subclass.warrior.multihit.core",SubclassIds.WarriorMultihit,"+10% Attack Speed and +10pp Multistrike"),E("subclass.warrior.multihit.combo",SubclassIds.WarriorMultihit,"5% more per prior hit, maximum 10"),
+        E("subclass.warrior.bleed.rupture",SubclassIds.WarriorBleed,"Rupture capped Bleeds once per player attack opportunity"),
+        E("subclass.warrior.multihit.conversion",SubclassIds.WarriorMultihit,"20% less damage; pre-conversion Attack Speed and Multistrike grant each other bonuses"),
         E("subclass.barbarian.big_hit.core",SubclassIds.BarbarianBigHit,"25% less Attack Speed and 60% more Physical hit damage"),E("subclass.barbarian.big_hit.full_life",SubclassIds.BarbarianBigHit,"75% more against full-Life enemies; 35% more while injured"),
         E("subclass.barbarian.fire.added",SubclassIds.BarbarianFire,"40% base Physical gained as Fire"),E("subclass.barbarian.fire.eruption",SubclassIds.BarbarianFire,"20% chance for a 75% Fire eruption"),
         E("subclass.ranger.poison.all_damage",SubclassIds.RangerPoison,"All damage can Poison"),E("subclass.ranger.poison.core",SubclassIds.RangerPoison,"Poison chance, damage, duration and speed"),
@@ -34,12 +34,11 @@ public static class SubclassEffectCatalog
 
 public static class SubclassBalanceProfile
 {
-    public const float RuptureChance=.15f,ComboMorePerPriorHit=.05f;public const int ComboMaximum=10;
+    // Warrior's former chance-based Rupture and hit-count combo are retired.
     public const float BigHitAttackSpeedLess=.25f,BigHitPhysicalMore=.60f,FullLifeMore=.75f,InjuredMore=.35f;
     public const float AddedFireFromPhysical=.40f,EruptionChance=.20f,EruptionMagnitude=.75f;
     public const float FocusedMorePerSacrifice=.75f,CooldownIgnoreChance=.20f;public const int QueuedRepeatMaximum=3;
     public const int StormShockMaximum=3;public const float AuraFullThreshold=.10f;
-    public static float ComboMultiplier(int priorHits)=>1+Mathf.Min(ComboMaximum,Mathf.Max(0,priorHits))*ComboMorePerPriorHit;
     public static float FocusedMultiplier(int wouldBeCount)=>1+Mathf.Max(0,wouldBeCount-1)*FocusedMorePerSacrifice;
     public static float AuraIntensity(float damage,float enemyMaxLife)=>enemyMaxLife<=0?0:Mathf.Clamp01((damage/enemyMaxLife)/AuraFullThreshold);
     public static float FinalAuraBonus(float baseBonus,float intensity,float auraEffect)=>baseBonus*Mathf.Clamp01(intensity)*(Mathf.Max(0,1+auraEffect));
@@ -57,8 +56,6 @@ public static class SubclassStatPackage
         if(add==null)return;
         switch(subclassId)
         {
-            case SubclassIds.WarriorBleed:add(StatTypes.BleedChance,20);add(StatTypes.BleedDmg,40);break;
-            case SubclassIds.WarriorMultihit:add(StatTypes.AttackSpeed,10);add(StatTypes.ChanceToHitTwice,10);break;
             case SubclassIds.BarbarianBigHit:add(StatTypes.AttackSpeed,-25);add(StatTypes.PhysMult,60);break;
             case SubclassIds.RangerPoison:add(StatTypes.PoisonChance,20);add(StatTypes.PoisonDmg,40);add(StatTypes.PoisonDuration,25);add(StatTypes.PoisonSpeed,25);break;
             case SubclassIds.RangerProjectile:add(StatTypes.ProjectileAmount,1);add(StatTypes.ProjectileSpeed,20);add(StatTypes.ProjectilePrecisionChance,15);break;

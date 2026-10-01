@@ -85,6 +85,13 @@ public static class StatDisplayFormatting
         { StatTypes.IgniteTickRate, "Increased Ignite Tick Speed" },
         { StatTypes.ReducedChillEffect, "Reduced Chill Effect" },
         { StatTypes.PlusAllSkills, "+Level of All Skills" },
+        { StatTypes.RuptureDamage, "More Rupture Damage" },
+        { StatTypes.WarriorDotMultiplier, "Warrior Damage Over Time Multiplier" },
+        { StatTypes.LifeOnHitVsBleeding, "Life on Hit against Bleeding Enemies" },
+        { StatTypes.DeferredWounds, "Life Hit Damage Deferred as Bleeding over 4 Seconds" },
+        { StatTypes.EscalatingMultistrike, "More Damage per Prior Multistrike" },
+        { StatTypes.UnbrokenAssault, "More Damage per Prior Uninterrupted Attack" },
+        { StatTypes.ElementalPlating, "Armour Applies to Elemental Hits" },
     };
 
     public static string ToFriendlyName(StatTypes t)

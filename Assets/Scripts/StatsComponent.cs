@@ -57,9 +57,19 @@ public class StatsComponent : MonoBehaviour
     /// </summary>
     public float GetRawStat(StatTypes type)
     {
-        if (!_stats.TryGetValue(type, out var stat)) return 0f;
-        return stat.GetValue();
+        float raw=GetPreConversionRawStat(type);
+        if(GetComponent<SubclassCombatState>()?.Has(SubclassIds.WarriorMultihit)==true)
+        {
+            if(type==StatTypes.AttackSpeed)
+                return raw+Mathf.Max(0,GetPreConversionRawStat(StatTypes.ChanceToHitTwice))*WarriorSubclassRules.MultistrikeToAttackSpeed;
+            if(type==StatTypes.ChanceToHitTwice)
+                return raw+Mathf.Max(0,GetPreConversionRawStat(StatTypes.AttackSpeed))*WarriorSubclassRules.AttackSpeedToMultistrike;
+        }
+        return raw;
     }
+
+    public float GetPreConversionRawStat(StatTypes type)
+        => _stats.TryGetValue(type,out var stat)?stat.GetValue():0f;
 
     public void SetBaseStat(StatTypes type, float baseValue)
     {
@@ -218,6 +228,12 @@ public class StatsComponent : MonoBehaviour
             // Life regeneration is % maximum Life/sec; Mana regeneration stays flat/sec.
             case StatTypes.LifeRegeneration:
             case StatTypes.CullingStrike:
+            case StatTypes.RuptureDamage:
+            case StatTypes.WarriorDotMultiplier:
+            case StatTypes.DeferredWounds:
+            case StatTypes.EscalatingMultistrike:
+            case StatTypes.UnbrokenAssault:
+            case StatTypes.ElementalPlating:
             case StatTypes.LifePercent:
             case StatTypes.ManaPercent:
 

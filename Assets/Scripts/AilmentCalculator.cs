@@ -65,6 +65,7 @@ public static class AilmentCalculator
 
         // 4)Calculate the appropriate DoT multipliers to apply to the ailment damage
         float moreFactor = (1f + attacker.GetStat(StatTypes.GenericDotMult))
+            * (1f + attacker.GetStat(StatTypes.WarriorDotMultiplier))
             * (1f + DerivedStatCalculator.DotMoreDamage(attacker));
 
         switch (effect.Ailment)

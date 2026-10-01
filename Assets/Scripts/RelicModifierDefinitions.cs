@@ -66,7 +66,7 @@ public static class RelicModifierDefinitions
         new(RelicModifierType.StarterStaff,"Starting Weapon: Staff",3,false,One(1)),
         new(RelicModifierType.StarterSceptre,"Starting Weapon: Sceptre",3,false,One(1)),
         new(RelicModifierType.StarterDagger,"Starting Weapon: Dagger",3,false,One(1)),
-        new(RelicModifierType.TriggerRapidFlurry,"RapidFlurry On Every Attack",1,false,One(1)),
+        new(RelicModifierType.TriggerRapidFlurry,"Rending Strike On Every Attack",1,false,One(1)),
         new(RelicModifierType.TriggerArmourStrike,"ArmourStrike On Every Attack",1,false,One(1)),
         new(RelicModifierType.TriggerRageStrike,"RageStrike On Every Attack",1,false,One(1)),
         new(RelicModifierType.TriggerHemorrhage,"Hemorrhage On Every Attack",1,false,One(1)),

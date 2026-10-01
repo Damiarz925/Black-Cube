@@ -95,8 +95,8 @@ public static class Step18_6GameplaySmoke
         var naturalValues=Enumerable.Range(1,250).Select(i=>(i%89)/100f).ToArray();naturalValues[0]=.05f;naturalValues[1]=.05f;naturalValues[2]=.50f;naturalValues[3]=.05f;
         Gear naturalWeapon=loot.GenerateLoot(EnemyAI.EnemyRarity.Normal,new SequenceLootRandomSource(18601,naturalValues));
         Require(naturalWeapon!=null&&naturalWeapon.ItemType==LootManager.GearType.Weapons,"Early natural-weapon fixture did not generate a weapon.");player.EquipWeapon(naturalWeapon);float naturalHit=player.BasicAttackDamage;
-        var skill=Skill(PlayerSkillId.SwordRapidFlurry);
-        Write($"EARLY SANITY: scene starter L1 hit={starterHit:0.##}; controlled L1 hit={level1:0.##}; controlled L10 hit={level10:0.##}; L10 with +10 Strength/+10 Dexterity hit={allocatedHit:0.##}; natural level-{naturalWeapon.ItemLevel} {WeaponTypeCatalog.Get(naturalWeapon.WeaponTypeId).DisplayName} hit={naturalHit:0.##}; attribute bonus={player.WeaponAttributeDamageBonus*100f:0.##}%; Rapid Flurry controlled aggregate basis={level10*skill.hitDamageMultiplier*skill.secondaryMultiplier:0.##}.");
+        var skill=Skill(PlayerSkillId.SwordRendingStrike);
+        Write($"EARLY SANITY: scene starter L1 hit={starterHit:0.##}; controlled L1 hit={level1:0.##}; controlled L10 hit={level10:0.##}; L10 with +10 Strength/+10 Dexterity hit={allocatedHit:0.##}; natural level-{naturalWeapon.ItemLevel} {WeaponTypeCatalog.Get(naturalWeapon.WeaponTypeId).DisplayName} hit={naturalHit:0.##}; attribute bonus={player.WeaponAttributeDamageBonus*100f:0.##}%; Rending Strike hit basis={level10*skill.hitDamageMultiplier:0.##}.");
         Write("Manual progression/game-feel review remains required; this smoke does not claim balance is solved.");
         var dagger=CreateWeapon(player,WeaponTypeIds.Dagger,Element.Phys,100);player.GetComponent<ManaComponent>()?.Restore(1000);
         Require(player.GetComponent<PlayerSkillController>().TryQueueWeaponSkill(1),"Dagger Quick Strike did not execute through the live immediate-cooldown path.");

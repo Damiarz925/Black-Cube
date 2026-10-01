@@ -121,11 +121,12 @@ public sealed class PlaytestFollowUpTests
         var keys=go.AddComponent<PassiveKeystoneState>();keys.ApplyAllocatedNodes(new[]{PassiveTreeDefinition.Nodes.First(n=>n.Keystone==PassiveKeystone.BarbarianRecovery)});
         Assert.That(keys.LifeRegenerationMultiplier,Is.Zero);Assert.That(keys.DamageRecoveryFraction,Is.EqualTo(.15f).Within(.0001f));
     }
-    [Test] public void FlurryHasCostAndRepeatedStrikesConsolidateRatherThanRepeatBaseEvent()
+    [Test] public void RendingStrikeHasCostAndCooldownWhileExtraStrikesConsolidate()
     {
-        var skill=PlayerSkillDefinition.CreateProductionDefaults().First(s=>s.id==PlayerSkillId.SwordRapidFlurry);
-        Assert.That(skill.manaCost,Is.EqualTo(25));Assert.That(WeaponMechanicProfile.RapidFlurryHits(0),Is.EqualTo(3));
-        Assert.That(ClassKeystoneMechanics.ConsolidatedMultiplier(2),Is.EqualTo(3.2f).Within(.0001f));
+        var skill=PlayerSkillDefinition.CreateProductionDefaults().First(s=>s.id==PlayerSkillId.SwordRendingStrike);
+        Assert.That(skill.manaCost,Is.EqualTo(25));Assert.That(skill.baseCooldown,Is.EqualTo(4));
+        Assert.That(skill.queuedCooldownEnabled,Is.True);
+        Assert.That(ClassKeystoneCatalog.Get(PassiveKeystone.WarriorConsolidation).primary,Is.EqualTo(1.10f));
     }
     [Test] public void EveryWeaponImplicitUsesElementAndExclusiveWeaponLegality()
     {
