@@ -3,7 +3,15 @@ using UnityEngine;
 // Pure Warrior formulas shared by live combat, tooltips and the Combat Lab.
 public static class WarriorSubclassRules
 {
-    public const float MomentumLessDamage = .20f;
+    static WarriorSubclassTuningSO tuning;
+    public static float MomentumLessDamage
+    {
+        get
+        {
+            if(tuning==null)tuning=Resources.Load<WarriorSubclassTuningSO>("GameData/SO_WarriorSubclassTuning");
+            return tuning!=null?tuning.MomentumLessDamage:.20f;
+        }
+    }
     public const float MultistrikeToAttackSpeed = 2f;
     public const float AttackSpeedToMultistrike = .5f;
     public const float BlockedHitMultiplier = .5f;

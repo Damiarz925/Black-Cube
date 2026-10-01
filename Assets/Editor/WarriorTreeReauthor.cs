@@ -8,6 +8,9 @@ public static class WarriorTreeReauthor
     [MenuItem("Black-Cube/Passive Tree/Reauthor Warrior Choices")]
     public static void Run()
     {
+        const string tuningPath="Assets/Resources/GameData/SO_WarriorSubclassTuning.asset";
+        if(AssetDatabase.LoadAssetAtPath<WarriorSubclassTuningSO>(tuningPath)==null)
+            AssetDatabase.CreateAsset(ScriptableObject.CreateInstance<WarriorSubclassTuningSO>(),tuningPath);
         const string path="Assets/GameData/PassiveTree/Branches/Class/SO_Warrior_Branch.asset";
         var asset=AssetDatabase.LoadAssetAtPath<PassiveClassBranchSO>(path);
         if(asset==null||asset.Tiers.Count!=10)throw new InvalidOperationException("Expected the ten-tier Warrior branch asset.");

@@ -55,6 +55,8 @@ public sealed class WarriorReworkTests
 
     [Test] public void MomentumConversionAndMoreMultipliersDoNotCompound()
     {
+        Assert.That(AssetDatabase.LoadAssetAtPath<WarriorSubclassTuningSO>("Assets/Resources/GameData/SO_WarriorSubclassTuning.asset"),Is.Not.Null);
+        Assert.That(WarriorSubclassRules.MomentumLessDamage,Is.EqualTo(.20f));
         WarriorSubclassRules.MomentumConversion(60,20,out float speed,out float multistrike);
         Assert.That(speed,Is.EqualTo(100));
         Assert.That(multistrike,Is.EqualTo(50));
