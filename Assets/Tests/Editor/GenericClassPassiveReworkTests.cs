@@ -9,6 +9,27 @@ using BlackCube.CombatSimulation;
 
 public sealed class GenericClassPassiveReworkTests
 {
+    [Test] public void MageGenericCritChoicesAreNowRecoveryAndShock()
+    {
+        var branch=GenericClassPassiveReauthoring.Branch(PlayerClassIds.Mage);
+        var nodes=branch.Tiers.SelectMany(t=>t.Left.GenericNodes.Concat(t.Right.GenericNodes)).ToArray();
+        Assert.That(nodes.Length,Is.EqualTo(60));
+        Assert.That(nodes.SelectMany(n=>n.Effects).Any(e=>e.Stat is StatTypes.CritChance or StatTypes.CritMult),Is.False);
+        foreach(var stat in new[]{StatTypes.DamageTakenFromManaBeforeLife,StatTypes.ShockChance})
+        {
+            var matching=nodes.Where(n=>n.Effects.Any(e=>e.Stat==stat)).ToArray();
+            Assert.That(matching.Length,Is.EqualTo(5));
+            foreach(var node in matching)
+            {
+                Assert.That(node.Effects.Single(e=>e.Stat==stat).Value,Is.EqualTo(stat==StatTypes.DamageTakenFromManaBeforeLife?7f:21f));
+                Assert.That(node.IconOverride,Is.Not.Null);
+                Assert.That(node.StableId,Is.EqualTo(node.LogicalSlotId));
+            }
+        }
+        var keys=GenericClassPassiveReauthoring.Rotations[PlayerClassIds.Mage].SelectMany(row=>row.Split(' ')).ToArray();
+        Assert.That(keys.Count(k=>k=="ManaDefense"),Is.EqualTo(5));Assert.That(keys.Count(k=>k=="Shock"),Is.EqualTo(5));
+        Assert.That(keys.Any(k=>k is "Crit" or "CritMulti"),Is.False);
+    }
     [TestCase(PlayerClassIds.Barbarian)] [TestCase(PlayerClassIds.Ranger)] [TestCase(PlayerClassIds.Mage)] [TestCase(PlayerClassIds.Priest)] [TestCase(PlayerClassIds.Thief)]
     public void AuthoredChoicesAndSpinesMatchRotation(string id)
     {
@@ -54,9 +75,14 @@ public sealed class GenericClassPassiveReworkTests
         var enemy=new CombatantSnapshot{id="enemy",maximumLife=1000,attackSpeed=.1f,basicDamage=new CombatDamageSnapshot{physical=1}};
         var result=HeadlessCombatSimulator.Run(player,enemy,new CombatSimulationConfig{maximumDuration=3,actionPolicy=PlayerActionPolicy.BasicOnly});Assert.That(result.error,Is.Null.Or.Empty);Assert.That(result.hitTwiceCount,melee?Is.GreaterThan(0):Is.Zero);
     }
-    [Test] public void AurasUseLatestTypedHitAndExpireAfterTwoTurns()
+    [Test] public void AurasKeepStrongestEffectAndExpireAfterFiveSeconds()
     {
-        var a=new FiveAuraState();a.RecordTypedHit(0,100,1000,false);Assert.That(a.Intensity(0),Is.Zero);a.RecordTypedHit(0,50,1000,true);Assert.That(a.Intensity(0),Is.EqualTo(.5f));a.RecordTypedHit(0,10,1000,true);Assert.That(a.Intensity(0),Is.EqualTo(.1f));Assert.That(a.DamageMultiplier(Element.Fire,0),Is.EqualTo(1));a.Tick();Assert.That(a.Intensity(0),Is.EqualTo(.1f));a.Tick();Assert.That(a.Intensity(0),Is.Zero);
+        var a=new FiveAuraState();a.RecordTypedHit(0,100,1000,false);Assert.That(a.Intensity(0),Is.Zero);
+        a.RecordTypedHit(0,50,1000,true);Assert.That(a.Intensity(0),Is.EqualTo(.5f));
+        a.Tick(1f);a.RecordTypedHit(0,10,1000,true);Assert.That(a.Intensity(0),Is.EqualTo(.5f));Assert.That(a.RemainingSeconds(0),Is.EqualTo(4f).Within(.01f));
+        a.RecordTypedHit(0,50,1000,true);Assert.That(a.RemainingSeconds(0),Is.EqualTo(5f).Within(.01f));
+        a.RecordTypedHit(0,80,1000,true);Assert.That(a.Intensity(0),Is.EqualTo(.8f).Within(.01f));
+        a.Tick(5f);Assert.That(a.Intensity(0),Is.Zero);
     }
     [Test] public void AuraScalingHasNoTwoHundredPercentCapAndVoidRequiresSameHit()
     {

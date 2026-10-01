@@ -7,6 +7,8 @@ public static class SystemsAffixProfile
     public static bool TryTiers(StatTypes stat,LootManager.GearType slot,out List<AffixTier> tiers)
     {
         tiers=null;
+        if(stat is StatTypes.ReducedShockEffect or StatTypes.ReducedChillEffect)
+        {tiers=Ladder(new[]{4f,7,11,16,21},new[]{6f,10,15,20,25});return true;}
         if(stat is StatTypes.PoisonDuration or StatTypes.BleedDuration or StatTypes.IgniteDuration
             or StatTypes.PoisonTickRate or StatTypes.BleedTickRate or StatTypes.IgniteTickRate)
         {tiers=Ladder(new[]{3f,6,10,15,20},new[]{5f,9,14,19,25});return true;}

@@ -90,7 +90,7 @@ public sealed class BalanceWorkbenchTooling4Tests
         var p=Player();p.basicDamage.lightning=20;p.shockChance=2;p.maximumShockInstances=3;
         var result=HeadlessCombatSimulator.Run(p,Enemy(),Config(duration:7));var shock=result.ailments.Single(x=>x.id=="Shock");
         Assert.That(shock.applications,Is.GreaterThanOrEqualTo(2));
-        Assert.That(shock.maximumEffect,Is.GreaterThan(1));
+        Assert.That(shock.maximumEffect,Is.EqualTo(.728f).Within(.001));
         Assert.That(shock.uptime,Is.GreaterThan(0));
     }
 

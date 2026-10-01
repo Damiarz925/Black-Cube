@@ -57,13 +57,19 @@ public static class SystemsRedesignPlayCheck
         ((Button)forgeSerialized.FindProperty("close").objectReferenceValue).onClick.Invoke();
         Require(!UniqueRelicForge.TryForge(relics,first,first,legendary1,legendary2,0,0,()=>.25f,out _,out _),"Duplicate ingredients accepted");Require(relics.ForgeOpportunities==1&&inventory.Items.Contains(first),"Rejected recipe consumed resources");
         Require(UniqueRelicForge.TryForge(relics,first,second,legendary1,legendary2,0,0,()=>.25f,out var forged,out var error),error);
-        Require(relics.ForgeOpportunities==0&&new[]{first,second,legendary1,legendary2}.All(x=>!inventory.Items.Contains(x)),"Recipe did not consume exactly four items and one opportunity");Require(forged.forgedPowers.Count==2&&forged.forgedStats.Count==2,"Four extracted modifiers missing");Require(relics.Equip(forged,0),"Unique Relic equip failed");
+        Require(relics.ForgeOpportunities==0&&new[]{first,second,legendary1,legendary2}.All(x=>!inventory.Items.Contains(x)),"Recipe did not consume exactly four items and one opportunity");Require(forged.forgedPowers.Count==2&&forged.forgedStats.Count==2,"Four extracted modifiers missing");// Explicit setup fixture: production loadouts now change only in Equipment.
+        RebirthManager.Instance.RestoreSetup(new GameStatePayload{rebirthPhase=RebirthPhase.Equipment,rebirthReachedLevel=341},new Dictionary<string,Gear>());
+        Require(relics.Equip(forged,0),"Unique Relic equip failed");
         var other=JsonUtility.FromJson<RelicData>(JsonUtility.ToJson(forged));other.id=Guid.NewGuid().ToString("N");relics.Grant(other);Require(!relics.Equip(other,1),"Second Unique Relic equipped");
         var saved=UniqueCatalog.Create("unique.stormcaller",100,fixedRoll:.5f);inventory.Add(saved);string savedId=saved.PersistentId,forgedId=forged.id;string savedRolls=JsonUtility.ToJson(saved.UniqueData);relics.AwardForgeOpportunity();
-        Require(GamePersistence.TrySave(),GamePersistence.LastError);Require(GamePersistence.Load(),GamePersistence.LastError);Require(relics.ForgeOpportunities==1&&relics.Active(0)?.id==forgedId,"Forge state did not survive save/load");Require(JsonUtility.ToJson(inventory.Items.Single(x=>x.PersistentId==savedId).UniqueData)==savedRolls,"Unique rerolled on load");Write("PASS authored forge controls, atomic forge, chosen/retained rolls, one-equipped limit and schema-15 save/load");
+        Require(GamePersistence.TrySave(),GamePersistence.LastError);Require(GamePersistence.Load(),GamePersistence.LastError);Require(relics.ForgeOpportunities==1&&relics.Active(0)?.id==forgedId,"Forge state did not survive save/load");Require(JsonUtility.ToJson(inventory.Items.Single(x=>x.PersistentId==savedId).UniqueData)==savedRolls,"Unique rerolled on load");Write("PASS authored forge controls, atomic forge, chosen/retained rolls, one-equipped limit and schema-16 save/load");
+        RebirthManager.Instance.ResetForNewGame();Time.timeScale=1;
         GameManager.Instance.StartZone(350);int previousRelics=relics.Relics.Count,previousCycle=relics.CurrentCycle;
         Require(RebirthManager.Instance.RequestRebirth()&&RebirthManager.Instance.ConfirmRebirth(),"Stage350 Rebirth failed");
         Require(relics.ForgeOpportunities==2&&relics.Relics.Count==previousRelics+8&&relics.CurrentCycle==previousCycle+1,"Rebirth did not award exactly eight Relics and one forge opportunity");
+        var setup=RebirthManager.Instance;Require(setup.Phase==RebirthPhase.Crafting&&GameManager.Instance.CurrentCombatLevel==350,"Rebirth skipped setup");
+        Require(setup.AdvanceSetup()&&setup.AdvanceSetup()&&setup.AdvanceSetup(),"Setup phase transition");
+        Require(setup.SelectStartingWeapon(WeaponTypeIds.Sword)&&setup.AdvanceSetup()&&setup.BeginNextRun(),"Setup completion");
         Require(GameManager.Instance.CurrentCombatLevel==1,"Rebirth did not restart run");Write("PASS actual stage350 Rebirth -> eight rewards + one opportunity -> clean new run");
     }
     static Gear Legendary()

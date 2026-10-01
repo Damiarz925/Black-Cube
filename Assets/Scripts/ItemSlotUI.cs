@@ -55,7 +55,7 @@ public class ItemSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         if (data.button == PointerEventData.InputButton.Right && gear != null)
         {
             if (gear.IsLocked) { GetComponentInParent<InventoryUI>()?.ShowTooltip(gear, (RectTransform)transform, false, data); return; }
-            Inventory.Instance?.TryDismantle(gear);
+            GetComponentInParent<InventoryUI>()?.RequestManualDismantle(gear);
         }
     }
     public void OnPointerEnter(PointerEventData data) { hovered = true; GetComponentInParent<InventoryUI>()?.ShowTooltip(gear, (RectTransform)transform, false, data); }

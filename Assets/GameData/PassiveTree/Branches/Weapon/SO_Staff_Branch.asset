@@ -133,33 +133,33 @@ MonoBehaviour:
       a:
         stableId: tree.v3.weapon.staff.t01.left.a
         logicalSlotId: tree.v3.weapon.staff.t01.left.a
-        displayName: Sustain 1
-        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only sustain/utility package."
+        displayName: Mana Before Life
+        description: Post-mitigation damage uses Mana first; any shortage spills into Life.
         branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 70
+          stat: 146
           mechanicId: 
-          value: 4.8
+          value: 2
         iconMode: 0
         iconOverride: {fileID: 0}
       b:
         stableId: tree.v3.weapon.staff.t01.left.b
         logicalSlotId: tree.v3.weapon.staff.t01.left.b
-        displayName: Sustain 2
-        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only sustain/utility package."
-        branch: 0
+        displayName: Spell Echo Chance
+        description: Echo casts cost escalating Mana.
+        branch: 3
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 57
+          stat: 144
           mechanicId: 
-          value: 3.6000001
+          value: 1
         iconMode: 0
         iconOverride: {fileID: 0}
       c:
@@ -304,33 +304,33 @@ MonoBehaviour:
       a:
         stableId: tree.v3.weapon.staff.t02.left.a
         logicalSlotId: tree.v3.weapon.staff.t02.left.a
-        displayName: Sustain 1
-        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only sustain/utility package."
+        displayName: Mana Before Life
+        description: Post-mitigation damage uses Mana first; any shortage spills into Life.
         branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 57
+          stat: 146
           mechanicId: 
-          value: 4.8
+          value: 3
         iconMode: 0
         iconOverride: {fileID: 0}
       b:
         stableId: tree.v3.weapon.staff.t02.left.b
         logicalSlotId: tree.v3.weapon.staff.t02.left.b
-        displayName: Sustain 2
-        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only sustain/utility package."
-        branch: 0
+        displayName: Spell Echo Chance
+        description: Echo casts cost escalating Mana.
+        branch: 3
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 52
+          stat: 144
           mechanicId: 
-          value: 9.6
+          value: 1
         iconMode: 0
         iconOverride: {fileID: 0}
       c:
@@ -475,33 +475,33 @@ MonoBehaviour:
       a:
         stableId: tree.v3.weapon.staff.t03.left.a
         logicalSlotId: tree.v3.weapon.staff.t03.left.a
-        displayName: Sustain 1
-        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only sustain/utility package."
+        displayName: Mana Before Life
+        description: Post-mitigation damage uses Mana first; any shortage spills into Life.
         branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 52
+          stat: 146
           mechanicId: 
-          value: 12
+          value: 5
         iconMode: 0
         iconOverride: {fileID: 0}
       b:
         stableId: tree.v3.weapon.staff.t03.left.b
         logicalSlotId: tree.v3.weapon.staff.t03.left.b
-        displayName: Sustain 2
-        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only sustain/utility package."
-        branch: 0
+        displayName: Spell Echo Chance
+        description: Echo casts cost escalating Mana.
+        branch: 3
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 135
+          stat: 144
           mechanicId: 
-          value: 8
+          value: 2
         iconMode: 0
         iconOverride: {fileID: 0}
       c:
@@ -646,33 +646,33 @@ MonoBehaviour:
       a:
         stableId: tree.v3.weapon.staff.t04.left.a
         logicalSlotId: tree.v3.weapon.staff.t04.left.a
-        displayName: Sustain 1
-        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only sustain/utility package."
+        displayName: Mana Before Life
+        description: Post-mitigation damage uses Mana first; any shortage spills into Life.
         branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 135
+          stat: 146
           mechanicId: 
-          value: 10
+          value: 8
         iconMode: 0
         iconOverride: {fileID: 0}
       b:
         stableId: tree.v3.weapon.staff.t04.left.b
         logicalSlotId: tree.v3.weapon.staff.t04.left.b
-        displayName: Sustain 2
-        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only sustain/utility package."
-        branch: 0
+        displayName: Spell Echo Chance
+        description: Echo casts cost escalating Mana.
+        branch: 3
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 70
+          stat: 144
           mechanicId: 
-          value: 10
+          value: 3
         iconMode: 0
         iconOverride: {fileID: 0}
       c:
@@ -817,15 +817,15 @@ MonoBehaviour:
       a:
         stableId: tree.v3.weapon.staff.t05.left.a
         logicalSlotId: tree.v3.weapon.staff.t05.left.a
-        displayName: Sustain 1
-        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only sustain/utility package."
+        displayName: Mana Before Life
+        description: Post-mitigation damage uses Mana first; any shortage spills into Life.
         branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 70
+          stat: 146
           mechanicId: 
           value: 12
         iconMode: 0
@@ -833,17 +833,17 @@ MonoBehaviour:
       b:
         stableId: tree.v3.weapon.staff.t05.left.b
         logicalSlotId: tree.v3.weapon.staff.t05.left.b
-        displayName: Sustain 2
-        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only sustain/utility package."
-        branch: 0
+        displayName: Spell Echo Chance
+        description: Echo casts cost escalating Mana.
+        branch: 3
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 57
+          stat: 144
           mechanicId: 
-          value: 9
+          value: 3
         iconMode: 0
         iconOverride: {fileID: 0}
       c:
@@ -988,33 +988,33 @@ MonoBehaviour:
       a:
         stableId: tree.v3.weapon.staff.t06.left.a
         logicalSlotId: tree.v3.weapon.staff.t06.left.a
-        displayName: Sustain 1
-        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only sustain/utility package."
+        displayName: Mana Before Life
+        description: Post-mitigation damage uses Mana first; any shortage spills into Life.
         branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 57
+          stat: 146
           mechanicId: 
-          value: 18
+          value: 15
         iconMode: 0
         iconOverride: {fileID: 0}
       b:
         stableId: tree.v3.weapon.staff.t06.left.b
         logicalSlotId: tree.v3.weapon.staff.t06.left.b
-        displayName: Sustain 2
-        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only sustain/utility package."
-        branch: 0
+        displayName: Spell Echo Chance
+        description: Echo casts cost escalating Mana.
+        branch: 3
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 52
+          stat: 144
           mechanicId: 
-          value: 36
+          value: 4
         iconMode: 0
         iconOverride: {fileID: 0}
       c:
@@ -1179,41 +1179,33 @@ MonoBehaviour:
       a:
         stableId: tree.v3.weapon.staff.t07.left.a
         logicalSlotId: tree.v3.weapon.staff.t07.left.a
-        displayName: Bulwark 1
-        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only sustain/utility package."
+        displayName: Mana Before Life
+        description: Post-mitigation damage uses Mana first; any shortage spills into Life.
         branch: 0
         size: 2
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 52
+          stat: 146
           mechanicId: 
-          value: 72
-        - kind: 0
-          stat: 73
-          mechanicId: 
-          value: 13.5
+          value: 20
         iconMode: 0
         iconOverride: {fileID: 0}
       b:
         stableId: tree.v3.weapon.staff.t07.left.b
         logicalSlotId: tree.v3.weapon.staff.t07.left.b
-        displayName: Bulwark 2
-        description: "PROVISIONAL WEAPON TREE VALUES \u2014 NOT FINAL BALANCE. Weapon-only sustain/utility package."
-        branch: 0
+        displayName: Spell Echo Chance
+        description: Echo casts cost escalating Mana.
+        branch: 3
         size: 2
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 135
+          stat: 144
           mechanicId: 
-          value: 48
-        - kind: 0
-          stat: 75
-          mechanicId: 
-          value: 2.025
+          value: 6
         iconMode: 0
         iconOverride: {fileID: 0}
       c:

@@ -60,7 +60,7 @@ public class StatusHUD : MonoBehaviour
                 badge=Instantiate(authoredView.badgePrefab,strip.Root);badge.name=summary.DisplayName;badge.Owner=this;
                 strip.Badges.Add(summary.Effect,badge);
             }
-            badge.gameObject.SetActive(true);badge.Summary=summary;
+            badge.gameObject.SetActive(true);badge.Summary=summary;if(hovered==badge)tooltipText.text=summary.Tooltip;
             badge.transform.SetSiblingIndex(i);
             badge.Label.text=summary.Effect.Ailment is StatusEffects.AilmentKind.Bleed or StatusEffects.AilmentKind.Ignite
                 ? $"{summary.Count}/{summary.MaximumStackCount}" : summary.Count.ToString();

@@ -30,6 +30,15 @@ public class InventoryUI : MonoBehaviour
     private ZoneManager zone;
     private int displayedCorruptionStage = -1;
     public ItemTooltipUI Tooltip { get; private set; }
+    DismantleConfirmationUI dismantleConfirmation;
+    public void RequestManualDismantle(Gear item)
+    {
+        if(Inventory.Instance==null||!Inventory.Instance.CanDismantle(item))return;
+        dismantleConfirmation??=GetComponentInChildren<DismantleConfirmationUI>(true);
+        if(dismantleConfirmation!=null)dismantleConfirmation.Request(item);
+        else if(item.ItemRarity is not (LootManager.GearRarity.Legendary or LootManager.GearRarity.Unique))Inventory.Instance.TryDismantle(item);
+        else Debug.LogError("Missing authored dismantle confirmation; protected item was not destroyed.",this);
+    }
     private CurrencyInventoryPanel currencyPanel;
     readonly Dictionary<Gear,float> dpsCache = new();
     PlayerController previewPlayer;
@@ -53,6 +62,21 @@ public class InventoryUI : MonoBehaviour
         if(!dpsCache.TryGetValue(item,out float estimate))dpsCache[item]=estimate=CharacterDamageEstimate.Replacement(previewPlayer,item);
         return dpsBaseline>0?(estimate/dpsBaseline-1)*100:estimate>0?100:0;
     }
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+    public Dictionary<RolledMod,float> MarginalUpgradeContributions(Gear item)
+    {
+        var result=new Dictionary<RolledMod,float>();
+        if(item==null||item.IsScrap||!GameplayOptions.UpgradeDiagnostics)return result;
+        previewPlayer??=FindFirstObjectByType<PlayerController>();if(previewPlayer==null)return result;
+        float full=dpsCache.TryGetValue(item,out float cached)?cached:CharacterDamageEstimate.Replacement(previewPlayer,item);
+        for(int i=0;i<item.rolledMods.Count;i++)
+        {
+            RolledMod mod=item.rolledMods[i];if(mod==null||Gear.IsWeaponBaseStat(mod.statType))continue;
+            result[mod]=CharacterDamageEstimate.MarginalContribution(previewPlayer,item,i,full);
+        }
+        return result;
+    }
+#endif
     void RefreshDps()
     {
         if(!isActiveAndEnabled||!dpsDirty||Time.unscaledTime<nextDpsRefresh)return;
@@ -272,7 +296,7 @@ public class InventoryUI : MonoBehaviour
         foreach (var pair in slots)
         {
             if (pair.Value == null) continue;
-            pair.Value.SetModHighlight(filter != null && filter.enabled && filter.Keeps(pair.Key), 0);
+            pair.Value.SetModHighlight(filter != null && filter.Highlights(pair.Key), 0);
         }
     }
 

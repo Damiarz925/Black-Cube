@@ -303,7 +303,7 @@ MonoBehaviour:
         - kind: 0
           stat: 74
           mechanicId: 
-          value: 0.368
+          value: 1.2
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
@@ -384,7 +384,7 @@ MonoBehaviour:
         - kind: 0
           stat: 74
           mechanicId: 
-          value: 0.368
+          value: 1.2
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
@@ -852,7 +852,7 @@ MonoBehaviour:
         - kind: 0
           stat: 74
           mechanicId: 
-          value: 0.392
+          value: 1.2800001
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
@@ -933,7 +933,7 @@ MonoBehaviour:
         - kind: 0
           stat: 74
           mechanicId: 
-          value: 0.392
+          value: 1.2800001
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
@@ -1401,7 +1401,7 @@ MonoBehaviour:
         - kind: 0
           stat: 74
           mechanicId: 
-          value: 0.41599998
+          value: 1.36
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
@@ -1482,7 +1482,7 @@ MonoBehaviour:
         - kind: 0
           stat: 74
           mechanicId: 
-          value: 0.41599998
+          value: 1.36
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:

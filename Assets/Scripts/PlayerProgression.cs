@@ -52,8 +52,8 @@ public sealed class PlayerProgression : MonoBehaviour
     public double Experience => experience;
     public bool AtCap => level >= Mathf.Max(1, maxLevel);
     public double RequiredXp => RequirementAt(level);
-    public double RequirementAt(int atLevel) => atLevel < maxLevel ? Math.Max(1d, Math.Round(ReqAtLevel10Xp * Math.Pow(GetRequirementGrowth(), atLevel - ReqAnchorLevel10))) : 0d;
-    public double EnemyReward(int combatLevel, EnemyAI.EnemyRarity rarity, bool wasBoss) => RequirementAt(combatLevel) / KillsToLevelUp(combatLevel) * EnemyXpMultiplier(rarity, wasBoss);
+    public double RequirementAt(int atLevel) => atLevel < maxLevel ? EarlyProgressionRules.Requirement(atLevel) : 0d;
+    public double EnemyReward(int combatLevel, EnemyAI.EnemyRarity rarity, bool wasBoss) => (combatLevel < maxLevel ? EarlyProgressionRules.LegacyRequirement(combatLevel) : 0d) / KillsToLevelUp(combatLevel) * EnemyXpMultiplier(rarity, wasBoss);
     // Level-owned Life grows before equipment/passive percentage multipliers.
     // The gentler early rate keeps first-run midgame TTD credible; the late
     // rate supports the enemy's authored pre-100 growth. Level 1 remains 1000.

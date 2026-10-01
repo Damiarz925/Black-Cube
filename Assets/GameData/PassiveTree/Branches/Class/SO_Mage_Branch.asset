@@ -90,19 +90,19 @@ MonoBehaviour:
       c:
         stableId: tree.v3.class.mage.t01.right.c
         logicalSlotId: tree.v3.class.mage.t01.right.c
-        displayName: Increased Critical Chance
-        description: 
-        branch: 20
+        displayName: Shock Chance
+        description: Adds 21% chance to Shock on eligible Lightning hits.
+        branch: 16
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 11
+          stat: 44
           mechanicId: 
-          value: 42
+          value: 21
         iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 9a8398eb01579964aa1ec1892920d26c, type: 3}
+        iconOverride: {fileID: 21300000, guid: 2a28bfb58198a4e40a6a2212b0bd0b6e, type: 3}
       subclassA:
         stableId: tree.v3.class.mage.t01.right.subclass.variant.mage-cooldown
         logicalSlotId: tree.v3.class.mage.t01.right.subclass
@@ -116,7 +116,7 @@ MonoBehaviour:
         - kind: 0
           stat: 73
           mechanicId: 
-          value: 3.6
+          value: 4.5
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
@@ -155,19 +155,23 @@ MonoBehaviour:
       b:
         stableId: tree.v3.class.mage.t01.left.b
         logicalSlotId: tree.v3.class.mage.t01.left.b
-        displayName: Mana Regeneration
-        description: 
+        displayName: Mana Ward and Recovery
+        description: Post-mitigation damage uses Mana first; any shortage spills into Life. Also regenerates 0.75% Maximum Life per second.
         branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 73
+          stat: 146
           mechanicId: 
-          value: 9.5
+          value: 7
+        - kind: 0
+          stat: 72
+          mechanicId: 
+          value: 0.75
         iconMode: 1
-        iconOverride: {fileID: 21300000, guid: ab7da3d106a7057468686ec3be7d8dd5, type: 3}
+        iconOverride: {fileID: 21300000, guid: 515daee52d8470c4da2c894c21392536, type: 3}
       c:
         stableId: tree.v3.class.mage.t01.left.c
         logicalSlotId: tree.v3.class.mage.t01.left.c
@@ -197,7 +201,7 @@ MonoBehaviour:
         - kind: 0
           stat: 73
           mechanicId: 
-          value: 3.6
+          value: 4.5
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
@@ -269,19 +273,19 @@ MonoBehaviour:
       c:
         stableId: tree.v3.class.mage.t02.right.c
         logicalSlotId: tree.v3.class.mage.t02.right.c
-        displayName: Critical Damage Multiplier
+        displayName: Mana Regeneration
         description: 
-        branch: 21
+        branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 12
+          stat: 73
           mechanicId: 
-          value: 37.5
+          value: 9.5
         iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 9a8398eb01579964aa1ec1892920d26c, type: 3}
+        iconOverride: {fileID: 21300000, guid: ab7da3d106a7057468686ec3be7d8dd5, type: 3}
       subclassA:
         stableId: tree.v3.class.mage.t02.right.subclass.variant.mage-cooldown
         logicalSlotId: tree.v3.class.mage.t02.right.subclass
@@ -295,7 +299,7 @@ MonoBehaviour:
         - kind: 0
           stat: 75
           mechanicId: 
-          value: 0.552
+          value: 0.675
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
@@ -376,7 +380,7 @@ MonoBehaviour:
         - kind: 0
           stat: 75
           mechanicId: 
-          value: 0.552
+          value: 0.675
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
@@ -529,19 +533,19 @@ MonoBehaviour:
       c:
         stableId: tree.v3.class.mage.t03.left.c
         logicalSlotId: tree.v3.class.mage.t03.left.c
-        displayName: Increased Critical Chance
-        description: 
-        branch: 20
+        displayName: Shock Chance
+        description: Adds 21% chance to Shock on eligible Lightning hits.
+        branch: 16
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 11
+          stat: 44
           mechanicId: 
-          value: 42
+          value: 21
         iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 9a8398eb01579964aa1ec1892920d26c, type: 3}
+        iconOverride: {fileID: 21300000, guid: 2a28bfb58198a4e40a6a2212b0bd0b6e, type: 3}
       subclassA:
         stableId: tree.v3.class.mage.t03.left.subclass.variant.mage-cooldown
         logicalSlotId: tree.v3.class.mage.t03.left.subclass
@@ -653,7 +657,7 @@ MonoBehaviour:
         - kind: 0
           stat: 73
           mechanicId: 
-          value: 3.84
+          value: 4.8
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
@@ -708,19 +712,23 @@ MonoBehaviour:
       c:
         stableId: tree.v3.class.mage.t04.left.c
         logicalSlotId: tree.v3.class.mage.t04.left.c
-        displayName: Critical Damage Multiplier
-        description: 
-        branch: 21
+        displayName: Mana Ward and Recovery
+        description: Post-mitigation damage uses Mana first; any shortage spills into Life. Also regenerates 0.75% Maximum Life per second.
+        branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 12
+          stat: 146
           mechanicId: 
-          value: 37.5
+          value: 7
+        - kind: 0
+          stat: 72
+          mechanicId: 
+          value: 0.75
         iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 9a8398eb01579964aa1ec1892920d26c, type: 3}
+        iconOverride: {fileID: 21300000, guid: 515daee52d8470c4da2c894c21392536, type: 3}
       subclassA:
         stableId: tree.v3.class.mage.t04.left.subclass.variant.mage-cooldown
         logicalSlotId: tree.v3.class.mage.t04.left.subclass
@@ -734,7 +742,7 @@ MonoBehaviour:
         - kind: 0
           stat: 73
           mechanicId: 
-          value: 3.84
+          value: 4.8
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
@@ -806,19 +814,19 @@ MonoBehaviour:
       c:
         stableId: tree.v3.class.mage.t05.right.c
         logicalSlotId: tree.v3.class.mage.t05.right.c
-        displayName: Increased Critical Chance
-        description: 
-        branch: 20
+        displayName: Shock Chance
+        description: Adds 21% chance to Shock on eligible Lightning hits.
+        branch: 16
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 11
+          stat: 44
           mechanicId: 
-          value: 42
+          value: 21
         iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 9a8398eb01579964aa1ec1892920d26c, type: 3}
+        iconOverride: {fileID: 21300000, guid: 2a28bfb58198a4e40a6a2212b0bd0b6e, type: 3}
       subclassA:
         stableId: tree.v3.class.mage.t05.right.subclass.variant.mage-cooldown
         logicalSlotId: tree.v3.class.mage.t05.right.subclass
@@ -832,7 +840,7 @@ MonoBehaviour:
         - kind: 0
           stat: 75
           mechanicId: 
-          value: 0.588
+          value: 0.72
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
@@ -913,7 +921,7 @@ MonoBehaviour:
         - kind: 0
           stat: 75
           mechanicId: 
-          value: 0.588
+          value: 0.72
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
@@ -985,19 +993,23 @@ MonoBehaviour:
       c:
         stableId: tree.v3.class.mage.t06.right.c
         logicalSlotId: tree.v3.class.mage.t06.right.c
-        displayName: Critical Damage Multiplier
-        description: 
-        branch: 21
+        displayName: Mana Ward and Recovery
+        description: Post-mitigation damage uses Mana first; any shortage spills into Life. Also regenerates 0.75% Maximum Life per second.
+        branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 12
+          stat: 146
           mechanicId: 
-          value: 37.5
+          value: 7
+        - kind: 0
+          stat: 72
+          mechanicId: 
+          value: 0.75
         iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 9a8398eb01579964aa1ec1892920d26c, type: 3}
+        iconOverride: {fileID: 21300000, guid: 515daee52d8470c4da2c894c21392536, type: 3}
       subclassA:
         stableId: tree.v3.class.mage.t06.right.subclass.variant.mage-cooldown
         logicalSlotId: tree.v3.class.mage.t06.right.subclass
@@ -1190,7 +1202,7 @@ MonoBehaviour:
         - kind: 0
           stat: 73
           mechanicId: 
-          value: 4.08
+          value: 5.1
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
@@ -1245,19 +1257,19 @@ MonoBehaviour:
       c:
         stableId: tree.v3.class.mage.t07.left.c
         logicalSlotId: tree.v3.class.mage.t07.left.c
-        displayName: Increased Critical Chance
-        description: 
-        branch: 20
+        displayName: Shock Chance
+        description: Adds 21% chance to Shock on eligible Lightning hits.
+        branch: 16
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 11
+          stat: 44
           mechanicId: 
-          value: 42
+          value: 21
         iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 9a8398eb01579964aa1ec1892920d26c, type: 3}
+        iconOverride: {fileID: 21300000, guid: 2a28bfb58198a4e40a6a2212b0bd0b6e, type: 3}
       subclassA:
         stableId: tree.v3.class.mage.t07.left.subclass.variant.mage-cooldown
         logicalSlotId: tree.v3.class.mage.t07.left.subclass
@@ -1271,7 +1283,7 @@ MonoBehaviour:
         - kind: 0
           stat: 73
           mechanicId: 
-          value: 4.08
+          value: 5.1
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
@@ -1369,7 +1381,7 @@ MonoBehaviour:
         - kind: 0
           stat: 75
           mechanicId: 
-          value: 0.624
+          value: 0.765
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
@@ -1424,19 +1436,23 @@ MonoBehaviour:
       c:
         stableId: tree.v3.class.mage.t08.left.c
         logicalSlotId: tree.v3.class.mage.t08.left.c
-        displayName: Critical Damage Multiplier
-        description: 
-        branch: 21
+        displayName: Mana Ward and Recovery
+        description: Post-mitigation damage uses Mana first; any shortage spills into Life. Also regenerates 0.75% Maximum Life per second.
+        branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 12
+          stat: 146
           mechanicId: 
-          value: 37.5
+          value: 7
+        - kind: 0
+          stat: 72
+          mechanicId: 
+          value: 0.75
         iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 9a8398eb01579964aa1ec1892920d26c, type: 3}
+        iconOverride: {fileID: 21300000, guid: 515daee52d8470c4da2c894c21392536, type: 3}
       subclassA:
         stableId: tree.v3.class.mage.t08.left.subclass.variant.mage-cooldown
         logicalSlotId: tree.v3.class.mage.t08.left.subclass
@@ -1450,7 +1466,7 @@ MonoBehaviour:
         - kind: 0
           stat: 75
           mechanicId: 
-          value: 0.624
+          value: 0.765
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
@@ -1522,19 +1538,19 @@ MonoBehaviour:
       c:
         stableId: tree.v3.class.mage.t09.right.c
         logicalSlotId: tree.v3.class.mage.t09.right.c
-        displayName: Increased Critical Chance
-        description: 
-        branch: 20
+        displayName: Shock Chance
+        description: Adds 21% chance to Shock on eligible Lightning hits.
+        branch: 16
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 11
+          stat: 44
           mechanicId: 
-          value: 42
+          value: 21
         iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 9a8398eb01579964aa1ec1892920d26c, type: 3}
+        iconOverride: {fileID: 21300000, guid: 2a28bfb58198a4e40a6a2212b0bd0b6e, type: 3}
       subclassA:
         stableId: tree.v3.class.mage.t09.right.subclass.variant.mage-cooldown
         logicalSlotId: tree.v3.class.mage.t09.right.subclass
@@ -1701,19 +1717,23 @@ MonoBehaviour:
       c:
         stableId: tree.v3.class.mage.t10.right.c
         logicalSlotId: tree.v3.class.mage.t10.right.c
-        displayName: Critical Damage Multiplier
-        description: 
-        branch: 21
+        displayName: Mana Ward and Recovery
+        description: Post-mitigation damage uses Mana first; any shortage spills into Life. Also regenerates 0.75% Maximum Life per second.
+        branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 12
+          stat: 146
           mechanicId: 
-          value: 37.5
+          value: 7
+        - kind: 0
+          stat: 72
+          mechanicId: 
+          value: 0.75
         iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 9a8398eb01579964aa1ec1892920d26c, type: 3}
+        iconOverride: {fileID: 21300000, guid: 515daee52d8470c4da2c894c21392536, type: 3}
       subclassA:
         stableId: tree.v3.class.mage.t10.right.subclass.variant.mage-cooldown
         logicalSlotId: tree.v3.class.mage.t10.right.subclass
@@ -1727,7 +1747,7 @@ MonoBehaviour:
         - kind: 0
           stat: 73
           mechanicId: 
-          value: 4.3199997
+          value: 5.4
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
@@ -1808,7 +1828,7 @@ MonoBehaviour:
         - kind: 0
           stat: 73
           mechanicId: 
-          value: 4.3199997
+          value: 5.4
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:

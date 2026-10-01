@@ -92,15 +92,17 @@ public sealed partial class RelicInventory : MonoBehaviour
     public RelicData Active(int slot)=>slot>=0&&slot<ActiveSlotCount&&activeIndices[slot]>=0&&activeIndices[slot]<relics.Count?relics[activeIndices[slot]]:null;
     public bool Equip(RelicData relic,int slot)
     {
+        if(!CanChangeLoadout)return false;
         if(relic==null||slot<0||slot>=ActiveSlotCount)return false;
         if(relic.uniqueRelic)for(int i=0;i<ActiveSlotCount;i++)if(i!=slot&&Active(i)?.uniqueRelic==true&&Active(i)!=relic)return false;int index=relics.IndexOf(relic);if(index<0)return false;
         for(int i=0;i<ActiveSlotCount;i++)if(activeIndices[i]==index)activeIndices[i]=-1;
         activeIndices[slot]=index;PublishChanged();return true;
     }
-    public void Unequip(int slot){if(slot>=0&&slot<ActiveSlotCount&&activeIndices[slot]!=-1){activeIndices[slot]=-1;PublishChanged();}}
+    public bool CanChangeLoadout=>GameManager.Instance==null||currentCycle==0||RebirthManager.Instance?.Phase==RebirthPhase.Equipment;
+    public void Unequip(int slot){if(CanChangeLoadout&&slot>=0&&slot<ActiveSlotCount&&activeIndices[slot]!=-1){activeIndices[slot]=-1;PublishChanged();}}
     public bool ToggleEquip(RelicData relic,out string feedback)
     {
-        feedback=null;if(relic==null||!relics.Contains(relic)){feedback="Relic unavailable";return false;}
+        feedback=null;if(!CanChangeLoadout){feedback="Relic loadout is locked until Rebirth equipment setup.";return false;}if(relic==null||!relics.Contains(relic)){feedback="Relic unavailable";return false;}
         int index=relics.IndexOf(relic);
         for(int slot=0;slot<ActiveSlotCount;slot++)if(activeIndices[slot]==index){Unequip(slot);feedback="Relic unequipped";return true;}
         for(int slot=0;slot<ActiveSlotCount;slot++)if(activeIndices[slot]<0){if(!Equip(relic,slot)){feedback="Only one Unique Relic may be equipped.";return false;}feedback="Relic equipped";return true;}
@@ -120,7 +122,7 @@ public sealed partial class RelicInventory : MonoBehaviour
         }
         PublishChanged();return first;
     }
-    public bool IsCurrentCraftable(RelicData relic)=>relic!=null&&relic.craftableThisCycle&&relic.cycle==currentCycle&&relics.Contains(relic);
+    public bool IsCurrentCraftable(RelicData relic)=>(GameManager.Instance==null||RebirthManager.Instance?.Phase==RebirthPhase.Crafting)&&relic!=null&&relic.craftableThisCycle&&relic.cycle==currentCycle&&relics.Contains(relic);
     public float DamageMultiplier=>Product(RelicModifierType.MoreDamage);
     public float AttackSpeedMultiplier=>Product(RelicModifierType.MoreAttackSpeed);
     public float ExperienceMultiplier=>1f+Sum(RelicModifierType.IncreasedExperience)/100f;
@@ -236,16 +238,22 @@ public static class AncientRelicCrafting
     static List<RelicModifier> Unlocked(RelicData relic){var result=new List<RelicModifier>();foreach(var mod in relic.modifiers)if(mod!=null&&!mod.lockedOriginal)result.Add(mod);return result;}
 }
 
+public enum RebirthPhase { None, Crafting, Equipment, Returns, Weapon, Review }
+
 public sealed class RebirthManager : MonoBehaviour
 {
     public const int RequiredZone=60;
     public static RebirthManager Instance{get;private set;}
+    public RebirthPhase Phase {get;private set;}
+    public bool IsSetup=>Phase!=RebirthPhase.None;
+    public int ReachedLevel {get;private set;}
     public bool ConfirmationPending{get;private set;}
     public string SelectedStartingWeaponType{get;private set;}
     readonly List<Gear> returningItems=new();
     public IReadOnlyList<Gear> ReturningItems=>returningItems;
     public bool SelectStartingWeapon(string id)
     {
+        if(IsSetup&&Phase!=RebirthPhase.Weapon&&Phase!=RebirthPhase.Review)return false;
         var identity=GameManager.Instance?.GetComponent<PlayerIdentityState>();
         string defaultId=identity?.ClassDefinition?.SignatureWeaponTypeId??WeaponTypeCatalog.HistoricalDefaultId;
         var choices=RelicInventory.Instance?.StartingWeaponChoices(defaultId);
@@ -254,6 +262,7 @@ public sealed class RebirthManager : MonoBehaviour
     }
     public bool SelectReturnItem(int slot,Gear item)
     {
+        if(Phase!=RebirthPhase.Returns)return false;
         var limits=RelicInventory.Instance?.ReturnItemLevelLimits();if(limits==null||slot<0||slot>=limits.Count)return false;
         if(item!=null&&(!Owns(item)||item.ItemLevel>limits[slot]||returningItems.Contains(item)))return false;
         while(returningItems.Count<=slot)returningItems.Add(null);returningItems[slot]=item;return true;
@@ -269,32 +278,60 @@ public sealed class RebirthManager : MonoBehaviour
     public bool Eligible=>GameManager.Instance!=null&&GameManager.Instance.CurrentCombatLevel>=RequiredZone;
     void Awake(){if(Instance!=null&&Instance!=this){Destroy(this);return;}Instance=this;}
     void OnDestroy(){if(Instance==this)Instance=null;}
-    public bool RequestRebirth(){if(!Eligible)return false;ConfirmationPending=true;returningItems.Clear();SelectedStartingWeaponType=null;return true;}
-    public void Cancel(){ConfirmationPending=false;returningItems.Clear();SelectedStartingWeaponType=null;}
+    public bool RequestRebirth(){if(IsSetup)return true;if(!Eligible)return false;ConfirmationPending=true;returningItems.Clear();SelectedStartingWeaponType=null;return true;}
+    public void Cancel(){if(IsSetup)return;ResetForNewGame();}
+    public void ResetForNewGame(){Phase=RebirthPhase.None;ReachedLevel=0;ConfirmationPending=false;returningItems.Clear();SelectedStartingWeaponType=null;}
+    void LateUpdate(){if(IsSetup&&UnityEngine.SceneManagement.SceneManager.GetActiveScene().name==GameSceneNames.Gameplay)Time.timeScale=0;}
     public bool ConfirmRebirth()
     {
-        if(!ConfirmationPending||!Eligible||!ValidateReturnItems())return false;
-        if(SelectedStartingWeaponType!=null&&!SelectStartingWeapon(SelectedStartingWeaponType))return false;
+        if(IsSetup||!ConfirmationPending||!Eligible)return false;
+        ReachedLevel=GameManager.Instance.CurrentCombatLevel;
+        Phase=RebirthPhase.Crafting;ConfirmationPending=false;
+        var relics=RelicInventory.Instance??gameObject.AddComponent<RelicInventory>();
+        relics.BeginNewCycle(ReachedLevel);
+        if(ReachedLevel>=350)relics.AwardForgeOpportunity();
+        CurrencyInventory.Instance?.CancelArmed();
+        Time.timeScale=0;
+        GamePersistence.Save();return true;
+    }
+    public bool AdvanceSetup()
+    {
+        if(!IsSetup)return false;
+        if(Phase==RebirthPhase.Crafting){foreach(var r in RelicInventory.Instance.Relics)r.craftableThisCycle=false;CurrencyInventory.Instance?.CancelArmed();}
+        if(Phase==RebirthPhase.Returns&&!ValidateReturnItems())return false;
+        if(Phase==RebirthPhase.Weapon&&(SelectedStartingWeaponType==null||!SelectStartingWeapon(SelectedStartingWeaponType)))return false;
+        if(Phase==RebirthPhase.Review)return BeginNextRun();
+        Phase=(RebirthPhase)((int)Phase+1);GamePersistence.Save();return true;
+    }
+    public bool BeginNextRun()
+    {
+        if(Phase!=RebirthPhase.Review||!ValidateReturnItems()||SelectedStartingWeaponType==null||!SelectStartingWeapon(SelectedStartingWeaponType))return false;
         var savedReturns=new List<GearSnapshotData>();foreach(var item in returningItems)if(item!=null)savedReturns.Add(GearSnapshotData.Capture(item));
-        ConfirmationPending=false;
-        EquipmentManager.Instance?.ResetForRebirth();
-        Inventory.Instance?.ResetForRebirth();
+        EquipmentManager.Instance?.ResetForRebirth();Inventory.Instance?.ResetForRebirth();
         int catalysts=CurrencyInventory.Instance?.Count(CraftingCurrencyType.EmpowermentCatalyst)??0;
         CurrencyInventory.Instance?.Restore(Array.Empty<CurrencyStackData>());
         if(catalysts>0)CurrencyInventory.Instance?.Add(CraftingCurrencyType.EmpowermentCatalyst,catalysts);
-        var relics=RelicInventory.Instance;if(relics==null)relics=gameObject.AddComponent<RelicInventory>();
-        int reachedZone=GameManager.Instance!=null?GameManager.Instance.CurrentCombatLevel:RequiredZone;
-        relics.BeginNewCycle(reachedZone);
-        if(reachedZone>=350)relics.AwardForgeOpportunity();
-        foreach(CraftingCurrencyType type in Enum.GetValues(typeof(CraftingCurrencyType)))if(CurrencyInventory.IsAncient(type))CurrencyInventory.Instance?.Add(type);
+        foreach(var relic in RelicInventory.Instance.Relics)relic.craftableThisCycle=false;
         var player=FindAnyObjectByType<PlayerController>();
         if(player!=null){player.GetComponent<StatusController>()?.ClearStatuses();player.GetComponent<HealthComponent>()?.ReviveToFullLife();player.GetComponent<ManaComponent>()?.RestoreFull();}
         foreach(var saved in savedReturns)Inventory.Instance?.Add(saved.Create("Returned Item"));
-        player?.EnsureStarterWeapon();SelectedStartingWeaponType=null;returningItems.Clear();
-        GetComponent<GameManager>()?.StartNewRun();
-        GamePersistence.Save();
-        return true;
+        GamePersistence.BeginFreshRunIdentity();player?.EnsureStarterWeapon();
+        ResetForNewGame();Time.timeScale=1;
+        GetComponent<GameManager>()?.StartNewRun();GamePersistence.Save();return true;
     }
+    public void CaptureSetup(GameStatePayload p)
+    {
+        p.rebirthPhase=Phase;p.rebirthReachedLevel=ReachedLevel;p.rebirthWeapon=SelectedStartingWeaponType;
+        foreach(var item in returningItems)p.rebirthReturnIds.Add(item?.PersistentId??string.Empty);
+    }
+    public void RestoreSetup(GameStatePayload p,Dictionary<string,Gear> gear)
+    {
+        Phase=p.rebirthPhase;ReachedLevel=p.rebirthReachedLevel;SelectedStartingWeaponType=p.rebirthWeapon;
+        ConfirmationPending=false;returningItems.Clear();
+        foreach(string id in p.rebirthReturnIds)returningItems.Add(string.IsNullOrEmpty(id)?null:gear[id]);
+        if(IsSetup)Time.timeScale=0;
+    }
+
 }
 
 /// <summary>Authored four-slot relic strip for the player equipment/stats screen.</summary>
@@ -388,9 +425,9 @@ public sealed partial class RebirthConfirmationUI:MonoBehaviour
         var cancel=Button(confirmation.transform,"CANCEL",new Vector2(.53f,.08f),new Vector2(.92f,.34f),Cancel,out _);confirmation.SetActive(false);authoredView=GetComponent<RebirthView>()??gameObject.AddComponent<RebirthView>();authoredView.confirmationPanel=confirmation;authoredView.openButton=openButton;authoredView.confirmButton=confirm;authoredView.cancelButton=cancel;authoredView.openLabel=openLabel;authoredView.message=message;
     }
 #endif
-    void Update(){Build();bool eligible=RebirthManager.Instance!=null&&RebirthManager.Instance.Eligible;openButton.gameObject.SetActive(true);openButton.interactable=eligible;if(openLabel!=null)openLabel.text=eligible?"REBIRTH / ZONE 60+":"REBIRTH LOCKED / REACH ZONE 60";}
+    void Update(){Build();bool eligible=RebirthManager.Instance!=null&&(RebirthManager.Instance.Eligible||RebirthManager.Instance.IsSetup);openButton.gameObject.SetActive(true);openButton.interactable=eligible;if(openLabel!=null)openLabel.text=RebirthManager.Instance?.IsSetup==true?"CONTINUE REBIRTH SETUP":eligible?"REBIRTH / ZONE 60+":"REBIRTH LOCKED / REACH ZONE 60";}
     void Open(){if(RebirthManager.Instance!=null&&RebirthManager.Instance.RequestRebirth()){RefreshSetup();confirmation.SetActive(true);}}
-    void Confirm(){if(RebirthManager.Instance!=null&&RebirthManager.Instance.ConfirmRebirth())confirmation.SetActive(false);}
+    void Confirm(){var manager=RebirthManager.Instance;if(manager==null)return;if(manager.IsSetup){if(manager.AdvanceSetup()){if(manager.IsSetup)RefreshSetup();else confirmation.SetActive(false);}}else if(manager.ConfirmRebirth())RefreshSetup();}
     void Cancel(){RebirthManager.Instance?.Cancel();confirmation.SetActive(false);}
     static Button Button(Transform parent,string name,Vector2 min,Vector2 max,UnityEngine.Events.UnityAction action,out TMP_Text label)
     {var go=new GameObject(name,typeof(RectTransform),typeof(Image),typeof(Button));go.transform.SetParent(parent,false);Place((RectTransform)go.transform,min.x,min.y,max.x,max.y);go.GetComponent<Image>().color=new Color(.28f,.13f,.35f,.96f);var button=go.GetComponent<Button>();button.onClick.AddListener(action);label=Label(go.transform,name,12);Place(label.rectTransform,0,0,1,1);return button;}

@@ -19,8 +19,8 @@ public enum UniquePower
 }
 [Serializable] public sealed class UniqueItemData
 {
-    public string definitionId; public List<UniqueRoll> powers=new();
-    public UniqueItemData Copy()=>new(){definitionId=definitionId,powers=powers.Select(x=>x.Copy()).ToList()};
+    public string definitionId; public int rollVersion; public List<UniqueRoll> powers=new();
+    public UniqueItemData Copy()=>new(){definitionId=definitionId,rollVersion=rollVersion,powers=powers.Select(x=>x.Copy()).ToList()};
 }
 public sealed class UniqueStatRange
 {
@@ -35,7 +35,7 @@ public sealed class UniquePowerRange
 public sealed class UniqueDefinition
 {
     public string id,name,weapon; public LootManager.GearType slot; public Element element;
-    public int minimumLevel=20;public float damageScale=1,speed=1,crit=.05f;
+    public int minimumLevel=1;public float damageScale=1,speed=1,crit=.05f;
     public UniqueStatRange[] stats=Array.Empty<UniqueStatRange>();
     public UniquePowerRange[] powers=Array.Empty<UniquePowerRange>();
 }
@@ -67,10 +67,11 @@ public static class UniqueCatalog
         float Roll()=>Mathf.Clamp01(fixedRoll??random());
         var gear=new GameObject(definition.name).AddComponent<Gear>();
         gear.Initialize(definition.slot,LootManager.GearRarity.Unique,level,definition.element,definition.weapon);
-        var data=new UniqueItemData{definitionId=id};
+        var data=new UniqueItemData{definitionId=id,rollVersion=1};
         foreach(var range in definition.powers)
         {
-            var roll=new UniqueRoll{power=range.power,value=Mathf.Lerp(range.minimum,range.maximum,Roll())};
+            var band=UniqueTierRules.PowerRange(range,level);
+            var roll=new UniqueRoll{power=range.power,value=Mathf.Lerp(band.x,band.y,Roll())};
             if(range.power==UniquePower.PreservePoison)roll.value=Mathf.Round(roll.value);
             if(range.power==UniquePower.GrantedAuras)
             {
@@ -80,22 +81,21 @@ public static class UniqueCatalog
             }
             data.powers.Add(roll);
         }
-        var mods=definition.stats.Select(x=>new RolledMod(x.stat,1,Mathf.Lerp(x.minimum,x.maximum,Roll()))).ToList();
+        var mods=definition.stats.Select(x=>{var band=UniqueTierRules.StatRange(x,definition,level);return new RolledMod(x.stat,UniqueTierRules.Tier(level),Mathf.Lerp(band.x,band.y,Roll()));}).ToList();
         gear.ApplyMods(mods);gear.RestoreUnique(data);
         if(definition.slot==LootManager.GearType.Weapons)
         {
-            float baseDamage=(4+Mathf.Clamp(level,1,100)*.8f)*definition.damageScale;
-            gear.BaseDamage=baseDamage;gear.BaseDamageMin=baseDamage*.85f;gear.BaseDamageMax=baseDamage*1.15f;
-            gear.BaseAttackSpeed=definition.speed;gear.BaseCritChance=definition.crit;
+            UniqueTierRules.WeaponBase(gear,definition,level);
         }
         return gear;
     }
     public static bool Validate(UniqueItemData data,LootManager.GearType slot,string weapon,Element element,int level,IReadOnlyList<RolledMod> mods)
     {
         var d=Get(data?.definitionId);if(d==null||d.slot!=slot||d.minimumLevel>level||d.element!=element||(d.weapon??string.Empty)!=(weapon??string.Empty)||data.powers==null||data.powers.Count!=d.powers.Length||mods==null||mods.Count!=d.stats.Length)return false;
-        for(int i=0;i<mods.Count;i++)if(mods[i]==null||mods[i].statType!=d.stats[i].stat||mods[i].value<d.stats[i].minimum||mods[i].value>d.stats[i].maximum||!float.IsFinite(mods[i].value)||mods[i].isEmpowered||mods[i].isBossSpecial)return false;
+        if(data.rollVersion<0||data.rollVersion>1)return false;
+        for(int i=0;i<mods.Count;i++){var band=data.rollVersion==0?new Vector2(d.stats[i].minimum,d.stats[i].maximum):UniqueTierRules.StatRange(d.stats[i],d,level);if(mods[i]==null||mods[i].statType!=d.stats[i].stat||mods[i].value<band.x-.001f||mods[i].value>band.y+.001f||!float.IsFinite(mods[i].value)||mods[i].isEmpowered||mods[i].isBossSpecial||data.rollVersion>0&&mods[i].tierIndex!=UniqueTierRules.Tier(level))return false;}
         for(int i=0;i<data.powers.Count;i++)
-        {var p=data.powers[i];var r=d.powers[i];if(p==null||p.power!=r.power||!float.IsFinite(p.value)||p.value<r.minimum||p.value>r.maximum)return false;if(p.power==UniquePower.GrantedAuras){if(p.auraMask<0||p.auraMask>31||Enumerable.Range(0,5).Count(x=>(p.auraMask&(1<<x))!=0)!=(int)p.value)return false;}}
+        {var p=data.powers[i];var r=d.powers[i];var band=data.rollVersion==0?new Vector2(r.minimum,r.maximum):UniqueTierRules.PowerRange(r,level);if(p==null||p.power!=r.power||!float.IsFinite(p.value)||p.value<band.x-.001f||p.value>band.y+.001f)return false;if(p.power==UniquePower.GrantedAuras){if(p.auraMask<0||p.auraMask>31||Enumerable.Range(0,5).Count(x=>(p.auraMask&(1<<x))!=0)!=(int)p.value)return false;}}
         return true;
     }
     public static float Power(StatsComponent actor,UniquePower power)

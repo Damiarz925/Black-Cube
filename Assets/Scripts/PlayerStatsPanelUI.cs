@@ -238,7 +238,9 @@ public class PlayerStatsPanelUI : MonoBehaviour
     void BuildCompactPlayerStats(PlayerController player)
     {
         var hit=CharacterDamageEstimate.SearchHit(player.BuildNonCriticalAttackContext(),playerStats);
-        AddHeader("OFFENSE");AddInspectionRow("Average Hit",hit.Hits.Sum(h=>h.Amount).ToString("0.#"));
+        var weapon=player.EquippedWeapon;
+        AddHeader("OFFENSE");AddInspectionRow("Weapon Type",weapon!=null?WeaponTypeCatalog.Get(weapon.WeaponTypeId).DisplayName:"Unarmed");
+        AddInspectionRow(weapon!=null?"Average Hit":"Unarmed Damage / Hit",hit.Hits.Sum(h=>h.Amount).ToString("0.#"));
         AddInspectionRow("Basic DPS (before defenses)",CharacterDamageEstimate.Calculate(player,false).ToString("0.#"));
         AddInspectionRow("Attacks / Second",player.GetFinalAttackSpeed().ToString("0.##"));
         AddInspectionRow("Critical Chance",player.GetFinalCritChance().ToString("P1"));
@@ -246,18 +248,37 @@ public class PlayerStatsPanelUI : MonoBehaviour
         AddStat(StatTypes.ChanceToHitTwice);
         AddHeader("DAMAGE TYPES / AVERAGE HIT");
         foreach(var element in new[]{Element.Phys,Element.Fire,Element.Cold,Element.Light,Element.Void})
-            AddInspectionRow(ItemTooltipUI.ElementName(element),hit.Hits.Where(h=>h.Element==element).Sum(h=>h.Amount).ToString("0.#"));
-        AddHeader("DEFENSE");AddInspectionRow("Maximum Life",(player.GetComponent<HealthComponent>()?.MaxLife??0).ToString("0"));
+        {float amount=hit.Hits.Where(h=>h.Element==element).Sum(h=>h.Amount);if(amount>0.0001f)AddInspectionRow(ItemTooltipUI.ElementName(element),amount.ToString("0.#"));}
+        AddHeader("DEFENSE");
+        float manaBeforeLife=ManaBeforeLifeRules.Fraction(playerStats);
+        if(manaBeforeLife>0.0001f)AddInspectionRow("Damage Taken From Mana Before Life",manaBeforeLife.ToString("P1"),
+            manaBeforeLife.ToString("P1")+" of post-mitigation damage is taken from Mana before Life. Damage that cannot be absorbed because Mana is empty is taken from Life.");
+        AddInspectionRow("Maximum Life",(player.GetComponent<HealthComponent>()?.MaxLife??0).ToString("0"));
         float armour=ItemArmourProfile.Final(playerStats),explicitPdr=playerStats.GetStat(StatTypes.PhysicalDamageReduction);
-        AddInspectionRow("Armour",armour.ToString("0"));AddInspectionRow("PDR vs L100 reference",Mathf.Clamp(ItemArmourProfile.RawReduction(armour,ItemArmourProfile.ReferenceHit,explicitPdr),-.9f,.9f).ToString("P1"));
+        if(armour>0.0001f)AddInspectionRow("Armour",armour.ToString("0"));
+        float pdr=Mathf.Clamp(ItemArmourProfile.RawReduction(armour,ItemArmourProfile.ReferenceHit,explicitPdr),-.9f,.9f);
+        if(pdr>0.0001f)AddInspectionRow("PDR vs L100 reference",pdr.ToString("P1"));
+        AddHeader("RESISTANCES");
         foreach(var element in new[]{Element.Fire,Element.Cold,Element.Light,Element.Void})
         {
             var stat=element switch{Element.Fire=>StatTypes.FireRes,Element.Cold=>StatTypes.ColdRes,Element.Light=>StatTypes.LightRes,_=>StatTypes.VoidRes};
-            AddInspectionRow(ItemTooltipUI.ElementName(element)+" Resistance",Mathf.Min(CombatCalculator.GetMaximumResistance(element,playerStats),playerStats.GetStat(stat)+(element==Element.Void?0:playerStats.GetStat(StatTypes.AllRes))).ToString("P0"));
+            float resistance=Mathf.Min(CombatCalculator.GetMaximumResistance(element,playerStats),playerStats.GetStat(stat)+(element==Element.Void?0:playerStats.GetStat(StatTypes.AllRes)));
+            if(Mathf.Abs(resistance)>0.0001f)AddInspectionRow(ItemTooltipUI.ElementName(element)+" Resistance",resistance.ToString("P0"));
         }
         AddHeader("RESOURCES");AddInspectionRow("Maximum Mana",(player.GetComponent<ManaComponent>()?.MaxMana??0).ToString("0"));
-        AddInspectionRow("Life Regeneration / sec",(playerStats.GetStat(StatTypes.LifeRegeneration)*(player.GetComponent<PassiveKeystoneState>()?.LifeRegenerationMultiplier??1)).ToString("P2")+" Max Life");
-        foreach(var stat in new[]{StatTypes.ManaRegeneration,StatTypes.LifeOnHit,StatTypes.ManaOnHit,StatTypes.LifeOnKill,StatTypes.ManaOnKill})AddStat(stat);
+        float lifeRegen=playerStats.GetStat(StatTypes.LifeRegeneration)*(player.GetComponent<PassiveKeystoneState>()?.LifeRegenerationMultiplier??1);
+        if(lifeRegen>0.0001f)AddInspectionRow("Life Regeneration / sec",lifeRegen.ToString("P2")+" Max Life");
+        foreach(var stat in new[]{StatTypes.ManaRegeneration,StatTypes.LifeOnHit,StatTypes.ManaOnHit,StatTypes.LifeOnKill,StatTypes.ManaOnKill})if(StatDisplayFormatting.ShouldDisplay(playerStats,stat))AddStat(stat);
+        AddHeader("SHOCK");
+        float increased=playerStats.GetStat(StatTypes.ShockEffect)+(playerStats.GetComponent<SubclassCombatState>()?.AuraSecondary(3,.20f)??0)
+            +(playerStats.GetComponent<StatusController>()?.CombinedShockEffect>0?UniqueCatalog.Power(playerStats,UniquePower.ShockedShockEffect):0);
+        float cap=ShockRules.BaseMaximumEffect+(RelicInventory.Instance?.MaximumShockEffectIncrease??0);
+        AddInspectionRow("Base Shock Effect",ShockRules.BaseEffect.ToString("P0"));
+        AddInspectionRow("Current Increased Shock Effect",increased.ToString("P1"));
+        AddInspectionRow("Current Shock Effect",ShockRules.Effect(increased,cap).ToString("P1"));
+        AddInspectionRow("Maximum Shock Effect",cap.ToString("P1"));
+        AddInspectionRow("Maximum Shock Stacks",(playerStats.GetComponent<SubclassCombatState>()?.MaximumShockInstances??1).ToString());
+        AddInspectionRow("Shock Duration",ShockRules.Duration(playerStats.GetStat(StatTypes.ShockDuration)).ToString("0.##")+"s");
         AddHeader("SPECIAL");foreach(var stat in new[]{StatTypes.CooldownReduction,StatTypes.SpellEchoChance,StatTypes.AuraEffect,StatTypes.ProjectileSpeed,StatTypes.ProjectileAmount,StatTypes.ProjectilePrecisionChance,StatTypes.ProjectilePrecisionMultiplier})if(StatDisplayFormatting.ShouldDisplay(playerStats,stat))AddStat(stat);
         const string details="Advanced Sources";
         if(!initializedAdvancedCollapse){collapsed.Add(details);initializedAdvancedCollapse=true;}
@@ -272,11 +293,11 @@ public class PlayerStatsPanelUI : MonoBehaviour
             if(gear!=null)foreach(var item in gear)if(ItemArmourProfile.IsArmour(item.ItemType))AddInspectionRow(ItemSlotUI.DisplayType(item.ItemType),ItemArmourProfile.Diagnose(item));
             AddInspectionRow("Global Increased Armour",playerStats.GetStat(StatTypes.ArmourPercent).ToString("P1"));
             AddInspectionRow("Raw PDR vs reference",ItemArmourProfile.RawReduction(armour,ItemArmourProfile.ReferenceHit,explicitPdr).ToString("P2"));
-            foreach(var stat in playerStats.GetTrackedStats().Where(s=>!Gear.IsWeaponBaseStat(s)&&StatDisplayFormatting.ShouldDisplay(playerStats,s)))AddStat(stat);
+            foreach(var stat in playerStats.GetTrackedStats().Where(s=>s!=StatTypes.AllRes&&!Gear.IsWeaponBaseStat(s)&&StatDisplayFormatting.ShouldDisplay(playerStats,s)))AddStat(stat);
         }
     }
-    private void AddInspectionRow(string label,string value)
-    {var row=RentRow();row.Set(label,value);_spawned.Add(row.gameObject);}
+    private void AddInspectionRow(string label,string value,string explanation=null)
+    {var row=RentRow();row.Set(label,value,explanation);_spawned.Add(row.gameObject);}
     private void AddStat(StatTypes type)
     {
         var row = RentRow();

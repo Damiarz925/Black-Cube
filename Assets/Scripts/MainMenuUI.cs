@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.EventSystems;
 
 public class MainMenuUI : MonoBehaviour
 {
@@ -88,7 +89,14 @@ public class MainMenuUI : MonoBehaviour
     void WireAuthoredControls()
     {
         Wire(optionsButton,OpenOptions);Wire(authoredView.pausePassiveTreeButton,TogglePausePassiveTree);Wire(authoredView.optionsBackButton,CloseOptions);Wire(authoredView.confirmOverwriteButton,ConfirmNewGame);Wire(authoredView.cancelOverwriteButton,CancelNewGame);Wire(beginSelectedClassButton,StartSelectedClass);Wire(authoredView.cancelClassButton,CancelNewGame);Wire(authoredView.cancelSlotsButton,CancelNewGame);
-        for(int i=0;i<authoredView.classButtons.Count&&i<PlayerClassCatalog.All.Count;i++){string id=PlayerClassCatalog.All[i].Id;Wire(authoredView.classButtons[i],()=>SelectClass(id));}
+        for(int i=0;i<authoredView.classButtons.Count&&i<PlayerClassCatalog.All.Count;i++)
+        {
+            string id=PlayerClassCatalog.All[i].Id;var choice=authoredView.classButtons[i];Wire(choice,()=>SelectClass(id));
+            if(choice==null)continue;
+            var events=choice.GetComponent<EventTrigger>()??choice.gameObject.AddComponent<EventTrigger>();events.triggers.Clear();
+            var enter=new EventTrigger.Entry{eventID=EventTriggerType.PointerEnter};enter.callback.AddListener(_=>ShowClassHover(id));events.triggers.Add(enter);
+            var exit=new EventTrigger.Entry{eventID=EventTriggerType.PointerExit};exit.callback.AddListener(_=>ShowClassSelectionText());events.triggers.Add(exit);
+        }
         for(int i=0;i<slotButtons.Length;i++){int slot=i+1;Wire(slotButtons[i],()=>SelectSlot(slot));}
     }
     static void Wire(Button button,UnityEngine.Events.UnityAction action){if(button==null)return;button.onClick.RemoveAllListeners();button.onClick.AddListener(action);}
@@ -96,7 +104,10 @@ public class MainMenuUI : MonoBehaviour
 #if UNITY_EDITOR
     public void BuildAuthoring()
     {
+        authoredView??=GetComponent<MainMenuView>();
+        if(authoredView!=null&&authoredView.authoredRoot!=null)BindAuthoredView();
         EnsureOptionsMenu();EnsureNewGameConfirmation();EnsureClassSelection();EnsureSlotSelection();
+        if(classSelectionLabel!=null){var r=classSelectionLabel.rectTransform;r.anchoredPosition=new Vector2(0,-178);r.sizeDelta=new Vector2(900,104);classSelectionLabel.fontSize=18;classSelectionLabel.textWrappingMode=TextWrappingModes.Normal;}
         authoredView=GetComponent<MainMenuView>()??gameObject.AddComponent<MainMenuView>();authoredView.authoredRoot=root;authoredView.achievementsButton=achievementsButton;authoredView.newGameButton=newGameButton;authoredView.loadGameButton=loadGameButton;authoredView.optionsButton=optionsButton;authoredView.optionsPanel=optionsPanel;authoredView.pausePassiveTreeLabel=pausePassiveTreeLabel;authoredView.overwriteConfirmation=newGameConfirmation;authoredView.classSelectionPanel=classSelectionPanel;authoredView.classSelectionLabel=classSelectionLabel;authoredView.beginSelectedClassButton=beginSelectedClassButton;authoredView.slotSelectionPanel=slotSelectionPanel;
         authoredView.pausePassiveTreeButton=FindButton("Pause Passive Tree Toggle");authoredView.optionsBackButton=FindButton("Options Back Button");authoredView.confirmOverwriteButton=FindButton("Confirm Start New Game");authoredView.cancelOverwriteButton=FindButton("Cancel New Game");authoredView.cancelClassButton=FindButton("Cancel Class Selection");authoredView.cancelSlotsButton=FindButton("Cancel Slot Selection");
         authoredView.classButtons.Clear();foreach(var definition in PlayerClassCatalog.All)authoredView.classButtons.Add(FindButton("Choose "+definition.DisplayName));authoredView.slotButtons.Clear();for(int i=0;i<slotButtons.Length;i++)authoredView.slotButtons.Add(slotButtons[i]);
@@ -115,9 +126,22 @@ public class MainMenuUI : MonoBehaviour
     {
         if(!PlayerClassCatalog.TryGet(classId,out var definition))return false;
         selectedClassId=classId;
-        if(classSelectionLabel!=null)classSelectionLabel.text=$"{definition.DisplayName.ToUpperInvariant()}  /  SIGNATURE {WeaponTypeCatalog.Get(definition.SignatureWeaponTypeId).DisplayName.ToUpperInvariant()}";
+        ShowClassSelectionText();
         if(beginSelectedClassButton!=null)beginSelectedClassButton.interactable=true;
         return true;
+    }
+
+    void ShowClassHover(string id)
+    {
+        if(classSelectionLabel==null||!PlayerClassCatalog.TryGet(id,out var definition))return;
+        classSelectionLabel.text=$"{definition.DisplayName.ToUpperInvariant()}  •  SIGNATURE WEAPON: {WeaponTypeCatalog.Get(definition.SignatureWeaponTypeId).DisplayName.ToUpperInvariant()}\n{definition.Description}";
+    }
+    void ShowClassSelectionText()
+    {
+        if(classSelectionLabel==null)return;
+        classSelectionLabel.text=PlayerClassCatalog.TryGet(selectedClassId,out var definition)
+            ?$"SELECTED: {definition.DisplayName.ToUpperInvariant()}  •  SIGNATURE {WeaponTypeCatalog.Get(definition.SignatureWeaponTypeId).DisplayName.ToUpperInvariant()}"
+            :"HOVER A CLASS TO SEE ITS PLAYSTYLE";
     }
 
     public void StartSelectedClass()

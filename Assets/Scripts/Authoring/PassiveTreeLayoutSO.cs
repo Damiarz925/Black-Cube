@@ -13,6 +13,7 @@ public sealed class PassiveTreeLayoutSO : ScriptableObject
     public float hubSize = 360, badgeSize = 80, badgeRadius = 160;
     public Vector2 hubOffset;
     public float fitPadding = 100, maximumZoom = 1.35f, zoomStep = .08f, weaponGap = 220;
+    public float classRowSpacing = 900f, classRowHeight = 760f;
     public List<PassiveLayoutSlots> layouts = new();
     public Sprite Badge(string id) => badges.Find(x => x.classId == id)?.sprite;
     public Vector2 Anchor(int count, int index)

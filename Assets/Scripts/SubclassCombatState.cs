@@ -25,7 +25,8 @@ public sealed class SubclassCombatState:MonoBehaviour
     }
     public bool GrantExternalEffect(string effectId){if(!SubclassEffectCatalog.TryGet(effectId,out _))return false;return externallyGrantedEffects.Add(effectId);}
     public bool RevokeExternalEffect(string effectId)=>externallyGrantedEffects.Remove(effectId);
-    public void ResetForEnemy(){HitsSinceEnemySuccessfulAttack=0;EnemyHasActed=false;QueuedRepeats=0;auras.Clear();GetComponent<RevengeState>()?.Clear();}
+    public void ResetForEnemy(){HitsSinceEnemySuccessfulAttack=0;EnemyHasActed=false;QueuedRepeats=0;GetComponent<RevengeState>()?.Clear();}
+    void Update(){if(previewSource==null)auras.Tick(Time.deltaTime);}
     public float BeforePlayerHitMultiplier(bool targetFullLife,bool playerInjured,bool bossLowLife=false)
     {
         float value=1;
@@ -53,7 +54,7 @@ public sealed class SubclassCombatState:MonoBehaviour
     {var stats=GetComponent<StatsComponent>();for(int i=0;i<4;i++){Element element=i switch{0=>Element.Phys,1=>Element.Fire,2=>Element.Cold,_=>Element.Light};auras.RecordTypedHit(i,CombatCalculator.CalculateFinalElementDamage(context,element,stats,defender),enemyMaximumLife,HasAuraAccess(i));}}
     public bool HasAuraAccess(int index)=>(UniqueCatalog.AuraMask(GetComponent<StatsComponent>())&(1<<index))!=0 || GetComponent<StatsComponent>().GetStat(GenericPassiveMechanics.AuraGrant(index))>0 || (index<4&&Has(SubclassIds.PriestLight)) || (index==4&&Has(SubclassIds.PriestDark));
     public void RecordDamagingAilments(bool bleed,bool ignite,bool poison)=>auras.RecordDamagingAilments(bleed,ignite,poison,HasAuraAccess(4));
-    public void TickAuras()=>auras.Tick();
+    public float AuraRemainingSeconds(int index)=>previewSource!=null?previewSource.AuraRemainingSeconds(index):auras.RemainingSeconds(index);
     public float AuraIntensity(int index,float enemyMaximumLife)=>auras.Intensity(index);
     public float TotalAuraGlobalDamage=>0; // Auras now apply only to their matching damage type, never a global sum.
     public int ActiveAuraCount { get { int count=0;for(int i=0;i<5;i++)if(auras.Intensity(i)>0)count++;return count; } }

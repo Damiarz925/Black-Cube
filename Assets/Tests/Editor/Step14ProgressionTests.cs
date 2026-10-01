@@ -15,10 +15,10 @@ public sealed class Step14ProgressionTests
     UnityEngine.Random.State randomState;
 
     [SetUp] public void SetUp(){randomState=UnityEngine.Random.state;}
-    [TearDown] public void TearDown(){for(int i=cleanup.Count-1;i>=0;i--)if(cleanup[i]!=null)UnityEngine.Object.DestroyImmediate(cleanup[i]);cleanup.Clear();UnityEngine.Random.state=randomState;}
+    [TearDown] public void TearDown(){for(int i=cleanup.Count-1;i>=0;i--)if(cleanup[i]!=null)UnityEngine.Object.DestroyImmediate(cleanup[i]);cleanup.Clear();if(GameManager.Instance==null)SetStatic(typeof(GameManager),"Instance",null);Time.timeScale=1;UnityEngine.Random.state=randomState;}
 
     [TestCase(1,1)] [TestCase(59,1)] [TestCase(60,1)] [TestCase(61,1)]
-    [TestCase(210,50)] [TestCase(360,100)] [TestCase(999,100)]
+    [TestCase(210,54)] [TestCase(360,100)] [TestCase(999,100)]
     public void RelicLevelUsesTheLockedZoneFormula(int zone,int expected)
         =>Assert.That(RelicInventory.LevelForZone(zone),Is.EqualTo(expected));
 
@@ -52,13 +52,13 @@ public sealed class Step14ProgressionTests
     [Test] public void RelicCardLeftClickEquipsUnequipsAndDoesNotReplaceFullSlots()
     {
         var inventory=Track(new GameObject("relic inventory")).AddComponent<RelicInventory>();SetRelicInstance(inventory);
-        var relics=new List<RelicData>();for(int i=0;i<5;i++)relics.Add(inventory.BeginNewCycle(60));
+        var relics=new List<RelicData>();for(int i=0;i<RelicInventory.ActiveSlotCount+1;i++)relics.Add(inventory.BeginNewCycle(60));
         var card=Track(new GameObject("relic card",typeof(RectTransform),typeof(RelicSlotUI))).GetComponent<RelicSlotUI>();card.Initialize(relics[0]);
         var eventSystem=Track(new GameObject("events",typeof(EventSystem))).GetComponent<EventSystem>();var click=new PointerEventData(eventSystem){button=PointerEventData.InputButton.Left};
         card.OnPointerClick(click);Assert.That(inventory.Active(0),Is.SameAs(relics[0]));
         card.OnPointerClick(click);Assert.That(inventory.Active(0),Is.Null);
-        for(int i=0;i<4;i++)Assert.That(inventory.Equip(relics[i],i),Is.True);
-        card.Initialize(relics[4]);LogAssert.Expect(LogType.Warning,"Relic slots full");card.OnPointerClick(click);
+        for(int i=0;i<RelicInventory.ActiveSlotCount;i++)Assert.That(inventory.Equip(relics[i],i),Is.True);
+        card.Initialize(relics[RelicInventory.ActiveSlotCount]);LogAssert.Expect(LogType.Warning,"Relic slots full");card.OnPointerClick(click);
         Assert.That(card.LastFeedback,Is.EqualTo("Relic slots full"));Assert.That(inventory.Active(0),Is.SameAs(relics[0]));
     }
 
@@ -98,7 +98,10 @@ public sealed class Step14ProgressionTests
         var currency=Track(new GameObject("currency")).AddComponent<CurrencyInventory>();SetStatic(typeof(CurrencyInventory),"Instance",currency);
         var manager=Track(new GameObject("manager")).AddComponent<GameManager>();SetStatic(typeof(GameManager),"Instance",manager);var relics=manager.GetComponent<RelicInventory>()??manager.gameObject.AddComponent<RelicInventory>();SetRelicInstance(relics);var rebirth=manager.GetComponent<RebirthManager>()??manager.gameObject.AddComponent<RebirthManager>();SetStatic(typeof(RebirthManager),"Instance",rebirth);
         typeof(GameManager).GetField("currentZoneLevel",BindingFlags.Instance|BindingFlags.NonPublic).SetValue(manager,60);
-        var player=Track(new GameObject("player")).AddComponent<PlayerController>();Assert.That(rebirth.RequestRebirth(),Is.True);LogAssert.Expect(LogType.Error,"GameManager: Cannot start zone because ZoneManager is missing.");Assert.That(rebirth.ConfirmRebirth(),Is.True);
+        var player=Track(new GameObject("player")).AddComponent<PlayerController>();Assert.That(rebirth.RequestRebirth(),Is.True);Assert.That(rebirth.ConfirmRebirth(),Is.True);
+        Assert.That(rebirth.AdvanceSetup(),Is.True);Assert.That(rebirth.AdvanceSetup(),Is.True);Assert.That(rebirth.AdvanceSetup(),Is.True);
+        Assert.That(rebirth.SelectStartingWeapon(WeaponTypeIds.Sword),Is.True);Assert.That(rebirth.AdvanceSetup(),Is.True);
+        LogAssert.Expect(LogType.Error,"GameManager: Cannot start zone because ZoneManager is missing.");Assert.That(rebirth.BeginNextRun(),Is.True);
         Assert.That(relics.Relics.Count,Is.EqualTo(1));Assert.That(relics.Relics[0].relicLevel,Is.EqualTo(1));Assert.That(player.EquippedWeapon,Is.Not.Null);Assert.That(player.EnsureStarterWeapon(),Is.SameAs(player.EquippedWeapon));
     }
 

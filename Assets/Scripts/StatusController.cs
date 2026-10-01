@@ -1,4 +1,4 @@
-// Developer map: Target-owned real-time damaging ailments and turn-based Shock/Chill. Each pending tick remains a distinct damage event. Mutation is separated from application because damage/death callbacks can clear statuses or replace targets.
+// Developer map: Target-owned real-time damaging ailments and real-time Shock and turn-based Chill. Each pending tick remains a distinct damage event. Mutation is separated from application because damage/death callbacks can clear statuses or replace targets.
 // See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +13,7 @@ public partial class StatusController : MonoBehaviour
     bool fractureOnThaw;
     public bool IsFractured { get; private set; }
     readonly List<float> shockInstances=new();
-    readonly List<int> shockDurations=new();
+    readonly List<float> shockDurations=new();
     public bool IsFrozen=>frozen;
     public float FrozenChillStrength=>frozenChillStrength;
     public float CombinedShockEffect
@@ -28,13 +28,36 @@ public partial class StatusController : MonoBehaviour
     }
     public bool ConsumeFrozenAttackSkip(){if(!frozen)return false;frozen=false;frozenChillStrength=0;if(fractureOnThaw){IsFractured=true;fractureOnThaw=false;}return true;}
     public bool TryConsumeFreeze(out float chillStrength){chillStrength=frozenChillStrength;if(!frozen||fractureOnThaw||IsFractured)return false;frozen=false;frozenChillStrength=0;return true;}
-    public void AddShockInstance(float strength,int duration=1,int maximum=1){strength=Mathf.Max(0,strength)*Mathf.Max(1,UniqueCatalog.Power(GetComponent<StatsComponent>(),UniquePower.SelfShockEffect));if(strength<=0)return;maximum=Mathf.Max(1,maximum);if(shockInstances.Count>=maximum){shockInstances.RemoveAt(0);shockDurations.RemoveAt(0);}shockInstances.Add(strength);shockDurations.Add(Mathf.Max(1,Mathf.CeilToInt(duration*Mathf.Max(1,UniqueCatalog.Power(GetComponent<StatsComponent>(),UniquePower.SelfShockDuration)))));}
+    public float TotalShockEffect=>shockInstances.Sum();
+    public int ShockCount=>shockInstances.Count;
+    public string DescribeShocks()=>string.Join("\n",shockInstances.Select((v,i)=>$"Shock {i+1}: {v:P1} / {shockDurations[i]:0.0}s"));
+    public float ConsumeShocks(){float total=TotalShockEffect;shockInstances.Clear();shockDurations.Clear();return total;}
+    public void AddShockInstance(float strength,float duration=ShockRules.BaseDuration,int maximum=1)
+    {
+        strength=Mathf.Max(0,strength)*Mathf.Max(1,UniqueCatalog.Power(GetComponent<StatsComponent>(),UniquePower.SelfShockEffect));
+        if(strength<=0)return;maximum=Mathf.Max(1,maximum);
+        if(shockInstances.Count>=maximum){shockInstances.RemoveAt(0);shockDurations.RemoveAt(0);}
+        shockInstances.Add(strength);shockDurations.Add(Mathf.Max(.01f,duration*Mathf.Max(1,UniqueCatalog.Power(GetComponent<StatsComponent>(),UniquePower.SelfShockDuration))));
+    }
     private PlayerController playerCont;
     private EnemyAI enemyCont;
     private StatsComponent stats;
 
     readonly Dictionary<StatusEffects, StatusInstance> StatusDictionary = new();    //Dictionary used for holding status instances linked the the effect
     readonly Dictionary<StatusEffects, List<StatusInstance>> IndependentDictionary = new();     //Dictionary used for holding a list of status instances linked to the effect (used for effects that have multiple independent stacks of the same type)
+
+    // Ailments may remain on the player after their source enemy has died. The
+    // damage/timing is already captured by StatusInstance; release the component
+    // owner before the enemy GameObject is destroyed.
+    public void ReleaseSource(StatsComponent source)
+    {
+        if (source == null) return;
+        foreach (var instance in StatusDictionary.Values)
+            if (instance.sourceStats == source) instance.sourceStats = null;
+        foreach (var group in IndependentDictionary.Values)
+            foreach (var instance in group)
+                if (instance.sourceStats == source) instance.sourceStats = null;
+    }
 
     private struct PendingEffect    //Pending effect struct stores what the effect is and its strength
     {
@@ -130,27 +153,6 @@ public partial class StatusController : MonoBehaviour
         }
     }
 
-    public int AddShockStacks(StatusEffects effect, int addedStacks, int duration, float coefficient,
-        int threshold = 5)
-    {
-        if (effect == null || addedStacks <= 0) return 0;
-        threshold = Mathf.Max(1, threshold);
-        int existingStacks = StatusDictionary.TryGetValue(effect, out StatusInstance existing)
-            ? Mathf.Max(0, existing.stacks) : 0;
-        int total = existingStacks + addedStacks;
-        int triggers = total / threshold;
-        int remainder = total % threshold;
-        if (remainder > 0)
-        {
-            var instance = new StatusInstance(effect, Mathf.Clamp01(coefficient), remainder,
-                Mathf.Max(1, duration), null, 1) { threshold = threshold };
-            StatusDictionary[effect] = instance;
-        }
-        else
-            StatusDictionary.Remove(effect);
-        return triggers;
-    }
-
     public bool ApplyChill(StatusEffects effect, float slow, int duration,float maximumSlow=.3f)
     {
         if (effect == null || slow <= 0f) return false;
@@ -235,7 +237,7 @@ public partial class StatusController : MonoBehaviour
     static int EffectiveStackCap(StatusEffects effect, StatsComponent sourceStats)
     {
         if(effect==null)return 0;
-        if(effect.Ailment==StatusEffects.AilmentKind.Poison)return sourceStats?.GetComponent<PassiveKeystoneState>()?.Has(PassiveKeystone.RangerEndlessPoison)==true?0:20;
+        if(effect.Ailment==StatusEffects.AilmentKind.Poison)return sourceStats != null && sourceStats.GetComponent<PassiveKeystoneState>()?.Has(PassiveKeystone.RangerEndlessPoison)==true?0:20;
         var keystones=sourceStats!=null?sourceStats.GetComponent<PassiveKeystoneState>():null;
         bool playerSource=sourceStats!=null&&sourceStats.GetComponent<PlayerController>()!=null;
         var relics=playerSource?RelicInventory.Instance:null;
@@ -309,7 +311,6 @@ public partial class StatusController : MonoBehaviour
     {
         var health = GetComponent<HealthComponent>();
         if (health != null && health.CurrentLife <= 0) { ClearStatuses(); return; }
-        for(int i=shockDurations.Count-1;i>=0;i--)if(--shockDurations[i]<=0){shockDurations.RemoveAt(i);shockInstances.RemoveAt(i);}
         if (StatusDictionary.Count == 0 && IndependentDictionary.Count == 0)    //If both dictionaries are empty, return
             return;
 
@@ -330,7 +331,7 @@ public partial class StatusController : MonoBehaviour
                 if(ShouldAdvance(effect,afflictedActorTurn))TickInstance(instance,pendingEffects);
             }
             else
-                instance.remainingTicks--; // Shock and Chill lifetimes count every global turn; their effects are queried dynamically.
+                instance.remainingTicks--; // Chill lifetimes count global turns; Shock uses its separate real-time collection.
 
             if (instance.remainingTicks > 0 && instance.stacks > 0 && effect != null)   //Check again for no remaining ticks or stacks, add to keys to remove if none remaining
             {
@@ -389,7 +390,7 @@ public partial class StatusController : MonoBehaviour
             if (effect == null || totalStrength <= 0f)  //If key or value is null/0, continue
                 continue;
 
-            // Only damaging effects enter the pending-tick queue. Shock and Chill
+            // Only damaging effects enter the pending-tick queue. Chill
             // are queried directly from their persistent status state.
             if (effect._StatusType == StatusEffects.StatusType.DamageOverTime)
             {
@@ -412,7 +413,9 @@ public partial class StatusController : MonoBehaviour
     public void TickRealtime(float delta)
     {
         stats ??= GetComponent<StatsComponent>();
-        if(delta<=0||IndependentDictionary.Count==0)return;
+        if(delta<=0)return;
+        for(int i=shockDurations.Count-1;i>=0;i--){shockDurations[i]-=delta;if(shockDurations[i]<=0){shockDurations.RemoveAt(i);shockInstances.RemoveAt(i);}}
+        if(IndependentDictionary.Count==0)return;
         var health=GetComponent<HealthComponent>();if(health!=null&&health.CurrentLife<=0){ClearStatuses();return;}
         var pending=new List<PendingEffect>();var expired=new List<StatusInstance>();
         foreach(var list in IndependentDictionary.Values)

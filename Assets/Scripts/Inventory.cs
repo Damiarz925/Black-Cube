@@ -34,7 +34,7 @@ public class Inventory : MonoBehaviour
     }
     public int FilterLevel { get => filterLevel; set { int next=Mathf.Max(1,value);if(filterLevel==next)return;filterLevel=next;SaveFilterPreferences(); } }
     public LootManager.GearRarity FilterRarity { get => filterRarity; set { if(filterRarity==value)return;filterRarity=value;SaveFilterPreferences(); } }
-    public bool MatchesFilter(Gear item) => item != null && !item.IsScrap && !item.IsLocked &&
+    public bool MatchesFilter(Gear item) => item != null && item.ItemRarity != LootManager.GearRarity.Unique && !item.IsScrap && !item.IsLocked &&
         ((!AdvancedFilter.Keeps(item)) || (FilterLevelEnabled && item.ItemLevel <= Mathf.Max(1, FilterLevel)) ||
          (FilterRarityEnabled && item.ItemRarity <= FilterRarity) ||
          (FilterModMismatchEnabled && ModHighlightFilter.HasSelection && !ModHighlightFilter.Matches(item)));

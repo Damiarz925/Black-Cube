@@ -30,6 +30,11 @@ public sealed class PlayerSkillController : MonoBehaviour
             QueuedSkill=skill;QueueChanged?.Invoke();break;
         }
     }
+    readonly HashSet<PlayerSkillId> disabledRelicTriggers=new();
+    public bool RelicTriggerEnabled(PlayerSkillId id)=>!disabledRelicTriggers.Contains(id);
+    public List<PlayerSkillId> CaptureDisabledRelicTriggers()=>new(disabledRelicTriggers);
+    public void RestoreDisabledRelicTriggers(IEnumerable<PlayerSkillId> ids){disabledRelicTriggers.Clear();if(ids!=null)foreach(var id in ids)disabledRelicTriggers.Add(id);}
+    public void ToggleRelicTrigger(PlayerSkillId id){if(!disabledRelicTriggers.Remove(id))disabledRelicTriggers.Add(id);GamePersistence.MarkDirty();}
     public IReadOnlyList<PlayerSkillDefinition> Skills => skills;
     public IReadOnlyList<PlayerSkillDefinition> WeaponSkills => weaponSkills;
     public PlayerSkillDefinition SelectedSkill { get; private set; }

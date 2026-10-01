@@ -254,19 +254,17 @@ public sealed class Step10MechanicsTests
     }
 
     [Test]
-    public void ShockConsumesThresholdPreservesOverflowAndExpires()
+    public void ShockUsesIndependentRealTimeInstancesInsteadOfThresholdBursts()
     {
         var target = NewGameObject("shock-target");
         target.AddComponent<StatsComponent>();
         var statuses = target.AddComponent<StatusController>();
-        var effect = NewEffect("Shock", StatusEffects.StatusType.Shock,
-            StatusEffects.AilmentKind.None, ElementMask.Light, 1f, 5);
-        Assert.That(statuses.AddShockStacks(effect, 12, 5, .75f), Is.EqualTo(2));
-        var summary = statuses.GetStatusSummaries()[0];
-        Assert.That(summary.Count, Is.EqualTo(2));
-        Assert.That(summary.Threshold, Is.EqualTo(5));
-        Assert.That(summary.Magnitude, Is.EqualTo(.75f).Within(.001f));
+        statuses.AddShockInstance(.75f, 3);
+        Assert.That(statuses.ShockCount, Is.EqualTo(1));
+        Assert.That(statuses.CombinedShockEffect, Is.EqualTo(.75f).Within(.001f));
         for (int i = 0; i < 5; i++) statuses.TickStatuses();
+        Assert.That(statuses.ShockCount, Is.EqualTo(1));
+        statuses.TickRealtime(3);
         Assert.That(statuses.GetStatusSummaries(), Is.Empty);
     }
 

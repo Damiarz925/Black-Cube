@@ -32,7 +32,7 @@ public sealed class SystemsRedesignDevTools:EditorWindow
             if(GUILayout.Button("ADD AFFIX ROW")&&stats.Count<7){stats.Add(StatTypes.FireRes);tiers.Add(1);}if(GUILayout.Button("REMOVE LAST AFFIX ROW")&&stats.Count>1){stats.RemoveAt(stats.Count-1);tiers.RemoveAt(tiers.Count-1);}
             if(GUILayout.Button("ADD CURATED ITEM TO INVENTORY"))Attempt(SpawnItem);
             uniqueIndex=EditorGUILayout.Popup("Unique identity",uniqueIndex,UniqueCatalog.All.Select(x=>x.name).ToArray());
-            if(GUILayout.Button("ADD UNIQUE TO INVENTORY"))Attempt(()=>{var gear=UniqueCatalog.Create(UniqueCatalog.All[uniqueIndex].id,level,fixedRoll:FixedRoll);if(gear==null)throw new InvalidOperationException("Selected Unique requires item level 20 or higher.");Inventory.Instance.Add(gear);feedback="Added immutable "+gear.name;});
+            if(GUILayout.Button("ADD UNIQUE TO INVENTORY"))Attempt(()=>{var gear=UniqueCatalog.Create(UniqueCatalog.All[uniqueIndex].id,level,fixedRoll:FixedRoll);if(gear==null)throw new InvalidOperationException("Selected Unique requires a valid item level (1+).");Inventory.Instance.Add(gear);feedback="Added immutable "+gear.name;});
             GUILayout.Space(10);GUILayout.Label("PROGRESSION",EditorStyles.boldLabel);
             playerLevel=EditorGUILayout.IntSlider("Player level",playerLevel,1,100);
             if(GUILayout.Button("SET PLAYER LEVEL / CLEAR PASSIVES"))Attempt(()=>{var p=FindAnyObjectByType<PlayerProgression>();p.ResetProgression();if(!p.RestoreProgression(playerLevel,0,playerLevel,new int[PassiveTreeDefinition.NodeCount]))throw new InvalidOperationException("Progression rejected reset.");feedback="Player level set; passive points refunded.";});

@@ -136,7 +136,7 @@ MonoBehaviour:
         - kind: 0
           stat: 74
           mechanicId: 
-          value: 0.35999998
+          value: 1.2
         iconMode: 0
         iconOverride: {fileID: 0}
     left:
@@ -159,19 +159,19 @@ MonoBehaviour:
       b:
         stableId: tree.v3.class.priest.t01.left.b
         logicalSlotId: tree.v3.class.priest.t01.left.b
-        displayName: Void Res
-        description: 
+        displayName: Increased Life Recovery Effect
+        description: Increases Life recovery, including regeneration, hit/kill recovery and poison leech. Does not scale Mana recovery.
         branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 118
+          stat: 135
           mechanicId: 
-          value: 15
+          value: 10
         iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 515daee52d8470c4da2c894c21392536, type: 3}
+        iconOverride: {fileID: 21300000, guid: e549ab60330b13a4b81944f07b446372, type: 3}
       c:
         stableId: tree.v3.class.priest.t01.left.c
         logicalSlotId: tree.v3.class.priest.t01.left.c
@@ -217,7 +217,7 @@ MonoBehaviour:
         - kind: 0
           stat: 74
           mechanicId: 
-          value: 0.35999998
+          value: 1.2
         iconMode: 0
         iconOverride: {fileID: 0}
   - tier: 2
@@ -326,19 +326,19 @@ MonoBehaviour:
       a:
         stableId: tree.v3.class.priest.t02.left.a
         logicalSlotId: tree.v3.class.priest.t02.left.a
-        displayName: Increased Life Recovery Effect
-        description: Increases Life recovery, including regeneration, hit/kill recovery and poison leech. Does not scale Mana recovery.
+        displayName: Void Res
+        description: 
         branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 135
+          stat: 118
           mechanicId: 
-          value: 10
+          value: 15
         iconMode: 1
-        iconOverride: {fileID: 21300000, guid: e549ab60330b13a4b81944f07b446372, type: 3}
+        iconOverride: {fileID: 21300000, guid: 515daee52d8470c4da2c894c21392536, type: 3}
       b:
         stableId: tree.v3.class.priest.t02.left.b
         logicalSlotId: tree.v3.class.priest.t02.left.b
@@ -685,7 +685,7 @@ MonoBehaviour:
         - kind: 0
           stat: 74
           mechanicId: 
-          value: 0.384
+          value: 1.2800001
         iconMode: 0
         iconOverride: {fileID: 0}
     left:
@@ -766,7 +766,7 @@ MonoBehaviour:
         - kind: 0
           stat: 74
           mechanicId: 
-          value: 0.384
+          value: 1.2800001
         iconMode: 0
         iconOverride: {fileID: 0}
   - tier: 5
@@ -1234,7 +1234,7 @@ MonoBehaviour:
         - kind: 0
           stat: 74
           mechanicId: 
-          value: 0.408
+          value: 1.36
         iconMode: 0
         iconOverride: {fileID: 0}
     left:
@@ -1315,7 +1315,7 @@ MonoBehaviour:
         - kind: 0
           stat: 74
           mechanicId: 
-          value: 0.408
+          value: 1.36
         iconMode: 0
         iconOverride: {fileID: 0}
   - tier: 8
@@ -1783,7 +1783,7 @@ MonoBehaviour:
         - kind: 0
           stat: 74
           mechanicId: 
-          value: 0.43199998
+          value: 1.44
         iconMode: 0
         iconOverride: {fileID: 0}
     left:
@@ -1864,7 +1864,7 @@ MonoBehaviour:
         - kind: 0
           stat: 74
           mechanicId: 
-          value: 0.43199998
+          value: 1.44
         iconMode: 0
         iconOverride: {fileID: 0}
   keystones:

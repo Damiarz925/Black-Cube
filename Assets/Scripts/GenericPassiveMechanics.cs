@@ -11,20 +11,27 @@ public static class GenericPassiveMechanics
     public static int AuraIndex(Element element) => element switch {Element.Phys=>0,Element.Fire=>1,Element.Cold=>2,Element.Light=>3,Element.Void=>4,_=>-1};
 }
 
-// Shared production/laboratory state. Duration advances once per global combat turn.
+// Shared production/laboratory state. Auras are player-owned real-time effects.
 public sealed class FiveAuraState
 {
+    public const float BaseDurationSeconds=5f;
     readonly float[] intensities=new float[5];
-    readonly int[] turns=new int[5];
-    public float Intensity(int index) => index>=0&&index<5&&turns[index]>0?intensities[index]:0;
-    public int RemainingTurns(int index) => index>=0&&index<5?turns[index]:0;
-    public void Clear(){System.Array.Clear(intensities,0,5);System.Array.Clear(turns,0,5);}
-    public void Tick(){for(int i=0;i<5;i++)if(turns[i]>0&&--turns[i]==0)intensities[i]=0;}
+    readonly float[] remaining=new float[5];
+    public float Intensity(int index) => index>=0&&index<5&&remaining[index]>0?intensities[index]:0;
+    public float RemainingSeconds(int index) => index>=0&&index<5?remaining[index]:0;
+    public void Clear(){System.Array.Clear(intensities,0,5);System.Array.Clear(remaining,0,5);}
+    public void Tick(float deltaSeconds){if(deltaSeconds<=0)return;for(int i=0;i<5;i++)if(remaining[i]>0&& (remaining[i]=Mathf.Max(0,remaining[i]-deltaSeconds))==0)intensities[i]=0;}
     public void RecordTypedHit(int index,float typedDamage,float enemyMaximumLife,bool access)
     {if(!access||index<0||index>=4||typedDamage<=0)return;Refresh(index,SubclassBalanceProfile.AuraIntensity(typedDamage,enemyMaximumLife));}
     public void RecordDamagingAilments(bool bleed,bool ignite,bool poison,bool voidAccess)
     {if(voidAccess&&bleed&&ignite&&poison)Refresh(4,1);}
-    void Refresh(int index,float intensity){intensities[index]=Mathf.Clamp01(intensity);turns[index]=2;}
+    void Refresh(int index,float intensity)
+    {
+        intensity=Mathf.Clamp01(intensity);
+        if(intensity<=0||intensity+0.00001f<Intensity(index))return;
+        intensities[index]=intensity;
+        remaining[index]=BaseDurationSeconds;
+    }
     public float Bonus(int index,float baseValue,float auraEffect) => SubclassBalanceProfile.FinalAuraBonus(baseValue,Intensity(index),auraEffect);
     public float DamageMultiplier(Element element,float auraEffect){int index=GenericPassiveMechanics.AuraIndex(element);return index<0?1:1+Bonus(index,.2f,auraEffect);}
     // Fractional-strength fire auras grant whole extra ticks conservatively.

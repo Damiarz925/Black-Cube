@@ -91,6 +91,7 @@ public static class CombatCalculator
     private static float CalculateFinalHitComponent(ElementalHit hit, DamageScope scopes,
         StatsComponent attacker, StatsComponent defender)
     {
+        if(hit.Element==Element.True)return Mathf.Max(0f,hit.Amount);
         float damage = hit.Amount * ScopedDamageMultiplier(scopes, attacker);
         if(attacker!=null)damage*=attacker.GetComponent<SubclassCombatState>()?.AuraDamageMultiplier(hit.Element)??1;
         var keys=attacker!=null?attacker.GetComponent<PassiveKeystoneState>():null;
@@ -106,9 +107,10 @@ public static class CombatCalculator
         if(defender!=null&&defender.GetComponent<StatusController>()?.IsFractured==true)
             damage*=ClassKeystoneCatalog.Get(PassiveKeystone.PriestFracture).secondary;
         if(resolved==Element.Fire&&defender?.GetComponent<EnemyAI>()!=null)damage*=attacker?.GetComponent<UniqueCombatRuntime>()?.FireTakenMultiplier??1;
-        return resolved == Element.Phys
+        float mitigated=resolved == Element.Phys
             ? ApplyArmourAndPenetration(damage, attacker, defender)
             : ApplyResistancesAndPenetration(damage, resolved, attacker, defender);
+        return mitigated*(1+(defender?.GetComponent<StatusController>()?.CombinedShockEffect??0));
     }
 
     public static Element ResolvedElement(Element source,StatsComponent attacker)
@@ -194,12 +196,13 @@ public static class CombatCalculator
 
         if(effect.Ailment==StatusEffects.AilmentKind.Ignite)
             baseTickDamage*=UniqueCombatRuntime.For(attacker)?.FireTakenMultiplier??1;
-        return effect.Ailment switch
+        float mitigated=effect.Ailment switch
         {
             StatusEffects.AilmentKind.Bleed => ApplyArmourAndPenetration(baseTickDamage, attacker, defender),
             StatusEffects.AilmentKind.Ignite => ApplyResistancesAndPenetration(baseTickDamage, Element.Fire, attacker, defender),
             StatusEffects.AilmentKind.Poison => ApplyResistancesAndPenetration(baseTickDamage, Element.Void, attacker, defender),
             _ => baseTickDamage
         };
+        return mitigated*(1+(defender.GetComponent<StatusController>()?.CombinedShockEffect??0));
     }
 }

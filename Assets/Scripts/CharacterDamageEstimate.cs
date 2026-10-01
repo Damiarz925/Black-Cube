@@ -37,21 +37,27 @@ public static class CharacterDamageEstimate
     {
         if(player==null)return 0;
         var stats=player.GetComponent<StatsComponent>();var keys=player.GetComponent<PassiveKeystoneState>();
-        var context=SearchHit(player.BuildNonCriticalAttackContext(),stats);float speed=player.GetFinalAttackSpeed();
+        var basic=player.BuildNonCriticalAttackContext();
         bool bow=player.EquippedWeapon?.WeaponTypeId==WeaponTypeIds.Bow;
+        bool projectile=player.EquippedWeapon!=null&&WeaponTypeCatalog.Get(player.EquippedWeapon.WeaponTypeId).IsRanged;
+        if(projectile)basic.Scopes|=DamageScope.Projectile;
+        var context=SearchHit(basic,stats);float speed=player.GetFinalAttackSpeed();
         float repeats=GenericPassiveMechanics.SupportsMultistrike(player.EquippedWeapon?.WeaponTypeId)?stats.GetStat(StatTypes.ChanceToHitTwice):0;
         float factor=ExpectedDirectFactor(player.GetFinalCritChance(),CombatCalculator.BaseCriticalMultiplier+stats.GetStat(StatTypes.CritMult),repeats,keys?.Has(PassiveKeystone.WarriorConsolidation)==true,1+UniqueCatalog.Power(stats,UniquePower.MultistrikeDamage));
-        if(bow)
+        if(projectile)
         {
             int count=BattleManager.CalculateProjectileCount(stats.GetRawStat(StatTypes.ProjectileAmount),0);
             float projectileFactor=count;
             var subclass=player.GetComponent<SubclassCombatState>();
             if(subclass!=null)projectileFactor=subclass.FinalProjectileCount(count,out float more)==1?more:count;
             factor*=projectileFactor;
-            float precision=WeaponMechanicProfile.PrecisionMultiplier(stats.GetStat(StatTypes.ProjectilePrecisionMultiplier));
-            factor*=keys?.Has(PassiveKeystone.RangerPrecision)==true?.85f*precision*1.15f:
-                1+WeaponMechanicProfile.PrecisionChance(stats.GetStat(StatTypes.ProjectilePrecisionChance))*(precision-1);
-            if(keys?.Has(PassiveKeystone.RangerSplit)==true)factor*=3*.33f*1.15f;
+            if(bow)
+            {
+                float precision=WeaponMechanicProfile.PrecisionMultiplier(stats.GetStat(StatTypes.ProjectilePrecisionMultiplier));
+                factor*=keys?.Has(PassiveKeystone.RangerPrecision)==true?.85f*precision*1.15f:
+                    1+WeaponMechanicProfile.PrecisionChance(stats.GetStat(StatTypes.ProjectilePrecisionChance))*(precision-1);
+                if(keys?.Has(PassiveKeystone.RangerSplit)==true)factor*=3*.33f*1.15f;
+            }
         }
         float total=0;
         foreach(var hit in context.Hits)
@@ -96,4 +102,20 @@ public static class CharacterDamageEstimate
         }
         finally{if(Application.isPlaying)Object.Destroy(actor);else Object.DestroyImmediate(actor);}
     }
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+    public static float MarginalContribution(PlayerController live,Gear candidate,int modifierIndex,float fullCandidateDps)
+    {
+        if(live==null||candidate==null||modifierIndex<0||modifierIndex>=candidate.rolledMods.Count)return 0;
+        var snapshot=GearSnapshotData.Capture(candidate);
+        snapshot.mods.RemoveAt(modifierIndex);
+        Gear without=snapshot.Create("Marginal DPS preview gear");without.gameObject.hideFlags=HideFlags.HideAndDontSave;
+        try
+        {
+            float withoutDps=Replacement(live,without);
+            return withoutDps>0?(fullCandidateDps/withoutDps-1f)*100f:fullCandidateDps>0?100f:0f;
+        }
+        finally{if(Application.isPlaying)Object.Destroy(without.gameObject);else Object.DestroyImmediate(without.gameObject);}
+    }
+#endif
 }

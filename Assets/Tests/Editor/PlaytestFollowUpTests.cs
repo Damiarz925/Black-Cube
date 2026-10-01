@@ -15,6 +15,50 @@ public sealed class PlaytestFollowUpTests
         var go=new GameObject("Focused item");go.SetActive(false);objects.Add(go);var item=go.AddComponent<Gear>();item.Initialize(slot,rarity,100,element,weapon);return item;
     }
     [TearDown] public void Cleanup(){foreach(var go in objects)if(go!=null)UnityEngine.Object.DestroyImmediate(go);objects.Clear();}
+    [Test] public void EitherSourceAcceptsBootImplicitOrExplicitAtTheSelectedTier()
+    {
+        var item=Item(LootManager.GearType.Boots);
+        var filter=new AdvancedLootFilter{enabled=true};var policy=filter.For(item.ItemType);
+        policy.enabled=true;policy.all=false;policy.requirements.Add(new(){stat=StatTypes.LightDmg,minimumTier=2});
+        foreach(bool implicitRoll in new[]{false,true})
+        {
+            item.ApplyMods(new(){new(StatTypes.FireRes,1,5,true),new(StatTypes.LightDmg,2,10,implicitRoll)});
+            Assert.That(filter.Keeps(item),Is.True);Assert.That(filter.Highlights(item),Is.True);
+            item.ApplyMods(new(){new(StatTypes.FireRes,1,5,true),new(StatTypes.LightDmg,3,10,implicitRoll)});
+            Assert.That(filter.Keeps(item),Is.False);Assert.That(filter.Highlights(item),Is.False);
+        }
+        policy.requirements[0].requireImplicit=true;policy.requirements[0].minimumImplicitTier=2;
+        item.ApplyMods(new(){new(StatTypes.FireRes,1,5,true),new(StatTypes.LightDmg,1,10)});Assert.That(filter.Keeps(item),Is.False);
+        item.ApplyMods(new(){new(StatTypes.LightDmg,2,10,true)});Assert.That(filter.Keeps(item),Is.True);
+        var restored=JsonUtility.FromJson<AdvancedLootFilter>(JsonUtility.ToJson(filter));
+        Assert.That(restored.For(item.ItemType).requirements[0].requireImplicit,Is.True);
+        Assert.That(restored.Keeps(item),Is.True);
+        // Existing saved false flags migrate naturally to EITHER without losing selections/tiers.
+        var legacy=JsonUtility.FromJson<LootModRequirement>("{\"stat\":"+(int)StatTypes.LightDmg+",\"minimumTier\":2,\"requireImplicit\":false}");
+        Assert.That(legacy.Matches(item.rolledMods[0]),Is.True);
+    }
+    [Test] public void EitherSourceDoesNotDoubleCountOneModInAnyMode()
+    {
+        var item=Item();item.ApplyMods(new(){new(StatTypes.FireRes,1,40,true),new(StatTypes.FireRes,1,40)});
+        var policy=new ItemTypeLootFilter{enabled=true,all=false,minimumMatches=2,
+            requirements=new(){new(){stat=StatTypes.FireRes},new(){stat=StatTypes.ColdRes}}};
+        Assert.That(policy.Matches(item),Is.False);
+        policy.minimumMatches=1;Assert.That(policy.Matches(item),Is.True);
+    }
+    [Test] public void AllModeUsesImplicitMatchesWithoutConsumingExplicitCapacity()
+    {
+        var item=Item(rarity:LootManager.GearRarity.Magic);
+        var policy=new ItemTypeLootFilter{enabled=true,all=true,
+            requirements=new(){new(){stat=StatTypes.Life},new(){stat=StatTypes.FireRes},new(){stat=StatTypes.ColdRes}}};
+        item.ApplyMods(new(){new(StatTypes.Life,1,10,true),new(StatTypes.FireRes,1,40),new(StatTypes.ColdRes,1,40)});
+        Assert.That(policy.Matches(item),Is.True);
+        item.ApplyMods(new(){new(StatTypes.Life,1,10,true),new(StatTypes.FireRes,1,40)});
+        Assert.That(policy.Matches(item),Is.False);
+        item=Item(rarity:LootManager.GearRarity.Normal);
+        item.ApplyMods(new(){new(StatTypes.Life,1,10,true)});
+        policy.requirements=new(){new(){stat=StatTypes.FireRes}};Assert.That(policy.Matches(item),Is.False);
+        policy.requirements=new(){new(){stat=StatTypes.Life}};Assert.That(policy.Matches(item),Is.True);
+    }
     [Test] public void TierAndImplicitRequirementsDistinguishExplicitFromImplicit()
     {
         var item=Item();item.ApplyMods(new(){new(StatTypes.Life,1,10,true),new(StatTypes.FireRes,3,40)});

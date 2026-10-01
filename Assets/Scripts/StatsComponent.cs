@@ -237,6 +237,8 @@ public class StatsComponent : MonoBehaviour
 
             // Ailment scaling – effect
             case StatTypes.ShockEffect:
+            case StatTypes.ShockDuration:
+            case StatTypes.DamageTakenFromManaBeforeLife:
             case StatTypes.ChillEffect:
             // Chances (we treat them as 0–1 probabilities in gameplay)
             case StatTypes.PoisonChance:

@@ -126,10 +126,7 @@ public static class ItemizationValidator
 
     static IReadOnlyList<AffixTier> Tiers(AffixDefinitions definition, LootManager.GearType slot, string weaponId = null)
     {
-        if (definition == null) return Array.Empty<AffixTier>();
-        if (WeaponExclusiveAffixRules.TryGet(definition.statType,slot,weaponId??WeaponExclusiveAffixRules.Weapon(definition.statType),out var exclusive)) return exclusive;
-        if (PoedbAffixCatalog.TryGet(definition.statType, slot, out var direct)) return direct;
-        return definition.tiers != null ? definition.tiers : Array.Empty<AffixTier>();
+        return ModManager.ApplicableTiers(definition,slot,weaponId??WeaponExclusiveAffixRules.Weapon(definition?.statType??default));
     }
     static bool Finite(float value) => !float.IsNaN(value) && !float.IsInfinity(value);
 }

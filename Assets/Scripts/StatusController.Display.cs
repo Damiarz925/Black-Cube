@@ -5,12 +5,15 @@ using UnityEngine;
 
 public partial class StatusController
 {
+    readonly List<StatusEffects> shockDisplayEffects=new();
+    void OnDestroy(){foreach(var effect in shockDisplayEffects)if(effect!=null){if(Application.isPlaying)Destroy(effect);else DestroyImmediate(effect);}}
     public struct Summary
     {
         public StatusEffects Effect;
         public int Count, MinTurns, MaxTurns, Threshold, MaximumStackCount;
         public float DamagePerTick, DamagePerTurn, Magnitude, RemainingTotalDamage;
         public float MinSeconds,MaxSeconds,TickSeconds;
+        public string ShockDetails;
         public bool MixedIntervals;
         public int Interval;
         public string DisplayName => Effect._StatusType != StatusEffects.StatusType.DamageOverTime
@@ -21,7 +24,7 @@ public partial class StatusController
               (MixedIntervals ? "Mixed tick speeds.\n" : $"Ticks every {TickSeconds:0.###} game seconds.\n") +
               $"Remaining duration: {MinSeconds:0.##}–{MaxSeconds:0.##} game seconds.\nDamage includes current mitigation."
             : Effect._StatusType == StatusEffects.StatusType.Shock
-                ? $"Shock / {Count}/{Threshold} stacks\nTriggered Lightning coefficient: {Magnitude:P0}\nExpires in {MinTurns}-{MaxTurns} global turns."
+                ? ShockDetails ?? $"Shock / {Magnitude:P1} effect"
                 : $"Chill / {Magnitude:P1} attack-speed slow\nExpires in {MinTurns}-{MaxTurns} global turns.";
     }
     public void ClearStatuses()
@@ -64,6 +67,17 @@ public partial class StatusController
             if(s.Count==0) continue;
             s.DamagePerTick=frequency>0?s.DamagePerTurn/frequency:0;s.Magnitude=magnitude/s.Count;
             result.Add(s);
+        }
+        for(int i=0;i<shockInstances.Count;i++)
+        {
+            while(shockDisplayEffects.Count<=i)
+            {
+                var effect=ScriptableObject.CreateInstance<StatusEffects>();effect.hideFlags=HideFlags.HideAndDontSave;
+                effect.ConfigureRuntime("Shock",StatusEffects.StatusType.Shock,StatusEffects.AilmentKind.None,ElementMask.Light,ShockRules.BaseEffect,1,1,StatusEffects.StackPolicy.ReplaceAlways);
+                shockDisplayEffects.Add(effect);
+            }
+            result.Add(new Summary{Effect=shockDisplayEffects[i],Count=1,Magnitude=shockInstances[i],MinSeconds=shockDurations[i],MaxSeconds=shockDurations[i],
+                ShockDetails=$"Shock {i+1}\nEffect: {shockInstances[i]:P1} more damage taken\nDuration remaining: {shockDurations[i]:0.0}s\nCombined multiplier: {1+CombinedShockEffect:0.###}×"});
         }
         result.Sort((a,b)=>string.CompareOrdinal(a.DisplayName,b.DisplayName));
         return result;

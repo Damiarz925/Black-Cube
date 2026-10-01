@@ -5596,47 +5596,47 @@ MonoBehaviour:
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 107
-    displayName: Damage per Lowest Attribute
+    displayName: Unarmed Damage per Lowest Attribute
     allowedSlots: 0100000006000000i
     allowedWeaponTypeIds: []
     groups: []
     side: 0
     tiers:
     - tierIndex: 5
-      minValue: 0.05
-      maxValue: 0.1
+      minValue: 0.1
+      maxValue: 0.2
       minItemLevel: 1
       weight: 50
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
     - tierIndex: 4
-      minValue: 0.08
-      maxValue: 0.16
+      minValue: 0.16
+      maxValue: 0.32
       minItemLevel: 20
       weight: 35
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
     - tierIndex: 3
-      minValue: 0.13
-      maxValue: 0.25
+      minValue: 0.26
+      maxValue: 0.5
       minItemLevel: 40
       weight: 20
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
     - tierIndex: 2
-      minValue: 0.2
-      maxValue: 0.4
+      minValue: 0.4
+      maxValue: 0.8
       minItemLevel: 60
       weight: 10
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
     - tierIndex: 1
-      minValue: 0.3
-      maxValue: 0.6
+      minValue: 0.6
+      maxValue: 1.2
       minItemLevel: 75
       weight: 5
       pairedDamage: 0
@@ -6117,7 +6117,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 123
     displayName: 
-    allowedSlots: 
+    allowedSlots: 0600000005000000i
     allowedWeaponTypeIds: []
     groups: []
     side: 0
@@ -6147,7 +6147,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 125
     displayName: 
-    allowedSlots: 
+    allowedSlots: 0600000005000000i
     allowedWeaponTypeIds: []
     groups: []
     side: 0
@@ -6268,40 +6268,40 @@ MonoBehaviour:
     side: 0
     tiers:
     - tierIndex: 5
-      minValue: 0.04
-      maxValue: 0.06
+      minValue: 4
+      maxValue: 6
       minItemLevel: 1
       weight: 50
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
     - tierIndex: 4
-      minValue: 0.07
-      maxValue: 0.1
+      minValue: 7
+      maxValue: 10
       minItemLevel: 20
       weight: 35
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
     - tierIndex: 3
-      minValue: 0.11
-      maxValue: 0.15
+      minValue: 11
+      maxValue: 15
       minItemLevel: 40
       weight: 20
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
     - tierIndex: 2
-      minValue: 0.16
-      maxValue: 0.2
+      minValue: 16
+      maxValue: 20
       minItemLevel: 60
       weight: 10
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
     - tierIndex: 1
-      minValue: 0.21
-      maxValue: 0.25
+      minValue: 21
+      maxValue: 25
       minItemLevel: 80
       weight: 5
       pairedDamage: 0
@@ -6323,40 +6323,40 @@ MonoBehaviour:
     side: 0
     tiers:
     - tierIndex: 5
-      minValue: 0.04
-      maxValue: 0.06
+      minValue: 4
+      maxValue: 6
       minItemLevel: 1
       weight: 50
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
     - tierIndex: 4
-      minValue: 0.07
-      maxValue: 0.1
+      minValue: 7
+      maxValue: 10
       minItemLevel: 20
       weight: 35
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
     - tierIndex: 3
-      minValue: 0.11
-      maxValue: 0.15
+      minValue: 11
+      maxValue: 15
       minItemLevel: 40
       weight: 20
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
     - tierIndex: 2
-      minValue: 0.16
-      maxValue: 0.2
+      minValue: 16
+      maxValue: 20
       minItemLevel: 60
       weight: 10
       pairedDamage: 0
       minHighValue: 0
       maxHighValue: 0
     - tierIndex: 1
-      minValue: 0.21
-      maxValue: 0.25
+      minValue: 21
+      maxValue: 25
       minItemLevel: 80
       weight: 5
       pairedDamage: 0
@@ -6708,6 +6708,51 @@ MonoBehaviour:
       minHighValue: 0
       maxHighValue: 0
     empowerable: 0
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 144
+    displayName: 
+    allowedSlots: 
+    allowedWeaponTypeIds: []
+    groups: []
+    side: 0
+    tiers: []
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 145
+    displayName: 
+    allowedSlots: 01000000060000000300000005000000i
+    allowedWeaponTypeIds: []
+    groups: []
+    side: 1
+    tiers: []
+    empowerable: 1
+    hasCustomEmpoweredRange: 0
+    empoweredMin: 0
+    empoweredMax: 0
+    empoweredMinHigh: 0
+    empoweredMaxHigh: 0
+    tierTopMultiplier: 6
+    tierSpread: 0.35
+  - statType: 146
+    displayName: 
+    allowedSlots: 
+    allowedWeaponTypeIds: []
+    groups: []
+    side: 0
+    tiers: []
+    empowerable: 1
     hasCustomEmpoweredRange: 0
     empoweredMin: 0
     empoweredMax: 0

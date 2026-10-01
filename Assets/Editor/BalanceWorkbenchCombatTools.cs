@@ -48,6 +48,7 @@ namespace BlackCube.BalanceWorkbench
             p.physicalAuraAccess|=(uniqueAuras&1)!=0;p.fireAuraAccess|=(uniqueAuras&2)!=0;p.coldAuraAccess|=(uniqueAuras&4)!=0;p.lightningAuraAccess|=(uniqueAuras&8)!=0;p.voidAuraAccess|=(uniqueAuras&16)!=0;
             p.maximumBleedStacks+=Mathf.RoundToInt(RelicLoadoutRules.Sum(build.activeRelics,RelicModifierType.MaximumBleedStacks));
             p.maximumIgniteStacks+=Mathf.RoundToInt(RelicLoadoutRules.Sum(build.activeRelics,RelicModifierType.MaximumIgniteStacks));
+            p.manaBeforeLife=stats.GetStat(StatTypes.DamageTakenFromManaBeforeLife);p.shockDuration=stats.GetStat(StatTypes.ShockDuration);
             p.maximumShockEffect=1+RelicLoadoutRules.Sum(build.activeRelics,RelicModifierType.MaximumShockEffect)/100;
             p.maximumChillEffect=.3f+RelicLoadoutRules.Sum(build.activeRelics,RelicModifierType.MaximumChillSlow)/100;
             p.fireballEcho=RelicLoadoutRules.Sum(build.activeRelics,RelicModifierType.FireballEchoChance)/100;p.shockBarrageEcho=RelicLoadoutRules.Sum(build.activeRelics,RelicModifierType.ShockBarrageEchoChance)/100;

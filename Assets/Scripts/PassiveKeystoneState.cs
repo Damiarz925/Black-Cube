@@ -126,15 +126,7 @@ public sealed class PassiveKeystoneState : MonoBehaviour
         return result;
     }
 
-    public float RedirectDamageToMana(float damage)
-    {
-        if (!Has(PassiveKeystone.ManaShield) || damage <= 0f) return damage;
-        var mana = GetComponent<ManaComponent>();
-        if (mana == null) return damage;
-        float requested = damage * .5f;
-        float absorbed = mana.SpendUpTo(requested);
-        return damage - absorbed;
-    }
+    public float RedirectDamageToMana(float damage)=>ManaBeforeLifeRules.Apply(this,damage);
 
     static DamageContext Copy(DamageContext source)
     {

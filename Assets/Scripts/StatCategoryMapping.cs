@@ -86,6 +86,7 @@ public static class StatCategoryMapping
                 return StatCategory.Ailments;
 
             // Defenses
+            case StatTypes.DamageTakenFromManaBeforeLife:
             case StatTypes.FlatArmour:
             case StatTypes.FlatEvasion:
             case StatTypes.ArmourPercent:

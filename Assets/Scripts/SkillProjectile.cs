@@ -10,10 +10,10 @@ public sealed class SkillProjectile : MonoBehaviour
     public static AudioClip HeavyImpactClip => heavyImpactClip != null ? heavyImpactClip : (heavyImpactClip = CreateImpactClip());
 
     public static void Launch(Transform source, Transform target, Element element, Action onImpact, float lateralOffset = 0f,
-        float travelDuration=.38f,float launchDelay=0f)
+        float travelDuration=.38f,float launchDelay=0f,string visualName="Skill Projectile")
     {
         if (source == null || target == null) return;
-        var go = new GameObject("Fireball Projectile", typeof(SpriteRenderer), typeof(SkillProjectile));
+        var go = new GameObject(visualName, typeof(SpriteRenderer), typeof(SkillProjectile));
         go.hideFlags = HideFlags.DontSave;
         var renderer = go.GetComponent<SpriteRenderer>();
         renderer.sprite = GetOrbSprite();

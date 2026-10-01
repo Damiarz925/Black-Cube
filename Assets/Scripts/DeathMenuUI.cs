@@ -1,6 +1,7 @@
 // Developer map: Displays the killer and pauses via Time.timeScale; restart delegates to GameManager. Hide/menu/quit restore time scale so later scenes do not inherit a paused clock.
 // See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using TMPro;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -22,6 +23,8 @@ public class DeathMenuUI : MonoBehaviour
     [Header("Scene Routing")]
     [SerializeField] private string mainMenuSceneName = GameSceneNames.MainMenu;
     private bool showRequested;
+    [SerializeField, Min(.5f)] float autoRestartDelaySeconds=1.5f;
+    Coroutine autoRestart;
 
     private void Awake()
     {
@@ -75,10 +78,20 @@ public class DeathMenuUI : MonoBehaviour
 
         Debug.Log($"DeathMenuUI: Show -> enemyLevel={enemyLevel}, enemyRarity={enemyRarity}, weaponElement={weaponElement}");
         Time.timeScale = 0f;
+        if(autoRestart!=null)StopCoroutine(autoRestart);
+        if(GameplayOptions.AutoRestartOnDeath)autoRestart=StartCoroutine(RestartAfterRecap());
+    }
+
+    IEnumerator RestartAfterRecap()
+    {
+        yield return new WaitForSecondsRealtime(autoRestartDelaySeconds);
+        autoRestart=null;
+        if(showRequested)OnRestartLevelClicked();
     }
 
     public void Hide()
     {
+        if(autoRestart!=null){StopCoroutine(autoRestart);autoRestart=null;}
         showRequested = false;
         Debug.Log("DeathMenuUI: Hide");
         if (root != null)
@@ -95,6 +108,8 @@ public class DeathMenuUI : MonoBehaviour
 
     public void OnRestartLevelClicked()
     {
+        showRequested=false;
+        if(autoRestart!=null){StopCoroutine(autoRestart);autoRestart=null;}
         Debug.Log("DeathMenuUI: Restart Level clicked.");
         Time.timeScale = 1f;
 

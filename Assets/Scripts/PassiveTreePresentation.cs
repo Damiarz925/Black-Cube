@@ -30,6 +30,7 @@ public sealed class PassiveTreePresentation : MonoBehaviour
         string key=progression.ActiveClassId+"|"+string.Join(",",progression.SelectedClassRoutes)+"|"+progression.SelectedWeaponTreeId+"|"+WeaponFocused;
         if(layoutKey==key)return false;layoutKey=key;
         if(view.playerHub!=null){view.playerHub.gameObject.SetActive(!WeaponFocused);view.playerHub.anchoredPosition=Vector2.zero;view.playerHub.sizeDelta=Vector2.one*config.hubSize;}
+        var visibleClasses=PassiveTreeDefinition.ClassIds.Where(id=>id==progression.ActiveClassId||progression.SelectedClassRoutes.Contains(id)).ToList();
         foreach(var branch in view.branches)
         {
             bool weapon=branch.Data is PassiveWeaponBranchSO;bool visible=weapon?branch.RouteId==progression.SelectedWeaponTreeId:!WeaponFocused&&(branch.RouteId==progression.ActiveClassId||progression.SelectedClassRoutes.Contains(branch.RouteId));branch.gameObject.SetActive(visible);
@@ -43,9 +44,8 @@ public sealed class PassiveTreePresentation : MonoBehaviour
             }
             else
             {
-                int index=PassiveTreeDefinition.ClassIndex(branch.RouteId);float angle=(90-index*60)*Mathf.Deg2Rad;
-                int count=1+progression.SelectedClassRoutes.Count;
-                rect.anchoredPosition=count==1?Vector2.zero:new Vector2(Mathf.Cos(angle)*1550,Mathf.Sin(angle)*1300-1050);
+                int index=visibleClasses.IndexOf(branch.RouteId);
+                rect.anchoredPosition=new Vector2((index-(visibleClasses.Count-1)*.5f)*config.classRowSpacing,config.classRowHeight);
             }
         }
         foreach(var badge in view.classBadges)badge.gameObject.SetActive(false);

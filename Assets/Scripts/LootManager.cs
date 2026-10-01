@@ -97,7 +97,8 @@ public class LootManager : MonoBehaviour
             var eligible=System.Array.FindAll(UniqueCatalog.All,x=>x.minimumLevel<=Mathf.Min(100,itemLevel));
             return UniqueCatalog.Create(eligible[random.Range(0,eligible.Length)].id,itemLevel,()=>random.Value());
         }
-        string weaponTypeId=type==GearType.Weapons?RollWeaponTypeId(random):null;
+        string signature=GameManager.Instance?.GetComponent<PlayerIdentityState>()?.ClassDefinition?.SignatureWeaponTypeId;
+        string weaponTypeId=type==GearType.Weapons?RollWeaponTypeId(random,signature):null;
 
         Debug.Log($"[Loot] Rolled type={type}, rarity={rarity}, zoneLevel={zoneLevel}, enemyRarity={enemyRarity}");
 
@@ -164,6 +165,22 @@ public class LootManager : MonoBehaviour
     {
         var all=WeaponTypeCatalog.All;return all[random.Range(0,all.Count)].Id;
     }
+    // Only ordinary production drops call this overload; Unique selection happens
+    // before weapon-base selection and keeps its own authored pool.
+    public const int SignatureWeaponWeight=125, OtherWeaponWeight=100;
+    public static string RollWeaponTypeId(ILootRandomSource random,string signatureWeaponId)
+    {
+        if(!WeaponTypeCatalog.IsValid(signatureWeaponId))return RollWeaponTypeId(random);
+        var all=WeaponTypeCatalog.All;
+        int roll=random.Range(0,SignatureWeaponWeight+OtherWeaponWeight*(all.Count-1));
+        foreach(var weapon in all)
+        {
+            int weight=weapon.Id==signatureWeaponId?SignatureWeaponWeight:OtherWeaponWeight;
+            if(roll<weight)return weapon.Id;
+            roll-=weight;
+        }
+        return all[all.Count-1].Id;
+    }
 
     public static void ApplyNaturalWeaponProfile(Gear gear)
     {
@@ -195,7 +212,7 @@ public class LootManager : MonoBehaviour
     public GearRarity RollItemRarity(int itemLevel)=>RollItemRarity(itemLevel,UnityLootRandomSource.Instance);
     public GearRarity RollItemRarity(int itemLevel,ILootRandomSource random,GearType? type=null)
     {
-        if(itemLevel>=20&&random.Value()<Mathf.Min(.05f,.0025f*(1+Mathf.Max(0,(RelicInventory.Instance?.ItemRarityIncrease??0)+DevelopmentOverrides.ItemRarity(type)))))return GearRarity.Unique;
+        if(random.Value()<Mathf.Min(.05f,.0025f*(1+Mathf.Max(0,(RelicInventory.Instance?.ItemRarityIncrease??0)+DevelopmentOverrides.ItemRarity(type)))))return GearRarity.Unique;
         Vector4 rates=RarityRatesForLevel(itemLevel);
         float bias=1+Mathf.Max(0,RelicInventory.Instance?.ItemRarityIncrease??0);
         float total=0;for(int i=0;i<4;i++){rates[i]*=Mathf.Pow(bias,i);total+=rates[i];}

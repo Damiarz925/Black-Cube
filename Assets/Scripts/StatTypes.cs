@@ -204,5 +204,6 @@ public enum StatTypes
     AxePhysicalRage = 142,
     CullingStrike = 143,
     SpellEchoChance = 144,
-    CullingStrikeChance = 145
+    CullingStrikeChance = 145,
+    DamageTakenFromManaBeforeLife = 146
 }

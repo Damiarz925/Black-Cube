@@ -11,6 +11,44 @@ using BlackCube.CombatSimulation;
 public sealed class SystemsRedesignRegressionTests
 {
     readonly List<GameObject> objects=new();
+    [Test] public void RarityRetentionNeverHighlightsWithoutSelectedModMatches()
+    {
+        var go=new GameObject("Highlight test");go.SetActive(false);objects.Add(go);
+        var gear=go.AddComponent<Gear>();gear.Initialize(LootManager.GearType.Helmets,LootManager.GearRarity.Rare,100,Element.Phys);
+        var filter=new AdvancedLootFilter{enabled=true};
+        foreach(LootManager.GearRarity rarity in Enum.GetValues(typeof(LootManager.GearRarity)))
+        {
+            gear.Initialize(LootManager.GearType.Helmets,rarity,100,Element.Phys);
+            Assert.That(filter.Keeps(gear),Is.True);
+            Assert.That(filter.Highlights(gear),Is.False);
+        }
+        gear.Initialize(LootManager.GearType.Helmets,LootManager.GearRarity.Rare,100,Element.Phys);
+        var policy=filter.For(gear.ItemType);policy.enabled=true;
+        Assert.That(filter.Highlights(gear),Is.False);
+        policy.requirements.Add(new LootModRequirement{stat=StatTypes.Life,minimumTier=2});
+        gear.rolledMods.Add(new RolledMod(StatTypes.Life,3,10));
+        Assert.That(filter.Highlights(gear),Is.False);
+        gear.rolledMods.Last().tierIndex=2;
+        Assert.That(filter.Highlights(gear),Is.True);
+        filter.keptRarities=0;
+        Assert.That(filter.Keeps(gear),Is.False);
+        Assert.That(filter.Highlights(gear),Is.True,"Mod matching remains independent of rarity retention.");
+        policy.enabled=false;Assert.That(filter.Highlights(gear),Is.False);
+        policy.enabled=true;filter.enabled=false;Assert.That(filter.Highlights(gear),Is.False);
+    }
+    [Test] public void RelicActionsAreInsideRelicViewAndOutsideListLayout()
+    {
+        foreach(string path in new[]{PersistentUIAuthoringInstaller.GameplayPrefabPath,InventoryAuthoringBuilder.PrefabPath})
+        {
+            var inventory=AssetDatabase.LoadAssetAtPath<GameObject>(path).GetComponentInChildren<InventoryUI>(true);
+            var root=inventory.GetComponent<InventoryView>().relicRoot;
+            var toolbar=root.Find("Relic actions");Assert.That(toolbar,Is.Not.Null);
+            Assert.That(toolbar.GetComponent<LayoutElement>().ignoreLayout,Is.True);
+            Assert.That(root.GetComponent<VerticalLayoutGroup>().padding.top,Is.GreaterThanOrEqualTo(52));
+            foreach(Component component in new Component[]{inventory.GetComponent<RelicFusionUI>(),inventory.GetComponent<UniqueRelicForgeUI>()})
+                Assert.That(((Button)new SerializedObject(component).FindProperty("open").objectReferenceValue).transform.parent,Is.EqualTo(toolbar));
+        }
+    }
     [TearDown] public void Cleanup(){foreach(var obj in objects)if(obj!=null)UnityEngine.Object.DestroyImmediate(obj);objects.Clear();}
     [Test] public void ProductionStaffUsesAutomaticAttackReplacementNotDirectCooldownCasts()
     {

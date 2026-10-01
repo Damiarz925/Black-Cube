@@ -8,5 +8,5 @@ public sealed class PauseMenuView : MonoBehaviour
     public Button resumeButton, optionsButton, codexButton, saveAndMainMenuButton, saveAndQuitButton, optionsBackButton, pausePassiveTreeButton;
     public TMP_Text pausePassiveTreeLabel;
     public CodexModListUI codex;
-    public Button hudOptionsButton, runUnfocusedButton, skillTooltipButton, gameMenuButton;
+    public Button hudOptionsButton, runUnfocusedButton, skillTooltipButton, gameMenuButton, autoRestartButton, upgradeDiagnosticsButton;
 }

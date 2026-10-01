@@ -13,13 +13,15 @@ public static class ItemTooltipFormatter
 {
     public const string Divider = "────────────────────────";
 
-    public static string DescribeGear(Gear item)
+    public static string DescribeGear(Gear item,IReadOnlyDictionary<RolledMod,float> marginals=null)
     {
         if (item == null) return string.Empty;
         if (item.IsScrap) return $"<color=#BFA86A><b>MATERIAL</b></color>\n\nStack Count: {item.StackCount}\nCannot be equipped or crafted.";
         var s = new StringBuilder();
         s.AppendLine(item.IsLocked ? "<color=#FFD060>ITEM LOCKED — protected from dismantling/crafting. [L] Unlock</color>" : "<color=#85898F>[L] Lock item</color>");
-        s.AppendLine($"<color=#85898F>{ItemSlotUI.DisplayType(item.ItemType).ToUpperInvariant()}  •  ITEM LEVEL {item.ItemLevel}</color>");
+        string typeName=item.ItemType==LootManager.GearType.Weapons&&WeaponTypeCatalog.TryGet(item.WeaponTypeId,out var weaponType)
+            ?weaponType.DisplayName:ItemSlotUI.DisplayType(item.ItemType);
+        s.AppendLine($"<color=#85898F>{typeName.ToUpperInvariant()}  •  ITEM LEVEL {item.ItemLevel}</color>");
         if(ItemArmourProfile.IsArmour(item.ItemType))s.AppendLine($"<b>Item Armour:</b> {item.FinalItemArmour:0}");
         if(item.UniqueData==null)s.AppendLine($"<color=#8DC9D8><b>CRAFTING POTENTIAL: {item.CurrentCraftingPotential} / {item.MaximumCraftingPotential}</b></color>  <color=#85898F>ORIGIN {item.OriginRarity.ToString().ToUpperInvariant()}</color>");
         if (item.ItemType == LootManager.GearType.Weapons)
@@ -34,9 +36,10 @@ public static class ItemTooltipFormatter
         if(item.UniqueData!=null)
         {
             s.AppendLine($"<color=#B86229><b>{UniqueCatalog.Get(item.UniqueData.definitionId)?.name} — UNIQUE</b></color>");
-            s.AppendLine("Immutable drop rolls. Cannot be modified with ordinary crafting.");
-            foreach(var mod in item.rolledMods)s.AppendLine($"{StatDisplayFormatting.ToFriendlyName(mod.statType)}: {mod.value:0.##}{(StatsComponent.IsPercentStat(mod.statType)?"%":"")}");
+            s.AppendLine(item.UniqueData.rollVersion>0?$"UNIQUE ROLL BAND T{UniqueTierRules.Tier(item.ItemLevel)} — immutable; no ordinary crafting.":"Legacy immutable rolls. Cannot be modified with ordinary crafting.");
+            foreach(var mod in item.rolledMods)s.AppendLine($"{StatDisplayFormatting.ToFriendlyName(mod.statType)}: {mod.value:0.##}{(StatsComponent.IsPercentStat(mod.statType)?"%":"")}{MarginalText(mod,marginals)}");
             foreach(var power in item.UniqueData.powers)s.AppendLine(UniqueCatalog.Describe(power));
+            if(marginals!=null)AppendEvaluatorLimits(s);
             return s.ToString().TrimEnd();
         }
         var mods = new List<RolledMod>();
@@ -46,7 +49,7 @@ public static class ItemTooltipFormatter
         s.AppendLine();
         s.AppendLine("<color=#9FC8BC><b>IMPLICIT</b></color>");
         RolledMod implicitMod=item.ImplicitMod;
-        if (implicitMod != null) AppendMod(s,item,implicitMod,true);
+        if (implicitMod != null) AppendMod(s,item,implicitMod,true,marginals);
         else s.AppendLine("<color=#85898F>—</color>");
         s.AppendLine(); s.AppendLine($"<color=#555A63>{Divider}</color>");
         foreach (var side in new[]{AffixSide.Prefix,AffixSide.Suffix})
@@ -57,14 +60,23 @@ public static class ItemTooltipFormatter
             {
                 if(mod.lockedOriginal || AffixPolicy.Side(mod)!=side)continue;
                 any=true;
-                AppendMod(s,item,mod,false);
+                AppendMod(s,item,mod,false,marginals);
             }
             if(!any)s.AppendLine("<color=#85898F>—</color>");
         }
+        if(marginals!=null)AppendEvaluatorLimits(s);
         return s.ToString().TrimEnd();
     }
 
-    static void AppendMod(StringBuilder s,Gear item,RolledMod mod,bool implicitLine)
+    static string MarginalText(RolledMod mod,IReadOnlyDictionary<RolledMod,float> marginals)
+        => mod!=null&&marginals!=null&&marginals.TryGetValue(mod,out float value)
+            ?$"  <color=#88C9B2>[Approx. marginal DPS {value:+0.#;-0.#;0}%]</color>" : string.Empty;
+    static void AppendEvaluatorLimits(StringBuilder s)
+    {
+        s.AppendLine();s.AppendLine("<color=#929AA7>Estimated DPS is a neutral-target basic-attack model. Not fully modeled: enemy Armour/Resistances and penetration, skill rotations or Mana pressure, target-specific opening windows, exact ailment ramp and uptime. Marginal contributions are not additive.</color>");
+    }
+
+    static void AppendMod(StringBuilder s,Gear item,RolledMod mod,bool implicitLine,IReadOnlyDictionary<RolledMod,float> marginals)
     {
         SpecialAffixDefinition special=mod.isBossSpecial?BossSpecialCatalog.Find(mod.specialPoolId,mod.specialModifierId):null;
         bool percent=StatsComponent.IsPercentStat(mod.statType);
@@ -84,7 +96,7 @@ public static class ItemTooltipFormatter
         if(mod.statType==StatTypes.AxePhysicalRage)local="  <color=#85898F>Physical multiplier LOCAL; Rage GLOBAL</color>";
         string rank=mod.isEmpowered?"EMPOWERED":mod.isBossSpecial?$"APEX — {BossSpecialCatalog.SourceName(mod.specialPoolId)}":$"T{mod.tierIndex}";
         string rankColor=mod.tierIndex==1&&!mod.isEmpowered&&!mod.isBossSpecial?color:"#85898F";
-        s.AppendLine($"<color={color}>{prefix}<b>{rolled}</b></color>  <color=#85898F>{range}</color> <color={rankColor}>{rank}</color>{local}");
+        s.AppendLine($"<color={color}>{prefix}<b>{rolled}</b></color>  <color=#85898F>{range}</color> <color={rankColor}>{rank}</color>{local}{MarginalText(mod,marginals)}");
     }
 
     static string TierRange(Gear item,RolledMod mod,bool percent)
@@ -329,7 +341,14 @@ public class ItemTooltipUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
         if(!equipped)return Inventory.Instance!=null&&Inventory.Instance.Items.Contains(item);
         return true;
     }
-    void RefreshVisibleContent(){if(item==null)return;heading.text=item.IsScrap?$"SCRAP  x{item.StackCount}":$"{item.ItemRarity} {ItemSlotUI.DisplayType(item.ItemType)}";heading.color=ItemSlotUI.RarityColor(item.ItemRarity);body.text=Describe(item);body.ForceMeshUpdate();PlaceImplicitLock();scrapButton.interactable=!equipped&&Inventory.Instance!=null&&Inventory.Instance.CanDismantle(item);actionLabel.text=equipped?"EQUIPPED / CANNOT SCRAP":item.IsScrap?"SCRAP / MATERIAL ONLY":item.ItemRarity==LootManager.GearRarity.Normal?"DISMANTLE / NO FRAGMENTS":$"DISMANTLE / +{Inventory.ScrapYield(item)} {(item.ItemRarity==LootManager.GearRarity.Magic?"NORMAL→MAGIC":"MAGIC→RARE")} FRAGMENT{(Inventory.ScrapYield(item)==1?"":"S")}";}
+    void RefreshVisibleContent(){if(item==null)return;heading.text=item.IsScrap?$"SCRAP  x{item.StackCount}":$"{item.ItemRarity} {(item.ItemType==LootManager.GearType.Weapons&&WeaponTypeCatalog.TryGet(item.WeaponTypeId,out var profile)?profile.DisplayName:ItemSlotUI.DisplayType(item.ItemType))}";heading.color=ItemSlotUI.RarityColor(item.ItemRarity);
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        var diagnostics=!equipped&&owner!=null?owner.GetComponentInParent<InventoryUI>()?.MarginalUpgradeContributions(item):null;
+        body.text=ItemTooltipFormatter.DescribeGear(item,GameplayOptions.UpgradeDiagnostics?diagnostics:null);
+#else
+        body.text=Describe(item);
+#endif
+        body.ForceMeshUpdate();PlaceImplicitLock();scrapButton.interactable=!equipped&&Inventory.Instance!=null&&Inventory.Instance.CanDismantle(item);actionLabel.text=equipped?"EQUIPPED / CANNOT SCRAP":item.IsScrap?"SCRAP / MATERIAL ONLY":item.ItemRarity==LootManager.GearRarity.Normal?"DISMANTLE / NO FRAGMENTS":$"DISMANTLE / +{Inventory.ScrapYield(item)} {(item.ItemRarity==LootManager.GearRarity.Magic?"NORMAL→MAGIC":"MAGIC→RARE")} FRAGMENT{(Inventory.ScrapYield(item)==1?"":"S")}";}
     void ResizeInPlace(){var r=(RectTransform)transform;var parent=(RectTransform)transform.parent;float width=Mathf.Min(440,parent.rect.width-24);float preferred=body.GetPreferredValues(body.text,width-24,0).y;r.sizeDelta=new Vector2(width,Mathf.Clamp(preferred+116,210,Mathf.Min(540,parent.rect.height-24)));LayoutRebuilder.ForceRebuildLayoutImmediate(r);body.ForceMeshUpdate();PlaceImplicitLock();}
     void PlaceImplicitLock()
     {
@@ -393,7 +412,7 @@ public class ItemTooltipUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
     void Dismantle()
     {
         scrapButton.interactable=false;
-        if(!equipped && Inventory.Instance != null) Inventory.Instance.TryDismantle(item);
+        if(!equipped && Inventory.Instance != null) owner?.GetComponentInParent<InventoryUI>()?.RequestManualDismantle(item);
         Hide();
     }
     public void Hide(){if(comparison!=null)comparison.Hide();owner=null;item=null;pointer=null;gameObject.SetActive(false);}

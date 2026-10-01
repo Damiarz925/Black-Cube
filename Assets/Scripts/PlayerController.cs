@@ -50,7 +50,15 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    public float baseSpeed = 1f;    // Unarmed attacks/second, used only when UnarmedDamage is positive.
+    [Header("Unarmed combat")]
+    [SerializeField] float unarmedDamageMinimum = 15f;
+    [SerializeField] float unarmedDamageMaximum = 23f;
+    [SerializeField] float unarmedAttacksPerSecond = .42f;
+    [SerializeField] float unarmedBaseCritChance = .04f;
+    public float UnarmedDamageMinimum => unarmedDamageMinimum;
+    public float UnarmedDamageMaximum => unarmedDamageMaximum;
+    public float UnarmedBaseCritChance => unarmedBaseCritChance;
+    public float baseSpeed = 1f; // Legacy serialized field; no longer supplies Unarmed's canonical speed.
 
     private void Awake()    //Grabbing the player's stats component and healthcomponent on awake
     {
@@ -180,7 +188,7 @@ public class PlayerController : MonoBehaviour
 
     public DamageContext BuildNonCriticalAttackContextAtRangeEnd(bool maximum)
     {
-        if (equippedWeapon == null) return BuildNonCriticalAttackContext();
+        if (equippedWeapon == null) return BuildNonCriticalAttackContext(false, maximum ? unarmedDamageMaximum : unarmedDamageMinimum);
         equippedWeapon.GetEffectiveBaseDamageRange(out float minimum, out float high);
         return BuildNonCriticalAttackContext(false, maximum ? high : minimum);
     }
@@ -190,8 +198,10 @@ public class PlayerController : MonoBehaviour
         DamageContext ctx = new DamageContext(4);   //Builds a damage context, passing in 4 as the initial capacity
         if (equippedWeapon == null)
         {
-            float unarmed = Mathf.Max(0f, stats.GetStat(StatTypes.UnarmedDamage));
-            if (unarmed > 0f) AddScaledElementalDamage(ctx, Element.Phys, unarmed);
+            float baseUnarmed=weaponOverride??(rollWeapon?Random.Range(unarmedDamageMinimum,unarmedDamageMaximum):(unarmedDamageMinimum+unarmedDamageMaximum)*.5f);
+            float unarmed = Mathf.Max(0f,baseUnarmed+stats.GetStat(StatTypes.UnarmedDamage));
+            AddScaledElementalDamage(ctx, Element.Phys, unarmed);
+            AddGlobalFlatElements(ctx,Element.Phys);
             return ApplyKeystones(ctx);
         }
 
@@ -238,8 +248,13 @@ public class PlayerController : MonoBehaviour
         float conversion = Mathf.Clamp01(nonMatchingConversion);
         if (equippedWeapon == null)
         {
-            AddConvertedRawDamage(ctx, Element.Phys, Mathf.Max(0f, stats.GetStat(StatTypes.UnarmedDamage)),
+            AddConvertedRawDamage(ctx, Element.Phys, Mathf.Max(0f,(rollWeapon?Random.Range(unarmedDamageMinimum,unarmedDamageMaximum):(unarmedDamageMinimum+unarmedDamageMaximum)*.5f)+stats.GetStat(StatTypes.UnarmedDamage))
+                +stats.GetStat(StatTypes.FlatPhys),
                 conversionElement, conversion);
+            AddConvertedExtraFlat(ctx,Element.Fire,Element.Phys,conversionElement,conversion);
+            AddConvertedExtraFlat(ctx,Element.Cold,Element.Phys,conversionElement,conversion);
+            AddConvertedExtraFlat(ctx,Element.Light,Element.Phys,conversionElement,conversion);
+            AddConvertedExtraFlat(ctx,Element.Void,Element.Phys,conversionElement,conversion);
             return ctx;
         }
 
@@ -264,8 +279,6 @@ public class PlayerController : MonoBehaviour
 
     private DamageContext ApplyCriticalRoll(DamageContext ctx)
     {
-        if (equippedWeapon == null) return ctx;
-
         //Get the weapons final critical chance
         float critChance = GetFinalCritChance();
         //Directly calculate the weapon's crit multiplier (assumes Crit multi is a decimal value).
@@ -374,15 +387,15 @@ public class PlayerController : MonoBehaviour
     //Calculates the final crit chance
     public float GetFinalCritChance()
     {
-        if (equippedWeapon == null) return 0f;  //If equipped weapon is null return
-
         float additionalBase=0;
         if(GetComponent<PassiveKeystoneState>()?.Has(PassiveKeystone.ThiefAilmentCrit)==true)
         {
             var target=FindFirstObjectByType<BattleManager>()?.CurrentEnemyTransform?.GetComponent<StatusController>();
             additionalBase=ClassKeystoneMechanics.AilmentBaseCrit(target?.DistinctAilmentCount()??0);
         }
-        float weaponCrit = equippedWeapon.GetEffectiveBaseCrit(stats.GetStat(StatTypes.BaseCritChance)+additionalBase);
+        float weaponCrit = equippedWeapon != null
+            ? equippedWeapon.GetEffectiveBaseCrit(stats.GetStat(StatTypes.BaseCritChance)+additionalBase)
+            : Mathf.Clamp01(unarmedBaseCritChance+stats.GetStat(StatTypes.BaseCritChance)+additionalBase);
         float incCritGlobal = stats.GetStat(StatTypes.CritChance);        // 0.5 for +50% increased crit
         // ALL flat base points precede local and global increased buckets.
         float final = weaponCrit * (1f + incCritGlobal);
@@ -394,8 +407,8 @@ public class PlayerController : MonoBehaviour
     public float GetFinalAttackSpeed()
     {
         if (equippedWeapon == null)
-            return stats.GetStat(StatTypes.UnarmedDamage) > 0f
-                ? baseSpeed * (1f + stats.GetStat(StatTypes.AttackSpeed) + DerivedStatCalculator.AttackSpeedIncreased(stats)) * KeystoneAttackSpeedMultiplier() * RelicAttackSpeedMultiplier() : 0f;
+            return unarmedAttacksPerSecond * (1f + stats.GetStat(StatTypes.AttackSpeed) + DerivedStatCalculator.AttackSpeedIncreased(stats)
+                +(GetComponent<RageState>()?.IncreasedAttackSpeed??0)) * KeystoneAttackSpeedMultiplier() * RelicAttackSpeedMultiplier();
 
         float weaponAS = equippedWeapon.GetEffectiveAttackSpeed();  //Grabs the weapon's base attack speed (base speed * local weapon attack speed modifier)
         float incASGlobal = stats.GetStat(StatTypes.AttackSpeed) + DerivedStatCalculator.AttackSpeedIncreased(stats)+(GetComponent<RageState>()?.IncreasedAttackSpeed??0); //Gets the player's global attack speed modifier

@@ -9,7 +9,7 @@ using UnityEngine.TestTools;
 public class CraftingAndRebirthTests
 {
     readonly List<GameObject> cleanup=new();
-    [TearDown]public void TearDown(){for(int i=cleanup.Count-1;i>=0;i--)if(cleanup[i]!=null)Object.DestroyImmediate(cleanup[i]);cleanup.Clear();PlayerPrefs.DeleteKey(GamePersistence.SaveKey);}
+    [TearDown]public void TearDown(){for(int i=cleanup.Count-1;i>=0;i--)if(cleanup[i]!=null)Object.DestroyImmediate(cleanup[i]);cleanup.Clear();if(GameManager.Instance==null)SetInstance(typeof(GameManager),null);Time.timeScale=1;PlayerPrefs.DeleteKey(GamePersistence.SaveKey);}
 
     [Test]
     public void EquipmentCrafting_FullOrdinaryPathPreservesImplicitAndCapsRareAtFourExplicits()
@@ -97,16 +97,18 @@ public class CraftingAndRebirthTests
     }
 
     [Test]
-    public void RepeatedConfirmedRebirthLocksOldRelicAndReplacesAncientStacks()
+    public void ConfirmedRebirthRetainsEarnedAncientCurrencyAndLocksOnlyAfterCrafting()
     {
         var inventoryHost=Track(new GameObject("inventory"));inventoryHost.AddComponent<Inventory>();var currency=inventoryHost.AddComponent<CurrencyInventory>();SetInstance(typeof(CurrencyInventory),currency);
         SetInstance(typeof(GameManager),null);SetInstance(typeof(RelicInventory),null);SetInstance(typeof(RebirthManager),null);
         var managerHost=Track(new GameObject("combat progression"));var manager=managerHost.AddComponent<GameManager>();var relics=managerHost.GetComponent<RelicInventory>()??managerHost.AddComponent<RelicInventory>();var rebirth=managerHost.GetComponent<RebirthManager>()??managerHost.AddComponent<RebirthManager>();SetInstance(typeof(GameManager),manager);SetInstance(typeof(RelicInventory),relics);SetInstance(typeof(RebirthManager),rebirth);
-        SetZone(manager,60);Assert.That(rebirth.RequestRebirth(),Is.True);LogAssert.Expect(LogType.Error,"GameManager: Cannot start zone because ZoneManager is missing.");Assert.That(rebirth.ConfirmRebirth(),Is.True);RelicData first=relics.Relics[0];
-        CurrencyInventory.Instance.Add(CraftingCurrencyType.AncientReroll,7);
-        SetZone(manager,60);Assert.That(rebirth.RequestRebirth(),Is.True);LogAssert.Expect(LogType.Error,"GameManager: Cannot start zone because ZoneManager is missing.");Assert.That(rebirth.ConfirmRebirth(),Is.True);
-        Assert.That(relics.Relics.Count,Is.EqualTo(2));Assert.That(first.craftableThisCycle,Is.False);Assert.That(relics.IsCurrentCraftable(relics.Relics[1]),Is.True);
-        foreach(CraftingCurrencyType type in System.Enum.GetValues(typeof(CraftingCurrencyType)))if(CurrencyInventory.IsAncient(type))Assert.That(CurrencyInventory.Instance.Count(type),Is.EqualTo(1),type.ToString());
+        var old=relics.BeginNewCycle();CurrencyInventory.Instance.Add(CraftingCurrencyType.AncientReroll,7);
+        SetZone(manager,60);Assert.That(rebirth.RequestRebirth(),Is.True);Assert.That(rebirth.ConfirmRebirth(),Is.True);
+        Assert.That(relics.Relics.Count,Is.EqualTo(2));Assert.That(old.craftableThisCycle,Is.False);Assert.That(relics.IsCurrentCraftable(relics.Relics[1]),Is.True);
+        Assert.That(currency.Count(CraftingCurrencyType.AncientReroll),Is.EqualTo(7));
+        rebirth.Cancel();Assert.That(rebirth.Phase,Is.EqualTo(RebirthPhase.Crafting));Assert.That(rebirth.ConfirmRebirth(),Is.False);
+        Assert.That(rebirth.AdvanceSetup(),Is.True);Assert.That(relics.Relics.All(r=>!r.craftableThisCycle),Is.True);
+        rebirth.ResetForNewGame();Time.timeScale=1;
     }
 
     static void ApplyAncient(CraftingCurrencyType type,RelicData relic,RelicInventory inventory,int count,RelicModifier locked)

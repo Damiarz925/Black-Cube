@@ -24,6 +24,8 @@ MonoBehaviour:
   maximumZoom: 1.35
   zoomStep: 0.08
   weaponGap: 220
+  classRowSpacing: 900
+  classRowHeight: 760
   layouts:
   - count: 1
     anchors:

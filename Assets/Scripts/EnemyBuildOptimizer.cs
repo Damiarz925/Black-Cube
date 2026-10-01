@@ -296,7 +296,7 @@ public static class EnemyBuildOptimizer
         float poison = AilmentDps(StatusEffects.AilmentKind.Poison, normalPreMitigation, stats, hitsPerSecond, critChance, critExtra);
         float ignite = AilmentDps(StatusEffects.AilmentKind.Ignite, normalPreMitigation, stats, hitsPerSecond, critChance, critExtra);
         float bleed = AilmentDps(StatusEffects.AilmentKind.Bleed, normalPreMitigation, stats, hitsPerSecond, critChance, critExtra);
-        float shock = ShockDps(elementExpectedDps[(int)Element.Light], stats);
+        float shock = ShockDps(hitDps + poison + ignite + bleed, elementExpectedDps[(int)Element.Light], stats, hitsPerSecond);
         float chill = ChillDefenseMultiplier(normalPreMitigation[(int)Element.Cold], stats, hitsPerSecond);
         float offense = hitDps + poison + ignite + bleed + shock;
         float defense = DefensePower(stats, hitsPerSecond) * chill;
@@ -549,13 +549,15 @@ public static class EnemyBuildOptimizer
         _ => 0f
     };
 
-    private static float ShockDps(float lightningDps, StatSnapshot stats)
+    private static float ShockDps(float totalDps, float lightningDps, StatSnapshot stats, float hitsPerSecond)
     {
-        if (lightningDps <= 0f) return 0f;
-        float chance = Mathf.Max(0f, stats.Get(StatTypes.ShockChance))
-            * (1f - Mathf.Clamp(ReferenceAilmentResistance, -.9f, .9f));
-        float coefficient = Mathf.Min(1f, .5f * (1f + stats.Get(StatTypes.ShockEffect)));
-        return lightningDps * chance / 5f * coefficient;
+        if (lightningDps <= 0f || hitsPerSecond <= 0f) return 0f;
+        float chance = Mathf.Clamp01(stats.Get(StatTypes.ShockChance)
+            * (1f - Mathf.Clamp(ReferenceAilmentResistance, -.9f, .9f)));
+        // Analytical single-instance uptime estimate, not the retired five-stack burst.
+        float opportunities = ShockRules.Duration(stats.Get(StatTypes.ShockDuration)) * hitsPerSecond;
+        float uptime = 1f - Mathf.Pow(1f - chance, opportunities);
+        return totalDps * ShockRules.Effect(stats.Get(StatTypes.ShockEffect)) * uptime;
     }
 
     private static float ChillDefenseMultiplier(float coldPreMitigation, StatSnapshot stats, float hitsPerSecond)

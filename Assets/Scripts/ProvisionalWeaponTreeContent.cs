@@ -7,6 +7,8 @@ using UnityEngine;
 public static class ProvisionalWeaponTreeContent
 {
     public const string Warning = "PROVISIONAL WEAPON TREE VALUES — NOT FINAL BALANCE";
+    public static readonly float[] StaffManaDefense={2,3,5,8,12,15,20};
+    public static readonly float[] StaffEcho={1,1,2,3,3,4,6};
     public static readonly float[] SpineValues = {4,6,8,10,12,15,20};
     public static readonly float[] DepthWeights = {.6f,.8f,1,1.25f,1.5f,3,6};
     public sealed class Profile
@@ -56,10 +58,17 @@ public static class ProvisionalWeaponTreeContent
                 if(option==2||t==6){var utility=profile.Utility[(t+option)%4];defenses.Add(new(utility,BaseValue(utility)*weight*.75f));}
                 if(t==6){offense.Add(new(StatTypes.GenericMult,option==0?30:option==1?20:15));var other=profile.Offense[(i+1)%4];offense.Add(new(other,BaseValue(other)*weight*.5f));}
                 else if(option==2){var utility=profile.Utility[(t+2)%4];offense.Add(new(utility,BaseValue(utility)*weight*.5f));}
+                if(weapon==WeaponTypeIds.Staff&&option==0)defenses=new(){new(StatTypes.DamageTakenFromManaBeforeLife,StaffManaDefense[t])};
+                if(weapon==WeaponTypeIds.Staff&&option==1)defenses=new(){new(StatTypes.SpellEchoChance,StaffEcho[t])};
                 string token=((char)('a'+option)).ToString();
                 left[option].Configure(prefix+"left."+token,t==6?"Bulwark "+(option+1):"Sustain "+(option+1),Warning+". Weapon-only sustain/utility package.",PassiveBranch.Defense,t==6?PassiveNodeSize.Large:PassiveNodeSize.Small,PassiveNodeKind.Choice,PassiveKeystone.None,defenses);
                 bool finisher=weapon==WeaponTypeIds.TwoHandedAxe&&t==6&&option==2;
                 right[option].Configure(prefix+"right."+token,finisher?"Rage Finisher":t==6?"Mastery "+(option+1):"Offense "+(option+1),Warning+". Weapon-only offensive package; final-tier MORE damage is multiplicative."+(finisher?" At maximum Rage, arm one 2x empowered attack consuming Rage.":""),PassiveBranch.Physical,t==6?PassiveNodeSize.Large:PassiveNodeSize.Small,PassiveNodeKind.Choice,finisher?PassiveKeystone.RageFinisher:PassiveKeystone.None,offense);
+            }
+            if(weapon==WeaponTypeIds.Staff)
+            {
+                left[0].Configure(prefix+"left.a","Mana Before Life",ManaBeforeLifeRules.Description,PassiveBranch.Defense,t==6?PassiveNodeSize.Large:PassiveNodeSize.Small,PassiveNodeKind.Choice,PassiveKeystone.None,new[]{new PassiveEffect(StatTypes.DamageTakenFromManaBeforeLife,StaffManaDefense[t])});
+                left[1].Configure(prefix+"left.b","Spell Echo Chance",Warning+". Echo casts cost escalating Mana.",PassiveBranch.Magic,t==6?PassiveNodeSize.Large:PassiveNodeSize.Small,PassiveNodeKind.Choice,PassiveKeystone.None,new[]{new PassiveEffect(StatTypes.SpellEchoChance,StaffEcho[t])});
             }
             tiers.Add(tier);
         }

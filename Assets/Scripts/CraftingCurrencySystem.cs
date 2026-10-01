@@ -282,6 +282,8 @@ public sealed partial class CurrencyInventoryPanel : MonoBehaviour
     public void ShowRelicsForCurrency() => SwitchView(true,false);
     void SwitchView(bool relicMode,bool manual)
     {
+        GetComponent<RelicFusionUI>()?.ClosePanel();
+        GetComponent<UniqueRelicForgeUI>()?.ClosePanel();
         if(manual)CurrencyInventory.Instance?.CancelArmed();
         layout?.SetRelicMode(relicMode);
         if(relicRoot!=null)relicRoot.gameObject.SetActive(relicMode);

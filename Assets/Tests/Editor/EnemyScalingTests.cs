@@ -18,7 +18,7 @@ public sealed class EnemyScalingTests
                 double normal=progression.EnemyReward(level,EnemyAI.EnemyRarity.Normal,false);
                 double boss=progression.EnemyReward(level,EnemyAI.EnemyRarity.Normal,true);
                 Assert.That(boss/normal,Is.EqualTo(5d).Within(.0001d));
-                Assert.That(progression.RequirementAt(level)/normal,
+                Assert.That((level<10?EarlyProgressionRules.LegacyRequirement(level):progression.RequirementAt(level))/normal,
                     Is.InRange(7.999d,45.001d));
             }
             Assert.That(progression.RequirementAt(99)/

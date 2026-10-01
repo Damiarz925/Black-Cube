@@ -94,7 +94,8 @@ public class ModifierTierDataTests
         Expect(db, S(StatTypes.DoTMultPerIntelligence), ".05,.10;.08,.15;.12,.22;.18,.32;.25,.45");
         Expect(db, S(StatTypes.AttackSpeedPerDexterity), ".03,.06;.05,.09;.07,.13;.10,.18;.15,.25");
         Expect(db, S(StatTypes.AccuracyPerDexterity), ".25,.50;.40,.80;.60,1.20;.90,1.80;1.30,2.70");
-        Expect(db, S(StatTypes.FlatFirePerStrength, StatTypes.FlatLightPerIntelligence, StatTypes.FlatColdPerDexterity, StatTypes.DmgPerLowestStat), ".05,.10;.08,.16;.13,.25;.20,.40;.30,.60");
+        Expect(db, S(StatTypes.FlatFirePerStrength, StatTypes.FlatLightPerIntelligence, StatTypes.FlatColdPerDexterity), ".05,.10;.08,.16;.13,.25;.20,.40;.30,.60");
+        Expect(db, S(StatTypes.DmgPerLowestStat), ".10,.20;.16,.32;.26,.50;.40,.80;.60,1.20");
     }
 
     [Test]

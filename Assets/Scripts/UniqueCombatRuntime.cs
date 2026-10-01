@@ -9,7 +9,13 @@ public sealed class UniqueCombatRuntime:MonoBehaviour
     float poolUntil,poolStrength,regenerationUntil,regenerationRate,voidClock,combatClock;
     readonly List<StatusInstance> preserved=new();
     void Awake()=>stats=GetComponent<StatsComponent>();
-    public static UniqueCombatRuntime For(StatsComponent actor)=>actor?.GetComponent<PlayerController>()!=null?(actor.GetComponent<UniqueCombatRuntime>()??actor.gameObject.AddComponent<UniqueCombatRuntime>()):null;
+    // Statuses can outlive the enemy that applied them. Unity's destroyed-object
+    // sentinel is not respected by C#'s ?. operator, so never dereference a
+    // source StatsComponent without the Unity lifetime check.
+    public static UniqueCombatRuntime For(StatsComponent actor)
+        => actor != null && actor.GetComponent<PlayerController>() != null
+            ? (actor.GetComponent<UniqueCombatRuntime>() ?? actor.gameObject.AddComponent<UniqueCombatRuntime>())
+            : null;
     public void BindEnemy(HealthComponent target)
     {
         if(enemyStatus!=null)enemyStatus.AilmentExpired-=Expired;
@@ -50,7 +56,7 @@ public sealed class UniqueCombatRuntime:MonoBehaviour
     {
         float coefficient=UniqueCatalog.Power(stats,UniquePower.EchoSelfDamage);if(coefficient<=0)return;
         var context=new DamageContext(1){IncomingSelfHit=true,EventTags=CombatEventTags.TriggeredDamage|CombatEventTags.NoSecondaryTriggers};context.AddDamage(Element.Light,rawSpellDamage*coefficient);
-        var status=GetComponent<StatusController>();status?.AddShockInstance(.10f*(1-Mathf.Clamp01(stats.GetStat(StatTypes.ReducedShockEffect))),2);
+        var status=GetComponent<StatusController>();status?.AddShockInstance(ShockRules.Effect(stats.GetStat(StatTypes.ShockEffect),1+(RelicInventory.Instance?.MaximumShockEffectIncrease??0),stats.GetStat(StatTypes.ReducedShockEffect)),ShockRules.Duration(stats.GetStat(StatTypes.ShockDuration)));
         float final=CombatCalculator.CalculateFinalDamage(context,null,stats);GetComponent<DamageReceiver>()?.TakeDamage(final,context);
     }
     void Update()

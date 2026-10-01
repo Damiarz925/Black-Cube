@@ -21,7 +21,7 @@ public sealed class Step18ProductionTests
         Assert.That(WeaponMechanicProfile.RapidFlurryHits(0),Is.EqualTo(3));Assert.That(WeaponMechanicProfile.RapidFlurryHits(1.5f),Is.EqualTo(6));Assert.That(WeaponMechanicProfile.RapidFlurryHits(99),Is.EqualTo(8));
         Assert.That(WeaponMechanicProfile.ArmourStrikeMultiplier(0),Is.EqualTo(1.5f));Assert.That(WeaponMechanicProfile.ArmourStrikeMultiplier(10000),Is.EqualTo(4.5f));
         Assert.That(skills[PlayerSkillId.BowVenomShot].suppressDirectDamage,Is.True);Assert.That(skills[PlayerSkillId.BowVenomShot].ailmentBasisMultiplier,Is.EqualTo(3));Assert.That(skills[PlayerSkillId.BowDoubleVolley].secondaryMultiplier,Is.EqualTo(2));
-        Assert.That(skills[PlayerSkillId.StaffFireball].castMode,Is.EqualTo(PlayerSkillCastMode.AutoCooldown));Assert.That(skills[PlayerSkillId.StaffFireball].baseCooldown,Is.EqualTo(5));Assert.That(skills[PlayerSkillId.DaggerQuickStrike].castMode,Is.EqualTo(PlayerSkillCastMode.ImmediateCooldown));Assert.That(skills[PlayerSkillId.DaggerQuickStrike].baseCooldown,Is.EqualTo(4));
+        Assert.That(skills[PlayerSkillId.StaffFireball].castMode,Is.EqualTo(PlayerSkillCastMode.AutoQueuedReplacement));Assert.That(skills[PlayerSkillId.StaffFireball].baseCooldown,Is.EqualTo(5));Assert.That(skills[PlayerSkillId.DaggerQuickStrike].castMode,Is.EqualTo(PlayerSkillCastMode.ImmediateCooldown));Assert.That(skills[PlayerSkillId.DaggerQuickStrike].baseCooldown,Is.EqualTo(4));
     }
 
     [Test] public void CooldownFormulaUsesNewStatAndClamp()
@@ -51,7 +51,7 @@ public sealed class Step18ProductionTests
 
     [Test] public void IndependentShockInstancesCombineAndExpire()
     {
-        var go=new GameObject("shock-instances");try{var status=go.AddComponent<StatusController>();status.AddShockInstance(.2f,2,3);status.AddShockInstance(.2f,3,3);status.AddShockInstance(.2f,4,3);Assert.That(status.CombinedShockEffect,Is.EqualTo(.728f).Within(.001));status.TickStatuses();Assert.That(status.CombinedShockEffect,Is.EqualTo(.728f).Within(.001));status.TickStatuses();Assert.That(status.CombinedShockEffect,Is.EqualTo(.44f).Within(.001));}finally{UnityEngine.Object.DestroyImmediate(go);}
+        var go=new GameObject("shock-instances");try{var status=go.AddComponent<StatusController>();status.AddShockInstance(.2f,2,3);status.AddShockInstance(.2f,3,3);status.AddShockInstance(.2f,4,3);Assert.That(status.CombinedShockEffect,Is.EqualTo(.728f).Within(.001));status.TickRealtime(1);Assert.That(status.CombinedShockEffect,Is.EqualTo(.728f).Within(.001));status.TickRealtime(1);Assert.That(status.CombinedShockEffect,Is.EqualTo(.44f).Within(.001));}finally{UnityEngine.Object.DestroyImmediate(go);}
     }
 
     [Test] public void PassiveTreePatchPreservesTopologyAndProvidesNewStats()

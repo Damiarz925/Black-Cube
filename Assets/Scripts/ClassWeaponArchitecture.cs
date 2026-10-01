@@ -20,10 +20,10 @@ public sealed class PlayerClassDefinition
 {
     public readonly string Id,DisplayName,SignatureWeaponTypeId,PassiveStartId,PresentationHook,Description;
     public readonly string[] SubclassSlotIds;
-    public PlayerClassDefinition(string id,string name,string weapon,string passiveStart)
+    public PlayerClassDefinition(string id,string name,string weapon,string passiveStart,string description)
     {
         Id=id;DisplayName=name;SignatureWeaponTypeId=weapon;PassiveStartId=passiveStart;
-        PresentationHook="presentation."+id;Description=$"{name} class foundation; innate stat bonuses are intentionally absent.";
+        PresentationHook="presentation."+id;Description=description;
         SubclassSlotIds=new[]{"subclass-slot."+id+".1","subclass-slot."+id+".2"};
     }
 }
@@ -31,12 +31,12 @@ public sealed class PlayerClassDefinition
 public static class PlayerClassCatalog
 {
     static readonly PlayerClassDefinition[] all={
-        new(PlayerClassIds.Warrior,"Warrior",WeaponTypeIds.Sword,"tree.v3.class.warrior.t01.spine"),
-        new(PlayerClassIds.Mage,"Mage",WeaponTypeIds.Staff,"tree.v3.class.mage.t01.spine"),
-        new(PlayerClassIds.Ranger,"Ranger",WeaponTypeIds.Bow,"tree.v3.class.ranger.t01.spine"),
-        new(PlayerClassIds.Barbarian,"Barbarian",WeaponTypeIds.TwoHandedAxe,"tree.v3.class.barbarian.t01.spine"),
-        new(PlayerClassIds.Priest,"Priest",WeaponTypeIds.Sceptre,"tree.v3.class.priest.t01.spine"),
-        new(PlayerClassIds.Thief,"Thief",WeaponTypeIds.Dagger,"tree.v3.class.thief.t01.spine")};
+        new(PlayerClassIds.Warrior,"Warrior",WeaponTypeIds.Sword,"tree.v3.class.warrior.t01.spine","A versatile melee fighter with Life, Armour, steady physical damage, Hit Twice and Bleed."),
+        new(PlayerClassIds.Mage,"Mage",WeaponTypeIds.Staff,"tree.v3.class.mage.t01.spine","A ranged spellcaster built around Mana, elemental damage, Shock and automatic Staff skills."),
+        new(PlayerClassIds.Ranger,"Ranger",WeaponTypeIds.Bow,"tree.v3.class.ranger.t01.spine","A fast projectile fighter with precision, extra arrows, Lightning and Poison routes."),
+        new(PlayerClassIds.Barbarian,"Barbarian",WeaponTypeIds.TwoHandedAxe,"tree.v3.class.barbarian.t01.spine","A heavy melee fighter who trades speed for powerful hits, Rage, Life and Bleed."),
+        new(PlayerClassIds.Priest,"Priest",WeaponTypeIds.Sceptre,"tree.v3.class.priest.t01.spine","A sustaining melee caster using recovery, elemental auras, healing and resistance."),
+        new(PlayerClassIds.Thief,"Thief",WeaponTypeIds.Dagger,"tree.v3.class.thief.t01.spine","An agile melee fighter favouring critical hits, attack speed, Poison and Void damage.")};
     public static IReadOnlyList<PlayerClassDefinition> All=>all;
     public static bool TryGet(string id,out PlayerClassDefinition value){foreach(var x in all)if(x.Id==id){value=x;return true;}value=null;return false;}
     public static bool IsValid(string id)=>TryGet(id,out _);
@@ -60,7 +60,7 @@ public static class WeaponTypeCatalog
     static readonly WeaponTypeDefinition[] all={
         new(WeaponTypeIds.Sword,"Sword",18,27,.45f,.05f,false),
         new(WeaponTypeIds.TwoHandedAxe,"Two-Handed Axe",26,38,.30f,.04f,false),
-        new(WeaponTypeIds.Staff,"Staff",18,28,.40f,.06f,false),
+        new(WeaponTypeIds.Staff,"Staff",18,28,.40f,.06f,true),
         new(WeaponTypeIds.Bow,"Bow",17,25,.50f,.05f,true),
         new(WeaponTypeIds.Dagger,"Dagger",14,20,.60f,.08f,false),
         new(WeaponTypeIds.Sceptre,"Sceptre",19,28,.42f,.05f,false)};
@@ -75,7 +75,7 @@ public sealed class SubclassDefinition
     public readonly string Id,ParentClassId,DisplayName,Description,PassiveSectionId,PresentationHook,UnlockMilestoneId;
     public readonly string[] GrantedSystemHooks;
     public SubclassDefinition(string id,string parent,string name,string passiveSection,params string[] hooks)
-    {Id=id;ParentClassId=parent;DisplayName=name;Description=name+" developer fixture";PassiveSectionId=passiveSection;PresentationHook="presentation."+id;UnlockMilestoneId=PlayerIdentityState.StoryCompletionMilestoneId;GrantedSystemHooks=hooks??Array.Empty<string>();}
+    {Id=id;ParentClassId=parent;DisplayName=name;Description=SubclassDescriptions.For(id)??name+" developer fixture";PassiveSectionId=passiveSection;PresentationHook="presentation."+id;UnlockMilestoneId=PlayerIdentityState.StoryCompletionMilestoneId;GrantedSystemHooks=hooks??Array.Empty<string>();}
 }
 
 public static class SubclassIds
@@ -86,6 +86,26 @@ public static class SubclassIds
     public const string MageCooldown="subclass.mage.cooldown",MageStorm="subclass.mage.storm";
     public const string PriestDark="subclass.priest.dark",PriestLight="subclass.priest.light";
     public const string ThiefAssassin="subclass.thief.assassin",ThiefAilmentCrit="subclass.thief.ailment_crit";
+}
+
+public static class SubclassDescriptions
+{
+    public static string For(string id)=>id switch
+    {
+        SubclassIds.WarriorBleed=>"Rupture and Bleed specialist. Builds sustained physical pressure; less focused on rapid direct hits.",
+        SubclassIds.WarriorMultihit=>"Momentum fighter. Repeated hits build a stronger offense until the enemy lands a hit.",
+        SubclassIds.BarbarianBigHit=>"Titan heavy hitter. Rewards opening and wounded-state strikes over attack frequency.",
+        SubclassIds.BarbarianFire=>"Fire bruiser. Converts physical force into burning eruptions and elemental offense.",
+        SubclassIds.RangerPoison=>"Venom archer. Builds Poison from ranged hits and recovers Life through Poison damage.",
+        SubclassIds.RangerProjectile=>"Projectile tactician. Choose a wide volley or a focused shot for different enemy matchups.",
+        SubclassIds.MageCooldown=>"Chrono caster. Rapid skill cycles can occasionally bypass cooldowns; sustain the Mana they consume.",
+        SubclassIds.MageStorm=>"Storm caster. Stacks multiple Shocks to amplify incoming damage; prizes Lightning and repeated hits.",
+        SubclassIds.PriestDark=>"Dark priest. Converts restoration into Void harm; trades direct healing for offensive recovery interactions.",
+        SubclassIds.PriestLight=>"Light priest. Protects and heals through elemental auras and restorative attacks.",
+        SubclassIds.ThiefAssassin=>"Ambush assassin. Excels before enemies act and against vulnerable targets; opening timing matters.",
+        SubclassIds.ThiefAilmentCrit=>"Ailment assassin. Critical hits empower damaging ailments; combines precision with Poison and Bleed.",
+        _=>null
+    };
 }
 
 public enum SubclassProjectileMode{Volley,Focused}

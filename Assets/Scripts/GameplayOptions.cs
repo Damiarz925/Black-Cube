@@ -18,6 +18,19 @@ public static class GameplayOptions
         get => PlayerPrefs.GetInt("BlackCube.Options.SkillTooltips",1)!=0;
         set { PlayerPrefs.SetInt("BlackCube.Options.SkillTooltips",value?1:0);PlayerPrefs.Save(); }
     }
+    public const string AutoRestartOnDeathKey="BlackCube.Options.AutoRestartOnDeath";
+    public static bool AutoRestartOnDeath
+    {
+        get=>PlayerPrefs.GetInt(AutoRestartOnDeathKey,0)!=0;
+        set{PlayerPrefs.SetInt(AutoRestartOnDeathKey,value?1:0);PlayerPrefs.Save();}
+    }
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+    public static bool UpgradeDiagnostics
+    {
+        get=>PlayerPrefs.GetInt("BlackCube.Options.UpgradeDiagnostics",0)!=0;
+        set{PlayerPrefs.SetInt("BlackCube.Options.UpgradeDiagnostics",value?1:0);PlayerPrefs.Save();}
+    }
+#endif
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     static void ApplySettings() => Application.runInBackground=ContinueRunningWhileUnfocused;
     public const string PausePassiveTreeKey = "BlackCube.Options.PausePassiveTree";

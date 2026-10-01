@@ -14,18 +14,19 @@ public static class GenericClassPassiveReauthoring
     {
         [PlayerClassIds.Barbarian]=Rows("Life Regen AllRes RageGen Heavy Decay;Revenge LifeKill Bleed RageEffect Heavy Fire;Life Revenge Decay RageGen RageEffect Str;Regen LifeKill Fire Heavy Decay Bleed;Life LifeKill AllRes RageGen Heavy RageEffect;Regen Revenge Bleed RageEffect Decay Fire;Life Regen Str RageGen Decay AllRes;Revenge LifeKill Fire Heavy RageEffect Bleed;Life Revenge AllRes RageGen Heavy Decay;Regen LifeKill Str RageEffect Decay Fire"),
         [PlayerClassIds.Ranger]=Rows("Life Leech ManaHit Precision ProjectileSpeed Speed;ReducedShock ReducedChill AllRes Poison Dex RageGen;Life ReducedShock Speed Precision Poison ManaHit;Leech ReducedChill RageGen ProjectileSpeed Dex AllRes;Life ReducedChill ManaHit Precision Dex Speed;Leech ReducedShock AllRes ProjectileSpeed Poison RageGen;Life Leech Speed Precision ProjectileSpeed ManaHit;ReducedShock ReducedChill RageGen Poison Dex AllRes;Life ReducedShock ManaHit Precision Poison Speed;Leech ReducedChill AllRes ProjectileSpeed Dex RageGen"),
-        [PlayerClassIds.Mage]=Rows("Mana ManaRegen Int Fire CDR Crit;ReducedShock ReducedChill AllRes Echo Lightning CritMulti;Mana ReducedShock Crit Fire Echo Int;ManaRegen ReducedChill CritMulti Lightning CDR AllRes;Mana ReducedChill Int Fire Lightning Crit;ManaRegen ReducedShock AllRes Echo CDR CritMulti;Mana ManaRegen Crit Fire CDR Int;ReducedShock ReducedChill CritMulti Echo Lightning AllRes;Mana ReducedShock Int Fire Echo Crit;ManaRegen ReducedChill AllRes Lightning CDR CritMulti"),
-        [PlayerClassIds.Priest]=Rows("Life VoidRes ManaRegen Aura Void CDR;Recovery MaxRes AllRes Ailments Decay LifeKill;Life Recovery CDR Aura Void ManaRegen;VoidRes MaxRes LifeKill Ailments Decay AllRes;Life MaxRes ManaRegen Aura Decay CDR;Recovery VoidRes AllRes Void Ailments LifeKill;Life Recovery CDR Aura Void ManaRegen;VoidRes MaxRes LifeKill Ailments Decay AllRes;Life VoidRes ManaRegen Aura Ailments CDR;Recovery MaxRes AllRes Void Decay LifeKill"),
+        [PlayerClassIds.Mage]=Rows("Mana ManaDefense Int Fire CDR Shock;ReducedShock ReducedChill AllRes Echo Lightning ManaRegen;Mana ReducedShock Shock Fire Echo Int;ManaRegen ReducedChill ManaDefense Lightning CDR AllRes;Mana ReducedChill Int Fire Lightning Shock;ManaRegen ReducedShock AllRes Echo CDR ManaDefense;Mana ManaRegen Shock Fire CDR Int;ReducedShock ReducedChill ManaDefense Echo Lightning AllRes;Mana ReducedShock Int Fire Echo Shock;ManaRegen ReducedChill AllRes Lightning CDR ManaDefense"),
+        [PlayerClassIds.Priest]=Rows("Life Recovery ManaRegen Aura Void CDR;VoidRes MaxRes AllRes Ailments Decay LifeKill;Life Recovery CDR Aura Void ManaRegen;VoidRes MaxRes LifeKill Ailments Decay AllRes;Life MaxRes ManaRegen Aura Decay CDR;Recovery VoidRes AllRes Void Ailments LifeKill;Life Recovery CDR Aura Void ManaRegen;VoidRes MaxRes LifeKill Ailments Decay AllRes;Life VoidRes ManaRegen Aura Ailments CDR;Recovery MaxRes AllRes Void Decay LifeKill"),
         [PlayerClassIds.Thief]=Rows("LifeMana LifeKill Speed Crit PhysVoid CDR;ArmourRes ManaKill PoisonBleedDamage CritMulti PoisonBleedChance Multistrike;LifeMana ArmourRes CDR Crit CritMulti Speed;LifeKill ManaKill Multistrike PhysVoid PoisonBleedChance PoisonBleedDamage;LifeMana ManaKill Speed Crit PhysVoid CDR;ArmourRes LifeKill PoisonBleedDamage CritMulti PoisonBleedChance Multistrike;LifeMana ArmourRes CDR Crit CritMulti Speed;LifeKill ManaKill Multistrike PhysVoid PoisonBleedChance PoisonBleedDamage;LifeMana LifeKill Speed Crit PhysVoid CDR;ArmourRes ManaKill PoisonBleedDamage CritMulti PoisonBleedChance Multistrike")
     };
     static string[] Rows(string text)=>text.Split(';');
     static readonly Dictionary<string,StatTypes[]> Stats=new()
     {
+        ["ManaDefense"]=new[]{StatTypes.DamageTakenFromManaBeforeLife,StatTypes.LifeRegeneration},
         ["Life"]=new[]{StatTypes.LifePercent},["Mana"]=new[]{StatTypes.ManaPercent},["Regen"]=new[]{StatTypes.LifeRegeneration},["ManaRegen"]=new[]{StatTypes.ManaRegeneration},
         ["AllRes"]=new[]{StatTypes.AllRes},["LifeKill"]=new[]{StatTypes.LifeOnKill},["ManaKill"]=new[]{StatTypes.ManaOnKill},["ManaHit"]=new[]{StatTypes.ManaOnHit},
         ["RageGen"]=new[]{StatTypes.RageGeneration},["RageEffect"]=new[]{StatTypes.RageEffect},["Decay"]=new[]{StatTypes.RageDecayReduction},["Revenge"]=new[]{StatTypes.RevengeEffect},
         ["Fire"]=new[]{StatTypes.FireDmg},["Cold"]=new[]{StatTypes.ColdDmg},["Echo"]=new[]{StatTypes.SpellEchoChance},["Lightning"]=new[]{StatTypes.LightDmg},["Void"]=new[]{StatTypes.VoidDmg},["VoidRes"]=new[]{StatTypes.VoidRes},
-        ["Bleed"]=new[]{StatTypes.BleedChance},["Poison"]=new[]{StatTypes.PoisonChance},["Str"]=new[]{StatTypes.StrengthPercent},["Dex"]=new[]{StatTypes.DexterityPercent},["Int"]=new[]{StatTypes.IntelligencePercent},
+        ["Bleed"]=new[]{StatTypes.BleedChance},["Poison"]=new[]{StatTypes.PoisonChance},["Shock"]=new[]{StatTypes.ShockChance},["Str"]=new[]{StatTypes.StrengthPercent},["Dex"]=new[]{StatTypes.DexterityPercent},["Int"]=new[]{StatTypes.IntelligencePercent},
         ["Crit"]=new[]{StatTypes.CritChance},["CritMulti"]=new[]{StatTypes.CritMult},["CDR"]=new[]{StatTypes.CooldownReduction},["Speed"]=new[]{StatTypes.AttackSpeed},["Multistrike"]=new[]{StatTypes.ChanceToHitTwice},
         ["Leech"]=new[]{StatTypes.PoisonLifeLeech},["Precision"]=new[]{StatTypes.ProjectilePrecisionChance},["ProjectileSpeed"]=new[]{StatTypes.ProjectileSpeed},
         ["ReducedShock"]=new[]{StatTypes.ReducedShockEffect},["ReducedChill"]=new[]{StatTypes.ReducedChillEffect},["Recovery"]=new[]{StatTypes.LifeRecoveryEffect},["MaxRes"]=new[]{StatTypes.MaxAllRes},
@@ -52,6 +53,7 @@ public static class GenericClassPassiveReauthoring
     }
     public static PassiveEffect[] Effects(ModDatabase db,string key)
     {
+        if(key=="ManaDefense")return new[]{new PassiveEffect(StatTypes.DamageTakenFromManaBeforeLife,7),new PassiveEffect(StatTypes.LifeRegeneration,.75f)};
         if(key=="Heavy")return new[]{new PassiveEffect(StatTypes.PhysDmg,Value(db,StatTypes.PhysDmg,.75f)),new PassiveEffect(StatTypes.AttackSpeed,-Value(db,StatTypes.AttackSpeed,.25f))};
         var stats=Stats[key];return stats.Select(s=>new PassiveEffect(s,Value(db,s,stats.Length>1?.30f:.50f))).ToArray();
     }
@@ -62,6 +64,7 @@ public static class GenericClassPassiveReauthoring
     };
     public static string Description(string key)=>key switch
     {
+        "ManaDefense"=>ManaBeforeLifeRules.Description+" Also regenerates 0.75% Maximum Life per second.",
         "Revenge"=>"Unlocks Revenge. Most recent hit's actual Life loss / Maximum Life empowers the next attack event: 1 + 2 × fraction × (1 + increased Revenge Effect). Consumed once; damage over time does not charge it.",
         "Leech"=>"Recover Life from actual mitigated Poison tick damage dealt. Not Life on Hit; overkill does not grant extra leech.",
         "Heavy"=>"Heavy physical hits at the cost of attack frequency. Increased Physical Damage with reduced Attack Speed.",
@@ -73,7 +76,7 @@ public static class GenericClassPassiveReauthoring
         "Recovery"=>"Increases Life recovery, including regeneration, hit/kill recovery and poison leech. Does not scale Mana recovery.",
         _=>Stats[key].Length>1?"Hybrid: each component uses 30% of its T1 midpoint, not two full single-stat passives.":string.Empty
     };
-    static string Name(string key)=>key switch {"Heavy"=>"Heavy Physical Damage","LifeMana"=>"Life and Mana","ArmourRes"=>"Armour and Elemental Resistance","PhysVoid"=>"Physical and Void Damage","PoisonBleedChance"=>"Poison and Bleed Chance","PoisonBleedDamage"=>"Poison and Bleed Damage",_=>StatDisplayFormatting.ToFriendlyName(Stats[key][0])};
+    static string Name(string key)=>key switch {"ManaDefense"=>"Mana Ward and Recovery","Heavy"=>"Heavy Physical Damage","LifeMana"=>"Life and Mana","ArmourRes"=>"Armour and Elemental Resistance","PhysVoid"=>"Physical and Void Damage","PoisonBleedChance"=>"Poison and Bleed Chance","PoisonBleedDamage"=>"Poison and Bleed Damage",_=>StatDisplayFormatting.ToFriendlyName(Stats[key][0])};
     static PassiveBranch Theme(StatTypes stat)=>stat switch {StatTypes.Strength or StatTypes.StrengthPercent=>PassiveBranch.Strength,StatTypes.Dexterity or StatTypes.DexterityPercent=>PassiveBranch.Dexterity,StatTypes.Intelligence or StatTypes.IntelligencePercent=>PassiveBranch.Intelligence,StatTypes.LifePercent=>PassiveBranch.Life,StatTypes.ManaPercent=>PassiveBranch.Mana,StatTypes.FireDmg=>PassiveBranch.Fire,StatTypes.ColdDmg=>PassiveBranch.Cold,StatTypes.LightDmg=>PassiveBranch.Lightning,StatTypes.VoidDmg=>PassiveBranch.Poison,StatTypes.CritChance=>PassiveBranch.CriticalChance,StatTypes.CritMult=>PassiveBranch.CriticalMultiplier,_=>PassiveBranch.Defense};
     static StatTypes IconStat(StatTypes stat)=>stat switch {StatTypes.RevengeEffect=>StatTypes.PhysDmg,StatTypes.PoisonLifeLeech=>StatTypes.PoisonChance,StatTypes.LifeRecoveryEffect=>StatTypes.LifeRegeneration,StatTypes.AllDamagingAilmentChance=>StatTypes.BleedChance,StatTypes.GrantsPhysicalAura=>StatTypes.PhysDmg,_=>stat};
 

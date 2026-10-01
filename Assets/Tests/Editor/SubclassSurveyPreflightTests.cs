@@ -112,7 +112,7 @@ public sealed class SubclassSurveyPreflightTests
         Assert.That(CombatDeterministicRules.ShockBarrageHits(0),Is.EqualTo(1));
         for(int i=1;i<=5;i++)
             Assert.That(CombatDeterministicRules.ShockBarrageHits(i*.2f+.0001f),Is.EqualTo(i+1));
-        Assert.That(CombatDeterministicRules.ShockBarrageHits(2),Is.EqualTo(6));
+        Assert.That(CombatDeterministicRules.ShockBarrageHits(2),Is.EqualTo(11));
     }
 
     [Test] public void VenomShotHasVirtualPoisonButNoDirectHit()

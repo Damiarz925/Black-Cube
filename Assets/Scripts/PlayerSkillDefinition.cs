@@ -104,7 +104,7 @@ result.Add(Production(PlayerSkillId.SwordRapidFlurry,"skill.sword.rapid_flurry",
         result.Add(Production(PlayerSkillId.BowVenomShot,"skill.bow.venom_shot",WeaponTypeIds.Bow,"Venom Shot","Deals no direct damage; guaranteed Poison uses 300% of its would-be hit.",35,0,PlayerSkillCastMode.QueuedAttackReplacement,WeaponSkillEffect.VirtualPoison,3,projectile:true));
         result.Add(Production(PlayerSkillId.BowDoubleVolley,"skill.bow.double_volley",WeaponTypeIds.Bow,"Double Volley","Fires twice the final projectile count.",40,1,PlayerSkillCastMode.QueuedAttackReplacement,WeaponSkillEffect.DoubleProjectiles,2,projectile:true));
         result.Add(Production(PlayerSkillId.StaffFireball,"skill.staff.fireball",WeaponTypeIds.Staff,"Fireball","Ready, enabled Fireball replaces the next basic attack with a 250% Fire projectile.",60,2.5f,PlayerSkillCastMode.AutoQueuedReplacement,WeaponSkillEffect.None,0,cooldown:5,projectile:true,element:Element.Fire,conversion:1,magic:true));
-        result.Add(Production(PlayerSkillId.StaffShockBarrage,"skill.staff.shock_barrage",WeaponTypeIds.Staff,"Shock Barrage","Ready, enabled Lightning barrage replaces the next basic attack; hits scale from target Shock effectiveness.",50,1,PlayerSkillCastMode.AutoQueuedReplacement,WeaponSkillEffect.ShockBarrage,20,6,cooldown:5,element:Element.Light,conversion:1,magic:true));
+        result.Add(Production(PlayerSkillId.StaffShockBarrage,"skill.staff.shock_barrage",WeaponTypeIds.Staff,"Shock Barrage","Consumes all existing Shocks before dealing damage. One base hit plus one hit per 20% summed Shock effect consumed. Consumed Shocks do not amplify this Barrage; its hits can apply new Shocks.",50,1,PlayerSkillCastMode.AutoQueuedReplacement,WeaponSkillEffect.ShockBarrage,20,0,cooldown:5,element:Element.Light,conversion:1,magic:true));
         result.Add(Production(PlayerSkillId.SceptreRestorativeStrike,"skill.sceptre.restorative_strike",WeaponTypeIds.Sceptre,"Restorative Strike","Heals for 35% of actual post-mitigation damage.",30,1,PlayerSkillCastMode.QueuedAttackReplacement,WeaponSkillEffect.HealFromDamage,.35f));
         result.Add(Production(PlayerSkillId.SceptreFrostJudgment,"skill.sceptre.frost_judgment",WeaponTypeIds.Sceptre,"Frost Judgment","Chilled targets may Freeze; Frozen targets Shatter.",40,1,PlayerSkillCastMode.QueuedAttackReplacement,WeaponSkillEffect.FrostJudgment,0,0,element:Element.Cold,conversion:1,magic:true));
         result.Add(Production(PlayerSkillId.DaggerBackstab,"skill.dagger.backstab",WeaponTypeIds.Dagger,"Backstab","150% hit with independent Bleed and Poison rolls.",25,1.5f,PlayerSkillCastMode.QueuedAttackReplacement,WeaponSkillEffect.Backstab));
@@ -124,6 +124,11 @@ result.Add(Production(PlayerSkillId.SwordRapidFlurry,"skill.sword.rapid_flurry",
             {
                 definition.castMode = PlayerSkillCastMode.AutoQueuedReplacement;
                 definition.scalesWithCooldownReduction = true;
+            }
+            if(definition.id==PlayerSkillId.StaffShockBarrage)
+            {
+                definition.description="Consumes all existing Shocks before damage. One base hit plus one hit per 20% summed Shock effect consumed. Consumed Shocks do not amplify this Barrage; its hits can apply new Shocks.";
+                definition.maximumCount=0;definition.additionalHitsFromShockChance=false;definition.projectile=false;
             }
             if (definition.id is PlayerSkillId.StaffFireball or PlayerSkillId.DaggerQuickStrike)
             {

@@ -9,6 +9,7 @@ public static class StatDisplayFormatting
     private static readonly Dictionary<StatTypes, string> Overrides = new()
     {
         { StatTypes.Life, "Maximum HP" },
+        { StatTypes.DamageTakenFromManaBeforeLife, "Damage Taken From Mana Before Life" },
         { StatTypes.AxePhysicalRage, "Local More Physical Damage / Rage Generation" },
         { StatTypes.CullingStrike, "Culling Strike Life Threshold" },
         { StatTypes.LifeRegeneration, "Maximum Life Regenerated per Second" },
@@ -71,7 +72,7 @@ public static class StatDisplayFormatting
         { StatTypes.FlatFirePerStrength, "Added Fire Damage per Strength" },
         { StatTypes.FlatLightPerIntelligence, "Added Lightning Damage per Intelligence" },
         { StatTypes.FlatColdPerDexterity, "Added Cold Damage per Dexterity" },
-        { StatTypes.DmgPerLowestStat, "Damage per 10 Lowest Attribute" },
+        { StatTypes.DmgPerLowestStat, "Unarmed Damage per 10 Lowest Attribute" },
         { StatTypes.PhysicalDamageReduction, "Physical Damage Reduction" },
         { StatTypes.ReducedShockEffect, "Reduced Shock Effect" },
         { StatTypes.SpellEchoChance, "Spell Echo Chance" },

@@ -156,7 +156,11 @@ public sealed class PauseMenuUI : MonoBehaviour
         ResumeButton=authoredView.resumeButton;OptionsButton=authoredView.optionsButton;CodexButton=authoredView.codexButton;SaveAndMainMenuButton=authoredView.saveAndMainMenuButton;SaveAndQuitButton=authoredView.saveAndQuitButton;OptionsBackButton=authoredView.optionsBackButton;PausePassiveTreeButton=authoredView.pausePassiveTreeButton;
         codex?.Initialize(root.transform,ReturnFromCodex);RefreshOptions();root.SetActive(false);
     }
-void WireButtons(){Wire(authoredView.gameMenuButton,ShowGameMenu);Wire(authoredView.hudOptionsButton,OpenOptions);Wire(authoredView.runUnfocusedButton,()=>{GameplayOptions.ContinueRunningWhileUnfocused=!GameplayOptions.ContinueRunningWhileUnfocused;RefreshOptions();});Wire(authoredView.skillTooltipButton,()=>{GameplayOptions.WeaponSkillTooltips=!GameplayOptions.WeaponSkillTooltips;RefreshOptions();});Wire(ResumeButton,Resume);Wire(OptionsButton,OpenOptions);Wire(CodexButton,OpenCodex);Wire(SaveAndMainMenuButton,SaveAndMainMenu);Wire(SaveAndQuitButton,SaveAndQuit);Wire(OptionsBackButton,ReturnFromOptions);Wire(PausePassiveTreeButton,TogglePausePassiveTree);}
+void WireButtons(){Wire(authoredView.gameMenuButton,ShowGameMenu);Wire(authoredView.hudOptionsButton,OpenOptions);Wire(authoredView.runUnfocusedButton,()=>{GameplayOptions.ContinueRunningWhileUnfocused=!GameplayOptions.ContinueRunningWhileUnfocused;RefreshOptions();});Wire(authoredView.skillTooltipButton,()=>{GameplayOptions.WeaponSkillTooltips=!GameplayOptions.WeaponSkillTooltips;RefreshOptions();});Wire(authoredView.autoRestartButton,()=>{GameplayOptions.AutoRestartOnDeath=!GameplayOptions.AutoRestartOnDeath;RefreshOptions();});
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        Wire(authoredView.upgradeDiagnosticsButton,()=>{GameplayOptions.UpgradeDiagnostics=!GameplayOptions.UpgradeDiagnostics;RefreshOptions();});
+#endif
+        Wire(ResumeButton,Resume);Wire(OptionsButton,OpenOptions);Wire(CodexButton,OpenCodex);Wire(SaveAndMainMenuButton,SaveAndMainMenu);Wire(SaveAndQuitButton,SaveAndQuit);Wire(OptionsBackButton,ReturnFromOptions);Wire(PausePassiveTreeButton,TogglePausePassiveTree);}
     static void Wire(Button button,Action action){if(button==null)return;button.onClick.RemoveAllListeners();button.onClick.AddListener(()=>action());}
 
 #if UNITY_EDITOR
@@ -182,6 +186,18 @@ void WireButtons(){Wire(authoredView.gameMenuButton,ShowGameMenu);Wire(authoredV
             authoredView.gameMenuButton=MenuButton(optionsPanel.transform,"Game Menu Button","SAVE / CODEX / EXIT",-195,()=>{},680);
             ((RectTransform)authoredView.optionsBackButton.transform).anchoredPosition=new Vector2(0,-280);
         }
+    }
+    public void AddAutoRestartAuthoring()
+    {
+        authoredView=GetComponent<PauseMenuView>();if(authoredView?.optionsPanel==null)return;
+        optionsPanel=authoredView.optionsPanel;
+        if(authoredView.autoRestartButton==null)
+            authoredView.autoRestartButton=MenuButton(optionsPanel.transform,"Auto Restart Toggle","",-190,()=>{},680);
+        if(authoredView.upgradeDiagnosticsButton==null)
+            authoredView.upgradeDiagnosticsButton=MenuButton(optionsPanel.transform,"Upgrade Diagnostics Toggle","",-260,()=>{},680);
+        ((RectTransform)optionsPanel.transform).sizeDelta=new Vector2(760,900);
+        if(authoredView.gameMenuButton!=null)((RectTransform)authoredView.gameMenuButton.transform).anchoredPosition=new Vector2(0,-330);
+        if(authoredView.optionsBackButton!=null)((RectTransform)authoredView.optionsBackButton.transform).anchoredPosition=new Vector2(0,-400);
     }
     public void BuildAuthoring(PaperBattleHUD owner)
     {
@@ -234,6 +250,16 @@ void WireButtons(){Wire(authoredView.gameMenuButton,ShowGameMenu);Wire(authoredV
         {
             if(authoredView.runUnfocusedButton!=null)authoredView.runUnfocusedButton.GetComponentInChildren<TMP_Text>().text="CONTINUE RUNNING WHILE UNFOCUSED: "+(GameplayOptions.ContinueRunningWhileUnfocused?"ON":"OFF");
             if(authoredView.skillTooltipButton!=null)authoredView.skillTooltipButton.GetComponentInChildren<TMP_Text>().text="WEAPON SKILL TOOLTIPS: "+(GameplayOptions.WeaponSkillTooltips?"ON":"OFF");
+            if(authoredView.autoRestartButton!=null)authoredView.autoRestartButton.GetComponentInChildren<TMP_Text>().text="AUTO-RESTART ON DEATH: "+(GameplayOptions.AutoRestartOnDeath?"ON":"OFF");
+            if(authoredView.upgradeDiagnosticsButton!=null)
+            {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+                authoredView.upgradeDiagnosticsButton.gameObject.SetActive(true);
+                authoredView.upgradeDiagnosticsButton.GetComponentInChildren<TMP_Text>().text="UPGRADE DPS DIAGNOSTICS (DEV): "+(GameplayOptions.UpgradeDiagnostics?"ON":"OFF");
+#else
+                authoredView.upgradeDiagnosticsButton.gameObject.SetActive(false);
+#endif
+            }
         }
         if (pausePassiveTreeLabel != null)
             pausePassiveTreeLabel.text = "PAUSE GAMEPLAY WHILE PASSIVE TREE IS OPEN: " + (GameplayOptions.PausePassiveTree ? "ON" : "OFF");

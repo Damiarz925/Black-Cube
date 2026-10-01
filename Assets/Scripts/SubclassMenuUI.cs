@@ -2,18 +2,19 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
 public sealed class SubclassMenuUI:MonoBehaviour
 {
     [SerializeField] SubclassView authoredView;
     PaperBattleHUD hud;GameObject panel;Button open,mode;TMP_Text openLabel,title,description,modeLabel,aura,frozen;readonly Button[] choices=new Button[2];readonly TMP_Text[] choiceLabels=new TMP_Text[2];
-    string pending;
+    string pending,hoveredChoiceId;bool lastUnlocked;float pulseUntil;Vector3 openBaseScale=Vector3.one;
     void Start()
     {
         hud=GetComponent<PaperBattleHUD>();var canvas=GetComponentInParent<Canvas>();if(canvas==null)return;
         if(authoredView==null)authoredView=GetComponent<SubclassView>();if(authoredView==null){Debug.LogError("SubclassMenuUI requires an authored SubclassView.",this);return;}BindAuthored();Refresh();
     }
-    void BindAuthored(){panel=authoredView.panel;open=authoredView.openButton;mode=authoredView.projectileModeButton;openLabel=authoredView.openLabel;title=authoredView.title;description=authoredView.description;modeLabel=authoredView.projectileModeLabel;aura=authoredView.auraLabel;frozen=authoredView.frozenLabel;for(int i=0;i<2;i++){choices[i]=i<authoredView.choiceButtons.Count?authoredView.choiceButtons[i]:null;choiceLabels[i]=i<authoredView.choiceLabels.Count?authoredView.choiceLabels[i]:null;int slot=i;if(choices[i]!=null){choices[i].onClick.RemoveAllListeners();choices[i].onClick.AddListener(()=>Choose(slot));}}if(open!=null){open.onClick.RemoveAllListeners();open.onClick.AddListener(Toggle);}if(mode!=null){mode.onClick.RemoveAllListeners();mode.onClick.AddListener(ToggleProjectileMode);}panel?.SetActive(false);}
+    void BindAuthored(){panel=authoredView.panel;open=authoredView.openButton;mode=authoredView.projectileModeButton;openLabel=authoredView.openLabel;title=authoredView.title;description=authoredView.description;modeLabel=authoredView.projectileModeLabel;aura=authoredView.auraLabel;frozen=authoredView.frozenLabel;for(int i=0;i<2;i++){choices[i]=i<authoredView.choiceButtons.Count?authoredView.choiceButtons[i]:null;choiceLabels[i]=i<authoredView.choiceLabels.Count?authoredView.choiceLabels[i]:null;int slot=i;if(choices[i]!=null){choices[i].onClick.RemoveAllListeners();choices[i].onClick.AddListener(()=>Choose(slot));var events=choices[i].GetComponent<EventTrigger>()??choices[i].gameObject.AddComponent<EventTrigger>();events.triggers.Clear();var enter=new EventTrigger.Entry{eventID=EventTriggerType.PointerEnter};enter.callback.AddListener(_=>HoverChoice(slot));events.triggers.Add(enter);var exit=new EventTrigger.Entry{eventID=EventTriggerType.PointerExit};exit.callback.AddListener(_=>{hoveredChoiceId=null;Refresh();});events.triggers.Add(exit);}}if(open!=null){open.onClick.RemoveAllListeners();open.onClick.AddListener(Toggle);openBaseScale=open.transform.localScale;lastUnlocked=Identity?.SubclassChoiceUnlocked==true;}if(mode!=null){mode.onClick.RemoveAllListeners();mode.onClick.AddListener(ToggleProjectileMode);}panel?.SetActive(false);}
 #if UNITY_EDITOR
     public void BuildAuthoring()
     {
@@ -31,12 +32,13 @@ public sealed class SubclassMenuUI:MonoBehaviour
 #endif
     void Update()=>Refresh();
     PlayerIdentityState Identity=>GameManager.Instance!=null?GameManager.Instance.GetComponent<PlayerIdentityState>():null;
-    void Toggle(){if(Identity?.SubclassChoiceUnlocked!=true)return;panel.SetActive(!panel.activeSelf);pending=null;Refresh();}
+    void Toggle(){if(Identity?.SubclassChoiceUnlocked!=true)return;panel.SetActive(!panel.activeSelf);pending=null;hoveredChoiceId=null;pulseUntil=0;Refresh();}
+    void HoverChoice(int index){var options=Identity!=null?SubclassCatalog.ForClass(Identity.BaseClassId):null;hoveredChoiceId=options!=null&&index>=0&&index<options.Count?options[index].Id:null;Refresh();}
     void Choose(int index)
     {
         var identity=Identity;var options=identity!=null?SubclassCatalog.ForClass(identity.BaseClassId):null;if(options==null||index<0||index>=options.Count)return;string id=options[index].Id;
         if(BattleManager.Instance!=null&&BattleManager.Instance.CanCastPlayerSkill){description.text="Subclass changes require combat to be paused or inactive.";return;}
-        if(pending!=id){pending=id;description.text=$"Confirm change to {options[index].DisplayName}. Ordinary passives remain; transformed nodes will be cleared.";return;}
+        if(pending!=id){pending=id;description.text=$"Confirm {options[index].DisplayName}. Previous subclass nodes are refunded and their passive points return for reallocation. No currency cost; ordinary class-tree allocations stay.";return;}
         identity.SelectSubclass(id);pending=null;Refresh();
     }
     void ToggleProjectileMode()
@@ -47,9 +49,10 @@ public sealed class SubclassMenuUI:MonoBehaviour
     }
     void Refresh()
     {
-        var identity=Identity;if(openLabel==null)return;open.interactable=identity?.SubclassChoiceUnlocked==true;openLabel.text=identity?.SubclassChoiceUnlocked==true?(string.IsNullOrEmpty(identity.SelectedSubclassId)?"CHOOSE SUBCLASS":"SUBCLASS") : "SUBCLASS LOCKED";
-        if(panel!=null&&panel.activeSelf&&identity!=null){var options=SubclassCatalog.ForClass(identity.BaseClassId);title.text=$"{identity.ClassDefinition?.DisplayName.ToUpperInvariant()} SUBCLASSES";for(int i=0;i<2;i++){bool exists=i<options.Count;choices[i].gameObject.SetActive(exists);if(exists)choiceLabels[i].text=(identity.SelectedSubclassId==options[i].Id?"CURRENT  ":pending==options[i].Id?"CONFIRM  ":string.Empty)+options[i].DisplayName.ToUpperInvariant();}bool projectile=identity.SelectedSubclassId==SubclassIds.RangerProjectile;mode.gameObject.SetActive(projectile);if(projectile)modeLabel.text=$"PROJECTILE MODE: {identity.ProjectileMode.ToString().ToUpperInvariant()} (CHANGE)";if(pending==null)description.text=string.IsNullOrEmpty(identity.SelectedSubclassId)?"Choose one class-specific subclass. Selection is free to change outside active combat.":SubclassCatalog.TryGet(identity.SelectedSubclassId,out var current)?current.DisplayName+"\n"+current.Description:string.Empty;}
-        var state=hud?.player!=null?hud.player.GetComponent<SubclassCombatState>():null;bool access=false;if(state!=null)for(int i=0;i<5;i++)access|=state.HasAuraAccess(i);aura.gameObject.SetActive(access);if(access)aura.text=$"AURAS  P {state.AuraIntensity(0,0):P0}  F {state.AuraIntensity(1,0):P0}  C {state.AuraIntensity(2,0):P0}  L {state.AuraIntensity(3,0):P0}  V {state.AuraIntensity(4,0):P0}";
+        var identity=Identity;if(openLabel==null)return;bool unlocked=identity?.SubclassChoiceUnlocked==true;if(unlocked&&!lastUnlocked)pulseUntil=Time.unscaledTime+3f;lastUnlocked=unlocked;open.gameObject.SetActive(unlocked);open.interactable=unlocked;if(unlocked)open.transform.localScale=openBaseScale*(Time.unscaledTime<pulseUntil?1f+.08f*(.5f+.5f*Mathf.Sin(Time.unscaledTime*10f)):1f);openLabel.text=unlocked?(string.IsNullOrEmpty(identity.SelectedSubclassId)?"CHOOSE SUBCLASS":"SUBCLASS"):"SUBCLASS LOCKED";
+        if(panel!=null&&panel.activeSelf&&identity!=null){var options=SubclassCatalog.ForClass(identity.BaseClassId);title.text=$"{identity.ClassDefinition?.DisplayName.ToUpperInvariant()} SUBCLASSES";for(int i=0;i<2;i++){bool exists=i<options.Count;choices[i].gameObject.SetActive(exists);if(exists)choiceLabels[i].text=(identity.SelectedSubclassId==options[i].Id?"CURRENT  ":pending==options[i].Id?"CONFIRM  ":string.Empty)+options[i].DisplayName.ToUpperInvariant();}bool projectile=identity.SelectedSubclassId==SubclassIds.RangerProjectile;mode.gameObject.SetActive(projectile);if(projectile)modeLabel.text=$"PROJECTILE MODE: {identity.ProjectileMode.ToString().ToUpperInvariant()} (CHANGE)";if(pending==null)description.text=SubclassCatalog.TryGet(hoveredChoiceId,out var hover)?hover.DisplayName+"\n"+hover.Description+"\n\nSwapping is free outside combat. Old subclass points are refunded for reallocation; ordinary class nodes stay.":string.IsNullOrEmpty(identity.SelectedSubclassId)?"Choose a subclass. Switching is free outside combat; old subclass nodes refund their points for reallocation. Ordinary class nodes stay.":SubclassCatalog.TryGet(identity.SelectedSubclassId,out var current)?current.DisplayName+"\n"+current.Description+"\n\nSwitching is free outside combat. Previous subclass nodes refund their points; ordinary class nodes stay.":string.Empty;}
+        var state=hud?.player!=null?hud.player.GetComponent<SubclassCombatState>():null;bool access=false;if(state!=null)for(int i=0;i<5;i++)access|=state.HasAuraAccess(i);
+        if(aura!=null){aura.gameObject.SetActive(access);if(access){var lines=new System.Collections.Generic.List<string>();string[] names={"Physical","Fire","Cold","Lightning","Void"};for(int i=0;i<5;i++)if(state.AuraRemainingSeconds(i)>0f)lines.Add($"{names[i]} Aura {state.AuraIntensity(i,0):P0}  {state.AuraRemainingSeconds(i):0.0}s");aura.text=lines.Count>0?"AURAS\n"+string.Join("\n",lines):"AURAS  None active";}}
         var status=BattleManager.Instance?.CurrentEnemyAI?.GetComponent<StatusController>();if(frozen!=null){frozen.gameObject.SetActive(status?.IsFrozen==true);frozen.text="FROZEN — NEXT ATTACK SKIPPED";}
     }
     static GameObject Box(Transform parent,string name,Vector2 min,Vector2 max,Color color){var go=new GameObject(name,typeof(RectTransform),typeof(Image));go.transform.SetParent(parent,false);var r=(RectTransform)go.transform;r.anchorMin=min;r.anchorMax=max;r.offsetMin=r.offsetMax=Vector2.zero;go.GetComponent<Image>().color=color;return go;}

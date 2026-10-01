@@ -28,8 +28,7 @@ public class DamageReceiver : MonoBehaviour
         if (damage <= 0f)
             return;
 
-        var keystones = GetComponent<PassiveKeystoneState>();
-        if (keystones != null) damage = keystones.RedirectDamageToMana(damage);
+        damage = ManaBeforeLifeRules.Apply(this,damage);
         if (damage <= 0f) return;
 
         float actualLifeLoss = damage;
@@ -58,13 +57,12 @@ public class DamageReceiver : MonoBehaviour
         // conditional modifiers (e.g. full-Life bonuses). Deduct life exactly once.
         var components=new DamageContext(5);
         if(effect==null)
-            foreach(Element element in new[]{Element.Phys,Element.Fire,Element.Cold,Element.Light,Element.Void})
+            foreach(Element element in new[]{Element.Phys,Element.Fire,Element.Cold,Element.Light,Element.Void,Element.True})
             {
                 float amount=CombatCalculator.CalculateFinalElementDamage(context,element,attacker,GetComponent<StatsComponent>());
                 if(amount>0)components.AddDamage(element,amount);
             }
-        var keystones = GetComponent<PassiveKeystoneState>();
-        if (keystones != null) damage = keystones.RedirectDamageToMana(damage);
+        damage = ManaBeforeLifeRules.Apply(this,damage);
         if (damage <= 0f) return;
         float before = health != null ? health.CurrentLife : damage;
         var recap=components.Hits.Count>0?components:context;

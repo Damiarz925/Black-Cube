@@ -75,7 +75,7 @@ public sealed partial class RelicInventory
     public void Grant(RelicData relic){if(relic==null||relics.Any(r=>r.id==relic.id))return;currentCycle=Mathf.Max(currentCycle,relic.cycle);relics.Add(relic);PublishChanged();}
     public bool TryFuse(IReadOnlyList<RelicData> inputs,out RelicData result)
     {
-        result=null;if(inputs==null||inputs.Count!=5||inputs.Any(r=>r==null)||inputs.Distinct().Count()!=5)return false;
+        result=null;if(GameManager.Instance!=null&&RebirthManager.Instance?.Phase!=RebirthPhase.Crafting)return false;if(inputs==null||inputs.Count!=5||inputs.Any(r=>r==null)||inputs.Distinct().Count()!=5)return false;
         var rarity=inputs[0].rarity;
         if(rarity>=LootManager.GearRarity.Legendary||inputs.Any(r=>!relics.Contains(r)||r.uniqueRelic||r.rarity!=rarity||!r.Pristine))return false;
         // Generate before changing ownership; invalid recipes never partially consume materials.

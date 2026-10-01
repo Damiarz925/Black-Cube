@@ -8,10 +8,11 @@ using UnityEngine;
 {
     public StatTypes stat;
     public int minimumTier = 99, minimumImplicitTier = 99;
+    // Keep the serialized flag: false now means either source, true means implicit only.
     public bool requireImplicit;
     public bool Matches(RolledMod mod) => mod != null && mod.statType == stat
         && (requireImplicit ? mod.lockedOriginal && mod.tierIndex <= minimumImplicitTier
-            : !mod.lockedOriginal && mod.tierIndex <= minimumTier);
+            : mod.tierIndex <= minimumTier);
 }
 [Serializable] public sealed class ItemTypeLootFilter
 {
@@ -26,9 +27,12 @@ using UnityEngine;
         var mods = gear.rolledMods.Where(m => m != null && !Gear.IsWeaponBaseStat(m.statType)).ToArray();
         int matches = requirements.Count(r => mods.Any(r.Matches));
         if (!all) return matches >= Mathf.Clamp(minimumMatches, 1, requirements.Count);
-        int explicitRequirements = requirements.Count(r => !r.requireImplicit);
+        if (matches == requirements.Count) return true;
+        // An implicit can satisfy an EITHER requirement without using explicit capacity.
+        int explicitRequirements = requirements.Count(r => !r.requireImplicit
+            && !mods.Any(m => m.lockedOriginal && r.Matches(m)));
         int max = AffixPolicy.MaximumTotal(gear.ItemRarity);
-        if (explicitRequirements <= max) return matches == requirements.Count;
+        if (explicitRequirements <= max || max == 0) return false;
         // Over-full ALL means a full legal explicit set from the desired pool;
         // implicit requirements remain mandatory rather than disappearing here.
         var explicits = mods.Where(m => !m.lockedOriginal).ToArray();
@@ -54,7 +58,7 @@ using UnityEngine;
     }
     public bool Keeps(Gear item)
     {
-        if (item == null || item.IsScrap || item.IsLocked || !enabled) return true;
+        if (item == null || item.IsScrap || item.IsLocked || item.ItemRarity==LootManager.GearRarity.Unique || !enabled) return true;
                 if ((keptRarities & (1 << (int)item.ItemRarity)) == 0) return false;
         if(item.ItemRarity==LootManager.GearRarity.Unique)return true; // Unique rarity is decisive; ordinary prefix/suffix rules do not apply.
         if (item.ItemType == LootManager.GearType.Weapons)
@@ -64,6 +68,14 @@ using UnityEngine;
         }
         return For(item.ItemType,item.WeaponTypeId).Matches(item);
     }
+    // Retaining a rarity is not a mod match. Empty/inactive mod policies never highlight.
+    public bool Highlights(Gear item)
+    {
+        if (!enabled || item == null || item.IsScrap) return false;
+        var policy = itemTypes.Find(f => f.itemType == item.ItemType
+            && f.weaponTypeId == (item.ItemType == LootManager.GearType.Weapons ? item.WeaponTypeId : ""));
+        return policy != null && policy.enabled && policy.requirements.Count > 0 && policy.Matches(item);
+    }
     public static IReadOnlyList<StatTypes> LegalStats(LootManager.GearType type,string weapon)
     {
         var db = ModManager.Instance?.Database;
@@ -72,6 +84,8 @@ using UnityEngine;
             && (db == null || ModManager.ApplicableTiers(db.GetDefinition(s),type,weapon).Count > 0))
             .Distinct().OrderBy(StatDisplayFormatting.ToFriendlyName).ToArray();
     }
+    public void ClearSlotModifiers(LootManager.GearType type,string weapon=null)=>For(type,weapon).requirements.Clear();
+    public void ClearAllModifiers(){foreach(var policy in itemTypes)policy.requirements.Clear();}
     public void Save() { version=2;PlayerPrefs.SetString(Key,JsonUtility.ToJson(this));PlayerPrefs.Save(); }
     public static AdvancedLootFilter Load()
     {

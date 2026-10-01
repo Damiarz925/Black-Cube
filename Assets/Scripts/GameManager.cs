@@ -109,7 +109,7 @@ public class GameManager : MonoBehaviour
 
     private void ResetRunStateForGameplayEntry()
     {
-        RebirthManager.Instance?.Cancel();
+        RebirthManager.Instance?.ResetForNewGame();
         EquipmentManager.Instance?.ResetForNewRun();
         Inventory.Instance?.ResetForNewRun();
         CurrencyInventory.Instance?.ResetForNewGame();
@@ -125,6 +125,7 @@ public class GameManager : MonoBehaviour
         player?.GetComponent<PlayerSkillController>()?.RestoreSelection(false, default);
         player?.GetComponent<PlayerSkillController>()?.RestoreAutocast(true,true);
         player?.GetComponent<StatusController>()?.ClearStatuses();
+        player?.GetComponent<PlayerSkillController>()?.RestoreDisabledRelicTriggers(null);
         player?.EnsureStarterWeapon();
         StartNewRun();
         if (commit && !GamePersistence.CommitConfirmedNewGame())
@@ -211,6 +212,7 @@ public class GameManager : MonoBehaviour
 
     public void OnEnemyKilled(HealthComponent enemyHealth, bool wasBoss)                            //on enemy killed function defines what happens when an enemy is killed
     {
+        if(RebirthManager.Instance?.IsSetup==true)return;
         var currentEnemy = BattleManager.Instance != null ? BattleManager.Instance.CurrentEnemyAI : null;
         if (enemyHealth == null || currentEnemy == null ||
             currentEnemy.GetComponent<HealthComponent>() != enemyHealth || !enemyHealth.TryClaimEnemyDeath()) return;

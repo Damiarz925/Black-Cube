@@ -54,8 +54,9 @@ public static class DerivedStatCalculator
         if (stats == null) return 0f;
         float strengthGroups = Strength(stats) / 10f;
         float lowestGroups = Mathf.Min(Strength(stats), Mathf.Min(Dexterity(stats), Intelligence(stats))) / 10f;
+        bool unarmed=stats.GetComponent<PlayerController>() is { EquippedWeapon: null };
         float result = stats.GetStat(StatTypes.DamagePerStrength) * strengthGroups
-            + stats.GetStat(StatTypes.DmgPerLowestStat) * lowestGroups;
+            + (unarmed?stats.GetStat(StatTypes.DmgPerLowestStat) * lowestGroups:0f);
         if (mana != null)
         {
             result += stats.GetStat(StatTypes.DmgPerMaxMana) * (mana.MaxMana / 100f);

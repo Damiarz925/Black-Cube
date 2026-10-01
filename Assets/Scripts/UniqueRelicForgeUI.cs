@@ -11,6 +11,7 @@ public sealed class UniqueRelicForgeUI:MonoBehaviour
     [SerializeField] TMP_Text feedback;
     [SerializeField] List<TMP_Dropdown> items=new(),choices=new();
     readonly List<Gear> candidates=new();
+    public void ClosePanel(){if(panel!=null)panel.SetActive(false);}
     void Awake(){open.onClick.AddListener(Open);close.onClick.AddListener(()=>panel.SetActive(false));forge.onClick.AddListener(Forge);for(int i=0;i<2;i++){int index=i;items[i].onValueChanged.AddListener(_=>RefreshChoice(index));}}
     Gear Selected(int index)=>items[index].value>0&&items[index].value<=candidates.Count?candidates[items[index].value-1]:null;
     void RefreshChoice(int index){choices[index].ClearOptions();choices[index].AddOptions(UniqueRelicForge.Choices(Selected(index)).ToList());}

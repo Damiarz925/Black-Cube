@@ -167,6 +167,7 @@ public class DamagePopup : MonoBehaviour
             Element.Light => lightningColor,
             Element.Poison => poisonColor,
             Element.Void => voidColor,
+            Element.True => Color.white,
             _ => defaultColor
         };
     }

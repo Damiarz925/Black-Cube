@@ -245,6 +245,15 @@ Workbench builds now carry Unique data and active Relics explicitly; isolated ev
 
 ## Validation completion
 
+### Advanced Loot / Relic UI follow-up
+
+- Fusion and Unique Relic Forge now live in a dedicated row inside the Relic inventory root, with 52 pixels reserved above the list. Switching inventory tabs closes either recipe dialog.
+- Rarity KEEP/DISCARD affects pickup retention, never item highlighting. Highlighting requires an enabled, nonempty modifier policy for that item's scope and a successful mod/tier match. Mod highlighting is independent of rarity retention.
+- Auto-Dismantle OFF continues to retain rejected pickups; ON continues to dismantle them. Existing owned items are not retroactively destroyed by changing filters.
+- Quick acceptance: open Gear/Advanced Loot and confirm neither Relic action appears; switch to Relics and confirm both appear above the list. With no selected mods, every rarity should remain unhighlighted. Select a mod/minimum tier and check that only matching items highlight; changing KEEP/DISCARD must not add highlights.
+- Follow-up validation: 48/48 focused EditMode tests passed (`Logs/LootUiFixTests.xml`), including mod-only highlighting and both authored prefab placements. No new player build or native visual inspection was performed for this follow-up.
+- Subsequent source-mode change: EITHER accepts explicit or implicit rolls at the selected tier; IMPLICIT ONLY requires the permanent implicit at its selected tier. Old saved non-implicit selections now mean EITHER, retaining their selected stats and tier thresholds. Mod buttons read SELECTED / NOT SELECTED instead of unsupported checkmarks. Added source/tier, ANY counting, ALL capacity and JSON regression coverage; this newer change has not been batchmode-tested because the user requested keeping Unity open.
+
 - Final focused EditMode suite: **170 passed / 170, zero failures** — Logs/SystemsRedesignFinalTests6.xml and .log. Fourteen focused fixtures; no broad BalanceLab/optimizer survey.
 - Real-scene smoke: **passed** — Logs/SystemsRedesign-play-check.txt / SystemsRedesignFinalPlayCheck4.log. Actual main-menu launch, forge UI wiring/authority/save-load, gauntlet normalization and stage350 Rebirth.
 - Fresh Windows x64 build: **Succeeded, zero errors, 833 warnings** — Logs/SystemsRedesignFinalWindowsBuild.log. Player: Builds/SystemsRedesignWindows/BlackCube.exe. StrictMode; all enabled build scenes.

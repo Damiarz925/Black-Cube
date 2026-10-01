@@ -11,6 +11,7 @@ public sealed class RelicFusionUI:MonoBehaviour
     [SerializeField] TMP_Text feedback;
     [SerializeField] List<TMP_Dropdown> inputs=new();
     readonly List<RelicData> candidates=new();
+    public void ClosePanel(){if(panel!=null)panel.SetActive(false);}
     void Awake(){open.onClick.AddListener(Open);fuse.onClick.AddListener(Fuse);close.onClick.AddListener(()=>panel.SetActive(false));}
     void Open()
     {

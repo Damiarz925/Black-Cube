@@ -6,6 +6,46 @@ using UnityEngine.UI;
 // Targeted upgrade: never reset the user's menu rectangles or rebuild the passive prefab.
 public static class SystemsRedesignAuthoring
 {
+    [MenuItem("Black-Cube/UI Authoring/Fix Relic Actions Placement")]
+    public static void FixRelicActions()
+    {
+        foreach(string path in new[]{PersistentUIAuthoringInstaller.GameplayPrefabPath,InventoryAuthoringBuilder.PrefabPath})
+        {
+            var root=PrefabUtility.LoadPrefabContents(path);
+            try
+            {
+                foreach(var inventory in root.GetComponentsInChildren<InventoryUI>(true))PlaceRelicActions(inventory);
+                PrefabUtility.SaveAsPrefabAsset(root,path);
+            }
+            finally{PrefabUtility.UnloadPrefabContents(root);}
+        }
+        AssetDatabase.SaveAssets();
+        Debug.Log("RELIC ACTIONS: authored only inside the Relic inventory, with reserved list space.");
+    }
+    static void PlaceRelicActions(InventoryUI inventory)
+    {
+        var relicRoot=inventory.GetComponent<InventoryView>().relicRoot;
+        if(relicRoot==null)throw new System.InvalidOperationException("Missing Relic inventory root.");
+        var toolbar=relicRoot.Find("Relic actions") as RectTransform;
+        if(toolbar==null)
+        {
+            toolbar=(RectTransform)new GameObject("Relic actions",typeof(RectTransform),typeof(LayoutElement)).transform;
+            toolbar.SetParent(relicRoot,false);
+        }
+        toolbar.GetComponent<LayoutElement>().ignoreLayout=true;
+        toolbar.anchorMin=new Vector2(0,1);toolbar.anchorMax=Vector2.one;toolbar.pivot=new Vector2(.5f,1);
+        toolbar.anchoredPosition=Vector2.zero;toolbar.sizeDelta=new Vector2(0,44);
+        var layout=relicRoot.GetComponent<VerticalLayoutGroup>();
+        if(layout!=null)layout.padding.top=Mathf.Max(layout.padding.top,52);
+        Component[] actions={inventory.GetComponent<RelicFusionUI>(),inventory.GetComponent<UniqueRelicForgeUI>()};
+        for(int i=0;i<actions.Length;i++)
+        {
+            var data=new SerializedObject(actions[i]);var button=(Button)data.FindProperty("open").objectReferenceValue;
+            var rect=(RectTransform)button.transform;rect.SetParent(toolbar,false);
+            rect.anchorMin=new Vector2(i*.5f,0);rect.anchorMax=new Vector2((i+1)*.5f,1);
+            rect.offsetMin=new Vector2(4,4);rect.offsetMax=new Vector2(-4,-4);
+        }
+    }
     [MenuItem("Black-Cube/UI Authoring/Apply Systems Redesign Regression Fixes")]
     public static void Apply()
     {
@@ -59,6 +99,7 @@ public static class SystemsRedesignAuthoring
                 var filter=inventory.GetComponent<AdvancedLootFilterUI>();filter.UpgradeAuthoring();
                 (inventory.GetComponent<UniqueRelicForgeUI>()??inventory.gameObject.AddComponent<UniqueRelicForgeUI>()).BuildAuthoring();
                 (inventory.GetComponent<RelicFusionUI>()??inventory.gameObject.AddComponent<RelicFusionUI>()).BuildAuthoring();
+                PlaceRelicActions(inventory);
                 var old=inventory.GetComponent<InventoryModHighlightUI>();
                 if(old!=null)
                 {

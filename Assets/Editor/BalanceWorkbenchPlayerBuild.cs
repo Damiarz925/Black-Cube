@@ -208,10 +208,10 @@ namespace BlackCube.BalanceWorkbench
                 int level=PlayerSkillController.CalculateEffectiveSkillLevel(Stats.GetRawStat(PlayerSkillController.SkillLevelStat(s.id))+Stats.GetRawStat(StatTypes.PlusAllSkills));
                 if(s.effect==WeaponSkillEffect.ShockBarrage)
                 {
-                    double shockStrength=Math.Min(1,.5*(1+m.shockEffect));
-                    double expectedInstances=Math.Min(b.subclassId==SubclassIds.MageStorm?3:1,m.shockChance*Math.Max(.1,m.attacksPerSecond)*5);
-                    double combined=Math.Pow(1+shockStrength,expectedInstances)-1;
-                    hits=CombatDeterministicRules.ShockBarrageHits((float)combined);
+                    double shockStrength=ShockRules.Effect((float)m.shockEffect,1+RelicLoadoutRules.Sum(b.activeRelics,RelicModifierType.MaximumShockEffect)/100);
+                    double expectedInstances=Math.Min(b.subclassId==SubclassIds.MageStorm?3:1,m.shockChance*Math.Max(.1,m.attacksPerSecond)*ShockRules.Duration(Stats.GetStat(StatTypes.ShockDuration)));
+                    double consumed=shockStrength*expectedInstances;
+                    hits=CombatDeterministicRules.ShockBarrageHits((float)consumed);
                     m.assumptions.Add($"Shock Barrage search estimate: {expectedInstances:0.##} simultaneous Shock instances and {hits:0} hits/use; Combat Lab resolves exact timed applications.");
                 }
                 double direct=m.averageHit*s.hitDamageMultiplier*PlayerSkillController.SkillDamageLevelFactor(level);
