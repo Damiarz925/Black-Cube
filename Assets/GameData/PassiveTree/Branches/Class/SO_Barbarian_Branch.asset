@@ -50,7 +50,7 @@ MonoBehaviour:
       effects:
       - kind: 0
         stat: 92
-        mechanicId: 
+        mechanicId:
         value: 10
       iconMode: 0
       iconOverride: {fileID: 0}
@@ -58,166 +58,166 @@ MonoBehaviour:
       a:
         stableId: tree.v3.class.barbarian.t01.right.a
         logicalSlotId: tree.v3.class.barbarian.t01.right.a
-        displayName: Increased Rage Generation
-        description: 
-        branch: 0
-        size: 0
-        kind: 6
-        keystone: 0
-        effects:
-        - kind: 0
-          stat: 123
-          mechanicId: 
-          value: 15
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 1adfa280e0d04a04b8252aaffa939b0a, type: 3}
-      b:
-        stableId: tree.v3.class.barbarian.t01.right.b
-        logicalSlotId: tree.v3.class.barbarian.t01.right.b
         displayName: Heavy Physical Damage
-        description: Heavy physical hits at the cost of attack frequency. Increased Physical Damage with reduced Attack Speed.
-        branch: 0
+        description: 30% increased Physical Damage; -15% additive increased Attack Speed.
+        branch: 8
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
           stat: 14
-          mechanicId: 
-          value: 63
+          mechanicId:
+          value: 30
         - kind: 0
           stat: 81
-          mechanicId: 
-          value: -5
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: e5890a0d9507a954ebe630e8360bd054, type: 3}
-      c:
-        stableId: tree.v3.class.barbarian.t01.right.c
-        logicalSlotId: tree.v3.class.barbarian.t01.right.c
-        displayName: Reduced Rage Decay
-        description: 
-        branch: 0
+          mechanicId:
+          value: -15
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      b:
+        stableId: tree.v3.class.barbarian.t01.right.b
+        logicalSlotId: tree.v3.class.barbarian.t01.right.b
+        displayName: Rage Generation
+        description: 15% increased Rage generation.
+        branch: 33
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 125
-          mechanicId: 
+          stat: 123
+          mechanicId:
+          value: 15
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      c:
+        stableId: tree.v3.class.barbarian.t01.right.c
+        logicalSlotId: tree.v3.class.barbarian.t01.right.c
+        displayName: Maximum Rage
+        description: +5 maximum Rage.
+        branch: 34
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 155
+          mechanicId:
           value: 5
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: f06a3b9a29ee16944a3ac4168a6259d7, type: 3}
+        iconMode: 0
+        iconOverride: {fileID: 0}
       subclassA:
         stableId: tree.v3.class.barbarian.t01.right.subclass.variant.barbarian-big_hit
         logicalSlotId: tree.v3.class.barbarian.t01.right.subclass
-        displayName: Titan Barbarian
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Revenge Amplification
+        description: Add 5 percentage points to Revenge's more-damage bonus.
+        branch: 44
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 12
-          mechanicId: 
-          value: 14.4
+          stat: 156
+          mechanicId:
+          value: 5
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
         stableId: tree.v3.class.barbarian.t01.right.subclass.variant.barbarian-fire
         logicalSlotId: tree.v3.class.barbarian.t01.right.subclass
-        displayName: Fire Barbarian
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Eruption Damage
+        description: Add 5 percentage points to Eruption's raw-hit coefficient.
+        branch: 5
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 33
-          mechanicId: 
-          value: 9
+          stat: 160
+          mechanicId:
+          value: 5
         iconMode: 0
         iconOverride: {fileID: 0}
     left:
       a:
         stableId: tree.v3.class.barbarian.t01.left.a
         logicalSlotId: tree.v3.class.barbarian.t01.left.a
-        displayName: Increased Maximum Life
-        description: 
-        branch: 1
-        size: 0
-        kind: 6
-        keystone: 0
-        effects:
-        - kind: 0
-          stat: 70
-          mechanicId: 
-          value: 15
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 0733b024b1daef941bab2488f5e58093, type: 3}
-      b:
-        stableId: tree.v3.class.barbarian.t01.left.b
-        logicalSlotId: tree.v3.class.barbarian.t01.left.b
         displayName: Life Regeneration
-        description: 
-        branch: 0
+        description: Regenerate 1.5% maximum Life each second.
+        branch: 18
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
           stat: 72
-          mechanicId: 
-          value: 0.285
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: e549ab60330b13a4b81944f07b446372, type: 3}
-      c:
-        stableId: tree.v3.class.barbarian.t01.left.c
-        logicalSlotId: tree.v3.class.barbarian.t01.left.c
-        displayName: All Elemental Resist
-        description: Fire, Cold and Lightning resistance only; excludes Void.
+          mechanicId:
+          value: 1.5
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      b:
+        stableId: tree.v3.class.barbarian.t01.left.b
+        logicalSlotId: tree.v3.class.barbarian.t01.left.b
+        displayName: Damage Reduction per Rage
+        description: 0.02% damage reduction per current Rage.
         branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 57
-          mechanicId: 
-          value: 6
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 515daee52d8470c4da2c894c21392536, type: 3}
+          stat: 154
+          mechanicId:
+          value: 0.02
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      c:
+        stableId: tree.v3.class.barbarian.t01.left.c
+        logicalSlotId: tree.v3.class.barbarian.t01.left.c
+        displayName: Reduced Rage Decay
+        description: 5% reduced Rage decay.
+        branch: 35
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 125
+          mechanicId:
+          value: 5
+        iconMode: 0
+        iconOverride: {fileID: 0}
       subclassA:
         stableId: tree.v3.class.barbarian.t01.left.subclass.variant.barbarian-big_hit
         logicalSlotId: tree.v3.class.barbarian.t01.left.subclass
-        displayName: Titan Barbarian
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Repeated-Hit Fortification
+        description: 4% less damage per prior enemy hit since your last attack, to a 20% incoming floor.
+        branch: 0
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 12
-          mechanicId: 
-          value: 14.4
+          stat: 158
+          mechanicId:
+          value: 4
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
         stableId: tree.v3.class.barbarian.t01.left.subclass.variant.barbarian-fire
         logicalSlotId: tree.v3.class.barbarian.t01.left.subclass
-        displayName: Fire Barbarian
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Damage Taken as Fire
+        description: 8% of incoming damage is taken as Fire before mitigation.
+        branch: 0
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 33
-          mechanicId: 
-          value: 9
+          stat: 162
+          mechanicId:
+          value: 8
         iconMode: 0
         iconOverride: {fileID: 0}
   - tier: 2
@@ -233,7 +233,7 @@ MonoBehaviour:
       effects:
       - kind: 0
         stat: 92
-        mechanicId: 
+        mechanicId:
         value: 10
       iconMode: 0
       iconOverride: {fileID: 0}
@@ -241,166 +241,170 @@ MonoBehaviour:
       a:
         stableId: tree.v3.class.barbarian.t02.right.a
         logicalSlotId: tree.v3.class.barbarian.t02.right.a
-        displayName: Increased Rage Effect
-        description: 
-        branch: 0
-        size: 0
-        kind: 6
-        keystone: 0
-        effects:
-        - kind: 0
-          stat: 124
-          mechanicId: 
-          value: 10
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 57980ac7dbb89e54e94020d18f138a80, type: 3}
-      b:
-        stableId: tree.v3.class.barbarian.t02.right.b
-        logicalSlotId: tree.v3.class.barbarian.t02.right.b
         displayName: Heavy Physical Damage
-        description: Heavy physical hits at the cost of attack frequency. Increased Physical Damage with reduced Attack Speed.
-        branch: 0
+        description: 30% increased Physical Damage; -15% additive increased Attack Speed.
+        branch: 8
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
           stat: 14
-          mechanicId: 
-          value: 63
+          mechanicId:
+          value: 30
         - kind: 0
           stat: 81
-          mechanicId: 
-          value: -5
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: e5890a0d9507a954ebe630e8360bd054, type: 3}
-      c:
-        stableId: tree.v3.class.barbarian.t02.right.c
-        logicalSlotId: tree.v3.class.barbarian.t02.right.c
-        displayName: Fire Damage
-        description: 
-        branch: 5
+          mechanicId:
+          value: -15
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      b:
+        stableId: tree.v3.class.barbarian.t02.right.b
+        logicalSlotId: tree.v3.class.barbarian.t02.right.b
+        displayName: Rage Generation
+        description: 15% increased Rage generation.
+        branch: 33
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 17
-          mechanicId: 
-          value: 42
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: e6b8a1d2052624f42aa8c4dcd3e9500e, type: 3}
+          stat: 123
+          mechanicId:
+          value: 15
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      c:
+        stableId: tree.v3.class.barbarian.t02.right.c
+        logicalSlotId: tree.v3.class.barbarian.t02.right.c
+        displayName: Maximum Rage
+        description: +5 maximum Rage.
+        branch: 34
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 155
+          mechanicId:
+          value: 5
+        iconMode: 0
+        iconOverride: {fileID: 0}
       subclassA:
         stableId: tree.v3.class.barbarian.t02.right.subclass.variant.barbarian-big_hit
         logicalSlotId: tree.v3.class.barbarian.t02.right.subclass
-        displayName: Titan Barbarian
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Full-Life Power
+        description: 7.5% more damage against full-Life enemies.
+        branch: 44
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 70
-          mechanicId: 
-          value: 9.2
+          stat: 157
+          mechanicId:
+          value: 7.5
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
         stableId: tree.v3.class.barbarian.t02.right.subclass.variant.barbarian-fire
         logicalSlotId: tree.v3.class.barbarian.t02.right.subclass
-        displayName: Fire Barbarian
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Fire Conversion
+        description: Convert 12% Physical damage to Fire; 30% increased Fire Damage.
+        branch: 5
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 124
-          mechanicId: 
-          value: 9.2
+          stat: 161
+          mechanicId:
+          value: 12
+        - kind: 0
+          stat: 17
+          mechanicId:
+          value: 30
         iconMode: 0
         iconOverride: {fileID: 0}
     left:
       a:
         stableId: tree.v3.class.barbarian.t02.left.a
         logicalSlotId: tree.v3.class.barbarian.t02.left.a
-        displayName: Increased Revenge Effect
-        description: "Unlocks Revenge. Most recent hit's actual Life loss / Maximum Life empowers the next attack event: 1 + 2 \xD7 fraction \xD7 (1 + increased Revenge Effect). Consumed once; damage over time does not charge it."
-        branch: 0
+        displayName: Life Regeneration
+        description: Regenerate 1.5% maximum Life each second.
+        branch: 18
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 133
-          mechanicId: 
-          value: 10
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: e5890a0d9507a954ebe630e8360bd054, type: 3}
+          stat: 72
+          mechanicId:
+          value: 1.5
+        iconMode: 0
+        iconOverride: {fileID: 0}
       b:
         stableId: tree.v3.class.barbarian.t02.left.b
         logicalSlotId: tree.v3.class.barbarian.t02.left.b
-        displayName: Life On Kill
-        description: 
+        displayName: Damage Reduction per Rage
+        description: 0.02% damage reduction per current Rage.
         branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 76
-          mechanicId: 
-          value: 71.5
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 515daee52d8470c4da2c894c21392536, type: 3}
+          stat: 154
+          mechanicId:
+          value: 0.02
+        iconMode: 0
+        iconOverride: {fileID: 0}
       c:
         stableId: tree.v3.class.barbarian.t02.left.c
         logicalSlotId: tree.v3.class.barbarian.t02.left.c
-        displayName: Bleed Chance
-        description: 
-        branch: 0
+        displayName: Reduced Rage Decay
+        description: 5% reduced Rage decay.
+        branch: 35
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 34
-          mechanicId: 
-          value: 63
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 9cd2b6d227ad6834ab40e8e037b988fa, type: 3}
+          stat: 125
+          mechanicId:
+          value: 5
+        iconMode: 0
+        iconOverride: {fileID: 0}
       subclassA:
         stableId: tree.v3.class.barbarian.t02.left.subclass.variant.barbarian-big_hit
         logicalSlotId: tree.v3.class.barbarian.t02.left.subclass
-        displayName: Titan Barbarian
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Rage-Fueled Regeneration
+        description: Regenerate 0.06% maximum Life per second per current Rage.
+        branch: 18
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 70
-          mechanicId: 
-          value: 9.2
+          stat: 159
+          mechanicId:
+          value: 0.06
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
         stableId: tree.v3.class.barbarian.t02.left.subclass.variant.barbarian-fire
         logicalSlotId: tree.v3.class.barbarian.t02.left.subclass
-        displayName: Fire Barbarian
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Fire Life Leech
+        description: Leech 2% of Fire damage as Life over four seconds.
+        branch: 18
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 124
-          mechanicId: 
-          value: 9.2
+          stat: 163
+          mechanicId:
+          value: 2
         iconMode: 0
         iconOverride: {fileID: 0}
   - tier: 3
@@ -416,7 +420,7 @@ MonoBehaviour:
       effects:
       - kind: 0
         stat: 92
-        mechanicId: 
+        mechanicId:
         value: 10
       iconMode: 0
       iconOverride: {fileID: 0}
@@ -424,162 +428,166 @@ MonoBehaviour:
       a:
         stableId: tree.v3.class.barbarian.t03.right.a
         logicalSlotId: tree.v3.class.barbarian.t03.right.a
-        displayName: Increased Rage Generation
-        description: 
-        branch: 0
+        displayName: Heavy Physical Damage
+        description: 30% increased Physical Damage; -15% additive increased Attack Speed.
+        branch: 8
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 14
+          mechanicId:
+          value: 30
+        - kind: 0
+          stat: 81
+          mechanicId:
+          value: -15
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      b:
+        stableId: tree.v3.class.barbarian.t03.right.b
+        logicalSlotId: tree.v3.class.barbarian.t03.right.b
+        displayName: Rage Generation
+        description: 15% increased Rage generation.
+        branch: 33
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
           stat: 123
-          mechanicId: 
+          mechanicId:
           value: 15
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 1adfa280e0d04a04b8252aaffa939b0a, type: 3}
-      b:
-        stableId: tree.v3.class.barbarian.t03.right.b
-        logicalSlotId: tree.v3.class.barbarian.t03.right.b
-        displayName: Increased Rage Effect
-        description: 
-        branch: 0
-        size: 0
-        kind: 6
-        keystone: 0
-        effects:
-        - kind: 0
-          stat: 124
-          mechanicId: 
-          value: 10
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 57980ac7dbb89e54e94020d18f138a80, type: 3}
+        iconMode: 0
+        iconOverride: {fileID: 0}
       c:
         stableId: tree.v3.class.barbarian.t03.right.c
         logicalSlotId: tree.v3.class.barbarian.t03.right.c
-        displayName: Increased Strength
-        description: 
-        branch: 26
+        displayName: Maximum Rage
+        description: +5 maximum Rage.
+        branch: 34
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 95
-          mechanicId: 
-          value: 7.5
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 515daee52d8470c4da2c894c21392536, type: 3}
+          stat: 155
+          mechanicId:
+          value: 5
+        iconMode: 0
+        iconOverride: {fileID: 0}
       subclassA:
         stableId: tree.v3.class.barbarian.t03.right.subclass.variant.barbarian-big_hit
         logicalSlotId: tree.v3.class.barbarian.t03.right.subclass
-        displayName: Titan Barbarian
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Revenge Amplification
+        description: Add 5 percentage points to Revenge's more-damage bonus.
+        branch: 44
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 14
-          mechanicId: 
-          value: 9.4
+          stat: 156
+          mechanicId:
+          value: 5
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
         stableId: tree.v3.class.barbarian.t03.right.subclass.variant.barbarian-fire
         logicalSlotId: tree.v3.class.barbarian.t03.right.subclass
-        displayName: Fire Barbarian
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Eruption Damage
+        description: Add 5 percentage points to Eruption's raw-hit coefficient.
+        branch: 5
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 17
-          mechanicId: 
-          value: 9.4
+          stat: 160
+          mechanicId:
+          value: 5
         iconMode: 0
         iconOverride: {fileID: 0}
     left:
       a:
         stableId: tree.v3.class.barbarian.t03.left.a
         logicalSlotId: tree.v3.class.barbarian.t03.left.a
-        displayName: Increased Maximum Life
-        description: 
-        branch: 1
+        displayName: Life Regeneration
+        description: Regenerate 1.5% maximum Life each second.
+        branch: 18
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 70
-          mechanicId: 
-          value: 15
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 0733b024b1daef941bab2488f5e58093, type: 3}
+          stat: 72
+          mechanicId:
+          value: 1.5
+        iconMode: 0
+        iconOverride: {fileID: 0}
       b:
         stableId: tree.v3.class.barbarian.t03.left.b
         logicalSlotId: tree.v3.class.barbarian.t03.left.b
-        displayName: Increased Revenge Effect
-        description: "Unlocks Revenge. Most recent hit's actual Life loss / Maximum Life empowers the next attack event: 1 + 2 \xD7 fraction \xD7 (1 + increased Revenge Effect). Consumed once; damage over time does not charge it."
+        displayName: Damage Reduction per Rage
+        description: 0.02% damage reduction per current Rage.
         branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 133
-          mechanicId: 
-          value: 10
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: e5890a0d9507a954ebe630e8360bd054, type: 3}
+          stat: 154
+          mechanicId:
+          value: 0.02
+        iconMode: 0
+        iconOverride: {fileID: 0}
       c:
         stableId: tree.v3.class.barbarian.t03.left.c
         logicalSlotId: tree.v3.class.barbarian.t03.left.c
         displayName: Reduced Rage Decay
-        description: 
-        branch: 0
+        description: 5% reduced Rage decay.
+        branch: 35
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
           stat: 125
-          mechanicId: 
+          mechanicId:
           value: 5
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: f06a3b9a29ee16944a3ac4168a6259d7, type: 3}
+        iconMode: 0
+        iconOverride: {fileID: 0}
       subclassA:
         stableId: tree.v3.class.barbarian.t03.left.subclass.variant.barbarian-big_hit
         logicalSlotId: tree.v3.class.barbarian.t03.left.subclass
-        displayName: Titan Barbarian
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Repeated-Hit Fortification
+        description: 4% less damage per prior enemy hit since your last attack, to a 20% incoming floor.
+        branch: 0
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 14
-          mechanicId: 
-          value: 9.4
+          stat: 158
+          mechanicId:
+          value: 4
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
         stableId: tree.v3.class.barbarian.t03.left.subclass.variant.barbarian-fire
         logicalSlotId: tree.v3.class.barbarian.t03.left.subclass
-        displayName: Fire Barbarian
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Damage Taken as Fire
+        description: 8% of incoming damage is taken as Fire before mitigation.
+        branch: 0
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 17
-          mechanicId: 
-          value: 9.4
+          stat: 162
+          mechanicId:
+          value: 8
         iconMode: 0
         iconOverride: {fileID: 0}
   - tier: 4
@@ -595,7 +603,7 @@ MonoBehaviour:
       effects:
       - kind: 0
         stat: 92
-        mechanicId: 
+        mechanicId:
         value: 10
       iconMode: 0
       iconOverride: {fileID: 0}
@@ -604,84 +612,88 @@ MonoBehaviour:
         stableId: tree.v3.class.barbarian.t04.right.a
         logicalSlotId: tree.v3.class.barbarian.t04.right.a
         displayName: Heavy Physical Damage
-        description: Heavy physical hits at the cost of attack frequency. Increased Physical Damage with reduced Attack Speed.
-        branch: 0
+        description: 30% increased Physical Damage; -15% additive increased Attack Speed.
+        branch: 8
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
           stat: 14
-          mechanicId: 
-          value: 63
+          mechanicId:
+          value: 30
         - kind: 0
           stat: 81
-          mechanicId: 
-          value: -5
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: e5890a0d9507a954ebe630e8360bd054, type: 3}
+          mechanicId:
+          value: -15
+        iconMode: 0
+        iconOverride: {fileID: 0}
       b:
         stableId: tree.v3.class.barbarian.t04.right.b
         logicalSlotId: tree.v3.class.barbarian.t04.right.b
-        displayName: Reduced Rage Decay
-        description: 
-        branch: 0
+        displayName: Rage Generation
+        description: 15% increased Rage generation.
+        branch: 33
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 125
-          mechanicId: 
-          value: 5
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: f06a3b9a29ee16944a3ac4168a6259d7, type: 3}
+          stat: 123
+          mechanicId:
+          value: 15
+        iconMode: 0
+        iconOverride: {fileID: 0}
       c:
         stableId: tree.v3.class.barbarian.t04.right.c
         logicalSlotId: tree.v3.class.barbarian.t04.right.c
-        displayName: Bleed Chance
-        description: 
-        branch: 0
+        displayName: Maximum Rage
+        description: +5 maximum Rage.
+        branch: 34
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 34
-          mechanicId: 
-          value: 63
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 9cd2b6d227ad6834ab40e8e037b988fa, type: 3}
+          stat: 155
+          mechanicId:
+          value: 5
+        iconMode: 0
+        iconOverride: {fileID: 0}
       subclassA:
         stableId: tree.v3.class.barbarian.t04.right.subclass.variant.barbarian-big_hit
         logicalSlotId: tree.v3.class.barbarian.t04.right.subclass
-        displayName: Titan Barbarian
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Full-Life Power
+        description: 7.5% more damage against full-Life enemies.
+        branch: 44
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 12
-          mechanicId: 
-          value: 15.36
+          stat: 157
+          mechanicId:
+          value: 7.5
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
         stableId: tree.v3.class.barbarian.t04.right.subclass.variant.barbarian-fire
         logicalSlotId: tree.v3.class.barbarian.t04.right.subclass
-        displayName: Fire Barbarian
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Fire Conversion
+        description: Convert 12% Physical damage to Fire; 30% increased Fire Damage.
+        branch: 5
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 33
-          mechanicId: 
-          value: 9.599999
+          stat: 161
+          mechanicId:
+          value: 12
+        - kind: 0
+          stat: 17
+          mechanicId:
+          value: 30
         iconMode: 0
         iconOverride: {fileID: 0}
     left:
@@ -689,80 +701,80 @@ MonoBehaviour:
         stableId: tree.v3.class.barbarian.t04.left.a
         logicalSlotId: tree.v3.class.barbarian.t04.left.a
         displayName: Life Regeneration
-        description: 
-        branch: 0
+        description: Regenerate 1.5% maximum Life each second.
+        branch: 18
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
           stat: 72
-          mechanicId: 
-          value: 0.285
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: e549ab60330b13a4b81944f07b446372, type: 3}
+          mechanicId:
+          value: 1.5
+        iconMode: 0
+        iconOverride: {fileID: 0}
       b:
         stableId: tree.v3.class.barbarian.t04.left.b
         logicalSlotId: tree.v3.class.barbarian.t04.left.b
-        displayName: Life On Kill
-        description: 
+        displayName: Damage Reduction per Rage
+        description: 0.02% damage reduction per current Rage.
         branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 76
-          mechanicId: 
-          value: 71.5
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 515daee52d8470c4da2c894c21392536, type: 3}
+          stat: 154
+          mechanicId:
+          value: 0.02
+        iconMode: 0
+        iconOverride: {fileID: 0}
       c:
         stableId: tree.v3.class.barbarian.t04.left.c
         logicalSlotId: tree.v3.class.barbarian.t04.left.c
-        displayName: Fire Damage
-        description: 
-        branch: 5
+        displayName: Reduced Rage Decay
+        description: 5% reduced Rage decay.
+        branch: 35
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 17
-          mechanicId: 
-          value: 42
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: e6b8a1d2052624f42aa8c4dcd3e9500e, type: 3}
+          stat: 125
+          mechanicId:
+          value: 5
+        iconMode: 0
+        iconOverride: {fileID: 0}
       subclassA:
         stableId: tree.v3.class.barbarian.t04.left.subclass.variant.barbarian-big_hit
         logicalSlotId: tree.v3.class.barbarian.t04.left.subclass
-        displayName: Titan Barbarian
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Rage-Fueled Regeneration
+        description: Regenerate 0.06% maximum Life per second per current Rage.
+        branch: 18
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 12
-          mechanicId: 
-          value: 15.36
+          stat: 159
+          mechanicId:
+          value: 0.06
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
         stableId: tree.v3.class.barbarian.t04.left.subclass.variant.barbarian-fire
         logicalSlotId: tree.v3.class.barbarian.t04.left.subclass
-        displayName: Fire Barbarian
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Fire Life Leech
+        description: Leech 2% of Fire damage as Life over four seconds.
+        branch: 18
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 33
-          mechanicId: 
-          value: 9.599999
+          stat: 163
+          mechanicId:
+          value: 2
         iconMode: 0
         iconOverride: {fileID: 0}
   - tier: 5
@@ -778,7 +790,7 @@ MonoBehaviour:
       effects:
       - kind: 0
         stat: 92
-        mechanicId: 
+        mechanicId:
         value: 10
       iconMode: 0
       iconOverride: {fileID: 0}
@@ -786,166 +798,166 @@ MonoBehaviour:
       a:
         stableId: tree.v3.class.barbarian.t05.right.a
         logicalSlotId: tree.v3.class.barbarian.t05.right.a
-        displayName: Increased Rage Generation
-        description: 
-        branch: 0
-        size: 0
-        kind: 6
-        keystone: 0
-        effects:
-        - kind: 0
-          stat: 123
-          mechanicId: 
-          value: 15
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 1adfa280e0d04a04b8252aaffa939b0a, type: 3}
-      b:
-        stableId: tree.v3.class.barbarian.t05.right.b
-        logicalSlotId: tree.v3.class.barbarian.t05.right.b
         displayName: Heavy Physical Damage
-        description: Heavy physical hits at the cost of attack frequency. Increased Physical Damage with reduced Attack Speed.
-        branch: 0
+        description: 30% increased Physical Damage; -15% additive increased Attack Speed.
+        branch: 8
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
           stat: 14
-          mechanicId: 
-          value: 63
+          mechanicId:
+          value: 30
         - kind: 0
           stat: 81
-          mechanicId: 
-          value: -5
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: e5890a0d9507a954ebe630e8360bd054, type: 3}
-      c:
-        stableId: tree.v3.class.barbarian.t05.right.c
-        logicalSlotId: tree.v3.class.barbarian.t05.right.c
-        displayName: Increased Rage Effect
-        description: 
-        branch: 0
+          mechanicId:
+          value: -15
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      b:
+        stableId: tree.v3.class.barbarian.t05.right.b
+        logicalSlotId: tree.v3.class.barbarian.t05.right.b
+        displayName: Rage Generation
+        description: 15% increased Rage generation.
+        branch: 33
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 124
-          mechanicId: 
-          value: 10
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 57980ac7dbb89e54e94020d18f138a80, type: 3}
+          stat: 123
+          mechanicId:
+          value: 15
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      c:
+        stableId: tree.v3.class.barbarian.t05.right.c
+        logicalSlotId: tree.v3.class.barbarian.t05.right.c
+        displayName: Maximum Rage
+        description: +5 maximum Rage.
+        branch: 34
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 155
+          mechanicId:
+          value: 5
+        iconMode: 0
+        iconOverride: {fileID: 0}
       subclassA:
         stableId: tree.v3.class.barbarian.t05.right.subclass.variant.barbarian-big_hit
         logicalSlotId: tree.v3.class.barbarian.t05.right.subclass
-        displayName: Titan Barbarian
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Revenge Amplification
+        description: Add 5 percentage points to Revenge's more-damage bonus.
+        branch: 44
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 70
-          mechanicId: 
-          value: 9.8
+          stat: 156
+          mechanicId:
+          value: 5
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
         stableId: tree.v3.class.barbarian.t05.right.subclass.variant.barbarian-fire
         logicalSlotId: tree.v3.class.barbarian.t05.right.subclass
-        displayName: Fire Barbarian
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Eruption Damage
+        description: Add 5 percentage points to Eruption's raw-hit coefficient.
+        branch: 5
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 124
-          mechanicId: 
-          value: 9.8
+          stat: 160
+          mechanicId:
+          value: 5
         iconMode: 0
         iconOverride: {fileID: 0}
     left:
       a:
         stableId: tree.v3.class.barbarian.t05.left.a
         logicalSlotId: tree.v3.class.barbarian.t05.left.a
-        displayName: Increased Maximum Life
-        description: 
-        branch: 1
+        displayName: Life Regeneration
+        description: Regenerate 1.5% maximum Life each second.
+        branch: 18
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 70
-          mechanicId: 
-          value: 15
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 0733b024b1daef941bab2488f5e58093, type: 3}
+          stat: 72
+          mechanicId:
+          value: 1.5
+        iconMode: 0
+        iconOverride: {fileID: 0}
       b:
         stableId: tree.v3.class.barbarian.t05.left.b
         logicalSlotId: tree.v3.class.barbarian.t05.left.b
-        displayName: Life On Kill
-        description: 
+        displayName: Damage Reduction per Rage
+        description: 0.02% damage reduction per current Rage.
         branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 76
-          mechanicId: 
-          value: 71.5
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 515daee52d8470c4da2c894c21392536, type: 3}
+          stat: 154
+          mechanicId:
+          value: 0.02
+        iconMode: 0
+        iconOverride: {fileID: 0}
       c:
         stableId: tree.v3.class.barbarian.t05.left.c
         logicalSlotId: tree.v3.class.barbarian.t05.left.c
-        displayName: All Elemental Resist
-        description: Fire, Cold and Lightning resistance only; excludes Void.
-        branch: 0
+        displayName: Reduced Rage Decay
+        description: 5% reduced Rage decay.
+        branch: 35
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 57
-          mechanicId: 
-          value: 6
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 515daee52d8470c4da2c894c21392536, type: 3}
+          stat: 125
+          mechanicId:
+          value: 5
+        iconMode: 0
+        iconOverride: {fileID: 0}
       subclassA:
         stableId: tree.v3.class.barbarian.t05.left.subclass.variant.barbarian-big_hit
         logicalSlotId: tree.v3.class.barbarian.t05.left.subclass
-        displayName: Titan Barbarian
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Repeated-Hit Fortification
+        description: 4% less damage per prior enemy hit since your last attack, to a 20% incoming floor.
+        branch: 0
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 70
-          mechanicId: 
-          value: 9.8
+          stat: 158
+          mechanicId:
+          value: 4
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
         stableId: tree.v3.class.barbarian.t05.left.subclass.variant.barbarian-fire
         logicalSlotId: tree.v3.class.barbarian.t05.left.subclass
-        displayName: Fire Barbarian
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Damage Taken as Fire
+        description: 8% of incoming damage is taken as Fire before mitigation.
+        branch: 0
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 124
-          mechanicId: 
-          value: 9.8
+          stat: 162
+          mechanicId:
+          value: 8
         iconMode: 0
         iconOverride: {fileID: 0}
   - tier: 6
@@ -961,7 +973,7 @@ MonoBehaviour:
       effects:
       - kind: 0
         stat: 92
-        mechanicId: 
+        mechanicId:
         value: 10
       iconMode: 0
       iconOverride: {fileID: 0}
@@ -969,81 +981,89 @@ MonoBehaviour:
       a:
         stableId: tree.v3.class.barbarian.t06.right.a
         logicalSlotId: tree.v3.class.barbarian.t06.right.a
-        displayName: Increased Rage Effect
-        description: 
-        branch: 0
+        displayName: Heavy Physical Damage
+        description: 30% increased Physical Damage; -15% additive increased Attack Speed.
+        branch: 8
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 124
-          mechanicId: 
-          value: 10
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 57980ac7dbb89e54e94020d18f138a80, type: 3}
+          stat: 14
+          mechanicId:
+          value: 30
+        - kind: 0
+          stat: 81
+          mechanicId:
+          value: -15
+        iconMode: 0
+        iconOverride: {fileID: 0}
       b:
         stableId: tree.v3.class.barbarian.t06.right.b
         logicalSlotId: tree.v3.class.barbarian.t06.right.b
-        displayName: Reduced Rage Decay
-        description: 
-        branch: 0
+        displayName: Rage Generation
+        description: 15% increased Rage generation.
+        branch: 33
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 125
-          mechanicId: 
-          value: 5
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: f06a3b9a29ee16944a3ac4168a6259d7, type: 3}
+          stat: 123
+          mechanicId:
+          value: 15
+        iconMode: 0
+        iconOverride: {fileID: 0}
       c:
         stableId: tree.v3.class.barbarian.t06.right.c
         logicalSlotId: tree.v3.class.barbarian.t06.right.c
-        displayName: Fire Damage
-        description: 
-        branch: 5
+        displayName: Maximum Rage
+        description: +5 maximum Rage.
+        branch: 34
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 17
-          mechanicId: 
-          value: 42
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: e6b8a1d2052624f42aa8c4dcd3e9500e, type: 3}
+          stat: 155
+          mechanicId:
+          value: 5
+        iconMode: 0
+        iconOverride: {fileID: 0}
       subclassA:
         stableId: tree.v3.class.barbarian.t06.right.subclass.variant.barbarian-big_hit
         logicalSlotId: tree.v3.class.barbarian.t06.right.subclass
-        displayName: Titan Barbarian
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Full-Life Power
+        description: 7.5% more damage against full-Life enemies.
+        branch: 44
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 14
-          mechanicId: 
-          value: 10
+          stat: 157
+          mechanicId:
+          value: 7.5
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
         stableId: tree.v3.class.barbarian.t06.right.subclass.variant.barbarian-fire
         logicalSlotId: tree.v3.class.barbarian.t06.right.subclass
-        displayName: Fire Barbarian
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Fire Conversion
+        description: Convert 12% Physical damage to Fire; 30% increased Fire Damage.
+        branch: 5
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
+          stat: 161
+          mechanicId:
+          value: 12
+        - kind: 0
           stat: 17
-          mechanicId: 
-          value: 10
+          mechanicId:
+          value: 30
         iconMode: 0
         iconOverride: {fileID: 0}
     left:
@@ -1051,80 +1071,80 @@ MonoBehaviour:
         stableId: tree.v3.class.barbarian.t06.left.a
         logicalSlotId: tree.v3.class.barbarian.t06.left.a
         displayName: Life Regeneration
-        description: 
-        branch: 0
+        description: Regenerate 1.5% maximum Life each second.
+        branch: 18
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
           stat: 72
-          mechanicId: 
-          value: 0.285
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: e549ab60330b13a4b81944f07b446372, type: 3}
+          mechanicId:
+          value: 1.5
+        iconMode: 0
+        iconOverride: {fileID: 0}
       b:
         stableId: tree.v3.class.barbarian.t06.left.b
         logicalSlotId: tree.v3.class.barbarian.t06.left.b
-        displayName: Increased Revenge Effect
-        description: "Unlocks Revenge. Most recent hit's actual Life loss / Maximum Life empowers the next attack event: 1 + 2 \xD7 fraction \xD7 (1 + increased Revenge Effect). Consumed once; damage over time does not charge it."
+        displayName: Damage Reduction per Rage
+        description: 0.02% damage reduction per current Rage.
         branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 133
-          mechanicId: 
-          value: 10
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: e5890a0d9507a954ebe630e8360bd054, type: 3}
+          stat: 154
+          mechanicId:
+          value: 0.02
+        iconMode: 0
+        iconOverride: {fileID: 0}
       c:
         stableId: tree.v3.class.barbarian.t06.left.c
         logicalSlotId: tree.v3.class.barbarian.t06.left.c
-        displayName: Bleed Chance
-        description: 
-        branch: 0
+        displayName: Reduced Rage Decay
+        description: 5% reduced Rage decay.
+        branch: 35
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 34
-          mechanicId: 
-          value: 63
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 9cd2b6d227ad6834ab40e8e037b988fa, type: 3}
+          stat: 125
+          mechanicId:
+          value: 5
+        iconMode: 0
+        iconOverride: {fileID: 0}
       subclassA:
         stableId: tree.v3.class.barbarian.t06.left.subclass.variant.barbarian-big_hit
         logicalSlotId: tree.v3.class.barbarian.t06.left.subclass
-        displayName: Titan Barbarian
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Rage-Fueled Regeneration
+        description: Regenerate 0.06% maximum Life per second per current Rage.
+        branch: 18
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 14
-          mechanicId: 
-          value: 10
+          stat: 159
+          mechanicId:
+          value: 0.06
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
         stableId: tree.v3.class.barbarian.t06.left.subclass.variant.barbarian-fire
         logicalSlotId: tree.v3.class.barbarian.t06.left.subclass
-        displayName: Fire Barbarian
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Fire Life Leech
+        description: Leech 2% of Fire damage as Life over four seconds.
+        branch: 18
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 17
-          mechanicId: 
-          value: 10
+          stat: 163
+          mechanicId:
+          value: 2
         iconMode: 0
         iconOverride: {fileID: 0}
   - tier: 7
@@ -1140,7 +1160,7 @@ MonoBehaviour:
       effects:
       - kind: 0
         stat: 92
-        mechanicId: 
+        mechanicId:
         value: 10
       iconMode: 0
       iconOverride: {fileID: 0}
@@ -1148,162 +1168,166 @@ MonoBehaviour:
       a:
         stableId: tree.v3.class.barbarian.t07.right.a
         logicalSlotId: tree.v3.class.barbarian.t07.right.a
-        displayName: Increased Rage Generation
-        description: 
-        branch: 0
+        displayName: Heavy Physical Damage
+        description: 30% increased Physical Damage; -15% additive increased Attack Speed.
+        branch: 8
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 14
+          mechanicId:
+          value: 30
+        - kind: 0
+          stat: 81
+          mechanicId:
+          value: -15
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      b:
+        stableId: tree.v3.class.barbarian.t07.right.b
+        logicalSlotId: tree.v3.class.barbarian.t07.right.b
+        displayName: Rage Generation
+        description: 15% increased Rage generation.
+        branch: 33
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
           stat: 123
-          mechanicId: 
+          mechanicId:
           value: 15
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 1adfa280e0d04a04b8252aaffa939b0a, type: 3}
-      b:
-        stableId: tree.v3.class.barbarian.t07.right.b
-        logicalSlotId: tree.v3.class.barbarian.t07.right.b
-        displayName: Reduced Rage Decay
-        description: 
-        branch: 0
-        size: 0
-        kind: 6
-        keystone: 0
-        effects:
-        - kind: 0
-          stat: 125
-          mechanicId: 
-          value: 5
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: f06a3b9a29ee16944a3ac4168a6259d7, type: 3}
+        iconMode: 0
+        iconOverride: {fileID: 0}
       c:
         stableId: tree.v3.class.barbarian.t07.right.c
         logicalSlotId: tree.v3.class.barbarian.t07.right.c
-        displayName: All Elemental Resist
-        description: Fire, Cold and Lightning resistance only; excludes Void.
-        branch: 0
+        displayName: Maximum Rage
+        description: +5 maximum Rage.
+        branch: 34
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 57
-          mechanicId: 
-          value: 6
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 515daee52d8470c4da2c894c21392536, type: 3}
+          stat: 155
+          mechanicId:
+          value: 5
+        iconMode: 0
+        iconOverride: {fileID: 0}
       subclassA:
         stableId: tree.v3.class.barbarian.t07.right.subclass.variant.barbarian-big_hit
         logicalSlotId: tree.v3.class.barbarian.t07.right.subclass
-        displayName: Titan Barbarian
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Revenge Amplification
+        description: Add 5 percentage points to Revenge's more-damage bonus.
+        branch: 44
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 12
-          mechanicId: 
-          value: 16.32
+          stat: 156
+          mechanicId:
+          value: 5
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
         stableId: tree.v3.class.barbarian.t07.right.subclass.variant.barbarian-fire
         logicalSlotId: tree.v3.class.barbarian.t07.right.subclass
-        displayName: Fire Barbarian
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Eruption Damage
+        description: Add 5 percentage points to Eruption's raw-hit coefficient.
+        branch: 5
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 33
-          mechanicId: 
-          value: 10.2
+          stat: 160
+          mechanicId:
+          value: 5
         iconMode: 0
         iconOverride: {fileID: 0}
     left:
       a:
         stableId: tree.v3.class.barbarian.t07.left.a
         logicalSlotId: tree.v3.class.barbarian.t07.left.a
-        displayName: Increased Maximum Life
-        description: 
-        branch: 1
-        size: 0
-        kind: 6
-        keystone: 0
-        effects:
-        - kind: 0
-          stat: 70
-          mechanicId: 
-          value: 15
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 0733b024b1daef941bab2488f5e58093, type: 3}
-      b:
-        stableId: tree.v3.class.barbarian.t07.left.b
-        logicalSlotId: tree.v3.class.barbarian.t07.left.b
         displayName: Life Regeneration
-        description: 
-        branch: 0
+        description: Regenerate 1.5% maximum Life each second.
+        branch: 18
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
           stat: 72
-          mechanicId: 
-          value: 0.285
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: e549ab60330b13a4b81944f07b446372, type: 3}
-      c:
-        stableId: tree.v3.class.barbarian.t07.left.c
-        logicalSlotId: tree.v3.class.barbarian.t07.left.c
-        displayName: Increased Strength
-        description: 
-        branch: 26
+          mechanicId:
+          value: 1.5
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      b:
+        stableId: tree.v3.class.barbarian.t07.left.b
+        logicalSlotId: tree.v3.class.barbarian.t07.left.b
+        displayName: Damage Reduction per Rage
+        description: 0.02% damage reduction per current Rage.
+        branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 95
-          mechanicId: 
-          value: 7.5
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 515daee52d8470c4da2c894c21392536, type: 3}
+          stat: 154
+          mechanicId:
+          value: 0.02
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      c:
+        stableId: tree.v3.class.barbarian.t07.left.c
+        logicalSlotId: tree.v3.class.barbarian.t07.left.c
+        displayName: Reduced Rage Decay
+        description: 5% reduced Rage decay.
+        branch: 35
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 125
+          mechanicId:
+          value: 5
+        iconMode: 0
+        iconOverride: {fileID: 0}
       subclassA:
         stableId: tree.v3.class.barbarian.t07.left.subclass.variant.barbarian-big_hit
         logicalSlotId: tree.v3.class.barbarian.t07.left.subclass
-        displayName: Titan Barbarian
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Repeated-Hit Fortification
+        description: 4% less damage per prior enemy hit since your last attack, to a 20% incoming floor.
+        branch: 0
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 12
-          mechanicId: 
-          value: 16.32
+          stat: 158
+          mechanicId:
+          value: 4
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
         stableId: tree.v3.class.barbarian.t07.left.subclass.variant.barbarian-fire
         logicalSlotId: tree.v3.class.barbarian.t07.left.subclass
-        displayName: Fire Barbarian
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Damage Taken as Fire
+        description: 8% of incoming damage is taken as Fire before mitigation.
+        branch: 0
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 33
-          mechanicId: 
-          value: 10.2
+          stat: 162
+          mechanicId:
+          value: 8
         iconMode: 0
         iconOverride: {fileID: 0}
   - tier: 8
@@ -1319,7 +1343,7 @@ MonoBehaviour:
       effects:
       - kind: 0
         stat: 92
-        mechanicId: 
+        mechanicId:
         value: 10
       iconMode: 0
       iconOverride: {fileID: 0}
@@ -1328,165 +1352,169 @@ MonoBehaviour:
         stableId: tree.v3.class.barbarian.t08.right.a
         logicalSlotId: tree.v3.class.barbarian.t08.right.a
         displayName: Heavy Physical Damage
-        description: Heavy physical hits at the cost of attack frequency. Increased Physical Damage with reduced Attack Speed.
-        branch: 0
+        description: 30% increased Physical Damage; -15% additive increased Attack Speed.
+        branch: 8
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
           stat: 14
-          mechanicId: 
-          value: 63
+          mechanicId:
+          value: 30
         - kind: 0
           stat: 81
-          mechanicId: 
-          value: -5
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: e5890a0d9507a954ebe630e8360bd054, type: 3}
+          mechanicId:
+          value: -15
+        iconMode: 0
+        iconOverride: {fileID: 0}
       b:
         stableId: tree.v3.class.barbarian.t08.right.b
         logicalSlotId: tree.v3.class.barbarian.t08.right.b
-        displayName: Increased Rage Effect
-        description: 
-        branch: 0
+        displayName: Rage Generation
+        description: 15% increased Rage generation.
+        branch: 33
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 124
-          mechanicId: 
-          value: 10
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 57980ac7dbb89e54e94020d18f138a80, type: 3}
+          stat: 123
+          mechanicId:
+          value: 15
+        iconMode: 0
+        iconOverride: {fileID: 0}
       c:
         stableId: tree.v3.class.barbarian.t08.right.c
         logicalSlotId: tree.v3.class.barbarian.t08.right.c
-        displayName: Bleed Chance
-        description: 
-        branch: 0
+        displayName: Maximum Rage
+        description: +5 maximum Rage.
+        branch: 34
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 34
-          mechanicId: 
-          value: 63
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 9cd2b6d227ad6834ab40e8e037b988fa, type: 3}
+          stat: 155
+          mechanicId:
+          value: 5
+        iconMode: 0
+        iconOverride: {fileID: 0}
       subclassA:
         stableId: tree.v3.class.barbarian.t08.right.subclass.variant.barbarian-big_hit
         logicalSlotId: tree.v3.class.barbarian.t08.right.subclass
-        displayName: Titan Barbarian
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Full-Life Power
+        description: 7.5% more damage against full-Life enemies.
+        branch: 44
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 70
-          mechanicId: 
-          value: 10.4
+          stat: 157
+          mechanicId:
+          value: 7.5
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
         stableId: tree.v3.class.barbarian.t08.right.subclass.variant.barbarian-fire
         logicalSlotId: tree.v3.class.barbarian.t08.right.subclass
-        displayName: Fire Barbarian
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Fire Conversion
+        description: Convert 12% Physical damage to Fire; 30% increased Fire Damage.
+        branch: 5
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 124
-          mechanicId: 
-          value: 10.4
+          stat: 161
+          mechanicId:
+          value: 12
+        - kind: 0
+          stat: 17
+          mechanicId:
+          value: 30
         iconMode: 0
         iconOverride: {fileID: 0}
     left:
       a:
         stableId: tree.v3.class.barbarian.t08.left.a
         logicalSlotId: tree.v3.class.barbarian.t08.left.a
-        displayName: Increased Revenge Effect
-        description: "Unlocks Revenge. Most recent hit's actual Life loss / Maximum Life empowers the next attack event: 1 + 2 \xD7 fraction \xD7 (1 + increased Revenge Effect). Consumed once; damage over time does not charge it."
-        branch: 0
+        displayName: Life Regeneration
+        description: Regenerate 1.5% maximum Life each second.
+        branch: 18
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 133
-          mechanicId: 
-          value: 10
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: e5890a0d9507a954ebe630e8360bd054, type: 3}
+          stat: 72
+          mechanicId:
+          value: 1.5
+        iconMode: 0
+        iconOverride: {fileID: 0}
       b:
         stableId: tree.v3.class.barbarian.t08.left.b
         logicalSlotId: tree.v3.class.barbarian.t08.left.b
-        displayName: Life On Kill
-        description: 
+        displayName: Damage Reduction per Rage
+        description: 0.02% damage reduction per current Rage.
         branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 76
-          mechanicId: 
-          value: 71.5
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 515daee52d8470c4da2c894c21392536, type: 3}
+          stat: 154
+          mechanicId:
+          value: 0.02
+        iconMode: 0
+        iconOverride: {fileID: 0}
       c:
         stableId: tree.v3.class.barbarian.t08.left.c
         logicalSlotId: tree.v3.class.barbarian.t08.left.c
-        displayName: Fire Damage
-        description: 
-        branch: 5
+        displayName: Reduced Rage Decay
+        description: 5% reduced Rage decay.
+        branch: 35
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 17
-          mechanicId: 
-          value: 42
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: e6b8a1d2052624f42aa8c4dcd3e9500e, type: 3}
+          stat: 125
+          mechanicId:
+          value: 5
+        iconMode: 0
+        iconOverride: {fileID: 0}
       subclassA:
         stableId: tree.v3.class.barbarian.t08.left.subclass.variant.barbarian-big_hit
         logicalSlotId: tree.v3.class.barbarian.t08.left.subclass
-        displayName: Titan Barbarian
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Rage-Fueled Regeneration
+        description: Regenerate 0.06% maximum Life per second per current Rage.
+        branch: 18
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 70
-          mechanicId: 
-          value: 10.4
+          stat: 159
+          mechanicId:
+          value: 0.06
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
         stableId: tree.v3.class.barbarian.t08.left.subclass.variant.barbarian-fire
         logicalSlotId: tree.v3.class.barbarian.t08.left.subclass
-        displayName: Fire Barbarian
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Fire Life Leech
+        description: Leech 2% of Fire damage as Life over four seconds.
+        branch: 18
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 124
-          mechanicId: 
-          value: 10.4
+          stat: 163
+          mechanicId:
+          value: 2
         iconMode: 0
         iconOverride: {fileID: 0}
   - tier: 9
@@ -1502,7 +1530,7 @@ MonoBehaviour:
       effects:
       - kind: 0
         stat: 92
-        mechanicId: 
+        mechanicId:
         value: 10
       iconMode: 0
       iconOverride: {fileID: 0}
@@ -1510,166 +1538,166 @@ MonoBehaviour:
       a:
         stableId: tree.v3.class.barbarian.t09.right.a
         logicalSlotId: tree.v3.class.barbarian.t09.right.a
-        displayName: Increased Rage Generation
-        description: 
-        branch: 0
+        displayName: Heavy Physical Damage
+        description: 30% increased Physical Damage; -15% additive increased Attack Speed.
+        branch: 8
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 14
+          mechanicId:
+          value: 30
+        - kind: 0
+          stat: 81
+          mechanicId:
+          value: -15
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      b:
+        stableId: tree.v3.class.barbarian.t09.right.b
+        logicalSlotId: tree.v3.class.barbarian.t09.right.b
+        displayName: Rage Generation
+        description: 15% increased Rage generation.
+        branch: 33
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
           stat: 123
-          mechanicId: 
+          mechanicId:
           value: 15
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 1adfa280e0d04a04b8252aaffa939b0a, type: 3}
-      b:
-        stableId: tree.v3.class.barbarian.t09.right.b
-        logicalSlotId: tree.v3.class.barbarian.t09.right.b
-        displayName: Heavy Physical Damage
-        description: Heavy physical hits at the cost of attack frequency. Increased Physical Damage with reduced Attack Speed.
-        branch: 0
-        size: 0
-        kind: 6
-        keystone: 0
-        effects:
-        - kind: 0
-          stat: 14
-          mechanicId: 
-          value: 63
-        - kind: 0
-          stat: 81
-          mechanicId: 
-          value: -5
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: e5890a0d9507a954ebe630e8360bd054, type: 3}
+        iconMode: 0
+        iconOverride: {fileID: 0}
       c:
         stableId: tree.v3.class.barbarian.t09.right.c
         logicalSlotId: tree.v3.class.barbarian.t09.right.c
-        displayName: Reduced Rage Decay
-        description: 
-        branch: 0
+        displayName: Maximum Rage
+        description: +5 maximum Rage.
+        branch: 34
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 125
-          mechanicId: 
+          stat: 155
+          mechanicId:
           value: 5
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: f06a3b9a29ee16944a3ac4168a6259d7, type: 3}
+        iconMode: 0
+        iconOverride: {fileID: 0}
       subclassA:
         stableId: tree.v3.class.barbarian.t09.right.subclass.variant.barbarian-big_hit
         logicalSlotId: tree.v3.class.barbarian.t09.right.subclass
-        displayName: Titan Barbarian
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Revenge Amplification
+        description: Add 5 percentage points to Revenge's more-damage bonus.
+        branch: 44
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 14
-          mechanicId: 
-          value: 10.599999
+          stat: 156
+          mechanicId:
+          value: 5
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
         stableId: tree.v3.class.barbarian.t09.right.subclass.variant.barbarian-fire
         logicalSlotId: tree.v3.class.barbarian.t09.right.subclass
-        displayName: Fire Barbarian
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Eruption Damage
+        description: Add 5 percentage points to Eruption's raw-hit coefficient.
+        branch: 5
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 17
-          mechanicId: 
-          value: 10.599999
+          stat: 160
+          mechanicId:
+          value: 5
         iconMode: 0
         iconOverride: {fileID: 0}
     left:
       a:
         stableId: tree.v3.class.barbarian.t09.left.a
         logicalSlotId: tree.v3.class.barbarian.t09.left.a
-        displayName: Increased Maximum Life
-        description: 
-        branch: 1
+        displayName: Life Regeneration
+        description: Regenerate 1.5% maximum Life each second.
+        branch: 18
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 70
-          mechanicId: 
-          value: 15
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 0733b024b1daef941bab2488f5e58093, type: 3}
+          stat: 72
+          mechanicId:
+          value: 1.5
+        iconMode: 0
+        iconOverride: {fileID: 0}
       b:
         stableId: tree.v3.class.barbarian.t09.left.b
         logicalSlotId: tree.v3.class.barbarian.t09.left.b
-        displayName: Increased Revenge Effect
-        description: "Unlocks Revenge. Most recent hit's actual Life loss / Maximum Life empowers the next attack event: 1 + 2 \xD7 fraction \xD7 (1 + increased Revenge Effect). Consumed once; damage over time does not charge it."
+        displayName: Damage Reduction per Rage
+        description: 0.02% damage reduction per current Rage.
         branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 133
-          mechanicId: 
-          value: 10
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: e5890a0d9507a954ebe630e8360bd054, type: 3}
+          stat: 154
+          mechanicId:
+          value: 0.02
+        iconMode: 0
+        iconOverride: {fileID: 0}
       c:
         stableId: tree.v3.class.barbarian.t09.left.c
         logicalSlotId: tree.v3.class.barbarian.t09.left.c
-        displayName: All Elemental Resist
-        description: Fire, Cold and Lightning resistance only; excludes Void.
-        branch: 0
+        displayName: Reduced Rage Decay
+        description: 5% reduced Rage decay.
+        branch: 35
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 57
-          mechanicId: 
-          value: 6
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 515daee52d8470c4da2c894c21392536, type: 3}
+          stat: 125
+          mechanicId:
+          value: 5
+        iconMode: 0
+        iconOverride: {fileID: 0}
       subclassA:
         stableId: tree.v3.class.barbarian.t09.left.subclass.variant.barbarian-big_hit
         logicalSlotId: tree.v3.class.barbarian.t09.left.subclass
-        displayName: Titan Barbarian
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Repeated-Hit Fortification
+        description: 4% less damage per prior enemy hit since your last attack, to a 20% incoming floor.
+        branch: 0
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 14
-          mechanicId: 
-          value: 10.599999
+          stat: 158
+          mechanicId:
+          value: 4
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
         stableId: tree.v3.class.barbarian.t09.left.subclass.variant.barbarian-fire
         logicalSlotId: tree.v3.class.barbarian.t09.left.subclass
-        displayName: Fire Barbarian
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Damage Taken as Fire
+        description: 8% of incoming damage is taken as Fire before mitigation.
+        branch: 0
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 17
-          mechanicId: 
-          value: 10.599999
+          stat: 162
+          mechanicId:
+          value: 8
         iconMode: 0
         iconOverride: {fileID: 0}
   - tier: 10
@@ -1685,7 +1713,7 @@ MonoBehaviour:
       effects:
       - kind: 0
         stat: 92
-        mechanicId: 
+        mechanicId:
         value: 10
       iconMode: 0
       iconOverride: {fileID: 0}
@@ -1693,81 +1721,89 @@ MonoBehaviour:
       a:
         stableId: tree.v3.class.barbarian.t10.right.a
         logicalSlotId: tree.v3.class.barbarian.t10.right.a
-        displayName: Increased Rage Effect
-        description: 
-        branch: 0
+        displayName: Heavy Physical Damage
+        description: 30% increased Physical Damage; -15% additive increased Attack Speed.
+        branch: 8
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 124
-          mechanicId: 
-          value: 10
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 57980ac7dbb89e54e94020d18f138a80, type: 3}
+          stat: 14
+          mechanicId:
+          value: 30
+        - kind: 0
+          stat: 81
+          mechanicId:
+          value: -15
+        iconMode: 0
+        iconOverride: {fileID: 0}
       b:
         stableId: tree.v3.class.barbarian.t10.right.b
         logicalSlotId: tree.v3.class.barbarian.t10.right.b
-        displayName: Reduced Rage Decay
-        description: 
-        branch: 0
+        displayName: Rage Generation
+        description: 15% increased Rage generation.
+        branch: 33
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 125
-          mechanicId: 
-          value: 5
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: f06a3b9a29ee16944a3ac4168a6259d7, type: 3}
+          stat: 123
+          mechanicId:
+          value: 15
+        iconMode: 0
+        iconOverride: {fileID: 0}
       c:
         stableId: tree.v3.class.barbarian.t10.right.c
         logicalSlotId: tree.v3.class.barbarian.t10.right.c
-        displayName: Fire Damage
-        description: 
-        branch: 5
+        displayName: Maximum Rage
+        description: +5 maximum Rage.
+        branch: 34
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 17
-          mechanicId: 
-          value: 42
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: e6b8a1d2052624f42aa8c4dcd3e9500e, type: 3}
+          stat: 155
+          mechanicId:
+          value: 5
+        iconMode: 0
+        iconOverride: {fileID: 0}
       subclassA:
         stableId: tree.v3.class.barbarian.t10.right.subclass.variant.barbarian-big_hit
         logicalSlotId: tree.v3.class.barbarian.t10.right.subclass
-        displayName: Titan Barbarian
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Full-Life Power
+        description: 7.5% more damage against full-Life enemies.
+        branch: 44
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 12
-          mechanicId: 
-          value: 17.279999
+          stat: 157
+          mechanicId:
+          value: 7.5
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
         stableId: tree.v3.class.barbarian.t10.right.subclass.variant.barbarian-fire
         logicalSlotId: tree.v3.class.barbarian.t10.right.subclass
-        displayName: Fire Barbarian
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Fire Conversion
+        description: Convert 12% Physical damage to Fire; 30% increased Fire Damage.
+        branch: 5
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 33
-          mechanicId: 
-          value: 10.8
+          stat: 161
+          mechanicId:
+          value: 12
+        - kind: 0
+          stat: 17
+          mechanicId:
+          value: 30
         iconMode: 0
         iconOverride: {fileID: 0}
     left:
@@ -1775,80 +1811,80 @@ MonoBehaviour:
         stableId: tree.v3.class.barbarian.t10.left.a
         logicalSlotId: tree.v3.class.barbarian.t10.left.a
         displayName: Life Regeneration
-        description: 
-        branch: 0
+        description: Regenerate 1.5% maximum Life each second.
+        branch: 18
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
           stat: 72
-          mechanicId: 
-          value: 0.285
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: e549ab60330b13a4b81944f07b446372, type: 3}
+          mechanicId:
+          value: 1.5
+        iconMode: 0
+        iconOverride: {fileID: 0}
       b:
         stableId: tree.v3.class.barbarian.t10.left.b
         logicalSlotId: tree.v3.class.barbarian.t10.left.b
-        displayName: Life On Kill
-        description: 
+        displayName: Damage Reduction per Rage
+        description: 0.02% damage reduction per current Rage.
         branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 76
-          mechanicId: 
-          value: 71.5
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 515daee52d8470c4da2c894c21392536, type: 3}
+          stat: 154
+          mechanicId:
+          value: 0.02
+        iconMode: 0
+        iconOverride: {fileID: 0}
       c:
         stableId: tree.v3.class.barbarian.t10.left.c
         logicalSlotId: tree.v3.class.barbarian.t10.left.c
-        displayName: Increased Strength
-        description: 
-        branch: 26
+        displayName: Reduced Rage Decay
+        description: 5% reduced Rage decay.
+        branch: 35
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 95
-          mechanicId: 
-          value: 7.5
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 515daee52d8470c4da2c894c21392536, type: 3}
+          stat: 125
+          mechanicId:
+          value: 5
+        iconMode: 0
+        iconOverride: {fileID: 0}
       subclassA:
         stableId: tree.v3.class.barbarian.t10.left.subclass.variant.barbarian-big_hit
         logicalSlotId: tree.v3.class.barbarian.t10.left.subclass
-        displayName: Titan Barbarian
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Rage-Fueled Regeneration
+        description: Regenerate 0.06% maximum Life per second per current Rage.
+        branch: 18
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 12
-          mechanicId: 
-          value: 17.279999
+          stat: 159
+          mechanicId:
+          value: 0.06
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
         stableId: tree.v3.class.barbarian.t10.left.subclass.variant.barbarian-fire
         logicalSlotId: tree.v3.class.barbarian.t10.left.subclass
-        displayName: Fire Barbarian
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Fire Life Leech
+        description: Leech 2% of Fire damage as Life over four seconds.
+        branch: 18
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 33
-          mechanicId: 
-          value: 10.8
+          stat: 163
+          mechanicId:
+          value: 2
         iconMode: 0
         iconOverride: {fileID: 0}
   keystones:

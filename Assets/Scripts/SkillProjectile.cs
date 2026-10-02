@@ -5,6 +5,10 @@ using UnityEngine;
 
 public sealed class SkillProjectile : MonoBehaviour
 {
+    private static int activePlayerProjectiles;
+    private bool counted;
+    public static int ActivePlayerProjectiles=>activePlayerProjectiles;
+    private void OnDisable(){if(counted){activePlayerProjectiles=Mathf.Max(0,activePlayerProjectiles-1);counted=false;}}
     private static Sprite orbSprite;
     private static AudioClip heavyImpactClip;
     public static AudioClip HeavyImpactClip => heavyImpactClip != null ? heavyImpactClip : (heavyImpactClip = CreateImpactClip());
@@ -28,6 +32,7 @@ public sealed class SkillProjectile : MonoBehaviour
     private IEnumerator Fly(Transform target,Action onImpact,float duration,float launchDelay)
     {
         if(launchDelay>0f)yield return new WaitForSeconds(launchDelay);
+        counted=true;activePlayerProjectiles++;
         Vector3 start = transform.position;
         float elapsed = 0f;
         duration=Mathf.Max(.01f,duration);
@@ -40,6 +45,7 @@ public sealed class SkillProjectile : MonoBehaviour
             transform.localScale = Vector3.one * (.5f + Mathf.Sin(t * Mathf.PI) * .2f);
             yield return null;
         }
+        OnDisable(); // An impacted projectile no longer contributes to guard.
         if (target != null) onImpact?.Invoke();
         Destroy(gameObject);
     }

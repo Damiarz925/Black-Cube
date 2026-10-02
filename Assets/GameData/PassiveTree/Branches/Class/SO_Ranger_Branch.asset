@@ -50,7 +50,7 @@ MonoBehaviour:
       effects:
       - kind: 0
         stat: 94
-        mechanicId: 
+        mechanicId:
         value: 10
       iconMode: 0
       iconOverride: {fileID: 0}
@@ -59,161 +59,165 @@ MonoBehaviour:
         stableId: tree.v3.class.ranger.t01.right.a
         logicalSlotId: tree.v3.class.ranger.t01.right.a
         displayName: Projectile Precision Chance
-        description: 
-        branch: 0
+        description: +8 percentage points Projectile Precision Chance.
+        branch: 31
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
           stat: 121
-          mechanicId: 
+          mechanicId:
           value: 8
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: ae575e791d6384f44b25c05c633a2f68, type: 3}
+        iconMode: 0
+        iconOverride: {fileID: 0}
       b:
         stableId: tree.v3.class.ranger.t01.right.b
         logicalSlotId: tree.v3.class.ranger.t01.right.b
-        displayName: Increased Projectile Speed
-        description: 
-        branch: 0
+        displayName: Projectile Speed
+        description: 15% increased Projectile Speed.
+        branch: 30
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
           stat: 113
-          mechanicId: 
+          mechanicId:
           value: 15
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: e7c94f28d889a6245817c3516bfd8d5e, type: 3}
+        iconMode: 0
+        iconOverride: {fileID: 0}
       c:
         stableId: tree.v3.class.ranger.t01.right.c
         logicalSlotId: tree.v3.class.ranger.t01.right.c
-        displayName: Attack Speed
-        description: 
-        branch: 0
+        displayName: Poison Chance
+        description: +30 percentage points Poison Chance.
+        branch: 13
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 81
-          mechanicId: 
-          value: 10
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 83637e1de046c064a88c2ba378b4d32b, type: 3}
+          stat: 32
+          mechanicId:
+          value: 30
+        iconMode: 0
+        iconOverride: {fileID: 0}
       subclassA:
         stableId: tree.v3.class.ranger.t01.right.subclass.variant.ranger-poison
         logicalSlotId: tree.v3.class.ranger.t01.right.subclass
-        displayName: Venom Ranger
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Poison Speed
+        description: 10% increased Poison Speed.
+        branch: 41
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 115
-          mechanicId: 
-          value: 9
+          stat: 128
+          mechanicId:
+          value: 10
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
         stableId: tree.v3.class.ranger.t01.right.subclass.variant.ranger-projectile
         logicalSlotId: tree.v3.class.ranger.t01.right.subclass
-        displayName: Projectile Ranger
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Precision Power
+        description: 5% more Precision Damage.
+        branch: 32
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 121
-          mechanicId: 
-          value: 10.799999
+          stat: 167
+          mechanicId:
+          value: 5
         iconMode: 0
         iconOverride: {fileID: 0}
     left:
       a:
         stableId: tree.v3.class.ranger.t01.left.a
         logicalSlotId: tree.v3.class.ranger.t01.left.a
-        displayName: Increased Maximum Life
-        description: 
-        branch: 1
+        displayName: Dodge Chance
+        description: +3 percentage points Dodge Chance against attack hits.
+        branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 70
-          mechanicId: 
-          value: 15
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 0733b024b1daef941bab2488f5e58093, type: 3}
+          stat: 164
+          mechanicId:
+          value: 3
+        iconMode: 0
+        iconOverride: {fileID: 0}
       b:
         stableId: tree.v3.class.ranger.t01.left.b
         logicalSlotId: tree.v3.class.ranger.t01.left.b
-        displayName: Poison Damage Leeched as Life
-        description: Recover Life from actual mitigated Poison tick damage dealt. Not Life on Hit; overkill does not grant extra leech.
-        branch: 0
+        displayName: Life on Kill
+        description: Recover 50 Life on kill.
+        branch: 24
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 134
-          mechanicId: 
-          value: 2
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: e1ea17bc739ccbc4a848bbef64d056e4, type: 3}
+          stat: 76
+          mechanicId:
+          value: 50
+        iconMode: 0
+        iconOverride: {fileID: 0}
       c:
         stableId: tree.v3.class.ranger.t01.left.c
         logicalSlotId: tree.v3.class.ranger.t01.left.c
-        displayName: Mana On Hit
-        description: 
-        branch: 0
+        displayName: Shock and Chill Resistance
+        description: 4% reduced Shock effect and 4% reduced Chill effect.
+        branch: 42
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 75
-          mechanicId: 
-          value: 2.775
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 636c4f7991f3bc3499cbeb4fd6231820, type: 3}
+          stat: 130
+          mechanicId:
+          value: 4
+        - kind: 0
+          stat: 131
+          mechanicId:
+          value: 4
+        iconMode: 0
+        iconOverride: {fileID: 0}
       subclassA:
         stableId: tree.v3.class.ranger.t01.left.subclass.variant.ranger-poison
         logicalSlotId: tree.v3.class.ranger.t01.left.subclass
-        displayName: Venom Ranger
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Poison Life Leech
+        description: Recover 2% of Poison damage as Life.
+        branch: 18
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 115
-          mechanicId: 
-          value: 9
+          stat: 134
+          mechanicId:
+          value: 2
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
         stableId: tree.v3.class.ranger.t01.left.subclass.variant.ranger-projectile
         logicalSlotId: tree.v3.class.ranger.t01.left.subclass
-        displayName: Projectile Ranger
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Projectile Guard
+        description: 0.1% less damage per live player projectile in flight.
+        branch: 0
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 121
-          mechanicId: 
-          value: 10.799999
+          stat: 168
+          mechanicId:
+          value: 0.1
         iconMode: 0
         iconOverride: {fileID: 0}
   - tier: 2
@@ -229,7 +233,7 @@ MonoBehaviour:
       effects:
       - kind: 0
         stat: 94
-        mechanicId: 
+        mechanicId:
         value: 10
       iconMode: 0
       iconOverride: {fileID: 0}
@@ -237,162 +241,170 @@ MonoBehaviour:
       a:
         stableId: tree.v3.class.ranger.t02.right.a
         logicalSlotId: tree.v3.class.ranger.t02.right.a
+        displayName: Projectile Precision Chance
+        description: +8 percentage points Projectile Precision Chance.
+        branch: 31
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 121
+          mechanicId:
+          value: 8
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      b:
+        stableId: tree.v3.class.ranger.t02.right.b
+        logicalSlotId: tree.v3.class.ranger.t02.right.b
+        displayName: Projectile Speed
+        description: 15% increased Projectile Speed.
+        branch: 30
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 113
+          mechanicId:
+          value: 15
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      c:
+        stableId: tree.v3.class.ranger.t02.right.c
+        logicalSlotId: tree.v3.class.ranger.t02.right.c
         displayName: Poison Chance
-        description: 
-        branch: 0
+        description: +30 percentage points Poison Chance.
+        branch: 13
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
           stat: 32
-          mechanicId: 
-          value: 63
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: e1ea17bc739ccbc4a848bbef64d056e4, type: 3}
-      b:
-        stableId: tree.v3.class.ranger.t02.right.b
-        logicalSlotId: tree.v3.class.ranger.t02.right.b
-        displayName: Dexterity Percent
-        description: 
-        branch: 27
-        size: 0
-        kind: 6
-        keystone: 0
-        effects:
-        - kind: 0
-          stat: 97
-          mechanicId: 
-          value: 7.5
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 515daee52d8470c4da2c894c21392536, type: 3}
-      c:
-        stableId: tree.v3.class.ranger.t02.right.c
-        logicalSlotId: tree.v3.class.ranger.t02.right.c
-        displayName: Increased Rage Generation
-        description: 
-        branch: 0
-        size: 0
-        kind: 6
-        keystone: 0
-        effects:
-        - kind: 0
-          stat: 123
-          mechanicId: 
-          value: 15
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 1adfa280e0d04a04b8252aaffa939b0a, type: 3}
+          mechanicId:
+          value: 30
+        iconMode: 0
+        iconOverride: {fileID: 0}
       subclassA:
         stableId: tree.v3.class.ranger.t02.right.subclass.variant.ranger-poison
         logicalSlotId: tree.v3.class.ranger.t02.right.subclass
-        displayName: Venom Ranger
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Poison Duration
+        description: 10% increased Poison Duration.
+        branch: 38
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 81
-          mechanicId: 
-          value: 9.2
+          stat: 38
+          mechanicId:
+          value: 10
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
         stableId: tree.v3.class.ranger.t02.right.subclass.variant.ranger-projectile
         logicalSlotId: tree.v3.class.ranger.t02.right.subclass
-        displayName: Projectile Ranger
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Projectile Amount
+        description: +0.4 Projectile Amount; fractional remainder rolls for one extra projectile.
+        branch: 10
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 113
-          mechanicId: 
-          value: 9.2
+          stat: 112
+          mechanicId:
+          value: 0.4
         iconMode: 0
         iconOverride: {fileID: 0}
     left:
       a:
         stableId: tree.v3.class.ranger.t02.left.a
         logicalSlotId: tree.v3.class.ranger.t02.left.a
-        displayName: Reduced Shock Effect
-        description: 
+        displayName: Dodge Chance
+        description: +3 percentage points Dodge Chance against attack hits.
         branch: 0
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 164
+          mechanicId:
+          value: 3
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      b:
+        stableId: tree.v3.class.ranger.t02.left.b
+        logicalSlotId: tree.v3.class.ranger.t02.left.b
+        displayName: Life on Kill
+        description: Recover 50 Life on kill.
+        branch: 24
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 76
+          mechanicId:
+          value: 50
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      c:
+        stableId: tree.v3.class.ranger.t02.left.c
+        logicalSlotId: tree.v3.class.ranger.t02.left.c
+        displayName: Shock and Chill Resistance
+        description: 4% reduced Shock effect and 4% reduced Chill effect.
+        branch: 42
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
           stat: 130
-          mechanicId: 
-          value: 8
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 515daee52d8470c4da2c894c21392536, type: 3}
-      b:
-        stableId: tree.v3.class.ranger.t02.left.b
-        logicalSlotId: tree.v3.class.ranger.t02.left.b
-        displayName: Reduced Chill Effect
-        description: 
-        branch: 0
-        size: 0
-        kind: 6
-        keystone: 0
-        effects:
+          mechanicId:
+          value: 4
         - kind: 0
           stat: 131
-          mechanicId: 
-          value: 8
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 515daee52d8470c4da2c894c21392536, type: 3}
-      c:
-        stableId: tree.v3.class.ranger.t02.left.c
-        logicalSlotId: tree.v3.class.ranger.t02.left.c
-        displayName: All Elemental Resist
-        description: Fire, Cold and Lightning resistance only; excludes Void.
-        branch: 0
-        size: 0
-        kind: 6
-        keystone: 0
-        effects:
-        - kind: 0
-          stat: 57
-          mechanicId: 
-          value: 6
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 515daee52d8470c4da2c894c21392536, type: 3}
+          mechanicId:
+          value: 4
+        iconMode: 0
+        iconOverride: {fileID: 0}
       subclassA:
         stableId: tree.v3.class.ranger.t02.left.subclass.variant.ranger-poison
         logicalSlotId: tree.v3.class.ranger.t02.left.subclass
-        displayName: Venom Ranger
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Toxic Suppression
+        description: Poisoned attackers deal 0.5% less damage per ten Poison stacks on them.
+        branch: 0
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 81
-          mechanicId: 
-          value: 9.2
+          stat: 165
+          mechanicId:
+          value: 0.5
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
         stableId: tree.v3.class.ranger.t02.left.subclass.variant.ranger-projectile
         logicalSlotId: tree.v3.class.ranger.t02.left.subclass
-        displayName: Projectile Ranger
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Evasive Recovery
+        description: +2 percentage points Dodge Chance; recover 2% maximum Life on a successful Dodge.
+        branch: 0
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 113
-          mechanicId: 
-          value: 9.2
+          stat: 164
+          mechanicId:
+          value: 2
+        - kind: 0
+          stat: 169
+          mechanicId:
+          value: 2
         iconMode: 0
         iconOverride: {fileID: 0}
   - tier: 3
@@ -408,7 +420,7 @@ MonoBehaviour:
       effects:
       - kind: 0
         stat: 94
-        mechanicId: 
+        mechanicId:
         value: 10
       iconMode: 0
       iconOverride: {fileID: 0}
@@ -417,161 +429,165 @@ MonoBehaviour:
         stableId: tree.v3.class.ranger.t03.right.a
         logicalSlotId: tree.v3.class.ranger.t03.right.a
         displayName: Projectile Precision Chance
-        description: 
-        branch: 0
+        description: +8 percentage points Projectile Precision Chance.
+        branch: 31
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
           stat: 121
-          mechanicId: 
+          mechanicId:
           value: 8
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: ae575e791d6384f44b25c05c633a2f68, type: 3}
+        iconMode: 0
+        iconOverride: {fileID: 0}
       b:
         stableId: tree.v3.class.ranger.t03.right.b
         logicalSlotId: tree.v3.class.ranger.t03.right.b
+        displayName: Projectile Speed
+        description: 15% increased Projectile Speed.
+        branch: 30
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 113
+          mechanicId:
+          value: 15
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      c:
+        stableId: tree.v3.class.ranger.t03.right.c
+        logicalSlotId: tree.v3.class.ranger.t03.right.c
         displayName: Poison Chance
-        description: 
-        branch: 0
+        description: +30 percentage points Poison Chance.
+        branch: 13
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
           stat: 32
-          mechanicId: 
-          value: 63
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: e1ea17bc739ccbc4a848bbef64d056e4, type: 3}
-      c:
-        stableId: tree.v3.class.ranger.t03.right.c
-        logicalSlotId: tree.v3.class.ranger.t03.right.c
-        displayName: Mana On Hit
-        description: 
-        branch: 0
-        size: 0
-        kind: 6
-        keystone: 0
-        effects:
-        - kind: 0
-          stat: 75
-          mechanicId: 
-          value: 2.775
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 636c4f7991f3bc3499cbeb4fd6231820, type: 3}
+          mechanicId:
+          value: 30
+        iconMode: 0
+        iconOverride: {fileID: 0}
       subclassA:
         stableId: tree.v3.class.ranger.t03.right.subclass.variant.ranger-poison
         logicalSlotId: tree.v3.class.ranger.t03.right.subclass
-        displayName: Venom Ranger
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Poison Speed
+        description: 10% increased Poison Speed.
+        branch: 41
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 32
-          mechanicId: 
-          value: 9.4
+          stat: 128
+          mechanicId:
+          value: 10
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
         stableId: tree.v3.class.ranger.t03.right.subclass.variant.ranger-projectile
         logicalSlotId: tree.v3.class.ranger.t03.right.subclass
-        displayName: Projectile Ranger
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Precision Power
+        description: 5% more Precision Damage.
+        branch: 32
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 112
-          mechanicId: 
-          value: 1.88
+          stat: 167
+          mechanicId:
+          value: 5
         iconMode: 0
         iconOverride: {fileID: 0}
     left:
       a:
         stableId: tree.v3.class.ranger.t03.left.a
         logicalSlotId: tree.v3.class.ranger.t03.left.a
-        displayName: Increased Maximum Life
-        description: 
-        branch: 1
+        displayName: Dodge Chance
+        description: +3 percentage points Dodge Chance against attack hits.
+        branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 70
-          mechanicId: 
-          value: 15
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 0733b024b1daef941bab2488f5e58093, type: 3}
+          stat: 164
+          mechanicId:
+          value: 3
+        iconMode: 0
+        iconOverride: {fileID: 0}
       b:
         stableId: tree.v3.class.ranger.t03.left.b
         logicalSlotId: tree.v3.class.ranger.t03.left.b
-        displayName: Reduced Shock Effect
-        description: 
-        branch: 0
+        displayName: Life on Kill
+        description: Recover 50 Life on kill.
+        branch: 24
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 76
+          mechanicId:
+          value: 50
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      c:
+        stableId: tree.v3.class.ranger.t03.left.c
+        logicalSlotId: tree.v3.class.ranger.t03.left.c
+        displayName: Shock and Chill Resistance
+        description: 4% reduced Shock effect and 4% reduced Chill effect.
+        branch: 42
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
           stat: 130
-          mechanicId: 
-          value: 8
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 515daee52d8470c4da2c894c21392536, type: 3}
-      c:
-        stableId: tree.v3.class.ranger.t03.left.c
-        logicalSlotId: tree.v3.class.ranger.t03.left.c
-        displayName: Attack Speed
-        description: 
-        branch: 0
-        size: 0
-        kind: 6
-        keystone: 0
-        effects:
+          mechanicId:
+          value: 4
         - kind: 0
-          stat: 81
-          mechanicId: 
-          value: 10
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 83637e1de046c064a88c2ba378b4d32b, type: 3}
+          stat: 131
+          mechanicId:
+          value: 4
+        iconMode: 0
+        iconOverride: {fileID: 0}
       subclassA:
         stableId: tree.v3.class.ranger.t03.left.subclass.variant.ranger-poison
         logicalSlotId: tree.v3.class.ranger.t03.left.subclass
-        displayName: Venom Ranger
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Poison Life Leech
+        description: Recover 2% of Poison damage as Life.
+        branch: 18
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 32
-          mechanicId: 
-          value: 9.4
+          stat: 134
+          mechanicId:
+          value: 2
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
         stableId: tree.v3.class.ranger.t03.left.subclass.variant.ranger-projectile
         logicalSlotId: tree.v3.class.ranger.t03.left.subclass
-        displayName: Projectile Ranger
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Projectile Guard
+        description: 0.1% less damage per live player projectile in flight.
+        branch: 0
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 112
-          mechanicId: 
-          value: 1.88
+          stat: 168
+          mechanicId:
+          value: 0.1
         iconMode: 0
         iconOverride: {fileID: 0}
   - tier: 4
@@ -587,7 +603,7 @@ MonoBehaviour:
       effects:
       - kind: 0
         stat: 94
-        mechanicId: 
+        mechanicId:
         value: 10
       iconMode: 0
       iconOverride: {fileID: 0}
@@ -595,162 +611,170 @@ MonoBehaviour:
       a:
         stableId: tree.v3.class.ranger.t04.right.a
         logicalSlotId: tree.v3.class.ranger.t04.right.a
-        displayName: Increased Projectile Speed
-        description: 
-        branch: 0
+        displayName: Projectile Precision Chance
+        description: +8 percentage points Projectile Precision Chance.
+        branch: 31
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 121
+          mechanicId:
+          value: 8
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      b:
+        stableId: tree.v3.class.ranger.t04.right.b
+        logicalSlotId: tree.v3.class.ranger.t04.right.b
+        displayName: Projectile Speed
+        description: 15% increased Projectile Speed.
+        branch: 30
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
           stat: 113
-          mechanicId: 
+          mechanicId:
           value: 15
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: e7c94f28d889a6245817c3516bfd8d5e, type: 3}
-      b:
-        stableId: tree.v3.class.ranger.t04.right.b
-        logicalSlotId: tree.v3.class.ranger.t04.right.b
-        displayName: Dexterity Percent
-        description: 
-        branch: 27
-        size: 0
-        kind: 6
-        keystone: 0
-        effects:
-        - kind: 0
-          stat: 97
-          mechanicId: 
-          value: 7.5
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 515daee52d8470c4da2c894c21392536, type: 3}
+        iconMode: 0
+        iconOverride: {fileID: 0}
       c:
         stableId: tree.v3.class.ranger.t04.right.c
         logicalSlotId: tree.v3.class.ranger.t04.right.c
-        displayName: All Elemental Resist
-        description: Fire, Cold and Lightning resistance only; excludes Void.
-        branch: 0
+        displayName: Poison Chance
+        description: +30 percentage points Poison Chance.
+        branch: 13
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 57
-          mechanicId: 
-          value: 6
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 515daee52d8470c4da2c894c21392536, type: 3}
+          stat: 32
+          mechanicId:
+          value: 30
+        iconMode: 0
+        iconOverride: {fileID: 0}
       subclassA:
         stableId: tree.v3.class.ranger.t04.right.subclass.variant.ranger-poison
         logicalSlotId: tree.v3.class.ranger.t04.right.subclass
-        displayName: Venom Ranger
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Poison Duration
+        description: 10% increased Poison Duration.
+        branch: 38
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 115
-          mechanicId: 
-          value: 9.599999
+          stat: 38
+          mechanicId:
+          value: 10
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
         stableId: tree.v3.class.ranger.t04.right.subclass.variant.ranger-projectile
         logicalSlotId: tree.v3.class.ranger.t04.right.subclass
-        displayName: Projectile Ranger
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Projectile Amount
+        description: +0.4 Projectile Amount; fractional remainder rolls for one extra projectile.
+        branch: 10
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 121
-          mechanicId: 
-          value: 11.5199995
+          stat: 112
+          mechanicId:
+          value: 0.4
         iconMode: 0
         iconOverride: {fileID: 0}
     left:
       a:
         stableId: tree.v3.class.ranger.t04.left.a
         logicalSlotId: tree.v3.class.ranger.t04.left.a
-        displayName: Poison Damage Leeched as Life
-        description: Recover Life from actual mitigated Poison tick damage dealt. Not Life on Hit; overkill does not grant extra leech.
+        displayName: Dodge Chance
+        description: +3 percentage points Dodge Chance against attack hits.
         branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 134
-          mechanicId: 
-          value: 2
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: e1ea17bc739ccbc4a848bbef64d056e4, type: 3}
+          stat: 164
+          mechanicId:
+          value: 3
+        iconMode: 0
+        iconOverride: {fileID: 0}
       b:
         stableId: tree.v3.class.ranger.t04.left.b
         logicalSlotId: tree.v3.class.ranger.t04.left.b
-        displayName: Reduced Chill Effect
-        description: 
-        branch: 0
+        displayName: Life on Kill
+        description: Recover 50 Life on kill.
+        branch: 24
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 131
-          mechanicId: 
-          value: 8
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 515daee52d8470c4da2c894c21392536, type: 3}
+          stat: 76
+          mechanicId:
+          value: 50
+        iconMode: 0
+        iconOverride: {fileID: 0}
       c:
         stableId: tree.v3.class.ranger.t04.left.c
         logicalSlotId: tree.v3.class.ranger.t04.left.c
-        displayName: Increased Rage Generation
-        description: 
-        branch: 0
+        displayName: Shock and Chill Resistance
+        description: 4% reduced Shock effect and 4% reduced Chill effect.
+        branch: 42
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 123
-          mechanicId: 
-          value: 15
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 1adfa280e0d04a04b8252aaffa939b0a, type: 3}
+          stat: 130
+          mechanicId:
+          value: 4
+        - kind: 0
+          stat: 131
+          mechanicId:
+          value: 4
+        iconMode: 0
+        iconOverride: {fileID: 0}
       subclassA:
         stableId: tree.v3.class.ranger.t04.left.subclass.variant.ranger-poison
         logicalSlotId: tree.v3.class.ranger.t04.left.subclass
-        displayName: Venom Ranger
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Toxic Suppression
+        description: Poisoned attackers deal 0.5% less damage per ten Poison stacks on them.
+        branch: 0
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 115
-          mechanicId: 
-          value: 9.599999
+          stat: 165
+          mechanicId:
+          value: 0.5
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
         stableId: tree.v3.class.ranger.t04.left.subclass.variant.ranger-projectile
         logicalSlotId: tree.v3.class.ranger.t04.left.subclass
-        displayName: Projectile Ranger
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Evasive Recovery
+        description: +2 percentage points Dodge Chance; recover 2% maximum Life on a successful Dodge.
+        branch: 0
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 121
-          mechanicId: 
-          value: 11.5199995
+          stat: 164
+          mechanicId:
+          value: 2
+        - kind: 0
+          stat: 169
+          mechanicId:
+          value: 2
         iconMode: 0
         iconOverride: {fileID: 0}
   - tier: 5
@@ -766,7 +790,7 @@ MonoBehaviour:
       effects:
       - kind: 0
         stat: 94
-        mechanicId: 
+        mechanicId:
         value: 10
       iconMode: 0
       iconOverride: {fileID: 0}
@@ -775,161 +799,165 @@ MonoBehaviour:
         stableId: tree.v3.class.ranger.t05.right.a
         logicalSlotId: tree.v3.class.ranger.t05.right.a
         displayName: Projectile Precision Chance
-        description: 
-        branch: 0
+        description: +8 percentage points Projectile Precision Chance.
+        branch: 31
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
           stat: 121
-          mechanicId: 
+          mechanicId:
           value: 8
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: ae575e791d6384f44b25c05c633a2f68, type: 3}
+        iconMode: 0
+        iconOverride: {fileID: 0}
       b:
         stableId: tree.v3.class.ranger.t05.right.b
         logicalSlotId: tree.v3.class.ranger.t05.right.b
-        displayName: Dexterity Percent
-        description: 
-        branch: 27
+        displayName: Projectile Speed
+        description: 15% increased Projectile Speed.
+        branch: 30
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 97
-          mechanicId: 
-          value: 7.5
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 515daee52d8470c4da2c894c21392536, type: 3}
+          stat: 113
+          mechanicId:
+          value: 15
+        iconMode: 0
+        iconOverride: {fileID: 0}
       c:
         stableId: tree.v3.class.ranger.t05.right.c
         logicalSlotId: tree.v3.class.ranger.t05.right.c
-        displayName: Attack Speed
-        description: 
-        branch: 0
+        displayName: Poison Chance
+        description: +30 percentage points Poison Chance.
+        branch: 13
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 81
-          mechanicId: 
-          value: 10
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 83637e1de046c064a88c2ba378b4d32b, type: 3}
+          stat: 32
+          mechanicId:
+          value: 30
+        iconMode: 0
+        iconOverride: {fileID: 0}
       subclassA:
         stableId: tree.v3.class.ranger.t05.right.subclass.variant.ranger-poison
         logicalSlotId: tree.v3.class.ranger.t05.right.subclass
-        displayName: Venom Ranger
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Poison Speed
+        description: 10% increased Poison Speed.
+        branch: 41
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 81
-          mechanicId: 
-          value: 9.8
+          stat: 128
+          mechanicId:
+          value: 10
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
         stableId: tree.v3.class.ranger.t05.right.subclass.variant.ranger-projectile
         logicalSlotId: tree.v3.class.ranger.t05.right.subclass
-        displayName: Projectile Ranger
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Precision Power
+        description: 5% more Precision Damage.
+        branch: 32
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 113
-          mechanicId: 
-          value: 9.8
+          stat: 167
+          mechanicId:
+          value: 5
         iconMode: 0
         iconOverride: {fileID: 0}
     left:
       a:
         stableId: tree.v3.class.ranger.t05.left.a
         logicalSlotId: tree.v3.class.ranger.t05.left.a
-        displayName: Increased Maximum Life
-        description: 
-        branch: 1
+        displayName: Dodge Chance
+        description: +3 percentage points Dodge Chance against attack hits.
+        branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 70
-          mechanicId: 
-          value: 15
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 0733b024b1daef941bab2488f5e58093, type: 3}
+          stat: 164
+          mechanicId:
+          value: 3
+        iconMode: 0
+        iconOverride: {fileID: 0}
       b:
         stableId: tree.v3.class.ranger.t05.left.b
         logicalSlotId: tree.v3.class.ranger.t05.left.b
-        displayName: Reduced Chill Effect
-        description: 
-        branch: 0
+        displayName: Life on Kill
+        description: Recover 50 Life on kill.
+        branch: 24
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 131
-          mechanicId: 
-          value: 8
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 515daee52d8470c4da2c894c21392536, type: 3}
+          stat: 76
+          mechanicId:
+          value: 50
+        iconMode: 0
+        iconOverride: {fileID: 0}
       c:
         stableId: tree.v3.class.ranger.t05.left.c
         logicalSlotId: tree.v3.class.ranger.t05.left.c
-        displayName: Mana On Hit
-        description: 
-        branch: 0
+        displayName: Shock and Chill Resistance
+        description: 4% reduced Shock effect and 4% reduced Chill effect.
+        branch: 42
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 75
-          mechanicId: 
-          value: 2.775
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 636c4f7991f3bc3499cbeb4fd6231820, type: 3}
+          stat: 130
+          mechanicId:
+          value: 4
+        - kind: 0
+          stat: 131
+          mechanicId:
+          value: 4
+        iconMode: 0
+        iconOverride: {fileID: 0}
       subclassA:
         stableId: tree.v3.class.ranger.t05.left.subclass.variant.ranger-poison
         logicalSlotId: tree.v3.class.ranger.t05.left.subclass
-        displayName: Venom Ranger
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Poison Life Leech
+        description: Recover 2% of Poison damage as Life.
+        branch: 18
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 81
-          mechanicId: 
-          value: 9.8
+          stat: 134
+          mechanicId:
+          value: 2
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
         stableId: tree.v3.class.ranger.t05.left.subclass.variant.ranger-projectile
         logicalSlotId: tree.v3.class.ranger.t05.left.subclass
-        displayName: Projectile Ranger
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Projectile Guard
+        description: 0.1% less damage per live player projectile in flight.
+        branch: 0
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 113
-          mechanicId: 
-          value: 9.8
+          stat: 168
+          mechanicId:
+          value: 0.1
         iconMode: 0
         iconOverride: {fileID: 0}
   - tier: 6
@@ -945,7 +973,7 @@ MonoBehaviour:
       effects:
       - kind: 0
         stat: 94
-        mechanicId: 
+        mechanicId:
         value: 10
       iconMode: 0
       iconOverride: {fileID: 0}
@@ -953,161 +981,169 @@ MonoBehaviour:
       a:
         stableId: tree.v3.class.ranger.t06.right.a
         logicalSlotId: tree.v3.class.ranger.t06.right.a
-        displayName: Increased Projectile Speed
-        description: 
-        branch: 0
+        displayName: Projectile Precision Chance
+        description: +8 percentage points Projectile Precision Chance.
+        branch: 31
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 121
+          mechanicId:
+          value: 8
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      b:
+        stableId: tree.v3.class.ranger.t06.right.b
+        logicalSlotId: tree.v3.class.ranger.t06.right.b
+        displayName: Projectile Speed
+        description: 15% increased Projectile Speed.
+        branch: 30
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
           stat: 113
-          mechanicId: 
+          mechanicId:
           value: 15
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: e7c94f28d889a6245817c3516bfd8d5e, type: 3}
-      b:
-        stableId: tree.v3.class.ranger.t06.right.b
-        logicalSlotId: tree.v3.class.ranger.t06.right.b
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      c:
+        stableId: tree.v3.class.ranger.t06.right.c
+        logicalSlotId: tree.v3.class.ranger.t06.right.c
         displayName: Poison Chance
-        description: 
-        branch: 0
+        description: +30 percentage points Poison Chance.
+        branch: 13
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
           stat: 32
-          mechanicId: 
-          value: 63
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: e1ea17bc739ccbc4a848bbef64d056e4, type: 3}
-      c:
-        stableId: tree.v3.class.ranger.t06.right.c
-        logicalSlotId: tree.v3.class.ranger.t06.right.c
-        displayName: Increased Rage Generation
-        description: 
-        branch: 0
-        size: 0
-        kind: 6
-        keystone: 0
-        effects:
-        - kind: 0
-          stat: 123
-          mechanicId: 
-          value: 15
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 1adfa280e0d04a04b8252aaffa939b0a, type: 3}
+          mechanicId:
+          value: 30
+        iconMode: 0
+        iconOverride: {fileID: 0}
       subclassA:
         stableId: tree.v3.class.ranger.t06.right.subclass.variant.ranger-poison
         logicalSlotId: tree.v3.class.ranger.t06.right.subclass
-        displayName: Venom Ranger
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Poison Duration
+        description: 10% increased Poison Duration.
+        branch: 38
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 32
-          mechanicId: 
+          stat: 38
+          mechanicId:
           value: 10
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
         stableId: tree.v3.class.ranger.t06.right.subclass.variant.ranger-projectile
         logicalSlotId: tree.v3.class.ranger.t06.right.subclass
-        displayName: Projectile Ranger
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Projectile Amount
+        description: +0.4 Projectile Amount; fractional remainder rolls for one extra projectile.
+        branch: 10
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
           stat: 112
-          mechanicId: 
-          value: 2
+          mechanicId:
+          value: 0.4
         iconMode: 0
         iconOverride: {fileID: 0}
     left:
       a:
         stableId: tree.v3.class.ranger.t06.left.a
         logicalSlotId: tree.v3.class.ranger.t06.left.a
-        displayName: Poison Damage Leeched as Life
-        description: Recover Life from actual mitigated Poison tick damage dealt. Not Life on Hit; overkill does not grant extra leech.
+        displayName: Dodge Chance
+        description: +3 percentage points Dodge Chance against attack hits.
         branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 134
-          mechanicId: 
-          value: 2
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: e1ea17bc739ccbc4a848bbef64d056e4, type: 3}
+          stat: 164
+          mechanicId:
+          value: 3
+        iconMode: 0
+        iconOverride: {fileID: 0}
       b:
         stableId: tree.v3.class.ranger.t06.left.b
         logicalSlotId: tree.v3.class.ranger.t06.left.b
-        displayName: Reduced Shock Effect
-        description: 
-        branch: 0
+        displayName: Life on Kill
+        description: Recover 50 Life on kill.
+        branch: 24
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 76
+          mechanicId:
+          value: 50
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      c:
+        stableId: tree.v3.class.ranger.t06.left.c
+        logicalSlotId: tree.v3.class.ranger.t06.left.c
+        displayName: Shock and Chill Resistance
+        description: 4% reduced Shock effect and 4% reduced Chill effect.
+        branch: 42
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
           stat: 130
-          mechanicId: 
-          value: 8
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 515daee52d8470c4da2c894c21392536, type: 3}
-      c:
-        stableId: tree.v3.class.ranger.t06.left.c
-        logicalSlotId: tree.v3.class.ranger.t06.left.c
-        displayName: All Elemental Resist
-        description: Fire, Cold and Lightning resistance only; excludes Void.
-        branch: 0
-        size: 0
-        kind: 6
-        keystone: 0
-        effects:
+          mechanicId:
+          value: 4
         - kind: 0
-          stat: 57
-          mechanicId: 
-          value: 6
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 515daee52d8470c4da2c894c21392536, type: 3}
+          stat: 131
+          mechanicId:
+          value: 4
+        iconMode: 0
+        iconOverride: {fileID: 0}
       subclassA:
         stableId: tree.v3.class.ranger.t06.left.subclass.variant.ranger-poison
         logicalSlotId: tree.v3.class.ranger.t06.left.subclass
-        displayName: Venom Ranger
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Toxic Suppression
+        description: Poisoned attackers deal 0.5% less damage per ten Poison stacks on them.
+        branch: 0
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 32
-          mechanicId: 
-          value: 10
+          stat: 165
+          mechanicId:
+          value: 0.5
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
         stableId: tree.v3.class.ranger.t06.left.subclass.variant.ranger-projectile
         logicalSlotId: tree.v3.class.ranger.t06.left.subclass
-        displayName: Projectile Ranger
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Evasive Recovery
+        description: +2 percentage points Dodge Chance; recover 2% maximum Life on a successful Dodge.
+        branch: 0
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 112
-          mechanicId: 
+          stat: 164
+          mechanicId:
+          value: 2
+        - kind: 0
+          stat: 169
+          mechanicId:
           value: 2
         iconMode: 0
         iconOverride: {fileID: 0}
@@ -1124,7 +1160,7 @@ MonoBehaviour:
       effects:
       - kind: 0
         stat: 94
-        mechanicId: 
+        mechanicId:
         value: 10
       iconMode: 0
       iconOverride: {fileID: 0}
@@ -1133,161 +1169,165 @@ MonoBehaviour:
         stableId: tree.v3.class.ranger.t07.right.a
         logicalSlotId: tree.v3.class.ranger.t07.right.a
         displayName: Projectile Precision Chance
-        description: 
-        branch: 0
+        description: +8 percentage points Projectile Precision Chance.
+        branch: 31
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
           stat: 121
-          mechanicId: 
+          mechanicId:
           value: 8
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: ae575e791d6384f44b25c05c633a2f68, type: 3}
+        iconMode: 0
+        iconOverride: {fileID: 0}
       b:
         stableId: tree.v3.class.ranger.t07.right.b
         logicalSlotId: tree.v3.class.ranger.t07.right.b
-        displayName: Increased Projectile Speed
-        description: 
-        branch: 0
+        displayName: Projectile Speed
+        description: 15% increased Projectile Speed.
+        branch: 30
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
           stat: 113
-          mechanicId: 
+          mechanicId:
           value: 15
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: e7c94f28d889a6245817c3516bfd8d5e, type: 3}
+        iconMode: 0
+        iconOverride: {fileID: 0}
       c:
         stableId: tree.v3.class.ranger.t07.right.c
         logicalSlotId: tree.v3.class.ranger.t07.right.c
-        displayName: Mana On Hit
-        description: 
-        branch: 0
+        displayName: Poison Chance
+        description: +30 percentage points Poison Chance.
+        branch: 13
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 75
-          mechanicId: 
-          value: 2.775
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 636c4f7991f3bc3499cbeb4fd6231820, type: 3}
+          stat: 32
+          mechanicId:
+          value: 30
+        iconMode: 0
+        iconOverride: {fileID: 0}
       subclassA:
         stableId: tree.v3.class.ranger.t07.right.subclass.variant.ranger-poison
         logicalSlotId: tree.v3.class.ranger.t07.right.subclass
-        displayName: Venom Ranger
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Poison Speed
+        description: 10% increased Poison Speed.
+        branch: 41
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 115
-          mechanicId: 
-          value: 10.2
+          stat: 128
+          mechanicId:
+          value: 10
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
         stableId: tree.v3.class.ranger.t07.right.subclass.variant.ranger-projectile
         logicalSlotId: tree.v3.class.ranger.t07.right.subclass
-        displayName: Projectile Ranger
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Precision Power
+        description: 5% more Precision Damage.
+        branch: 32
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 121
-          mechanicId: 
-          value: 12.24
+          stat: 167
+          mechanicId:
+          value: 5
         iconMode: 0
         iconOverride: {fileID: 0}
     left:
       a:
         stableId: tree.v3.class.ranger.t07.left.a
         logicalSlotId: tree.v3.class.ranger.t07.left.a
-        displayName: Increased Maximum Life
-        description: 
-        branch: 1
+        displayName: Dodge Chance
+        description: +3 percentage points Dodge Chance against attack hits.
+        branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 70
-          mechanicId: 
-          value: 15
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 0733b024b1daef941bab2488f5e58093, type: 3}
+          stat: 164
+          mechanicId:
+          value: 3
+        iconMode: 0
+        iconOverride: {fileID: 0}
       b:
         stableId: tree.v3.class.ranger.t07.left.b
         logicalSlotId: tree.v3.class.ranger.t07.left.b
-        displayName: Poison Damage Leeched as Life
-        description: Recover Life from actual mitigated Poison tick damage dealt. Not Life on Hit; overkill does not grant extra leech.
-        branch: 0
+        displayName: Life on Kill
+        description: Recover 50 Life on kill.
+        branch: 24
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 134
-          mechanicId: 
-          value: 2
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: e1ea17bc739ccbc4a848bbef64d056e4, type: 3}
+          stat: 76
+          mechanicId:
+          value: 50
+        iconMode: 0
+        iconOverride: {fileID: 0}
       c:
         stableId: tree.v3.class.ranger.t07.left.c
         logicalSlotId: tree.v3.class.ranger.t07.left.c
-        displayName: Attack Speed
-        description: 
-        branch: 0
+        displayName: Shock and Chill Resistance
+        description: 4% reduced Shock effect and 4% reduced Chill effect.
+        branch: 42
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 81
-          mechanicId: 
-          value: 10
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 83637e1de046c064a88c2ba378b4d32b, type: 3}
+          stat: 130
+          mechanicId:
+          value: 4
+        - kind: 0
+          stat: 131
+          mechanicId:
+          value: 4
+        iconMode: 0
+        iconOverride: {fileID: 0}
       subclassA:
         stableId: tree.v3.class.ranger.t07.left.subclass.variant.ranger-poison
         logicalSlotId: tree.v3.class.ranger.t07.left.subclass
-        displayName: Venom Ranger
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Poison Life Leech
+        description: Recover 2% of Poison damage as Life.
+        branch: 18
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 115
-          mechanicId: 
-          value: 10.2
+          stat: 134
+          mechanicId:
+          value: 2
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
         stableId: tree.v3.class.ranger.t07.left.subclass.variant.ranger-projectile
         logicalSlotId: tree.v3.class.ranger.t07.left.subclass
-        displayName: Projectile Ranger
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Projectile Guard
+        description: 0.1% less damage per live player projectile in flight.
+        branch: 0
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 121
-          mechanicId: 
-          value: 12.24
+          stat: 168
+          mechanicId:
+          value: 0.1
         iconMode: 0
         iconOverride: {fileID: 0}
   - tier: 8
@@ -1303,7 +1343,7 @@ MonoBehaviour:
       effects:
       - kind: 0
         stat: 94
-        mechanicId: 
+        mechanicId:
         value: 10
       iconMode: 0
       iconOverride: {fileID: 0}
@@ -1311,162 +1351,170 @@ MonoBehaviour:
       a:
         stableId: tree.v3.class.ranger.t08.right.a
         logicalSlotId: tree.v3.class.ranger.t08.right.a
+        displayName: Projectile Precision Chance
+        description: +8 percentage points Projectile Precision Chance.
+        branch: 31
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 121
+          mechanicId:
+          value: 8
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      b:
+        stableId: tree.v3.class.ranger.t08.right.b
+        logicalSlotId: tree.v3.class.ranger.t08.right.b
+        displayName: Projectile Speed
+        description: 15% increased Projectile Speed.
+        branch: 30
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 113
+          mechanicId:
+          value: 15
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      c:
+        stableId: tree.v3.class.ranger.t08.right.c
+        logicalSlotId: tree.v3.class.ranger.t08.right.c
         displayName: Poison Chance
-        description: 
-        branch: 0
+        description: +30 percentage points Poison Chance.
+        branch: 13
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
           stat: 32
-          mechanicId: 
-          value: 63
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: e1ea17bc739ccbc4a848bbef64d056e4, type: 3}
-      b:
-        stableId: tree.v3.class.ranger.t08.right.b
-        logicalSlotId: tree.v3.class.ranger.t08.right.b
-        displayName: Dexterity Percent
-        description: 
-        branch: 27
-        size: 0
-        kind: 6
-        keystone: 0
-        effects:
-        - kind: 0
-          stat: 97
-          mechanicId: 
-          value: 7.5
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 515daee52d8470c4da2c894c21392536, type: 3}
-      c:
-        stableId: tree.v3.class.ranger.t08.right.c
-        logicalSlotId: tree.v3.class.ranger.t08.right.c
-        displayName: All Elemental Resist
-        description: Fire, Cold and Lightning resistance only; excludes Void.
-        branch: 0
-        size: 0
-        kind: 6
-        keystone: 0
-        effects:
-        - kind: 0
-          stat: 57
-          mechanicId: 
-          value: 6
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 515daee52d8470c4da2c894c21392536, type: 3}
+          mechanicId:
+          value: 30
+        iconMode: 0
+        iconOverride: {fileID: 0}
       subclassA:
         stableId: tree.v3.class.ranger.t08.right.subclass.variant.ranger-poison
         logicalSlotId: tree.v3.class.ranger.t08.right.subclass
-        displayName: Venom Ranger
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Poison Duration
+        description: 10% increased Poison Duration.
+        branch: 38
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 81
-          mechanicId: 
-          value: 10.4
+          stat: 38
+          mechanicId:
+          value: 10
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
         stableId: tree.v3.class.ranger.t08.right.subclass.variant.ranger-projectile
         logicalSlotId: tree.v3.class.ranger.t08.right.subclass
-        displayName: Projectile Ranger
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Projectile Amount
+        description: +0.4 Projectile Amount; fractional remainder rolls for one extra projectile.
+        branch: 10
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 113
-          mechanicId: 
-          value: 10.4
+          stat: 112
+          mechanicId:
+          value: 0.4
         iconMode: 0
         iconOverride: {fileID: 0}
     left:
       a:
         stableId: tree.v3.class.ranger.t08.left.a
         logicalSlotId: tree.v3.class.ranger.t08.left.a
-        displayName: Reduced Shock Effect
-        description: 
+        displayName: Dodge Chance
+        description: +3 percentage points Dodge Chance against attack hits.
         branch: 0
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 164
+          mechanicId:
+          value: 3
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      b:
+        stableId: tree.v3.class.ranger.t08.left.b
+        logicalSlotId: tree.v3.class.ranger.t08.left.b
+        displayName: Life on Kill
+        description: Recover 50 Life on kill.
+        branch: 24
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 76
+          mechanicId:
+          value: 50
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      c:
+        stableId: tree.v3.class.ranger.t08.left.c
+        logicalSlotId: tree.v3.class.ranger.t08.left.c
+        displayName: Shock and Chill Resistance
+        description: 4% reduced Shock effect and 4% reduced Chill effect.
+        branch: 42
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
           stat: 130
-          mechanicId: 
-          value: 8
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 515daee52d8470c4da2c894c21392536, type: 3}
-      b:
-        stableId: tree.v3.class.ranger.t08.left.b
-        logicalSlotId: tree.v3.class.ranger.t08.left.b
-        displayName: Reduced Chill Effect
-        description: 
-        branch: 0
-        size: 0
-        kind: 6
-        keystone: 0
-        effects:
+          mechanicId:
+          value: 4
         - kind: 0
           stat: 131
-          mechanicId: 
-          value: 8
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 515daee52d8470c4da2c894c21392536, type: 3}
-      c:
-        stableId: tree.v3.class.ranger.t08.left.c
-        logicalSlotId: tree.v3.class.ranger.t08.left.c
-        displayName: Increased Rage Generation
-        description: 
-        branch: 0
-        size: 0
-        kind: 6
-        keystone: 0
-        effects:
-        - kind: 0
-          stat: 123
-          mechanicId: 
-          value: 15
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 1adfa280e0d04a04b8252aaffa939b0a, type: 3}
+          mechanicId:
+          value: 4
+        iconMode: 0
+        iconOverride: {fileID: 0}
       subclassA:
         stableId: tree.v3.class.ranger.t08.left.subclass.variant.ranger-poison
         logicalSlotId: tree.v3.class.ranger.t08.left.subclass
-        displayName: Venom Ranger
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Toxic Suppression
+        description: Poisoned attackers deal 0.5% less damage per ten Poison stacks on them.
+        branch: 0
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 81
-          mechanicId: 
-          value: 10.4
+          stat: 165
+          mechanicId:
+          value: 0.5
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
         stableId: tree.v3.class.ranger.t08.left.subclass.variant.ranger-projectile
         logicalSlotId: tree.v3.class.ranger.t08.left.subclass
-        displayName: Projectile Ranger
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Evasive Recovery
+        description: +2 percentage points Dodge Chance; recover 2% maximum Life on a successful Dodge.
+        branch: 0
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 113
-          mechanicId: 
-          value: 10.4
+          stat: 164
+          mechanicId:
+          value: 2
+        - kind: 0
+          stat: 169
+          mechanicId:
+          value: 2
         iconMode: 0
         iconOverride: {fileID: 0}
   - tier: 9
@@ -1482,7 +1530,7 @@ MonoBehaviour:
       effects:
       - kind: 0
         stat: 94
-        mechanicId: 
+        mechanicId:
         value: 10
       iconMode: 0
       iconOverride: {fileID: 0}
@@ -1491,161 +1539,165 @@ MonoBehaviour:
         stableId: tree.v3.class.ranger.t09.right.a
         logicalSlotId: tree.v3.class.ranger.t09.right.a
         displayName: Projectile Precision Chance
-        description: 
-        branch: 0
+        description: +8 percentage points Projectile Precision Chance.
+        branch: 31
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
           stat: 121
-          mechanicId: 
+          mechanicId:
           value: 8
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: ae575e791d6384f44b25c05c633a2f68, type: 3}
+        iconMode: 0
+        iconOverride: {fileID: 0}
       b:
         stableId: tree.v3.class.ranger.t09.right.b
         logicalSlotId: tree.v3.class.ranger.t09.right.b
+        displayName: Projectile Speed
+        description: 15% increased Projectile Speed.
+        branch: 30
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 113
+          mechanicId:
+          value: 15
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      c:
+        stableId: tree.v3.class.ranger.t09.right.c
+        logicalSlotId: tree.v3.class.ranger.t09.right.c
         displayName: Poison Chance
-        description: 
-        branch: 0
+        description: +30 percentage points Poison Chance.
+        branch: 13
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
           stat: 32
-          mechanicId: 
-          value: 63
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: e1ea17bc739ccbc4a848bbef64d056e4, type: 3}
-      c:
-        stableId: tree.v3.class.ranger.t09.right.c
-        logicalSlotId: tree.v3.class.ranger.t09.right.c
-        displayName: Attack Speed
-        description: 
-        branch: 0
-        size: 0
-        kind: 6
-        keystone: 0
-        effects:
-        - kind: 0
-          stat: 81
-          mechanicId: 
-          value: 10
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 83637e1de046c064a88c2ba378b4d32b, type: 3}
+          mechanicId:
+          value: 30
+        iconMode: 0
+        iconOverride: {fileID: 0}
       subclassA:
         stableId: tree.v3.class.ranger.t09.right.subclass.variant.ranger-poison
         logicalSlotId: tree.v3.class.ranger.t09.right.subclass
-        displayName: Venom Ranger
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Poison Speed
+        description: 10% increased Poison Speed.
+        branch: 41
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 32
-          mechanicId: 
-          value: 10.599999
+          stat: 128
+          mechanicId:
+          value: 10
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
         stableId: tree.v3.class.ranger.t09.right.subclass.variant.ranger-projectile
         logicalSlotId: tree.v3.class.ranger.t09.right.subclass
-        displayName: Projectile Ranger
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Precision Power
+        description: 5% more Precision Damage.
+        branch: 32
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 112
-          mechanicId: 
-          value: 2.12
+          stat: 167
+          mechanicId:
+          value: 5
         iconMode: 0
         iconOverride: {fileID: 0}
     left:
       a:
         stableId: tree.v3.class.ranger.t09.left.a
         logicalSlotId: tree.v3.class.ranger.t09.left.a
-        displayName: Increased Maximum Life
-        description: 
-        branch: 1
+        displayName: Dodge Chance
+        description: +3 percentage points Dodge Chance against attack hits.
+        branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 70
-          mechanicId: 
-          value: 15
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 0733b024b1daef941bab2488f5e58093, type: 3}
+          stat: 164
+          mechanicId:
+          value: 3
+        iconMode: 0
+        iconOverride: {fileID: 0}
       b:
         stableId: tree.v3.class.ranger.t09.left.b
         logicalSlotId: tree.v3.class.ranger.t09.left.b
-        displayName: Reduced Shock Effect
-        description: 
-        branch: 0
+        displayName: Life on Kill
+        description: Recover 50 Life on kill.
+        branch: 24
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 76
+          mechanicId:
+          value: 50
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      c:
+        stableId: tree.v3.class.ranger.t09.left.c
+        logicalSlotId: tree.v3.class.ranger.t09.left.c
+        displayName: Shock and Chill Resistance
+        description: 4% reduced Shock effect and 4% reduced Chill effect.
+        branch: 42
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
           stat: 130
-          mechanicId: 
-          value: 8
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 515daee52d8470c4da2c894c21392536, type: 3}
-      c:
-        stableId: tree.v3.class.ranger.t09.left.c
-        logicalSlotId: tree.v3.class.ranger.t09.left.c
-        displayName: Mana On Hit
-        description: 
-        branch: 0
-        size: 0
-        kind: 6
-        keystone: 0
-        effects:
+          mechanicId:
+          value: 4
         - kind: 0
-          stat: 75
-          mechanicId: 
-          value: 2.775
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 636c4f7991f3bc3499cbeb4fd6231820, type: 3}
+          stat: 131
+          mechanicId:
+          value: 4
+        iconMode: 0
+        iconOverride: {fileID: 0}
       subclassA:
         stableId: tree.v3.class.ranger.t09.left.subclass.variant.ranger-poison
         logicalSlotId: tree.v3.class.ranger.t09.left.subclass
-        displayName: Venom Ranger
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Poison Life Leech
+        description: Recover 2% of Poison damage as Life.
+        branch: 18
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 32
-          mechanicId: 
-          value: 10.599999
+          stat: 134
+          mechanicId:
+          value: 2
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
         stableId: tree.v3.class.ranger.t09.left.subclass.variant.ranger-projectile
         logicalSlotId: tree.v3.class.ranger.t09.left.subclass
-        displayName: Projectile Ranger
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Projectile Guard
+        description: 0.1% less damage per live player projectile in flight.
+        branch: 0
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 112
-          mechanicId: 
-          value: 2.12
+          stat: 168
+          mechanicId:
+          value: 0.1
         iconMode: 0
         iconOverride: {fileID: 0}
   - tier: 10
@@ -1661,7 +1713,7 @@ MonoBehaviour:
       effects:
       - kind: 0
         stat: 94
-        mechanicId: 
+        mechanicId:
         value: 10
       iconMode: 0
       iconOverride: {fileID: 0}
@@ -1669,162 +1721,170 @@ MonoBehaviour:
       a:
         stableId: tree.v3.class.ranger.t10.right.a
         logicalSlotId: tree.v3.class.ranger.t10.right.a
-        displayName: Increased Projectile Speed
-        description: 
-        branch: 0
+        displayName: Projectile Precision Chance
+        description: +8 percentage points Projectile Precision Chance.
+        branch: 31
+        size: 0
+        kind: 6
+        keystone: 0
+        effects:
+        - kind: 0
+          stat: 121
+          mechanicId:
+          value: 8
+        iconMode: 0
+        iconOverride: {fileID: 0}
+      b:
+        stableId: tree.v3.class.ranger.t10.right.b
+        logicalSlotId: tree.v3.class.ranger.t10.right.b
+        displayName: Projectile Speed
+        description: 15% increased Projectile Speed.
+        branch: 30
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
           stat: 113
-          mechanicId: 
+          mechanicId:
           value: 15
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: e7c94f28d889a6245817c3516bfd8d5e, type: 3}
-      b:
-        stableId: tree.v3.class.ranger.t10.right.b
-        logicalSlotId: tree.v3.class.ranger.t10.right.b
-        displayName: Dexterity Percent
-        description: 
-        branch: 27
-        size: 0
-        kind: 6
-        keystone: 0
-        effects:
-        - kind: 0
-          stat: 97
-          mechanicId: 
-          value: 7.5
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 515daee52d8470c4da2c894c21392536, type: 3}
+        iconMode: 0
+        iconOverride: {fileID: 0}
       c:
         stableId: tree.v3.class.ranger.t10.right.c
         logicalSlotId: tree.v3.class.ranger.t10.right.c
-        displayName: Increased Rage Generation
-        description: 
-        branch: 0
+        displayName: Poison Chance
+        description: +30 percentage points Poison Chance.
+        branch: 13
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 123
-          mechanicId: 
-          value: 15
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 1adfa280e0d04a04b8252aaffa939b0a, type: 3}
+          stat: 32
+          mechanicId:
+          value: 30
+        iconMode: 0
+        iconOverride: {fileID: 0}
       subclassA:
         stableId: tree.v3.class.ranger.t10.right.subclass.variant.ranger-poison
         logicalSlotId: tree.v3.class.ranger.t10.right.subclass
-        displayName: Venom Ranger
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Poison Duration
+        description: 10% increased Poison Duration.
+        branch: 38
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 115
-          mechanicId: 
-          value: 10.8
+          stat: 38
+          mechanicId:
+          value: 10
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
         stableId: tree.v3.class.ranger.t10.right.subclass.variant.ranger-projectile
         logicalSlotId: tree.v3.class.ranger.t10.right.subclass
-        displayName: Projectile Ranger
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Projectile Amount
+        description: +0.4 Projectile Amount; fractional remainder rolls for one extra projectile.
+        branch: 10
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 121
-          mechanicId: 
-          value: 12.96
+          stat: 112
+          mechanicId:
+          value: 0.4
         iconMode: 0
         iconOverride: {fileID: 0}
     left:
       a:
         stableId: tree.v3.class.ranger.t10.left.a
         logicalSlotId: tree.v3.class.ranger.t10.left.a
-        displayName: Poison Damage Leeched as Life
-        description: Recover Life from actual mitigated Poison tick damage dealt. Not Life on Hit; overkill does not grant extra leech.
+        displayName: Dodge Chance
+        description: +3 percentage points Dodge Chance against attack hits.
         branch: 0
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 134
-          mechanicId: 
-          value: 2
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: e1ea17bc739ccbc4a848bbef64d056e4, type: 3}
+          stat: 164
+          mechanicId:
+          value: 3
+        iconMode: 0
+        iconOverride: {fileID: 0}
       b:
         stableId: tree.v3.class.ranger.t10.left.b
         logicalSlotId: tree.v3.class.ranger.t10.left.b
-        displayName: Reduced Chill Effect
-        description: 
-        branch: 0
+        displayName: Life on Kill
+        description: Recover 50 Life on kill.
+        branch: 24
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 131
-          mechanicId: 
-          value: 8
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 515daee52d8470c4da2c894c21392536, type: 3}
+          stat: 76
+          mechanicId:
+          value: 50
+        iconMode: 0
+        iconOverride: {fileID: 0}
       c:
         stableId: tree.v3.class.ranger.t10.left.c
         logicalSlotId: tree.v3.class.ranger.t10.left.c
-        displayName: All Elemental Resist
-        description: Fire, Cold and Lightning resistance only; excludes Void.
-        branch: 0
+        displayName: Shock and Chill Resistance
+        description: 4% reduced Shock effect and 4% reduced Chill effect.
+        branch: 42
         size: 0
         kind: 6
         keystone: 0
         effects:
         - kind: 0
-          stat: 57
-          mechanicId: 
-          value: 6
-        iconMode: 1
-        iconOverride: {fileID: 21300000, guid: 515daee52d8470c4da2c894c21392536, type: 3}
+          stat: 130
+          mechanicId:
+          value: 4
+        - kind: 0
+          stat: 131
+          mechanicId:
+          value: 4
+        iconMode: 0
+        iconOverride: {fileID: 0}
       subclassA:
         stableId: tree.v3.class.ranger.t10.left.subclass.variant.ranger-poison
         logicalSlotId: tree.v3.class.ranger.t10.left.subclass
-        displayName: Venom Ranger
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Toxic Suppression
+        description: Poisoned attackers deal 0.5% less damage per ten Poison stacks on them.
+        branch: 0
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 115
-          mechanicId: 
-          value: 10.8
+          stat: 165
+          mechanicId:
+          value: 0.5
         iconMode: 0
         iconOverride: {fileID: 0}
       subclassB:
         stableId: tree.v3.class.ranger.t10.left.subclass.variant.ranger-projectile
         logicalSlotId: tree.v3.class.ranger.t10.left.subclass
-        displayName: Projectile Ranger
-        description: Selected-subclass option on the native class route.
-        branch: 3
+        displayName: Evasive Recovery
+        description: +2 percentage points Dodge Chance; recover 2% maximum Life on a successful Dodge.
+        branch: 0
         size: 0
         kind: 7
         keystone: 0
         effects:
         - kind: 0
-          stat: 121
-          mechanicId: 
-          value: 12.96
+          stat: 164
+          mechanicId:
+          value: 2
+        - kind: 0
+          stat: 169
+          mechanicId:
+          value: 2
         iconMode: 0
         iconOverride: {fileID: 0}
   keystones:

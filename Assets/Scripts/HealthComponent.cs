@@ -71,7 +71,9 @@ public class HealthComponent : MonoBehaviour
             return;
 
         // GetStat returns the fraction of maximum Life regenerated each second.
-        float regenerationRate = MaxLife * healingStats.GetStat(StatTypes.LifeRegeneration);
+        float regenerationRate = MaxLife * (healingStats.GetStat(StatTypes.LifeRegeneration)
+            +(GetComponent<SubclassCombatState>()?.Has(SubclassIds.BarbarianBigHit)==true
+                ?(GetComponent<RageState>()?.Rage??0)*healingStats.GetStat(StatTypes.TitanRageRegeneration):0));
         if(isEnemy&&UnityEngine.Object.FindAnyObjectByType<SubclassCombatState>()?.Has(SubclassIds.PriestLight)==true)regenerationRate*=.5f;
         var keystones = GetComponent<PassiveKeystoneState>();
         if (keystones != null) regenerationRate *= keystones.LifeRegenerationMultiplier;

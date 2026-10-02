@@ -48,6 +48,7 @@ public static class StatCategoryMapping
             case StatTypes.PoisonMult:
             case StatTypes.IgniteMult:
             case StatTypes.BleedMult:
+            case StatTypes.EruptionCoefficient:
                 return StatCategory.MoreDamage;
             case StatTypes.GenericDotMult:
             case StatTypes.WarriorDotMultiplier:
@@ -114,6 +115,12 @@ public static class StatCategoryMapping
             case StatTypes.PhysicalDamageReduction:
             case StatTypes.ReducedShockEffect:
             case StatTypes.ReducedChillEffect:
+            case StatTypes.DamageReductionPerRage:
+            case StatTypes.TitanFortification:
+            case StatTypes.DamageTakenAsFire:
+            case StatTypes.DodgeChance:
+            case StatTypes.ToxicSuppression:
+            case StatTypes.ProjectileGuard:
                 return StatCategory.Defenses;
 
             // Resources
@@ -131,6 +138,9 @@ public static class StatCategoryMapping
             case StatTypes.ManaCost:
             case StatTypes.DmgPerMaxMana:
             case StatTypes.DmgPerCurrentMana:
+            case StatTypes.TitanRageRegeneration:
+            case StatTypes.FireLifeLeech:
+            case StatTypes.DodgeLifeRecovery:
                 return StatCategory.Resources;
 
             // Utility
@@ -152,6 +162,11 @@ public static class StatCategoryMapping
             case StatTypes.RageGeneration:
             case StatTypes.RageEffect:
             case StatTypes.RageDecayReduction:
+            case StatTypes.MaximumRage:
+            case StatTypes.TitanRevengeBonus:
+            case StatTypes.TitanFullLifeMore:
+            case StatTypes.PhysicalToFireConversion:
+            case StatTypes.PrecisionMore:
                 return StatCategory.Utility;
 
             // Attributes / scaling

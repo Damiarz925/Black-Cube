@@ -92,6 +92,21 @@ public static class StatDisplayFormatting
         { StatTypes.EscalatingMultistrike, "More Damage per Prior Multistrike" },
         { StatTypes.UnbrokenAssault, "More Damage per Prior Uninterrupted Attack" },
         { StatTypes.ElementalPlating, "Armour Applies to Elemental Hits" },
+        { StatTypes.DamageReductionPerRage, "Damage Reduction per Current Rage" },
+        { StatTypes.MaximumRage, "Maximum Rage" },
+        { StatTypes.TitanRevengeBonus, "Additional Revenge More-Damage Bonus" },
+        { StatTypes.TitanFullLifeMore, "More Damage vs Full-Life Enemies" },
+        { StatTypes.TitanFortification, "Less Damage per Prior Enemy Hit" },
+        { StatTypes.TitanRageRegeneration, "Maximum Life Regenerated per Second per Rage" },
+        { StatTypes.EruptionCoefficient, "Added Eruption Raw-Hit Coefficient" },
+        { StatTypes.PhysicalToFireConversion, "Physical Damage Converted to Fire" },
+        { StatTypes.DamageTakenAsFire, "Incoming Damage Taken as Fire" },
+        { StatTypes.FireLifeLeech, "Fire Damage Leeched as Life over Four Seconds" },
+        { StatTypes.DodgeChance, "Dodge Chance" },
+        { StatTypes.ToxicSuppression, "Less Damage per Ten Poison Stacks on Attacker" },
+        { StatTypes.PrecisionMore, "More Precision Damage" },
+        { StatTypes.ProjectileGuard, "Less Damage per Live Projectile" },
+        { StatTypes.DodgeLifeRecovery, "Maximum Life Recovered on Dodge" },
     };
 
     public static string ToFriendlyName(StatTypes t)

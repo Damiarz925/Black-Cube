@@ -5,14 +5,15 @@ using NUnit.Framework;
 
 public sealed class SubclassSurveyPreflightTests
 {
-    [Test] public void ProjectileSearchAndCombatUseProductionFloorForFractionalAdditionalAmounts()
+    [Test] public void ProjectileSearchUsesExpectationAndCombatRetainsFractionalRoll()
     {
         var build=new PlayerBuildSnapshot{weaponTypeId=WeaponTypeIds.Bow};
         build.analysisDeltas.Add(new AnalysisStatDelta{stat=StatTypes.ProjectileAmount,amount=14.56f});
-        Assert.That(PlayerBuildEvaluator.Evaluate(build).projectileCount,Is.EqualTo(15));
+        Assert.That(PlayerBuildEvaluator.Evaluate(build).projectileCount,Is.EqualTo(15.56).Within(.001));
         var snapshot=CombatLabAdapters.PlayerSnapshot(build);
         Assert.That(snapshot.projectileCount,Is.EqualTo(15));
-        Assert.That(snapshot.skills.Single(x=>x.effect==WeaponSkillEffect.DoubleProjectiles).projectiles,Is.EqualTo(30));
+        Assert.That(snapshot.projectileAmount,Is.EqualTo(14.56).Within(.001));
+        Assert.That(snapshot.skills.Single(x=>x.effect==WeaponSkillEffect.DoubleProjectiles).projectiles,Is.EqualTo(15));
     }
 
     [TestCase(WeaponTypeIds.Sword)]
@@ -73,7 +74,7 @@ public sealed class SubclassSurveyPreflightTests
         Assert.That(result.projectilesImpacted,Is.EqualTo(6));
     }
 
-    [Test] public void ProjectileRangerCollapsesOnlyInFocusedMode()
+    [Test] public void LegacyProjectileModeNoLongerChangesProjectileCount()
     {
         var volley=Player();volley.subclassId=SubclassIds.RangerProjectile;
         var focused=Player();focused.subclassId=SubclassIds.RangerProjectile;
@@ -81,7 +82,7 @@ public sealed class SubclassSurveyPreflightTests
         var a=HeadlessCombatSimulator.Run(volley,Enemy(),Config());
         var b=HeadlessCombatSimulator.Run(focused,Enemy(),Config());
         Assert.That(a.projectilesLaunched,Is.EqualTo(3));
-        Assert.That(b.projectilesLaunched,Is.EqualTo(1));
+        Assert.That(b.projectilesLaunched,Is.EqualTo(3));
     }
 
     [Test] public void RapidFlurryHitCountUsesBonusAttackSpeedNotFinalAttacksPerSecond()

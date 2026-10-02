@@ -208,6 +208,13 @@ public static class CombatCalculator
 
         if(effect.Ailment==StatusEffects.AilmentKind.Ignite)
             baseTickDamage*=UniqueCombatRuntime.For(attacker)?.FireTakenMultiplier??1;
+        // Damage-taken conversion precedes mitigation for damaging ailments too.
+        // Ignite is already Fire, so it must not be converted a second time.
+        float takenAsFire=effect.Ailment==StatusEffects.AilmentKind.Ignite?0f:
+            Mathf.Clamp01(defender.GetComponent<SubclassCombatState>()?.Has(SubclassIds.BarbarianFire)==true
+                ?defender.GetStat(StatTypes.DamageTakenAsFire):0f);
+        float firePortion=baseTickDamage*takenAsFire;
+        baseTickDamage-=firePortion;
         float mitigated=effect.Ailment switch
         {
             StatusEffects.AilmentKind.Bleed => ApplyArmourAndPenetration(baseTickDamage, attacker, defender),
@@ -215,6 +222,7 @@ public static class CombatCalculator
             StatusEffects.AilmentKind.Poison => ApplyResistancesAndPenetration(baseTickDamage, Element.Void, attacker, defender),
             _ => baseTickDamage
         };
+        if(firePortion>0f)mitigated+=ApplyResistancesAndPenetration(firePortion,Element.Fire,attacker,defender);
         return mitigated*(1+(defender.GetComponent<StatusController>()?.CombinedShockEffect??0));
     }
 }

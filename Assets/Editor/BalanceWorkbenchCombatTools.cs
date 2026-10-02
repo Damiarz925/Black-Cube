@@ -63,6 +63,24 @@ namespace BlackCube.BalanceWorkbench
             p.localCritMultiplier=1+(equipped?.LocalIncCrit??0);
             p.projectileMode=build.projectileMode;
             p.physicalDamageReduction=stats.GetStat(StatTypes.PhysicalDamageReduction);
+            p.maximumRage=100+stats.GetRawStat(StatTypes.MaximumRage);
+            p.projectileAmount=stats.GetRawStat(StatTypes.ProjectileAmount);
+            p.projectileCount=1+Mathf.FloorToInt(Mathf.Max(0,p.projectileAmount));
+            p.damageReductionPerRage=stats.GetStat(StatTypes.DamageReductionPerRage);
+            p.titanRevengeBonus=stats.GetStat(StatTypes.TitanRevengeBonus);
+            p.titanFullLifeMore=stats.GetStat(StatTypes.TitanFullLifeMore);
+            p.titanFortification=stats.GetStat(StatTypes.TitanFortification);
+            p.titanRageRegeneration=stats.GetStat(StatTypes.TitanRageRegeneration);
+            p.eruptionCoefficient=SubclassBalanceProfile.EruptionMagnitude+stats.GetStat(StatTypes.EruptionCoefficient);
+            p.physicalToFireConversion=stats.GetStat(StatTypes.PhysicalToFireConversion);
+            p.damageTakenAsFire=stats.GetStat(StatTypes.DamageTakenAsFire);
+            p.fireLifeLeech=stats.GetStat(StatTypes.FireLifeLeech);
+            p.dodgeChance=stats.GetStat(StatTypes.DodgeChance);
+            p.toxicSuppression=stats.GetStat(StatTypes.ToxicSuppression);
+            p.projectileSpeedMore=stats.GetStat(StatTypes.ProjectileSpeed)*.5f;
+            p.precisionMore=stats.GetStat(StatTypes.PrecisionMore);
+            p.projectileGuard=stats.GetStat(StatTypes.ProjectileGuard);
+            p.dodgeLifeRecovery=stats.GetStat(StatTypes.DodgeLifeRecovery);
             p.ruptureDamage=stats.GetStat(StatTypes.RuptureDamage);
             p.lifeOnHitVsBleeding=stats.GetStat(StatTypes.LifeOnHitVsBleeding);
             p.deferredWounds=stats.GetStat(StatTypes.DeferredWounds);
@@ -94,7 +112,7 @@ namespace BlackCube.BalanceWorkbench
                 definitions=PlayerSkillDefinition.CreateProductionDefaults();
             definitions=PlayerSkillDefinition.UpgradeProjectileDefinitions(definitions);
             var triggered=(build.activeRelics??new()).SelectMany(r=>r.modifiers).Select(m=>RelicProgressionRules.TriggerSkill(m.type)).Where(x=>x.HasValue).Select(x=>x.Value).Distinct().ToArray();
-            foreach(var id in ids.Concat(triggered)){var x=definitions.FirstOrDefault(y=>y!=null&&y.id==id);if(x==null)throw new InvalidOperationException("Missing production Combat Lab skill: "+id);int level=PlayerSkillController.CalculateEffectiveSkillLevel(stats.GetRawStat(PlayerSkillController.SkillLevelStat(x.id))+stats.GetRawStat(StatTypes.PlusAllSkills)+(ids.Contains(id)?RelicLoadoutRules.Sum(build.activeRelics,RelicModifierType.EquippedSkillLevel):0));float cost=Mathf.Round(Mathf.Max(0,x.manaCost)*PlayerSkillController.ManaCostLevelFactor(level));int hits=Mathf.Max(1,x.baseHitCount);int projectiles=x.projectile?p.projectileCount:1;if(x.effect==WeaponSkillEffect.DoubleProjectiles)projectiles*=2;p.skills.Add(new CombatSkillSnapshot{id=x.stableId,name=x.displayName,castMode=x.castMode,effect=x.effect,manaCost=cost,cooldown=x.castMode==PlayerSkillCastMode.QueuedAttackReplacement&&!x.queuedCooldownEnabled?0:Mathf.Max(PlayerSkillController.MinimumAutoCooldown,x.baseCooldown/(1+Mathf.Max(0,stats.GetStat(StatTypes.CooldownReduction)))),queuedCooldownEnabled=x.queuedCooldownEnabled,scopeMultiplier=CombatCalculator.ScopedDamageMultiplier(x.DamageScopes,stats),hitMultiplier=x.hitDamageMultiplier*PlayerSkillController.SkillDamageLevelFactor(level),secondaryMultiplier=x.secondaryMultiplier,ailmentBasisMultiplier=x.ailmentBasisMultiplier*(x.effect==WeaponSkillEffect.VirtualPoison?PlayerSkillController.SkillDamageLevelFactor(level):x.effect==WeaponSkillEffect.EmpoweredBleed?1/Mathf.Max(.0001f,x.hitDamageMultiplier):1),hits=hits,projectiles=projectiles,projectile=x.projectile,magic=x.magic,baseProjectileSpeed=x.baseProjectileSpeed,supportsPrecision=x.supportsPrecision,conversionElement=x.conversionElement,conversion=x.nonMatchingConversion,specializedAilment=x.specializedAilment,guaranteedAilmentApplications=x.guaranteedAilmentApplications,guaranteedAdditionalChill=x.guaranteedAdditionalChill});}
+            foreach(var id in ids.Concat(triggered)){var x=definitions.FirstOrDefault(y=>y!=null&&y.id==id);if(x==null)throw new InvalidOperationException("Missing production Combat Lab skill: "+id);int level=PlayerSkillController.CalculateEffectiveSkillLevel(stats.GetRawStat(PlayerSkillController.SkillLevelStat(x.id))+stats.GetRawStat(StatTypes.PlusAllSkills)+(ids.Contains(id)?RelicLoadoutRules.Sum(build.activeRelics,RelicModifierType.EquippedSkillLevel):0));float cost=Mathf.Round(Mathf.Max(0,x.manaCost)*PlayerSkillController.ManaCostLevelFactor(level));int hits=Mathf.Max(1,x.baseHitCount);int projectiles=x.projectile?p.projectileCount:1;p.skills.Add(new CombatSkillSnapshot{id=x.stableId,name=x.displayName,castMode=x.castMode,effect=x.effect,manaCost=cost,cooldown=x.castMode==PlayerSkillCastMode.QueuedAttackReplacement&&!x.queuedCooldownEnabled?0:Mathf.Max(PlayerSkillController.MinimumAutoCooldown,x.baseCooldown/(1+Mathf.Max(0,stats.GetStat(StatTypes.CooldownReduction)))),queuedCooldownEnabled=x.queuedCooldownEnabled,scopeMultiplier=CombatCalculator.ScopedDamageMultiplier(x.DamageScopes,stats),hitMultiplier=x.hitDamageMultiplier*PlayerSkillController.SkillDamageLevelFactor(level),secondaryMultiplier=x.secondaryMultiplier,ailmentBasisMultiplier=x.ailmentBasisMultiplier*(x.effect==WeaponSkillEffect.VirtualPoison?PlayerSkillController.SkillDamageLevelFactor(level):x.effect==WeaponSkillEffect.EmpoweredBleed?1/Mathf.Max(.0001f,x.hitDamageMultiplier):1),hits=hits,projectiles=projectiles,projectile=x.projectile,magic=x.magic,baseProjectileSpeed=x.baseProjectileSpeed,supportsPrecision=x.supportsPrecision,conversionElement=x.conversionElement,conversion=x.nonMatchingConversion,specializedAilment=x.specializedAilment,guaranteedAilmentApplications=x.guaranteedAilmentApplications,guaranteedAdditionalChill=x.guaranteedAdditionalChill});}
             for(int i=0;i<triggered.Length;i++){int index=ids.Count+i;p.skills[index].id+=".relic";p.relicTriggerIndices.Add(index);}
             p.voidDamageMultiplier=(1+stats.GetStat(StatTypes.VoidDmg))*(1+stats.GetStat(StatTypes.VoidMult));
             return p;

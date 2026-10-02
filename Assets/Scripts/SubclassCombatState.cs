@@ -11,6 +11,7 @@ public sealed class SubclassCombatState:MonoBehaviour
     public bool EnemyHasActed{get;private set;}
     public int QueuedRepeats{get;private set;}
     public int PriorUninterruptedAttacks{get;private set;}
+    public int PriorEnemyHitsSinceAttack{get;private set;}
     public bool RupturedThisAttack{get;private set;}
     readonly FiveAuraState auras=new();
     readonly HashSet<string> externallyGrantedEffects=new();
@@ -27,22 +28,32 @@ public sealed class SubclassCombatState:MonoBehaviour
     }
     public bool GrantExternalEffect(string effectId){if(!SubclassEffectCatalog.TryGet(effectId,out _))return false;return externallyGrantedEffects.Add(effectId);}
     public bool RevokeExternalEffect(string effectId)=>externallyGrantedEffects.Remove(effectId);
-    public void ResetForEnemy(){HitsSinceEnemySuccessfulAttack=0;PriorUninterruptedAttacks=0;RupturedThisAttack=false;EnemyHasActed=false;QueuedRepeats=0;GetComponent<RevengeState>()?.Clear();GetComponent<DeferredWoundState>()?.Clear();}
+    public void ResetForEnemy(){HitsSinceEnemySuccessfulAttack=0;PriorUninterruptedAttacks=0;PriorEnemyHitsSinceAttack=0;RupturedThisAttack=false;EnemyHasActed=false;QueuedRepeats=0;GetComponent<RevengeState>()?.Clear();GetComponent<DeferredWoundState>()?.Clear();GetComponent<FireLeechState>()?.Clear();}
     public void BeginAttackOpportunity()=>RupturedThisAttack=false;
-    public void CompleteAttackOpportunity(){if(Has(SubclassIds.WarriorMultihit))PriorUninterruptedAttacks++;}
+    public void CompleteAttackOpportunity(){if(Has(SubclassIds.WarriorMultihit))PriorUninterruptedAttacks++;if(Has(SubclassIds.BarbarianBigHit))PriorEnemyHitsSinceAttack=0;}
     public bool TryMarkRupture(){if(!Has(SubclassIds.WarriorBleed)||RupturedThisAttack)return false;RupturedThisAttack=true;return true;}
     void Update(){if(previewSource==null)auras.Tick(Time.deltaTime);}
     public float BeforePlayerHitMultiplier(bool targetFullLife,bool playerInjured,bool bossLowLife=false)
     {
         float value=1;
         if(Has(SubclassIds.WarriorMultihit))value*=WarriorSubclassRules.AssaultMultiplier(PriorUninterruptedAttacks,GetComponent<StatsComponent>().GetStat(StatTypes.UnbrokenAssault))*(1f-WarriorSubclassRules.MomentumLessDamage);
-        if(Has(SubclassIds.BarbarianBigHit)){if(targetFullLife)value*=1+SubclassBalanceProfile.FullLifeMore;if(playerInjured)value*=1+SubclassBalanceProfile.InjuredMore;}
+        if(Has(SubclassIds.BarbarianBigHit)&&targetFullLife)value*=1+GetComponent<StatsComponent>().GetStat(StatTypes.TitanFullLifeMore);
+        if(Has(SubclassIds.RangerProjectile))value*=BarbarianRangerCombatRules.ProjectileSpeedMore(GetComponent<StatsComponent>().GetStat(StatTypes.ProjectileSpeed));
         if(Has(SubclassIds.ThiefAssassin)&&!EnemyHasActed)value*=1.5f;
         if(Has(SubclassIds.ThiefAssassin)&&bossLowLife)value*=1.5f;
         return value;
     }
     public void PlayerHit(){HitsSinceEnemySuccessfulAttack++;}
-    public void EnemySuccessfulAttack(){EnemyHasActed=true;HitsSinceEnemySuccessfulAttack=0;PriorUninterruptedAttacks=0;}
+    public void EnemySuccessfulAttack(){EnemyHasActed=true;HitsSinceEnemySuccessfulAttack=0;PriorUninterruptedAttacks=0;if(Has(SubclassIds.BarbarianBigHit))PriorEnemyHitsSinceAttack++;}
+    public void EnemyZeroDamageHit(){if(Has(SubclassIds.BarbarianBigHit))PriorEnemyHitsSinceAttack++;}
+    public float IncomingHitMultiplier(int poisonStacks,int livePlayerProjectiles)
+    {
+        var stats=GetComponent<StatsComponent>();float multiplier=1;
+        if(Has(SubclassIds.BarbarianBigHit))multiplier*=BarbarianRangerCombatRules.TitanFortification(PriorEnemyHitsSinceAttack,stats.GetStat(StatTypes.TitanFortification));
+        if(Has(SubclassIds.RangerPoison))multiplier*=BarbarianRangerCombatRules.ToxicSuppression(poisonStacks,stats.GetStat(StatTypes.ToxicSuppression));
+        if(Has(SubclassIds.RangerProjectile))multiplier*=BarbarianRangerCombatRules.ProjectileGuard(livePlayerProjectiles,stats.GetStat(StatTypes.ProjectileGuard));
+        return multiplier;
+    }
     public bool TryQueueRepeat()
     {
         if(!Has(SubclassIds.MageCooldown)||QueuedRepeats>=SubclassBalanceProfile.QueuedRepeatMaximum||Random.value>=SubclassBalanceProfile.CooldownIgnoreChance){QueuedRepeats=0;return false;}
@@ -70,8 +81,7 @@ public sealed class SubclassCombatState:MonoBehaviour
     public int AuraIgniteTicks=>auras.ExtraIgniteTicks(EffectiveAuraEffect);
     public int FinalProjectileCount(int wouldBeCount,out float damageMultiplier)
     {
-        damageMultiplier=1;if(!Has(SubclassIds.RangerProjectile)||Identity.ProjectileMode!=SubclassProjectileMode.Focused)return wouldBeCount;
-        damageMultiplier=SubclassBalanceProfile.FocusedMultiplier(wouldBeCount);return 1;
+        damageMultiplier=1;return wouldBeCount;
     }
     public bool RollCooldownBypass()=>Has(SubclassIds.MageCooldown)&&Random.value<SubclassBalanceProfile.CooldownIgnoreChance;
     public int MaximumShockInstances=>Has(SubclassIds.MageStorm)?SubclassBalanceProfile.StormShockMaximum:1;

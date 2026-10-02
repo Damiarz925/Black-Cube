@@ -3,11 +3,11 @@ using UnityEngine;
 // Shared, unit-explicit keystone rules. Runtime and laboratory use the same math.
 public static class ClassKeystoneMechanics
 {
-    public static float FullRageMultiplier(float rage,float effect,bool crown)
+    public static float FullRageMultiplier(float rage,float effect,bool crown,float maximumRage=100f)
     {
         float factor=1+Mathf.Max(0,effect);
-        return (1+Mathf.Clamp(rage,0,100)*WeaponMechanicProfile.RageDamagePerPoint*factor)
-            *(crown&&rage>=RageState.MaximumRage?PassiveKeystoneState.Value(PassiveKeystone.BarbarianFullRage):1);
+        return (1+Mathf.Clamp(rage,0,maximumRage)*WeaponMechanicProfile.RageDamagePerPoint*factor)
+            *(crown&&rage>=maximumRage?PassiveKeystoneState.Value(PassiveKeystone.BarbarianFullRage):1);
     }
     public static float ConsolidatedMultiplier(int extraStrikes)=>1+Mathf.Max(0,extraStrikes)*PassiveKeystoneState.Value(PassiveKeystone.WarriorConsolidation);
     public static float EndlessPoisonMultiplier(int durationTicks)=>PassiveKeystoneState.Value(PassiveKeystone.RangerEndlessPoison)

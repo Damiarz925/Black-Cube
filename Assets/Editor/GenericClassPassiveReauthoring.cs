@@ -12,8 +12,6 @@ public static class GenericClassPassiveReauthoring
     public const string BranchFolder="Assets/GameData/PassiveTree/Branches/Class/";
     public static readonly Dictionary<string,string[]> Rotations=new()
     {
-        [PlayerClassIds.Barbarian]=Rows("Life Regen AllRes RageGen Heavy Decay;Revenge LifeKill Bleed RageEffect Heavy Fire;Life Revenge Decay RageGen RageEffect Str;Regen LifeKill Fire Heavy Decay Bleed;Life LifeKill AllRes RageGen Heavy RageEffect;Regen Revenge Bleed RageEffect Decay Fire;Life Regen Str RageGen Decay AllRes;Revenge LifeKill Fire Heavy RageEffect Bleed;Life Revenge AllRes RageGen Heavy Decay;Regen LifeKill Str RageEffect Decay Fire"),
-        [PlayerClassIds.Ranger]=Rows("Life Leech ManaHit Precision ProjectileSpeed Speed;ReducedShock ReducedChill AllRes Poison Dex RageGen;Life ReducedShock Speed Precision Poison ManaHit;Leech ReducedChill RageGen ProjectileSpeed Dex AllRes;Life ReducedChill ManaHit Precision Dex Speed;Leech ReducedShock AllRes ProjectileSpeed Poison RageGen;Life Leech Speed Precision ProjectileSpeed ManaHit;ReducedShock ReducedChill RageGen Poison Dex AllRes;Life ReducedShock ManaHit Precision Poison Speed;Leech ReducedChill AllRes ProjectileSpeed Dex RageGen"),
         [PlayerClassIds.Mage]=Rows("Mana ManaDefense Int Fire CDR Shock;ReducedShock ReducedChill AllRes Echo Lightning ManaRegen;Mana ReducedShock Shock Fire Echo Int;ManaRegen ReducedChill ManaDefense Lightning CDR AllRes;Mana ReducedChill Int Fire Lightning Shock;ManaRegen ReducedShock AllRes Echo CDR ManaDefense;Mana ManaRegen Shock Fire CDR Int;ReducedShock ReducedChill ManaDefense Echo Lightning AllRes;Mana ReducedShock Int Fire Echo Shock;ManaRegen ReducedChill AllRes Lightning CDR ManaDefense"),
         [PlayerClassIds.Priest]=Rows("Life Recovery ManaRegen Aura Void CDR;VoidRes MaxRes AllRes Ailments Decay LifeKill;Life Recovery CDR Aura Void ManaRegen;VoidRes MaxRes LifeKill Ailments Decay AllRes;Life MaxRes ManaRegen Aura Decay CDR;Recovery VoidRes AllRes Void Ailments LifeKill;Life Recovery CDR Aura Void ManaRegen;VoidRes MaxRes LifeKill Ailments Decay AllRes;Life VoidRes ManaRegen Aura Ailments CDR;Recovery MaxRes AllRes Void Decay LifeKill"),
         [PlayerClassIds.Thief]=Rows("LifeMana LifeKill Speed Crit PhysVoid CDR;ArmourRes ManaKill PoisonBleedDamage CritMulti PoisonBleedChance Multistrike;LifeMana ArmourRes CDR Crit CritMulti Speed;LifeKill ManaKill Multistrike PhysVoid PoisonBleedChance PoisonBleedDamage;LifeMana ManaKill Speed Crit PhysVoid CDR;ArmourRes LifeKill PoisonBleedDamage CritMulti PoisonBleedChance Multistrike;LifeMana ArmourRes CDR Crit CritMulti Speed;LifeKill ManaKill Multistrike PhysVoid PoisonBleedChance PoisonBleedDamage;LifeMana LifeKill Speed Crit PhysVoid CDR;ArmourRes ManaKill PoisonBleedDamage CritMulti PoisonBleedChance Multistrike")
@@ -80,7 +78,7 @@ public static class GenericClassPassiveReauthoring
     static PassiveBranch Theme(StatTypes stat)=>stat switch {StatTypes.Strength or StatTypes.StrengthPercent=>PassiveBranch.Strength,StatTypes.Dexterity or StatTypes.DexterityPercent=>PassiveBranch.Dexterity,StatTypes.Intelligence or StatTypes.IntelligencePercent=>PassiveBranch.Intelligence,StatTypes.LifePercent=>PassiveBranch.Life,StatTypes.ManaPercent=>PassiveBranch.Mana,StatTypes.FireDmg=>PassiveBranch.Fire,StatTypes.ColdDmg=>PassiveBranch.Cold,StatTypes.LightDmg=>PassiveBranch.Lightning,StatTypes.VoidDmg=>PassiveBranch.Poison,StatTypes.CritChance=>PassiveBranch.CriticalChance,StatTypes.CritMult=>PassiveBranch.CriticalMultiplier,_=>PassiveBranch.Defense};
     static StatTypes IconStat(StatTypes stat)=>stat switch {StatTypes.RevengeEffect=>StatTypes.PhysDmg,StatTypes.PoisonLifeLeech=>StatTypes.PoisonChance,StatTypes.LifeRecoveryEffect=>StatTypes.LifeRegeneration,StatTypes.AllDamagingAilmentChance=>StatTypes.BleedChance,StatTypes.GrantsPhysicalAura=>StatTypes.PhysDmg,_=>stat};
 
-    [MenuItem("Black-Cube/Passive Tree Authoring/Apply Five Generic Class Reworks")]
+    [MenuItem("Black-Cube/Passive Tree Authoring/Apply Three Remaining Generic Class Reworks")]
     public static void Apply()
     {
         Directory.CreateDirectory("Logs/GenericClassRework/Baseline");
@@ -103,7 +101,7 @@ public static class GenericClassPassiveReauthoring
             EditorUtility.SetDirty(branch);AssetDatabase.SaveAssetIfDirty(branch);
         }
         AddAmuletAuraDefinitions(db);ConvertPrefab();WriteReport(db);PassiveTreeV3Validation.RunStructure();
-        Debug.Log("GENERIC CLASS REWORK: five class data sets converted; subclass/weapon numeric data untouched.");
+        Debug.Log("GENERIC CLASS REWORK: Mage, Priest and Thief converted; Barbarian and Ranger remain on their dedicated rework.");
     }
 
     static void AddAmuletAuraDefinitions(ModDatabase db)

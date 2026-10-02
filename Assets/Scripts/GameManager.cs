@@ -139,7 +139,7 @@ public class GameManager : MonoBehaviour
     public void StartNewRun()   //Starts a fresh run, at zone lvl 1, 0 enemies killed and no boss spawned, debug log for dev feedback, calls start zone passing in the currentzonelevel after resetting the state
     {
         GetComponent<PlayerProgression>().ResetProgression();
-        var player=FindAnyObjectByType<PlayerController>();player?.GetComponent<UniqueCombatRuntime>()?.ResetTransient();player?.GetComponent<RageState>()?.ResetTransient();
+        var player=FindAnyObjectByType<PlayerController>();player?.GetComponent<UniqueCombatRuntime>()?.ResetTransient();player?.GetComponent<RageState>()?.ResetTransient();player?.GetComponent<FireLeechState>()?.Clear();
         currentZoneLevel = 1;
         enemiesKilledInZone = 0;
         bossSpawned = false;

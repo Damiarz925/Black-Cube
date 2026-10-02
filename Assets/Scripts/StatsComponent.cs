@@ -191,6 +191,20 @@ public class StatsComponent : MonoBehaviour
             case StatTypes.LifeRecoveryEffect:
             case StatTypes.AllDamagingAilmentChance:
             case StatTypes.PoisonSpeed:
+            case StatTypes.DamageReductionPerRage:
+            case StatTypes.TitanRevengeBonus:
+            case StatTypes.TitanFullLifeMore:
+            case StatTypes.TitanFortification:
+            case StatTypes.TitanRageRegeneration:
+            case StatTypes.EruptionCoefficient:
+            case StatTypes.PhysicalToFireConversion:
+            case StatTypes.DamageTakenAsFire:
+            case StatTypes.FireLifeLeech:
+            case StatTypes.DodgeChance:
+            case StatTypes.ToxicSuppression:
+            case StatTypes.PrecisionMore:
+            case StatTypes.ProjectileGuard:
+            case StatTypes.DodgeLifeRecovery:
 
             // Penetration
             case StatTypes.PhysPenetration:

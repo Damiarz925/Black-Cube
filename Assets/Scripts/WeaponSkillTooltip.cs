@@ -26,14 +26,14 @@ public sealed class WeaponSkillTooltip : MonoBehaviour,IPointerEnterHandler,IPoi
         int hits=Mathf.Max(1,skill.baseHitCount);
         if(skill.effect==WeaponSkillEffect.ShockBarrage)
             hits=ShockRules.BarrageHits(BattleManager.Instance?.CurrentEnemyAI?.GetComponent<StatusController>()?.TotalShockEffect??0);
-        int projectiles=skill.projectile?BattleManager.CalculateProjectileCount(stats.GetRawStat(StatTypes.ProjectileAmount),0):1;if(skill.effect==WeaponSkillEffect.DoubleProjectiles)projectiles*=2;
+        float projectiles=skill.projectile?1+Mathf.Max(0,stats.GetRawStat(StatTypes.ProjectileAmount)):1;
         float multiplier=skill.effect==WeaponSkillEffect.ArmourStrike?WeaponMechanicProfile.ArmourStrikeMultiplier(ItemArmourProfile.Final(stats)):skill.hitDamageMultiplier;
         float baseDamage=basis*multiplier*PlayerSkillController.SkillDamageLevelFactor(controller.EffectiveSkillLevel(skill));
         float total=baseDamage*hits*projectiles;
         string cooldown=skill.queuedCooldownEnabled||skill.castMode!=PlayerSkillCastMode.QueuedAttackReplacement
             ?$"{controller.EffectiveCooldown(skill):0.##}s cooldown ({controller.CooldownRemaining(skillIndex):0.##}s remaining)"
             :"Next attack replacement";
-        body.text=$"<b>{skill.displayName}</b>\n{skill.description}\n\nBasis: current weapon + character damage\nTypes: {types}\nBase skill damage/hit: {baseDamage:0.#}\nMana: {controller.ManaCost(skill):0}\n{cooldown}\nHits: {hits}   Projectiles: {(skill.projectile?projectiles:0)}\nProjectile speed: {(skill.projectile?skill.baseProjectileSpeed*(1+stats.GetStat(StatTypes.ProjectileSpeed)):0):0.##}×\nEstimated direct damage/use: {total:0.#}\nNoncritical, before defenses; ailments/conditional triggers excluded.";
+        body.text=$"<b>{skill.displayName}</b>\n{skill.description}\n\nBasis: current weapon + character damage\nTypes: {types}\nBase skill damage/hit: {baseDamage:0.#}\nMana: {controller.ManaCost(skill):0}\n{cooldown}\nHits: {hits}   Expected projectiles: {(skill.projectile?projectiles:0):0.#}\nProjectile speed: {(skill.projectile?skill.baseProjectileSpeed*(1+stats.GetStat(StatTypes.ProjectileSpeed)):0):0.##}×\nEstimated direct damage/use: {total:0.#}\nNoncritical, before defenses; ailments/conditional triggers excluded.";
         panel.transform.SetAsLastSibling();
     }
 }

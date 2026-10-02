@@ -16,10 +16,10 @@ public static class SubclassEffectCatalog
     static readonly SubclassEffectDefinition[] all={
         E("subclass.warrior.bleed.rupture",SubclassIds.WarriorBleed,"Rupture capped Bleeds once per player attack opportunity"),
         E("subclass.warrior.multihit.conversion",SubclassIds.WarriorMultihit,"20% less damage; pre-conversion Attack Speed and Multistrike grant each other bonuses"),
-        E("subclass.barbarian.big_hit.core",SubclassIds.BarbarianBigHit,"25% less Attack Speed and 60% more Physical hit damage"),E("subclass.barbarian.big_hit.full_life",SubclassIds.BarbarianBigHit,"75% more against full-Life enemies; 35% more while injured"),
-        E("subclass.barbarian.fire.added",SubclassIds.BarbarianFire,"40% base Physical gained as Fire"),E("subclass.barbarian.fire.eruption",SubclassIds.BarbarianFire,"20% chance for a 75% Fire eruption"),
-        E("subclass.ranger.poison.all_damage",SubclassIds.RangerPoison,"All damage can Poison"),E("subclass.ranger.poison.core",SubclassIds.RangerPoison,"Poison chance, damage, duration and speed"),
-        E("subclass.ranger.projectile.core",SubclassIds.RangerProjectile,"Additional projectile, speed and Precision"),E("subclass.ranger.projectile.focused",SubclassIds.RangerProjectile,"Collapse projectiles for 75% more per sacrifice"),
+        E("subclass.barbarian.big_hit.core",SubclassIds.BarbarianBigHit,"30% less Attack Speed and 60% more Physical hit damage"),E("subclass.barbarian.big_hit.full_life",SubclassIds.BarbarianBigHit,"Revenge, full-Life, repeated-hit and Rage regeneration passives"),
+        E("subclass.barbarian.fire.added",SubclassIds.BarbarianFire,"Physical-to-Fire conversion through selected passives"),E("subclass.barbarian.fire.eruption",SubclassIds.BarbarianFire,"Every successful hit causes a separate Fire eruption"),
+        E("subclass.ranger.poison.all_damage",SubclassIds.RangerPoison,"All hit damage types can Poison"),E("subclass.ranger.poison.core",SubclassIds.RangerPoison,"Poison speed, duration, leech and suppression passives"),
+        E("subclass.ranger.projectile.core",SubclassIds.RangerProjectile,"Projectile Speed grants more damage"),E("subclass.ranger.projectile.focused",SubclassIds.RangerProjectile,"Precision, projectile count, guard and Dodge passives"),
         E("subclass.mage.cooldown.core",SubclassIds.MageCooldown,"20% Cooldown Reduction"),E("subclass.mage.cooldown.ignore",SubclassIds.MageCooldown,"20% cooldown bypass / queued repeat"),
         E("subclass.mage.storm.core",SubclassIds.MageStorm,"All damage can Shock and +50% Shock Effect"),E("subclass.mage.storm.multi_shock",SubclassIds.MageStorm,"Three multiplicatively combined Shocks"),
         E("subclass.priest.dark.heal_to_harm",SubclassIds.PriestDark,"Non-regeneration healing becomes triggerless Void damage"),E("subclass.priest.dark.void_ailments",SubclassIds.PriestDark,"Void can apply all ailments"),E("subclass.priest.dark.corruption",SubclassIds.PriestDark,"0.20% more Void per corruption point"),
@@ -35,8 +35,8 @@ public static class SubclassEffectCatalog
 public static class SubclassBalanceProfile
 {
     // Warrior's former chance-based Rupture and hit-count combo are retired.
-    public const float BigHitAttackSpeedLess=.25f,BigHitPhysicalMore=.60f,FullLifeMore=.75f,InjuredMore=.35f;
-    public const float AddedFireFromPhysical=.40f,EruptionChance=.20f,EruptionMagnitude=.75f;
+    public const float BigHitAttackSpeedLess=.30f,BigHitPhysicalMore=.60f;
+    public const float EruptionMagnitude=.25f;
     public const float FocusedMorePerSacrifice=.75f,CooldownIgnoreChance=.20f;public const int QueuedRepeatMaximum=3;
     public const int StormShockMaximum=3;public const float AuraFullThreshold=.10f;
     public static float FocusedMultiplier(int wouldBeCount)=>1+Mathf.Max(0,wouldBeCount-1)*FocusedMorePerSacrifice;
@@ -56,9 +56,6 @@ public static class SubclassStatPackage
         if(add==null)return;
         switch(subclassId)
         {
-            case SubclassIds.BarbarianBigHit:add(StatTypes.AttackSpeed,-25);add(StatTypes.PhysMult,60);break;
-            case SubclassIds.RangerPoison:add(StatTypes.PoisonChance,20);add(StatTypes.PoisonDmg,40);add(StatTypes.PoisonDuration,25);add(StatTypes.PoisonSpeed,25);break;
-            case SubclassIds.RangerProjectile:add(StatTypes.ProjectileAmount,1);add(StatTypes.ProjectileSpeed,20);add(StatTypes.ProjectilePrecisionChance,15);break;
             case SubclassIds.MageCooldown:add(StatTypes.CooldownReduction,20);break;
             case SubclassIds.MageStorm:add(StatTypes.ShockEffect,50);break;
             case SubclassIds.ThiefAssassin:add(StatTypes.CritChance,10);add(StatTypes.CritMult,50);break;

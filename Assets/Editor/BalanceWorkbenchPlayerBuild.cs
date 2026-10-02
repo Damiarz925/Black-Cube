@@ -117,25 +117,24 @@ namespace BlackCube.BalanceWorkbench
         PlayerBuildMetrics Capture(PlayerBuildSnapshot b)
         {
             var keys=Stats.GetComponent<PassiveKeystoneState>();
-            DamageContext SearchHit(DamageContext source){for(int i=0;i<source.Hits.Count;i++){var hit=source.Hits[i];hit.Amount*=RelicLoadoutRules.Product(b.activeRelics,RelicModifierType.MoreDamage);source.Hits[i]=hit;}return CharacterDamageEstimate.SearchHit(source,Stats);}
-            var m=new PlayerBuildMetrics();var avg=SearchHit(Player.BuildNonCriticalAttackContext());var lo=SearchHit(Player.BuildNonCriticalAttackContextAtRangeEnd(false));var hi=SearchHit(Player.BuildNonCriticalAttackContextAtRangeEnd(true));m.averageHit=Sum(avg);m.minimumHit=Sum(lo);m.maximumHit=Sum(hi);m.attacksPerSecond=Player.GetFinalAttackSpeed()*RelicLoadoutRules.Product(b.activeRelics,RelicModifierType.MoreAttackSpeed);m.critChance=Player.GetFinalCritChance();m.critMultiplier=CombatCalculator.BaseCriticalMultiplier+Stats.GetStat(StatTypes.CritMult);m.critContribution=m.averageHit*m.critChance*(m.critMultiplier-1);m.hitTwiceChance=GenericPassiveMechanics.SupportsMultistrike(b.weaponTypeId)?Mathf.Clamp01(Stats.GetStat(StatTypes.ChanceToHitTwice)):0;double repeatFactor=(keys?.Has(PassiveKeystone.WarriorConsolidation)==true?1.10:1)*(1+UniqueCatalog.Power(Stats,UniquePower.MultistrikeDamage));m.hitTwiceContribution=(m.averageHit+m.critContribution)*m.hitTwiceChance*repeatFactor;m.basicDps=(m.averageHit+m.critContribution+m.hitTwiceContribution)*m.attacksPerSecond;
+            DamageContext SearchHit(DamageContext source){for(int i=0;i<source.Hits.Count;i++){var hit=source.Hits[i];hit.Amount*=RelicLoadoutRules.Product(b.activeRelics,RelicModifierType.MoreDamage)*(b.subclassId==SubclassIds.BarbarianBigHit&&hit.Element==Element.Phys?1+SubclassBalanceProfile.BigHitPhysicalMore:1);source.Hits[i]=hit;}return CharacterDamageEstimate.SearchHit(source,Stats);}
+            var m=new PlayerBuildMetrics();var avg=SearchHit(Player.BuildNonCriticalAttackContext());var lo=SearchHit(Player.BuildNonCriticalAttackContextAtRangeEnd(false));var hi=SearchHit(Player.BuildNonCriticalAttackContextAtRangeEnd(true));m.averageHit=Sum(avg);m.minimumHit=Sum(lo);m.maximumHit=Sum(hi);m.attacksPerSecond=Player.GetFinalAttackSpeed()*RelicLoadoutRules.Product(b.activeRelics,RelicModifierType.MoreAttackSpeed)*(b.subclassId==SubclassIds.BarbarianBigHit?1-SubclassBalanceProfile.BigHitAttackSpeedLess:1);m.critChance=Player.GetFinalCritChance();m.critMultiplier=CombatCalculator.BaseCriticalMultiplier+Stats.GetStat(StatTypes.CritMult);m.critContribution=m.averageHit*m.critChance*(m.critMultiplier-1);m.hitTwiceChance=GenericPassiveMechanics.SupportsMultistrike(b.weaponTypeId)?Mathf.Clamp01(Stats.GetStat(StatTypes.ChanceToHitTwice)):0;double repeatFactor=(keys?.Has(PassiveKeystone.WarriorConsolidation)==true?1.10:1)*(1+UniqueCatalog.Power(Stats,UniquePower.MultistrikeDamage));m.hitTwiceContribution=(m.averageHit+m.critContribution+m.hitTwiceContribution)*m.hitTwiceChance*repeatFactor;m.basicDps=(m.averageHit+m.critContribution+m.hitTwiceContribution)*m.attacksPerSecond;
             var weapon=gear.FirstOrDefault(x=>x.ItemType==LootManager.GearType.Weapons);m.baseWeaponAverage=weapon?.GetEffectiveBaseDamage()??0;m.weaponAttributeIncreased=Player.WeaponAttributeDamageBonus;m.playerLevelIncreased=Player.LevelDamageBonus;m.genericIncreased=Stats.GetStat(StatTypes.GenericDmg);m.physicalIncreased=Stats.GetStat(StatTypes.PhysDmg);m.genericMore=Stats.GetStat(StatTypes.GenericMult);m.physicalMore=Stats.GetStat(StatTypes.PhysMult);
             foreach(var h in avg.Hits){double expected=h.Amount*(1+m.critChance*(m.critMultiplier-1))*(1+m.hitTwiceChance*repeatFactor)*m.attacksPerSecond;switch(h.Element){case Element.Phys:m.physicalOutput+=expected;break;case Element.Fire:m.fireOutput+=expected;break;case Element.Cold:m.coldOutput+=expected;break;case Element.Light:m.lightningOutput+=expected;break;case Element.Void:case Element.Poison:m.voidOutput+=expected;break;}}
-            m.projectileCount=BattleManager.CalculateProjectileCount(Stats.GetRawStat(StatTypes.ProjectileAmount),0);m.projectileTravelTime=WeaponMechanicProfile.ProjectileTravelTime(Stats.GetStat(StatTypes.ProjectileSpeed));m.precisionChance=WeaponMechanicProfile.PrecisionChance(Stats.GetStat(StatTypes.ProjectilePrecisionChance));m.precisionMultiplier=WeaponMechanicProfile.PrecisionMultiplier(Stats.GetStat(StatTypes.ProjectilePrecisionMultiplier));m.cooldownReduction=Stats.GetStat(StatTypes.CooldownReduction);
+            m.projectileCount=1+Mathf.Max(0,Stats.GetRawStat(StatTypes.ProjectileAmount));m.projectileTravelTime=WeaponMechanicProfile.ProjectileTravelTime(Stats.GetStat(StatTypes.ProjectileSpeed));m.precisionChance=WeaponMechanicProfile.PrecisionChance(Stats.GetStat(StatTypes.ProjectilePrecisionChance));m.precisionMultiplier=WeaponMechanicProfile.PrecisionMultiplier(Stats.GetStat(StatTypes.ProjectilePrecisionMultiplier))*(b.subclassId==SubclassIds.RangerProjectile?1+Stats.GetStat(StatTypes.PrecisionMore):1);m.cooldownReduction=Stats.GetStat(StatTypes.CooldownReduction);
             if(b.weaponTypeId==WeaponTypeIds.Bow)
             {
-                double projectileFactor=b.subclassId==SubclassIds.RangerProjectile&&b.projectileMode==SubclassProjectileMode.Focused?
-                    SubclassBalanceProfile.FocusedMultiplier((int)m.projectileCount):m.projectileCount;
+                double projectileFactor=m.projectileCount;
                 double precisionFactor=keys?.Has(PassiveKeystone.RangerPrecision)==true?.85*m.precisionMultiplier*1.15:1+m.precisionChance*(m.precisionMultiplier-1);if(keys?.Has(PassiveKeystone.RangerSplit)==true){m.projectileCount*=3;projectileFactor*=3*.33*1.15;}
-                double factor=projectileFactor*precisionFactor;
+                double factor=projectileFactor*precisionFactor*(b.subclassId==SubclassIds.RangerProjectile?1+Stats.GetStat(StatTypes.ProjectileSpeed)*.5f:1);
                 m.basicDps*=factor;m.physicalOutput*=factor;m.fireOutput*=factor;
                 m.coldOutput*=factor;m.lightningOutput*=factor;m.voidOutput*=factor;
             }
             if(b.subclassId==SubclassIds.BarbarianFire)
             {
-                double added=m.physicalOutput*SubclassBalanceProfile.AddedFireFromPhysical;
-                m.fireOutput+=added;m.basicDps+=added;
-                m.assumptions.Add("Fire Barbarian's Physical-as-Fire is included in search DPS; Eruption is an expected-rate approximation and exact triggers are Combat Lab-only.");
+                double converted=m.physicalOutput*Mathf.Clamp01(Stats.GetStat(StatTypes.PhysicalToFireConversion));
+                m.physicalOutput-=converted;m.fireOutput+=converted;
+                m.assumptions.Add("Fire Barbarian conversion is included in search damage; exact Eruption hits are Combat Lab-only.");
             }
             // These are expected applications per eligible hit, not probabilities capped at one.
             // Production combat resolves the integer overflow plus fractional remainder.
@@ -150,7 +149,7 @@ namespace BlackCube.BalanceWorkbench
             m.poisonDps=m.poisonMagnitude*m.poisonChance*m.attacksPerSecond;
             m.bleedDps=m.bleedMagnitude*m.bleedChance*m.attacksPerSecond;
             m.igniteDps=m.igniteMagnitude*m.igniteChance*m.attacksPerSecond;
-            if(b.weaponTypeId==WeaponTypeIds.Bow&&b.projectileMode==SubclassProjectileMode.Volley)
+            if(b.weaponTypeId==WeaponTypeIds.Bow)
             {
                 m.bleedMagnitude/=m.projectileCount;m.igniteMagnitude/=m.projectileCount;
                 m.bleedDps/=m.projectileCount;m.igniteDps/=m.projectileCount;
@@ -158,7 +157,7 @@ namespace BlackCube.BalanceWorkbench
             }
             if(b.weaponTypeId==WeaponTypeIds.Bow)
             {
-                double hitFactor=b.subclassId==SubclassIds.RangerProjectile&&b.projectileMode==SubclassProjectileMode.Focused?1:m.projectileCount;
+                double hitFactor=m.projectileCount;
                 m.poisonDps*=hitFactor;m.bleedDps*=hitFactor;m.igniteDps*=hitFactor;
             }
             m.poisonDps*=CharacterDamageEstimate.AilmentDurationFactor(Stats,Element.Void);
@@ -181,7 +180,7 @@ namespace BlackCube.BalanceWorkbench
             m.manaStarvationFraction=sustainable.starvationFraction;
             m.selectedSkillPolicy=sustainable.policy;
             if(b.subclassId==SubclassIds.BarbarianFire)
-                m.totalSustainableDps+=m.basicDps*SubclassBalanceProfile.EruptionChance*SubclassBalanceProfile.EruptionMagnitude;
+                m.totalSustainableDps+=m.basicDps*(SubclassBalanceProfile.EruptionMagnitude+Stats.GetStat(StatTypes.EruptionCoefficient));
             if(b.subclassId==SubclassIds.PriestDark)
             {
                 m.totalSustainableDps+=m.lifeOnHit*m.attacksPerSecond;
@@ -204,7 +203,7 @@ namespace BlackCube.BalanceWorkbench
             foreach(var sid in boundSkills)
             {
                 if(!skillDefinitions.TryGetValue(sid,out var s))continue;
-                double hits=Math.Max(1,s.baseHitCount);if(s.projectile)hits*=m.projectileCount;if(s.effect==WeaponSkillEffect.DoubleProjectiles)hits*=2;if(s.projectile&&b.subclassId==SubclassIds.RangerProjectile&&b.projectileMode==SubclassProjectileMode.Focused)hits=1;
+                double hits=Math.Max(1,s.baseHitCount);if(s.projectile)hits*=m.projectileCount;
                 int level=PlayerSkillController.CalculateEffectiveSkillLevel(Stats.GetRawStat(PlayerSkillController.SkillLevelStat(s.id))+Stats.GetRawStat(StatTypes.PlusAllSkills));
                 if(s.effect==WeaponSkillEffect.ShockBarrage)
                 {
@@ -216,7 +215,6 @@ namespace BlackCube.BalanceWorkbench
                 }
                 double direct=m.averageHit*s.hitDamageMultiplier*PlayerSkillController.SkillDamageLevelFactor(level);
                 if(s.projectile)direct*=1+m.precisionChance*(m.precisionMultiplier-1);
-                if(s.projectile&&b.subclassId==SubclassIds.RangerProjectile&&b.projectileMode==SubclassProjectileMode.Focused)direct*=SubclassBalanceProfile.FocusedMultiplier((int)m.projectileCount*(s.effect==WeaponSkillEffect.DoubleProjectiles?2:1));
                 if(s.suppressDirectDamage||s.effect==WeaponSkillEffect.VirtualPoison)direct=0;
                 double use=direct*hits;
                 if(s.effect==WeaponSkillEffect.VirtualPoison)

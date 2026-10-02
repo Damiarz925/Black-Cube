@@ -46,14 +46,13 @@ public static class CharacterDamageEstimate
         float factor=ExpectedDirectFactor(player.GetFinalCritChance(),CombatCalculator.BaseCriticalMultiplier+stats.GetStat(StatTypes.CritMult),repeats,keys?.Has(PassiveKeystone.WarriorConsolidation)==true,1+UniqueCatalog.Power(stats,UniquePower.MultistrikeDamage));
         if(projectile)
         {
-            int count=BattleManager.CalculateProjectileCount(stats.GetRawStat(StatTypes.ProjectileAmount),0);
-            float projectileFactor=count;
+            float projectileFactor=1+Mathf.Max(0,stats.GetRawStat(StatTypes.ProjectileAmount));
             var subclass=player.GetComponent<SubclassCombatState>();
-            if(subclass!=null)projectileFactor=subclass.FinalProjectileCount(count,out float more)==1?more:count;
+            if(subclass?.Has(SubclassIds.RangerProjectile)==true)factor*=1+Mathf.Max(0,stats.GetStat(StatTypes.ProjectileSpeed))*.5f;
             factor*=projectileFactor;
             if(bow)
             {
-                float precision=WeaponMechanicProfile.PrecisionMultiplier(stats.GetStat(StatTypes.ProjectilePrecisionMultiplier));
+                float precision=WeaponMechanicProfile.PrecisionMultiplier(stats.GetStat(StatTypes.ProjectilePrecisionMultiplier))*(subclass?.Has(SubclassIds.RangerProjectile)==true?1+stats.GetStat(StatTypes.PrecisionMore):1);
                 factor*=keys?.Has(PassiveKeystone.RangerPrecision)==true?.85f*precision*1.15f:
                     1+WeaponMechanicProfile.PrecisionChance(stats.GetStat(StatTypes.ProjectilePrecisionChance))*(precision-1);
                 if(keys?.Has(PassiveKeystone.RangerSplit)==true)factor*=3*.33f*1.15f;

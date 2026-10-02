@@ -407,14 +407,16 @@ public class PlayerController : MonoBehaviour
     public float GetFinalAttackSpeed()
     {
         if (equippedWeapon == null)
-            return unarmedAttacksPerSecond * (1f + stats.GetStat(StatTypes.AttackSpeed) + DerivedStatCalculator.AttackSpeedIncreased(stats)
-                +(GetComponent<RageState>()?.IncreasedAttackSpeed??0)) * KeystoneAttackSpeedMultiplier() * RelicAttackSpeedMultiplier();
+            return unarmedAttacksPerSecond * Mathf.Max(.05f,1f + stats.GetStat(StatTypes.AttackSpeed) + DerivedStatCalculator.AttackSpeedIncreased(stats)
+                +(GetComponent<RageState>()?.IncreasedAttackSpeed??0)) * KeystoneAttackSpeedMultiplier() * RelicAttackSpeedMultiplier()
+                *(GetComponent<SubclassCombatState>()?.Has(SubclassIds.BarbarianBigHit)==true?1f-SubclassBalanceProfile.BigHitAttackSpeedLess:1f);
 
         float weaponAS = equippedWeapon.GetEffectiveAttackSpeed();  //Grabs the weapon's base attack speed (base speed * local weapon attack speed modifier)
         float incASGlobal = stats.GetStat(StatTypes.AttackSpeed) + DerivedStatCalculator.AttackSpeedIncreased(stats)+(GetComponent<RageState>()?.IncreasedAttackSpeed??0); //Gets the player's global attack speed modifier
 
         var subclass=GetComponent<SubclassCombatState>();if(subclass!=null)incASGlobal+=subclass.AuraSecondary(0,.10f);
-        return weaponAS * (1f + incASGlobal) * KeystoneAttackSpeedMultiplier() * RelicAttackSpeedMultiplier();
+        return weaponAS * Mathf.Max(.05f,1f + incASGlobal) * KeystoneAttackSpeedMultiplier() * RelicAttackSpeedMultiplier()
+            *(subclass?.Has(SubclassIds.BarbarianBigHit)==true?1f-SubclassBalanceProfile.BigHitAttackSpeedLess:1f);
     }
 
     float KeystoneAttackSpeedMultiplier()

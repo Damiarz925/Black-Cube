@@ -116,7 +116,7 @@ public sealed class Step10MechanicsTests
     [TestCase(0f, 2, 3)]
     public void ProjectileCountUsesWholePassiveAdditions(float raw, int keystone, int expected)
     {
-        Assert.That(BattleManager.CalculateProjectileCount(raw, keystone), Is.EqualTo(expected));
+        Assert.That(RangerSubclassRules.ProjectileCount(raw, keystone, .9999f), Is.EqualTo(expected));
     }
 
     [Test]

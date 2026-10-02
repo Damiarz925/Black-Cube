@@ -46,6 +46,6 @@ public sealed class RevengeState:MonoBehaviour
     public void RecordHit(float lifeLost,float maximumLife)
     {if(lifeLost>0&&maximumLife>0)lastFraction+=lifeLost/maximumLife;}
     public float ConsumeAttack()
-    {float fraction=lastFraction;lastFraction=0;var stats=GetComponent<StatsComponent>();float effect=stats.GetStat(StatTypes.RevengeEffect)+UniqueCatalog.Power(stats,UniquePower.RevengeScaling);return effect>0?GenericPassiveMechanics.RevengeMultiplier(fraction,effect):1;}
+    {float fraction=lastFraction;lastFraction=0;var stats=GetComponent<StatsComponent>();float effect=stats.GetStat(StatTypes.RevengeEffect)+UniqueCatalog.Power(stats,UniquePower.RevengeScaling);bool titan=GetComponent<SubclassCombatState>()?.Has(SubclassIds.BarbarianBigHit)==true;float value=(effect>0||titan)&&fraction>0?GenericPassiveMechanics.RevengeMultiplier(fraction,effect):1;return value>1&&titan?value+stats.GetStat(StatTypes.TitanRevengeBonus):value;}
     public void Clear()=>lastFraction=0;
 }

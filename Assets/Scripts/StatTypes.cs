@@ -213,5 +213,21 @@ public enum StatTypes
     EscalatingMultistrike = 150,
     UnbrokenAssault = 151,
     ElementalPlating = 152,
-    WarriorDotMultiplier = 153
+    WarriorDotMultiplier = 153,
+    DamageReductionPerRage = 154,
+    MaximumRage = 155,
+    TitanRevengeBonus = 156,
+    TitanFullLifeMore = 157,
+    TitanFortification = 158,
+    TitanRageRegeneration = 159,
+    EruptionCoefficient = 160,
+    PhysicalToFireConversion = 161,
+    DamageTakenAsFire = 162,
+    FireLifeLeech = 163,
+    DodgeChance = 164,
+    ToxicSuppression = 165,
+    // 166 is intentionally unassigned; the Projectile Ranger base rule reads ProjectileSpeed directly.
+    PrecisionMore = 167,
+    ProjectileGuard = 168,
+    DodgeLifeRecovery = 169
 }

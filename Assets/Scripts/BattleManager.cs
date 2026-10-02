@@ -421,6 +421,14 @@ public class BattleManager : MonoBehaviour
     {
         if (!IsSameLivingEnemyAttacker(originalAttacker) || !IsSameLivingPlayer(originalTarget)) return;
         DamageContext ctx = enemyAI.BuildAttackContext();       //generate damage context from the enemy
+        if(playerStats!=null&&Random.value<RangerSubclassRules.DodgeChance(playerStats.GetStat(StatTypes.DodgeChance)))
+        {
+            float recovery=subclassState?.Has(SubclassIds.RangerProjectile)==true?playerStats.GetStat(StatTypes.DodgeLifeRecovery):0;
+            if(recovery>0)playerHealth.RestoreLife(playerHealth.MaxLife*recovery,HealingSource.SubclassDamage);
+            return; // Dodge avoids the attack and its on-hit ailments; DoT ticks never enter here.
+        }
+        if(subclassState?.Has(SubclassIds.BarbarianFire)==true)
+            ctx=TransformContext(ctx,1,Element.Fire,playerStats.GetStat(StatTypes.DamageTakenAsFire));
         if(playerStats!=null&&Random.value<Mathf.Clamp01(playerStats.GetStat(StatTypes.ChanceToBlock)))
             ctx=TransformContext(ctx,WarriorSubclassRules.BlockedHitMultiplier,Element.Phys,0);
 
@@ -430,8 +438,10 @@ public class BattleManager : MonoBehaviour
             rawTotal += hit.Amount;
         }
 
+        int poisonOnAttacker=enemyStatusCont?.AilmentStackCount(StatusEffects.AilmentKind.Poison)??0;
         float damageTaken = CombatCalculator.CalculateFinalDamage(ctx, enemyStats, playerStats)
-            * (playerRage?.IncomingDamageMultiplier ?? 1f);        // Rage defense applies after ordinary mitigation.
+            * (playerRage?.IncomingDamageMultiplier ?? 1f)
+            * (subclassState?.IncomingHitMultiplier(poisonOnAttacker,SkillProjectile.ActivePlayerProjectiles)??1f);
 
         Debug.Log($"[Turn {globalTurnCounter}] Enemy hits player. " +
                   $"Raw={rawTotal:F1}, Final(after res/armour)={damageTaken:F1}, " +
@@ -447,6 +457,7 @@ public class BattleManager : MonoBehaviour
             if (enemySprite != null) enemySprite.Strike();
 playerDamageReceiver.TakeDamage(damageTaken, ctx, attacker:enemyStats);     //call lose life in player script, passing in damage taken
             if(damageTaken>0)subclassState?.EnemySuccessfulAttack();
+            else subclassState?.EnemyZeroDamageHit();
             if(damageTaken>0)specialEffects?.NotifyPlayerTookDirectHit();
             playerRage?.GainFromDamageTaken(damageTaken,playerHealth.MaxLife);
 
@@ -562,7 +573,6 @@ playerDamageReceiver.TakeDamage(damageTaken, ctx, attacker:enemyStats);     //ca
         if (skill.projectile)
         {
             int projectileCount = GetPlayerProjectileCount(skill);
-            if(skill.effect==WeaponSkillEffect.DoubleProjectiles)projectileCount*=2;
             float focusedMultiplier=1f;if(subclassState!=null)projectileCount=subclassState.FinalProjectileCount(projectileCount,out focusedMultiplier);
             projectileCount=SplitProjectileCount(projectileCount);
             for (int i = 0; i < projectileCount; i++)
@@ -570,8 +580,10 @@ playerDamageReceiver.TakeDamage(damageTaken, ctx, attacker:enemyStats);     //ca
                 float offset = (i - (projectileCount - 1) * .5f) * .18f;
                 // Build at cast time: current-mana scaling is locked after the
                 // cost has been paid and cannot drift while the projectile flies.
-                DamageContext snapshot = ApplyPrecision(ApplyWeaponMechanics(playerController.BuildAttackContext(
-                    skill.conversionElement, skill.nonMatchingConversion, skill.DamageScopes)),CanPrecision(skill));
+                DamageContext natural=ApplyWeaponMechanics(playerController.BuildAttackContext(
+                    skill.conversionElement, skill.nonMatchingConversion, skill.DamageScopes));
+                DamageContext snapshot=skill.id==PlayerSkillId.BowDoubleVolley
+                    ?ApplyVolley(natural):ApplyPrecision(natural,CanPrecision(skill));
                 if(resolvingRelicTriggers)snapshot.EventTags|=CombatEventTags.RelicTriggeredSkill;
                 if(!Mathf.Approximately(focusedMultiplier,1f))snapshot=TransformContext(snapshot,focusedMultiplier,Element.Phys,0);
                 // A thrown Dagger is a projectile, not a melee event. Equipped weapon
@@ -638,7 +650,7 @@ playerDamageReceiver.TakeDamage(damageTaken, ctx, attacker:enemyStats);     //ca
     }
 
     public static int CalculateProjectileCount(float rawAmount, int keystoneBonus) =>
-        Mathf.Max(1, 1 + Mathf.FloorToInt(Mathf.Max(0f, rawAmount)) + Mathf.Max(0, keystoneBonus));
+        RangerSubclassRules.ProjectileCount(rawAmount,keystoneBonus,Random.value);
 
     private void ResolvePlayerSkill(PlayerSkillDefinition skill, HealthComponent target, StatusController statuses)
     {
@@ -752,13 +764,19 @@ playerDamageReceiver.TakeDamage(damageTaken, ctx, attacker:enemyStats);     //ca
                 playerHealth.RestoreLife(playerStats.GetStat(StatTypes.LifeOnHitVsBleeding),HealingSource.LifeOnHit);
             GetPlayerMana()?.Restore(playerStats.GetStat(StatTypes.ManaOnHit));
             if(skill?.effect==WeaponSkillEffect.HealFromDamage)playerHealth.RestoreLife(actualDamage*skill.secondaryMultiplier,HealingSource.WeaponSkill);
+            if(subclassState?.Has(SubclassIds.BarbarianFire)==true&&playerStats.GetStat(StatTypes.FireLifeLeech)>0)
+            {
+                float fireDamage=CombatCalculator.CalculateFinalElementDamage(direct,Element.Fire,playerStats,enemyStats);
+                float share=damageTaken>0?actualDamage/damageTaken:0;
+                FireLeechState.For(player).Add(fireDamage*share*playerStats.GetStat(StatTypes.FireLifeLeech));
+            }
             if(keystones!=null)playerHealth.RestoreLife(actualDamage*keystones.DamageRecoveryFraction,HealingSource.SubclassDamage);
             if(subclassState?.Has(SubclassIds.PriestLight)==true)playerHealth.RestoreLife(damageTaken*.10f,HealingSource.SubclassDamage);
             subclassState?.PlayerHit();
             specialEffects?.AfterHit(direct,rawTotal,statuses,target,enemyDamageReceiver,playerStats,enemyStats);
-            if(subclassState?.Has(SubclassIds.BarbarianFire)==true&&Random.value<SubclassBalanceProfile.EruptionChance&&IsSameLivingEnemy(target))
+            if(subclassState?.Has(SubclassIds.BarbarianFire)==true&&IsSameLivingEnemy(target))
             {
-                var eruption=new DamageContext(1){EventTags=CombatEventTags.TriggeredDamage|CombatEventTags.SubclassProc|CombatEventTags.Eruption};eruption.AddDamage(Element.Fire,rawTotal*SubclassBalanceProfile.EruptionMagnitude);float eruptionDamage=CombatCalculator.CalculateFinalDamage(eruption,playerStats,enemyStats);if(eruptionDamage>0){float lost=Mathf.Min(target.CurrentLife,eruptionDamage);enemyDamageReceiver.TakeDamage(eruptionDamage,eruption,attacker:playerStats);playerHealth.RestoreLife(lost*(keystones?.DamageRecoveryFraction??0),HealingSource.SubclassDamage);}if(IsSameLivingEnemy(target))ApplyConfiguredStatus(igniteEffect,StatTypes.IgniteChance,eruption,playerStats,statuses);
+                var eruption=new DamageContext(1){EventTags=CombatEventTags.TriggeredDamage|CombatEventTags.SubclassProc|CombatEventTags.Eruption};eruption.AddDamage(Element.Fire,rawTotal*(SubclassBalanceProfile.EruptionMagnitude+playerStats.GetStat(StatTypes.EruptionCoefficient)));float eruptionDamage=CombatCalculator.CalculateFinalDamage(eruption,playerStats,enemyStats);if(eruptionDamage>0){float lost=Mathf.Min(target.CurrentLife,eruptionDamage);enemyDamageReceiver.TakeDamage(eruptionDamage,eruption,attacker:playerStats);playerHealth.RestoreLife(lost*(keystones?.DamageRecoveryFraction??0),HealingSource.SubclassDamage);FireLeechState.For(player)?.Add(lost*playerStats.GetStat(StatTypes.FireLifeLeech));}if(IsSameLivingEnemy(target))ApplyConfiguredStatus(igniteEffect,StatTypes.IgniteChance,eruption,playerStats,statuses);
             }
         }
 
@@ -799,7 +817,9 @@ playerDamageReceiver.TakeDamage(damageTaken, ctx, attacker:enemyStats);     //ca
     {
         if(subclassState==null||source.Hits==null)return source;var result=source;
         if(subclassState.Has(SubclassIds.BarbarianFire))
-        {float physical=0;foreach(var hit in source.Hits)if(hit.Element==Element.Phys)physical+=hit.Amount;if(physical>0){result=TransformContext(source,1,Element.Phys,0);result.AddDamage(Element.Fire,physical*SubclassBalanceProfile.AddedFireFromPhysical);}}
+        {float conversion=Mathf.Clamp01(playerStats.GetStat(StatTypes.PhysicalToFireConversion));if(conversion>0){result=TransformContext(source,1,Element.Phys,0);result.Hits.Clear();foreach(var hit in source.Hits){if(hit.Element==Element.Phys){result.AddDamage(Element.Phys,hit.Amount*(1-conversion));result.AddDamage(Element.Fire,hit.Amount*conversion);}else result.AddDamage(hit.Element,hit.Amount);}}}
+        if(subclassState.Has(SubclassIds.BarbarianBigHit))
+        {result=TransformContext(result,1,Element.Phys,0);for(int i=0;i<result.Hits.Count;i++){var hit=result.Hits[i];if(hit.Element==Element.Phys)hit.Amount*=1f+SubclassBalanceProfile.BigHitPhysicalMore;result.Hits[i]=hit;}}
         if(subclassState.Has(SubclassIds.PriestLight)){var clean=new DamageContext(result.Hits.Count){IsCrit=result.IsCrit,CritMultiplier=result.CritMultiplier,Scopes=result.Scopes,IsPrecision=result.IsPrecision,PrecisionMultiplier=result.PrecisionMultiplier,WeaponMechanicsApplied=result.WeaponMechanicsApplied,EventTags=result.EventTags};foreach(var hit in result.Hits)if(hit.Element!=Element.Void)clean.AddDamage(hit.Element,hit.Amount);result=clean;}
         if(subclassState.Has(SubclassIds.PriestDark)){int corruption=FindFirstObjectByType<ZoneManager>()?.CorruptionPercentage??0;float more=1+corruption*.002f;var dark=new DamageContext(result.Hits.Count){IsCrit=result.IsCrit,CritMultiplier=result.CritMultiplier,Scopes=result.Scopes,IsPrecision=result.IsPrecision,PrecisionMultiplier=result.PrecisionMultiplier,WeaponMechanicsApplied=result.WeaponMechanicsApplied,EventTags=result.EventTags};foreach(var hit in result.Hits)dark.AddDamage(hit.Element,hit.Element==Element.Void?hit.Amount*more:hit.Amount);result=dark;}
         bool full=target!=null&&target.CurrentLife>=target.MaxLife-.001f;bool injured=playerHealth!=null&&playerHealth.CurrentLife<=playerHealth.MaxLife*.5f;bool bossLow=target!=null&&target.IsBoss&&target.CurrentLife<=target.MaxLife*.10f;float multiplier=subclassState.BeforePlayerHitMultiplier(full,injured,bossLow);return Mathf.Approximately(multiplier,1)?result:TransformContext(result,multiplier,Element.Phys,0);
@@ -861,7 +881,24 @@ playerDamageReceiver.TakeDamage(damageTaken, ctx, attacker:enemyStats);     //ca
     {
         if(HasClassKeystone(PassiveKeystone.RangerSplit)){var split=ClassKeystoneCatalog.Get(PassiveKeystone.RangerSplit);source=TransformContext(source,split.secondary*split.tertiary,Element.Phys,0);}
         if(!capable)return source;float chance=HasClassKeystone(PassiveKeystone.RangerPrecision)?1:WeaponMechanicProfile.PrecisionChance(playerStats.GetStat(StatTypes.ProjectilePrecisionChance));if(Random.value>=chance)return source;
-        float multiplier=WeaponMechanicProfile.PrecisionMultiplier(playerStats.GetStat(StatTypes.ProjectilePrecisionMultiplier))*(HasClassKeystone(PassiveKeystone.RangerPrecision)?ClassKeystoneCatalog.Get(PassiveKeystone.RangerPrecision).secondary:1);var result=TransformContext(source,multiplier,Element.Phys,0);result.IsPrecision=true;result.PrecisionMultiplier=multiplier;return result;
+        float multiplier=WeaponMechanicProfile.PrecisionMultiplier(playerStats.GetStat(StatTypes.ProjectilePrecisionMultiplier))*(1+(subclassState?.Has(SubclassIds.RangerProjectile)==true?playerStats.GetStat(StatTypes.PrecisionMore):0))*(HasClassKeystone(PassiveKeystone.RangerPrecision)?ClassKeystoneCatalog.Get(PassiveKeystone.RangerPrecision).secondary:1);var result=TransformContext(source,multiplier,Element.Phys,0);result.IsPrecision=true;result.PrecisionMultiplier=multiplier;return result;
+    }
+    DamageContext ApplyVolley(DamageContext naturalCrit)
+    {
+        bool naturalCritical=naturalCrit.IsCrit;
+        var naturalPrecision=ApplyPrecision(naturalCrit,true);
+        bool precisionSucceeded=naturalPrecision.IsPrecision;
+        float precisionMultiplier=WeaponMechanicProfile.PrecisionMultiplier(playerStats.GetStat(StatTypes.ProjectilePrecisionMultiplier))
+            *(1+(subclassState?.Has(SubclassIds.RangerProjectile)==true?playerStats.GetStat(StatTypes.PrecisionMore):0));
+        var result=precisionSucceeded?naturalPrecision:TransformContext(naturalPrecision,precisionMultiplier,Element.Phys,0);
+        if(!naturalCritical)
+        {
+            float criticalMultiplier=CombatCalculator.BaseCriticalMultiplier+playerStats.GetStat(StatTypes.CritMult);
+            result=TransformContext(result,criticalMultiplier,Element.Phys,0);
+            result.CritMultiplier=criticalMultiplier;
+        }
+        result.IsCrit=true;result.IsPrecision=true;result.PrecisionMultiplier=precisionMultiplier;
+        return TransformContext(result,(naturalCritical?1.1f:1f)*(precisionSucceeded?1.1f:1f),Element.Phys,0);
     }
     DamageContext ApplyWeaponMechanics(DamageContext source)
     {
