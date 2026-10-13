@@ -20,8 +20,6 @@ public static class InventoryAuthoringBuilder
             InventoryView existing = inventory.GetComponent<InventoryView>();
             InventoryEquipmentPanelUI equipment = inventory.GetComponent<InventoryEquipmentPanelUI>();
             CurrencyInventoryPanel currency = inventory.GetComponent<CurrencyInventoryPanel>();
-            InventoryFilterUI filter = inventory.GetComponent<InventoryFilterUI>();
-            InventoryModHighlightUI modFilter = inventory.GetComponent<InventoryModHighlightUI>();
             if (existing != null && existing.itemGridRoot != null)
             {
                 Selection.activeObject = AssetDatabase.LoadAssetAtPath<GameObject>(PrefabPath);
@@ -34,10 +32,6 @@ public static class InventoryAuthoringBuilder
                 equipment.BuildAuthoring(Find<RectTransform>(inventory.transform, "Compact inventory grid"));
                 if (currency == null) currency = inventory.gameObject.AddComponent<CurrencyInventoryPanel>();
                 currency.BuildAuthoring(inventory, Find<RectTransform>(inventory.transform, "Compact inventory grid"));
-                if (filter == null) filter = inventory.gameObject.AddComponent<InventoryFilterUI>();
-                filter.BuildAuthoring();
-                if (modFilter == null) modFilter = inventory.gameObject.AddComponent<InventoryModHighlightUI>();
-                modFilter.BuildAuthoring();
             }
 
             InventoryView view = inventory.GetComponent<InventoryView>();
@@ -48,8 +42,6 @@ public static class InventoryAuthoringBuilder
             view.ancientCurrencyRoot = Find<RectTransform>(inventory.transform, "Ancient relic currency");
             view.currencyTray = view.ordinaryCurrencyRoot;
             view.relicRoot = Find<RectTransform>(inventory.transform, "Relic inventory");
-            view.filterRoot = Find<RectTransform>(inventory.transform, "Auto-dismantle filter");
-            view.modFilterRoot = Find<RectTransform>(inventory.transform, "Mod highlight filter");
             view.tooltipHost = inventory.GetComponentInParent<Canvas>(true)?.transform as RectTransform;
             view.background = inventory.GetComponent<Image>();
             view.currencySlots = inventory.GetComponentsInChildren<CurrencySlotUI>(true).OrderBy(x => (int)x.Type).ToList();
@@ -63,7 +55,7 @@ public static class InventoryAuthoringBuilder
             ConfigureElement(view.gearToggle.gameObject, "inventory.tab.gear", "Gear Tab");
             ConfigureElement(view.relicToggle.gameObject, "inventory.tab.relic", "Relic Tab");
             foreach (CurrencySlotUI slot in view.currencySlots) ConfigureElement(slot.gameObject, "inventory.currency." + slot.Type.ToString().ToLowerInvariant(), slot.Type + " Currency");
-            EditorUtility.SetDirty(view); EditorUtility.SetDirty(inventory); EditorUtility.SetDirty(equipment); EditorUtility.SetDirty(currency); EditorUtility.SetDirty(filter); EditorUtility.SetDirty(modFilter);
+            EditorUtility.SetDirty(view); EditorUtility.SetDirty(inventory); EditorUtility.SetDirty(equipment); EditorUtility.SetDirty(currency);
             PrefabUtility.SaveAsPrefabAsset(inventory.gameObject, PrefabPath);
             PrefabUtility.SaveAsPrefabAsset(root, PersistentUIAuthoringInstaller.GameplayPrefabPath);
         }

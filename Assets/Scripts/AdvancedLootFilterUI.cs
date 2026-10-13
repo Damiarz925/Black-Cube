@@ -22,7 +22,6 @@ public sealed class AdvancedLootFilterUI : MonoBehaviour
     [SerializeField] List<ModRow> rows = new();
     [SerializeField] TMP_Dropdown itemTypeDropdown;
     [SerializeField] Button autoDismantle,help;
-    [SerializeField] Button legacyRules;
     [SerializeField] GameObject helpPanel;
     [SerializeField] Button clearSlot,clearAll;
     bool confirmClearAll;
@@ -65,7 +64,6 @@ public sealed class AdvancedLootFilterUI : MonoBehaviour
         }
         Wire(autoDismantle,()=>{Policy.autoDismantleFilteredItems=!Policy.autoDismantleFilteredItems;Changed();});
         Wire(help,()=>helpPanel.SetActive(!helpPanel.activeSelf));
-        Wire(legacyRules,()=>{var inv=Inventory.Instance;inv.FilterLevelEnabled=false;inv.FilterRarityEnabled=false;inv.FilterModMismatchEnabled=false;Changed();});
         Wire(logic,()=>{Current.all=!Current.all;Current.enabled=true;Changed();});
         Wire(minimum,()=>{Current.minimumMatches=Current.minimumMatches%Math.Max(1,Current.requirements.Count)+1;Changed();});
         for(int i=0;i<rarities.Count;i++){int k=i;Wire(rarities[i],()=>{Policy.keptRarities^=1<<k;Changed();});}
@@ -95,13 +93,6 @@ public sealed class AdvancedLootFilterUI : MonoBehaviour
     {
         if(Policy==null||panel==null)return;
         refreshing=true;
-        var inventory=Inventory.Instance;
-        if(legacyRules!=null)
-        {
-            bool legacy=inventory.FilterLevelEnabled||inventory.FilterRarityEnabled||inventory.FilterModMismatchEnabled;
-            legacyRules.gameObject.SetActive(legacy);
-            Label(legacyRules,"CLEAR SAVED LEGACY RULES: "+(inventory.FilterLevelEnabled?$"LEVEL ≤{inventory.FilterLevel} ":"")+(inventory.FilterRarityEnabled?$"RARITY ≤{inventory.FilterRarity} ":"")+(inventory.FilterModMismatchEnabled?"HIGHLIGHT MISMATCH":""));
-        }
         Label(clearAll,confirmClearAll?"CONFIRM CLEAR ALL MODIFIERS":"CLEAR ALL MODIFIER FILTERS");
         Label(autoDismantle,"AUTO-DISMANTLE FILTERED ITEMS: "+(Policy.autoDismantleFilteredItems?"ON":"OFF"));
         Label(master,"ADVANCED PICKUP POLICY: "+(Policy.enabled?"ON":"OFF"));
@@ -137,11 +128,9 @@ public sealed class AdvancedLootFilterUI : MonoBehaviour
     {
         if(panel==null)BuildAuthoring();
         if(rarities.Count<5){rarities.Add(MakeButton(panel.transform,"KEEP UNIQUE",new(.8f,.84f),new(.98f,.90f)));for(int i=0;i<rarities.Count;i++)Place((RectTransform)rarities[i].transform,new(.02f+i*.192f,.84f),new(.20f+i*.192f,.90f));}
-        if(legacyRules==null)legacyRules=MakeButton(panel.transform,"CLEAR SAVED LEGACY RULES",new(.02f,.405f),new(.98f,.45f));
         var existingViewport=panel.transform.Find("Legal modifier viewport") as RectTransform;
         if(existingViewport!=null)Place(existingViewport,new(.02f,.02f),new(.98f,.34f));
-        if(legacyRules!=null)Place((RectTransform)legacyRules.transform,new(.02f,.35f),new(.98f,.395f));
-        if(clearSlot==null){clearSlot=MakeButton(panel.transform,"CLEAR THIS SLOT",new(.02f,.405f),new(.40f,.45f));clearAll=MakeButton(panel.transform,"CLEAR ALL MODIFIER FILTERS",new(.42f,.405f),new(.98f,.45f));if(legacyRules!=null)legacyRules.gameObject.SetActive(false);}
+        if(clearSlot==null){clearSlot=MakeButton(panel.transform,"CLEAR THIS SLOT",new(.02f,.405f),new(.40f,.45f));clearAll=MakeButton(panel.transform,"CLEAR ALL MODIFIER FILTERS",new(.42f,.405f),new(.98f,.45f));}
         if(itemTypeDropdown!=null)return;
         CompactAuthoring();
         if(scope!=null)scope.gameObject.SetActive(false);

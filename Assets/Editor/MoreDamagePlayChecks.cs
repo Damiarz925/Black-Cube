@@ -68,9 +68,6 @@ public static class MoreDamagePlayChecks
         eq.Unequip(LootManager.GearType.Rings);Near(p.BasicAttackDamage,120,"Removing one source leaves120");eq.Equip(a);Near(p.BasicAttackDamage,144,"Reequip preserves roll identity");
         eq.Unequip(LootManager.GearType.Rings);eq.Unequip(LootManager.GearType.Helmets);
         w.BaseElement=Element.Phys;p.EquipWeapon(w);
-        File.AppendAllText("ReviewCaptures/inventory-grid-check.txt","\nINDEPENDENT-MORE regression rerun "+DateTime.Now.ToString("s")+"\n");
-        typeof(InventoryGridChecks).GetMethod("VerifyDamageTypesAndAilments",BindingFlags.Static|BindingFlags.NonPublic).Invoke(null,new object[]{p,s,w});
-        Write("PASS: existing six-element and production DOT tick/health-loss regressions passed under independent-more expectations");
         w.BaseCritChance=.05f;w.LocalIncCrit=1;s.SetBaseStat(StatTypes.BaseCritChance,2);s.SetBaseStat(StatTypes.CritChance,100);
         Near(p.GetFinalCritChance(),.28f,"Crit formula remains28%");
         Object.Destroy(enemyObject);

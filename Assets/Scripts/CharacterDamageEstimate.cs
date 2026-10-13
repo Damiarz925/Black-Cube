@@ -88,7 +88,8 @@ public static class CharacterDamageEstimate
                     if(relic.uniqueRelic)unique.powers.AddRange(relic.forgedPowers.Select(x=>x.Copy()));
             // Preserve current aura intensity without ticking or mutating live combat.
             actor.AddComponent<SubclassCombatState>().CopyPreviewFrom(live.GetComponent<SubclassCombatState>());
-            var progression=GameManager.Instance?.GetComponent<PlayerProgression>()??live.GetComponent<PlayerProgression>();
+            var manager=GameManager.Instance;
+            var progression=manager!=null?manager.GetComponent<PlayerProgression>():live.GetComponent<PlayerProgression>();
             live.GetComponent<StatsComponent>().CopyToPreview(stats,EquipmentManager.Instance?.GetEquipped(candidate.ItemType),progression);
             foreach(var mod in candidate.globalRolledMods)stats.AddModifier(new StatModifier(mod.statType,StatMappings.GetRolledModifierOperation(mod.statType),mod.value,candidate));
             Gear weapon=EquipmentSlotRules.IsWeaponSlot(candidate.ItemType)?candidate:live.EquippedWeapon;

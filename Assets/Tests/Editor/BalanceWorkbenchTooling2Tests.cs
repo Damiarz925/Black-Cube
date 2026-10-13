@@ -43,7 +43,7 @@ public sealed class BalanceWorkbenchTooling2Tests
 
     [Test] public void GearOptimizer_IsDeterministicAndUsesLegalGeneratedItems()
     {
-        var profile=ScriptableObject.CreateInstance<PlayerGearProfileSO>();try{profile.candidatesPerSlot=2;profile.candidateRetention=1;profile.gearsetBeamWidth=1;profile.useNaturalRarity=false;profile.minimumRarity=profile.maximumRarity=LootManager.GearRarity.Magic;var objective=new OptimizationObjective();var a=PlayerGearsetOptimizer.Optimize(Build(),profile,objective,false);var b=PlayerGearsetOptimizer.Optimize(Build(),profile,objective,false);Assert.That(a.build.equipment.Count,Is.EqualTo(Enum.GetValues(typeof(LootManager.GearType)).Length));Assert.That(a.build.equipment.Select(x=>x.Description),Is.EqualTo(b.build.equipment.Select(x=>x.Description)));Assert.That(a.debug.generated,Is.EqualTo(16));}finally{UnityEngine.Object.DestroyImmediate(profile);}
+        var profile=ScriptableObject.CreateInstance<PlayerGearProfileSO>();try{profile.candidatesPerSlot=2;profile.candidateRetention=1;profile.gearsetBeamWidth=1;profile.useNaturalRarity=false;profile.minimumRarity=profile.maximumRarity=LootManager.GearRarity.Magic;var objective=new OptimizationObjective();var a=PlayerGearsetOptimizer.Optimize(Build(),profile,objective,false);var b=PlayerGearsetOptimizer.Optimize(Build(),profile,objective,false);Assert.That(a.build.equipment.Count,Is.EqualTo(Enum.GetValues(typeof(LootManager.GearType)).Length));Assert.That(a.build.equipment.Select(x=>x.Description),Is.EqualTo(b.build.equipment.Select(x=>x.Description)));Assert.That(a.debug.generated,Is.EqualTo(18));}finally{UnityEngine.Object.DestroyImmediate(profile);}
     }
 
     [Test] public void AuthoredProfilesAndTreeLayout_AreAvailable()

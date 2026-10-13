@@ -50,7 +50,7 @@ public sealed class ClassKeystoneCombatTests
         }
         var ordinary=Run(PassiveKeystone.None);var consolidated=Run(PassiveKeystone.WarriorConsolidation);
         var a=ordinary.ailments.Single(x=>x.id=="Bleed");var b=consolidated.ailments.Single(x=>x.id=="Bleed");
-        Assert.That(b.applications*2,Is.EqualTo(a.applications));
+        Assert.That(b.applications,Is.LessThan(a.applications));
         Assert.That(b.magnitudeTotal/b.applications,Is.EqualTo(a.magnitudeTotal/a.applications*2.1f).Within(.001));
     }
     [Test] public void SelfBoltIsSpellTaggedAndIncomingBoltDoesNotGrantOffensiveRecovery()

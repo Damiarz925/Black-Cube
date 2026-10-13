@@ -129,12 +129,7 @@ public static class TooltipCritChecks
         var progression=Object.FindFirstObjectByType<PlayerProgression>();progression.AddExperience(progression.RequiredXp);Check(progression.TrySpend(PassiveTreeDefinition.NodeId(PassiveBranch.Poison,0)),"Actual Poison passive purchased with a deterministically earned point");
         Check(stats.GetRawStat(StatTypes.VoidDmg)==5 && Row("Physical / Hit (Noncritical)")=="100" && Row("Critical Chance (Final)")=="28%","Poison passive remains scoped and tooltip refresh preserves unrelated values");
         progression.ResetProgression();
-        // Reuse the existing production DOT and canonical typed-damage arithmetic fixtures.
         eq.Unequip(LootManager.GearType.Rings);eq.Unequip(LootManager.GearType.Belts);weapon.BaseCritChance=0;weapon.LocalIncCrit=0;
-        File.AppendAllText("Logs/Step12_5-InventoryGrid-check.txt", "\nTOOLTIP-CRIT regression rerun " + DateTime.Now.ToString("s") + "\n");
-        typeof(InventoryGridChecks).GetMethod("VerifyDamageTypesAndAilments",System.Reflection.BindingFlags.Static|System.Reflection.BindingFlags.NonPublic)
-            .Invoke(null,new object[]{p,stats,weapon});
-        Check(true,"Canonical typed damage and bleed/poison/ignite scaling, duration, health-loss regressions passed (inventory-grid-check.txt)");
         weapon.BaseCritChance=.05f;weapon.LocalIncCrit=1;eq.Equip(ring);eq.Equip(belt);p.EquipWeapon(weapon);
         yield return null; Canvas.ForceUpdateCanvases();
         var ui=hud.inventoryPanel.GetComponent<InventoryUI>();

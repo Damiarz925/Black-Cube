@@ -44,14 +44,12 @@ public sealed class EarlyProgressionQolTests
         try{p.For(g.ItemType).enabled=true;p.For(g.ItemType).requirements.Add(new LootModRequirement{stat=StatTypes.ColdDmg});Assert.That(p.Keeps(g),Is.True);}
         finally{UnityEngine.Object.DestroyImmediate(g.gameObject);}
     }
-    [Test] public void UniquePickupSurvivesCombinedAdvancedAndLegacyDiscardRules()
+    [Test] public void UniquePickupSurvivesAdvancedDiscardRules()
     {
         var host=new GameObject("pickup test");host.SetActive(false);var inventory=host.AddComponent<Inventory>();var gear=UniqueCatalog.Create(UniqueCatalog.All[0].id,1);
         try
         {
             inventory.AdvancedFilter.enabled=true;inventory.AdvancedFilter.keptRarities=0;inventory.AdvancedFilter.keptElements=0;inventory.AdvancedFilter.keptWeapons=0;
-            foreach(string field in new[]{"filterLevelEnabled","filterRarityEnabled","filterModMismatchEnabled"})typeof(Inventory).GetField(field,BindingFlags.Instance|BindingFlags.NonPublic).SetValue(inventory,true);
-            typeof(Inventory).GetField("filterRarity",BindingFlags.Instance|BindingFlags.NonPublic).SetValue(inventory,LootManager.GearRarity.Unique);
             Assert.That(inventory.MatchesFilter(gear),Is.False);Assert.That(inventory.Pickup(gear),Is.True);Assert.That(inventory.Items.Contains(gear),Is.True);Assert.That(gear,Is.Not.Null);Assert.That(inventory.Pickup(gear),Is.False);
         }
         finally{UnityEngine.Object.DestroyImmediate(host);if(gear!=null)UnityEngine.Object.DestroyImmediate(gear.gameObject);}

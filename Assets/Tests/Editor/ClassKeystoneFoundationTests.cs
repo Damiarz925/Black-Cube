@@ -13,7 +13,7 @@ public sealed class ClassKeystoneFoundationTests
         foreach (var group in definitions.GroupBy(x => x.classId)) Assert.That(group.Count(), Is.EqualTo(3), group.Key);
         Assert.That(definitions.All(x => !string.IsNullOrWhiteSpace(x.description)), Is.True);
     }
-    [TestCase(PlayerSkillId.StaffFireball, 60, 5, 2.5f, PlayerSkillCastMode.AutoCooldown)]
+    [TestCase(PlayerSkillId.StaffFireball, 60, 5, 2.5f, PlayerSkillCastMode.AutoQueuedReplacement)]
     [TestCase(PlayerSkillId.DaggerQuickStrike, 25, 4, 1, PlayerSkillCastMode.ImmediateCooldown)]
     public void ProjectileSkillPreservesManaCooldownAndMode(PlayerSkillId id, float mana, float cooldown, float multiplier, PlayerSkillCastMode mode)
     {

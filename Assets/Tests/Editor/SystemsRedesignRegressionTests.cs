@@ -144,7 +144,7 @@ public sealed class SystemsRedesignRegressionTests
         {
             var root=AssetDatabase.LoadAssetAtPath<GameObject>(path);var inventory=root.GetComponentInChildren<InventoryUI>(true);var ui=inventory.GetComponent<AdvancedLootFilterUI>();var data=new SerializedObject(ui);
             Assert.That(data.FindProperty("itemTypeDropdown").objectReferenceValue,Is.Not.Null);Assert.That(data.FindProperty("helpPanel").objectReferenceValue,Is.Not.Null);
-            Assert.That(inventory.GetComponent<InventoryModHighlightUI>(),Is.Null);Assert.That(inventory.GetComponent<InventoryFilterUI>(),Is.Null);
+            Assert.That(inventory.GetComponents<MonoBehaviour>().Any(component=>component!=null&&(component.GetType().Name=="InventoryModHighlightUI"||component.GetType().Name=="InventoryFilterUI")),Is.False);
             Assert.That(inventory.GetComponentInChildren<Slider>(true),Is.Not.Null);
         }
     }

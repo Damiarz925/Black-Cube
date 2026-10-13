@@ -88,7 +88,7 @@ public sealed class PlaytestFollowUpTests
         var item=Item();item.ApplyMods(new(){new(StatTypes.FireRes,1,40,true),new(StatTypes.Life,1,10)});item.RestoreLock(true);
         var snapshot=JsonUtility.FromJson<GearSnapshotData>(JsonUtility.ToJson(GearSnapshotData.Capture(item)));var loaded=snapshot.Create();objects.Add(loaded.gameObject);
         Assert.That(loaded.IsLocked,Is.True);Assert.That(EquipmentCrafting.CanApply(CraftingCurrencyType.RemoveRareModifier,loaded),Is.False);
-        var go=new GameObject("Locked inventory");go.SetActive(false);objects.Add(go);var inventory=go.AddComponent<Inventory>();inventory.Add(loaded);inventory.FilterRarityEnabled=true;inventory.FilterRarity=LootManager.GearRarity.Legendary;
+        var go=new GameObject("Locked inventory");go.SetActive(false);objects.Add(go);var inventory=go.AddComponent<Inventory>();inventory.Add(loaded);inventory.AdvancedFilter.enabled=true;inventory.AdvancedFilter.keptRarities=0;
         Assert.That(inventory.CanDismantle(loaded),Is.False);Assert.That(inventory.MatchesFilter(loaded),Is.False);
     }
     [Test] public void LocalArmourIsAppliedOnceAndGlobalArmourRemainsSeparate()

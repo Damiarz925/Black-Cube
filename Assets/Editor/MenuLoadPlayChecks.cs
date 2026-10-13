@@ -118,7 +118,6 @@ public static class MenuLoadPlayChecks
                 var relic2=new RelicData{id="integration-relic-2",cycle=2,rarity=LootManager.GearRarity.Magic,craftableThisCycle=true,
                     modifiers=new List<RelicModifier>{new(RelicModifierType.IncreasedExperience,8f,true)}};
                 RelicInventory.Instance.Restore(new List<RelicData>{relic1,relic2},2,new[]{0,-1,1,-1});
-                Inventory.Instance.FilterLevelEnabled=true;Inventory.Instance.FilterLevel=31;
                 var health=player.GetComponent<HealthComponent>();var mana=player.GetComponent<ManaComponent>();
                 checkpointLife=Mathf.Max(1f,health.MaxLife*.72f);checkpointMana=mana.MaxMana*.63f;
                 Require(health.RestoreCheckpointLife(checkpointLife)&&mana.RestoreCheckpointMana(checkpointMana),"Could not seed encounter checkpoint resources");
@@ -174,12 +173,11 @@ public static class MenuLoadPlayChecks
                 if(scene!=GameSceneNames.Gameplay||GameManager.Instance==null)return;
                 Require(!GamePersistence.LoadRequested,"Second New Game inherited a Load Game request");
                 Require(GameManager.Instance.GetComponent<PlayerProgression>().Level==1&&GameManager.Instance.GetComponent<PlayerProgression>().AvailablePoints==1&&GameManager.Instance.GetComponent<PlayerIdentityState>().BaseClassId==PlayerClassIds.Mage&&Inventory.Instance.Items.Count==0&&CurrencyInventory.Instance.Stacks.Count==0&&RelicInventory.Instance.Relics.Count==0&&RelicInventory.Instance.CurrentCycle==0,"Confirmed New Game retained save-owned progress or class selection");
-                Require(Inventory.Instance.FilterLevelEnabled&&Inventory.Instance.FilterLevel==31,"Confirmed New Game cleared independent filter preferences");
                 Require(GamePersistence.TryReadFile(GamePersistence.PrimaryPath,out var fresh,out var freshError),freshError);
                 Require(GamePersistence.TryReadFile(GamePersistence.BackupPath,out var backup,out var backupError),backupError);
                 Require(fresh.runId!=savedRunId&&backup.runId==fresh.runId,"Confirmed New Game did not replace primary/backup with one fresh run identity");
                 Require(errors==0,"Transition sequence logged runtime errors");
-                Write("PASS: overwrite Cancel preserved the old run; Confirm cleared all game state, retained preferences, and replaced primary/backup with the new run.");
+                Write("PASS: overwrite Cancel preserved the old run; Confirm cleared all game state and replaced primary/backup with the new run.");
                 Complete();return;
         }
     }

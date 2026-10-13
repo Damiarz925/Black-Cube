@@ -245,7 +245,6 @@ public class InventoryUI : MonoBehaviour
         if (Inventory.Instance != null)
         {
             Inventory.Instance.OnInventoryChanged += Refresh;
-            Inventory.Instance.OnModFilterChanged += RefreshModHighlights;
         }
 
         Refresh();
@@ -259,7 +258,6 @@ public class InventoryUI : MonoBehaviour
         if (Inventory.Instance != null)
         {
             Inventory.Instance.OnInventoryChanged -= Refresh;
-            Inventory.Instance.OnModFilterChanged -= RefreshModHighlights;
         }
     }
 

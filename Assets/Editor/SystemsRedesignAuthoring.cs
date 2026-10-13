@@ -100,30 +100,6 @@ public static class SystemsRedesignAuthoring
                 (inventory.GetComponent<UniqueRelicForgeUI>()??inventory.gameObject.AddComponent<UniqueRelicForgeUI>()).BuildAuthoring();
                 (inventory.GetComponent<RelicFusionUI>()??inventory.gameObject.AddComponent<RelicFusionUI>()).BuildAuthoring();
                 PlaceRelicActions(inventory);
-                var old=inventory.GetComponent<InventoryModHighlightUI>();
-                if(old!=null)
-                {
-                    var data=new SerializedObject(old);var button=(Button)data.FindProperty("openButton").objectReferenceValue;
-                    var advanced=new SerializedObject(filter);var open=(Button)advanced.FindProperty("open").objectReferenceValue;
-                    if(button!=null&&open!=null)
-                    {
-                        var a=(RectTransform)open.transform;var b=(RectTransform)button.transform;
-                        a.anchorMin=b.anchorMin;a.anchorMax=b.anchorMax;a.pivot=b.pivot;a.anchoredPosition=b.anchoredPosition;a.sizeDelta=b.sizeDelta;
-                        Object.DestroyImmediate(button.gameObject);
-                    }
-                    foreach(string field in new[]{"panel","confirmation"})
-                    {var obj=data.FindProperty(field).objectReferenceValue as GameObject;if(obj!=null)Object.DestroyImmediate(obj);}
-                    Object.DestroyImmediate(old);
-                }
-                var legacy=inventory.GetComponent<InventoryFilterUI>();
-                if(legacy!=null)
-                {
-                    var data=new SerializedObject(legacy);
-                    foreach(string field in new[]{"filterButton","panel"})
-                    {var obj=data.FindProperty(field)?.objectReferenceValue;if(obj is Component c)Object.DestroyImmediate(c.gameObject);else if(obj is GameObject go)Object.DestroyImmediate(go);}
-                    Object.DestroyImmediate(legacy);
-                }
-                var view=inventory.GetComponent<InventoryView>();view.filterRoot=null;view.modFilterRoot=null;
             }
             foreach(var strip in root.GetComponentsInChildren<RelicEquipmentUI>(true))strip.Build();
             foreach(var rebirth in root.GetComponentsInChildren<RebirthConfirmationUI>(true))rebirth.AuthorSystemsSetup();

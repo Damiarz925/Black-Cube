@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public sealed class InventoryView : MonoBehaviour
 {
-    [Header("Roots")] public RectTransform authoredRoot, equipmentRoot, itemGridRoot, currencyTray, ordinaryCurrencyRoot, ancientCurrencyRoot, relicRoot, tooltipHost, filterRoot, modFilterRoot;
+    [Header("Roots")] public RectTransform authoredRoot, equipmentRoot, itemGridRoot, currencyTray, ordinaryCurrencyRoot, ancientCurrencyRoot, relicRoot, tooltipHost;
     [Header("Equipment")] public List<RectTransform> equipmentSlots = new(); public List<RectTransform> activeRelicSlots = new();
     [Header("Currencies")] public List<CurrencySlotUI> currencySlots = new();
     [Header("Controls")] public Button gearToggle, relicToggle; public List<Button> itemTypeFilters = new();

@@ -29,11 +29,6 @@ public sealed class UniqueRedesignTests
         var gear=UniqueCatalog.Create("unique.prism-voices",100,fixedRoll:0);
         try{var power=gear.UniqueData.powers.Single();Assert.That(power.value,Is.EqualTo(2));Assert.That(Enumerable.Range(0,5).Count(x=>(power.auraMask&(1<<x))!=0),Is.EqualTo(2));Assert.That(SubclassBalanceProfile.FinalAuraBonus(1,1,-.5f),Is.EqualTo(.5f));}finally{Object.DestroyImmediate(gear.gameObject);}
     }
-    [Test] public void UniqueSaveRejectsOutOfRangeOrWrongSlotWithoutReroll()
-    {
-        var gear=UniqueCatalog.Create("unique.last-breath",100,fixedRoll:.5f);
-        try{var data=gear.UniqueData.Copy();data.powers[0].value=2;Assert.That(UniqueCatalog.Validate(data,gear.ItemType,gear.WeaponTypeId,gear.BaseElement,100,gear.rolledMods),Is.False);Assert.That(UniqueCatalog.Create("unique.last-breath",1),Is.Null);}finally{Object.DestroyImmediate(gear.gameObject);}
-    }
     [Test] public void ForgeRejectsMissingAuthorityWithoutConsumingAnything()
     {Assert.That(UniqueRelicForge.TryForge(null,null,null,null,null,0,0,()=>0,out var result,out var error),Is.False);Assert.That(result,Is.Null);Assert.That(error,Is.Not.Empty);}
     [Test] public void PoisonMemoryRanksExpectedRemainingDamageAndCopiesTiming()

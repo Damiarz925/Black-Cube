@@ -34,10 +34,8 @@ public static class InventoryCurrencyModernizer
     {
         InventoryView view=inventory.GetComponent<InventoryView>()??inventory.gameObject.AddComponent<InventoryView>();view.authoredRoot=(RectTransform)inventory.transform;view.background=inventory.GetComponent<Image>();
         if(view.background!=null){view.background.sprite=InventoryArtCatalog.Layout;view.background.color=Color.white;view.background.preserveAspect=true;}
-        InventoryFilterUI dismantleFilter=inventory.GetComponent<InventoryFilterUI>()??inventory.gameObject.AddComponent<InventoryFilterUI>();dismantleFilter.BuildAuthoring();
-        InventoryModHighlightUI modFilter=inventory.GetComponent<InventoryModHighlightUI>()??inventory.gameObject.AddComponent<InventoryModHighlightUI>();modFilter.BuildAuthoring();
         view.equipmentRoot=Find<RectTransform>(inventory.transform,"Equipped gear layout");view.ordinaryCurrencyRoot=Find<RectTransform>(inventory.transform,"Ordinary currency");view.ancientCurrencyRoot=Find<RectTransform>(inventory.transform,"Ancient relic currency");
-        view.relicRoot=Find<RectTransform>(inventory.transform,"Relic inventory");view.filterRoot=Find<RectTransform>(inventory.transform,"Auto-dismantle filter");view.modFilterRoot=Find<RectTransform>(inventory.transform,"Mod highlight filter");
+        view.relicRoot=Find<RectTransform>(inventory.transform,"Relic inventory");
         if(view.ordinaryCurrencyRoot==null||view.ancientCurrencyRoot==null)throw new InvalidOperationException("Currency roots missing.");
         BindCurrencies(view);ConfigureGrid(view,inventory);ConfigureFilters(view,inventory);ConfigureEquipment(view,inventory);EditorUtility.SetDirty(view);EditorUtility.SetDirty(inventory);
     }

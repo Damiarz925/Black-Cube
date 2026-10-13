@@ -10,7 +10,7 @@ public sealed class BalanceWorkbenchTooling4Tests
     {
         id="player",name="Player",player=true,weaponTypeId=weapon,maximumLife=1000,maximumMana=100,
         attackSpeed=1,critMultiplier=2,basicDamage=new CombatDamageSnapshot{physical=20},projectileTravelTime=.5f,
-        precisionMultiplier=1.5f,maximumBleedStacks=5,maximumIgniteStacks=1,maximumShockInstances=1
+        precisionMultiplier=1.5f,maximumBleedStacks=5,maximumIgniteStacks=1,maximumShockInstances=1,maximumRage=100
     };
 
     static CombatantSnapshot Enemy()=>new()

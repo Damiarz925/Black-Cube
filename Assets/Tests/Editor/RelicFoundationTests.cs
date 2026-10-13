@@ -96,10 +96,10 @@ public sealed class RelicFoundationTests
         panel.ShowRelics();Assert.That(panel.IsShowingRelics,Is.True);
         panel.ShowEquipment();Assert.That(panel.IsShowingRelics,Is.False);
         var cursor=CraftingCurrencyCursorUI.Ensure(canvas.rootCanvas);
-        Assert.That(panel.GetComponentsInChildren<CurrencySlotUI>(true).Length,Is.EqualTo(13),"All source entries, including the endgame catalyst, exist before cursor checks.");
+        Assert.That(panel.GetComponentsInChildren<CurrencySlotUI>(true).Length,Is.EqualTo(18),"Both nine-currency rows are authored.");
         foreach(CraftingCurrencyType type in Enum.GetValues(typeof(CraftingCurrencyType)))
         {
-            if(!CurrencyInventory.IsAncient(type))continue;
+            if(!CurrencyInventory.IsAncientOperation(type))continue;
             currencies.Add(type);Assert.That(currencies.Arm(type),Is.True);panel.ShowRelicsForCurrency();cursor.RefreshPresentation();
             var slot=Array.Find(panel.GetComponentsInChildren<CurrencySlotUI>(true),x=>x.Type==type);
             Assert.That(slot,Is.Not.Null,"Missing source entry for "+type);

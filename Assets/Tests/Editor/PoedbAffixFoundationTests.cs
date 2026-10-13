@@ -121,7 +121,7 @@ public sealed class PoedbAffixFoundationTests
             LootManager.GearType.Helmets,out var helmet),Is.True);
         Assert.That(helmet.Count,Is.EqualTo(9));
         Assert.That((helmet[0].minItemLevel,helmet[0].minValue,
-            helmet[8].minItemLevel,helmet[8].maxValue),Is.EqualTo((1,.01f,78,1.28f)));
+            helmet[8].minItemLevel,helmet[8].maxValue),Is.EqualTo((1,.03f,78,3.84f)));
         Assert.That(PoedbAffixCatalog.TryGet(StatTypes.LifeRegeneration,
             LootManager.GearType.BodyArmours,out var body),Is.True);
         Assert.That(body.Count,Is.EqualTo(11));
@@ -164,7 +164,8 @@ public sealed class PoedbAffixFoundationTests
             string text=ItemTooltipFormatter.DescribeGear(weapon);
             Assert.That(text,Does.Contain("PREFIXES"));
             Assert.That(text,Does.Contain("Adds 21–38 Fire Damage"));
-            Assert.That(text,Does.Contain("(min 17–24, max 35–41) T7"));
+            Assert.That(text,Does.Contain("(min 17–24, max 35–41)"));
+            Assert.That(text,Does.Contain("T7"));
             Assert.That(text,Does.Contain("IMPLICIT"));
             Assert.That(text,Does.Contain("LOCAL"));
             Assert.That(text,Does.Not.Contain("LOCKED ORIGINAL"));
