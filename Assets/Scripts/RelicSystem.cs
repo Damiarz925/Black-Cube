@@ -197,45 +197,51 @@ public sealed partial class RelicInventory : MonoBehaviour
 public static class AncientRelicCrafting
 {
     public static int Minimum(LootManager.GearRarity rarity)=>rarity switch{LootManager.GearRarity.Normal=>1,LootManager.GearRarity.Magic=>2,LootManager.GearRarity.Rare=>3,_=>5};
-    public static int Maximum(LootManager.GearRarity rarity)=>rarity switch{LootManager.GearRarity.Normal=>1,LootManager.GearRarity.Magic=>2,LootManager.GearRarity.Rare=>4,_=>6};
-    public static bool CanApply(CraftingCurrencyType currency,RelicData relic,RelicInventory inventory)
+    public static int Maximum(LootManager.GearRarity rarity)=>rarity switch{LootManager.GearRarity.Normal=>1,LootManager.GearRarity.Magic=>3,LootManager.GearRarity.Rare=>5,_=>7};
+    public static bool CanApply(CraftingCurrencyType currency,RelicData relic,RelicInventory inventory,AffixSide? focusedSide=null)
     {
-        if(relic?.uniqueRelic==true||inventory==null||!CurrencyInventory.IsAncient(currency)||!inventory.IsCurrentCraftable(relic))return false;
+        if(relic?.uniqueRelic==true||inventory==null||!CurrencyInventory.IsAncientOperation(currency)||!inventory.IsCurrentCraftable(relic))return false;
         int count=relic.ModifierCount;
         return currency switch
         {
             CraftingCurrencyType.AncientNormalToMagic=>relic.rarity==LootManager.GearRarity.Normal&&count==1,
-            CraftingCurrencyType.AncientMagicToRare=>relic.rarity==LootManager.GearRarity.Magic&&count==2,
-            CraftingCurrencyType.AncientRareToLegendary=>relic.rarity==LootManager.GearRarity.Rare&&count>=3&&count<=4,
-            CraftingCurrencyType.AncientReroll=>HasUnlocked(relic),
-            CraftingCurrencyType.AncientAddModifier=>count<Maximum(relic.rarity),
-            CraftingCurrencyType.AncientRemoveModifier=>count>Minimum(relic.rarity)&&HasUnlocked(relic),
+            CraftingCurrencyType.AncientMagicToRare=>relic.rarity==LootManager.GearRarity.Magic,
+            CraftingCurrencyType.AncientRerollMagic=>relic.rarity==LootManager.GearRarity.Magic&&Unlocked(relic,focusedSide).Count>0,
+            CraftingCurrencyType.AncientAddMagicModifier=>relic.rarity==LootManager.GearRarity.Magic&&count<Maximum(relic.rarity)&&CanRoll(relic,focusedSide),
+            CraftingCurrencyType.AncientRerollRareModifier=>relic.rarity is LootManager.GearRarity.Rare or LootManager.GearRarity.Legendary&&Unlocked(relic,focusedSide).Count>0,
+            CraftingCurrencyType.AncientAddRareModifier=>relic.rarity is LootManager.GearRarity.Rare or LootManager.GearRarity.Legendary&&count<Maximum(relic.rarity)&&CanRoll(relic,focusedSide),
+            CraftingCurrencyType.AncientRemoveModifier=>relic.rarity!=LootManager.GearRarity.Normal&&count>Minimum(relic.rarity)&&Unlocked(relic,focusedSide).Count>0,
             _=>false
         };
     }
-    public static bool TryApply(CraftingCurrencyType currency,RelicData relic,RelicInventory inventory,bool notify=true)
+    public static bool TryApply(CraftingCurrencyType currency,RelicData relic,RelicInventory inventory,bool notify=true,AffixSide? focusedSide=null)
     {
-        if(!CanApply(currency,relic,inventory))return false;
+        if(!CanApply(currency,relic,inventory,focusedSide))return false;
         switch(currency)
         {
-            case CraftingCurrencyType.AncientNormalToMagic: relic.rarity=LootManager.GearRarity.Magic;FillToMinimum(relic);break;
-            case CraftingCurrencyType.AncientMagicToRare: relic.rarity=LootManager.GearRarity.Rare;FillToMinimum(relic);break;
-            case CraftingCurrencyType.AncientRareToLegendary: relic.rarity=LootManager.GearRarity.Legendary;FillToMinimum(relic);break;
-            case CraftingCurrencyType.AncientAddModifier:Add(relic);break;
-            case CraftingCurrencyType.AncientReroll:
-                var reroll=Unlocked(relic);int ri=UnityEngine.Random.Range(0,reroll.Count);int index=relic.modifiers.IndexOf(reroll[ri]);relic.modifiers[index]=RollFor(relic,false);break;
+            case CraftingCurrencyType.AncientNormalToMagic: relic.rarity=LootManager.GearRarity.Magic;Add(relic,focusedSide);break;
+            case CraftingCurrencyType.AncientMagicToRare: relic.rarity=LootManager.GearRarity.Rare;Add(relic,focusedSide);break;
+            case CraftingCurrencyType.AncientAddMagicModifier:
+            case CraftingCurrencyType.AncientAddRareModifier:Add(relic,focusedSide);break;
+            case CraftingCurrencyType.AncientRerollMagic:
+            case CraftingCurrencyType.AncientRerollRareModifier:
+                var reroll=Unlocked(relic,focusedSide);int ri=UnityEngine.Random.Range(0,reroll.Count);int index=relic.modifiers.IndexOf(reroll[ri]);relic.modifiers[index]=RollFor(relic,false,focusedSide);break;
             case CraftingCurrencyType.AncientRemoveModifier:
-                var remove=Unlocked(relic);relic.modifiers.Remove(remove[UnityEngine.Random.Range(0,remove.Count)]);break;
+                var remove=Unlocked(relic,focusedSide);relic.modifiers.Remove(remove[UnityEngine.Random.Range(0,remove.Count)]);break;
             default:return false;
         }
         relic.crafted=true;
         if(notify)inventory.NotifyChanged();return true;
     }
-    static void FillToMinimum(RelicData relic){while(relic.ModifierCount<Minimum(relic.rarity))Add(relic);}
-    static void Add(RelicData relic)=>relic.modifiers.Add(RollFor(relic,false));
-    static RelicModifier RollFor(RelicData relic,bool locked){var used=new HashSet<RelicModifierType>();foreach(var mod in relic.modifiers)if(mod!=null)used.Add(mod.type);return RelicRolls.Roll(Mathf.Clamp(relic.relicLevel,1,100),locked,used);}
-    static bool HasUnlocked(RelicData relic)=>Unlocked(relic).Count>0;
-    static List<RelicModifier> Unlocked(RelicData relic){var result=new List<RelicModifier>();foreach(var mod in relic.modifiers)if(mod!=null&&!mod.lockedOriginal)result.Add(mod);return result;}
+    static void Add(RelicData relic,AffixSide? side){var roll=RollFor(relic,false,side);if(roll!=null)relic.modifiers.Add(roll);}
+    static bool CanRoll(RelicData relic,AffixSide? side)=>RollFor(relic,false,side)!=null;
+    static RelicModifier RollFor(RelicData relic,bool locked,AffixSide? side=null)
+    {
+        var excluded=new HashSet<RelicModifierType>();foreach(var mod in relic.modifiers)if(mod!=null)excluded.Add(mod.type);
+        if(side.HasValue)foreach(var definition in RelicModifierDefinitions.All)if(definition.Side!=side.Value)excluded.Add(definition.Id);
+        return RelicRolls.Roll(Mathf.Clamp(relic.relicLevel,1,100),locked,excluded);
+    }
+    static List<RelicModifier> Unlocked(RelicData relic,AffixSide? side=null){var result=new List<RelicModifier>();foreach(var mod in relic.modifiers)if(mod!=null&&!mod.lockedOriginal&&(!side.HasValue||RelicModifierDefinitions.Get(mod.type)?.Side==side.Value))result.Add(mod);return result;}
 }
 
 public enum RebirthPhase { None, Crafting, Equipment, Returns, Weapon, Review }

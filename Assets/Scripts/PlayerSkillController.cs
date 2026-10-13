@@ -7,13 +7,13 @@ public sealed class PlayerSkillController : MonoBehaviour
 {
     [SerializeField] private PlayerSkillCatalog catalog;
     [SerializeField] private List<PlayerSkillDefinition> skills = new();
-    private readonly List<PlayerSkillDefinition> weaponSkills = new(2);
-    readonly float[] autoCooldownRemaining={0f,0f};
-    readonly bool[] autoCastEnabled={true,true};
-    public bool AutocastEnabled(int slot)=>slot>=0&&slot<2&&autoCastEnabled[slot];
+    private readonly List<PlayerSkillDefinition> weaponSkills = new(4);
+    readonly float[] autoCooldownRemaining={0f,0f,0f,0f};
+    readonly bool[] autoCastEnabled={true,true,true,true};
+    public bool AutocastEnabled(int slot)=>slot>=0&&slot<autoCastEnabled.Length&&autoCastEnabled[slot];
     public bool ToggleAutocast(int slot)
     {
-        if(slot<0||slot>=weaponSkills.Count||weaponSkills[slot].castMode!=PlayerSkillCastMode.AutoQueuedReplacement)return false;
+        if(slot<0||slot>=weaponSkills.Count||slot>=autoCastEnabled.Length||weaponSkills[slot].castMode!=PlayerSkillCastMode.AutoQueuedReplacement)return false;
         autoCastEnabled[slot]=!autoCastEnabled[slot];
         if(!autoCastEnabled[slot]&&QueuedSkill==weaponSkills[slot])ClearQueuedSkill();
         CooldownsChanged?.Invoke();GamePersistence.MarkDirty();return true;
@@ -23,7 +23,7 @@ public sealed class PlayerSkillController : MonoBehaviour
     public void PrepareAutomaticReplacement()
     {
         if(QueuedSkill!=null||Mana==null)return;
-        for(int i=0;i<weaponSkills.Count&&i<2;i++)
+        for(int i=0;i<weaponSkills.Count&&i<autoCastEnabled.Length;i++)
         {
             var skill=weaponSkills[i];
             if(skill.castMode!=PlayerSkillCastMode.AutoQueuedReplacement||!autoCastEnabled[i]||CooldownRemaining(i)>0||!Mana.CanSpend(ManaCost(skill)))continue;
@@ -65,17 +65,20 @@ public sealed class PlayerSkillController : MonoBehaviour
 
     public void RefreshWeaponSkills()
     {
-        string weaponTypeId=player?.EquippedWeapon?.WeaponTypeId;
-        var ids=WeaponSkillBindings.For(weaponTypeId);
-        var next=new List<PlayerSkillDefinition>(2);
-        foreach(var id in ids)
-        {foreach(var definition in skills)if(definition!=null&&definition.id==id){next.Add(definition);break;}if(next.Count==2)break;}
+        var next=new List<PlayerSkillDefinition>(4);
+        AddWeaponSkills(player?.EquippedWeapon?.WeaponTypeId,next);
+        AddWeaponSkills(EquipmentManager.Instance?.GetEquipped(LootManager.GearType.OffHands)?.WeaponTypeId,next);
         bool changed=next.Count!=weaponSkills.Count;
         if(!changed)for(int i=0;i<next.Count;i++)if(next[i]!=weaponSkills[i]){changed=true;break;}
         if(!changed)return;
         weaponSkills.Clear();weaponSkills.AddRange(next);ClearQueuedSkill();
         for(int i=0;i<autoCooldownRemaining.Length;i++)autoCooldownRemaining[i]=i<weaponSkills.Count&&weaponSkills[i].castMode==PlayerSkillCastMode.AutoCooldown?EffectiveCooldown(weaponSkills[i]):0f;
         WeaponSkillsChanged?.Invoke();CooldownsChanged?.Invoke();
+    }
+    void AddWeaponSkills(string weaponTypeId,List<PlayerSkillDefinition> target)
+    {
+        foreach(var id in WeaponSkillBindings.For(weaponTypeId))
+        {foreach(var definition in skills)if(definition!=null&&definition.id==id&&!target.Contains(definition)){target.Add(definition);break;}if(target.Count==autoCastEnabled.Length)break;}
     }
 
     public bool TrySelect(PlayerSkillDefinition skill)

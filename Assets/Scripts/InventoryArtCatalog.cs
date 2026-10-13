@@ -7,21 +7,28 @@ using UnityEngine.UI;
 public static class InventoryArtCatalog
 {
     static readonly Dictionary<string, Sprite> Cache = new();
-    public static Sprite Layout => Load("UI/Inventory/InventoryLayout");
+    public static Sprite Layout => Load("UI/Inventory/InventoryUpdated");
+    public static Sprite CurrencyBorderNormal=>Load("UI/Inventory/UpdatedUnhoveredBox");
+    public static Sprite CurrencyBorderHovered=>Load("UI/Inventory/UpdatedHoveredBox");
+    public static Sprite CurrencyBorderSelected=>Load("UI/Inventory/UpdatedSelectedBox");
     public static Sprite Currency(CraftingCurrencyType type) => type switch
     {
         CraftingCurrencyType.NormalToMagic => Load("UI/Currency/whiteToBlue"),
         CraftingCurrencyType.RerollMagic => Load("UI/Currency/RerollBlue"),
+        CraftingCurrencyType.AddMagicModifier => null,
         CraftingCurrencyType.MagicToRare => Load("UI/Currency/BlueToYellow"),
         CraftingCurrencyType.RerollRareModifier => Load("UI/Currency/RerollYellow"),
         CraftingCurrencyType.AddRareModifier => Load("UI/Currency/AddYellow"),
         CraftingCurrencyType.RemoveRareModifier => Load("UI/Currency/Remove"),
-        CraftingCurrencyType.AncientNormalToMagic => Load("UI/Currency/AncientWhiteToBlue"),
-        CraftingCurrencyType.AncientMagicToRare => Load("UI/Currency/AncientBlueToYellow"),
-        CraftingCurrencyType.AncientRareToLegendary => Load("UI/Currency/AncientYellowReroll"),
-        CraftingCurrencyType.AncientReroll => Load("UI/Currency/AncientBlueReroll"),
-        CraftingCurrencyType.AncientAddModifier => Load("UI/Currency/AncientAddYellow"),
-        CraftingCurrencyType.AncientRemoveModifier => Load("UI/Currency/AncientRemove"),
+        CraftingCurrencyType.AncientNormalToMagic => Load("UI/Currency/crystalline_orbital_sigil"),
+        CraftingCurrencyType.AncientRerollMagic => Load("UI/Currency/cosmic_crystal_vortex_emblem"),
+        CraftingCurrencyType.AncientAddMagicModifier => Load("UI/Currency/celestial_crystal_cross_emblem"),
+        CraftingCurrencyType.AncientMagicToRare => Load("UI/Currency/radiant_crystal_orbit_emblem"),
+        CraftingCurrencyType.AncientRerollRareModifier => Load("UI/Currency/radiant_golden_spiral_emblem"),
+        CraftingCurrencyType.AncientAddRareModifier => Load("UI/Currency/radiant_golden_crystal_plus_emblem"),
+        CraftingCurrencyType.AncientRemoveModifier => Load("UI/Currency/shattered_crimson_cosmic_emblem"),
+        CraftingCurrencyType.AncientPrefixFocus => Load("UI/Currency/crystalline_cosmic_ascension_emblem"),
+        CraftingCurrencyType.AncientSuffixFocus => Load("UI/Currency/celestial_crystal_arrow_emblem"),
         CraftingCurrencyType.EmpowermentCatalyst => PlaceholderIcon.EmpowermentCatalyst,
         CraftingCurrencyType.AffixFocus => Resources.Load<Sprite>("UI/Currency/AffixFocus") ?? PlaceholderIcon.EmpowermentCatalyst,
         _ => null
@@ -31,16 +38,20 @@ public static class InventoryArtCatalog
     {
         CraftingCurrencyType.NormalToMagic => "UI/Currency/whiteToBlue",
         CraftingCurrencyType.RerollMagic => "UI/Currency/RerollBlue",
+        CraftingCurrencyType.AddMagicModifier => null,
         CraftingCurrencyType.MagicToRare => "UI/Currency/BlueToYellow",
         CraftingCurrencyType.RerollRareModifier => "UI/Currency/RerollYellow",
         CraftingCurrencyType.AddRareModifier => "UI/Currency/AddYellow",
         CraftingCurrencyType.RemoveRareModifier => "UI/Currency/Remove",
-        CraftingCurrencyType.AncientNormalToMagic => "UI/Currency/AncientWhiteToBlue",
-        CraftingCurrencyType.AncientMagicToRare => "UI/Currency/AncientBlueToYellow",
-        CraftingCurrencyType.AncientRareToLegendary => "UI/Currency/AncientYellowReroll",
-        CraftingCurrencyType.AncientReroll => "UI/Currency/AncientBlueReroll",
-        CraftingCurrencyType.AncientAddModifier => "UI/Currency/AncientAddYellow",
-        CraftingCurrencyType.AncientRemoveModifier => "UI/Currency/AncientRemove",
+        CraftingCurrencyType.AncientNormalToMagic => "UI/Currency/crystalline_orbital_sigil",
+        CraftingCurrencyType.AncientRerollMagic => "UI/Currency/cosmic_crystal_vortex_emblem",
+        CraftingCurrencyType.AncientAddMagicModifier => "UI/Currency/celestial_crystal_cross_emblem",
+        CraftingCurrencyType.AncientMagicToRare => "UI/Currency/radiant_crystal_orbit_emblem",
+        CraftingCurrencyType.AncientRerollRareModifier => "UI/Currency/radiant_golden_spiral_emblem",
+        CraftingCurrencyType.AncientAddRareModifier => "UI/Currency/radiant_golden_crystal_plus_emblem",
+        CraftingCurrencyType.AncientRemoveModifier => "UI/Currency/shattered_crimson_cosmic_emblem",
+        CraftingCurrencyType.AncientPrefixFocus => "UI/Currency/crystalline_cosmic_ascension_emblem",
+        CraftingCurrencyType.AncientSuffixFocus => "UI/Currency/celestial_crystal_arrow_emblem",
         CraftingCurrencyType.AffixFocus => "UI/Currency/AffixFocus",
         _ => null
     };
@@ -113,19 +124,23 @@ public sealed partial class InventoryArtworkHotspot:MonoBehaviour{}
 /// <summary>Pixel-measured rectangles from InventoryLayout.png (960x1052, top-left source origin).</summary>
 public static class InventoryArtLayout
 {
-    public const float Width=960f,Height=1052f;
-    public static readonly Rect[] EquipmentSlots={P(72,160,153,237),P(176,160,257,237),P(282,160,363,237),P(388,160,469,237),P(494,160,575,237),P(599,160,681,237),P(705,160,787,237),P(811,160,893,237)};
-    public static readonly Rect InventoryBounds=P(72,302,893,477);
+    public const float Width=1192f,Height=1320f;
+    public static readonly Rect[] EquipmentSlots={P(515,128,655,278),P(700,250,765,315),P(490,300,680,555),P(300,370,450,525),P(710,370,860,525),P(780,250,845,315),P(500,560,670,635),P(95,330,285,585),P(895,330,1085,585)};
+    public static readonly Rect InventoryBounds=P(75,620,1125,1005);
     public static readonly Rect[] RelicSlots={P(164,529,263,615),P(336,529,438,615),P(520,529,623,615),P(697,529,799,615)};
-    public static readonly Rect[] OrdinaryCurrencySlots={P(67,683,174,791),P(211,683,319,791),P(355,683,462,791),P(499,683,607,791),P(643,683,751,791),P(787,683,895,791)};
-    public static readonly Rect[] AncientCurrencySlots={P(67,838,174,945),P(211,838,319,945),P(355,838,462,945),P(499,838,607,945),P(643,838,751,945),P(787,838,895,945)};
-    public static readonly Rect[] OrdinaryCountBoxes={P(131,768,171,789),P(275,768,316,789),P(419,768,459,789),P(563,768,604,789),P(707,768,747,789),P(851,768,892,789)};
-    public static readonly Rect[] AncientCountBoxes={P(131,922,171,944),P(275,922,316,944),P(419,922,459,944),P(563,922,604,944),P(707,922,747,944),P(851,922,892,944)};
+    public static readonly Rect[] OrdinaryCurrencySlots=CurrencyRow();
+    public static readonly Rect[] AncientCurrencySlots=CurrencyRow();
+    public static readonly Rect[] OrdinaryCountBoxes=CountRow();
+    public static readonly Rect[] AncientCountBoxes=CountRow();
     public static readonly Rect DismantleButton=P(568,88,724,130);
     public static readonly Rect HighlightButton=P(735,88,891,130);
     public static readonly Rect CloseButton=P(833,37,910,86);
 
     public static Rect P(float left,float top,float right,float bottom)=>new Rect(left/Width,1f-bottom/Height,(right-left)/Width,(bottom-top)/Height);
+    static Rect[] CurrencyRow(){var result=new Rect[9];for(int i=0;i<9;i++){float left=43+i*126;result[i]=P(left,1172,left+111,1272);}return result;}
+    static Rect[] CountRow(){var result=new Rect[9];for(int i=0;i<9;i++){float left=43+i*126;result[i]=P(left+72,1246,left+107,1270);}return result;}
+    public static Rect CurrencyRowForEditor(int index)=>OrdinaryCurrencySlots[index];
+    public static Rect CountRowForEditor(int index)=>OrdinaryCountBoxes[index];
     public static Rect Relative(Rect child,Rect parent)=>new Rect((child.xMin-parent.xMin)/parent.width,(child.yMin-parent.yMin)/parent.height,child.width/parent.width,child.height/parent.height);
     public static Rect Inset(Rect rect,float horizontalPixels,float verticalPixels)=>new Rect(rect.x+horizontalPixels/Width,rect.y+verticalPixels/Height,rect.width-2f*horizontalPixels/Width,rect.height-2f*verticalPixels/Height);
     public static void Apply(RectTransform target,Rect rect){target.anchorMin=rect.min;target.anchorMax=rect.max;target.offsetMin=target.offsetMax=Vector2.zero;}

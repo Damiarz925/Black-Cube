@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: a3a7b71bfc5f86c4f8f29a55e3fc2b10
+guid: 189593f97c803da419ec33231b6b82a4
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -6391413302788188850
-    second: AncientBlueToYellow_0
+      213: -1289448618901487649
+    second: celestial_crystal_arrow_emblem_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -42,7 +42,7 @@ TextureImporter:
     mipBias: 0
     wrapU: 1
     wrapV: 1
-    wrapW: 1
+    wrapW: 0
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
@@ -77,7 +77,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 0
+    textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -102,13 +102,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: AncientBlueToYellow_0
+      name: celestial_crystal_arrow_emblem_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 1254
-        height: 1254
+        width: 512
+        height: 512
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -117,8 +117,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: e459a9ad6732d47a0800000000000000
-      internalID: -6391413302788188850
+      spriteID: fdf324a1055fa1ee0800000000000000
+      internalID: -1289448618901487649
       vertices: []
       indices: 
       edges: []
@@ -137,7 +137,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      AncientBlueToYellow_0: -6391413302788188850
+      celestial_crystal_arrow_emblem_0: -1289448618901487649
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

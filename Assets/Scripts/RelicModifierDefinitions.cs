@@ -21,9 +21,20 @@ public sealed class RelicModifierDefinition
     public string Label { get; }
     public int Weight { get; }
     public bool Percent { get; }
+    public AffixSide Side { get; }
     public IReadOnlyList<RelicModifierTier> Tiers { get; }
     public RelicModifierDefinition(RelicModifierType id,string label,int weight,bool percent,params RelicModifierTier[] tiers)
-    {if(weight<=0||tiers==null||tiers.Length==0)throw new ArgumentOutOfRangeException(nameof(weight));Id=id;Label=label;Weight=weight;Percent=percent;Tiers=tiers;}
+    {if(weight<=0||tiers==null||tiers.Length==0)throw new ArgumentOutOfRangeException(nameof(weight));Id=id;Label=label;Weight=weight;Percent=percent;Side=SuggestedSide(id);Tiers=tiers;}
+    // Initial classification follows the equipment convention: offensive/output
+    // effects are prefixes, while defense, recovery and utility are suffixes.
+    public static AffixSide SuggestedSide(RelicModifierType id)=>id switch
+    {
+        RelicModifierType.IncreasedMaximumLife or RelicModifierType.IncreasedMaximumMana or RelicModifierType.AllResistances or
+        RelicModifierType.ShockThresholdReduction or RelicModifierType.MaximumChillSlow or RelicModifierType.RebirthItemReturn or
+        RelicModifierType.IncreasedExperience or RelicModifierType.MoreEnemyDrops or RelicModifierType.IncreasedEnemyRarity or
+        RelicModifierType.IncreasedItemRarity=>AffixSide.Suffix,
+        _=>AffixSide.Prefix
+    };
     public RelicModifierTier Tier(int tierIndex)=>Tiers.FirstOrDefault(t=>t.TierIndex==tierIndex);
 }
 

@@ -240,7 +240,7 @@ public class GameManager : MonoBehaviour
             for(int i=0;i<drops.gearCount;i++)
             {
                 Gear loot=lootManager.GenerateLoot(rarity,lootRandom);
-                if(loot!=null&&Inventory.Instance!=null)Inventory.Instance.Pickup(loot);
+                if(loot!=null&&Inventory.Instance!=null)GearWorldPickup.Spawn(loot,enemyHealth.transform.position,FindAnyObjectByType<PlayerController>()?.transform);
                 else if(loot!=null)Debug.LogWarning("GameManager: Inventory.Instance is null; generated loot not added.");
                 else Debug.LogWarning("GameManager: Generated loot is null; nothing added to inventory.");
             }

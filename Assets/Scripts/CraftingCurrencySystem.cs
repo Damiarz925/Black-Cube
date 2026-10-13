@@ -9,20 +9,30 @@ using TMPro;
 
 public enum CraftingCurrencyType
 {
-    NormalToMagic,
-    MagicToRare,
-    RerollMagic,
-    AddRareModifier,
-    RerollRareModifier,
-    RemoveRareModifier,
-    AncientNormalToMagic,
-    AncientMagicToRare,
-    AncientRareToLegendary,
-    AncientReroll,
-    AncientAddModifier,
-    AncientRemoveModifier,
-    EmpowermentCatalyst,
-    AffixFocus
+    // Values 0-13 are persistence-stable. New currency identities are appended.
+    NormalToMagic=0,
+    MagicToRare=1,
+    RerollMagic=2,
+    AddRareModifier=3,
+    RerollRareModifier=4,
+    RemoveRareModifier=5,
+    AncientNormalToMagic=6,
+    AncientMagicToRare=7,
+    AncientRareToLegendary=8, // legacy save migration only
+    AncientReroll=9,          // legacy save migration only
+    AncientAddModifier=10,    // legacy save migration only
+    AncientRemoveModifier=11,
+    EmpowermentCatalyst=12,
+    AffixFocus=13,            // legacy save migration only
+    AddMagicModifier=14,
+    PrefixFocus=15,
+    SuffixFocus=16,
+    AncientRerollMagic=17,
+    AncientAddMagicModifier=18,
+    AncientRerollRareModifier=19,
+    AncientAddRareModifier=20,
+    AncientPrefixFocus=21,
+    AncientSuffixFocus=22
 }
 
 [Serializable]
@@ -37,17 +47,15 @@ public sealed class CurrencyInventory : MonoBehaviour
 {
     public static CurrencyInventory Instance { get; private set; }
     [SerializeField] List<CurrencyStackData> serializedStacks = new();
-    [SerializeField] int normalToMagicFragments, magicToRareFragments;
     readonly Dictionary<CraftingCurrencyType, int> stacks = new();
     public event Action Changed;
     public static event Action<Gear> GearChanged;
     public CraftingCurrencyType? ArmedCurrency { get; private set; }
-    public bool UseAffixFocus { get; private set; }
-    public AffixSide AffixFocusSide { get; private set; } = AffixSide.Prefix;
+    public CraftingCurrencyType? SelectedFocusCurrency { get; private set; }
+    public bool UseAffixFocus => SelectedFocusCurrency.HasValue;
+    public AffixSide AffixFocusSide => IsSuffixFocus(SelectedFocusCurrency) ? AffixSide.Suffix : AffixSide.Prefix;
     public string LastCraftFeedback { get; private set; } = string.Empty;
     public IReadOnlyList<CurrencyStackData> Stacks => serializedStacks;
-    public int NormalToMagicFragments => normalToMagicFragments;
-    public int MagicToRareFragments => magicToRareFragments;
 
     void Awake()
     {
@@ -71,48 +79,6 @@ public sealed class CurrencyInventory : MonoBehaviour
         serializedStacks.Sort((a,b) => a.type.CompareTo(b.type));
     }
     public int Count(CraftingCurrencyType type) => stacks.TryGetValue(type, out int amount) ? amount : 0;
-    public int FragmentCount(CraftingCurrencyType type) => type switch
-    {
-        CraftingCurrencyType.NormalToMagic => normalToMagicFragments,
-        CraftingCurrencyType.MagicToRare => magicToRareFragments,
-        _ => 0
-    };
-    public bool AddFragments(CraftingCurrencyType type, int amount)
-    {
-        if (!CanAddFragments(type,amount)) return false;
-        int current = FragmentCount(type);
-        int full = (current + amount) / 10;
-        if (type == CraftingCurrencyType.NormalToMagic) normalToMagicFragments = (current + amount) % 10;
-        else magicToRareFragments = (current + amount) % 10;
-        if (full > 0) stacks[type] = Count(type) + full;
-        SyncSerialized(); Changed?.Invoke(); GamePersistence.MarkDirty();
-        return true;
-    }
-    public bool CanAddFragments(CraftingCurrencyType type,int amount)
-    {
-        if(amount <= 0 || (type != CraftingCurrencyType.NormalToMagic && type != CraftingCurrencyType.MagicToRare)) return false;
-        int current=FragmentCount(type);
-        if(current > int.MaxValue-amount) return false;
-        int full=(current+amount)/10;
-        return Count(type) <= int.MaxValue-full;
-    }
-    public bool RestoreFragments(int normalToMagic, int magicToRare)
-    {
-        if (normalToMagic < 0 || magicToRare < 0
-            || Count(CraftingCurrencyType.NormalToMagic) > int.MaxValue - normalToMagic / 10
-            || Count(CraftingCurrencyType.MagicToRare) > int.MaxValue - magicToRare / 10) return false;
-        int normalOrbs=normalToMagic/10,rareOrbs=magicToRare/10;
-        normalToMagicFragments = normalToMagic % 10;
-        magicToRareFragments = magicToRare % 10;
-        if(normalOrbs>0)stacks[CraftingCurrencyType.NormalToMagic]=Count(CraftingCurrencyType.NormalToMagic)+normalOrbs;
-        if(rareOrbs>0)stacks[CraftingCurrencyType.MagicToRare]=Count(CraftingCurrencyType.MagicToRare)+rareOrbs;
-        SyncSerialized();Changed?.Invoke();GamePersistence.MarkDirty();return true;
-    }
-    public void ClearFragments()
-    {
-        normalToMagicFragments = magicToRareFragments = 0;
-        Changed?.Invoke(); GamePersistence.MarkDirty();
-    }
     public void Add(CraftingCurrencyType type, int amount = 1)
     {
         if (amount <= 0 || Count(type) > int.MaxValue - amount) return;
@@ -128,27 +94,28 @@ public sealed class CurrencyInventory : MonoBehaviour
     }
     public bool Arm(CraftingCurrencyType type)
     {
-        if (type == CraftingCurrencyType.AffixFocus || Count(type) <= 0) return false;
+        if (IsFocus(type) || IsLegacy(type) || Count(type) <= 0) return false;
         ArmedCurrency = type; Changed?.Invoke(); return true;
     }
     public void CancelArmed() { if (ArmedCurrency.HasValue) { ArmedCurrency = null; Changed?.Invoke(); } }
-    public void SetAffixFocus(bool enabled, AffixSide side)
+    public bool ToggleFocus(CraftingCurrencyType type)
     {
-        UseAffixFocus = enabled;
-        AffixFocusSide = side;
-        Changed?.Invoke();
+        if(!IsFocus(type)||Count(type)<=0)return false;
+        SelectedFocusCurrency=SelectedFocusCurrency==type?null:type;
+        Changed?.Invoke();return true;
     }
     public bool TryApplyArmedToGear(Gear gear, bool keepArmed = false)
     {
         if (!ArmedCurrency.HasValue) return false;
         var type = ArmedCurrency.Value;
-        AffixSide? focusedSide = UseAffixFocus && EquipmentCrafting.SupportsFocus(type)
+        AffixSide? focusedSide = IsOrdinaryFocus(SelectedFocusCurrency) && EquipmentCrafting.SupportsFocus(type)
             ? AffixFocusSide : null;
-        if (focusedSide.HasValue && (Count(CraftingCurrencyType.AffixFocus) <= 0
+        CraftingCurrencyType? focusCurrency=focusedSide.HasValue?SelectedFocusCurrency:null;
+        if (focusedSide.HasValue && (!focusCurrency.HasValue||Count(focusCurrency.Value) <= 0
             || !EquipmentCrafting.CanApply(type, gear, focusedSide)))
         {
-            LastCraftFeedback = Count(CraftingCurrencyType.AffixFocus) <= 0
-                ? "No Affix Focus currency available."
+            LastCraftFeedback = !focusCurrency.HasValue||Count(focusCurrency.Value) <= 0
+                ? "No selected Prefix/Suffix Focus currency is available."
                 : $"Cannot {CurrencyPresentation.Name(type)} a {focusedSide.Value} on this item.";
             Changed?.Invoke();
             return false;
@@ -163,7 +130,7 @@ public sealed class CurrencyInventory : MonoBehaviour
             return false;
         }
         bool spent = TrySpend(type);
-        if (spent && focusedSide.HasValue) spent = TrySpend(CraftingCurrencyType.AffixFocus);
+        if (spent && focusCurrency.HasValue) spent = TrySpend(focusCurrency.Value);
         LastCraftFeedback = spent ? "Crafting applied." : "Crafting currency unavailable.";
         if (spent && (!keepArmed || Count(type) <= 0)) CancelArmed();
         if (spent) Inventory.Instance?.NotifyItemChanged(gear);
@@ -174,15 +141,20 @@ public sealed class CurrencyInventory : MonoBehaviour
     }
     public bool TryApplyArmedToRelic(RelicData relic)
     {
-        if (!ArmedCurrency.HasValue || !IsAncient(ArmedCurrency.Value) || Count(ArmedCurrency.Value) <= 0) return false;
+        if (!ArmedCurrency.HasValue || !IsAncientOperation(ArmedCurrency.Value) || Count(ArmedCurrency.Value) <= 0) return false;
         var type=ArmedCurrency.Value;
-        if(!AncientRelicCrafting.TryApply(type,relic,RelicInventory.Instance,false))return false;
-        bool spent=TrySpend(type);if(spent){RelicInventory.Instance?.NotifyChanged();GamePersistence.Save();}return spent;
+        AffixSide? side=IsAncientFocus(SelectedFocusCurrency)?AffixFocusSide:null;
+        CraftingCurrencyType? focusCurrency=side.HasValue?SelectedFocusCurrency:null;
+        if(focusCurrency.HasValue&&Count(focusCurrency.Value)<=0)return false;
+        if(!AncientRelicCrafting.TryApply(type,relic,RelicInventory.Instance,false,side))return false;
+        bool spent=TrySpend(type);if(spent&&focusCurrency.HasValue)spent=TrySpend(focusCurrency.Value);
+        if(spent){RelicInventory.Instance?.NotifyChanged();GamePersistence.Save();}return spent;
     }
     public void ClearAncient()
     {
         foreach (CraftingCurrencyType type in Enum.GetValues(typeof(CraftingCurrencyType))) if (IsAncient(type)) stacks.Remove(type);
         if (ArmedCurrency.HasValue && IsAncient(ArmedCurrency.Value)) ArmedCurrency = null;
+        if(SelectedFocusCurrency.HasValue&&IsAncientFocus(SelectedFocusCurrency))SelectedFocusCurrency=null;
         SyncSerialized(); Changed?.Invoke();
     }
     public void ResetForNewRun()
@@ -190,26 +162,31 @@ public sealed class CurrencyInventory : MonoBehaviour
         foreach (CraftingCurrencyType type in Enum.GetValues(typeof(CraftingCurrencyType)))
             if (!IsAncient(type)) stacks.Remove(type);
         ArmedCurrency = null;
-        UseAffixFocus = false;
-        normalToMagicFragments = magicToRareFragments = 0;
+        SelectedFocusCurrency = null;
         SyncSerialized(); Changed?.Invoke();
     }
     public void ResetForNewGame()
     {
         stacks.Clear();
         ArmedCurrency = null;
-        UseAffixFocus = false;
-        normalToMagicFragments = magicToRareFragments = 0;
+        SelectedFocusCurrency = null;
         SyncSerialized(); Changed?.Invoke();
     }
-    public static bool IsAncient(CraftingCurrencyType type) => type is >= CraftingCurrencyType.AncientNormalToMagic and <= CraftingCurrencyType.AncientRemoveModifier;
-    public static CraftingCurrencyType RandomOrdinary() => (CraftingCurrencyType)UnityEngine.Random.Range(0, 6);
+    public static bool IsAncient(CraftingCurrencyType type) => IsAncientOperation(type)||IsAncientFocus(type)||type is CraftingCurrencyType.AncientRareToLegendary or CraftingCurrencyType.AncientReroll or CraftingCurrencyType.AncientAddModifier;
+    public static bool IsAncientOperation(CraftingCurrencyType type)=>type is CraftingCurrencyType.AncientNormalToMagic or CraftingCurrencyType.AncientMagicToRare or CraftingCurrencyType.AncientRerollMagic or CraftingCurrencyType.AncientAddMagicModifier or CraftingCurrencyType.AncientRerollRareModifier or CraftingCurrencyType.AncientAddRareModifier or CraftingCurrencyType.AncientRemoveModifier;
+    public static bool IsFocus(CraftingCurrencyType type)=>type is CraftingCurrencyType.PrefixFocus or CraftingCurrencyType.SuffixFocus or CraftingCurrencyType.AncientPrefixFocus or CraftingCurrencyType.AncientSuffixFocus;
+    public static bool IsOrdinaryFocus(CraftingCurrencyType? type)=>type is CraftingCurrencyType.PrefixFocus or CraftingCurrencyType.SuffixFocus;
+    public static bool IsAncientFocus(CraftingCurrencyType? type)=>type is CraftingCurrencyType.AncientPrefixFocus or CraftingCurrencyType.AncientSuffixFocus;
+    public static bool IsSuffixFocus(CraftingCurrencyType? type)=>type is CraftingCurrencyType.SuffixFocus or CraftingCurrencyType.AncientSuffixFocus;
+    public static bool IsLegacy(CraftingCurrencyType type)=>type is CraftingCurrencyType.AncientRareToLegendary or CraftingCurrencyType.AncientReroll or CraftingCurrencyType.AncientAddModifier or CraftingCurrencyType.AffixFocus;
+    static readonly CraftingCurrencyType[] OrdinaryDrops={CraftingCurrencyType.NormalToMagic,CraftingCurrencyType.RerollMagic,CraftingCurrencyType.AddMagicModifier,CraftingCurrencyType.MagicToRare,CraftingCurrencyType.RerollRareModifier,CraftingCurrencyType.AddRareModifier,CraftingCurrencyType.RemoveRareModifier,CraftingCurrencyType.PrefixFocus,CraftingCurrencyType.SuffixFocus};
+    public static CraftingCurrencyType RandomOrdinary() => OrdinaryDrops[UnityEngine.Random.Range(0,OrdinaryDrops.Length)];
     public void Restore(IEnumerable<CurrencyStackData> data)
     {
         stacks.Clear();
         if (data != null) foreach (var entry in data) if (entry.amount > 0) stacks[entry.type] = Count(entry.type) + entry.amount;
         ArmedCurrency = null;
-        normalToMagicFragments = magicToRareFragments = 0;
+        SelectedFocusCurrency = null;
         SyncSerialized(); Changed?.Invoke();
     }
 }
@@ -220,11 +197,8 @@ public sealed partial class CurrencyInventoryPanel : MonoBehaviour
     InventoryEquipmentPanelUI layout;
     [SerializeField] RectTransform ordinaryRoot, ancientRoot, relicRoot;
     [SerializeField] Button gearButton, relicButton;
-    Button focusToggle, focusPrefix, focusSuffix;
-    TMP_Text focusLabel, focusFeedback;
     CraftingCurrencyCursorUI cursor;
     readonly Dictionary<CraftingCurrencyType, CurrencySlotUI> currencyEntries = new();
-    readonly Dictionary<CraftingCurrencyType, TMP_Text> fragmentLabels = new();
     readonly Dictionary<RelicData, RelicSlotUI> relicEntries = new();
     public bool ShowingCurrencies => true;
 
@@ -240,11 +214,8 @@ public sealed partial class CurrencyInventoryPanel : MonoBehaviour
             ordinaryRoot=view.ordinaryCurrencyRoot;ancientRoot=view.ancientCurrencyRoot;relicRoot=view.relicRoot;
             gearButton=view.gearToggle;relicButton=view.relicToggle;
             foreach(var slot in view.currencySlots)if(slot!=null){slot.BindOwner(owner);currencyEntries[slot.Type]=slot;}
-            CraftingCurrencyType[] fragmentTypes={CraftingCurrencyType.NormalToMagic,CraftingCurrencyType.MagicToRare};
-            for(int i=0;i<view.fragmentLabels.Count&&i<fragmentTypes.Length;i++)if(view.fragmentLabels[i]!=null)fragmentLabels[fragmentTypes[i]]=view.fragmentLabels[i];
         }
         if (ordinaryRoot == null) { Debug.LogError("CurrencyInventoryPanel requires authored currency roots.", this); return; }
-        EnsureFocusControls();
         WireTabs();
     }
 #if UNITY_EDITOR
@@ -264,7 +235,6 @@ public sealed partial class CurrencyInventoryPanel : MonoBehaviour
         var relicLayout = relics.GetComponent<VerticalLayoutGroup>(); relicLayout.spacing = 8; relicLayout.childControlWidth = true; relicLayout.childForceExpandWidth = true; relicLayout.childForceExpandHeight = false;
         relics.GetComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
         EnsureCurrencyViews(true);
-        EnsureFocusControls();
         WireTabs();
         ShowEquipment();
     }
@@ -287,6 +257,8 @@ public sealed partial class CurrencyInventoryPanel : MonoBehaviour
         if(manual)CurrencyInventory.Instance?.CancelArmed();
         layout?.SetRelicMode(relicMode);
         if(relicRoot!=null)relicRoot.gameObject.SetActive(relicMode);
+        if(ordinaryRoot!=null)ordinaryRoot.gameObject.SetActive(!relicMode);
+        if(ancientRoot!=null)ancientRoot.gameObject.SetActive(relicMode);
         if(gearButton!=null)gearButton.image.color=relicMode?new Color(.12f,.13f,.17f,.96f):new Color(.34f,.29f,.16f,.98f);
         if(relicButton!=null)relicButton.image.color=relicMode?new Color(.35f,.20f,.42f,.98f):new Color(.13f,.11f,.18f,.96f);
         Refresh();
@@ -302,95 +274,29 @@ public sealed partial class CurrencyInventoryPanel : MonoBehaviour
         if(ordinaryRoot==null || CurrencyInventory.Instance==null) return;
         EnsureCurrencyViews(false);
         foreach(var slot in currencyEntries.Values)if(slot!=null)slot.RefreshPresentation();
-        RefreshFragmentLabel(CraftingCurrencyType.NormalToMagic,InventoryArtLayout.P(67,792,174,816));
-        RefreshFragmentLabel(CraftingCurrencyType.MagicToRare,InventoryArtLayout.P(355,792,462,816));
-        RefreshFocusControls();
         CurrencyTooltipUI.RefreshVisible();
-    }
-    void EnsureFocusControls()
-    {
-        if(ordinaryRoot==null)return;
-        focusToggle=EnsureFocusButton("Use Affix Focus",InventoryArtLayout.P(72,956,310,990),()=>
-        {
-            var inventory=CurrencyInventory.Instance;
-            if(inventory!=null)inventory.SetAffixFocus(!inventory.UseAffixFocus,inventory.AffixFocusSide);
-        });
-        focusPrefix=EnsureFocusButton("Prefix",InventoryArtLayout.P(320,956,454,990),()=>CurrencyInventory.Instance?.SetAffixFocus(true,AffixSide.Prefix));
-        focusSuffix=EnsureFocusButton("Suffix",InventoryArtLayout.P(464,956,598,990),()=>CurrencyInventory.Instance?.SetAffixFocus(true,AffixSide.Suffix));
-        focusLabel=EnsureFocusText("Affix Focus count",InventoryArtLayout.P(608,956,895,990),12);
-        focusFeedback=EnsureFocusText("Affix Focus feedback",InventoryArtLayout.P(72,994,895,1032),11);
-        RefreshFocusControls();
-    }
-    Button EnsureFocusButton(string name,Rect bounds,UnityEngine.Events.UnityAction action)
-    {
-        var existing=ordinaryRoot.Find(name);
-        var button=existing!=null?existing.GetComponent<Button>():MakeButton(ordinaryRoot,name,null);
-        if(button==null)return null;
-        InventoryArtLayout.Apply((RectTransform)button.transform,bounds);
-        button.onClick.RemoveAllListeners();button.onClick.AddListener(action);
-        return button;
-    }
-    TMP_Text EnsureFocusText(string name,Rect bounds,int size)
-    {
-        var existing=ordinaryRoot.Find(name);
-        if(existing==null){var go=new GameObject(name,typeof(RectTransform),typeof(TextMeshProUGUI));go.transform.SetParent(ordinaryRoot,false);existing=go.transform;}
-        var label=existing.GetComponent<TMP_Text>();
-        InventoryArtLayout.Apply((RectTransform)existing,bounds);
-        label.fontSize=size;label.alignment=TextAlignmentOptions.Center;label.raycastTarget=false;
-        return label;
-    }
-    void RefreshFocusControls()
-    {
-        var inventory=CurrencyInventory.Instance;
-        if(inventory==null)return;
-        SetFocusButtonText(focusToggle,$"Use Affix Focus: {(inventory.UseAffixFocus?"ON":"OFF")}");
-        SetFocusButtonText(focusPrefix,inventory.UseAffixFocus&&inventory.AffixFocusSide==AffixSide.Prefix?"● PREFIX":"Prefix");
-        SetFocusButtonText(focusSuffix,inventory.UseAffixFocus&&inventory.AffixFocusSide==AffixSide.Suffix?"● SUFFIX":"Suffix");
-        if(focusLabel!=null)focusLabel.text=$"Available: {inventory.Count(CraftingCurrencyType.AffixFocus)}";
-        if(focusFeedback!=null)focusFeedback.text=inventory.LastCraftFeedback;
-    }
-    static void SetFocusButtonText(Button button,string value)
-    {
-        var label=button!=null?button.GetComponentInChildren<TMP_Text>(true):null;
-        if(label!=null)label.text=value;
     }
     void EnsureCurrencyViews(bool createMissing)
     {
         if(ordinaryRoot==null||ancientRoot==null)return;
-        CraftingCurrencyType[] ordered={CraftingCurrencyType.NormalToMagic,CraftingCurrencyType.RerollMagic,CraftingCurrencyType.MagicToRare,CraftingCurrencyType.RerollRareModifier,CraftingCurrencyType.AddRareModifier,CraftingCurrencyType.RemoveRareModifier,CraftingCurrencyType.AncientNormalToMagic,CraftingCurrencyType.AncientMagicToRare,CraftingCurrencyType.AncientRareToLegendary,CraftingCurrencyType.AncientReroll,CraftingCurrencyType.AncientAddModifier,CraftingCurrencyType.AncientRemoveModifier,CraftingCurrencyType.EmpowermentCatalyst};
+        CraftingCurrencyType[] ordered={CraftingCurrencyType.NormalToMagic,CraftingCurrencyType.RerollMagic,CraftingCurrencyType.AddMagicModifier,CraftingCurrencyType.MagicToRare,CraftingCurrencyType.RerollRareModifier,CraftingCurrencyType.AddRareModifier,CraftingCurrencyType.RemoveRareModifier,CraftingCurrencyType.PrefixFocus,CraftingCurrencyType.SuffixFocus,CraftingCurrencyType.AncientNormalToMagic,CraftingCurrencyType.AncientRerollMagic,CraftingCurrencyType.AncientAddMagicModifier,CraftingCurrencyType.AncientMagicToRare,CraftingCurrencyType.AncientRerollRareModifier,CraftingCurrencyType.AncientAddRareModifier,CraftingCurrencyType.AncientRemoveModifier,CraftingCurrencyType.AncientPrefixFocus,CraftingCurrencyType.AncientSuffixFocus};
         for(int index=0;index<ordered.Length;index++)
         {
-            CraftingCurrencyType type=ordered[index];bool ancient=CurrencyInventory.IsAncient(type);bool catalyst=type==CraftingCurrencyType.EmpowermentCatalyst;int rowIndex=index%6;
-            Rect slotRect=catalyst?InventoryArtLayout.P(270,498,455,526):(ancient?InventoryArtLayout.AncientCurrencySlots:InventoryArtLayout.OrdinaryCurrencySlots)[rowIndex];
-            Rect countRect=catalyst?InventoryArtLayout.P(400,501,450,523):(ancient?InventoryArtLayout.AncientCountBoxes:InventoryArtLayout.OrdinaryCountBoxes)[rowIndex];
+            CraftingCurrencyType type=ordered[index];bool ancient=CurrencyInventory.IsAncient(type);int rowIndex=index%9;
+            Rect slotRect=(ancient?InventoryArtLayout.AncientCurrencySlots:InventoryArtLayout.OrdinaryCurrencySlots)[rowIndex];
+            Rect countRect=(ancient?InventoryArtLayout.AncientCountBoxes:InventoryArtLayout.OrdinaryCountBoxes)[rowIndex];
             Rect localCountRect=InventoryArtLayout.Relative(countRect,slotRect);
             if(currencyEntries.TryGetValue(type,out var existing)&&existing!=null)continue;
             if(!createMissing){Debug.LogError("Missing authored currency slot: "+type,this);continue;}
             var go = new GameObject(type.ToString(), typeof(RectTransform), typeof(Image), typeof(RectMask2D), typeof(Outline), typeof(Button), typeof(CurrencySlotUI));
             go.transform.SetParent(ancient?ancientRoot:ordinaryRoot,false);InventoryArtLayout.Apply((RectTransform)go.transform,slotRect);
-            var image=go.GetComponent<Image>();image.sprite=ancient||catalyst?InventoryArtCatalog.Currency(type):null;image.preserveAspect=true;image.color=ancient||catalyst?Color.white:new Color(1,1,1,.001f);image.enabled=!ancient&&!catalyst||image.sprite!=null;
+            var image=go.GetComponent<Image>();image.sprite=InventoryArtCatalog.Currency(type);image.preserveAspect=true;image.color=Color.white;image.enabled=image.sprite!=null;
             var labelGo=new GameObject("Label",typeof(RectTransform),typeof(TextMeshProUGUI)); labelGo.transform.SetParent(go.transform,false);
             var rect=(RectTransform)labelGo.transform;InventoryArtLayout.Apply(rect,localCountRect);
             var label=labelGo.GetComponent<TextMeshProUGUI>();label.alignment=TextAlignmentOptions.Center;label.fontSize=11;label.enableAutoSizing=true;label.fontSizeMin=8;label.fontSizeMax=11;label.raycastTarget=false;
             var outline=go.GetComponent<Outline>();outline.effectColor=new Color(1f,.78f,.25f);outline.effectDistance=new Vector2(2,-2);
             var slot=go.GetComponent<CurrencySlotUI>();slot.Initialize(type, owner, label, outline);currencyEntries[type]=slot;
         }
-        RefreshFragmentLabel(CraftingCurrencyType.NormalToMagic,InventoryArtLayout.P(67,792,174,816),createMissing);
-        RefreshFragmentLabel(CraftingCurrencyType.MagicToRare,InventoryArtLayout.P(355,792,462,816),createMissing);
-    }
-    void RefreshFragmentLabel(CraftingCurrencyType type,Rect bounds,bool createMissing=false)
-    {
-        if(!fragmentLabels.TryGetValue(type,out var label)||label==null)
-        {
-            if(!createMissing){Debug.LogError("Missing authored currency fragment label: "+type,this);return;}
-            var go=new GameObject(type+" fragments",typeof(RectTransform),typeof(TextMeshProUGUI));
-            go.transform.SetParent(ordinaryRoot,false);
-            label=go.GetComponent<TextMeshProUGUI>();label.fontSize=10;label.alignment=TextAlignmentOptions.Center;
-            label.color=new Color(.86f,.84f,.73f);label.raycastTarget=false;
-            fragmentLabels[type]=label;
-        }
-        InventoryArtLayout.Apply(label.rectTransform,bounds);
-        label.text=$"Fragments {(CurrencyInventory.Instance!=null?CurrencyInventory.Instance.FragmentCount(type):0)}/10";
     }
     void RefreshRelics()
     {
@@ -430,12 +336,21 @@ public sealed partial class CurrencyInventoryPanel : MonoBehaviour
 public sealed partial class CurrencySlotUI : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler, ISubmitHandler
 {
     [SerializeField] CraftingCurrencyType type; InventoryUI inventoryUI; [SerializeField] TMP_Text label; [SerializeField] Outline outline; [SerializeField] Image selectionOverlay;
+    [SerializeField] Image borderImage; [SerializeField] Sprite unhoveredBorder, hoveredBorder, selectedBorder;
+    bool hovered;
     public CraftingCurrencyType Type=>type;
     public string DisplayText=>label!=null?label.text:string.Empty;
     public Image SelectionOverlay=>selectionOverlay;
-    public bool IsSelected=>selectionOverlay!=null&&selectionOverlay.gameObject.activeSelf;
-    public void Initialize(CraftingCurrencyType value,InventoryUI owner,TMP_Text target,Outline border){type=value;inventoryUI=owner;label=target;outline=border;EnsureSelectionOverlay();RefreshPresentation();}
-    public void BindOwner(InventoryUI owner){inventoryUI=owner;if(selectionOverlay==null)Debug.LogError("Currency slot is missing its authored selection overlay.",this);}
+    public bool IsSelected=>CurrencyInventory.Instance!=null&&(CurrencyInventory.Instance.ArmedCurrency==type||CurrencyInventory.Instance.SelectedFocusCurrency==type);
+    public void Initialize(CraftingCurrencyType value,InventoryUI owner,TMP_Text target,Outline border){type=value;inventoryUI=owner;label=target;outline=border;ResolveBorder();DisableSelectionOverlay();RefreshPresentation();}
+    public void BindOwner(InventoryUI owner){inventoryUI=owner;ResolveBorder();DisableSelectionOverlay();}
+    public void ConfigureBorders(Image image,Sprite normal,Sprite hover,Sprite selected){borderImage=image;unhoveredBorder=normal;hoveredBorder=hover;selectedBorder=selected;RefreshPresentation();}
+    void ResolveBorder()
+    {
+        if(borderImage==null&&transform.parent!=null)borderImage=transform.parent.GetComponent<Image>();
+        unhoveredBorder??=InventoryArtCatalog.CurrencyBorderNormal;hoveredBorder??=InventoryArtCatalog.CurrencyBorderHovered;selectedBorder??=InventoryArtCatalog.CurrencyBorderSelected;
+    }
+    void DisableSelectionOverlay(){if(selectionOverlay!=null)selectionOverlay.gameObject.SetActive(false);}
     void EnsureSelectionOverlay()
     {
         if(selectionOverlay!=null)return;
@@ -443,7 +358,12 @@ public sealed partial class CurrencySlotUI : MonoBehaviour, IPointerClickHandler
         var r=(RectTransform)go.transform;r.anchorMin=new Vector2(.06f,.08f);r.anchorMax=new Vector2(.94f,.94f);r.offsetMin=r.offsetMax=Vector2.zero;
         selectionOverlay=go.GetComponent<Image>();selectionOverlay.color=new Color(1f,.78f,.08f,.28f);selectionOverlay.raycastTarget=false;go.transform.SetAsFirstSibling();
     }
-    public void RefreshPresentation(){if(label==null)return;bool armed=CurrencyInventory.Instance!=null&&CurrencyInventory.Instance.ArmedCurrency==type;label.text=(CurrencyInventory.Instance!=null?CurrencyInventory.Instance.Count(type):0).ToString();if(outline!=null)outline.enabled=armed;if(selectionOverlay!=null)selectionOverlay.gameObject.SetActive(armed&&!CurrencyInventory.IsAncient(type));}
+    public void RefreshPresentation()
+    {
+        bool selected=IsSelected;if(label!=null)label.text=(CurrencyInventory.Instance!=null?CurrencyInventory.Instance.Count(type):0).ToString();
+        if(outline!=null)outline.enabled=false;DisableSelectionOverlay();ResolveBorder();
+        if(borderImage!=null)borderImage.sprite=selected&&selectedBorder!=null?selectedBorder:hovered&&hoveredBorder!=null?hoveredBorder:unhoveredBorder;
+    }
     public void OnPointerClick(PointerEventData data)
     {
         if((data.button!=PointerEventData.InputButton.Left&&data.button!=PointerEventData.InputButton.Right) || CurrencyInventory.Instance==null) return;
@@ -452,11 +372,13 @@ public sealed partial class CurrencySlotUI : MonoBehaviour, IPointerClickHandler
     public void ToggleArmed()
     {
         if(CurrencyInventory.Instance==null)return;
+        if(CurrencyInventory.IsFocus(type)){CurrencyInventory.Instance.ToggleFocus(type);RefreshPresentation();return;}
         if(CurrencyInventory.Instance.ArmedCurrency==type) CurrencyInventory.Instance.CancelArmed();
         else if(CurrencyInventory.Instance.Arm(type)) { if(CurrencyInventory.IsAncient(type))inventoryUI?.ShowRelicViewForCurrency();else inventoryUI?.ShowEquipmentViewForCurrency(); }
     }
-    public void OnPointerEnter(PointerEventData data)=>CurrencyTooltipUI.Show(type,(RectTransform)transform);
-    public void OnPointerExit(PointerEventData data)=>CurrencyTooltipUI.Hide();
+    public void OnPointerEnter(PointerEventData data){hovered=true;RefreshPresentation();CurrencyTooltipUI.Show(type,(RectTransform)transform);}
+    public void OnPointerExit(PointerEventData data){hovered=false;RefreshPresentation();CurrencyTooltipUI.Hide();}
+    void OnDisable(){hovered=false;}
     public void OnSubmit(BaseEventData data)=>ToggleArmed();
 }
 
@@ -535,31 +457,30 @@ public static class CurrencyPresentation
 {
     public static string Name(CraftingCurrencyType type)=>type switch
     {
-        CraftingCurrencyType.NormalToMagic=>"NORMAL TO MAGIC",CraftingCurrencyType.RerollMagic=>"MAGIC REROLL",CraftingCurrencyType.MagicToRare=>"MAGIC TO RARE",
+        CraftingCurrencyType.NormalToMagic=>"NORMAL TO MAGIC",CraftingCurrencyType.RerollMagic=>"MAGIC REROLL",CraftingCurrencyType.AddMagicModifier=>"ADD MAGIC MODIFIER",CraftingCurrencyType.MagicToRare=>"MAGIC TO RARE",
         CraftingCurrencyType.RerollRareModifier=>"RARE / LEGENDARY REROLL",CraftingCurrencyType.AddRareModifier=>"ADD RARE / LEGENDARY MODIFIER",CraftingCurrencyType.RemoveRareModifier=>"REMOVE EXPLICIT MODIFIER",
-        CraftingCurrencyType.AncientNormalToMagic=>"ANCIENT NORMAL TO MAGIC",CraftingCurrencyType.AncientMagicToRare=>"ANCIENT MAGIC TO RARE",CraftingCurrencyType.AncientRareToLegendary=>"ANCIENT RARE TO LEGENDARY",
-        CraftingCurrencyType.AncientReroll=>"ANCIENT REROLL",CraftingCurrencyType.AncientAddModifier=>"ANCIENT ADD MODIFIER",CraftingCurrencyType.AncientRemoveModifier=>"ANCIENT REMOVE MODIFIER",CraftingCurrencyType.AffixFocus=>"AFFIX FOCUS CURRENCY",_=>"EMPOWERMENT CATALYST"
+        CraftingCurrencyType.PrefixFocus=>"PREFIX FOCUS",CraftingCurrencyType.SuffixFocus=>"SUFFIX FOCUS",CraftingCurrencyType.AncientNormalToMagic=>"ANCIENT NORMAL TO MAGIC",CraftingCurrencyType.AncientMagicToRare=>"ANCIENT MAGIC TO RARE",
+        CraftingCurrencyType.AncientRerollMagic=>"ANCIENT MAGIC REROLL",CraftingCurrencyType.AncientAddMagicModifier=>"ANCIENT ADD MAGIC MODIFIER",CraftingCurrencyType.AncientRerollRareModifier=>"ANCIENT RARE / LEGENDARY REROLL",CraftingCurrencyType.AncientAddRareModifier=>"ANCIENT ADD RARE / LEGENDARY MODIFIER",CraftingCurrencyType.AncientRemoveModifier=>"ANCIENT REMOVE MODIFIER",CraftingCurrencyType.AncientPrefixFocus=>"ANCIENT PREFIX FOCUS",CraftingCurrencyType.AncientSuffixFocus=>"ANCIENT SUFFIX FOCUS",_=>"EMPOWERMENT CATALYST"
     };
     public static string Symbol(CraftingCurrencyType type)=>type switch
     {
-        CraftingCurrencyType.NormalToMagic=>"N → M", CraftingCurrencyType.RerollMagic=>"M ↻", CraftingCurrencyType.MagicToRare=>"M → R",
+        CraftingCurrencyType.NormalToMagic=>"N → M", CraftingCurrencyType.RerollMagic=>"M ↻",CraftingCurrencyType.AddMagicModifier=>"M +", CraftingCurrencyType.MagicToRare=>"M → R",
         CraftingCurrencyType.RerollRareModifier=>"R/L ↻", CraftingCurrencyType.AddRareModifier=>"R/L +", CraftingCurrencyType.RemoveRareModifier=>"M/R/L −",
-        CraftingCurrencyType.AncientNormalToMagic=>"A N→M", CraftingCurrencyType.AncientMagicToRare=>"A M→R", CraftingCurrencyType.AncientRareToLegendary=>"A R→L",
-        CraftingCurrencyType.AncientReroll=>"A ↻", CraftingCurrencyType.AncientAddModifier=>"A +", CraftingCurrencyType.AncientRemoveModifier=>"A −", CraftingCurrencyType.AffixFocus=>"FOCUS", _=>"E"
+        _ when CurrencyInventory.IsFocus(type)=>CurrencyInventory.IsSuffixFocus(type)?"SUFFIX":"PREFIX",
+        CraftingCurrencyType.AncientNormalToMagic=>"A N→M",CraftingCurrencyType.AncientMagicToRare=>"A M→R",CraftingCurrencyType.AncientRerollMagic=>"A M ↻",CraftingCurrencyType.AncientAddMagicModifier=>"A M +",CraftingCurrencyType.AncientRerollRareModifier=>"A R/L ↻",CraftingCurrencyType.AncientAddRareModifier=>"A R/L +",CraftingCurrencyType.AncientRemoveModifier=>"A −",_=>"E"
     };
     public static string Description(CraftingCurrencyType type)=>type switch
     {
-        CraftingCurrencyType.NormalToMagic=>"Preserve the implicit; add one Prefix and one Suffix while upgrading to Magic.", CraftingCurrencyType.RerollMagic=>"Replace exactly one explicit Magic modifier on the same side.",
-        CraftingCurrencyType.MagicToRare=>"Preserve existing modifiers; add two explicit modifiers while upgrading to Rare.", CraftingCurrencyType.RerollRareModifier=>"Replace exactly one explicit Rare or Legendary modifier on the same side.",
+        CraftingCurrencyType.NormalToMagic=>"Preserve the implicit; add one modifier while upgrading to Magic.",CraftingCurrencyType.RerollMagic=>"Replace exactly one explicit Magic modifier on the same side.",CraftingCurrencyType.AddMagicModifier=>"Add exactly one explicit modifier to a Magic item.",
+        CraftingCurrencyType.MagicToRare=>"Preserve existing modifiers; add one explicit modifier while upgrading to Rare.",CraftingCurrencyType.RerollRareModifier=>"Replace exactly one explicit Rare or Legendary modifier on the same side.",
         CraftingCurrencyType.AddRareModifier=>"Add exactly one explicit modifier to a Rare or Legendary item when space permits.", CraftingCurrencyType.RemoveRareModifier=>"Remove exactly one explicit modifier from a Magic, Rare or Legendary item.",
-        CraftingCurrencyType.AncientNormalToMagic=>"Ancient: upgrade the current-cycle Normal relic to Magic.", CraftingCurrencyType.AncientMagicToRare=>"Ancient: upgrade the current-cycle Magic relic to Rare.",
-        CraftingCurrencyType.AncientRareToLegendary=>"Ancient: upgrade the current-cycle Rare relic to Legendary.", CraftingCurrencyType.AncientReroll=>"Ancient: reroll an unlocked modifier on the current-cycle relic.",
-        CraftingCurrencyType.AncientAddModifier=>"Ancient: add a modifier to the current-cycle relic when space permits.", CraftingCurrencyType.AncientRemoveModifier=>"Ancient: remove an unlocked modifier from the current-cycle relic.", CraftingCurrencyType.AffixFocus=>"Spend one alongside a compatible craft to target Prefixes or Suffixes.", _=>"Convert one eligible ordinary T1 explicit modifier into a committed Empowered modifier."
+        _ when CurrencyInventory.IsFocus(type)=>"Select this focus, then spend one alongside a successful compatible craft to target its affix side.",
+        CraftingCurrencyType.AncientNormalToMagic=>"Ancient: upgrade a Normal relic to Magic and add one modifier.",CraftingCurrencyType.AncientMagicToRare=>"Ancient: upgrade a Magic relic to Rare and add one modifier.",CraftingCurrencyType.AncientRerollMagic=>"Ancient: reroll one unlocked Magic relic modifier.",CraftingCurrencyType.AncientAddMagicModifier=>"Ancient: add one modifier to a Magic relic.",CraftingCurrencyType.AncientRerollRareModifier=>"Ancient: reroll one Rare or Legendary relic modifier.",CraftingCurrencyType.AncientAddRareModifier=>"Ancient: add one modifier to a Rare or Legendary relic.",CraftingCurrencyType.AncientRemoveModifier=>"Ancient: remove one unlocked modifier from a non-Normal relic.",_=>"Convert one eligible ordinary T1 explicit modifier into a committed Empowered modifier."
     };
     public static string ValidTarget(CraftingCurrencyType type)=>type switch
     {
-        CraftingCurrencyType.NormalToMagic=>"Normal equipment with one implicit and no explicits.",CraftingCurrencyType.RerollMagic=>"Magic equipment with an explicit modifier.",CraftingCurrencyType.MagicToRare=>"Magic equipment; under-filled gear still receives exactly two explicits.",
-        CraftingCurrencyType.RerollRareModifier=>"Rare or Legendary equipment with an explicit modifier.",CraftingCurrencyType.AddRareModifier=>"Rare or Legendary equipment below its 4 / 6 explicit cap and with an open side.",CraftingCurrencyType.RemoveRareModifier=>"Magic, Rare or Legendary equipment with an explicit modifier.",CraftingCurrencyType.AffixFocus=>"A compatible Add, Remove, or Reroll craft with a legal target side.",CraftingCurrencyType.EmpowermentCatalyst=>"Equipment with an unempowered, ordinary, scalable T1 explicit and an unlocked Empowered slot.",
+        CraftingCurrencyType.NormalToMagic=>"Normal equipment with one implicit and no explicits.",CraftingCurrencyType.RerollMagic=>"Magic equipment with an explicit modifier.",CraftingCurrencyType.AddMagicModifier=>"Magic equipment below its two-modifier cap with an open side.",CraftingCurrencyType.MagicToRare=>"Magic equipment below its Rare modifier cap.",
+        CraftingCurrencyType.RerollRareModifier=>"Rare or Legendary equipment with an explicit modifier.",CraftingCurrencyType.AddRareModifier=>"Rare or Legendary equipment below its 4 / 6 explicit cap and with an open side.",CraftingCurrencyType.RemoveRareModifier=>"Magic, Rare or Legendary equipment with an explicit modifier.",_ when CurrencyInventory.IsFocus(type)=>"A compatible Add, Remove, Upgrade, or Reroll craft with a legal target side.",CraftingCurrencyType.EmpowermentCatalyst=>"Equipment with an unempowered, ordinary, scalable T1 explicit and an unlocked Empowered slot.",
         _=>"The current-cycle craftable relic at the required rarity and modifier count."
     };
     public static string FailureConditions(CraftingCurrencyType type)=>CurrencyInventory.IsAncient(type)?"Fails on ordinary gear, past-cycle relics, invalid rarity, or a full / empty unlocked pool.":type==CraftingCurrencyType.EmpowermentCatalyst?"Fails below the next progression threshold or when no eligible T1 ordinary explicit remains.":"Fails on relics, scrap, the wrong rarity, insufficient Crafting Potential, a reached side/total cap, or when no eligible explicit modifier can change.";
@@ -567,7 +488,7 @@ public static class CurrencyPresentation
     {
         CraftingCurrencyType.NormalToMagic=>new Color(.75f,.86f,1f), CraftingCurrencyType.RerollMagic=>new Color(.18f,.38f,.82f), CraftingCurrencyType.MagicToRare=>new Color(.28f,.47f,.84f),
         CraftingCurrencyType.RerollRareModifier or CraftingCurrencyType.AddRareModifier=>new Color(.82f,.64f,.12f), CraftingCurrencyType.RemoveRareModifier=>new Color(.72f,.08f,.1f),
-        CraftingCurrencyType.EmpowermentCatalyst=>new Color(.35f,.78f,.92f), CraftingCurrencyType.AffixFocus=>new Color(.5f,.8f,.82f), _=>new Color(.28f,.09f,.42f)
+        CraftingCurrencyType.EmpowermentCatalyst=>new Color(.35f,.78f,.92f), _ when CurrencyInventory.IsFocus(type)=>new Color(.5f,.8f,.82f), _=>new Color(.28f,.09f,.42f)
     };
     public static Color AccentColor(CraftingCurrencyType type)=>type switch
     {
@@ -595,7 +516,7 @@ public sealed partial class CurrencyTooltipUI : MonoBehaviour
     {
         int best=-1;foreach(var slot in FindObjectsByType<CurrencySlotUI>(FindObjectsInactive.Include,FindObjectsSortMode.None))if(slot.Type==type&&slot.transform.GetSiblingIndex()>=best){best=slot.transform.GetSiblingIndex();anchor=(RectTransform)slot.transform;}
         if(anchor==null||!anchor.gameObject.activeInHierarchy){Hide();return;}
-        int amount=CurrencyInventory.Instance!=null?CurrencyInventory.Instance.Count(type):0;string fragments=type==CraftingCurrencyType.NormalToMagic||type==CraftingCurrencyType.MagicToRare?$"\n<color=#B9C0CA>Fragments: {CurrencyInventory.Instance?.FragmentCount(type)??0}/10 (10 automatically become 1 full currency).</color>":string.Empty;label.text=$"<b>{CurrencyPresentation.Name(type)}  x{amount}</b>\n{CurrencyPresentation.Description(type)}{fragments}\n<color=#B9C0CA>VALID: {CurrencyPresentation.ValidTarget(type)}</color>\n<color=#85898F>{CurrencyPresentation.FailureConditions(type)}\nClick to select or cancel. Hold Shift for repeat use.</color>";
+        int amount=CurrencyInventory.Instance!=null?CurrencyInventory.Instance.Count(type):0;label.text=$"<b>{CurrencyPresentation.Name(type)}  x{amount}</b>\n{CurrencyPresentation.Description(type)}\n<color=#B9C0CA>VALID: {CurrencyPresentation.ValidTarget(type)}</color>\n<color=#85898F>{CurrencyPresentation.FailureConditions(type)}\nClick to select or cancel. Hold Shift for repeat use.</color>";
         var r=(RectTransform)transform;r.anchorMin=r.anchorMax=new Vector2(.5f,.5f);r.pivot=new Vector2(0,0);r.sizeDelta=new Vector2(340,136);var corners=new Vector3[4];anchor.GetWorldCorners(corners);r.position=corners[2];transform.SetAsLastSibling();
     }
 }
@@ -627,7 +548,7 @@ public static class EquipmentCrafting
 {
     public const int RareCap = 4;
     public static bool SupportsFocus(CraftingCurrencyType currency) => currency is
-        CraftingCurrencyType.AddRareModifier or CraftingCurrencyType.RerollMagic or
+        CraftingCurrencyType.NormalToMagic or CraftingCurrencyType.MagicToRare or CraftingCurrencyType.AddMagicModifier or CraftingCurrencyType.AddRareModifier or CraftingCurrencyType.RerollMagic or
         CraftingCurrencyType.RerollRareModifier or CraftingCurrencyType.RemoveRareModifier;
     public static bool CanApply(CraftingCurrencyType currency, Gear gear, AffixSide? focusedSide = null)
     {
@@ -643,6 +564,8 @@ public static class EquipmentCrafting
             CraftingCurrencyType.MagicToRare => gear.ItemRarity == LootManager.GearRarity.Magic
                 && gear.ImplicitMod != null,
             CraftingCurrencyType.RerollMagic => gear.ItemRarity == LootManager.GearRarity.Magic && Candidates(Rerollable(gear), focusedSide).Count>0,
+            CraftingCurrencyType.AddMagicModifier => gear.ItemRarity == LootManager.GearRarity.Magic && count < 2
+                && (!focusedSide.HasValue || AffixPolicy.CanAdd(gear.rolledMods,gear.ItemRarity,focusedSide.Value)),
             CraftingCurrencyType.AddRareModifier => IsRareOrLegendary(gear) && count < Maximum(gear.ItemRarity)
                 && (!focusedSide.HasValue || AffixPolicy.CanAdd(gear.rolledMods, gear.ItemRarity, focusedSide.Value)),
             CraftingCurrencyType.RerollRareModifier => IsRareOrLegendary(gear) && Candidates(Rerollable(gear), focusedSide).Count>0,
@@ -657,11 +580,12 @@ public static class EquipmentCrafting
         switch (currency)
         {
             case CraftingCurrencyType.NormalToMagic:
-                if (!AddPair(gear, mods, LootManager.GearRarity.Magic, random)) return false;
+                if (!Add(gear, mods, LootManager.GearRarity.Magic, focusedSide, random)) return false;
                 gear.SetRarity(LootManager.GearRarity.Magic); break;
             case CraftingCurrencyType.MagicToRare:
-                if (!AddPair(gear, mods, LootManager.GearRarity.Rare, random)) return false;
+                if (!Add(gear, mods, LootManager.GearRarity.Rare, focusedSide, random)) return false;
                 gear.SetRarity(LootManager.GearRarity.Rare); break;
+            case CraftingCurrencyType.AddMagicModifier:
             case CraftingCurrencyType.AddRareModifier:
                 if (!Add(gear, mods, gear.ItemRarity, focusedSide, random)) return false; break;
             case CraftingCurrencyType.RerollMagic:

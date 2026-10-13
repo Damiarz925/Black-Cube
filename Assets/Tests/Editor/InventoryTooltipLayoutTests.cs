@@ -38,6 +38,16 @@ public class InventoryTooltipLayoutTests
     }
 
     [Test]
+    public void OffHand_AllowsOnlyOneHandedWeaponsAndUsesWeaponAffixRules()
+    {
+        Gear sword=Weapon();Assert.That(EquipmentSlotRules.CanEquipOffHand(sword),Is.True);
+        foreach(string twoHanded in new[]{WeaponTypeIds.TwoHandedAxe,WeaponTypeIds.Bow,WeaponTypeIds.Staff})
+        {Gear gear=Track(new GameObject(twoHanded,typeof(Gear))).GetComponent<Gear>();gear.Initialize(LootManager.GearType.Weapons,LootManager.GearRarity.Normal,1,Element.Phys,twoHanded);Assert.That(EquipmentSlotRules.CanEquipOffHand(gear),Is.False,twoHanded);}
+        Assert.That(EquipmentSlotRules.InventorySize(LootManager.GearType.OffHands),Is.EqualTo(new Vector2Int(2,3)));
+        Assert.That(GearStatLists.GetCanonicalStatPoolForType(LootManager.GearType.OffHands),Is.SameAs(GearStatLists.GetCanonicalStatPoolForType(LootManager.GearType.Weapons)));
+    }
+
+    [Test]
     public void NonWeaponAndRelicFormattersPreserveAllModsAndPutProgressionLast()
     {
         Gear armour=Track(new GameObject("armour")).AddComponent<Gear>();armour.Initialize(LootManager.GearType.BodyArmours,LootManager.GearRarity.Rare,42,Element.Phys);
@@ -91,16 +101,16 @@ public class InventoryTooltipLayoutTests
     public void DefaultEnemyDropTable_UsesTunedIndependentRatesAndBossGuarantees()
     {
         var table=new EnemyDropTable();int calls=0;
-        float[] rolls={.49f,.069f,.11f,.01f,.9f,.029f,.1f};
+        float[] rolls={.49f,.069f,.11f,.01f,.9f,.029f,.1f,.5f,.5f,.5f};
         EnemyDropResult result=table.Roll(()=>rolls[calls++]);
-        Assert.That(calls,Is.EqualTo(7));Assert.That(table.equipmentChance,Is.EqualTo(.5f));Assert.That(result.equipment,Is.True);
-        Assert.That(table.CurrencyRules.Count,Is.EqualTo(6));foreach(var rule in table.CurrencyRules)Assert.That(rule.chance,Is.EqualTo(EnemyDropTable.DefaultChance(rule.currency)));
-        Assert.That(result.currencies,Is.EqualTo(new[]{CraftingCurrencyType.NormalToMagic,CraftingCurrencyType.MagicToRare,CraftingCurrencyType.AddRareModifier}));
+        Assert.That(calls,Is.EqualTo(10));Assert.That(table.equipmentChance,Is.EqualTo(.5f));Assert.That(result.equipment,Is.True);
+        Assert.That(table.CurrencyRules.Count,Is.EqualTo(9));foreach(var rule in table.CurrencyRules)Assert.That(rule.chance,Is.EqualTo(EnemyDropTable.DefaultChance(rule.currency)));
+        Assert.That(result.currencies,Is.EqualTo(new[]{CraftingCurrencyType.NormalToMagic,CraftingCurrencyType.AddMagicModifier,CraftingCurrencyType.RerollRareModifier}));
         EnemyDropResult miss=table.Roll(()=>.5f);Assert.That(miss.equipment,Is.False);Assert.That(miss.currencies,Is.Empty);
-        calls=0;float[] bossRolls={.99f,.99f,.99f,.99f,.99f,.99f,.99f,.999f};
+        calls=0;float[] bossRolls={.99f,.99f,.99f,.99f,.99f,.99f,.99f,.99f,.99f,.99f,.999f};
         EnemyDropResult boss=table.Roll(()=>bossRolls[calls++],isBoss:true);
-        Assert.That(calls,Is.EqualTo(8));Assert.That(boss.equipment,Is.True);
-        Assert.That(boss.currencies,Is.EqualTo(new[]{CraftingCurrencyType.RemoveRareModifier}));
+        Assert.That(calls,Is.EqualTo(11));Assert.That(boss.equipment,Is.True);
+        Assert.That(boss.currencies,Is.EqualTo(new[]{CraftingCurrencyType.SuffixFocus}));
     }
 
     [Test]
@@ -109,7 +119,7 @@ public class InventoryTooltipLayoutTests
         var claim=new CurrencyRewardClaim(CraftingCurrencyType.NormalToMagic);Assert.That(claim.TryClaim(),Is.True);Assert.That(claim.TryClaim(),Is.False);
         var expected=new Dictionary<CraftingCurrencyType,string>{{CraftingCurrencyType.NormalToMagic,"whiteToBlue"},{CraftingCurrencyType.RerollMagic,"RerollBlue"},{CraftingCurrencyType.MagicToRare,"BlueToYellow"},{CraftingCurrencyType.RerollRareModifier,"RerollYellow"},{CraftingCurrencyType.AddRareModifier,"AddYellow"},{CraftingCurrencyType.RemoveRareModifier,"Remove"}};
         foreach(var pair in expected){Assert.That(InventoryArtCatalog.ResourcePath(pair.Key),Does.EndWith(pair.Value));Assert.That(CurrencyPresentation.ValidTarget(pair.Key),Is.Not.Empty);Assert.That(CurrencyPresentation.FailureConditions(pair.Key),Is.Not.Empty);}
-        Assert.That(InventoryArtCatalog.ResourcePath(CraftingCurrencyType.AncientReroll),Does.EndWith("AncientBlueReroll"));
+        Assert.That(InventoryArtCatalog.ResourcePath(CraftingCurrencyType.AncientRerollMagic),Does.EndWith("cosmic_crystal_vortex_emblem"));
     }
 
     [Test]
@@ -117,27 +127,25 @@ public class InventoryTooltipLayoutTests
     {
         var host=Track(new GameObject("relic migration"));var inventory=host.AddComponent<RelicInventory>();
         var relics=new List<RelicData>{new(){id="a"},new(){id="b"}};inventory.Restore(relics,3,new[]{0,1});
-        Assert.That(RelicInventory.ActiveSlotCount,Is.EqualTo(4));Assert.That(inventory.CopyActiveIndices(),Is.EqualTo(new[]{0,1,-1,-1}));Assert.That(inventory.Active(0),Is.SameAs(relics[0]));Assert.That(inventory.Active(1),Is.SameAs(relics[1]));
+        Assert.That(RelicInventory.ActiveSlotCount,Is.EqualTo(8));Assert.That(inventory.CopyActiveIndices(),Is.EqualTo(new[]{0,1,-1,-1,-1,-1,-1,-1}));Assert.That(inventory.Active(0),Is.SameAs(relics[0]));Assert.That(inventory.Active(1),Is.SameAs(relics[1]));
     }
 
     [Test]
     public void SuppliedInventoryAndCurrencyArt_ImportAsUncompressedUiSprites()
     {
-        string[] paths={"Assets/Resources/UI/Inventory/InventoryLayout.png","Assets/Resources/UI/Currency/whiteToBlue.png","Assets/Resources/UI/Currency/RerollBlue.png","Assets/Resources/UI/Currency/BlueToYellow.png","Assets/Resources/UI/Currency/RerollYellow.png","Assets/Resources/UI/Currency/AddYellow.png","Assets/Resources/UI/Currency/Remove.png","Assets/Resources/UI/Currency/AncientWhiteToBlue.png","Assets/Resources/UI/Currency/AncientBlueReroll.png","Assets/Resources/UI/Currency/AncientBlueToYellow.png","Assets/Resources/UI/Currency/AncientYellowReroll.png","Assets/Resources/UI/Currency/AncientAddYellow.png","Assets/Resources/UI/Currency/AncientRemove.png"};
+        string[] paths={"Assets/Resources/UI/Inventory/InventoryUpdated.png","Assets/Resources/UI/Inventory/UpdatedUnhoveredBox.png","Assets/Resources/UI/Inventory/UpdatedHoveredBox.png","Assets/Resources/UI/Inventory/UpdatedSelectedBox.png","Assets/Resources/UI/Currency/whiteToBlue.png","Assets/Resources/UI/Currency/RerollBlue.png","Assets/Resources/UI/Currency/BlueToYellow.png","Assets/Resources/UI/Currency/RerollYellow.png","Assets/Resources/UI/Currency/AddYellow.png","Assets/Resources/UI/Currency/Remove.png","Assets/Resources/UI/Currency/crystalline_orbital_sigil.png","Assets/Resources/UI/Currency/cosmic_crystal_vortex_emblem.png","Assets/Resources/UI/Currency/celestial_crystal_cross_emblem.png","Assets/Resources/UI/Currency/radiant_crystal_orbit_emblem.png","Assets/Resources/UI/Currency/radiant_golden_spiral_emblem.png","Assets/Resources/UI/Currency/radiant_golden_crystal_plus_emblem.png","Assets/Resources/UI/Currency/shattered_crimson_cosmic_emblem.png","Assets/Resources/UI/Currency/crystalline_cosmic_ascension_emblem.png","Assets/Resources/UI/Currency/celestial_crystal_arrow_emblem.png"};
         foreach(string path in paths){var sprite=AssetDatabase.LoadAssetAtPath<Sprite>(path);Assert.That(sprite,Is.Not.Null,path);var importer=(TextureImporter)AssetImporter.GetAtPath(path);Assert.That(importer.textureType,Is.EqualTo(TextureImporterType.Sprite),path);Assert.That(importer.mipmapEnabled,Is.False,path);Assert.That(importer.alphaIsTransparency,Is.True,path);}
-        var layout=AssetDatabase.LoadAssetAtPath<Texture2D>(paths[0]);Assert.That(layout.width,Is.EqualTo(960));Assert.That(layout.height,Is.EqualTo(1052));
+        var layout=AssetDatabase.LoadAssetAtPath<Texture2D>(paths[0]);Assert.That(layout.width,Is.EqualTo(1192));Assert.That(layout.height,Is.EqualTo(1320));
     }
 
     [Test]
     public void ArtworkLayout_UsesMeasuredRectanglesForEveryBakedTarget()
     {
-        Assert.That(InventoryArtLayout.EquipmentSlots.Length,Is.EqualTo(8));Assert.That(InventoryArtLayout.RelicSlots.Length,Is.EqualTo(4));Assert.That(InventoryArtLayout.OrdinaryCurrencySlots.Length,Is.EqualTo(6));Assert.That(InventoryArtLayout.AncientCurrencySlots.Length,Is.EqualTo(6));
-        float[] equipmentCenters={112.5f,216.5f,322.5f,428.5f,534.5f,640f,746f,852f};
-        for(int i=0;i<equipmentCenters.Length;i++)Assert.That(InventoryArtLayout.EquipmentSlots[i].center.x*InventoryArtLayout.Width,Is.EqualTo(equipmentCenters[i]).Within(.01f),"equipment "+i);
+        Assert.That(InventoryArtLayout.EquipmentSlots.Length,Is.EqualTo(9));Assert.That(InventoryArtLayout.RelicSlots.Length,Is.EqualTo(4));Assert.That(InventoryArtLayout.OrdinaryCurrencySlots.Length,Is.EqualTo(9));Assert.That(InventoryArtLayout.AncientCurrencySlots.Length,Is.EqualTo(9));
         float[] relicCenters={213.5f,387f,571.5f,748f};for(int i=0;i<relicCenters.Length;i++)Assert.That(InventoryArtLayout.RelicSlots[i].center.x*InventoryArtLayout.Width,Is.EqualTo(relicCenters[i]).Within(.01f),"relic "+i);
-        float[] currencyCenters={120.5f,265f,408.5f,553f,697f,841f};for(int i=0;i<currencyCenters.Length;i++){Assert.That(InventoryArtLayout.OrdinaryCurrencySlots[i].center.x*InventoryArtLayout.Width,Is.EqualTo(currencyCenters[i]).Within(.01f));Assert.That(InventoryArtLayout.AncientCurrencySlots[i].center.x*InventoryArtLayout.Width,Is.EqualTo(currencyCenters[i]).Within(.01f));Assert.That(InventoryArtLayout.OrdinaryCountBoxes[i].xMax,Is.LessThanOrEqualTo(InventoryArtLayout.OrdinaryCurrencySlots[i].xMax));Assert.That(InventoryArtLayout.AncientCountBoxes[i].xMax,Is.LessThanOrEqualTo(InventoryArtLayout.AncientCurrencySlots[i].xMax));}
+        for(int i=0;i<9;i++){Assert.That(InventoryArtLayout.OrdinaryCurrencySlots[i],Is.EqualTo(InventoryArtLayout.AncientCurrencySlots[i]));Assert.That(InventoryArtLayout.OrdinaryCountBoxes[i].xMax,Is.LessThanOrEqualTo(InventoryArtLayout.OrdinaryCurrencySlots[i].xMax));Assert.That(InventoryArtLayout.AncientCountBoxes[i].xMax,Is.LessThanOrEqualTo(InventoryArtLayout.AncientCurrencySlots[i].xMax));}
         Assert.That(InventoryArtLayout.DismantleButton,Is.EqualTo(InventoryArtLayout.P(568,88,724,130)));Assert.That(InventoryArtLayout.HighlightButton,Is.EqualTo(InventoryArtLayout.P(735,88,891,130)));Assert.That(InventoryArtLayout.CloseButton,Is.EqualTo(InventoryArtLayout.P(833,37,910,86)));
-        Assert.That(InventoryArtLayout.InventoryBounds,Is.EqualTo(InventoryArtLayout.P(72,302,893,477)));
+        Assert.That(InventoryArtLayout.InventoryBounds,Is.EqualTo(InventoryArtLayout.P(75,620,1125,1005)));
     }
 
     [Test]
@@ -155,14 +163,14 @@ public class InventoryTooltipLayoutTests
     {
         var panel=Track(new GameObject("inventory panel",typeof(RectTransform),typeof(Image),typeof(InventoryEquipmentPanelUI)));panel.GetComponent<InventoryEquipmentPanelUI>().Build(null);
         var rect=(RectTransform)panel.transform;Assert.That(rect.sizeDelta.x,Is.EqualTo(690f));Assert.That(rect.sizeDelta.y/rect.sizeDelta.x,Is.EqualTo(InventoryArtLayout.Height/InventoryArtLayout.Width).Within(.0001f));Assert.That(rect.anchorMin,Is.EqualTo(new Vector2(0,1)));Assert.That(rect.anchorMax,Is.EqualTo(new Vector2(0,1)));
-        Transform equipment=panel.transform.Find("Equipped gear layout");Assert.That(equipment.childCount,Is.EqualTo(8));for(int i=0;i<8;i++){var slot=(RectTransform)equipment.GetChild(i);Assert.That(slot.anchorMin,Is.EqualTo(InventoryArtLayout.EquipmentSlots[i].min));Assert.That(slot.anchorMax,Is.EqualTo(InventoryArtLayout.EquipmentSlots[i].max));var interior=(RectTransform)slot.Find("Occupied slot interior");Assert.That(interior.anchorMin,Is.EqualTo(new Vector2(.12f,.13f)));Assert.That(interior.anchorMax,Is.EqualTo(new Vector2(.88f,.87f)));}
+        Transform equipment=panel.transform.Find("Equipped gear layout");Assert.That(equipment.childCount,Is.EqualTo(9));for(int i=0;i<9;i++){var slot=(RectTransform)equipment.GetChild(i);Assert.That(slot.anchorMin,Is.EqualTo(InventoryArtLayout.EquipmentSlots[i].min));Assert.That(slot.anchorMax,Is.EqualTo(InventoryArtLayout.EquipmentSlots[i].max));var interior=(RectTransform)slot.Find("Occupied slot interior");Assert.That(interior.anchorMin,Is.EqualTo(new Vector2(.12f,.13f)));Assert.That(interior.anchorMax,Is.EqualTo(new Vector2(.88f,.87f)));}
         foreach(var slot in equipment.GetComponent<EquipmentStatsUI>().slots){Assert.That(slot.elementBadge.rectTransform.anchorMin,Is.EqualTo(new Vector2(.82f,.18f)));Assert.That(slot.elementBadge.rectTransform.sizeDelta,Is.EqualTo(new Vector2(4,4)));}
     }
 
     [Test]
-    public void InventorySlots_UseEightColumnsAspectFitMaskingAndNoRarityBar()
+    public void InventorySlots_UseTenColumnsAspectFitMaskingAndNoRarityBar()
     {
-        Assert.That(InventoryUI.GridColumnCount,Is.EqualTo(8));Assert.That(InventoryUI.GridCellSize,Is.EqualTo(new Vector2(59,59)));
+        Assert.That(InventoryUI.GridColumnCount,Is.EqualTo(10));Assert.That(InventoryUI.GridCellSize,Is.EqualTo(new Vector2(54,54)));
         var root=Track(new GameObject("slot",typeof(RectTransform),typeof(Image),typeof(ItemSlotUI)));
         var icon=Track(new GameObject("icon",typeof(RectTransform),typeof(Image)));icon.transform.SetParent(root.transform,false);
         var rarity=Track(new GameObject("rarity",typeof(RectTransform),typeof(Image)));rarity.transform.SetParent(root.transform,false);
@@ -186,15 +194,10 @@ public class InventoryTooltipLayoutTests
         var rect=(RectTransform)labelObject.transform;InventoryArtLayout.Apply(rect,InventoryArtLayout.Relative(InventoryArtLayout.OrdinaryCountBoxes[0],InventoryArtLayout.OrdinaryCurrencySlots[0]));
         var slot=go.GetComponent<CurrencySlotUI>();slot.Initialize(CraftingCurrencyType.NormalToMagic,null,labelObject.GetComponent<TextMeshProUGUI>(),go.GetComponent<Outline>());
         Assert.That(slot.DisplayText,Is.EqualTo("1"));Assert.That(slot.DisplayText,Does.Not.Contain("x"));Assert.That(rect.anchorMin.x,Is.GreaterThan(.5f));Assert.That(rect.anchorMax.x,Is.LessThanOrEqualTo(1f));Assert.That(rect.anchorMax.y,Is.LessThan(.3f));
-        currency.Add(CraftingCurrencyType.AncientReroll);slot.Initialize(CraftingCurrencyType.AncientReroll,null,labelObject.GetComponent<TextMeshProUGUI>(),go.GetComponent<Outline>());Assert.That(slot.DisplayText,Is.EqualTo("1"));
+        currency.Add(CraftingCurrencyType.AncientRerollRareModifier);slot.Initialize(CraftingCurrencyType.AncientRerollRareModifier,null,labelObject.GetComponent<TextMeshProUGUI>(),go.GetComponent<Outline>());Assert.That(slot.DisplayText,Is.EqualTo("1"));
         var panelObject=Track(new GameObject("currency panel",typeof(RectTransform),typeof(CurrencyInventoryPanel)));panelObject.GetComponent<CurrencyInventoryPanel>().BuildAuthoring(null,null);panelObject.GetComponent<CurrencyInventoryPanel>().Initialize(null,null);
-        var fragmentLabel=panelObject.transform.Find("Ordinary currency/NormalToMagic fragments")?.GetComponent<TMP_Text>();
-        Assert.That(fragmentLabel,Is.Not.Null);
-        Assert.That(fragmentLabel.text,Is.EqualTo("Fragments 0/10"));
-        currency.AddFragments(CraftingCurrencyType.NormalToMagic,3);
-        panelObject.GetComponent<CurrencyInventoryPanel>().ShowEquipment();
-        Assert.That(fragmentLabel.text,Is.EqualTo("Fragments 3/10"));
-        var entries=panelObject.GetComponentsInChildren<CurrencySlotUI>(true);Assert.That(entries.Length,Is.EqualTo(13));foreach(var entry in entries){var images=entry.GetComponentsInChildren<Image>(true);Assert.That(images.Length,Is.EqualTo(2),entry.name);bool catalyst=entry.Type==CraftingCurrencyType.EmpowermentCatalyst;if(CurrencyInventory.IsAncient(entry.Type)||catalyst){Assert.That(entry.GetComponent<Image>().color.a,Is.EqualTo(1f),entry.name);Assert.That(entry.GetComponent<Image>().sprite,Is.Not.Null,entry.name);}else Assert.That(entry.GetComponent<Image>().color.a,Is.LessThan(.01f),entry.name);Assert.That(entry.SelectionOverlay.raycastTarget,Is.False);Rect expected;if(catalyst)expected=InventoryArtLayout.P(270,498,455,526);else{int index=CurrencyInventory.IsAncient(entry.Type)?(int)entry.Type-(int)CraftingCurrencyType.AncientNormalToMagic:System.Array.IndexOf(EnemyDropTable.OrdinaryTypes(),entry.Type);expected=(CurrencyInventory.IsAncient(entry.Type)?InventoryArtLayout.AncientCurrencySlots:InventoryArtLayout.OrdinaryCurrencySlots)[index];}Assert.That(((RectTransform)entry.transform).anchorMin,Is.EqualTo(expected.min));Assert.That(((RectTransform)entry.transform).anchorMax,Is.EqualTo(expected.max));var count=entry.GetComponentInChildren<TMP_Text>(true).rectTransform;Assert.That(count.anchorMin.x,Is.GreaterThan(.55f));Assert.That(count.anchorMax.x,Is.LessThanOrEqualTo(1f));}
+        var entries=panelObject.GetComponentsInChildren<CurrencySlotUI>(true);Assert.That(entries.Length,Is.EqualTo(18));
+        foreach(var entry in entries)Assert.That(entry.SelectionOverlay==null||!entry.SelectionOverlay.gameObject.activeSelf,Is.True,entry.name);
     }
 
     [Test]

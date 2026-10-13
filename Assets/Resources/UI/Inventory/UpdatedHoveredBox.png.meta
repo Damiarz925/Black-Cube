@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: c8a820495b43b4e4c98e74d4a5a30d40
+guid: ed879affcd4475a4a87796fb930dc250
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 7522078061282866177
-    second: AncientWhiteToBlue_0
+      213: 3630719222721262896
+    second: UpdatedHoveredBox_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -42,7 +42,7 @@ TextureImporter:
     mipBias: 0
     wrapU: 1
     wrapV: 1
-    wrapW: 1
+    wrapW: 0
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
@@ -77,7 +77,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 0
+    textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -102,13 +102,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: AncientWhiteToBlue_0
+      name: UpdatedHoveredBox_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 1254
-        height: 1254
+        width: 1305
+        height: 1205
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -117,8 +117,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 104368f942ac36860800000000000000
-      internalID: 7522078061282866177
+      spriteID: 035bb7d85e7e26230800000000000000
+      internalID: 3630719222721262896
       vertices: []
       indices: 
       edges: []
@@ -137,7 +137,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      AncientWhiteToBlue_0: 7522078061282866177
+      UpdatedHoveredBox_0: 3630719222721262896
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

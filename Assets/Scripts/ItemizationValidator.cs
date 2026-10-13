@@ -54,6 +54,7 @@ public static class ItemizationValidator
         int itemLevel, IReadOnlyList<RolledMod> mods, ModDatabase database, IList<string> errors,
         bool requireImplicit = false, bool enforceCapacity = true, string weaponId = WeaponTypeIds.Sword)
     {
+        slot=EquipmentSlotRules.AffixSlot(slot);
         if (mods == null) { errors.Add("Item modifiers are missing."); return; }
         if (database == null) { errors.Add("Missing ModDatabase."); return; }
         var pool = GearStatLists.GetCanonicalStatPoolForType(slot);

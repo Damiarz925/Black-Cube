@@ -53,7 +53,6 @@ public static class InventoryAuthoringBuilder
             view.tooltipHost = inventory.GetComponentInParent<Canvas>(true)?.transform as RectTransform;
             view.background = inventory.GetComponent<Image>();
             view.currencySlots = inventory.GetComponentsInChildren<CurrencySlotUI>(true).OrderBy(x => (int)x.Type).ToList();
-            view.fragmentLabels = inventory.GetComponentsInChildren<TMP_Text>(true).Where(x => x.name.EndsWith("fragments", StringComparison.OrdinalIgnoreCase)).ToList();
             view.gearToggle = currency.GearTab; view.relicToggle = currency.RelicTab;
             EquipmentStatsUI equipmentStats = inventory.GetComponentInChildren<EquipmentStatsUI>(true);
             view.equipmentSlots = equipmentStats != null && equipmentStats.slots != null ? equipmentStats.slots.Where(x => x != null && x.border != null).Select(x => x.border.rectTransform).ToList() : view.equipmentSlots;

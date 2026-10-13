@@ -14,9 +14,9 @@ public class GearIconEntry
 
 public class InventoryUI : MonoBehaviour
 {
-    public const int GridColumnCount = 8;
-    public static readonly Vector2 GridCellSize = new Vector2(59, 59);
-    public static readonly Vector2 GridSpacing = new Vector2(17, 9);
+    public const int GridColumnCount = 10;
+    public static readonly Vector2 GridCellSize = new Vector2(54, 54);
+    public static readonly Vector2 GridSpacing = new Vector2(2, 2);
     [Header("UI References")]
     [SerializeField] private InventoryView authoredView;
     [SerializeField] private Transform contentParent;
@@ -27,6 +27,9 @@ public class InventoryUI : MonoBehaviour
 
     private Dictionary<LootManager.GearType, Sprite> iconLookup;
     private readonly Dictionary<Gear, ItemSlotUI> slots = new();
+    private InventoryTypeFilterUI typeFilters;
+    private RectTransform gridBackdrop;
+    private readonly List<Image> gridCells = new();
     private ZoneManager zone;
     private int displayedCorruptionStage = -1;
     public ItemTooltipUI Tooltip { get; private set; }
@@ -122,6 +125,7 @@ public class InventoryUI : MonoBehaviour
             return;
         }
         contentParent = authoredView.itemGridRoot;
+        typeFilters = GetComponent<InventoryTypeFilterUI>();
         if (authoredView.itemSlotPrefab != null) itemSlotPrefab = authoredView.itemSlotPrefab.gameObject;
         InventoryEquipmentPanelUI.Ensure(this, contentParent);
         currencyPanel = GetComponent<CurrencyInventoryPanel>();
@@ -190,20 +194,15 @@ public class InventoryUI : MonoBehaviour
         }
         RefreshDps();
         if (contentParent == null) return;
-        var grid = contentParent.GetComponent<GridLayoutGroup>();
-        // Grid cell size, spacing and column count belong to the authored layout.
-        // Runtime population must not undo manual Editor adjustments each frame.
         int stage = CurrentCorruptionStage();
         if (stage != displayedCorruptionStage) RefreshAreaCorruptionBorders(stage);
     }
 
     private void ConfigureGridMetrics()
     {
-        if(contentParent==null)return;var grid=contentParent.GetComponent<GridLayoutGroup>();if(grid==null)return;
-        float width=((RectTransform)contentParent).rect.width;if(width<=0f)return;
-        float sourceWidth=InventoryArtLayout.InventoryBounds.width*InventoryArtLayout.Width;
-        float scale=width/sourceWidth;float cell=82f*scale;float gap=Mathf.Max(0f,(width-cell*GridColumnCount)/(GridColumnCount-1));
-        grid.cellSize=new Vector2(cell,cell);grid.spacing=new Vector2(gap,12f*scale);
+        if(contentParent==null)return;
+        var grid=contentParent.GetComponent<GridLayoutGroup>();if(grid!=null)grid.enabled=false;
+        var fitter=contentParent.GetComponent<ContentSizeFitter>();if(fitter!=null)fitter.enabled=false;
     }
 
     private Sprite GetIconForGear(Gear gear)
@@ -287,7 +286,57 @@ public class InventoryUI : MonoBehaviour
             slot.SetAreaCorruption(CurrentCorruptionStage());
             slot.transform.SetAsLastSibling();
         }
+        PackVisibleItems();
         RefreshModHighlights();
+    }
+
+    public void RefreshTypeFilters()=>Refresh();
+
+    void PackVisibleItems()
+    {
+        RectTransform content=contentParent as RectTransform;if(content==null)return;
+        ConfigureGridMetrics();
+        float width=content.rect.width;if(width<=1f)width=InventoryArtLayout.InventoryBounds.width*InventoryArtLayout.Width;
+        float cell=Mathf.Max(18f,(width-GridSpacing.x*(GridColumnCount-1))/GridColumnCount);
+        var occupied=new List<bool[]>();int maxRow=1;
+        foreach(var gear in Inventory.Instance.Items)
+        {
+            if(gear==null||!slots.TryGetValue(gear,out var slot)||slot==null)continue;
+            bool visible=typeFilters==null||typeFilters.IsVisible(gear.ItemType);slot.gameObject.SetActive(visible);if(!visible)continue;
+            Vector2Int size=EquipmentSlotRules.InventorySize(gear.ItemType);int px=0,py=0;bool placed=false;
+            for(int y=0;!placed;y++)
+            {
+                while(occupied.Count<y+size.y)occupied.Add(new bool[GridColumnCount]);
+                for(int x=0;x<=GridColumnCount-size.x;x++)
+                {
+                    bool free=true;for(int yy=y;yy<y+size.y&&free;yy++)for(int xx=x;xx<x+size.x;xx++)if(occupied[yy][xx]){free=false;break;}
+                    if(!free)continue;px=x;py=y;placed=true;for(int yy=y;yy<y+size.y;yy++)for(int xx=x;xx<x+size.x;xx++)occupied[yy][xx]=true;break;
+                }
+            }
+            RectTransform rect=(RectTransform)slot.transform;rect.anchorMin=rect.anchorMax=new Vector2(0,1);rect.pivot=new Vector2(0,1);
+            rect.anchoredPosition=new Vector2(px*(cell+GridSpacing.x),-py*(cell+GridSpacing.y));
+            rect.sizeDelta=new Vector2(size.x*cell+(size.x-1)*GridSpacing.x,size.y*cell+(size.y-1)*GridSpacing.y);
+            maxRow=Mathf.Max(maxRow,py+size.y);slot.transform.SetAsLastSibling();
+        }
+        float height=maxRow*cell+(maxRow-1)*GridSpacing.y;content.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical,height);
+        RefreshGridBackdrop(maxRow,cell);
+    }
+
+    void RefreshGridBackdrop(int rows,float cell)
+    {
+        if(authoredView==null||authoredView.gridCellSprite==null)return;
+        if(gridBackdrop==null)
+        {
+            var go=new GameObject("Inventory grid cells",typeof(RectTransform));go.transform.SetParent(contentParent,false);gridBackdrop=(RectTransform)go.transform;
+            gridBackdrop.anchorMin=gridBackdrop.anchorMax=new Vector2(0,1);gridBackdrop.pivot=new Vector2(0,1);gridBackdrop.anchoredPosition=Vector2.zero;gridBackdrop.SetAsFirstSibling();
+        }
+        int needed=rows*GridColumnCount;
+        while(gridCells.Count<needed){var go=new GameObject("Grid cell",typeof(RectTransform),typeof(Image));go.transform.SetParent(gridBackdrop,false);var image=go.GetComponent<Image>();image.raycastTarget=false;gridCells.Add(image);}
+        for(int i=0;i<gridCells.Count;i++)
+        {
+            bool active=i<needed;gridCells[i].gameObject.SetActive(active);if(!active)continue;
+            gridCells[i].sprite=authoredView.gridCellSprite;gridCells[i].type=Image.Type.Sliced;RectTransform r=gridCells[i].rectTransform;r.anchorMin=r.anchorMax=new Vector2(0,1);r.pivot=new Vector2(0,1);r.sizeDelta=new Vector2(cell,cell);r.anchoredPosition=new Vector2((i%GridColumnCount)*(cell+GridSpacing.x),-(i/GridColumnCount)*(cell+GridSpacing.y));
+        }
     }
 
     public void RefreshModHighlights()

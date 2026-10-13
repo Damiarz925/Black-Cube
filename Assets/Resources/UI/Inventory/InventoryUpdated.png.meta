@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: e2a2243a1cdbbcc479357c367a4bbc46
+guid: 1d122aafcf4719f4995ce8197bc7709d
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -7151342995496993761
-    second: AncientRemove_0
+      213: 1035767108232823781
+    second: InventoryUpdated_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -42,7 +42,7 @@ TextureImporter:
     mipBias: 0
     wrapU: 1
     wrapV: 1
-    wrapW: 1
+    wrapW: 0
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
@@ -77,7 +77,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 0
+    textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -102,13 +102,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: AncientRemove_0
+      name: InventoryUpdated_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 1254
-        height: 1254
+        width: 1192
+        height: 1320
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -117,8 +117,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: f1c7c6e5f6351cc90800000000000000
-      internalID: -7151342995496993761
+      spriteID: 5e3404c72b8cf5e00800000000000000
+      internalID: 1035767108232823781
       vertices: []
       indices: 
       edges: []
@@ -137,7 +137,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      AncientRemove_0: -7151342995496993761
+      InventoryUpdated_0: 1035767108232823781
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

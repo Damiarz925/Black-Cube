@@ -23,11 +23,13 @@ public class CraftingAndRebirthTests
         Assert.That(locked.lockedOriginal,Is.True);
 
         Assert.That(EquipmentCrafting.TryApply(CraftingCurrencyType.NormalToMagic,gear,manager),Is.True);
-        Assert.That(gear.ItemRarity,Is.EqualTo(LootManager.GearRarity.Magic));Assert.That(gear.CraftingModCount,Is.EqualTo(2));AssertLocked(gear,locked);
+        Assert.That(gear.ItemRarity,Is.EqualTo(LootManager.GearRarity.Magic));Assert.That(gear.CraftingModCount,Is.EqualTo(1));AssertLocked(gear,locked);
+        Assert.That(EquipmentCrafting.TryApply(CraftingCurrencyType.AddMagicModifier,gear,manager),Is.True);Assert.That(gear.CraftingModCount,Is.EqualTo(2));
         Assert.That(EquipmentCrafting.TryApply(CraftingCurrencyType.RerollMagic,gear,manager),Is.True);AssertLocked(gear,locked);
         Assert.That(EquipmentCrafting.TryApply(CraftingCurrencyType.MagicToRare,gear,manager),Is.True);
-        Assert.That(gear.CraftingModCount,Is.EqualTo(4));AssertLocked(gear,locked);
-        Assert.That(EquipmentCrafting.CanApply(CraftingCurrencyType.AddRareModifier,gear),Is.False);
+        Assert.That(gear.CraftingModCount,Is.EqualTo(3));AssertLocked(gear,locked);
+        Assert.That(EquipmentCrafting.CanApply(CraftingCurrencyType.AddRareModifier,gear),Is.True);
+        Assert.That(EquipmentCrafting.TryApply(CraftingCurrencyType.AddRareModifier,gear,manager),Is.True);Assert.That(gear.CraftingModCount,Is.EqualTo(4));
         Assert.That(EquipmentCrafting.TryApply(CraftingCurrencyType.RerollRareModifier,gear,manager),Is.True);AssertLocked(gear,locked);
         Assert.That(EquipmentCrafting.TryApply(CraftingCurrencyType.RemoveRareModifier,gear,manager),Is.True);Assert.That(gear.CraftingModCount,Is.EqualTo(3));AssertLocked(gear,locked);
         Assert.That(EquipmentCrafting.TryApply(CraftingCurrencyType.AddRareModifier,gear,manager),Is.True);Assert.That(gear.CraftingModCount,Is.EqualTo(4));AssertLocked(gear,locked);
@@ -40,8 +42,8 @@ public class CraftingAndRebirthTests
         Gear gear=CreateGear(LootManager.GearRarity.Normal);gear.ApplyMods(new List<RolledMod>{new(StatTypes.Life,1,10,true)});
         currency.Add(CraftingCurrencyType.MagicToRare);currency.Arm(CraftingCurrencyType.MagicToRare);
         Assert.That(currency.TryApplyArmedToGear(gear),Is.False);Assert.That(currency.Count(CraftingCurrencyType.MagicToRare),Is.EqualTo(1));Assert.That(currency.ArmedCurrency,Is.Null);
-        currency.Add(CraftingCurrencyType.AncientAddModifier);currency.Arm(CraftingCurrencyType.AncientAddModifier);
-        Assert.That(currency.TryApplyArmedToGear(gear),Is.False);Assert.That(currency.Count(CraftingCurrencyType.AncientAddModifier),Is.EqualTo(1));Assert.That(currency.ArmedCurrency,Is.Null);
+        currency.Add(CraftingCurrencyType.AncientAddRareModifier);currency.Arm(CraftingCurrencyType.AncientAddRareModifier);
+        Assert.That(currency.TryApplyArmedToGear(gear),Is.False);Assert.That(currency.Count(CraftingCurrencyType.AncientAddRareModifier),Is.EqualTo(1));Assert.That(currency.ArmedCurrency,Is.Null);
     }
 
     [Test]
@@ -56,20 +58,18 @@ public class CraftingAndRebirthTests
     }
 
     [Test]
-    public void AncientCrafting_ReachesOneTwoThreeFourFiveSixAndNeverMutatesLockedOrOldRelic()
+    public void AncientCrafting_ReachesRarityCapsAndNeverMutatesLockedOrOldRelic()
     {
         var host=Track(new GameObject("relics"));var inventory=host.AddComponent<RelicInventory>();RelicData relic=inventory.BeginNewCycle();RelicModifier locked=relic.modifiers[0];
         Assert.That(relic.ModifierCount,Is.EqualTo(1));
         ApplyAncient(CraftingCurrencyType.AncientNormalToMagic,relic,inventory,2,locked);
-        ApplyAncient(CraftingCurrencyType.AncientMagicToRare,relic,inventory,3,locked);
-        ApplyAncient(CraftingCurrencyType.AncientAddModifier,relic,inventory,4,locked);
-        ApplyAncient(CraftingCurrencyType.AncientRareToLegendary,relic,inventory,5,locked);
-        ApplyAncient(CraftingCurrencyType.AncientAddModifier,relic,inventory,6,locked);
-        ApplyAncient(CraftingCurrencyType.AncientReroll,relic,inventory,6,locked);
-        ApplyAncient(CraftingCurrencyType.AncientRemoveModifier,relic,inventory,5,locked);
-        Assert.That(AncientRelicCrafting.CanApply(CraftingCurrencyType.AncientRemoveModifier,relic,inventory),Is.False);
+        ApplyAncient(CraftingCurrencyType.AncientAddMagicModifier,relic,inventory,3,locked);
+        ApplyAncient(CraftingCurrencyType.AncientMagicToRare,relic,inventory,4,locked);
+        ApplyAncient(CraftingCurrencyType.AncientAddRareModifier,relic,inventory,5,locked);
+        ApplyAncient(CraftingCurrencyType.AncientRerollRareModifier,relic,inventory,5,locked);
+        ApplyAncient(CraftingCurrencyType.AncientRemoveModifier,relic,inventory,4,locked);
         RelicData next=inventory.BeginNewCycle();string oldSnapshot=JsonUtility.ToJson(relic);
-        Assert.That(inventory.IsCurrentCraftable(relic),Is.False);Assert.That(AncientRelicCrafting.TryApply(CraftingCurrencyType.AncientReroll,relic,inventory),Is.False);Assert.That(JsonUtility.ToJson(relic),Is.EqualTo(oldSnapshot));Assert.That(next.cycle,Is.EqualTo(2));
+        Assert.That(inventory.IsCurrentCraftable(relic),Is.False);Assert.That(AncientRelicCrafting.TryApply(CraftingCurrencyType.AncientRerollRareModifier,relic,inventory),Is.False);Assert.That(JsonUtility.ToJson(relic),Is.EqualTo(oldSnapshot));Assert.That(next.cycle,Is.EqualTo(2));
     }
 
     [Test]
@@ -102,10 +102,10 @@ public class CraftingAndRebirthTests
         var inventoryHost=Track(new GameObject("inventory"));inventoryHost.AddComponent<Inventory>();var currency=inventoryHost.AddComponent<CurrencyInventory>();SetInstance(typeof(CurrencyInventory),currency);
         SetInstance(typeof(GameManager),null);SetInstance(typeof(RelicInventory),null);SetInstance(typeof(RebirthManager),null);
         var managerHost=Track(new GameObject("combat progression"));var manager=managerHost.AddComponent<GameManager>();var relics=managerHost.GetComponent<RelicInventory>()??managerHost.AddComponent<RelicInventory>();var rebirth=managerHost.GetComponent<RebirthManager>()??managerHost.AddComponent<RebirthManager>();SetInstance(typeof(GameManager),manager);SetInstance(typeof(RelicInventory),relics);SetInstance(typeof(RebirthManager),rebirth);
-        var old=relics.BeginNewCycle();CurrencyInventory.Instance.Add(CraftingCurrencyType.AncientReroll,7);
+        var old=relics.BeginNewCycle();CurrencyInventory.Instance.Add(CraftingCurrencyType.AncientRerollRareModifier,7);
         SetZone(manager,60);Assert.That(rebirth.RequestRebirth(),Is.True);Assert.That(rebirth.ConfirmRebirth(),Is.True);
         Assert.That(relics.Relics.Count,Is.EqualTo(2));Assert.That(old.craftableThisCycle,Is.False);Assert.That(relics.IsCurrentCraftable(relics.Relics[1]),Is.True);
-        Assert.That(currency.Count(CraftingCurrencyType.AncientReroll),Is.EqualTo(7));
+        Assert.That(currency.Count(CraftingCurrencyType.AncientRerollRareModifier),Is.EqualTo(7));
         rebirth.Cancel();Assert.That(rebirth.Phase,Is.EqualTo(RebirthPhase.Crafting));Assert.That(rebirth.ConfirmRebirth(),Is.False);
         Assert.That(rebirth.AdvanceSetup(),Is.True);Assert.That(relics.Relics.All(r=>!r.craftableThisCycle),Is.True);
         rebirth.ResetForNewGame();Time.timeScale=1;

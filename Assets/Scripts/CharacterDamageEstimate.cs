@@ -91,7 +91,7 @@ public static class CharacterDamageEstimate
             var progression=GameManager.Instance?.GetComponent<PlayerProgression>()??live.GetComponent<PlayerProgression>();
             live.GetComponent<StatsComponent>().CopyToPreview(stats,EquipmentManager.Instance?.GetEquipped(candidate.ItemType),progression);
             foreach(var mod in candidate.globalRolledMods)stats.AddModifier(new StatModifier(mod.statType,StatMappings.GetRolledModifierOperation(mod.statType),mod.value,candidate));
-            Gear weapon=candidate.ItemType==LootManager.GearType.Weapons?candidate:live.EquippedWeapon;
+            Gear weapon=EquipmentSlotRules.IsWeaponSlot(candidate.ItemType)?candidate:live.EquippedWeapon;
             progression?.PopulateItemPreview(stats,weapon?.WeaponTypeId);
             var keys=actor.AddComponent<PassiveKeystoneState>();
             if(progression!=null)keys.Apply(progression);

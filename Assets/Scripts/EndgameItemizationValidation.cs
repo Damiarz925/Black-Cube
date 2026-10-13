@@ -24,7 +24,7 @@ public static class EndgameItemizationValidation
             {if(mod==null||string.IsNullOrWhiteSpace(mod.stableId)||!affixes.Add(mod.stableId))errors.Add($"{pool.stableId} contains a null/duplicate affix ID.");else if(string.IsNullOrWhiteSpace(mod.effectId)||string.IsNullOrWhiteSpace(mod.displayName)||string.IsNullOrWhiteSpace(mod.description)||mod.allowedItemTypes==null||mod.allowedItemTypes.Length==0)errors.Add($"{mod.stableId} is incomplete.");if(mod?.side==AffixSide.Prefix)prefixes++;else if(mod!=null)suffixes++;}
             if(prefixes!=3||suffixes!=3)errors.Add($"{pool.stableId} must contain three Prefixes and three Suffixes.");
             foreach(LootManager.GearType type in System.Enum.GetValues(typeof(LootManager.GearType)))
-            {bool supported=false;foreach(var mod in pool.modifiers)if(mod.Allows(type)){supported=true;break;}if(!supported&&type!=LootManager.GearType.Weapons)errors.Add($"{pool.stableId} has no legal affix for {type}.");}
+            {LootManager.GearType affixType=EquipmentSlotRules.AffixSlot(type);bool supported=false;foreach(var mod in pool.modifiers)if(mod.Allows(affixType)){supported=true;break;}if(!supported&&affixType!=LootManager.GearType.Weapons)errors.Add($"{pool.stableId} has no legal affix for {type}.");}
         }
         if(!EndgameResourceIds.IsPersistentResource(EndgameResourceIds.ImplicitReforger))errors.Add("Implicit Reforger ID is invalid.");
         int[] levels={119,120,159,160,209,210,259,260,309,310,359,360},expected={0,1,1,2,2,3,3,4,4,5,5,6};for(int i=0;i<levels.Length;i++)if(EmpowermentProgressionProfile.MaximumEmpoweredModifiers(levels[i])!=expected[i])errors.Add($"Empowerment threshold {levels[i]} is invalid.");

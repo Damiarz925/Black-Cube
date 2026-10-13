@@ -88,12 +88,10 @@ public sealed class LootDropBalanceProfileSO:ScriptableObject
         currencies=new()
         {
             Rate(CraftingCurrencyType.NormalToMagic,.05f),Rate(CraftingCurrencyType.RerollMagic,.03f),
-            Rate(CraftingCurrencyType.MagicToRare,.025f),Rate(CraftingCurrencyType.RerollRareModifier,.01f),
-            Rate(CraftingCurrencyType.RemoveRareModifier,.005f),Rate(CraftingCurrencyType.AffixFocus,.002f,50),
-            Legacy(CraftingCurrencyType.AddRareModifier),Legacy(CraftingCurrencyType.AncientNormalToMagic),
-            Legacy(CraftingCurrencyType.AncientMagicToRare),Legacy(CraftingCurrencyType.AncientRareToLegendary),
-            Legacy(CraftingCurrencyType.AncientReroll),Legacy(CraftingCurrencyType.AncientAddModifier),
-            Legacy(CraftingCurrencyType.AncientRemoveModifier),
+            Rate(CraftingCurrencyType.AddMagicModifier,.02f,5),Rate(CraftingCurrencyType.MagicToRare,.025f),Rate(CraftingCurrencyType.RerollRareModifier,.01f),
+            Rate(CraftingCurrencyType.AddRareModifier,.008f,20),Rate(CraftingCurrencyType.RemoveRareModifier,.005f),Rate(CraftingCurrencyType.PrefixFocus,.002f,35),Rate(CraftingCurrencyType.SuffixFocus,.002f,35),
+            Legacy(CraftingCurrencyType.AncientNormalToMagic),Legacy(CraftingCurrencyType.AncientRerollMagic),Legacy(CraftingCurrencyType.AncientAddMagicModifier),Legacy(CraftingCurrencyType.AncientMagicToRare),
+            Legacy(CraftingCurrencyType.AncientRerollRareModifier),Legacy(CraftingCurrencyType.AncientAddRareModifier),Legacy(CraftingCurrencyType.AncientRemoveModifier),Legacy(CraftingCurrencyType.AncientPrefixFocus),Legacy(CraftingCurrencyType.AncientSuffixFocus),
             Legacy(CraftingCurrencyType.EmpowermentCatalyst)
         };
         stages=new();locations=new();archetypes=new();enemies=new();bosses=new();

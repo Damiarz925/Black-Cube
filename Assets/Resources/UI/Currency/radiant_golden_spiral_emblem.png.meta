@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: ac7b76ed48bac8b449aec0d438fca20c
+guid: a3b216bc10f14484e9610af5466d8920
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -2955108296322782092
-    second: AncientYellowReroll_0
+      213: -3244463328761848498
+    second: radiant_golden_spiral_emblem_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -42,7 +42,7 @@ TextureImporter:
     mipBias: 0
     wrapU: 1
     wrapV: 1
-    wrapW: 1
+    wrapW: 0
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
@@ -77,7 +77,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 0
+    textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -102,13 +102,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: AncientYellowReroll_0
+      name: radiant_golden_spiral_emblem_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 1254
-        height: 1254
+        width: 512
+        height: 512
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -117,8 +117,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 47ceedc49a85df6d0800000000000000
-      internalID: -2955108296322782092
+      spriteID: e4d5e5adac959f2d0800000000000000
+      internalID: -3244463328761848498
       vertices: []
       indices: 
       edges: []
@@ -137,7 +137,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      AncientYellowReroll_0: -2955108296322782092
+      radiant_golden_spiral_emblem_0: -3244463328761848498
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

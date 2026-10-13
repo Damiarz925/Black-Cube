@@ -122,7 +122,7 @@ public class ItemSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         marker.anchorMin = marker.anchorMax = gear.IsScrap ? new Vector2(.5f,.6f) : new Vector2(.82f,.18f);
         marker.anchoredPosition = Vector2.zero; marker.sizeDelta = gear.IsScrap ? new Vector2(20,15) : new Vector2(4,4);
         marker.localRotation = Quaternion.Euler(0,0,gear.IsScrap ? 15 : 45);
-        elementBadge.enabled = gear.IsScrap || gear.ItemType == LootManager.GearType.Weapons;
+        elementBadge.enabled = gear.IsScrap || EquipmentSlotRules.IsWeaponSlot(gear.ItemType);
         elementBadge.color = gear.IsScrap ? new Color(.7f,.72f,.75f) : ItemTooltipUI.ElementTint(gear.BaseElement);
         if(glyph != null && gear.IsScrap) glyph.enabled = false;
 
@@ -208,6 +208,7 @@ public class ItemSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         LootManager.GearType.Boots => "Boot",
         LootManager.GearType.Rings => "Ring",
         LootManager.GearType.Belts => "Belt",
+        LootManager.GearType.OffHands => "Off-Hand",
         _ => "Weapon"
     };
 

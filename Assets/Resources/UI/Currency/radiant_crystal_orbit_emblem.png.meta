@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 6d75cd4124639874090d651120462183
+guid: 94cd267948fa5d047be029313558b3da
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -9192767785531655128
-    second: AncientAddYellow_0
+      213: 7352052141846085537
+    second: radiant_crystal_orbit_emblem_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -42,7 +42,7 @@ TextureImporter:
     mipBias: 0
     wrapU: 1
     wrapV: 1
-    wrapW: 1
+    wrapW: 0
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
@@ -77,7 +77,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 0
+    textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -102,13 +102,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: AncientAddYellow_0
+      name: radiant_crystal_orbit_emblem_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 1254
-        height: 1254
+        width: 512
+        height: 512
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -117,8 +117,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 82c3bb8876abc6080800000000000000
-      internalID: -9192767785531655128
+      spriteID: 1afb2ec587cb70660800000000000000
+      internalID: 7352052141846085537
       vertices: []
       indices: 
       edges: []
@@ -137,7 +137,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      AncientAddYellow_0: -9192767785531655128
+      radiant_crystal_orbit_emblem_0: 7352052141846085537
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

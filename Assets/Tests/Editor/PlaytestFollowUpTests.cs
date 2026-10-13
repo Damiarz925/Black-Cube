@@ -157,7 +157,7 @@ public sealed class PlaytestFollowUpTests
                 if(rarity==LootManager.GearRarity.Legendary)legendary++;
             }
         }
-        Debug.Log($"CURRENCY SAMPLE: 250 reward rolls, 50 each L10/25/50/75/100, neutral power, Normal/Magic/Rare rotation; expected direct={expected:0.##}, observed direct={direct}, gear={gear}, Rare={rare}, Legendary={legendary}; if rejected, Rare fragments={rare}, Legendary fragments={legendary*2}; manual and auto each yield one/Rare. No fights or rate changes.");
+        Debug.Log($"CURRENCY SAMPLE: 250 reward rolls, 50 each L10/25/50/75/100, neutral power, Normal/Magic/Rare rotation; expected direct={expected:0.##}, observed direct={direct}, gear={gear}, Rare={rare}, Legendary={legendary}; rejected items award whole crafting currencies. No fights or rate changes.");
         var db=AssetDatabase.LoadAssetAtPath<ModDatabase>("Assets/Prefabs/Scriptable Objects/ModDatabase.asset");
         float gearRegen=0;
         foreach(var slot in new[]{LootManager.GearType.BodyArmours,LootManager.GearType.Helmets,LootManager.GearType.Belts})
@@ -210,11 +210,9 @@ public sealed class PlaytestFollowUpTests
         var options=prefab.GetComponentInChildren<PauseMenuView>(true);
         Assert.That(options.hudOptionsButton,Is.Not.Null);Assert.That(options.gameMenuButton,Is.Not.Null);
         var inventory=prefab.GetComponentInChildren<InventoryView>(true);
-        var grid=inventory.itemGridRoot.GetComponent<GridLayoutGroup>();var scroll=grid.GetComponentInParent<ScrollRect>(true);
+        var grid=inventory.itemGridRoot.GetComponent<GridLayoutGroup>();var scroll=inventory.inventoryScroll;
         Assert.That(scroll.content,Is.EqualTo(inventory.itemGridRoot));Assert.That(scroll.viewport.GetComponent<RectMask2D>(),Is.Not.Null);
-        Assert.That(grid.cellSize.x,Is.EqualTo(45));Assert.That(inventory.authoredRoot.sizeDelta.x,Is.EqualTo(560).Within(.01));
-        float fullInventoryHeight=Mathf.Ceil(100f/grid.constraintCount)*(grid.cellSize.y+grid.spacing.y);
-        Assert.That(fullInventoryHeight,Is.GreaterThan(300));
+        Assert.That(grid,Is.Null);Assert.That(inventory.inventoryScrollbar,Is.Not.Null);Assert.That(InventoryUI.GridColumnCount,Is.EqualTo(10));
         Assert.That(prefab.GetComponentsInChildren<WeaponSkillTooltip>(true).Length,Is.EqualTo(2));
     }
     [TestCase(PlayerClassIds.Warrior)] [TestCase(PlayerClassIds.Mage)] [TestCase(PlayerClassIds.Barbarian)]

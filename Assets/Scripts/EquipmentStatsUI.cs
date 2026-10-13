@@ -99,7 +99,7 @@ public class EquipmentStatsUI : MonoBehaviour
                 markerRect.anchorMin=markerRect.anchorMax=new Vector2(.82f,.18f);markerRect.sizeDelta=new Vector2(4,4);markerRect.anchoredPosition=Vector2.zero;markerRect.localRotation=Quaternion.Euler(0,0,45);
                 slot.elementBadge=markerObject.GetComponent<Image>();slot.elementBadge.raycastTarget=false;
             }
-            slot.elementBadge.enabled=item!=null&&item.ItemType==LootManager.GearType.Weapons;
+            slot.elementBadge.enabled=item!=null&&EquipmentSlotRules.IsWeaponSlot(item.ItemType);
             if(slot.elementBadge.enabled)slot.elementBadge.color=ItemTooltipUI.ElementTint(item.BaseElement);
             if (item != null && slot.corruptionBorder == null)
             {

@@ -81,7 +81,7 @@ public class Gear : MonoBehaviour
 
     //These 4 lines define getters for the private variables, itemType, itemRarity, itemLevel, and modNumber
     public LootManager.GearType ItemType => itemType;
-    public string WeaponTypeId => itemType == LootManager.GearType.Weapons
+    public string WeaponTypeId => EquipmentSlotRules.IsWeaponSlot(itemType)
         ? (WeaponTypeCatalog.IsValid(weaponTypeId) ? weaponTypeId : WeaponTypeCatalog.HistoricalDefaultId) : string.Empty;
     public LootManager.GearRarity ItemRarity => itemRarity;
     public LootManager.GearRarity OriginRarity => originRarity;
@@ -124,8 +124,8 @@ public class Gear : MonoBehaviour
         BaseDamage=BaseDamageMin=BaseDamageMax=BaseAttackSpeed=BaseCritChance=0f;
         LocalFlatDamage=LocalFlatDamageMax=LocalIncDamage=LocalBaseCrit=LocalIncCrit=LocalIncAttackSpeed=LocalMorePhysical=0f;
         itemType = type;
-        weaponTypeId = type == LootManager.GearType.Weapons && WeaponTypeCatalog.IsValid(stableWeaponTypeId)
-            ? stableWeaponTypeId : type == LootManager.GearType.Weapons ? WeaponTypeCatalog.HistoricalDefaultId : string.Empty;
+        weaponTypeId = EquipmentSlotRules.IsWeaponSlot(type) && WeaponTypeCatalog.IsValid(stableWeaponTypeId)
+            ? stableWeaponTypeId : EquipmentSlotRules.IsWeaponSlot(type) ? WeaponTypeCatalog.HistoricalDefaultId : string.Empty;
         itemRarity = rarity;
         originRarity = rarity;
         maximumCraftingPotential = CraftingPotentialProfile.Maximum(rarity);
@@ -139,7 +139,7 @@ public class Gear : MonoBehaviour
 
     public bool SetWeaponType(string stableId)
     {
-        if(itemType!=LootManager.GearType.Weapons||!WeaponTypeCatalog.IsValid(stableId))return false;
+        if(!EquipmentSlotRules.IsWeaponSlot(itemType)||!WeaponTypeCatalog.IsValid(stableId))return false;
         weaponTypeId=stableId;return true;
     }
 
@@ -282,7 +282,7 @@ public class Gear : MonoBehaviour
                     else globalRolledMods.Add(mod);
                     break;
                 case StatTypes.AxePhysicalRage:
-                    if(ItemType==LootManager.GearType.Weapons&&WeaponTypeId==WeaponTypeIds.TwoHandedAxe)
+                    if(EquipmentSlotRules.IsWeaponSlot(ItemType)&&WeaponTypeId==WeaponTypeIds.TwoHandedAxe)
                     {LocalMorePhysical=mod.value/100f;globalRolledMods.Add(new RolledMod(StatTypes.RageGeneration,mod.tierIndex,mod.secondaryValue));}
                     break;
 
@@ -311,7 +311,7 @@ public class Gear : MonoBehaviour
                 case StatTypes.FlatFire:
                 case StatTypes.FlatVoid:
                     {
-                        if (itemType == LootManager.GearType.Weapons && MatchesBaseElement(mod.statType)) //If the itemtype is a weapon and the base element matches this mod's type enter the if statement
+                        if (EquipmentSlotRules.IsWeaponSlot(itemType) && MatchesBaseElement(mod.statType)) //If the itemtype is a weapon and the base element matches this mod's type enter the if statement
                         {
                             //If it is a flat modifier, add it's value to the local flat damage of the weapon
                             if (mod.statType is StatTypes.FlatPhys or StatTypes.FlatCold or StatTypes.FlatLight or StatTypes.FlatFire or StatTypes.FlatVoid)
@@ -334,7 +334,7 @@ public class Gear : MonoBehaviour
                 // BASE CRIT (local only on weapons)
                 //If the stat is base crit, check if the item is a weapon, if so add it to the local base crit (might change this to always apply to weapon's local base crit, because that's what the mod does no matter what slot
                 case StatTypes.BaseCritChance:
-                    if (itemType == LootManager.GearType.Weapons)
+                    if (EquipmentSlotRules.IsWeaponSlot(itemType))
                         LocalBaseCrit += (mod.value/100);
                     else
                         globalRolledMods.Add(mod);
@@ -343,7 +343,7 @@ public class Gear : MonoBehaviour
                 // % CRIT CHANCE (local only on weapons)
                 //If the stat is increased crit chance, check if it's on a weapon, if so it's local, if not it's global
                 case StatTypes.CritChance:
-                    if (itemType == LootManager.GearType.Weapons)
+                    if (EquipmentSlotRules.IsWeaponSlot(itemType))
                         LocalIncCrit += (mod.value/100);
                     else
                         globalRolledMods.Add(mod);
@@ -352,7 +352,7 @@ public class Gear : MonoBehaviour
                 // ATTACK SPEED (local only on weapons)
                 //If the stat is attack speed, check if it's on a weapon, if so it's local, if not it's global.
                 case StatTypes.AttackSpeed:
-                    if (itemType == LootManager.GearType.Weapons)
+                    if (EquipmentSlotRules.IsWeaponSlot(itemType))
                         LocalIncAttackSpeed += (mod.value/100);
                     else
                         globalRolledMods.Add(mod);
@@ -375,7 +375,7 @@ public class Gear : MonoBehaviour
     }
 
     public bool IsLocalAffix(StatTypes stat) => ItemArmourProfile.IsArmour(itemType) && (stat is StatTypes.FlatArmour or StatTypes.ArmourPercent)
-        || itemType == LootManager.GearType.Weapons
+        || EquipmentSlotRules.IsWeaponSlot(itemType)
         && (MatchesBaseElement(stat) || stat is StatTypes.AttackSpeed or StatTypes.CritChance
             or StatTypes.BaseCritChance);
 
@@ -409,7 +409,7 @@ public class Gear : MonoBehaviour
 
     public float GetAverageWeaponDps()
     {
-        if(ItemType!=LootManager.GearType.Weapons)return 0f;
+        if(!EquipmentSlotRules.IsWeaponSlot(ItemType))return 0f;
         GetEffectiveBaseDamageRange(out float minimum,out float maximum);
         return (minimum+maximum)*.5f*GetEffectiveAttackSpeed();
     }

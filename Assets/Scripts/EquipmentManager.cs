@@ -16,6 +16,7 @@ public class EquipmentManager : MonoBehaviour
     public StatsComponent PlayerStats=>playerStats;
     public IReadOnlyDictionary<LootManager.GearType, Gear> EquippedItems => equipped;
     public Gear GetEquipped(LootManager.GearType type) => equipped.TryGetValue(type, out var gear) ? gear : null;
+    Gear ActiveWeapon()=>GetEquipped(LootManager.GearType.Weapons)??GetEquipped(LootManager.GearType.OffHands);
 
     private void Awake() //Safely declare singleton on awake and find the statscomponent and playercontroller
     {
@@ -34,19 +35,41 @@ public class EquipmentManager : MonoBehaviour
     //This function is used whenever the player wants to equip a new piece of equipment.
     public void Equip(Gear gear)
     {
+        if(gear==null)return;
+        LootManager.GearType slot=gear.ItemType;
+        if(EquipmentSlotRules.IsWeaponSlot(gear.ItemType)&&!EquipmentSlotRules.IsTwoHanded(gear.WeaponTypeId))
+        {
+            if(gear.ItemType==LootManager.GearType.Weapons&&GetEquipped(LootManager.GearType.Weapons)!=null&&GetEquipped(LootManager.GearType.OffHands)==null)slot=LootManager.GearType.OffHands;
+            else if(gear.ItemType==LootManager.GearType.OffHands&&GetEquipped(LootManager.GearType.OffHands)!=null&&GetEquipped(LootManager.GearType.Weapons)==null)slot=LootManager.GearType.Weapons;
+        }
+        EquipToSlot(gear,slot);
+    }
+
+    public void EquipToSlot(Gear gear,LootManager.GearType slot)
+    {
         //If the passed gear item is null, exit the function
         if (gear == null || gear.IsScrap || gear.Dismantled) return;
-        if (GetEquipped(gear.ItemType) == gear) return;
+        if (equipped.TryGetValue(slot,out var already)&&already==gear) return;
 
         EnsurePlayerReferences();
 
         //Define variables for the item type of the gear item, and the inventory instance
-        var slot = gear.ItemType;
+        if(EquipmentSlotRules.IsWeaponSlot(gear.ItemType))
+        {
+            if(!EquipmentSlotRules.IsWeaponSlot(slot))return;
+            if(slot==LootManager.GearType.OffHands&&!EquipmentSlotRules.CanEquipOffHand(gear))return;
+        }
+        else if(slot!=gear.ItemType)return;
         var inventory = Inventory.Instance;
         inventory?.RetainForRun(gear);
         playerStats?.BeginUpdate();
         try
         {
+
+        // Two-handed weapons own both hand slots. Equipping a one-handed
+        // off-hand while one is active returns the two-hander to inventory.
+        if(slot==LootManager.GearType.Weapons&&EquipmentSlotRules.IsTwoHanded(gear.WeaponTypeId))ReturnEquippedToInventory(LootManager.GearType.OffHands,inventory);
+        else if(slot==LootManager.GearType.OffHands&&equipped.TryGetValue(LootManager.GearType.Weapons,out var main)&&EquipmentSlotRules.IsTwoHanded(main.WeaponTypeId))ReturnEquippedToInventory(LootManager.GearType.Weapons,inventory);
 
         //If the inventory isn't null, remove the item from it
         if (inventory != null)
@@ -77,10 +100,7 @@ public class EquipmentManager : MonoBehaviour
         }
 
         // If this is a weapon, notify the PlayerController
-        if (slot == LootManager.GearType.Weapons && playerController != null)
-        {
-            playerController.EquipWeapon(gear);
-        }
+        if (EquipmentSlotRules.IsWeaponSlot(slot) && playerController != null)playerController.EquipWeapon(ActiveWeapon());
         }
         finally { playerStats?.EndUpdate(); }
         EquipmentChanged?.Invoke();
@@ -96,7 +116,7 @@ public class EquipmentManager : MonoBehaviour
         {
             equipped.Remove(slot);
             playerStats?.RemoveModifiersFromSource(gear);
-            if (slot == LootManager.GearType.Weapons && playerController != null) playerController.EquipWeapon(null);
+            if (EquipmentSlotRules.IsWeaponSlot(slot) && playerController != null) playerController.EquipWeapon(ActiveWeapon());
             if (Inventory.Instance != null) Inventory.Instance.Add(gear);
         }
         finally { playerStats?.EndUpdate(); }
@@ -106,7 +126,7 @@ public class EquipmentManager : MonoBehaviour
 
     public void NotifyItemChanged(Gear gear)
     {
-        if (gear == null || GetEquipped(gear.ItemType) != gear) return;
+        if (gear == null || !equipped.ContainsValue(gear)) return;
         EnsurePlayerReferences(); playerStats?.BeginUpdate();
         try
         {
@@ -114,7 +134,7 @@ public class EquipmentManager : MonoBehaviour
             if (playerStats != null)
                 foreach (var mod in gear.globalRolledMods)
                     playerStats.AddModifier(new StatModifier(mod.statType, GetOperationForStat(mod.statType), mod.value, gear));
-            if (gear.ItemType == LootManager.GearType.Weapons && playerController != null) playerController.EquipWeapon(gear);
+            if (EquipmentSlotRules.IsWeaponSlot(gear.ItemType) && playerController != null) playerController.EquipWeapon(ActiveWeapon());
         }
         finally { playerStats?.EndUpdate(); }
         EquipmentChanged?.Invoke();
@@ -155,6 +175,12 @@ public class EquipmentManager : MonoBehaviour
             BindSceneReferences(scene);
     }
 
+    void ReturnEquippedToInventory(LootManager.GearType slot,Inventory inventory)
+    {
+        if(!equipped.TryGetValue(slot,out var old)||old==null)return;
+        equipped.Remove(slot);playerStats?.RemoveModifiersFromSource(old);inventory?.Add(old);
+    }
+
     public void BindSceneReferences(Scene scene)
     {
         if (scene.name != GameSceneNames.Gameplay || !scene.isLoaded) { ReleaseSceneReferences(); return; }
@@ -185,7 +211,7 @@ public class EquipmentManager : MonoBehaviour
                 foreach (RolledMod mod in gear.globalRolledMods)
                     playerStats.AddModifier(new StatModifier(mod.statType, GetOperationForStat(mod.statType), mod.value, gear));
             }
-            if (playerController != null) playerController.EquipWeapon(GetEquipped(LootManager.GearType.Weapons));
+            if (playerController != null) playerController.EquipWeapon(ActiveWeapon());
         }
         finally { playerStats.EndUpdate(); }
     }

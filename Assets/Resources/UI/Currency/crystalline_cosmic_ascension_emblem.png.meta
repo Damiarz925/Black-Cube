@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 6aef5863dfc2d4546ad2ff57da87f403
+guid: 57ab9859845ca944a8ecb4b6630a6f25
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 6305590949460684296
-    second: AncientBlueReroll_0
+      213: -8363125275484858878
+    second: crystalline_cosmic_ascension_emblem_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -42,7 +42,7 @@ TextureImporter:
     mipBias: 0
     wrapU: 1
     wrapV: 1
-    wrapW: 1
+    wrapW: 0
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
@@ -77,7 +77,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 0
+    textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -102,13 +102,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: AncientBlueReroll_0
+      name: crystalline_cosmic_ascension_emblem_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 1254
-        height: 1254
+        width: 512
+        height: 512
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -117,8 +117,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 80ea5816f85f18750800000000000000
-      internalID: 6305590949460684296
+      spriteID: 20652a62fd530fb80800000000000000
+      internalID: -8363125275484858878
       vertices: []
       indices: 
       edges: []
@@ -137,7 +137,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      AncientBlueReroll_0: 6305590949460684296
+      crystalline_cosmic_ascension_emblem_0: -8363125275484858878
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

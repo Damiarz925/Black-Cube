@@ -30,7 +30,7 @@ public static class ItemIconCatalog
     public static Sprite Get(Gear gear)
     {
         if(gear==null||gear.IsScrap)return null;
-        if(gear.ItemType==LootManager.GearType.Weapons)
+        if(EquipmentSlotRules.IsWeaponSlot(gear.ItemType))
         {
             Sprite weapon=Load("UI/ItemIcons/weapons/"+WeaponFileName(gear.WeaponTypeId));
             if(weapon!=null)return weapon;

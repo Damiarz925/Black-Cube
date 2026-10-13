@@ -178,14 +178,14 @@ public class Inventory : MonoBehaviour
         int amount = ScrapYield(item);
         var currency = CurrencyInventory.Instance != null ? CurrencyInventory.Instance : GetComponent<CurrencyInventory>();
         if (currency == null) return false;
-        CraftingCurrencyType fragmentType=item.ItemRarity==LootManager.GearRarity.Magic
+        CraftingCurrencyType rewardType=item.ItemRarity==LootManager.GearRarity.Magic
             ? CraftingCurrencyType.NormalToMagic : CraftingCurrencyType.MagicToRare;
-        if(amount>0&&!currency.CanAddFragments(fragmentType,amount))return false;
+        if(amount>0&&currency.Count(rewardType)>int.MaxValue-amount)return false;
         // Claim before notifications or delayed destruction, so repeat callbacks cannot pay twice.
         int index = items.IndexOf(item);
         item.Dismantled = true;
         items.RemoveAt(index);
-        if (amount > 0) currency.AddFragments(fragmentType, amount);
+        if (amount > 0) currency.Add(rewardType, amount);
         Destroy(item.gameObject);
         OnInventoryChanged?.Invoke();
         GamePersistence.Save();

@@ -19,11 +19,11 @@ public class GearStatLists : MonoBehaviour
     }
 
     private void OnDestroy() { if (Instance == this) Instance = null; }
-    public List<StatTypes> GetStatPoolForType(LootManager.GearType type) => statPools[type];
+    public List<StatTypes> GetStatPoolForType(LootManager.GearType type) => statPools[EquipmentSlotRules.AffixSlot(type)];
     public static List<StatTypes> GetCanonicalStatPoolForType(LootManager.GearType type)
     {
         canonicalPools ??= BuildDefaultStatPools();
-        return canonicalPools[type];
+        return canonicalPools[EquipmentSlotRules.AffixSlot(type)];
     }
 
     static List<StatTypes> Pool(params StatTypes[] stats) => new(stats);

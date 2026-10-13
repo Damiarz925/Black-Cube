@@ -51,7 +51,7 @@ using UnityEngine;
     public static readonly string[] Weapons = {WeaponTypeIds.Sword,WeaponTypeIds.TwoHandedAxe,WeaponTypeIds.Bow,WeaponTypeIds.Staff,WeaponTypeIds.Sceptre,WeaponTypeIds.Dagger};
     public ItemTypeLootFilter For(LootManager.GearType type, string weapon = null)
     {
-        weapon = type == LootManager.GearType.Weapons ? weapon ?? Weapons[0] : "";
+        weapon = EquipmentSlotRules.IsWeaponSlot(type) ? weapon ?? Weapons[0] : "";
         var filter = itemTypes.Find(f => f.itemType == type && f.weaponTypeId == weapon);
         if (filter != null) return filter;
         filter = new ItemTypeLootFilter { itemType = type, weaponTypeId = weapon }; itemTypes.Add(filter); return filter;
@@ -61,7 +61,7 @@ using UnityEngine;
         if (item == null || item.IsScrap || item.IsLocked || item.ItemRarity==LootManager.GearRarity.Unique || !enabled) return true;
                 if ((keptRarities & (1 << (int)item.ItemRarity)) == 0) return false;
         if(item.ItemRarity==LootManager.GearRarity.Unique)return true; // Unique rarity is decisive; ordinary prefix/suffix rules do not apply.
-        if (item.ItemType == LootManager.GearType.Weapons)
+        if (EquipmentSlotRules.IsWeaponSlot(item.ItemType))
         {
             int weapon = Array.IndexOf(Weapons,item.WeaponTypeId);
             if (weapon < 0 || (keptWeapons & (1 << weapon)) == 0 || (keptElements & (1 << (int)item.BaseElement)) == 0) return false;
@@ -73,15 +73,16 @@ using UnityEngine;
     {
         if (!enabled || item == null || item.IsScrap) return false;
         var policy = itemTypes.Find(f => f.itemType == item.ItemType
-            && f.weaponTypeId == (item.ItemType == LootManager.GearType.Weapons ? item.WeaponTypeId : ""));
+            && f.weaponTypeId == (EquipmentSlotRules.IsWeaponSlot(item.ItemType) ? item.WeaponTypeId : ""));
         return policy != null && policy.enabled && policy.requirements.Count > 0 && policy.Matches(item);
     }
     public static IReadOnlyList<StatTypes> LegalStats(LootManager.GearType type,string weapon)
     {
         var db = ModManager.Instance?.Database;
-        return GearStatLists.GetCanonicalStatPoolForType(type).Where(s => !Gear.IsWeaponBaseStat(s)
-            && (type != LootManager.GearType.Weapons || WeaponExclusiveAffixRules.Allows(s,weapon))
-            && (db == null || ModManager.ApplicableTiers(db.GetDefinition(s),type,weapon).Count > 0))
+        LootManager.GearType affixType=EquipmentSlotRules.AffixSlot(type);
+        return GearStatLists.GetCanonicalStatPoolForType(affixType).Where(s => !Gear.IsWeaponBaseStat(s)
+            && (affixType != LootManager.GearType.Weapons || WeaponExclusiveAffixRules.Allows(s,weapon))
+            && (db == null || ModManager.ApplicableTiers(db.GetDefinition(s),affixType,weapon).Count > 0))
             .Distinct().OrderBy(StatDisplayFormatting.ToFriendlyName).ToArray();
     }
     public void ClearSlotModifiers(LootManager.GearType type,string weapon=null)=>For(type,weapon).requirements.Clear();

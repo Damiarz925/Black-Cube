@@ -19,12 +19,12 @@ public static class ItemTooltipFormatter
         if (item.IsScrap) return $"<color=#BFA86A><b>MATERIAL</b></color>\n\nStack Count: {item.StackCount}\nCannot be equipped or crafted.";
         var s = new StringBuilder();
         s.AppendLine(item.IsLocked ? "<color=#FFD060>ITEM LOCKED — protected from dismantling/crafting. [L] Unlock</color>" : "<color=#85898F>[L] Lock item</color>");
-        string typeName=item.ItemType==LootManager.GearType.Weapons&&WeaponTypeCatalog.TryGet(item.WeaponTypeId,out var weaponType)
+        string typeName=EquipmentSlotRules.IsWeaponSlot(item.ItemType)&&WeaponTypeCatalog.TryGet(item.WeaponTypeId,out var weaponType)
             ?weaponType.DisplayName:ItemSlotUI.DisplayType(item.ItemType);
         s.AppendLine($"<color=#85898F>{typeName.ToUpperInvariant()}  •  ITEM LEVEL {item.ItemLevel}</color>");
         if(ItemArmourProfile.IsArmour(item.ItemType))s.AppendLine($"<b>Item Armour:</b> {item.FinalItemArmour:0}");
         if(item.UniqueData==null)s.AppendLine($"<color=#8DC9D8><b>CRAFTING POTENTIAL: {item.CurrentCraftingPotential} / {item.MaximumCraftingPotential}</b></color>  <color=#85898F>ORIGIN {item.OriginRarity.ToString().ToUpperInvariant()}</color>");
-        if (item.ItemType == LootManager.GearType.Weapons)
+        if (EquipmentSlotRules.IsWeaponSlot(item.ItemType))
         {
             s.AppendLine();
             item.GetEffectiveBaseDamageRange(out float minimum,out float maximum);
@@ -341,14 +341,14 @@ public class ItemTooltipUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
         if(!equipped)return Inventory.Instance!=null&&Inventory.Instance.Items.Contains(item);
         return true;
     }
-    void RefreshVisibleContent(){if(item==null)return;heading.text=item.IsScrap?$"SCRAP  x{item.StackCount}":$"{item.ItemRarity} {(item.ItemType==LootManager.GearType.Weapons&&WeaponTypeCatalog.TryGet(item.WeaponTypeId,out var profile)?profile.DisplayName:ItemSlotUI.DisplayType(item.ItemType))}";heading.color=ItemSlotUI.RarityColor(item.ItemRarity);
+    void RefreshVisibleContent(){if(item==null)return;heading.text=item.IsScrap?$"SCRAP  x{item.StackCount}":$"{item.ItemRarity} {(EquipmentSlotRules.IsWeaponSlot(item.ItemType)&&WeaponTypeCatalog.TryGet(item.WeaponTypeId,out var profile)?profile.DisplayName:ItemSlotUI.DisplayType(item.ItemType))}";heading.color=ItemSlotUI.RarityColor(item.ItemRarity);
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         var diagnostics=!equipped&&owner!=null?owner.GetComponentInParent<InventoryUI>()?.MarginalUpgradeContributions(item):null;
         body.text=ItemTooltipFormatter.DescribeGear(item,GameplayOptions.UpgradeDiagnostics?diagnostics:null);
 #else
         body.text=Describe(item);
 #endif
-        body.ForceMeshUpdate();PlaceImplicitLock();scrapButton.interactable=!equipped&&Inventory.Instance!=null&&Inventory.Instance.CanDismantle(item);actionLabel.text=equipped?"EQUIPPED / CANNOT SCRAP":item.IsScrap?"SCRAP / MATERIAL ONLY":item.ItemRarity==LootManager.GearRarity.Normal?"DISMANTLE / NO FRAGMENTS":$"DISMANTLE / +{Inventory.ScrapYield(item)} {(item.ItemRarity==LootManager.GearRarity.Magic?"NORMAL→MAGIC":"MAGIC→RARE")} FRAGMENT{(Inventory.ScrapYield(item)==1?"":"S")}";}
+        body.ForceMeshUpdate();PlaceImplicitLock();scrapButton.interactable=!equipped&&Inventory.Instance!=null&&Inventory.Instance.CanDismantle(item);actionLabel.text=equipped?"EQUIPPED / CANNOT SCRAP":item.IsScrap?"SCRAP / MATERIAL ONLY":item.ItemRarity==LootManager.GearRarity.Normal?"DISMANTLE / NO CURRENCY":$"DISMANTLE / +{Inventory.ScrapYield(item)} {(item.ItemRarity==LootManager.GearRarity.Magic?"NORMAL→MAGIC":"MAGIC→RARE")} CURRENCY";}
     void ResizeInPlace(){var r=(RectTransform)transform;var parent=(RectTransform)transform.parent;float width=Mathf.Min(440,parent.rect.width-24);float preferred=body.GetPreferredValues(body.text,width-24,0).y;r.sizeDelta=new Vector2(width,Mathf.Clamp(preferred+116,210,Mathf.Min(540,parent.rect.height-24)));LayoutRebuilder.ForceRebuildLayoutImmediate(r);body.ForceMeshUpdate();PlaceImplicitLock();}
     void PlaceImplicitLock()
     {

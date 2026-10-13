@@ -17,7 +17,8 @@ public class LootManager : MonoBehaviour
         Boots,
         Rings,
         Belts,
-        Weapons
+        Weapons,
+        OffHands
     }
 
     public enum GearRarity      //GearRarity enum stores the rarity levels that gear can have
@@ -54,6 +55,7 @@ public class LootManager : MonoBehaviour
         totalTypeWeight = 0;
 
         TypeDictionary.Add(GearType.Weapons, 20);
+        TypeDictionary.Add(GearType.OffHands, 10);
         TypeDictionary.Add(GearType.Helmets, 20);
         TypeDictionary.Add(GearType.BodyArmours, 20);
         TypeDictionary.Add(GearType.Gloves, 10);
@@ -86,7 +88,7 @@ public class LootManager : MonoBehaviour
         };
 
         var type = RollItemType(random);
-        var element = RollItemElement(type==GearType.Weapons,random);
+        var element = RollItemElement(EquipmentSlotRules.IsWeaponSlot(type),random);
 
         int zoneLevel = zoneManager != null ? zoneManager.zoneLevel : 1;
         int itemLevel = zoneLevel + enemyRarityMod;     //Calculate item level as the level of the zone + the enemy rarity modifier
@@ -98,7 +100,7 @@ public class LootManager : MonoBehaviour
             return UniqueCatalog.Create(eligible[random.Range(0,eligible.Length)].id,itemLevel,()=>random.Value());
         }
         string signature=GameManager.Instance?.GetComponent<PlayerIdentityState>()?.ClassDefinition?.SignatureWeaponTypeId;
-        string weaponTypeId=type==GearType.Weapons?RollWeaponTypeId(random,signature):null;
+        string weaponTypeId=EquipmentSlotRules.IsWeaponSlot(type)?(type==GearType.OffHands?RollOneHandedWeaponTypeId(random,signature):RollWeaponTypeId(random,signature)):null;
 
         Debug.Log($"[Loot] Rolled type={type}, rarity={rarity}, zoneLevel={zoneLevel}, enemyRarity={enemyRarity}");
 
@@ -130,7 +132,7 @@ public class LootManager : MonoBehaviour
         Debug.Log($"[Loot] Rolled mods count = {(mods == null ? -1 : mods.Count)}");
 
         gear.ApplyMods(mods);   //call apply mods on the gear item, passing in the list of mods to apply
-        if(type==GearType.Weapons)ApplyNaturalWeaponProfile(gear);
+        if(EquipmentSlotRules.IsWeaponSlot(type))ApplyNaturalWeaponProfile(gear);
 
         return gear;        //return the gear item
     }
@@ -165,6 +167,13 @@ public class LootManager : MonoBehaviour
     {
         var all=WeaponTypeCatalog.All;return all[random.Range(0,all.Count)].Id;
     }
+    public static string RollOneHandedWeaponTypeId(ILootRandomSource random,string signatureWeaponId=null)
+    {
+        var eligible=new List<WeaponTypeDefinition>();foreach(var weapon in WeaponTypeCatalog.All)if(!EquipmentSlotRules.IsTwoHanded(weapon.Id))eligible.Add(weapon);
+        if(eligible.Count==0)return WeaponTypeCatalog.HistoricalDefaultId;
+        if(WeaponTypeCatalog.IsValid(signatureWeaponId)&&!EquipmentSlotRules.IsTwoHanded(signatureWeaponId)&&random.Range(0,SignatureWeaponWeight+OtherWeaponWeight*(eligible.Count-1))<SignatureWeaponWeight)return signatureWeaponId;
+        return eligible[random.Range(0,eligible.Count)].Id;
+    }
     // Only ordinary production drops call this overload; Unique selection happens
     // before weapon-base selection and keeps its own authored pool.
     public const int SignatureWeaponWeight=125, OtherWeaponWeight=100;
@@ -184,7 +193,7 @@ public class LootManager : MonoBehaviour
 
     public static void ApplyNaturalWeaponProfile(Gear gear)
     {
-        if(gear==null||gear.ItemType!=GearType.Weapons||!WeaponTypeCatalog.TryGet(gear.WeaponTypeId,out var profile))return;
+        if(gear==null||!EquipmentSlotRules.IsWeaponSlot(gear.ItemType)||!WeaponTypeCatalog.TryGet(gear.WeaponTypeId,out var profile))return;
         float damageScale=gear.ItemLevel<=1?1f:Mathf.Max(.01f,gear.BaseDamage/40f);
         float speedScale=gear.ItemLevel<=1?1f:Mathf.Max(.01f,gear.BaseAttackSpeed/.60f);
         float critScale=gear.ItemLevel<=1?1f:Mathf.Max(.01f,gear.BaseCritChance/.05f);

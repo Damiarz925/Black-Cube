@@ -138,6 +138,7 @@ public class ModManager : MonoBehaviour
         string weaponTypeId = WeaponTypeCatalog.HistoricalDefaultId,ILootRandomSource random=null)
     {
         random??=UnityLootRandomSource.Instance;
+        itemType=EquipmentSlotRules.AffixSlot(itemType);
         var mods = new List<RolledMod>();
         var baseStats = new HashSet<StatTypes>();
         var baseGroups = new HashSet<string>();
@@ -212,7 +213,7 @@ public class ModManager : MonoBehaviour
 
     static void ReserveIntrinsicWeaponStats(Gear gear, HashSet<StatTypes> usedStats)
     {
-        if (gear.ItemType != LootManager.GearType.Weapons) return;
+        if (!EquipmentSlotRules.IsWeaponSlot(gear.ItemType)) return;
         usedStats.Add(StatTypes.WeaponBaseDmg);
         usedStats.Add(StatTypes.WeaponBaseAttackSpeed);
         usedStats.Add(StatTypes.WeaponBaseCrit);
@@ -254,6 +255,7 @@ public class ModManager : MonoBehaviour
         RolledMod excluded = null, AffixSide? requiredSide = null,
         bool ignoreCapacity = false, string weaponTypeId = null,ILootRandomSource random=null)
     {
+        itemType=EquipmentSlotRules.AffixSlot(itemType);
 #if UNITY_EDITOR
         List<StatTypes> pool = useIsolatedPools
             ? GearStatLists.GetCanonicalStatPoolForType(itemType)
@@ -405,6 +407,7 @@ public class ModManager : MonoBehaviour
 
     public static List<AffixTier> ApplicableTiers(AffixDefinitions def,LootManager.GearType slot,string weaponTypeId)
     {
+        slot=EquipmentSlotRules.AffixSlot(slot);
         if(def==null||(slot==LootManager.GearType.Weapons&&!def.AllowsWeaponType(weaponTypeId)))return new List<AffixTier>();
         if(SystemsAffixProfile.TryTiers(def.statType,slot,out var systems))return systems;
         if(WeaponExclusiveAffixRules.TryGet(def.statType,slot,weaponTypeId,out var exclusive))return exclusive;

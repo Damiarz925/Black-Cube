@@ -23,25 +23,6 @@ public sealed class GamePersistenceTests
     [Test] public void NoSaveReturnsClearFailure(){Assert.That(GamePersistence.TryReadBestEnvelope(out _,out var source,out var error),Is.False);Assert.That(source,Is.EqualTo(SaveLoadSource.None));Assert.That(error,Does.Contain("No gameplay save"));}
     [Test] public void ValidEnvelopePasses(){Assert.That(GamePersistence.ValidateEnvelope(Valid(),out var error),Is.True,error);}
     [Test] public void FutureSchemaIsRejected(){var e=Valid();e.schemaVersion=99;AssertInvalid(e,"newer");}
-    [Test] public void Schema4MigratesToZeroFragmentRemainders()
-    {
-        var old=Valid();old.schemaVersion=4;
-        File.WriteAllText(GamePersistence.PrimaryPath,JsonUtility.ToJson(old));
-        Assert.That(GamePersistence.TryReadFile(GamePersistence.PrimaryPath,out var migrated,out var error),Is.True,error);
-        Assert.That(migrated.schemaVersion,Is.EqualTo(GamePersistence.SchemaVersion));
-        Assert.That(migrated.payload.normalToMagicFragments,Is.Zero);
-        Assert.That(migrated.payload.magicToRareFragments,Is.Zero);
-    }
-    [Test] public void FragmentRemaindersAreValidatedAndRoundTrip()
-    {
-        var e=Valid();e.payload.normalToMagicFragments=7;e.payload.magicToRareFragments=9;
-        var copy=JsonUtility.FromJson<SaveEnvelope>(JsonUtility.ToJson(e));
-        Assert.That(GamePersistence.ValidateEnvelope(copy,out var error),Is.True,error);
-        Assert.That(copy.payload.normalToMagicFragments,Is.EqualTo(7));
-        Assert.That(copy.payload.magicToRareFragments,Is.EqualTo(9));
-        copy.payload.magicToRareFragments=10;AssertInvalid(copy,"Fragment");
-        copy.payload.magicToRareFragments=0;copy.payload.normalToMagicFragments=-1;AssertInvalid(copy,"Fragment");
-    }
     [Test] public void Schema5RelicsMigrateAtLevelOneWithoutChangingTheirEffects()
     {
         var old=Valid();old.schemaVersion=5;old.payload.relicCycle=1;
@@ -52,20 +33,6 @@ public sealed class GamePersistenceTests
         Assert.That(GamePersistence.TryReadFile(GamePersistence.PrimaryPath,out var migrated,out var error),Is.True,error);
         Assert.That(migrated.schemaVersion,Is.EqualTo(GamePersistence.SchemaVersion));Assert.That(migrated.payload.relics[0].relicLevel,Is.EqualTo(1));
         Assert.That(migrated.payload.relics[0].modifiers[0].tierIndex,Is.Zero);Assert.That(migrated.payload.relics[0].modifiers[0].value,Is.EqualTo(7.25f));
-    }
-    [Test] public void LoadedOverfilledFragmentsNormalizeIntoWholeCurrenciesOnce()
-    {
-        var e=Valid();e.payload.normalToMagicFragments=23;e.payload.magicToRareFragments=18;
-        e.payload.currencies.Add(new CurrencyStackData(CraftingCurrencyType.NormalToMagic,4));
-        File.WriteAllText(GamePersistence.PrimaryPath,JsonUtility.ToJson(e));
-        Assert.That(GamePersistence.TryReadFile(GamePersistence.PrimaryPath,out var normalized,out var error),Is.True,error);
-        Assert.That(normalized.payload.normalToMagicFragments,Is.EqualTo(3));
-        Assert.That(normalized.payload.magicToRareFragments,Is.EqualTo(8));
-        Assert.That(normalized.payload.currencies.Find(x=>x.type==CraftingCurrencyType.NormalToMagic).amount,Is.EqualTo(6));
-        Assert.That(normalized.payload.currencies.Find(x=>x.type==CraftingCurrencyType.MagicToRare).amount,Is.EqualTo(1));
-        Assert.That(GamePersistence.ValidateEnvelope(normalized,out error),Is.True,error);
-        Assert.That(GamePersistence.TryReadFile(GamePersistence.PrimaryPath,out var again,out error),Is.True,error);
-        Assert.That(again.payload.currencies.Find(x=>x.type==CraftingCurrencyType.NormalToMagic).amount,Is.EqualTo(6));
     }
     [Test] public void Schema6GearMigratesWithCurrentRarityAsOriginAndFullPotential()
     {

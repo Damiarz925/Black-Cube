@@ -165,14 +165,16 @@ public sealed class EnemyDropTable
     public static float DefaultChance(CraftingCurrencyType type)=>type switch
     {
         CraftingCurrencyType.NormalToMagic or CraftingCurrencyType.RerollMagic=>.07f,
+        CraftingCurrencyType.AddMagicModifier=>.06f,
         CraftingCurrencyType.MagicToRare=>.05f,
         CraftingCurrencyType.RerollRareModifier=>.04f,
         CraftingCurrencyType.AddRareModifier=>.03f,
         CraftingCurrencyType.RemoveRareModifier=>.02f,
+        CraftingCurrencyType.PrefixFocus or CraftingCurrencyType.SuffixFocus=>.01f,
         _=>0f
     };
     static List<CurrencyDropRule> Defaults(){var list=new List<CurrencyDropRule>();foreach(var type in OrdinaryTypes())list.Add(new CurrencyDropRule(type,DefaultChance(type)));return list;}
-    public static CraftingCurrencyType[] OrdinaryTypes()=>new[]{CraftingCurrencyType.NormalToMagic,CraftingCurrencyType.RerollMagic,CraftingCurrencyType.MagicToRare,CraftingCurrencyType.RerollRareModifier,CraftingCurrencyType.AddRareModifier,CraftingCurrencyType.RemoveRareModifier};
+    public static CraftingCurrencyType[] OrdinaryTypes()=>new[]{CraftingCurrencyType.NormalToMagic,CraftingCurrencyType.RerollMagic,CraftingCurrencyType.AddMagicModifier,CraftingCurrencyType.MagicToRare,CraftingCurrencyType.RerollRareModifier,CraftingCurrencyType.AddRareModifier,CraftingCurrencyType.RemoveRareModifier,CraftingCurrencyType.PrefixFocus,CraftingCurrencyType.SuffixFocus};
 }
 
 public sealed class CurrencyRewardClaim
@@ -194,12 +196,12 @@ public sealed class CurrencyRewardClaim
 
 public sealed class CurrencyWorldPickup:MonoBehaviour
 {
-    CurrencyRewardClaim claim;Transform target;Vector3 start;float age;float displayScale=.58f;
-    const float ReadDelay=.35f,FlyDuration=.55f;
+    CurrencyRewardClaim claim;Transform target;Vector3 start;float age,collectStarted;float displayScale=.58f;bool collecting;
+    const float GroundDuration=3f,FlyDuration=.55f;
     public static CurrencyWorldPickup Spawn(CraftingCurrencyType type,Vector3 position,Transform player)=>Spawn(type,1,position,player);
     public static CurrencyWorldPickup Spawn(CraftingCurrencyType type,int amount,Vector3 position,Transform player)
     {
-        var go=new GameObject("Dropped "+CurrencyPresentation.Name(type),typeof(SpriteRenderer),typeof(CurrencyWorldPickup));
+        var go=new GameObject("Dropped "+CurrencyPresentation.Name(type),typeof(SpriteRenderer),typeof(BoxCollider2D),typeof(CurrencyWorldPickup));
         go.transform.position=position+new Vector3(UnityEngine.Random.Range(-.28f,.28f),.25f+UnityEngine.Random.Range(0f,.18f),0);
         var renderer=go.GetComponent<SpriteRenderer>();renderer.sprite=InventoryArtCatalog.Currency(type);renderer.sortingOrder=80;
         var pickup=go.GetComponent<CurrencyWorldPickup>();pickup.claim=new CurrencyRewardClaim(type,amount);pickup.target=player;pickup.start=go.transform.position;
@@ -208,16 +210,49 @@ public sealed class CurrencyWorldPickup:MonoBehaviour
             : 0f;
         pickup.displayScale = largestDimension > 0f ? .62f / largestDimension : .58f;
         go.transform.localScale=Vector3.one*pickup.displayScale;
+        go.GetComponent<BoxCollider2D>().size=renderer.sprite!=null?renderer.sprite.bounds.size:Vector2.one;
         return pickup;
     }
+    void OnMouseEnter()=>BeginCollect();
+    void BeginCollect(){if(collecting)return;collecting=true;collectStarted=age;start=transform.position;}
     void Update()
     {
         if(claim==null)return;age+=Time.unscaledDeltaTime;
-        if(age<ReadDelay){transform.position=start+Vector3.up*(Mathf.Sin(age*8f)*.04f);return;}
+        if(!collecting&&age<GroundDuration){transform.position=start+Vector3.up*(Mathf.Sin(age*8f)*.04f);return;}
+        if(!collecting)BeginCollect();
         if(target==null){AwardAndFinish();return;}
-        float t=Mathf.Clamp01((age-ReadDelay)/FlyDuration);transform.position=Vector3.Lerp(start,target.position,1f-(1f-t)*(1f-t));transform.localScale=Vector3.one*(displayScale*(1f-.55f*t));
+        float t=Mathf.Clamp01((age-collectStarted)/FlyDuration);transform.position=Vector3.Lerp(start,target.position,1f-(1f-t)*(1f-t));transform.localScale=Vector3.one*(displayScale*(1f-.55f*t));
         if(t>=1f)AwardAndFinish();
     }
     void AwardAndFinish(){claim?.TryAward();claim=null;Destroy(gameObject);}
     void OnDestroy(){claim?.TryAward();claim=null;}
+}
+
+public sealed class GearWorldPickup:MonoBehaviour
+{
+    Gear gear;Transform target;Vector3 start;float age,collectStarted,displayScale=.58f;bool collecting,claimed;
+    const float GroundDuration=3f,FlyDuration=.55f;
+    public static GearWorldPickup Spawn(Gear item,Vector3 position,Transform player)
+    {
+        if(item==null)return null;
+        var go=new GameObject("Dropped "+ItemSlotUI.DisplayType(item.ItemType),typeof(SpriteRenderer),typeof(BoxCollider2D),typeof(GearWorldPickup));
+        go.transform.position=position+new Vector3(UnityEngine.Random.Range(-.35f,.35f),.25f+UnityEngine.Random.Range(0f,.18f),0);
+        var renderer=go.GetComponent<SpriteRenderer>();renderer.sprite=ItemIconCatalog.Get(item);renderer.sortingOrder=80;
+        var pickup=go.GetComponent<GearWorldPickup>();pickup.gear=item;pickup.target=player;pickup.start=go.transform.position;
+        float largest=renderer.sprite!=null?Mathf.Max(renderer.sprite.bounds.size.x,renderer.sprite.bounds.size.y):0f;
+        pickup.displayScale=largest>0f?.72f/largest:.58f;go.transform.localScale=Vector3.one*pickup.displayScale;
+        go.GetComponent<BoxCollider2D>().size=renderer.sprite!=null?renderer.sprite.bounds.size:Vector2.one;
+        return pickup;
+    }
+    void OnMouseEnter()=>BeginCollect();
+    void BeginCollect(){if(collecting)return;collecting=true;collectStarted=age;start=transform.position;}
+    void Update()
+    {
+        if(gear==null)return;age+=Time.unscaledDeltaTime;if(!collecting&&age>=GroundDuration)BeginCollect();
+        if(!collecting){transform.position=start+Vector3.up*(Mathf.Sin(age*8f)*.04f);return;}
+        if(target==null){AwardAndFinish();return;}float t=Mathf.Clamp01((age-collectStarted)/FlyDuration);
+        transform.position=Vector3.Lerp(start,target.position,1f-(1f-t)*(1f-t));transform.localScale=Vector3.one*(displayScale*(1f-.55f*t));if(t>=1f)AwardAndFinish();
+    }
+    void AwardAndFinish(){if(!claimed&&gear!=null&&Inventory.Instance!=null){claimed=Inventory.Instance.Pickup(gear);if(claimed)gear=null;}Destroy(gameObject);}
+    void OnDestroy(){if(!claimed&&gear!=null&&Inventory.Instance!=null)Inventory.Instance.Pickup(gear);gear=null;}
 }
