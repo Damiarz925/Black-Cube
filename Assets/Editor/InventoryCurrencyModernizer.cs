@@ -17,7 +17,7 @@ public static class InventoryCurrencyModernizer
         ("MagicToRare",CraftingCurrencyType.MagicToRare),("RareReroll",CraftingCurrencyType.RerollRareModifier),("RareAdd",CraftingCurrencyType.AddRareModifier),
         ("Remove",CraftingCurrencyType.RemoveRareModifier),("PrefixFocus",CraftingCurrencyType.PrefixFocus),("SuffixFocus",CraftingCurrencyType.SuffixFocus)};
 
-    [MenuItem("Black-Cube/UI Authoring/Modernize Inventory Currency Grid")]
+    [MenuItem("Black-Cube/UI Authoring/Bind Inventory Currency Behavior")]
     public static void RunFromCommandLine()
     {
         GameObject root=PrefabUtility.LoadPrefabContents(PersistentUIAuthoringInstaller.GameplayPrefabPath);
@@ -27,7 +27,7 @@ public static class InventoryCurrencyModernizer
             Modernize(inventory);PrefabUtility.SaveAsPrefabAsset(inventory.gameObject,InventoryAuthoringBuilder.PrefabPath);PrefabUtility.SaveAsPrefabAsset(root,PersistentUIAuthoringInstaller.GameplayPrefabPath);
         }
         finally{PrefabUtility.UnloadPrefabContents(root);}
-        AssetDatabase.SaveAssets();AssetDatabase.Refresh();Debug.Log("INVENTORY MODERNIZER: production inventory updated.");
+        AssetDatabase.SaveAssets();AssetDatabase.Refresh();Debug.Log("INVENTORY CURRENCY BINDING: behavior updated without changing authored placement or artwork.");
     }
 
     static void Modernize(InventoryUI inventory)
@@ -37,7 +37,33 @@ public static class InventoryCurrencyModernizer
         view.equipmentRoot=Find<RectTransform>(inventory.transform,"Equipped gear layout");view.ordinaryCurrencyRoot=Find<RectTransform>(inventory.transform,"Ordinary currency");view.ancientCurrencyRoot=Find<RectTransform>(inventory.transform,"Ancient relic currency");
         view.relicRoot=Find<RectTransform>(inventory.transform,"Relic inventory");
         if(view.ordinaryCurrencyRoot==null||view.ancientCurrencyRoot==null)throw new InvalidOperationException("Currency roots missing.");
-        BindCurrencies(view);ConfigureGrid(view,inventory);ConfigureFilters(view,inventory);ConfigureEquipment(view,inventory);EditorUtility.SetDirty(view);EditorUtility.SetDirty(inventory);
+        // Bind behavior only. Existing prefab transforms, sprites, hierarchy, and layout are designer-authored.
+        BindAuthoredCurrencies(view);EditorUtility.SetDirty(view);EditorUtility.SetDirty(inventory);
+    }
+
+    static void BindAuthoredCurrencies(InventoryView view)
+    {
+        var slots=new List<CurrencySlotUI>();
+        BindRow(view.ancientCurrencyRoot,AncientSlots,slots);
+        BindRow(view.ordinaryCurrencyRoot,OrdinarySlots,slots);
+        view.currencySlots=slots;
+    }
+
+    static void BindRow(RectTransform root,(string name,CraftingCurrencyType type)[] definitions,List<CurrencySlotUI> slots)
+    {
+        foreach(var definition in definitions)
+        {
+            Transform icon=FindTransform(root,definition.name);
+            if(icon==null)throw new InvalidOperationException("Missing authored currency slot "+definition.name+". Create and place it in the prefab before binding behavior.");
+            Image image=icon.GetComponent<Image>();
+            Image border=icon.parent!=null?icon.parent.GetComponent<Image>():null;
+            TMP_Text count=icon.GetComponentsInChildren<TMP_Text>(true).FirstOrDefault();
+            if(image==null||border==null||count==null)throw new InvalidOperationException("Currency slot "+definition.name+" requires authored icon, border, and count objects.");
+            CurrencySlotUI slot=icon.GetComponent<CurrencySlotUI>()??icon.gameObject.AddComponent<CurrencySlotUI>();
+            slot.Initialize(definition.type,null,count,icon.GetComponent<Outline>());
+            slot.ConfigureBorders(border,border.sprite,InventoryArtCatalog.CurrencyBorderHovered,InventoryArtCatalog.CurrencyBorderSelected);
+            slots.Add(slot);EditorUtility.SetDirty(slot);
+        }
     }
 
     static void BindCurrencies(InventoryView view)
