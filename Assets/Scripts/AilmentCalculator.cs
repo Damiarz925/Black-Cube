@@ -55,27 +55,28 @@ public static class AilmentCalculator
                 break;
         }
 
-        // 4)Calculate the appropriate DoT multipliers to apply to the ailment damage
-        float moreTotal = 0f;
-        moreTotal += attacker.GetStat(StatTypes.GenericDotMult);
+        // Generic hit "more" is already embodied in sourceHitDamage. Only DoT
+        // multipliers are applied here, with each roll remaining independent.
+        float moreMultiplier = attacker.GetMoreDamageMultiplier(StatTypes.GenericDotMult);
 
         switch (effect.Ailment)
         {
             case StatusEffects.AilmentKind.Poison:
-                moreTotal += attacker.GetStat(StatTypes.PoisonMult);
+                moreMultiplier *= attacker.GetMoreDamageMultiplier(StatTypes.PoisonMult);
                 break;
 
             case StatusEffects.AilmentKind.Bleed:
-                moreTotal += attacker.GetStat(StatTypes.BleedMult);
+                moreMultiplier *= attacker.GetMoreDamageMultiplier(StatTypes.BleedMult);
                 break;
 
             case StatusEffects.AilmentKind.Ignite:
-                moreTotal += attacker.GetStat(StatTypes.IgniteMult);
+                moreMultiplier *= attacker.GetMoreDamageMultiplier(StatTypes.IgniteMult);
                 break;
         }
 
-        //Calculate the total ailment damage as base damage * (1+increased/100) * (1+more/100). This is because they are whole numbers that must be converted to be used. 
-        float totalAilmentDamage = baseAilmentDamage * (1f + (incTotal/100f)) * (1f + (moreTotal/100f));
+        // Preserve the existing ailment-specific increased-damage behavior; only
+        // the applicable "more" rolls change to independent multiplication here.
+        float totalAilmentDamage = baseAilmentDamage * (1f + (incTotal / 100f)) * moreMultiplier;
 
         // 5)Grab the base tick duration of the ailment
         int baseTicks = Mathf.Max(1, effect.TickDuration);

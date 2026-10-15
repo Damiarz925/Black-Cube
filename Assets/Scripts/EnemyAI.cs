@@ -282,16 +282,7 @@ public class EnemyAI : MonoBehaviour
     private void AddScaledElementalDamage(DamageContext ctx, Element element, float baseAmount)
     {
         float flatGlobal = stats.GetStat(StatMappings.GetFlatDamageStat(element));      //get the flat global of the passed in element
-        float incElement = stats.GetStat(StatMappings.GetIncDamageStat(element));       //get the inc ele damage of the passed in element
-        float incGeneric = stats.GetStat(StatTypes.GenericDmg);             //get the global inc damage
-        float incTotal = incElement + incGeneric;           //calculate total inc damage as element + gloabl
-
-        float moreElement = stats.GetStat(StatMappings.GetMoreDamageStat(element));     //repeat above for more damage to calculate total more damage as more + generic
-        float moreGeneric = stats.GetStat(StatTypes.GenericMult);
-        float moreTotal = (1f + moreElement) * (1f + moreGeneric);
-        Debug.Log($"Enemy dmg stats: base={baseAmount}, flatG={flatGlobal}, incElem={incElement}, incGen={incGeneric}, moreElem={moreElement}, moreGen={moreGeneric}");
-
-        float amount = (baseAmount + flatGlobal) * (1f + incTotal) * moreTotal;    //calculate final damage amount as basedmg + matching flat damage times (1 + increasedtotal) time (1 + moretotal) 
+        float amount = OutgoingDamageCalculator.Calculate(baseAmount, flatGlobal, element, stats);
 
         ctx.AddDamage(element, amount);     //add this damage to the damage context passing in the element of the damage and the amount
     }
@@ -311,15 +302,7 @@ public class EnemyAI : MonoBehaviour
         float flatGlobal = stats.GetStat(StatMappings.GetFlatDamageStat(element));      //get the flat damage stat, if it's 0, return
         if (flatGlobal <= 0f) return;
 
-        float incElement = stats.GetStat(StatMappings.GetIncDamageStat(element));       //get the increased damage stat for the current element, add it to global increased damage to calc inctotal
-        float incGeneric = stats.GetStat(StatTypes.GenericDmg);
-        float incTotal = incElement + incGeneric;
-
-        float moreElement = stats.GetStat(StatMappings.GetMoreDamageStat(element));     //get the more damage stat for the current element, add it to global more damage to calc moretotal
-        float moreGeneric = stats.GetStat(StatTypes.GenericMult);
-        float moreTotal = (1f + moreElement) * (1f + moreGeneric);
-
-        float amount = flatGlobal * (1f + incTotal) * moreTotal;      //calculate total damage for this element as the flat * (1+totalinc) * (1+totalmore)
+        float amount = OutgoingDamageCalculator.Calculate(0f, flatGlobal, element, stats);
         ctx.AddDamage(element, amount);     //add this element to damage context
     }
 

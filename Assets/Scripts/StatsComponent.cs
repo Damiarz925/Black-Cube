@@ -48,11 +48,24 @@ public class StatsComponent : MonoBehaviour
         return stat.GetValue();
     }
 
+    /// <summary>
+    /// Returns the product of the individual rolls for a damage "more" stat.
+    /// This deliberately differs from GetStat/GetRawStat, which expose the
+    /// additive percent-point total used by stat displays.
+    /// </summary>
+    public float GetMoreDamageMultiplier(StatTypes type)
+    {
+        if (!IsMoreDamageStat(type))
+            throw new System.ArgumentException($"{type} is not a damage more stat", nameof(type));
+
+        return _stats.TryGetValue(type, out var stat) ? stat.GetPercentMultiplier() : 1f;
+    }
+
     public void SetBaseStat(StatTypes type, float baseValue)
     {
         if (!_stats.TryGetValue(type, out var stat))
         {
-            stat = new StatValue(baseValue);
+            stat = new StatValue(baseValue, IsMoreDamageStat(type));
             _stats[type] = stat;
         }
         else
@@ -66,7 +79,7 @@ public class StatsComponent : MonoBehaviour
     {
         if (!_stats.TryGetValue(mod.Stat, out var stat))
         {
-            stat = new StatValue();
+            stat = new StatValue(0f, IsMoreDamageStat(mod.Stat));
             _stats[mod.Stat] = stat;
         }
         stat.AddModifier(mod);
@@ -170,6 +183,25 @@ public class StatsComponent : MonoBehaviour
 
                 return true;
 
+            default:
+                return false;
+        }
+    }
+
+    public static bool IsMoreDamageStat(StatTypes t)
+    {
+        switch (t)
+        {
+            case StatTypes.GenericMult:
+            case StatTypes.GenericDotMult:
+            case StatTypes.PhysMult:
+            case StatTypes.FireMult:
+            case StatTypes.ColdMult:
+            case StatTypes.LightMult:
+            case StatTypes.PoisonMult:
+            case StatTypes.BleedMult:
+            case StatTypes.IgniteMult:
+                return true;
             default:
                 return false;
         }

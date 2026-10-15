@@ -1,7 +1,7 @@
 using UnityEngine;
 
 //Builds attack snapshots and routes incoming damage/status ticks; does not handle animations yet.
-//All increased/more stats should be stored as decimals
+//Percent stats are stored as percent points and exposed as fractions by StatsComponent.
 public class PlayerController : MonoBehaviour
 {
     [SerializeField] Animator animator; //Field for the player's animator component
@@ -144,19 +144,7 @@ public class PlayerController : MonoBehaviour
         //Grabs all of the flat damage increases for your main stat
         float flatGlobal = stats.GetStat(StatMappings.GetFlatDamageStat(element));
 
-        //Grabs all of the increased damage increases for your main stat
-        float incElement = stats.GetStat(StatMappings.GetIncDamageStat(element));  // e.g. 0.40 for +40% phys
-        float incGeneric = stats.GetStat(StatTypes.GenericDmg);                    // e.g. 0.80 for +80% generic
-        float incTotal = incElement + incGeneric;                                // e.g. 1.20 → +120% increased
-
-        //Grabs all of the more damage increases for your main stat
-        float moreElement = stats.GetStat(StatMappings.GetMoreDamageStat(element)); // e.g. 0.30 for +30% more phys
-        float moreGeneric = stats.GetStat(StatTypes.GenericMult);                   // e.g. 0.50 for +50% more damage
-        float moreTotal = (1f + moreElement) * (1f + moreGeneric);                              // e.g. 0.80 → +80% more
-
-        // Pipeline: base + flat → increased → more
-        float afterInc = (baseAmount + flatGlobal) * (1f + incTotal);
-        float final = afterInc * moreTotal;
+        float final = OutgoingDamageCalculator.Calculate(baseAmount, flatGlobal, element, stats);
 
         ctx.AddDamage(element, final);  //Adds the damage to the context
     }
@@ -178,18 +166,7 @@ public class PlayerController : MonoBehaviour
         float flatGlobal = stats.GetStat(StatMappings.GetFlatDamageStat(element));  //Adds the flat damage values
         if (flatGlobal <= 0f) return;
 
-        // INC bucket
-        float incElement = stats.GetStat(StatMappings.GetIncDamageStat(element));   //Adds the increased elemental damage values
-        float incGeneric = stats.GetStat(StatTypes.GenericDmg); //Adds the generic increased damage
-        float incTotal = incElement + incGeneric;   //Adds them together for a total increased damage amount
-
-        // MORE bucket
-        float moreElement = stats.GetStat(StatMappings.GetMoreDamageStat(element)); //Adds the more elemental damage values
-        float moreGeneric = stats.GetStat(StatTypes.GenericMult);   //Adds the more generic damage values
-        float moreTotal = (1f + moreElement) * (1f + moreGeneric);    //Adds them together for the total more damage value
-
-        float afterInc = flatGlobal * (1f + incTotal);  //Multiplies increased values with float global
-        float final = afterInc * moreTotal;  //Multiplies more damage values with the previously calculated value
+        float final = OutgoingDamageCalculator.Calculate(0f, flatGlobal, element, stats);
 
         ctx.AddDamage(element, final);  //Adds this to the damage context
     }
