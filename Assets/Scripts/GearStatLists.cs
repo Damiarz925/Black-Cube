@@ -1,3 +1,5 @@
+// Developer map: Authoritative stat pools per gear slot, shared by rolling and ModDatabase editor population. Adding a stat to the enum alone does not make it rollable.
+// See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using System.Collections.Generic;
 using UnityEngine;
 

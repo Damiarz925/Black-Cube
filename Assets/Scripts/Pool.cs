@@ -1,3 +1,5 @@
+// Developer map: Legacy scenery reuse by string key. ZoneManager sets placement and activation after Get; Release deactivates and returns the object to its key stack.
+// See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using UnityEngine;
 using System.Collections.Generic;
 

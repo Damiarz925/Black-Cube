@@ -1,3 +1,5 @@
+// Developer map: Menu button wiring; New Game loads SampleScene. Achievements and Load Game are placeholders, not persistent save/load implementations.
+// See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;

@@ -1,3 +1,5 @@
+// Developer map: Asset-writing paper HUD/inventory UI configuration shared with the scene builder.
+// See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using System.Linq;
 using TMPro;
 using UnityEditor;

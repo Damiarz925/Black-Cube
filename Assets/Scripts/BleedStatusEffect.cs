@@ -1,3 +1,5 @@
+// Developer map: Bleed asset defaults and editor validation for physical-hit damage over time. Active stacks and ticking belong to StatusController, not this shared asset.
+// See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "BleedStatus", menuName = "Status Effects/Bleed")]

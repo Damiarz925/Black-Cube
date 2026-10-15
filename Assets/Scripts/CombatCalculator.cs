@@ -1,3 +1,5 @@
+// Developer map: Pure hit and DOT mitigation shared by both sides. Evasion has no hit roll here; physical resistance currently falls through StatMappings to FireRes, an existing limitation.
+// See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using UnityEngine;
 
 public static class CombatCalculator
@@ -114,6 +116,6 @@ public static class CombatCalculator
         float totalRes = resAilment + resAllAil - penAilment;       //Calculate the total res by adding the specific ailment res to all ailment res and subtracting the attacker's pen
         totalRes = Mathf.Clamp(totalRes, -0.9f, 0.9f);      //Clamp it at -90% to 90%
 
-        return baseTickDamage * (1f - totalRes);        //Calculate tick damage as base tick damage * 1 + totalres / 100 to convert to a decimal.
+        return baseTickDamage * (1f - totalRes);        // Resistance is already a fraction; do not divide by 100 again.
     }
 }

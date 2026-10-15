@@ -1,3 +1,5 @@
+// Developer map: Caches one raw stat bucket and invalidates on base/modifier changes. Result is (base + flat + additive) times multiplicative; more-percent buckets sum their modifier points instead.
+// See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using UnityEngine;
 using System.Collections.Generic;
 
@@ -8,10 +10,12 @@ public class StatValue
     private readonly List<StatModifier> _modifiers = new(); //Readonly list of stat modifiers
     private bool _dirty = true; //Indicates whether the stat has been modified
     private float _cachedValue; //Stores the cached value of the stat
+    private readonly bool additiveMorePercent;
 
     //Function sets the base value field based on the passed in base value, if nothing is passed in, it is set as 0.
-    public StatValue(float baseValue = 0f)
+    public StatValue(float baseValue = 0f, bool additiveMorePercent = false)
     {
+        this.additiveMorePercent = additiveMorePercent;
         BaseValue = baseValue;
     }
 
@@ -52,7 +56,9 @@ public class StatValue
                     additive += m.Value;
                     break;
                 case StatOp.Multiplicative: //If the operation is multiplicative, multiplicative *= 1 + the value
-                    multiplicative *= (1f + m.Value);
+                    // Damage "more" is a summed percentage bucket, even for legacy Mult operations.
+                    if (additiveMorePercent) additive += m.Value;
+                    else multiplicative *= (1f + m.Value);
                     break;
                 case StatOp.Override:   //If the operation is override, override is overriden as the value directly
                     overrideValue = m.Value;
@@ -60,7 +66,8 @@ public class StatValue
             }
         }
 
-        //result is the base value plus the flat, multiplied by 1 + additive, and then multiplied by multiplicative.
+        // Flat and additive values are raw points in this bucket, not a second
+        // percentage multiplier. Gameplay formulas convert/apply percent buckets.
         float result = BaseValue + flat + additive;
         result *= multiplicative;
 

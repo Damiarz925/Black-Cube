@@ -1,0 +1,13 @@
+{
+  "Assets\\Art\\PaperBattle\\PlayerIdleConsistent\\PlayerIdle1.png": "a022e84c740838e9c9daeb3949e9feb5665eb9f2f57683051ce038fd3168d275",
+  "Assets\\Art\\PaperBattle\\PlayerIdleConsistent\\PlayerIdle1.png.meta": "a3dac7f67ec4919ba9eff5e6e021139dfc9883f8ff2a0cbefbf6b856d84813b3",
+  "Assets\\Art\\PaperBattle\\PlayerIdleConsistent\\PlayerIdle2.png": "9901f38c9a354709f6dbb4dd92290de5db2570dcb0a7ac26599ef07ce4d5b325",
+  "Assets\\Art\\PaperBattle\\PlayerIdleConsistent\\PlayerIdle2.png.meta": "630634d81e3d927a33c2b9f8f3eab06ab4e7e5e283f495b2abd4cf098fb94e88",
+  "Assets\\Art\\PaperBattle\\PlayerIdleConsistent\\PlayerIdle3.png": "730c870c6b6486ea8eb7cccbd753bc52fb28f1c1acbbba0334e61cb06e630609",
+  "Assets\\Art\\PaperBattle\\PlayerIdleConsistent\\PlayerIdle3.png.meta": "e2ca811e5ff1e21027ff854550a41ccf1660ebb1a5333ebd051e4e05a7d3d930",
+  "Assets\\Art\\PaperBattle\\PlayerIdleConsistent\\PlayerIdle4.png": "8ce2e7552e729a3d52c882782e925338740edc7b9d315cb99ccb76e06894d102",
+  "Assets\\Art\\PaperBattle\\PlayerIdleConsistent\\PlayerIdle4.png.meta": "864a580e82eba4fcc8316b9444b58ba39e5b15fdbe0a800e382d00aff6a2388d",
+  "Assets\\Scripts\\BattleManager.cs": "0f914a6127aa4c5f5aca052a2b15e08ae7ea8ffd49fea835175adab9978858ee",
+  "Assets\\Scripts\\PaperSpriteActor.cs": "938a5f620793612f85e0c87d5d08216c13b4abba0e48228cf657ea8b6e902ca3",
+  "Assets\\Prefabs\\PaperBattle\\PaperBattle.prefab": "b3602625cbd1fbc3ca6326aaccc9f0141eed7e58929a860da63e73628787b542"
+}

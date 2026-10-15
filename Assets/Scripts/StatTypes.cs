@@ -1,3 +1,5 @@
+// Developer map: Serialized stat identifiers consumed by gear catalogs, formulas and UI. Preserve numeric identities when extending; presence in this enum does not imply an implemented mechanic.
+// See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using UnityEngine;
 
 public enum StatTypes

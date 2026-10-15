@@ -1,8 +1,33 @@
+// Developer map: Selects the six paper forest images in ten-level blocks repeating every sixty levels. Also retains optional legacy 3D scenery generation and placeholder prestige/scaling hooks.
+// See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using System.Collections.Generic;
 using UnityEngine;
 
 public class ZoneManager : MonoBehaviour
 {
+    [Header("Stage Progression")]
+    [SerializeField] private string[] zoneNames = { "Forest", "Desert", "Tundra" };
+    [SerializeField, Min(1)] private int stagesPerZone = 10;
+    [Header("Paper Forest Backgrounds")]
+    [SerializeField] private SpriteRenderer paperBackground;
+    [SerializeField] private Sprite[] forestBackgrounds;
+    private bool HasForestCycle => forestBackgrounds != null && forestBackgrounds.Length == 6;
+    public static int ForestBackgroundIndex(int level) => ((Mathf.Max(1, level) - 1) / 10) % 6;
+    public string LocationLabel => HasForestCycle
+        ? ZoneName + " · Level " + Mathf.Max(1, zoneLevel)
+        : ZoneName + " " + StageNumber;
+    public int StageNumber => (Mathf.Max(1, zoneLevel) - 1) % Mathf.Max(1, stagesPerZone) + 1;
+    public string ZoneName
+    {
+        get
+        {
+            if (HasForestCycle) return "Forest " + (ForestBackgroundIndex(zoneLevel) + 1);
+            if (zoneNames == null || zoneNames.Length == 0) return "Forest";
+            int index = Mathf.Min((Mathf.Max(1, zoneLevel) - 1) / Mathf.Max(1, stagesPerZone), zoneNames.Length - 1);
+            return string.IsNullOrWhiteSpace(zoneNames[index]) ? "Zone " + (index + 1) : zoneNames[index];
+        }
+    }
+
     [Header("Generation")]
     [SerializeField] private bool generate3DScenery = true;
     [SerializeField] private LevelGenerator levelGenerator;
@@ -25,12 +50,15 @@ public class ZoneManager : MonoBehaviour
 
     public int GetEnemiesToKillBeforeBoss(int zoneLevel)
     {
-        Debug.Log($"ZoneManager: GetEnemiesToKillBeforeBoss(zoneLevel={zoneLevel}) -> 10");
-        return 10;
+        // Encounter/stage 10 is the boss: nine normal kills precede it.
+        // This quota is independent of ten combat levels per forest background.
+        Debug.Log($"ZoneManager: GetEnemiesToKillBeforeBoss(zoneLevel={zoneLevel}) -> 9");
+        return 9;
     }
 
     public void GenerateZone()
     {
+        ApplyPaperBackground();
         // The paper scene supplies a painted background. Keep generation reusable.
         if (!generate3DScenery) return;
         if (!EnsureReferences())
@@ -51,11 +79,25 @@ public class ZoneManager : MonoBehaviour
             MaxZ = maxZ,
             GroundY = groundY
         };
-        
+
         LevelPlan plan = levelGenerator.BuildLevelPlan(zoneLevel, seed, theme, anchors, bounds);
 
         ApplyThemeVisuals(plan.Theme);
         ApplyLevelPlan(plan);
+    }
+
+    public void ConfigurePaperBackgrounds(SpriteRenderer renderer, Sprite[] backgrounds)
+    {
+        paperBackground = renderer;
+        forestBackgrounds = backgrounds;
+        ApplyPaperBackground();
+    }
+
+    private void ApplyPaperBackground()
+    {
+        if (paperBackground == null || !HasForestCycle) return;
+        var sprite = forestBackgrounds[ForestBackgroundIndex(zoneLevel)];
+        if (sprite != null) paperBackground.sprite = sprite;
     }
 
     private ThemeDefinition PickTheme(int levelIndex, int seed)

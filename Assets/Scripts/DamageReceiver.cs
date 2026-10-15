@@ -1,3 +1,5 @@
+// Developer map: Single entry point for already-mitigated damage and its popup. The strongest raw component chooses a mixed hit color; it does not split the life deduction into multiple hits.
+// See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using UnityEngine;
 
 [RequireComponent(typeof(HealthComponent))]

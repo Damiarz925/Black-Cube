@@ -1,3 +1,5 @@
+// Developer map: Initial enemy stat buckets; AttackSpeed zero means zero increased speed, not disabled attacks. SetupForZone is a placeholder, and enemy maximum life comes from its HealthComponent prefab.
+// See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using UnityEngine;
 
 //Automatically adds StatsComponent to the object if it doesn't exist on it already
@@ -12,7 +14,7 @@ public class EnemyStatSetup : MonoBehaviour
 
         //Later the enemy will have some base stats based on the ilvl of the enemy, and those base stats will be modified by randomly created gear items
         stats.SetBaseStat(StatTypes.Life, 80f); //Currently manually sets the base stats of the enemy
-        stats.SetBaseStat(StatTypes.AttackSpeed, 0f);   //Currently set to not attack for testing
+        stats.SetBaseStat(StatTypes.AttackSpeed, 0f);   // Zero increased speed; weapon/base speed still permits attacks.
 
         stats.SetBaseStat(StatTypes.FireRes, 0f);   //Currently set to 0 for testing
         stats.SetBaseStat(StatTypes.ColdRes, 0f);   //Currently set to 0 for testing

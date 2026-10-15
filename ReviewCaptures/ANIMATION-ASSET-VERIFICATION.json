@@ -1,0 +1,12 @@
+{
+  "status": "PASS",
+  "idle_unique": 4,
+  "idle_slots": 6,
+  "idle_seconds": 4,
+  "attack_body_cels": 8,
+  "weapon_cels": 8,
+  "single_sprite_GUID_refs_resolve": true,
+  "transparent_unclipped_PNGs": 20,
+  "ppu": 150,
+  "unity_import_or_runtime_tested": false
+}

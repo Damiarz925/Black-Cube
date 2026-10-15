@@ -1,3 +1,5 @@
+// Developer map: Converts eligible pre-defense hit components into per-tick strength, tick count and global-turn interval. Generic hit scaling is already in the source hit and must not be applied twice.
+// See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using UnityEngine;
 
 //This class is used to calculate ailment damage so that it can be dealt to a target
@@ -74,8 +76,9 @@ public static class AilmentCalculator
                 break;
         }
 
-        //Calculate the total ailment damage as base damage * (1+increased/100) * (1+more/100). This is because they are whole numbers that must be converted to be used. 
-        float totalAilmentDamage = baseAilmentDamage * (1f + (incTotal/100f)) * (1f + (moreTotal/100f));
+        // GetStat already returns fractions. Sum within each ailment bucket, then
+        // multiply the buckets on top of the already-scaled eligible hit.
+        float totalAilmentDamage = baseAilmentDamage * (1f + incTotal) * (1f + moreTotal);
 
         // 5)Grab the base tick duration of the ailment
         int baseTicks = Mathf.Max(1, effect.TickDuration);
@@ -98,8 +101,9 @@ public static class AilmentCalculator
         //Set the tick count to the largest number between 1 and baseTicks + extraTicks
         tickCount = Mathf.Max(1, baseTicks + extraTicks);
 
-        //Set damage per tick as the total damage divided by the tick count
-        damagePerTick = totalAilmentDamage / tickCount;
+        // Preserve the configured base-duration coefficient. Extra duration adds
+        // equally strong ticks; it must not dilute or multiply individual ticks.
+        damagePerTick = totalAilmentDamage / baseTicks;
 
         //Set base interval to the effects base turn interval (how many turns between the effect applying)
         int baseInterval = effect.BaseTurnInterval;
@@ -124,36 +128,30 @@ public static class AilmentCalculator
     }
 
     //Used to grab the damage of the source hit to be used when applying ailments
-    private static float GetSourceHitDamage(StatusEffects effect, DamageContext ctx)
+    public static float GetSourceHitDamage(StatusEffects effect, DamageContext ctx)
     {
         if (effect == null || ctx.Hits == null || ctx.Hits.Count == 0)  //If effect is null or context has no hits, return
             return 0f;
 
         float total = 0f;
 
-        switch (effect.Ailment)     //Decide which damage types to apply. Currently Physical damage affects both poison and bleed, while fire damage affects ignite.
+        // One eligibility rule shared by chance rolls and ailment strength calculation.
+        ElementMask eligible = effect._StatusType switch
         {
-            case StatusEffects.AilmentKind.Poison:
-                foreach (var hit in ctx.Hits)
-                    if (hit.Element == Element.Phys)
-                        total += hit.Amount;
-                break;
-            case StatusEffects.AilmentKind.Bleed:
-                foreach (var hit in ctx.Hits)
-                    if (hit.Element == Element.Phys)
-                        total += hit.Amount;
-                break;
-
-            case StatusEffects.AilmentKind.Ignite:
-                foreach (var hit in ctx.Hits)
-                    if (hit.Element == Element.Fire)
-                        total += hit.Amount;
-                break;
-
-            default:
-                foreach (var hit in ctx.Hits)
-                    total += hit.Amount;
-                break;
+            StatusEffects.StatusType.Chill => ElementMask.Cold,
+            StatusEffects.StatusType.Shock => ElementMask.Light,
+            _ => effect.Ailment switch
+            {
+                StatusEffects.AilmentKind.Poison => ElementMask.Phys | ElementMask.Poison,
+                StatusEffects.AilmentKind.Bleed => ElementMask.Phys,
+                StatusEffects.AilmentKind.Ignite => ElementMask.Fire,
+                _ => effect.Elements
+            }
+        };
+        foreach (var hit in ctx.Hits)
+        {
+            if (hit.Amount > 0f && (eligible & (ElementMask)(1 << (int)hit.Element)) != 0)
+                total += hit.Amount;
         }
 
         return total;   //After calculating the total amount of dmg to apply to the hit based on the dmg types of the context, return that total

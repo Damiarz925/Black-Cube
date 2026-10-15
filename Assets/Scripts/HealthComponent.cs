@@ -1,3 +1,5 @@
+// Developer map: Owns life, death and single-claim enemy rewards; death can synchronously cause a replacement encounter. Player life reads StatsComponent; enemy life uses serialized maxLife.
+// See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using UnityEngine;
 
 public class HealthComponent : MonoBehaviour
@@ -10,6 +12,15 @@ public class HealthComponent : MonoBehaviour
     [SerializeField] private bool isBoss;
 
     private bool isDead = false;
+    private bool deathRewardClaimed;
+    public bool IsBoss => isBoss;
+    public void SetEnemyRole(bool boss) { isEnemy = true; isBoss = boss; }
+    public bool TryClaimEnemyDeath()
+    {
+        if (!isEnemy || !isDead || deathRewardClaimed) return false;
+        deathRewardClaimed = true;
+        return true;
+    }
     private StatsComponent playerStats;
     public float MaxLife => playerStats != null ? Mathf.Max(0f, playerStats.GetStat(StatTypes.Life)) : maxLife;
 
@@ -84,5 +95,9 @@ public class HealthComponent : MonoBehaviour
         CurrentLife = MaxLife;
         if (CurrentLife <= 0f) Die();
         Debug.Log($"HealthComponent: ReviveToFullLife called for {name}. CurrentLife={CurrentLife}", this);
+    }
+    public void RestoreFullLife()
+    {
+        if (!isDead) CurrentLife = MaxLife;
     }
 }

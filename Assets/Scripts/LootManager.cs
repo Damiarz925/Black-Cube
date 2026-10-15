@@ -1,3 +1,5 @@
+// Developer map: Rolls item type/rarity/element and delegates affixes to ModManager, then returns one Gear to GameManager. Item level uses combat level plus enemy-rarity bonus.
+// See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using System.Collections.Generic;
 using UnityEngine;
 

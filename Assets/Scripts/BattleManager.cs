@@ -1,3 +1,5 @@
+// Developer map: Owns combat clocks, target replacement and damage resolution. Attack speeds are attacks/second at threshold 100; sprite poses only visualize this clock and never cause damage.
+// See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using UnityEngine;
 
 public class BattleManager : MonoBehaviour
@@ -17,6 +19,8 @@ public class BattleManager : MonoBehaviour
     [SerializeField] private StatusEffects poisonEffect;
     [SerializeField] private StatusEffects bleedEffect;
     [SerializeField] private StatusEffects igniteEffect;
+    [SerializeField] private StatusEffects chillEffect;
+    [SerializeField] private StatusEffects shockEffect;
 
 
     private PlayerController playerController;
@@ -42,6 +46,8 @@ public class BattleManager : MonoBehaviour
     [SerializeField] private float turnThreshold = 100f;        //Turn threshold is basically the size of the gauge that is filled before a player or enemy attacks, the speed at which it fills is determined by attack speed value
     private float playerGauge;
     private float enemyGauge;
+    private bool playerHasLandedTurn;
+    private bool enemyHasLandedTurn;
 
     private int globalTurnCounter;
 
@@ -127,6 +133,8 @@ public class BattleManager : MonoBehaviour
             return;
         }
 
+        playerHasLandedTurn = false;
+        if (playerSprite != null) playerSprite.CancelAttack();
         if (currentEnemy != null)       //if current enemy isn't null, destroy it
         {
             Destroy(currentEnemy);
@@ -162,28 +170,57 @@ public class BattleManager : MonoBehaviour
                   $"normalPrefab={(normalEnemyPrefab ? normalEnemyPrefab.name : "null")}, " +
                   $"bossPrefab={(bossEnemyPrefab ? bossEnemyPrefab.name : "null")}");
 
+        enemyHealth.SetEnemyRole(spawnBoss);
         enemyAI.InitializeEnemy(zoneLevel);     //call initialize enemy, passing in the zone level
 
         enemyGauge = 0f;        //set player and enemy gauges to 0, and global turn counter to 0.
+        enemyHasLandedTurn = false;
+        if (enemySprite != null) enemySprite.CancelAttack();
         playerGauge = 0f;
         globalTurnCounter = 0;
     }
 
     private void Update()
     {
-        if (playerHealth == null || playerHealth.CurrentLife <= 0f) return;     //if player health is ever null or player life is ever 0 or less, return
-        if (currentEnemy == null || enemyHealth == null || enemyHealth.CurrentLife <= 0f) return;       //if enemy or enemy health is ever null, or enemy life is ever 0 or less, return
+        if (SkillTreeUI.IsOpen || Time.timeScale <= 0f) return;
+        if (playerHealth == null || playerHealth.CurrentLife <= 0f
+            || currentEnemy == null || enemyHealth == null || enemyHealth.CurrentLife <= 0f)
+        {
+            playerGauge = 0f;
+            playerHasLandedTurn = false;
+            if (playerSprite != null) playerSprite.CancelAttack();
+            if (enemySprite != null) enemySprite.CancelAttack();
+            return;
+        }
         if (playerController == null || enemyAI == null) return;
+        if (turnThreshold <= 0f) return;
+        var tickTarget = currentEnemy;
 
         float playerSpeed = playerController.GetFinalAttackSpeed() * 100f;      //get the player and enemy final attack speed and multiply it by 100f
         float enemySpeed = enemyAI.GetFinalAttackSpeed() * 100f;
 
-        playerGauge += playerSpeed * Time.deltaTime;        //add to the gauge based on player and enemy speed every second
-        enemyGauge += enemySpeed * Time.deltaTime;
+        if (playerSpeed <= 0f)
+        {
+            playerGauge = 0f;
+            playerHasLandedTurn = false;
+            if (playerSprite != null) playerSprite.CancelAttack();
+        }
+        playerGauge += Mathf.Max(0f, playerSpeed) * Time.deltaTime;
+        if (enemySpeed <= 0f)
+        {
+            enemyGauge = 0f;
+            enemyHasLandedTurn = false;
+            if (enemySprite != null) enemySprite.CancelAttack();
+        }
+        enemyGauge += Mathf.Max(0f, enemySpeed) * Time.deltaTime;
 
         // Wind up just before the gauge fills; show strike on the exact damage turn.
         if (playerSprite != null) playerSprite.SetAnticipation(playerGauge >= turnThreshold - playerSpeed * 0.08f);
+        if (playerSprite != null && playerSpeed > 0f)
+            playerSprite.ShowAttackGauge(playerGauge / turnThreshold, playerHasLandedTurn);
         if (enemySprite != null) enemySprite.SetAnticipation(enemyGauge >= turnThreshold - enemySpeed * 0.08f);
+        if (enemySprite != null && enemySpeed > 0f)
+            enemySprite.ShowAttackGauge(enemyGauge / turnThreshold, enemyHasLandedTurn);
 
         int safety = 10;
 
@@ -195,8 +232,8 @@ public class BattleManager : MonoBehaviour
             {
                 playerGauge -= turnThreshold;
 
-                if (playerSprite != null) playerSprite.Strike();
-                else TriggerAttackAnimation(playerAnimator, playerSpeed);
+                playerHasLandedTurn = true;
+                if (playerSprite == null) TriggerAttackAnimation(playerAnimator, playerSpeed);
 
                 ResolvePlayerTurn();
             }
@@ -204,13 +241,13 @@ public class BattleManager : MonoBehaviour
             {
                 enemyGauge -= turnThreshold;
 
-                if (enemySprite != null) enemySprite.Strike();
-                else TriggerAttackAnimation(enemyAnimator, enemySpeed);
+                enemyHasLandedTurn = true;
+                if (enemySprite == null) TriggerAttackAnimation(enemyAnimator, enemySpeed);
 
                 ResolveEnemyTurn();
             }
 
-            if (currentEnemy == null || enemyHealth == null || enemyHealth.CurrentLife <= 0f) return;      //if current enemy is null, or enemy life is less than or equal to 0, return
+            if (playerHealth.CurrentLife <= 0f || currentEnemy != tickTarget || currentEnemy == null || enemyHealth == null || enemyHealth.CurrentLife <= 0f) return;
         }
     }
 
@@ -218,10 +255,14 @@ public class BattleManager : MonoBehaviour
     {
         if (currentEnemy == null || enemyStatusCont == null || enemyHealth == null || enemyHealth.CurrentLife <= 0f) return;       //if there is no enemy, or it has no hp, or its HP is less than or equal to 0, return
 
+        var originalTarget = enemyHealth;
+        var originalStatuses = enemyStatusCont;
         globalTurnCounter++;        //increment global turn counter
 
         TickStatusController(playerStatusCont);       //tick statuses on player and enemy
+        if (playerHealth.CurrentLife <= 0f) return;
         TickStatusController(enemyStatusCont);
+        if (enemyHealth != originalTarget || originalTarget.CurrentLife <= 0f) return;
 
         DamageContext ctx = playerController.BuildAttackContext();      //generate damage context for the player
 
@@ -242,11 +283,16 @@ public class BattleManager : MonoBehaviour
             enemyDamageReceiver = GetOrAddDamageReceiver(currentEnemy);
 
         if (enemyDamageReceiver != null)
+        {
+            // Apply the impact drawing in the same call/frame as the actual damage event.
+            if (playerSprite != null) playerSprite.Strike();
             enemyDamageReceiver.TakeDamage(damageTaken, ctx);      //call lose life on the enemy script, passing in the damage taken value calculated previously
+        }
         else
             Debug.LogWarning("BattleManager: Enemy DamageReceiver is missing; player hit was not applied.", currentEnemy);
 
-        ApplyOnHitEffects(ctx, playerStats, enemyStatusCont);       //call apply on hit effects, passing in the context, player stats, and enemystatuscont
+        if (originalTarget != null && originalTarget.CurrentLife > 0f)
+            ApplyOnHitEffects(ctx, playerStats, originalStatuses);
     }
 
     private void ResolveEnemyTurn()
@@ -254,10 +300,13 @@ public class BattleManager : MonoBehaviour
         if (currentEnemy == null || enemyHealth == null || enemyHealth.CurrentLife <= 0f) return;       //if enemy, or their health is null or less than or equal to 0, return
         if (playerHealth == null || playerStatusCont == null || playerHealth.CurrentLife <= 0f) return;     //if player health is null or less than or equal to 0, return
 
+        var originalAttacker = enemyHealth;
         globalTurnCounter++;        //increment global turn counter
 
         TickStatusController(playerStatusCont);       //tick player and enemy statuses
+        if (playerHealth.CurrentLife <= 0f) return;
         TickStatusController(enemyStatusCont);
+        if (enemyHealth != originalAttacker || originalAttacker.CurrentLife <= 0f) return;
 
         DamageContext ctx = enemyAI.BuildAttackContext();       //generate damage context from the enemy
 
@@ -277,7 +326,12 @@ public class BattleManager : MonoBehaviour
             playerDamageReceiver = GetOrAddDamageReceiver(player);
 
         if (playerDamageReceiver != null)
+        {
+            // Status ticks may have killed/replaced the attacker above. Only show
+            // impact once this particular enemy is actually applying its hit.
+            if (enemySprite != null) enemySprite.Strike();
             playerDamageReceiver.TakeDamage(damageTaken, ctx);     //call lose life in player script, passing in damage taken
+        }
         else
             Debug.LogWarning("BattleManager: Player DamageReceiver is missing; enemy hit was not applied.", player);
 
@@ -360,14 +414,14 @@ public class BattleManager : MonoBehaviour
         }
     }
 
-    //Note that I'll later likely implement the logic allowing for ailment chance stacking over 100% here. Such that it rolls for random < ailmentchance, then subtracts 100 from ailmentchance, increments a counter, and rolls again until failed, then applies (counter) number of stacks 
+    //Note that I'll later likely implement the logic allowing for ailment chance stacking over 100% here. Such that it rolls for random < ailmentchance, then subtracts 100 from ailmentchance, increments a counter, and rolls again until failed, then applies (counter) number of stacks
     private void ApplyOnHitEffects(DamageContext ctx, StatsComponent attackerStats, StatusController targetStatusCont)
     {
         if (attackerStats == null || targetStatusCont == null) return;      //if attacker stats or target status cont is null, return
         if (ctx.Hits == null || ctx.Hits.Count == 0) return;        //if context.hits is null, or the context has nothing in the hits list, return
 
         // Poison
-        if (poisonEffect != null)       //if poisoneffect is not null
+        if (poisonEffect != null && AilmentCalculator.GetSourceHitDamage(poisonEffect, ctx) > 0f)
         {
             float poisonChance = attackerStats.GetStat(StatTypes.PoisonChance); //grab the poison chance stat from the attacker's stats
             if (Random.value < poisonChance)        //get a random value, if it is less than the poison chance, call applyailmentfromhit on the target's status cont, passing in the poison effect, context, attacker stats, and stacksperhit (default 1)
@@ -381,7 +435,7 @@ public class BattleManager : MonoBehaviour
         }
 
         // Bleed
-        if (bleedEffect != null)    //If bleed effect is not null
+        if (bleedEffect != null && AilmentCalculator.GetSourceHitDamage(bleedEffect, ctx) > 0f)
         {
             float bleedChance = attackerStats.GetStat(StatTypes.BleedChance);   //grab the bleed chance from attacker stats
             if (Random.value < bleedChance)     //get a random value and check if it's less than the bleed chance, if it is, apply bleed using the bleed effect, context, and attacker stats, as well as the stacks per hit
@@ -395,7 +449,7 @@ public class BattleManager : MonoBehaviour
         }
 
         // Ignite
-        if (igniteEffect != null)   //if ignite is not null
+        if (igniteEffect != null && AilmentCalculator.GetSourceHitDamage(igniteEffect, ctx) > 0f)
         {
             float igniteChance = attackerStats.GetStat(StatTypes.IgniteChance);     //grab the attacker's ignite chance
             if (Random.value < igniteChance)        //get a random value, if it is less than the ignite chance, apply ailment from hit
@@ -407,6 +461,15 @@ public class BattleManager : MonoBehaviour
                     1);
             }
         }
+        ApplyConfiguredStatus(chillEffect, StatTypes.ChillChance, ctx, attackerStats, targetStatusCont);
+        ApplyConfiguredStatus(shockEffect, StatTypes.ShockChance, ctx, attackerStats, targetStatusCont);
     }
 
+    private static void ApplyConfiguredStatus(StatusEffects effect, StatTypes chance, DamageContext ctx,
+        StatsComponent attacker, StatusController target)
+    {
+        if (effect != null && AilmentCalculator.GetSourceHitDamage(effect, ctx) > 0f
+            && Random.value < attacker.GetStat(chance))
+            target.ApplyAilmentFromHit(effect, ctx, attacker, 1);
+    }
 }

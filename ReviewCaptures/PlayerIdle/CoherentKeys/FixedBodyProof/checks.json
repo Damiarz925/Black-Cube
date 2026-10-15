@@ -1,0 +1,7 @@
+{
+  "frames": 9,
+  "pixel_identical_outside_arm_region": true,
+  "distinct_arm_drawings": 9,
+  "operations": "manual mask cutting and alpha composition only; no warp/morph/dissolve",
+  "installed": false
+}

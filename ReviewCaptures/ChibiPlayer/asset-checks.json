@@ -1,0 +1,10 @@
+{
+  "status": "PASS",
+  "body_frames": 16,
+  "complete_weapon_sprites": 1,
+  "idle_seconds": 4,
+  "grip_entries_verified_in_config_and_prefab": 32,
+  "protected_hashes_unchanged": 12,
+  "preview_gifs": 4,
+  "unity_runtime_tested": false
+}

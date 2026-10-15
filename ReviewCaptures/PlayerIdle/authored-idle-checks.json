@@ -1,0 +1,133 @@
+{
+  "source_order": [
+    1,
+    4,
+    3,
+    2,
+    7,
+    6,
+    8,
+    5
+  ],
+  "authored_poses": 8,
+  "seconds_per_pose": 0.5,
+  "cycle_seconds": 4,
+  "runtime_slots": 32,
+  "identical_hold_slots_per_pose": 4,
+  "pose_synthesis": "NONE",
+  "processing": "background extraction, single uniform sheet-wide scale, translation/foot alignment only",
+  "records": [
+    {
+      "source_pose": 1,
+      "source_rect": [
+        49,
+        54,
+        291,
+        605
+      ],
+      "uniform_scale": 0.9520295202952029,
+      "translation": [
+        14,
+        12
+      ]
+    },
+    {
+      "source_pose": 2,
+      "source_rect": [
+        322,
+        54,
+        560,
+        605
+      ],
+      "uniform_scale": 0.9520295202952029,
+      "translation": [
+        14,
+        12
+      ]
+    },
+    {
+      "source_pose": 3,
+      "source_rect": [
+        585,
+        54,
+        840,
+        605
+      ],
+      "uniform_scale": 0.9520295202952029,
+      "translation": [
+        8,
+        12
+      ]
+    },
+    {
+      "source_pose": 4,
+      "source_rect": [
+        860,
+        54,
+        1101,
+        605
+      ],
+      "uniform_scale": 0.9520295202952029,
+      "translation": [
+        14,
+        12
+      ]
+    },
+    {
+      "source_pose": 5,
+      "source_rect": [
+        1125,
+        54,
+        1367,
+        605
+      ],
+      "uniform_scale": 0.9520295202952029,
+      "translation": [
+        14,
+        12
+      ]
+    },
+    {
+      "source_pose": 6,
+      "source_rect": [
+        1389,
+        54,
+        1634,
+        605
+      ],
+      "uniform_scale": 0.9520295202952029,
+      "translation": [
+        12,
+        12
+      ]
+    },
+    {
+      "source_pose": 7,
+      "source_rect": [
+        1656,
+        54,
+        1895,
+        605
+      ],
+      "uniform_scale": 0.9520295202952029,
+      "translation": [
+        15,
+        12
+      ]
+    },
+    {
+      "source_pose": 8,
+      "source_rect": [
+        1913,
+        54,
+        2156,
+        605
+      ],
+      "uniform_scale": 0.9520295202952029,
+      "translation": [
+        13,
+        13
+      ]
+    }
+  ]
+}

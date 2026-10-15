@@ -1,3 +1,5 @@
+// Developer map: Opt-in Play diagnostics and captures for the paper battle presentation.
+// See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using System.Linq;
 using UnityEditor;
 using UnityEngine;

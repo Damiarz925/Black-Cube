@@ -1,3 +1,5 @@
+// Developer map: Shared status definition and element/mask enums. Magnitude is a coefficient and duration/interval are global turns; virtual callbacks are extension hooks not dispatched by current ticking.
+// See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using UnityEngine;
 
 public enum Element     //Element enum explicitly ties each element to a numeric value

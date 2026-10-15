@@ -1,3 +1,5 @@
+// Developer map: Builds player/enemy status strips and hover tooltips from StatusController summaries. Rebinds to the current spawned enemy and discards stale badges on target replacement.
+// See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -44,6 +46,10 @@ public class StatusHUD : MonoBehaviour
         Refresh(playerStrip,hud.player!=null?hud.player.GetComponent<StatusController>():null);
         var enemy=BattleManager.Instance!=null?BattleManager.Instance.CurrentEnemyAI:null;
         Refresh(enemyStrip,enemy!=null?enemy.GetComponent<StatusController>():null);
+        bool panels = SkillTreeUI.IsOpen || (hud.player != null && hud.player.CurrentLife <= 0);
+        playerStrip.Root.gameObject.SetActive(!panels);
+        enemyStrip.Root.gameObject.SetActive(!panels && !hud.statsPanel.activeSelf);
+        if (panels || hud.statsPanel.activeSelf) { HideTooltip(); return; }
         if(hovered!=null && hovered.gameObject.activeInHierarchy) tooltipText.text=hovered.Summary.Tooltip;
         else HideTooltip();
     }

@@ -1,3 +1,5 @@
+// Developer map: Builds enemy attack snapshots from generated gear and StatsComponent; BattleManager owns attack scheduling. Enemy rarity is randomly rolled separately from the HealthComponent boss role.
+// See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -28,6 +30,18 @@ public class EnemyAI : MonoBehaviour
     [Header("Equipment")]
     [SerializeField] private Gear equippedWeapon;                   //private gear field for the enemy's equipped weapon
     private readonly List<Gear> equippedItems = new List<Gear>();               //readonly list of the enemy's equipped items
+    private static readonly LootManager.GearType[] NonWeaponGearSlots = new LootManager.GearType[]
+    {
+        LootManager.GearType.Helmets,
+        LootManager.GearType.Amulets,
+        LootManager.GearType.BodyArmours,
+        LootManager.GearType.Gloves,
+        LootManager.GearType.Boots,
+        LootManager.GearType.Rings,
+        LootManager.GearType.Belts
+    };
+    private const int MaxNonWeaponSlots = 7;
+    private const int MaxTotalEnemyGearPieces = 8;
 
     private bool _initialized;      //bool for whether the enemy has been initialized or not
 
@@ -124,7 +138,8 @@ public class EnemyAI : MonoBehaviour
             Debug.LogWarning("EnemyAI has no ModManager assigned; generating base enemy gear without rolled mods.", this); //If mod monater is null, give error and return
         }
 
-        int itemCount = GetItemCountForLevel(zoneLevel);    //item count is given by getitemcountforlevel function, passing in the zone level
+        int itemCount = Mathf.Min(GetItemCountForLevel(zoneLevel), MaxTotalEnemyGearPieces);    //item count is given by getitemcountforlevel function, passing in the zone level
+        int nonWeaponCount = Mathf.Max(0, itemCount - 1);     //always keep one slot for weapon
 
         // Weapon first
         Gear weapon = CreateItemForEnemy(LootManager.GearType.Weapons, zoneLevel);      //call create item for enemy, specifying weapon and the zone level
@@ -135,9 +150,9 @@ public class EnemyAI : MonoBehaviour
         }
 
         // Other items
-        for (int i = 1; i < itemCount; i++)     //generate nonweapon items up to the item count. i starts at 1, so if item count is 1, generates no additional items (because we already have a weapon). Adds the item to the list, and applies mods from the item to the enemy
+        List<LootManager.GearType> selectedSlots = RollDistinctNonWeaponSlots(nonWeaponCount);   //choose unique non-weapon slots for this enemy
+        foreach (var type in selectedSlots)     //generate one item for each selected slot
         {
-            LootManager.GearType type = RollRandomNonWeaponType();
             Gear gear = CreateItemForEnemy(type, zoneLevel);
             if (gear == null)
                 continue;
@@ -170,6 +185,29 @@ public class EnemyAI : MonoBehaviour
             6 => LootManager.GearType.Belts,
             _ => LootManager.GearType.Helmets
         };
+    }
+
+    private List<LootManager.GearType> RollDistinctNonWeaponSlots(int count)
+    {
+        count = Mathf.Clamp(count, 0, MaxNonWeaponSlots);
+        if (count == 0)
+            return new List<LootManager.GearType>();
+
+        List<LootManager.GearType> availableSlots = new List<LootManager.GearType>(NonWeaponGearSlots);
+        List<LootManager.GearType> selectedSlots = new List<LootManager.GearType>(count);
+
+        for (int i = availableSlots.Count - 1; i > 0; i--)
+        {
+            int swapIndex = Random.Range(0, i + 1);
+            LootManager.GearType tmp = availableSlots[i];
+            availableSlots[i] = availableSlots[swapIndex];
+            availableSlots[swapIndex] = tmp;
+        }
+
+        for (int i = 0; i < count; i++)
+            selectedSlots.Add(availableSlots[i]);
+
+        return selectedSlots;
     }
 
     private Gear CreateItemForEnemy(LootManager.GearType type, int zoneLevel)       //Function used to create the item for the enemy to use
@@ -288,7 +326,7 @@ public class EnemyAI : MonoBehaviour
 
         float moreElement = stats.GetStat(StatMappings.GetMoreDamageStat(element));     //repeat above for more damage to calculate total more damage as more + generic
         float moreGeneric = stats.GetStat(StatTypes.GenericMult);
-        float moreTotal = (1f + moreElement) * (1f + moreGeneric);
+        float moreTotal = 1f + moreElement + moreGeneric;
         Debug.Log($"Enemy dmg stats: base={baseAmount}, flatG={flatGlobal}, incElem={incElement}, incGen={incGeneric}, moreElem={moreElement}, moreGen={moreGeneric}");
 
         float amount = (baseAmount + flatGlobal) * (1f + incTotal) * moreTotal;    //calculate final damage amount as basedmg + matching flat damage times (1 + increasedtotal) time (1 + moretotal) 
@@ -317,7 +355,7 @@ public class EnemyAI : MonoBehaviour
 
         float moreElement = stats.GetStat(StatMappings.GetMoreDamageStat(element));     //get the more damage stat for the current element, add it to global more damage to calc moretotal
         float moreGeneric = stats.GetStat(StatTypes.GenericMult);
-        float moreTotal = (1f + moreElement) * (1f + moreGeneric);
+        float moreTotal = 1f + moreElement + moreGeneric;
 
         float amount = flatGlobal * (1f + incTotal) * moreTotal;      //calculate total damage for this element as the flat * (1+totalinc) * (1+totalmore)
         ctx.AddDamage(element, amount);     //add this element to damage context
@@ -327,12 +365,9 @@ public class EnemyAI : MonoBehaviour
     {
         if (equippedWeapon == null) return 0f;      //if equipped weapon is null, return 0f for crit chance
 
-        float weaponCrit = equippedWeapon.GetEffectiveBaseCrit();       //call geteffectivebasecrit on equipped weapon, assign that to weaponcrit variable
+        float weaponCrit = equippedWeapon.GetEffectiveBaseCrit(stats.GetStat(StatTypes.BaseCritChance));
         float incCritGlobal = stats.GetStat(StatTypes.CritChance);      //get the global increased crit stat on the enemy
-        float extraBaseCritGlobal = stats.GetStat(StatTypes.BaseCritChance);        //get the extra base crit stat on the enemy
-
-        float baseCritAll = weaponCrit + extraBaseCritGlobal;       //get the total base crit by adding the weapon base crit and the extra base crit
-        return Mathf.Clamp01(baseCritAll * (1f + incCritGlobal));       //calculate the total crit chance as the basecritall * (1+inccritglobal) and clamp is between 0 and 1.
+        return Mathf.Clamp01(weaponCrit * (1f + incCritGlobal));
     }
 
     public float GetFinalAttackSpeed()

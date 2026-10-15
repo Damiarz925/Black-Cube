@@ -1,3 +1,5 @@
+// Developer map: Weighted stat and tier selection, item-level gating and duplicate-group exclusion. Weapon base damage/speed/crit are guaranteed rolls outside the random affix count.
+// See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;

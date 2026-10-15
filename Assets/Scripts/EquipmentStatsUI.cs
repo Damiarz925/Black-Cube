@@ -1,3 +1,5 @@
+// Developer map: Refreshes equipped-slot glyphs, rarity borders and hover targets from EquipmentChanged. This view does not own equipment or apply modifiers.
+// See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -32,6 +34,10 @@ public class EquipmentStatsUI : MonoBehaviour
         if (slots == null) return;
         foreach (var slot in slots)
         {
+            var target = slot.glyph.transform.parent.gameObject;
+            var hover = target.GetComponent<EquippedItemHoverUI>();
+            if (hover == null) hover = target.AddComponent<EquippedItemHoverUI>();
+            hover.Type = slot.type;
             var item = manager != null ? manager.GetEquipped(slot.type) : null;
             var tint = item != null ? ItemSlotUI.RarityColor(item.ItemRarity) : new Color(.29f,.31f,.35f);
             slot.glyph.gearType = slot.type;
