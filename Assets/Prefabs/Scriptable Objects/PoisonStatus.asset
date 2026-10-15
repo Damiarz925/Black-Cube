@@ -18,7 +18,7 @@ MonoBehaviour:
   maxStacks: 100
   stackPolicy: 1
   statusType: 0
-  elements: 1
+  elements: 16
   damageColor: {r: 1, g: 1, b: 1, a: 1}
   ailmentKind: 1
   baseTurnInterval: 4

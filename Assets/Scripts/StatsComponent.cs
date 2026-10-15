@@ -52,7 +52,7 @@ public class StatsComponent : MonoBehaviour
     {
         if (!_stats.TryGetValue(type, out var stat))
         {
-            stat = new StatValue(baseValue);
+            stat = new StatValue(baseValue, IsPercentStat(type) && type.ToString().EndsWith("Mult"));
             _stats[type] = stat;
         }
         else
@@ -66,7 +66,7 @@ public class StatsComponent : MonoBehaviour
     {
         if (!_stats.TryGetValue(mod.Stat, out var stat))
         {
-            stat = new StatValue();
+            stat = new StatValue(0, IsPercentStat(mod.Stat) && mod.Stat.ToString().EndsWith("Mult"));
             _stats[mod.Stat] = stat;
         }
         stat.AddModifier(mod);

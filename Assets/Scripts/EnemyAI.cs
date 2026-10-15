@@ -288,7 +288,7 @@ public class EnemyAI : MonoBehaviour
 
         float moreElement = stats.GetStat(StatMappings.GetMoreDamageStat(element));     //repeat above for more damage to calculate total more damage as more + generic
         float moreGeneric = stats.GetStat(StatTypes.GenericMult);
-        float moreTotal = (1f + moreElement) * (1f + moreGeneric);
+        float moreTotal = 1f + moreElement + moreGeneric;
         Debug.Log($"Enemy dmg stats: base={baseAmount}, flatG={flatGlobal}, incElem={incElement}, incGen={incGeneric}, moreElem={moreElement}, moreGen={moreGeneric}");
 
         float amount = (baseAmount + flatGlobal) * (1f + incTotal) * moreTotal;    //calculate final damage amount as basedmg + matching flat damage times (1 + increasedtotal) time (1 + moretotal) 
@@ -317,7 +317,7 @@ public class EnemyAI : MonoBehaviour
 
         float moreElement = stats.GetStat(StatMappings.GetMoreDamageStat(element));     //get the more damage stat for the current element, add it to global more damage to calc moretotal
         float moreGeneric = stats.GetStat(StatTypes.GenericMult);
-        float moreTotal = (1f + moreElement) * (1f + moreGeneric);
+        float moreTotal = 1f + moreElement + moreGeneric;
 
         float amount = flatGlobal * (1f + incTotal) * moreTotal;      //calculate total damage for this element as the flat * (1+totalinc) * (1+totalmore)
         ctx.AddDamage(element, amount);     //add this element to damage context
@@ -327,12 +327,9 @@ public class EnemyAI : MonoBehaviour
     {
         if (equippedWeapon == null) return 0f;      //if equipped weapon is null, return 0f for crit chance
 
-        float weaponCrit = equippedWeapon.GetEffectiveBaseCrit();       //call geteffectivebasecrit on equipped weapon, assign that to weaponcrit variable
+        float weaponCrit = equippedWeapon.GetEffectiveBaseCrit(stats.GetStat(StatTypes.BaseCritChance));
         float incCritGlobal = stats.GetStat(StatTypes.CritChance);      //get the global increased crit stat on the enemy
-        float extraBaseCritGlobal = stats.GetStat(StatTypes.BaseCritChance);        //get the extra base crit stat on the enemy
-
-        float baseCritAll = weaponCrit + extraBaseCritGlobal;       //get the total base crit by adding the weapon base crit and the extra base crit
-        return Mathf.Clamp01(baseCritAll * (1f + incCritGlobal));       //calculate the total crit chance as the basecritall * (1+inccritglobal) and clamp is between 0 and 1.
+        return Mathf.Clamp01(weaponCrit * (1f + incCritGlobal));
     }
 
     public float GetFinalAttackSpeed()

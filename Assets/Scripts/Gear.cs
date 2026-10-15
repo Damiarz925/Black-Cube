@@ -3,6 +3,14 @@ using UnityEngine;
 
 public class Gear : MonoBehaviour
 {
+    [SerializeField] private bool isScrap;
+    [SerializeField] private int stackCount = 1;
+    public bool IsScrap => isScrap;
+    public int StackCount => stackCount;
+    internal bool PickupClaimed { get; set; }
+    internal bool Dismantled { get; set; }
+    internal void InitializeScrap(int count) { isScrap = true; stackCount = count; }
+    internal void AddScrap(int count) { stackCount = checked(stackCount + count); }
     [SerializeField] private LootManager.GearType itemType; //Field for the item type
     [SerializeField] private LootManager.GearRarity itemRarity; //Field for the item rarity
     [SerializeField] private int itemLevel; //Field for the item level of the gear
@@ -87,7 +95,8 @@ public class Gear : MonoBehaviour
                     BaseAttackSpeed = mod.value;
                     break;
                 case StatTypes.WeaponBaseCrit:
-                    BaseCritChance = mod.value;
+                    // Rolled values are percentage points; runtime weapon fields are fractions.
+                    BaseCritChance = mod.value / 100f;
                     break;
                 // FLAT / INC DAMAGE (If any of these cases are true, perform if, so if the mod is any "Dmg" mod or "Flat" mod)
                 case StatTypes.PhysDmg:
@@ -159,9 +168,9 @@ public class Gear : MonoBehaviour
     }
 
     //Finds the effective base damage by adding the base crit chance to the local base crit and multiplying it by 1 + the local increased crit chance (local inc crit should be stored as a decimal)
-    public float GetEffectiveBaseCrit()
+    public float GetEffectiveBaseCrit(float extraBaseCrit = 0f)
     {
-        float critWithBase = BaseCritChance + LocalBaseCrit;
+        float critWithBase = BaseCritChance + LocalBaseCrit + extraBaseCrit;
         return critWithBase * (1f + LocalIncCrit);
     }
 

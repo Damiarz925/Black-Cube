@@ -3,6 +3,20 @@ using UnityEngine;
 
 public class ZoneManager : MonoBehaviour
 {
+    [Header("Stage Progression")]
+    [SerializeField] private string[] zoneNames = { "Forest", "Desert", "Tundra" };
+    [SerializeField, Min(1)] private int stagesPerZone = 10;
+    public int StageNumber => (Mathf.Max(1, zoneLevel) - 1) % Mathf.Max(1, stagesPerZone) + 1;
+    public string ZoneName
+    {
+        get
+        {
+            if (zoneNames == null || zoneNames.Length == 0) return "Forest";
+            int index = Mathf.Min((Mathf.Max(1, zoneLevel) - 1) / Mathf.Max(1, stagesPerZone), zoneNames.Length - 1);
+            return string.IsNullOrWhiteSpace(zoneNames[index]) ? "Zone " + (index + 1) : zoneNames[index];
+        }
+    }
+
     [Header("Generation")]
     [SerializeField] private bool generate3DScenery = true;
     [SerializeField] private LevelGenerator levelGenerator;
@@ -51,7 +65,7 @@ public class ZoneManager : MonoBehaviour
             MaxZ = maxZ,
             GroundY = groundY
         };
-        
+
         LevelPlan plan = levelGenerator.BuildLevelPlan(zoneLevel, seed, theme, anchors, bounds);
 
         ApplyThemeVisuals(plan.Theme);

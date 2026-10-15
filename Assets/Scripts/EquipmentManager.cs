@@ -29,7 +29,7 @@ public class EquipmentManager : MonoBehaviour
     public void Equip(Gear gear)
     {
         //If the passed gear item is null, exit the function
-        if (gear == null) return;          
+        if (gear == null || gear.IsScrap || gear.Dismantled) return;
         if (GetEquipped(gear.ItemType) == gear) return;
 
         EnsurePlayerReferences();

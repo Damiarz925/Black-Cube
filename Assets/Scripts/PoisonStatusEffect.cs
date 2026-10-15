@@ -10,6 +10,7 @@ public class PoisonStatusEffect : StatusEffects
     private void OnValidate()
     {
         ailmentKind = AilmentKind.Poison;
+        elements = ElementMask.Poison;
         statusType = StatusType.DamageOverTime;
         stackPolicy = StackPolicy.StackIndependently;
         effectMagnitude = poisonScalar;

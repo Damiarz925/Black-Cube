@@ -1,5 +1,6 @@
 using UnityEngine;
 
+[RequireComponent(typeof(PlayerProgression))]
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }    //Public getter/private setter for instance
@@ -17,6 +18,10 @@ public class GameManager : MonoBehaviour
     [SerializeField] private bool bossSpawned = false;
 
     private bool playerDeathHandled;
+    public int CurrentCombatLevel => currentZoneLevel;
+    public int NormalKills => enemiesKilledInZone;
+    public int NormalKillsRequired => enemiesToKillBeforeBoss;
+    public bool BossActive => bossSpawned;
 
     private void Awake()    //Logic for DDoL singleton in Awake
     {
@@ -27,6 +32,7 @@ public class GameManager : MonoBehaviour
         }
 
         Instance = this;
+        if (GetComponent<PlayerProgression>() == null) gameObject.AddComponent<PlayerProgression>();
         DontDestroyOnLoad(gameObject);
     }
 
@@ -46,6 +52,7 @@ public class GameManager : MonoBehaviour
 
     public void StartNewRun()   //Starts a fresh run, at zone lvl 1, 0 enemies killed and no boss spawned, debug log for dev feedback, calls start zone passing in the currentzonelevel after resetting the state
     {
+        GetComponent<PlayerProgression>().ResetProgression();
         currentZoneLevel = 1;
         enemiesKilledInZone = 0;
         bossSpawned = false;
@@ -71,6 +78,7 @@ public class GameManager : MonoBehaviour
             return;
         }
 
+        zoneLevel = Mathf.Max(1, zoneLevel);
         currentZoneLevel = zoneLevel;
         enemiesKilledInZone = 0;
         bossSpawned = false;
@@ -78,7 +86,7 @@ public class GameManager : MonoBehaviour
 
         enemiesToKillBeforeBoss = zoneManager.GetEnemiesToKillBeforeBoss(zoneLevel);
         zoneManager.zoneLevel = zoneLevel;
-        zoneManager.GenerateZone();     //generate the zone, which will spawn the environment 
+        zoneManager.GenerateZone();     //generate the zone, which will spawn the environment
 
         Debug.Log($"GameManager: ZoneManager.zoneLevel set to {zoneManager.zoneLevel}");
 
@@ -94,10 +102,16 @@ public class GameManager : MonoBehaviour
 
     public void OnEnemyKilled(HealthComponent enemyHealth, bool wasBoss)                            //on enemy killed function defines what happens when an enemy is killed
     {
-        enemiesKilledInZone++;                                                                      //increment enemies killed in zone
+        var currentEnemy = BattleManager.Instance != null ? BattleManager.Instance.CurrentEnemyAI : null;
+        if (enemyHealth == null || currentEnemy == null ||
+            currentEnemy.GetComponent<HealthComponent>() != enemyHealth || !enemyHealth.TryClaimEnemyDeath()) return;
+        // Trust the spawned actor's role, not a caller-supplied flag.
+        wasBoss = enemyHealth.IsBoss;
+        if (!wasBoss) enemiesKilledInZone++;
 
         var enemyAI = enemyHealth.GetComponent<EnemyAI>();                                          //grab the killed enemy's script
         var rarity = enemyAI != null ? enemyAI.CurrentRarity : EnemyAI.EnemyRarity.Normal;          //check if the enemy script is null, if it isn't grab the enemy's rarity, if it is set the rarity to normal
+        GetComponent<PlayerProgression>().AwardEnemy(enemyAI != null ? enemyAI.EnemyLevel : currentZoneLevel, wasBoss);
 
         EnsureSceneReferences();
 
@@ -109,7 +123,7 @@ public class GameManager : MonoBehaviour
 
         if (loot != null && Inventory.Instance != null)                                             //if the inventory isn't null, add the loot generated to the inventory
         {
-            Inventory.Instance.Add(loot);
+            Inventory.Instance.Pickup(loot);
             Debug.Log($"GameManager: Loot generated and added. EnemyRarity={rarity}, LootName={(loot != null ? loot.name : "null")}");
         }
         else if (loot == null)

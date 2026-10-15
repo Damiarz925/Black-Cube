@@ -1,8 +1,9 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
-public class ItemSlotUI : MonoBehaviour
+public class ItemSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
 {
     [Header("UI References")]   //References to UI elements owned by this UI slot
     [SerializeField] private TextMeshProUGUI nameText;  //Reference for the Name of the Item
@@ -13,6 +14,15 @@ public class ItemSlotUI : MonoBehaviour
     [SerializeField] private Image rarityOverlay;       //Image used for the rarity overlay
 
     private Gear gear;
+    public Gear Item => gear;
+    private Image elementBadge;
+    public void OnPointerClick(PointerEventData data)
+    {
+        if (data.button == PointerEventData.InputButton.Right && gear != null)
+            Inventory.Instance?.TryDismantle(gear);
+    }
+    public void OnPointerEnter(PointerEventData data) => GetComponentInParent<InventoryUI>()?.ShowTooltip(gear, (RectTransform)transform, false, data);
+    public void OnPointerExit(PointerEventData data) => GetComponentInParent<InventoryUI>()?.Tooltip?.Leave((RectTransform)transform, data);
 
     public void Setup(Gear gear)    //Calls setup with just gear and no sprite
     {
@@ -28,10 +38,32 @@ public class ItemSlotUI : MonoBehaviour
         if (glyph != null) { glyph.gearType=gear.ItemType; glyph.color=RarityColor(gear.ItemRarity); glyph.SetVerticesDirty(); }
 
         if (nameText != null)   //If there is name text, set it to be the rarity + item type
-            nameText.text = $"{gear.ItemRarity} {DisplayType(gear.ItemType)}";
+            nameText.gameObject.SetActive(false);
 
         if (detailText != null) //If there is detail text, set it to be "ilvl" + the gear's item level
-            detailText.text = $"ITEM LEVEL {gear.ItemLevel}";
+        {
+            detailText.text = gear.IsScrap ? $"x{gear.StackCount}" : $"LV {gear.ItemLevel}";
+            detailText.fontSize = 12; detailText.alignment = TextAlignmentOptions.Center;
+            Place(detailText.rectTransform, 0, 0, 1, .22f);
+        }
+        if (backgroundImage != null && backgroundImage.transform != transform) Place(backgroundImage.rectTransform, 0, .22f, 1, 1);
+        if (rarityOverlay != null) Place(rarityOverlay.rectTransform, 0, .22f, .035f, 1);
+        if (glyph != null) { Place(glyph.rectTransform, .13f, .32f, .87f, .94f); glyph.enabled = !gear.IsScrap; glyph.raycastTarget = false; }
+        if (iconImage != null) Place(iconImage.rectTransform, .13f, .32f, .87f, .94f);
+
+        if(elementBadge == null)
+        {
+            var go = new GameObject("Base element marker", typeof(RectTransform), typeof(Image));
+            go.transform.SetParent(transform, false);
+            elementBadge = go.GetComponent<Image>(); elementBadge.raycastTarget = false;
+        }
+        var marker = elementBadge.rectTransform;
+        marker.anchorMin = marker.anchorMax = gear.IsScrap ? new Vector2(.5f,.6f) : new Vector2(.83f,.84f);
+        marker.anchoredPosition = Vector2.zero; marker.sizeDelta = gear.IsScrap ? new Vector2(26,20) : new Vector2(9,9);
+        marker.localRotation = Quaternion.Euler(0,0,gear.IsScrap ? 15 : 45);
+        elementBadge.enabled = gear.IsScrap || gear.ItemType == LootManager.GearType.Weapons;
+        elementBadge.color = gear.IsScrap ? new Color(.7f,.72f,.75f) : ItemTooltipUI.ElementTint(gear.BaseElement);
+        if(glyph != null && gear.IsScrap) glyph.enabled = false;
 
         if (iconImage != null)  //If the icon image exists, set iconImage.sprite to the passed icon, then enable
         {
@@ -46,9 +78,12 @@ public class ItemSlotUI : MonoBehaviour
         }
     }
 
+    static void Place(RectTransform r, float x0, float y0, float x1, float y1)
+    { r.anchorMin = new Vector2(x0,y0); r.anchorMax = new Vector2(x1,y1); r.offsetMin = r.offsetMax = Vector2.zero; }
+
     private void OnClick()  //When the button is clicked, call the Equip function from EquipmentManager, passing in the private gear object from this class. (Assumes equipment manager is initialized already)
     {
-        EquipmentManager.Instance.Equip(gear);
+        if (gear != null && !gear.IsScrap) EquipmentManager.Instance?.Equip(gear);
     }
 
     public static string DisplayType(LootManager.GearType type) => type switch

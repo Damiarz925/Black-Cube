@@ -17,6 +17,8 @@ public class BattleManager : MonoBehaviour
     [SerializeField] private StatusEffects poisonEffect;
     [SerializeField] private StatusEffects bleedEffect;
     [SerializeField] private StatusEffects igniteEffect;
+    [SerializeField] private StatusEffects chillEffect;
+    [SerializeField] private StatusEffects shockEffect;
 
 
     private PlayerController playerController;
@@ -162,6 +164,7 @@ public class BattleManager : MonoBehaviour
                   $"normalPrefab={(normalEnemyPrefab ? normalEnemyPrefab.name : "null")}, " +
                   $"bossPrefab={(bossEnemyPrefab ? bossEnemyPrefab.name : "null")}");
 
+        enemyHealth.SetEnemyRole(spawnBoss);
         enemyAI.InitializeEnemy(zoneLevel);     //call initialize enemy, passing in the zone level
 
         enemyGauge = 0f;        //set player and enemy gauges to 0, and global turn counter to 0.
@@ -171,6 +174,7 @@ public class BattleManager : MonoBehaviour
 
     private void Update()
     {
+        if (SkillTreeUI.IsOpen) return;
         if (playerHealth == null || playerHealth.CurrentLife <= 0f) return;     //if player health is ever null or player life is ever 0 or less, return
         if (currentEnemy == null || enemyHealth == null || enemyHealth.CurrentLife <= 0f) return;       //if enemy or enemy health is ever null, or enemy life is ever 0 or less, return
         if (playerController == null || enemyAI == null) return;
@@ -210,7 +214,7 @@ public class BattleManager : MonoBehaviour
                 ResolveEnemyTurn();
             }
 
-            if (currentEnemy == null || enemyHealth == null || enemyHealth.CurrentLife <= 0f) return;      //if current enemy is null, or enemy life is less than or equal to 0, return
+            if (playerHealth.CurrentLife <= 0f || currentEnemy == null || enemyHealth == null || enemyHealth.CurrentLife <= 0f) return;
         }
     }
 
@@ -218,10 +222,14 @@ public class BattleManager : MonoBehaviour
     {
         if (currentEnemy == null || enemyStatusCont == null || enemyHealth == null || enemyHealth.CurrentLife <= 0f) return;       //if there is no enemy, or it has no hp, or its HP is less than or equal to 0, return
 
+        var originalTarget = enemyHealth;
+        var originalStatuses = enemyStatusCont;
         globalTurnCounter++;        //increment global turn counter
 
         TickStatusController(playerStatusCont);       //tick statuses on player and enemy
+        if (playerHealth.CurrentLife <= 0f) return;
         TickStatusController(enemyStatusCont);
+        if (enemyHealth != originalTarget || originalTarget.CurrentLife <= 0f) return;
 
         DamageContext ctx = playerController.BuildAttackContext();      //generate damage context for the player
 
@@ -246,7 +254,8 @@ public class BattleManager : MonoBehaviour
         else
             Debug.LogWarning("BattleManager: Enemy DamageReceiver is missing; player hit was not applied.", currentEnemy);
 
-        ApplyOnHitEffects(ctx, playerStats, enemyStatusCont);       //call apply on hit effects, passing in the context, player stats, and enemystatuscont
+        if (originalTarget != null && originalTarget.CurrentLife > 0f)
+            ApplyOnHitEffects(ctx, playerStats, originalStatuses);
     }
 
     private void ResolveEnemyTurn()
@@ -254,10 +263,13 @@ public class BattleManager : MonoBehaviour
         if (currentEnemy == null || enemyHealth == null || enemyHealth.CurrentLife <= 0f) return;       //if enemy, or their health is null or less than or equal to 0, return
         if (playerHealth == null || playerStatusCont == null || playerHealth.CurrentLife <= 0f) return;     //if player health is null or less than or equal to 0, return
 
+        var originalAttacker = enemyHealth;
         globalTurnCounter++;        //increment global turn counter
 
         TickStatusController(playerStatusCont);       //tick player and enemy statuses
+        if (playerHealth.CurrentLife <= 0f) return;
         TickStatusController(enemyStatusCont);
+        if (enemyHealth != originalAttacker || originalAttacker.CurrentLife <= 0f) return;
 
         DamageContext ctx = enemyAI.BuildAttackContext();       //generate damage context from the enemy
 
@@ -360,14 +372,14 @@ public class BattleManager : MonoBehaviour
         }
     }
 
-    //Note that I'll later likely implement the logic allowing for ailment chance stacking over 100% here. Such that it rolls for random < ailmentchance, then subtracts 100 from ailmentchance, increments a counter, and rolls again until failed, then applies (counter) number of stacks 
+    //Note that I'll later likely implement the logic allowing for ailment chance stacking over 100% here. Such that it rolls for random < ailmentchance, then subtracts 100 from ailmentchance, increments a counter, and rolls again until failed, then applies (counter) number of stacks
     private void ApplyOnHitEffects(DamageContext ctx, StatsComponent attackerStats, StatusController targetStatusCont)
     {
         if (attackerStats == null || targetStatusCont == null) return;      //if attacker stats or target status cont is null, return
         if (ctx.Hits == null || ctx.Hits.Count == 0) return;        //if context.hits is null, or the context has nothing in the hits list, return
 
         // Poison
-        if (poisonEffect != null)       //if poisoneffect is not null
+        if (poisonEffect != null && AilmentCalculator.GetSourceHitDamage(poisonEffect, ctx) > 0f)
         {
             float poisonChance = attackerStats.GetStat(StatTypes.PoisonChance); //grab the poison chance stat from the attacker's stats
             if (Random.value < poisonChance)        //get a random value, if it is less than the poison chance, call applyailmentfromhit on the target's status cont, passing in the poison effect, context, attacker stats, and stacksperhit (default 1)
@@ -381,7 +393,7 @@ public class BattleManager : MonoBehaviour
         }
 
         // Bleed
-        if (bleedEffect != null)    //If bleed effect is not null
+        if (bleedEffect != null && AilmentCalculator.GetSourceHitDamage(bleedEffect, ctx) > 0f)
         {
             float bleedChance = attackerStats.GetStat(StatTypes.BleedChance);   //grab the bleed chance from attacker stats
             if (Random.value < bleedChance)     //get a random value and check if it's less than the bleed chance, if it is, apply bleed using the bleed effect, context, and attacker stats, as well as the stacks per hit
@@ -395,7 +407,7 @@ public class BattleManager : MonoBehaviour
         }
 
         // Ignite
-        if (igniteEffect != null)   //if ignite is not null
+        if (igniteEffect != null && AilmentCalculator.GetSourceHitDamage(igniteEffect, ctx) > 0f)
         {
             float igniteChance = attackerStats.GetStat(StatTypes.IgniteChance);     //grab the attacker's ignite chance
             if (Random.value < igniteChance)        //get a random value, if it is less than the ignite chance, apply ailment from hit
@@ -407,6 +419,15 @@ public class BattleManager : MonoBehaviour
                     1);
             }
         }
+        ApplyConfiguredStatus(chillEffect, StatTypes.ChillChance, ctx, attackerStats, targetStatusCont);
+        ApplyConfiguredStatus(shockEffect, StatTypes.ShockChance, ctx, attackerStats, targetStatusCont);
     }
 
+    private static void ApplyConfiguredStatus(StatusEffects effect, StatTypes chance, DamageContext ctx,
+        StatsComponent attacker, StatusController target)
+    {
+        if (effect != null && AilmentCalculator.GetSourceHitDamage(effect, ctx) > 0f
+            && Random.value < attacker.GetStat(chance))
+            target.ApplyAilmentFromHit(effect, ctx, attacker, 1);
+    }
 }

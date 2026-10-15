@@ -1,0 +1,6 @@
+Deferred progression bounded pass
+FAIL sustained: 3 stages, 32 kills, correct cadence; replacement status inheritance observed 32 times; lethal DOT injected=True; loot delta=33.
+PASS cleanup: active enemies=1; new errors=0; rewards=33 for 32 kills.
+PASS boss death/restart: Forest5 boss -> death -> restart at Forest5 normal0 -> kill -> normal1; full revive.
+PASS configuration: Alpha/Beta,3; levels1,3,4,6,7 map to Alpha1,Alpha3,Beta1,Beta3,Beta1; combat levels retained.
+PASS invalid configuration: empty -> Forest; blank -> Zone1; stages0/-3 clamp to1. Play exit restores defaults.

@@ -16,6 +16,17 @@ public class PlayerController : MonoBehaviour
     private HealthComponent health; //Field for the player's health component
     private DamageReceiver damageReceiver;
     public float EquippedWeaponBaseDamage => equippedWeapon != null ? equippedWeapon.GetEffectiveBaseDamage() : 0f;
+    public Element EquippedWeaponElement => equippedWeapon != null ? equippedWeapon.BaseElement : Element.Phys;
+    public event System.Action AttackChanged;
+    public float BasicAttackDamage
+    {
+        get
+        {
+            float total = 0f;
+            foreach (var hit in BuildNonCriticalAttackContext().Hits) total += hit.Amount;
+            return total;
+        }
+    }
 
     public float baseSpeed = 1f;    //Field for the player's base speed (currently set at 2f for testing. Likely 1f in the future)
 
@@ -95,7 +106,8 @@ public class PlayerController : MonoBehaviour
     // --------------------------------------------------------------------
     // ATTACK BUILD – this is the main damage pipeline
     // --------------------------------------------------------------------
-    public DamageContext BuildAttackContext()
+    // Shared outgoing hit pipeline. UI inspection does not consume a critical roll.
+    public DamageContext BuildNonCriticalAttackContext()
     {
         DamageContext ctx = new DamageContext(4);   //Builds a damage context, passing in 4 as the initial capacity
         if (equippedWeapon == null)
@@ -113,6 +125,14 @@ public class PlayerController : MonoBehaviour
 
         //Add all of the global flat damage modifiers that aren't the same element as the weapon's base element
         AddGlobalFlatElements(ctx, weaponElement);
+
+        return ctx;
+    }
+
+    public DamageContext BuildAttackContext()
+    {
+        var ctx = BuildNonCriticalAttackContext();
+        if (equippedWeapon == null) return ctx;
 
         //Get the weapons final critical chance
         float critChance = GetFinalCritChance();
@@ -152,7 +172,7 @@ public class PlayerController : MonoBehaviour
         //Grabs all of the more damage increases for your main stat
         float moreElement = stats.GetStat(StatMappings.GetMoreDamageStat(element)); // e.g. 0.30 for +30% more phys
         float moreGeneric = stats.GetStat(StatTypes.GenericMult);                   // e.g. 0.50 for +50% more damage
-        float moreTotal = (1f + moreElement) * (1f + moreGeneric);                              // e.g. 0.80 → +80% more
+        float moreTotal = 1f + moreElement + moreGeneric; // Applicable more bonuses sum, then apply once.
 
         // Pipeline: base + flat → increased → more
         float afterInc = (baseAmount + flatGlobal) * (1f + incTotal);
@@ -186,7 +206,7 @@ public class PlayerController : MonoBehaviour
         // MORE bucket
         float moreElement = stats.GetStat(StatMappings.GetMoreDamageStat(element)); //Adds the more elemental damage values
         float moreGeneric = stats.GetStat(StatTypes.GenericMult);   //Adds the more generic damage values
-        float moreTotal = (1f + moreElement) * (1f + moreGeneric);    //Adds them together for the total more damage value
+        float moreTotal = 1f + moreElement + moreGeneric; // Same bucket for existing off-element flat hits.
 
         float afterInc = flatGlobal * (1f + incTotal);  //Multiplies increased values with float global
         float final = afterInc * moreTotal;  //Multiplies more damage values with the previously calculated value
@@ -195,16 +215,14 @@ public class PlayerController : MonoBehaviour
     }
 
     //Calculates the final crit chance
-    float GetFinalCritChance()
+    public float GetFinalCritChance()
     {
         if (equippedWeapon == null) return 0f;  //If equipped weapon is null return
 
-        float weaponCrit = equippedWeapon.GetEffectiveBaseCrit();       //This grabs the weapons base effective crit (Base + Extra base crit on weapon * local increased crit chance on weapon)
+        float weaponCrit = equippedWeapon.GetEffectiveBaseCrit(stats.GetStat(StatTypes.BaseCritChance));
         float incCritGlobal = stats.GetStat(StatTypes.CritChance);        // 0.5 for +50% increased crit
-        float extraBaseCritPP = stats.GetStat(StatTypes.BaseCritChance);    // 0.02 for +2% base
-
-        float baseCritAll = weaponCrit + extraBaseCritPP;   //Add weaponCrit and any sources of extraBaseCrit
-        float final = baseCritAll * (1f + incCritGlobal);   //Multiply that by any sources of global increased crit chance
+        // ALL flat base points precede local and global increased buckets.
+        float final = weaponCrit * (1f + incCritGlobal);
 
         return Mathf.Clamp01(final);
     }
@@ -225,5 +243,6 @@ public class PlayerController : MonoBehaviour
     public void EquipWeapon(Gear weapon)
     {
         equippedWeapon = weapon;
+        AttackChanged?.Invoke();
     }
 }

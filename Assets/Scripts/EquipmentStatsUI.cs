@@ -32,6 +32,10 @@ public class EquipmentStatsUI : MonoBehaviour
         if (slots == null) return;
         foreach (var slot in slots)
         {
+            var target = slot.glyph.transform.parent.gameObject;
+            var hover = target.GetComponent<EquippedItemHoverUI>();
+            if (hover == null) hover = target.AddComponent<EquippedItemHoverUI>();
+            hover.Type = slot.type;
             var item = manager != null ? manager.GetEquipped(slot.type) : null;
             var tint = item != null ? ItemSlotUI.RarityColor(item.ItemRarity) : new Color(.29f,.31f,.35f);
             slot.glyph.gearType = slot.type;

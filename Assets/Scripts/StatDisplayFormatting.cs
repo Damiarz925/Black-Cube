@@ -16,6 +16,8 @@ public static class StatDisplayFormatting
         { StatTypes.GenericMult, "More Damage" },
         { StatTypes.GenericDotMult, "More DoT Damage" },
         { StatTypes.CritMult, "Critical Damage Multiplier" },
+        { StatTypes.CritChance, "Increased Critical Chance" },
+        { StatTypes.BaseCritChance, "Added Base Critical Chance (Points)" },
         { StatTypes.AllRes, "All Elemental Resist" },
         { StatTypes.AllAilmentRes, "All Ailment Resist" },
         { StatTypes.ManaCost, "Mana Cost" },
@@ -66,7 +68,7 @@ public static class StatDisplayFormatting
 
     public static bool ShouldDisplay (StatsComponent stats, StatTypes type, float epsilon = 0.0001f)
     {
-        if (type == StatTypes.UnarmedDamage) return true;
+        if (type == StatTypes.Life) return true;
         float raw = stats.GetRawStat(type);
         return System.MathF.Abs(raw) > epsilon;
     }
