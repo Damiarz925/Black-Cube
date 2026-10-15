@@ -1,3 +1,5 @@
+// Developer map: Data passed from LevelGenerator to ZoneManager: theme, seed, bounds and placement lists. Bounds/foreground fields are not all enforced or consumed by the current planner.
+// See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using System.Collections.Generic;
 using UnityEngine;
 

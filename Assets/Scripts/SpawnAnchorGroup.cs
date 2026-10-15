@@ -1,3 +1,5 @@
+// Developer map: Serialized world transforms for legacy 3D scenery categories. LevelGenerator samples these anchors; they do not control combat enemy spawns.
+// See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using System.Collections.Generic;
 using UnityEngine;
 

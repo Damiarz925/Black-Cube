@@ -1,0 +1,14 @@
+[
+  {
+    "key": "idleBody",
+    "prompt": "PRECISE LOCAL EDIT of this8-frame idle sheet. Remove EVERY PIPE/WEAPON completely, including full shaft, caps, any handle and grip fragments between fingers. Keep all8 CHARACTER POSES, size, scale, face, hair, clothes, boots and registration exactly the same. Both hands now visibly EMPTY; anatomical right hand maintains natural closed/relaxed fist with uninterrupted glove/fingers, ready for a separately attached weapon. Reconstruct any exposed glove/cloth behind removed weapon. No weapon pixels anywhere in any body frame. Preserve four-column/two-row layout and consistent small idle changes. Background must be true TRANSPARENT with every enclosed gap clear; no baked checkerboard. These are body-only animation cels for real equipment swapping. Do not change outfit or character or invent new motion."
+  },
+  {
+    "key": "attackBody",
+    "prompt": "PRECISE LOCAL EDIT of this8-frame attack sheet. Remove EVERY PIPE/WEAPON completely from ALL8 poses, including every cap, shaft, handle/grip and fragments between fingers. Keep same chibi character and all poses, exact scale/head/costume/feet/registration/layout. Anatomical RIGHT hand remains CLOSED FIST in its existing attack/grip orientation at each pose, with complete uninterrupted glove/fingers and NO weapon pixels. Reconstruct hidden glove/cloth where needed. Frame3 empty right fist raised overhead; frame4 empty right fist thrust forward in the existing horizontal SWIPE pose; frame5 empty right fist follows through; frame6 halfway recovery. Left hand stays independently free. Preserve same4x2grid, no new movements or outfit changes. Body-only animation cels so equipment can be attached at per-frame hand anchor. TRUE TRANSPARENT background including enclosed limb gaps; no baked checkerboard or shadow. Entire character in each cell."
+  },
+  {
+    "key": "sword",
+    "prompt": "Create one simple standalone SWORD equipment sprite that matches this chibi paper-textured game's black-outlined art style. Reference image is style only: do not draw character or hands. Entire weapon includes black wrapped HANDLE, tiny warm orange/brass guard and pommel, short straight gray steel blade with clear pointed tip. Side-on orthographic view, EXACTLY HORIZONTAL, handle on LEFT and blade pointing RIGHT. Consistent thick dark outline, subtle cut-paper texture, restrained shading, friendly proportions. No glow, sparks, text, labels, cast shadow or floor. TRUE TRANSPARENT background. Single complete weapon centered with generous clear margin, no other objects. This will rotate as a rigid equipment attachment; keep straight horizontal axis and clear grip-center on handle. Simple generic sword, not ornate, not blue magical blade."
+  }
+]

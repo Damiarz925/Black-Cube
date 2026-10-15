@@ -1,0 +1,1 @@
+PASS: 6314 assertions using actual GameManager + production ZoneManager quota and HealthComponent death claim. Levels1-121: stages1-9 normal, stage10 boss, single rewards/duplicate guards, next-level reset, direct boundary loads and boss restart. Unity runtime not tested.

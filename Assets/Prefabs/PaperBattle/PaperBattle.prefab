@@ -280,7 +280,7 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
+    rgba: 4293782504
   m_fontColor: {r: 0.91, g: 0.92, b: 0.93, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
@@ -293,7 +293,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
@@ -1295,8 +1295,8 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1792892917296070465}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.028, y: 0.16}
-  m_AnchorMax: {x: 0.28, y: 0.49}
+  m_AnchorMin: {x: 0.184, y: 0.08}
+  m_AnchorMax: {x: 0.339, y: 0.31}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -1337,7 +1337,7 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
+    rgba: 4293782504
   m_fontColor: {r: 0.91, g: 0.92, b: 0.93, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
@@ -1350,7 +1350,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
@@ -3029,7 +3029,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: -100
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: ddb535475ded56149b59aaf7762f131b, type: 2}
+  m_Sprite: {fileID: 21300000, guid: f14dac633eb15a99807e8368a08326a6, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -7737,11 +7737,81 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PaperSpriteActor
   body: {fileID: 7609367433249518449}
-  poses:
-  - {fileID: 21300000, guid: 1698fcc0adc8a0342ac07dc296646a35, type: 2}
-  - {fileID: 21300000, guid: 799e47fcb5469a24196412ed0cf64976, type: 2}
-  - {fileID: 21300000, guid: 779baa4a47847c74db751a062a42a224, type: 2}
-  - {fileID: 21300000, guid: d48c48ceff6b40a43b02b57fc7101677, type: 2}
+  animationSet: {fileID: 11400000, guid: 68ba8fe9a5f05e348f6d4ac0f1f63cfa, type: 2}
+  enemyAnimationSet: {fileID: 0}
+  poses: []
+  idleFrames:
+  - {fileID: 21300000, guid: 5230573817aa56d58e57caad34212a89, type: 3}
+  - {fileID: 21300000, guid: cb7b6533cb145814aeac1d41c50d0837, type: 3}
+  - {fileID: 21300000, guid: 7c9a9906740f564c8001249f29b46c3f, type: 3}
+  - {fileID: 21300000, guid: 47b166f92b395be1a5b3120b573ecc5f, type: 3}
+  - {fileID: 21300000, guid: f983f2039b575d538165b7576fb29eaf, type: 3}
+  - {fileID: 21300000, guid: 2894ea0c3fc052eda8ec78c25b218d8f, type: 3}
+  - {fileID: 21300000, guid: 6c15a6b244b158d79f94aa25c8e09f73, type: 3}
+  - {fileID: 21300000, guid: ccbf6fedfe1b5616ac04cb75138f2587, type: 3}
+  idleFramesPerSecond: 2
+  attackFrames:
+  - {fileID: 21300000, guid: 13772b46c3f25ae991c8c01bd2741e73, type: 3}
+  - {fileID: 21300000, guid: b0d69fba35665f6eb19afd03465b4a91, type: 3}
+  - {fileID: 21300000, guid: 4baff84067a257e085f049f3e74f1940, type: 3}
+  - {fileID: 21300000, guid: d3b7cde40bfe5c31aca4424a9ba2a761, type: 3}
+  - {fileID: 21300000, guid: c487272c1f485d84941d1282f7733bb4, type: 3}
+  - {fileID: 21300000, guid: ab3fcdad47265a4180d72206e58b7849, type: 3}
+  - {fileID: 21300000, guid: 4e02f718053b5437a4da597c3663c4b2, type: 3}
+  - {fileID: 21300000, guid: cfd83f3abc0a5254b4d0ba6c25f05baf, type: 3}
+  attackWeaponFrames: []
+  useWeaponAttachments: 1
+  defaultWeaponVisual: {fileID: 11400000, guid: 82f94467204f5f3298a008bba49d10e1, type: 2}
+  idleWeaponGrips:
+  - position: {x: -0.8117936, y: 0.88211304}
+    angle: -25
+    inFront: 1
+  - position: {x: -0.7992, y: 0.8628}
+    angle: -25
+    inFront: 1
+  - position: {x: -0.8511111, y: 0.8288889}
+    angle: -25
+    inFront: 1
+  - position: {x: -0.8265641, y: 0.8491282}
+    angle: -25
+    inFront: 1
+  - position: {x: -0.84842104, y: 0.9071579}
+    angle: -25
+    inFront: 1
+  - position: {x: -0.8105483, y: 0.93613577}
+    angle: -25
+    inFront: 1
+  - position: {x: -0.80137104, y: 0.90431875}
+    angle: -25
+    inFront: 1
+  - position: {x: -0.8235253, y: 0.9205236}
+    angle: -25
+    inFront: 1
+  attackWeaponGrips:
+  - position: {x: -0.8418713, y: 0.8548538}
+    angle: -25
+    inFront: 1
+  - position: {x: -1.0918128, y: 1.2878363}
+    angle: -140
+    inFront: 0
+  - position: {x: -0.7574269, y: 2.605614}
+    angle: 60
+    inFront: 0
+  - position: {x: 1.3480701, y: 1.5501754}
+    angle: 0
+    inFront: 0
+  - position: {x: 1.411696, y: 1.6072514}
+    angle: -10
+    inFront: 0
+  - position: {x: 0.9288889, y: 1.3490058}
+    angle: -35
+    inFront: 0
+  - position: {x: -0.8817131, y: 0.92127967}
+    angle: -25
+    inFront: 1
+  - position: {x: -0.85791665, y: 0.89741665}
+    angle: -25
+    inFront: 1
 --- !u!1 &2669904472482682955
 GameObject:
   m_ObjectHideFlags: 0
@@ -23307,12 +23377,12 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 10
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: 1698fcc0adc8a0342ac07dc296646a35, type: 2}
+  m_Sprite: {fileID: 21300000, guid: 5230573817aa56d58e57caad34212a89, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 5.2965517, y: 3.5310345}
+  m_Size: {x: 4.266667, y: 4.266667}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -23532,12 +23602,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BattleManager
   player: {fileID: 2633093962192537753}
   playerSpawnPoint: {fileID: 3853766540672069648}
-  normalEnemyPrefab: {fileID: 3892478705942306811, guid: 6939852b8f0de9f459b9040c8f71380a, type: 3}
-  bossEnemyPrefab: {fileID: 8386670574027264506, guid: 12b45f749cd5aae4bb7e8bbaae4fc3bf, type: 3}
+  normalEnemyPrefab: {fileID: 3892478705942306811, guid: d87a53b0a7395064a6839daddc36058a, type: 3}
+  bossEnemyPrefab: {fileID: 8386670574027264506, guid: 58f20b5ced3d5368ba3a1d3f1c53f709, type: 3}
   enemySpawnPoint: {fileID: 1354982358868487317}
   poisonEffect: {fileID: 11400000, guid: 16b7efd8277fffa459bb5024540c4206, type: 2}
   bleedEffect: {fileID: 11400000, guid: d8d4ad4a7b1cb7f47b30f97d6b9d492c, type: 2}
   igniteEffect: {fileID: 11400000, guid: f14082d87597ae64694570208cd8f1a9, type: 2}
+  chillEffect: {fileID: 0}
+  shockEffect: {fileID: 0}
   turnThreshold: 100
 --- !u!1 &7185884828006903291
 GameObject:
@@ -23802,6 +23874,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6693686212431024394}
   - component: {fileID: 7113150531240144048}
+  - component: {fileID: 5478303156384815187}
   m_Layer: 0
   m_Name: Game Manager
   m_TagString: Untagged
@@ -23842,8 +23915,27 @@ MonoBehaviour:
   deathMenuUI: {fileID: 7703836637114736649}
   currentZoneLevel: 1
   enemiesKilledInZone: 0
-  enemiesToKillBeforeBoss: 10
+  enemiesToKillBeforeBoss: 9
   bossSpawned: 0
+--- !u!114 &5478303156384815187
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7221778875529956285}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e047c3ca68489424684f6f8fa1a435d3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerProgression
+  maxLevel: 100
+  maxEnemiesFrom99To100: 1000
+  bossXpMultiplier: 8
+  level: 1
+  experience: 0
+  availablePoints: 0
+  ranks: 000000000000000000000000000000000000000000000000i
 --- !u!1 &7251536214120326163
 GameObject:
   m_ObjectHideFlags: 0
@@ -25774,6 +25866,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: de8bd2ba9cc5f9149b32efb222a6c7a2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ZoneManager
+  zoneNames:
+  - Forest
+  - Desert
+  - Tundra
+  stagesPerZone: 10
+  paperBackground: {fileID: 853234911179518672}
+  forestBackgrounds:
+  - {fileID: 21300000, guid: f14dac633eb15a99807e8368a08326a6, type: 3}
+  - {fileID: 21300000, guid: c4841c01f5395e0eb982361689a9ac44, type: 3}
+  - {fileID: 21300000, guid: 8298fb263ee3549596c0db8c13a40bdf, type: 3}
+  - {fileID: 21300000, guid: d279c723d7165995a04276eabee5091d, type: 3}
+  - {fileID: 21300000, guid: c2d6b9c8e075543abead3cd0f4c3efe7, type: 3}
+  - {fileID: 21300000, guid: 5fafc2a8418559f386be9ac61f945b34, type: 3}
   generate3DScenery: 0
   levelGenerator: {fileID: 2826658602675338045}
   themeSet: {fileID: 11400000, guid: eafe313d4193fc544b9ebcf75f017fd2, type: 2}
@@ -29579,7 +29684,7 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
+    rgba: 4293782504
   m_fontColor: {r: 0.91, g: 0.92, b: 0.93, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
@@ -29592,7 +29697,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
@@ -30226,7 +30331,7 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
+    rgba: 4293782504
   m_fontColor: {r: 0.91, g: 0.92, b: 0.93, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
@@ -30239,7 +30344,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
@@ -30968,8 +31073,8 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1792892917296070465}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.31, y: 0.16}
-  m_AnchorMax: {x: 0.7, y: 0.49}
+  m_AnchorMin: {x: 0.446, y: 0.08}
+  m_AnchorMax: {x: 0.601, y: 0.31}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -31010,7 +31115,7 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
+    rgba: 4293782504
   m_fontColor: {r: 0.91, g: 0.92, b: 0.93, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
@@ -31023,7 +31128,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2

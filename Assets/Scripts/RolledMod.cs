@@ -1,3 +1,5 @@
+// Developer map: One resolved affix: StatTypes key, one-based tier and raw numeric roll. Gear routes this value into local weapon fields or global modifiers.
+// See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using UnityEngine;
 
 //Serializable data container RolledMod, used to store stat types, tier index, and value for the rolled mod.

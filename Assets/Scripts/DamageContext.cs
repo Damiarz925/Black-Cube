@@ -1,3 +1,5 @@
+// Developer map: Per-attack snapshot of typed damage components and critical metadata. The components are one attack, not separate combat turns; critical scaling is applied by the attacker.
+// See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using System.Collections.Generic;
 
 

@@ -1,3 +1,5 @@
+// Developer map: Legacy 3D theme art and per-category placement rules. ZoneManager currently applies the skybox; BackgroundSprite/AmbientTint are not the active paper-forest background source.
+// See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using UnityEngine;
 using System.Collections.Generic;
 

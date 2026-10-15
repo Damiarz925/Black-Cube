@@ -1,3 +1,5 @@
+// Developer map: Target-owned stacks with global-turn ticking and pending effect aggregation. Mutation is separated from application because damage/death callbacks can clear statuses or replace targets.
+// See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -230,7 +232,7 @@ public partial class StatusController : MonoBehaviour
             if (pe.Effect == null) continue;    //if the effect is null, continue
 
             if (strengthByEffect.TryGetValue(pe.Effect, out float current)) //if the effect is in the list, current is its value
-                strengthByEffect[pe.Effect] = current + pe.Strength;        //set the effect at this position to its current power + the pending effect's strength (A bit unsure about this. Why add the strength together?)
+                strengthByEffect[pe.Effect] = current + pe.Strength;        // Sum due stacks/ticks into one damage application and popup per effect this turn.
             else
                 strengthByEffect[pe.Effect] = pe.Strength;  //Otherwise, set the effect to the pending effect's strength
         }
@@ -338,9 +340,8 @@ public partial class StatusController : MonoBehaviour
         }
     }
 
-    //These two functions I think are no longer necessary, they were inteded to be delays that would not immediately apply status effects
-    //so that the damage numbers could be displayed one after another instead of a bunch of numbers appearing at once
-    //I believe now I'm going to do the damage numbers somewhere else entirely, and it should be possible to add a slight delay in there instead.
+    // Legacy non-DOT dispatch waits 0.3 scaled seconds. DOT uses ApplyDotDamage
+    // immediately; shock/chill callbacks currently have no gameplay response.
     public IEnumerator EffectDelay(PlayerController target, float strength, StatusEffects effect)   
     {
         yield return new WaitForSeconds(0.3f);

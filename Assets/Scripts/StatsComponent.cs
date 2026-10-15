@@ -1,3 +1,5 @@
+// Developer map: Actor stat store with cached StatValue entries and batched change events. GetStat converts classified percent points to fractions; GetRawStat preserves stored units.
+// See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using UnityEngine;
 using System.Collections.Generic;
 
@@ -52,7 +54,7 @@ public class StatsComponent : MonoBehaviour
     {
         if (!_stats.TryGetValue(type, out var stat))
         {
-            stat = new StatValue(baseValue);
+            stat = new StatValue(baseValue, IsPercentStat(type) && type.ToString().EndsWith("Mult"));
             _stats[type] = stat;
         }
         else
@@ -66,7 +68,7 @@ public class StatsComponent : MonoBehaviour
     {
         if (!_stats.TryGetValue(mod.Stat, out var stat))
         {
-            stat = new StatValue();
+            stat = new StatValue(0, IsPercentStat(mod.Stat) && mod.Stat.ToString().EndsWith("Mult"));
             _stats[mod.Stat] = stat;
         }
         stat.AddModifier(mod);
@@ -157,6 +159,7 @@ public class StatsComponent : MonoBehaviour
             // Life / mana % increases
             case StatTypes.LifePercent:
             case StatTypes.ManaPercent:
+            case StatTypes.LifeRegeneration:
 
             // Ailment scaling – effect
             case StatTypes.ShockEffect:

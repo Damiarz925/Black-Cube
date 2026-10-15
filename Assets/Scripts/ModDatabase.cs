@@ -1,3 +1,5 @@
+// Developer map: Serialized affix catalog with lazy enum/id lookups. Editor validation fills missing definitions and allowed slots; configured tier ranges remain the balancing data.
+// See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 #if UNITY_EDITOR
 using UnityEditor;
 #endif

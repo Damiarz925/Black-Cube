@@ -1,3 +1,5 @@
+// Developer map: Refreshes read-only equipped-slot glyphs for either EquipmentManager or one inspected enemy. This view never mutates equipment or modifiers.
+// See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -16,10 +18,26 @@ public class EquipmentStatsUI : MonoBehaviour
     }
     public Slot[] slots;
     private EquipmentManager manager;
+    private EnemyAI enemyTarget;
+    private bool inspectEnemy;
+
+    public void SetEnemyTarget(EnemyAI target)
+    {
+        if (manager != null)
+            manager.EquipmentChanged -= Refresh;
+        manager = null;
+        inspectEnemy = true;
+        enemyTarget = target;
+        Refresh();
+    }
+
     private void OnEnable()
     {
-        manager = EquipmentManager.Instance;
-        if (manager != null) manager.EquipmentChanged += Refresh;
+        if (!inspectEnemy)
+        {
+            manager = EquipmentManager.Instance;
+            if (manager != null) manager.EquipmentChanged += Refresh;
+        }
         Refresh();
     }
     private void OnDisable()
@@ -32,7 +50,12 @@ public class EquipmentStatsUI : MonoBehaviour
         if (slots == null) return;
         foreach (var slot in slots)
         {
-            var item = manager != null ? manager.GetEquipped(slot.type) : null;
+            var target = slot.glyph.transform.parent.gameObject;
+            var hover = target.GetComponent<EquippedItemHoverUI>();
+            if (hover == null) hover = target.AddComponent<EquippedItemHoverUI>();
+            hover.Type = slot.type;
+            var item = inspectEnemy ? enemyTarget?.GetEquippedGear(slot.type) : manager?.GetEquipped(slot.type);
+            hover.SetItem(inspectEnemy, item);
             var tint = item != null ? ItemSlotUI.RarityColor(item.ItemRarity) : new Color(.29f,.31f,.35f);
             slot.glyph.gearType = slot.type;
             slot.glyph.color = tint;

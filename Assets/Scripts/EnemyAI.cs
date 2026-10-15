@@ -1,3 +1,5 @@
+// Developer map: Builds enemy attack snapshots from generated gear and StatsComponent; BattleManager owns attack scheduling. Enemy rarity is randomly rolled separately from the HealthComponent boss role.
+// See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -24,10 +26,34 @@ public class EnemyAI : MonoBehaviour
     private int enemyLevel;
     public int EnemyLevel => enemyLevel;
     public Element WeaponMainElement => equippedWeapon != null ? equippedWeapon.BaseElement : Element.Phys;
+    public float EquippedWeaponBaseDamage => equippedWeapon != null ? equippedWeapon.GetEffectiveBaseDamage() : 0f;
+
+    public Gear GetEquippedGear(LootManager.GearType type)
+    {
+        for (int i = 0; i < equippedItems.Count; i++)
+        {
+            Gear item = equippedItems[i];
+            if (item != null && item.ItemType == type)
+                return item;
+        }
+        return null;
+    }
 
     [Header("Equipment")]
     [SerializeField] private Gear equippedWeapon;                   //private gear field for the enemy's equipped weapon
     private readonly List<Gear> equippedItems = new List<Gear>();               //readonly list of the enemy's equipped items
+    private static readonly LootManager.GearType[] NonWeaponGearSlots = new LootManager.GearType[]
+    {
+        LootManager.GearType.Helmets,
+        LootManager.GearType.Amulets,
+        LootManager.GearType.BodyArmours,
+        LootManager.GearType.Gloves,
+        LootManager.GearType.Boots,
+        LootManager.GearType.Rings,
+        LootManager.GearType.Belts
+    };
+    private const int MaxNonWeaponSlots = 7;
+    private const int MaxTotalEnemyGearPieces = 8;
 
     private bool _initialized;      //bool for whether the enemy has been initialized or not
 
@@ -63,7 +89,12 @@ public class EnemyAI : MonoBehaviour
         InitRarityWeights();            //call initrarityweights
         CurrentRarity = RollEnemyRarity();      //set current rarity by calling rollenemyrarity
 
+        EnemyStatSetup statSetup = GetComponent<EnemyStatSetup>();
+        if (statSetup != null)
+            statSetup.SetupForZone(enemyLevel, health != null && health.IsBoss);
+
         GenerateGearForEnemy(enemyLevel);       //call generate gear for enemy using the enemy's level
+        health?.RestoreFullLife();               //enter combat full after Life and LifePercent gear modifiers are applied
 
         Debug.Log($"EnemyAI: Initialized enemy '{name}' level={enemyLevel}, rarity={CurrentRarity}, weaponElement={WeaponMainElement}", this);
     }
@@ -124,7 +155,8 @@ public class EnemyAI : MonoBehaviour
             Debug.LogWarning("EnemyAI has no ModManager assigned; generating base enemy gear without rolled mods.", this); //If mod monater is null, give error and return
         }
 
-        int itemCount = GetItemCountForLevel(zoneLevel);    //item count is given by getitemcountforlevel function, passing in the zone level
+        int itemCount = Mathf.Min(GetItemCountForLevel(zoneLevel), MaxTotalEnemyGearPieces);    //item count is given by getitemcountforlevel function, passing in the zone level
+        int nonWeaponCount = Mathf.Max(0, itemCount - 1);     //always keep one slot for weapon
 
         // Weapon first
         Gear weapon = CreateItemForEnemy(LootManager.GearType.Weapons, zoneLevel);      //call create item for enemy, specifying weapon and the zone level
@@ -134,11 +166,13 @@ public class EnemyAI : MonoBehaviour
             EquipWeapon(weapon);        //call equipweapon, passing in the generated weapon
         }
 
+        Element buildElement = weapon != null ? weapon.BaseElement : Element.Phys;
+
         // Other items
-        for (int i = 1; i < itemCount; i++)     //generate nonweapon items up to the item count. i starts at 1, so if item count is 1, generates no additional items (because we already have a weapon). Adds the item to the list, and applies mods from the item to the enemy
+        List<LootManager.GearType> selectedSlots = RollDistinctNonWeaponSlots(nonWeaponCount);   //choose unique non-weapon slots for this enemy
+        foreach (var type in selectedSlots)     //generate one item for each selected slot
         {
-            LootManager.GearType type = RollRandomNonWeaponType();
-            Gear gear = CreateItemForEnemy(type, zoneLevel);
+            Gear gear = CreateBestSynergyItemForEnemy(type, zoneLevel, buildElement);
             if (gear == null)
                 continue;
 
@@ -172,6 +206,187 @@ public class EnemyAI : MonoBehaviour
         };
     }
 
+    private List<LootManager.GearType> RollDistinctNonWeaponSlots(int count)
+    {
+        count = Mathf.Clamp(count, 0, MaxNonWeaponSlots);
+        if (count == 0)
+            return new List<LootManager.GearType>();
+
+        List<LootManager.GearType> availableSlots = new List<LootManager.GearType>(NonWeaponGearSlots);
+        List<LootManager.GearType> selectedSlots = new List<LootManager.GearType>(count);
+
+        for (int i = availableSlots.Count - 1; i > 0; i--)
+        {
+            int swapIndex = Random.Range(0, i + 1);
+            LootManager.GearType tmp = availableSlots[i];
+            availableSlots[i] = availableSlots[swapIndex];
+            availableSlots[swapIndex] = tmp;
+        }
+
+        for (int i = 0; i < count; i++)
+            selectedSlots.Add(availableSlots[i]);
+
+        return selectedSlots;
+    }
+
+    private Gear CreateBestSynergyItemForEnemy(LootManager.GearType type, int zoneLevel, Element buildElement)
+    {
+        int candidateCount = GetSynergyCandidateCount(zoneLevel);
+        Gear bestCandidate = null;
+        int bestRelevance = int.MinValue;
+        float bestRollStrength = float.MinValue;
+
+        for (int i = 0; i < candidateCount; i++)
+        {
+            Gear candidate = CreateItemForEnemy(type, zoneLevel);
+            if (candidate == null)
+                continue;
+
+            ScoreGearSynergy(candidate, buildElement, out int relevance, out float rollStrength);
+            bool isBetter = bestCandidate == null
+                || relevance > bestRelevance
+                || (relevance == bestRelevance && rollStrength > bestRollStrength);
+
+            if (isBetter)
+            {
+                DiscardGearCandidate(bestCandidate);
+                bestCandidate = candidate;
+                bestRelevance = relevance;
+                bestRollStrength = rollStrength;
+            }
+            else
+            {
+                DiscardGearCandidate(candidate);
+            }
+        }
+
+        return bestCandidate;
+    }
+
+    private static int GetSynergyCandidateCount(int level)
+    {
+        int levelDecade = ((Mathf.Max(1, level) - 1) / 10) + 1;
+        return Mathf.Clamp(levelDecade, 1, 10);
+    }
+
+    private static void ScoreGearSynergy(Gear gear, Element buildElement, out int relevance, out float rollStrength)
+    {
+        relevance = 0;
+        rollStrength = 0f;
+
+        if (gear == null || gear.globalRolledMods == null)
+            return;
+
+        foreach (RolledMod mod in gear.globalRolledMods)
+        {
+            if (mod == null)
+                continue;
+
+            int statRelevance = GetStatSynergyRelevance(mod.statType, buildElement);
+            if (statRelevance <= 0)
+                continue;
+
+            relevance += statRelevance;
+            rollStrength += statRelevance * Mathf.Abs(mod.value);
+        }
+    }
+
+    private static int GetStatSynergyRelevance(StatTypes stat, Element buildElement)
+    {
+        bool isMappedHitStat = stat == StatMappings.GetFlatDamageStat(buildElement)
+            || stat == StatMappings.GetIncDamageStat(buildElement)
+            || stat == StatMappings.GetMoreDamageStat(buildElement)
+            || stat == StatMappings.GetPenetrationStat(buildElement);
+
+        if (isMappedHitStat)
+            return buildElement == Element.Poison ? 900 : 1000;
+
+        if (IsThemedAilmentStat(stat, buildElement))
+            return buildElement == Element.Poison ? 1000 : 800;
+
+        switch (stat)
+        {
+            case StatTypes.GenericDmg:
+            case StatTypes.GenericMult:
+                return 200;
+
+            case StatTypes.GenericDotMult:
+                return HasDamagingAilmentTheme(buildElement) ? 180 : 0;
+
+            case StatTypes.CritChance:
+            case StatTypes.CritMult:
+            case StatTypes.BaseCritChance:
+            case StatTypes.AttackSpeed:
+            case StatTypes.ChanceToHitTwice:
+                return 120;
+
+            case StatTypes.Accuracy:
+                return 100;
+
+            default:
+                return 0;
+        }
+    }
+
+    private static bool HasDamagingAilmentTheme(Element buildElement)
+    {
+        return buildElement == Element.Phys
+            || buildElement == Element.Fire
+            || buildElement == Element.Poison;
+    }
+
+    private static bool IsThemedAilmentStat(StatTypes stat, Element buildElement)
+    {
+        switch (buildElement)
+        {
+            case Element.Phys:
+                return stat == StatTypes.BleedDmg
+                    || stat == StatTypes.BleedMult
+                    || stat == StatTypes.BleedChance
+                    || stat == StatTypes.BleedTickRate
+                    || stat == StatTypes.BleedDuration
+                    || stat == StatTypes.BleedPenetration;
+
+            case Element.Fire:
+                return stat == StatTypes.IgniteDmg
+                    || stat == StatTypes.IgniteMult
+                    || stat == StatTypes.IgniteChance
+                    || stat == StatTypes.IgniteTickRate
+                    || stat == StatTypes.IgniteDuration
+                    || stat == StatTypes.IgnitePenetration;
+
+            case Element.Cold:
+                return stat == StatTypes.ChillChance
+                    || stat == StatTypes.ChillEffect
+                    || stat == StatTypes.ChillDuration;
+
+            case Element.Light:
+                return stat == StatTypes.ShockChance
+                    || stat == StatTypes.ShockEffect
+                    || stat == StatTypes.ShockDuration;
+
+            case Element.Poison:
+                return stat == StatTypes.PoisonDmg
+                    || stat == StatTypes.PoisonMult
+                    || stat == StatTypes.PoisonChance
+                    || stat == StatTypes.PoisonTickRate
+                    || stat == StatTypes.PoisonDuration
+                    || stat == StatTypes.PoisonPenetration;
+
+            default:
+                return false;
+        }
+    }
+
+    private static void DiscardGearCandidate(Gear candidate)
+    {
+        if (candidate == null)
+            return;
+
+        candidate.gameObject.SetActive(false);
+        Destroy(candidate.gameObject);
+    }
+
     private Gear CreateItemForEnemy(LootManager.GearType type, int zoneLevel)       //Function used to create the item for the enemy to use
     {
         LootManager.GearRarity gearRarity = MapEnemyRarityToGearRarity(CurrentRarity);      //Set the gear rarity equal to the enemy rarity
@@ -181,14 +396,14 @@ public class EnemyAI : MonoBehaviour
 
         Gear gear = go.AddComponent<Gear>();            //create a gear object, which is go with the gear component added
 
-        var element = RollItemElement();
+        var element = RollItemElement(type == LootManager.GearType.Weapons);
 
         int itemLevel = zoneLevel;          //set item level equal to zone level
         gear.Initialize(type, gearRarity, itemLevel, element);       //initailize gear, passing in the gear type, rarity, ilvl, and element
 
         int modCount = gear.ModCount;        //roll for the mod count of the item
         var rolledMods = modManager != null
-            ? modManager.RollModsForItem(type, gearRarity, itemLevel, modCount)
+            ? modManager.RollModsForItem(type, gearRarity, itemLevel, modCount, element)
             : new List<RolledMod>();     //create variable for rolled mods, using the rollmodsforitem function from modmanager
         gear.ApplyMods(rolledMods);     //use gear.applymods with the rolled mods list to apply those mods to the gear item
 
@@ -246,7 +461,7 @@ public class EnemyAI : MonoBehaviour
         return StatOp.Additive;     //otherwisse, return statop.additive
     }
 
-    public DamageContext BuildAttackContext()       //builds the attack context, called when enemy attacks
+    public DamageContext BuildNonCriticalAttackContext(bool logStats = false)
     {
         DamageContext ctx = new DamageContext(4);       //create a damage context with an initial capacity of 4
 
@@ -255,8 +470,18 @@ public class EnemyAI : MonoBehaviour
         Element weaponElement = equippedWeapon.BaseElement;     //store the weapon's base element in weaponElement
         float weaponBaseDamage = equippedWeapon.GetEffectiveBaseDamage();       //store the weapon's base damage in weaponBaseDamage (call GetEffectiveBaseDamage from Gear class on equippedWeapon)
 
-        AddScaledElementalDamage(ctx, weaponElement, weaponBaseDamage);     //call addscaledelemental damage to add the scaled ele damage (the base element damage scaled by local mods matching that element on the item)
+        AddScaledElementalDamage(ctx, weaponElement, weaponBaseDamage, logStats);     //call addscaledelemental damage to add the scaled ele damage (the base element damage scaled by local mods matching that element on the item)
         AddGlobalFlatElements(ctx, weaponElement);      //call addgloablflatelements to add any flat elemental damage that does not match the weapon's base element
+
+        return ctx;
+    }
+
+    public DamageContext BuildAttackContext()       //builds the attack context, called when enemy attacks
+    {
+        DamageContext ctx = BuildNonCriticalAttackContext(logStats: true);
+
+        if (equippedWeapon == null || stats == null)
+            return ctx;
 
         float critChance = GetFinalCritChance();        //call get final crit chance and store it in critchance
         float critMult = 1f + stats.GetStat(StatTypes.CritMult);        //grab the crit multi and add 1 to it, store it in critmult
@@ -279,7 +504,7 @@ public class EnemyAI : MonoBehaviour
         return ctx; //return context
     }
 
-    private void AddScaledElementalDamage(DamageContext ctx, Element element, float baseAmount)
+    private void AddScaledElementalDamage(DamageContext ctx, Element element, float baseAmount, bool logStats)
     {
         float flatGlobal = stats.GetStat(StatMappings.GetFlatDamageStat(element));      //get the flat global of the passed in element
         float incElement = stats.GetStat(StatMappings.GetIncDamageStat(element));       //get the inc ele damage of the passed in element
@@ -288,8 +513,9 @@ public class EnemyAI : MonoBehaviour
 
         float moreElement = stats.GetStat(StatMappings.GetMoreDamageStat(element));     //repeat above for more damage to calculate total more damage as more + generic
         float moreGeneric = stats.GetStat(StatTypes.GenericMult);
-        float moreTotal = (1f + moreElement) * (1f + moreGeneric);
-        Debug.Log($"Enemy dmg stats: base={baseAmount}, flatG={flatGlobal}, incElem={incElement}, incGen={incGeneric}, moreElem={moreElement}, moreGen={moreGeneric}");
+        float moreTotal = 1f + moreElement + moreGeneric;
+        if (logStats)
+            Debug.Log($"Enemy dmg stats: base={baseAmount}, flatG={flatGlobal}, incElem={incElement}, incGen={incGeneric}, moreElem={moreElement}, moreGen={moreGeneric}");
 
         float amount = (baseAmount + flatGlobal) * (1f + incTotal) * moreTotal;    //calculate final damage amount as basedmg + matching flat damage times (1 + increasedtotal) time (1 + moretotal) 
 
@@ -317,22 +543,19 @@ public class EnemyAI : MonoBehaviour
 
         float moreElement = stats.GetStat(StatMappings.GetMoreDamageStat(element));     //get the more damage stat for the current element, add it to global more damage to calc moretotal
         float moreGeneric = stats.GetStat(StatTypes.GenericMult);
-        float moreTotal = (1f + moreElement) * (1f + moreGeneric);
+        float moreTotal = 1f + moreElement + moreGeneric;
 
         float amount = flatGlobal * (1f + incTotal) * moreTotal;      //calculate total damage for this element as the flat * (1+totalinc) * (1+totalmore)
         ctx.AddDamage(element, amount);     //add this element to damage context
     }
 
-    private float GetFinalCritChance()
+    public float GetFinalCritChance()
     {
         if (equippedWeapon == null) return 0f;      //if equipped weapon is null, return 0f for crit chance
 
-        float weaponCrit = equippedWeapon.GetEffectiveBaseCrit();       //call geteffectivebasecrit on equipped weapon, assign that to weaponcrit variable
+        float weaponCrit = equippedWeapon.GetEffectiveBaseCrit(stats.GetStat(StatTypes.BaseCritChance));
         float incCritGlobal = stats.GetStat(StatTypes.CritChance);      //get the global increased crit stat on the enemy
-        float extraBaseCritGlobal = stats.GetStat(StatTypes.BaseCritChance);        //get the extra base crit stat on the enemy
-
-        float baseCritAll = weaponCrit + extraBaseCritGlobal;       //get the total base crit by adding the weapon base crit and the extra base crit
-        return Mathf.Clamp01(baseCritAll * (1f + incCritGlobal));       //calculate the total crit chance as the basecritall * (1+inccritglobal) and clamp is between 0 and 1.
+        return Mathf.Clamp01(weaponCrit * (1f + incCritGlobal));
     }
 
     public float GetFinalAttackSpeed()
@@ -408,9 +631,9 @@ public class EnemyAI : MonoBehaviour
         }
     }
 
-    public Element RollItemElement()
+    public Element RollItemElement(bool forWeapon = false)
     {
-        int max = (int)Element.Count;
+        int max = forWeapon ? (int)Element.Void : (int)Element.Count;
         int roll = Random.Range(0, max);
         return (Element)roll;
     }

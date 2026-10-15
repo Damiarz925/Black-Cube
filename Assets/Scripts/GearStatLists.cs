@@ -1,3 +1,5 @@
+// Developer map: Authoritative stat pools per gear slot, shared by rolling and ModDatabase editor population. Adding a stat to the enum alone does not make it rollable.
+// See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -481,6 +483,12 @@ public class GearStatLists : MonoBehaviour
             StatTypes.BleedTickRate,
             StatTypes.BleedDuration,
             StatTypes.BleedPenetration,
+            StatTypes.ShockChance,
+            StatTypes.ShockEffect,
+            StatTypes.ShockDuration,
+            StatTypes.ChillChance,
+            StatTypes.ChillEffect,
+            StatTypes.ChillDuration,
             StatTypes.ChanceToHitTwice,
 
             // Base weapon stats (these will be treated specially in rolling)

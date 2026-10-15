@@ -1,3 +1,5 @@
+// Developer map: Weighted stat and tier selection, item-level gating and duplicate-group exclusion. Weapon base rolls are guaranteed; random weapon affixes are filtered by base element.
+// See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
@@ -66,7 +68,8 @@ public class ModManager : MonoBehaviour
         LootManager.GearType itemType,      //Takes args for gear type, rarity, ilvl and mod count
         LootManager.GearRarity rarity,
         int itemLevel,
-        int modCount)
+        int modCount,
+        Element weaponElement)
     {
         var mods = new List<RolledMod>();       //create list of rolled mods to store item's mods
         var usedStats = new HashSet<StatTypes>();       //Create HashSet for usedstats
@@ -85,7 +88,7 @@ public class ModManager : MonoBehaviour
         // NORMAL RANDOM MODS
         for (int i = 0; i < remaining; i++) //Loop through all of remaining 
         {
-            RolledMod mod = RollSingleMod(itemType, rarity, itemLevel, usedStats, usedGroups);  //Grab a mod by callilng rollsinglemod
+            RolledMod mod = RollSingleMod(itemType, rarity, itemLevel, usedStats, usedGroups, weaponElement);  //Grab a mod by callilng rollsinglemod
             if (mod == null) break; //If the mod is null, break
 
             mods.Add(mod);  //Add the mod to mods
@@ -130,7 +133,8 @@ public class ModManager : MonoBehaviour
         LootManager.GearRarity rarity,
         int itemLevel,
         HashSet<StatTypes> usedStats,
-        HashSet<string> usedGroups)
+        HashSet<string> usedGroups,
+        Element weaponElement)
     {
         List<StatTypes> pool = GearStatLists.Instance.GetStatPoolForType(itemType);     //this grabs the stat pool for the passed in item type and stores it in pool
         var candidates = new List<(StatTypes stat, int weight)>();      //Create a list of candidates, with the key being the stat and the value being the weight of that stat
@@ -138,6 +142,8 @@ public class ModManager : MonoBehaviour
         foreach (var stat in pool)  //for each stat in the pool
         {
             if (usedStats.Contains(stat)) continue; //if it's in used stats, skip it
+            if (itemType == LootManager.GearType.Weapons && !IsWeaponAffixEligible(stat, weaponElement))
+                continue;
 
             if (!modDatabase.TryGetDefinition(stat, out AffixDefinitions def))  //If we can't find it's definition, skip it. If we can store it in def
                 continue;
@@ -160,6 +166,88 @@ public class ModManager : MonoBehaviour
 
         StatTypes chosenStat = WeightedRandomPick(candidates);  //Call weightedrandompick to choose a random mod from candidates
         return RollTierAndValue(chosenStat, rarity, itemLevel);     //Call rolltierandvalue to decide on the actual mod tier and value within that tier, then return that value
+    }
+
+    private static bool IsWeaponAffixEligible(StatTypes stat, Element weaponElement)
+    {
+        switch (stat)
+        {
+            case StatTypes.FlatPhys:
+            case StatTypes.PhysDmg:
+            case StatTypes.PhysMult:
+            case StatTypes.PhysPenetration:
+            case StatTypes.Plus1Phys:
+                return weaponElement == Element.Phys;
+
+            case StatTypes.FlatFire:
+            case StatTypes.FireDmg:
+            case StatTypes.FireMult:
+            case StatTypes.FirePenetration:
+            case StatTypes.FlatFirePerStrength:
+            case StatTypes.Plus1Fire:
+                return weaponElement == Element.Fire;
+
+            case StatTypes.IgniteDmg:
+            case StatTypes.IgniteMult:
+            case StatTypes.IgniteChance:
+            case StatTypes.IgniteTickRate:
+            case StatTypes.IgniteDuration:
+            case StatTypes.IgnitePenetration:
+            case StatTypes.Plus1Ignite:
+                return weaponElement == Element.Fire;
+
+            case StatTypes.FlatCold:
+            case StatTypes.ColdDmg:
+            case StatTypes.ColdMult:
+            case StatTypes.ColdPenetration:
+            case StatTypes.FlatColdPerDexterity:
+            case StatTypes.Plus1Cold:
+                return weaponElement == Element.Cold;
+
+            case StatTypes.ChillChance:
+            case StatTypes.ChillEffect:
+            case StatTypes.ChillDuration:
+                return weaponElement == Element.Cold;
+
+            case StatTypes.FlatLight:
+            case StatTypes.LightDmg:
+            case StatTypes.LightMult:
+            case StatTypes.LightPenetration:
+            case StatTypes.FlatLightPerIntelligence:
+            case StatTypes.Plus1Light:
+                return weaponElement == Element.Light;
+
+            case StatTypes.ShockChance:
+            case StatTypes.ShockEffect:
+            case StatTypes.ShockDuration:
+                return weaponElement == Element.Light;
+
+            case StatTypes.PoisonDmg:
+            case StatTypes.PoisonMult:
+            case StatTypes.PoisonChance:
+            case StatTypes.PoisonTickRate:
+            case StatTypes.PoisonDuration:
+            case StatTypes.PoisonPenetration:
+            case StatTypes.Plus1Poison:
+                return weaponElement == Element.Poison || weaponElement == Element.Phys;
+
+            case StatTypes.BleedDmg:
+            case StatTypes.BleedMult:
+            case StatTypes.BleedChance:
+            case StatTypes.BleedTickRate:
+            case StatTypes.BleedDuration:
+            case StatTypes.BleedPenetration:
+            case StatTypes.Plus1Bleed:
+                return weaponElement == Element.Phys;
+
+            case StatTypes.GenericDotMult:
+                return weaponElement == Element.Phys
+                    || weaponElement == Element.Fire
+                    || weaponElement == Element.Poison;
+
+            default:
+                return true;
+        }
     }
 
     private RolledMod RollTierAndValue(StatTypes stat, LootManager.GearRarity rarity, int itemLevel)

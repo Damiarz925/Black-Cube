@@ -83,28 +83,28 @@ MonoBehaviour:
     groups: []
     tiers:
     - tierIndex: 1
-      minValue: 3
-      maxValue: 5
+      minValue: 5
+      maxValue: 10
       minItemLevel: 1
       weight: 50
     - tierIndex: 2
-      minValue: 4
-      maxValue: 8
+      minValue: 5
+      maxValue: 10
       minItemLevel: 20
       weight: 35
     - tierIndex: 3
-      minValue: 6
-      maxValue: 13
+      minValue: 5
+      maxValue: 10
       minItemLevel: 40
       weight: 20
     - tierIndex: 4
-      minValue: 10
-      maxValue: 21
+      minValue: 5
+      maxValue: 10
       minItemLevel: 60
       weight: 10
     - tierIndex: 5
-      minValue: 16
-      maxValue: 32
+      minValue: 5
+      maxValue: 10
       minItemLevel: 75
       weight: 5
     tierTopMultiplier: 6
@@ -1423,7 +1423,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 44
     displayName: Chance To Shock
-    allowedSlots: 0400000005000000i
+    allowedSlots: 040000000500000007000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -1455,7 +1455,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 45
     displayName: Chance To Chill
-    allowedSlots: 0400000005000000i
+    allowedSlots: 040000000500000007000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -1487,7 +1487,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 46
     displayName: Shock Effect
-    allowedSlots: 0400000005000000i
+    allowedSlots: 040000000500000007000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -1519,7 +1519,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 47
     displayName: Chill Effect
-    allowedSlots: 0400000005000000i
+    allowedSlots: 040000000500000007000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -1551,7 +1551,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 48
     displayName: Shock Duration
-    allowedSlots: 0400000005000000i
+    allowedSlots: 040000000500000007000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -1583,7 +1583,7 @@ MonoBehaviour:
     tierSpread: 0.35
   - statType: 49
     displayName: Chill Duration
-    allowedSlots: 0400000005000000i
+    allowedSlots: 040000000500000007000000i
     groups: []
     tiers:
     - tierIndex: 1
@@ -2268,10 +2268,35 @@ MonoBehaviour:
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 72
-    displayName: 
+    displayName: Life Regeneration
     allowedSlots: 0000000002000000i
     groups: []
-    tiers: []
+    tiers:
+    - tierIndex: 1
+      minValue: 2
+      maxValue: 4
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 3
+      maxValue: 7
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 5
+      maxValue: 10
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 8
+      maxValue: 16
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 12
+      maxValue: 25
+      minItemLevel: 75
+      weight: 5
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 73
@@ -2282,10 +2307,35 @@ MonoBehaviour:
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 74
-    displayName: 
+    displayName: Life On Hit
     allowedSlots: 02000000i
     groups: []
-    tiers: []
+    tiers:
+    - tierIndex: 1
+      minValue: 8
+      maxValue: 17
+      minItemLevel: 1
+      weight: 50
+    - tierIndex: 2
+      minValue: 13
+      maxValue: 26
+      minItemLevel: 20
+      weight: 35
+    - tierIndex: 3
+      minValue: 20
+      maxValue: 41
+      minItemLevel: 40
+      weight: 20
+    - tierIndex: 4
+      minValue: 31
+      maxValue: 64
+      minItemLevel: 60
+      weight: 10
+    - tierIndex: 5
+      minValue: 48
+      maxValue: 100
+      minItemLevel: 75
+      weight: 5
     tierTopMultiplier: 6
     tierSpread: 0.35
   - statType: 75

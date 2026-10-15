@@ -1,3 +1,5 @@
+// Developer map: Maps damage elements to stat keys for attacker scaling and defender mitigation. Unsupported elements use fallback keys; physical resistance currently maps to FireRes even in the hit pipeline.
+// See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using UnityEngine;
 
 public static class StatMappings
@@ -80,7 +82,7 @@ public static class StatMappings
             case Element.Phys:
             default:
                 // If you add a PhysRes later, handle it here.
-                return StatTypes.FireRes; // placeholder, not used for phys right now
+                return StatTypes.FireRes; // Existing fallback IS used for physical hits; dedicated physical resistance is not implemented.
         }
     }
 

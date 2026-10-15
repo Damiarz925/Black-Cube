@@ -1,3 +1,5 @@
+// Developer map: Asset-writing paper HUD/inventory UI configuration shared with the scene builder.
+// See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using System.Linq;
 using TMPro;
 using UnityEditor;
@@ -22,11 +24,12 @@ public static class PaperBattleUIBuilder
         finally {PrefabUtility.UnloadPrefabContents(root);}
         AssetDatabase.SaveAssets();
         EditorSceneManager.OpenScene("Assets/Scenes/SampleScene.unity");
-        Debug.Log("PAPER2D UI: normal inventory, equipment glyphs, HUD and death menu saved.");
+        Debug.Log("PAPER2D UI: inventory, inspection controls, playback controls, HUD and death menu saved.");
     }
     public static void Configure(GameObject root)
     {
         var hud=root.GetComponentInChildren<PaperBattleHUD>(true);
+        if(hud.GetComponent<CorruptionUITheme>()==null)hud.gameObject.AddComponent<CorruptionUITheme>();
         var canvas=hud.GetComponentInParent<Canvas>();
         var inventory=hud.inventoryPanel;
         var old=inventory.GetComponentInChildren<InventoryUI>(true);
@@ -53,11 +56,16 @@ public static class PaperBattleUIBuilder
 
         for(int i=hud.transform.childCount-1;i>=0;i--)Object.DestroyImmediate(hud.transform.GetChild(i).gameObject);
         Place(hud.gameObject,new Vector2(0,1),Vector2.one,new Vector2(0,-98),Vector2.zero);Surface(hud.gameObject,Ink);Edge(hud.transform);
-        hud.runText=Text(hud.transform,"BLACK CUBE  /  FOREST 1",22,.028f,.49f,.43f,.91f);
-        hud.playerText=Text(hud.transform,"WANDERER",15,.028f,.16f,.28f,.49f);
-        hud.enemyText=Text(hud.transform,"GHOUL",15,.31f,.16f,.7f,.49f);
-        var ib=Button(hud.transform,"INVENTORY",.75f,.25f,.875f,.76f,14);UnityEventTools.AddPersistentListener(ib.onClick,hud.ToggleInventory);
-        var sb=Button(hud.transform,"STATS",.89f,.25f,.972f,.76f,14);UnityEventTools.AddPersistentListener(sb.onClick,hud.ToggleStats);
+        hud.runText=Text(hud.transform,"BLACK CUBE  /  FOREST 1",22,.0605f,.49f,.45f,.91f);
+        hud.playerHealthBar=HealthBar(hud.transform,"Wanderer Health",.184f,.326f,.339f,.398f);
+        hud.enemyHealthBar=HealthBar(hud.transform,"Enemy Health",.446f,.326f,.601f,.398f);
+        hud.playerText=Text(hud.transform,"WANDERER",15,.184f,.08f,.339f,.31f);
+        hud.enemyText=Text(hud.transform,"GHOUL",15,.446f,.08f,.601f,.31f);
+        Button(hud.transform,"ENEMY",.68f,.25f,.755f,.76f,11);
+        var ib=Button(hud.transform,"INVENTORY",.76f,.25f,.835f,.76f,11);UnityEventTools.AddPersistentListener(ib.onClick,hud.ToggleInventory);
+        var sb=Button(hud.transform,"STATS",.84f,.25f,.905f,.76f,11);UnityEventTools.AddPersistentListener(sb.onClick,hud.ToggleStats);
+        Button(hud.transform,"PAUSE",.915f,.53f,.985f,.82f,11);
+        Button(hud.transform,"PLAY",.915f,.16f,.985f,.45f,11);
         hud.inventoryPanel=inventory;
         // Keep the existing stats view and its data bindings, inside a readable panel.
         Place(hud.statsPanel,new Vector2(1,.08f),new Vector2(1,.85f),new Vector2(-540,0),new Vector2(-24,0));
@@ -114,6 +122,8 @@ public static class PaperBattleUIBuilder
     static GameObject Box(Transform p,string n,float x,float y,float xx,float yy,Color c)
     {var g=new GameObject(n,typeof(RectTransform),typeof(Image));g.transform.SetParent(p,false);Place(g,new Vector2(x,y),new Vector2(xx,yy),Vector2.zero,Vector2.zero);g.GetComponent<Image>().color=c;return g;}
     static void Edge(Transform p){var g=Box(p,"Signal line",0,1,1,1,Red);Place(g,new Vector2(0,1),Vector2.one,new Vector2(0,-2),Vector2.zero);g.GetComponent<Image>().raycastTarget=false;}
+    static CombatHealthBar HealthBar(Transform p,string name,float x,float y,float xx,float yy)
+    {var g=new GameObject(name,typeof(RectTransform),typeof(CombatHealthBar));g.transform.SetParent(p,false);Place(g,new Vector2(x,y),new Vector2(xx,yy),Vector2.zero,Vector2.zero);var bar=g.GetComponent<CombatHealthBar>();bar.color=new Color(1f,.35f,.035f);bar.raycastTarget=false;return bar;}
     static TMP_Text Text(Transform p,string value,int size,float x,float y,float xx,float yy,Color? tint=null)
     {var g=new GameObject(value,typeof(RectTransform),typeof(TextMeshProUGUI));g.transform.SetParent(p,false);Place(g,new Vector2(x,y),new Vector2(xx,yy),Vector2.zero,Vector2.zero);var t=g.GetComponent<TextMeshProUGUI>();Style(t,size,tint??new Color(.91f,.92f,.93f));t.text=value;return t;}
     static void Style(TMP_Text t,int size,Color c){t.fontSize=size;t.color=c;t.alignment=TextAlignmentOptions.MidlineLeft;t.raycastTarget=false;t.textWrappingMode=TextWrappingModes.Normal;}

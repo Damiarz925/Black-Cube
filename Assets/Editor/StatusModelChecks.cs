@@ -1,3 +1,5 @@
+// Developer map: Editor checks for ailment strength, durations and status model invariants.
+// See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using System.Linq;
 using UnityEditor;
 using UnityEngine;

@@ -1,3 +1,5 @@
+// Developer map: Displays the killer and pauses via Time.timeScale; restart delegates to GameManager. Hide/menu/quit restore time scale so later scenes do not inherit a paused clock.
+// See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;

@@ -1,3 +1,5 @@
+// Developer map: Legacy 3D placement planner using theme prefab lists and world-space anchors. It builds data, not GameObjects; ZoneManager applies plans, and the paper scene disables this path.
+// See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using UnityEngine;
 using System.Collections.Generic;
 

@@ -1,3 +1,5 @@
+// Developer map: Asset-writing builder for TMP damage-number materials and prefab wiring; also exposes a Play preview.
+// See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using TMPro;
 using UnityEditor;
 using UnityEditor.SceneManagement;

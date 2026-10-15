@@ -1,3 +1,5 @@
+// Developer map: Small serialized TMP label binding for a stats section heading; PlayerStatsPanelUI creates and manages these views.
+// See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using TMPro;
 using UnityEngine;
 

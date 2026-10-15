@@ -1,3 +1,5 @@
+// Developer map: Transfers Gear between inventory and one slot per GearType, replacing source-owned global modifiers. Batches StatsChanged, then emits EquipmentChanged; weapon swaps also notify PlayerController.
+// See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using UnityEngine;
 using System.Collections.Generic;
 
@@ -29,7 +31,7 @@ public class EquipmentManager : MonoBehaviour
     public void Equip(Gear gear)
     {
         //If the passed gear item is null, exit the function
-        if (gear == null) return;          
+        if (gear == null || gear.IsScrap || gear.Dismantled) return;
         if (GetEquipped(gear.ItemType) == gear) return;
 
         EnsurePlayerReferences();

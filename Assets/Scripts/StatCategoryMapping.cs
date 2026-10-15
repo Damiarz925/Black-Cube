@@ -1,9 +1,11 @@
+// Developer map: Maps stat enum members to display sections and labels. Explicit cases depend on names, not enum ordering; newly added stats need an intentional display category.
+// See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 public static class StatCategoryMapping
 {
     public static StatCategory GetCategory(StatTypes t)
     {
-        // This mapping is based on how your StatTypes enum is grouped.
-        // If you re-order your enum later, revisit these cases.
+        // Explicit enum-member mapping. Add cases when extending the stat catalog;
+        // preserve serialized enum numeric values even if display groups change.
 
         switch (t)
         {

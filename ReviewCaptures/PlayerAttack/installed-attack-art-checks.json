@@ -1,0 +1,141 @@
+{
+  "frames": 8,
+  "canvas": [
+    640,
+    640
+  ],
+  "ppu": 150,
+  "preview_cycle_seconds": 1,
+  "impact_frame": 4,
+  "weapon_separation": "Blue blade isolated as eight overlay cels; generic gold grip remains in glove art. Future complete weapon swaps need a matching grip/hand treatment.",
+  "records": [
+    {
+      "frame": 1,
+      "crop": [
+        23,
+        65,
+        389,
+        440
+      ],
+      "foot_center": 192,
+      "ground": 439,
+      "uniform_scale": 1.4293628808864265,
+      "offset": [
+        78,
+        77
+      ]
+    },
+    {
+      "frame": 2,
+      "crop": [
+        395,
+        65,
+        766,
+        443
+      ],
+      "foot_center": 565,
+      "ground": 442,
+      "uniform_scale": 1.4293628808864265,
+      "offset": [
+        77,
+        73
+      ]
+    },
+    {
+      "frame": 3,
+      "crop": [
+        772,
+        65,
+        1142,
+        441
+      ],
+      "foot_center": 934,
+      "ground": 440,
+      "uniform_scale": 1.4293628808864265,
+      "offset": [
+        88,
+        76
+      ]
+    },
+    {
+      "frame": 4,
+      "crop": [
+        1148,
+        65,
+        1509,
+        441
+      ],
+      "foot_center": 1332,
+      "ground": 440,
+      "uniform_scale": 1.4293628808864265,
+      "offset": [
+        57,
+        76
+      ]
+    },
+    {
+      "frame": 5,
+      "crop": [
+        23,
+        510,
+        389,
+        862
+      ],
+      "foot_center": 161,
+      "ground": 861,
+      "uniform_scale": 1.4293628808864265,
+      "offset": [
+        123,
+        110
+      ]
+    },
+    {
+      "frame": 6,
+      "crop": [
+        395,
+        510,
+        766,
+        863
+      ],
+      "foot_center": 578,
+      "ground": 862,
+      "uniform_scale": 1.4293628808864265,
+      "offset": [
+        58,
+        109
+      ]
+    },
+    {
+      "frame": 7,
+      "crop": [
+        772,
+        510,
+        1142,
+        871
+      ],
+      "foot_center": 926,
+      "ground": 870,
+      "uniform_scale": 1.4293628808864265,
+      "offset": [
+        100,
+        97
+      ]
+    },
+    {
+      "frame": 8,
+      "crop": [
+        1148,
+        510,
+        1509,
+        870
+      ],
+      "foot_center": 1302,
+      "ground": 869,
+      "uniform_scale": 1.4293628808864265,
+      "offset": [
+        100,
+        99
+      ]
+    }
+  ]
+}

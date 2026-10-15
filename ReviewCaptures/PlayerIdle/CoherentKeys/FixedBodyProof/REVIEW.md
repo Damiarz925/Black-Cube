@@ -1,0 +1,9 @@
+# Bounded fixed-body proof: partial technique success, motion quality failed
+
+The proof uses the lowered key's invariant body artwork and nine independently drawn arm cels (two endpoints plus seven intermediates). Hand-marked masks cut the arm pixels and composite them over the already drawn exposed coat/shirt. No pose deformation, morphing, dissolving, or duplicate holds were used. Nothing was installed in Assets.
+
+`checks.json` verifies nine distinct drawings and exact pixel equality outside the moving-arm region, including face, hair, opposite arm, torso beyond the occlusion area, trousers and boots. This removes the earlier scale/identity wobble. `proof-game-scale.png`, `proof-arm-detail.png` and `proof-transition.gif` show the bounded result. The GIF reset is a diagnostic reset, not a proposed animation seam.
+
+The proof does not pass motion review: drawing 3 to 4 changes elbow/hand position too much, later drawings nearly hold the same position, and the final key's hand is farther outward. Mask cleanup cannot supply missing anatomical poses. One targeted imagegen correction was attempted (`arm-correction-rejected.png`); it instead jumped to the lowered pose at drawing 4 and kept the later poses nearly identical. It was not used in the proof or installed.
+
+The practical limitation is the supply of coherent, precisely spaced hand-drawn arm cels, not body registration. Filling this gap by rotating/warping the existing arm or duplicating it would violate the requested method. Producing the original detailed style with reliable intermediate anatomy requires frame-by-frame drawing/paint cleanup that this tool workflow has not achieved. A dedicated cel artist can use this body plate, reference keys and arm masks to finish the actual drawings. Alternatively a simpler animation style could be scoped separately. The requested finished 32-frame idle remains unachieved.

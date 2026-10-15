@@ -1,0 +1,16 @@
+{
+  "status": "PASS",
+  "transparent_pngs": 18,
+  "attack_frames_per_enemy": 8,
+  "normal": "Goblin2D",
+  "boss": "Hobgoblin2D",
+  "normal_hp": 250,
+  "boss_hp": 500,
+  "gameplay_prefab_blocks_unchanged": true,
+  "normal_stages": [
+    1,
+    9
+  ],
+  "boss_stage": 10,
+  "unity_runtime_tested": false
+}

@@ -1,3 +1,5 @@
+// Developer map: Creates styled screen-space numbers from world-space targets; popup instances snapshot positions so target destruction does not move them. DamageReceiver has already applied life loss.
+// See Docs/DEVELOPER_HANDOFF.md for system flow and validation.
 using TMPro;
 using UnityEngine;
 
